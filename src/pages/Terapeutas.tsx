@@ -1,34 +1,10 @@
 import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import { addDays } from "date-fns";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import TherapistCard from "@/components/terapeutas/TherapistCard";
-
-const clubesSerieA = [
-  { id: 1, name: "Flamengo", color: "#E32636" },
-  { id: 2, name: "Palmeiras", color: "#006437" },
-  { id: 3, name: "Corinthians", color: "#000000" },
-  { id: 4, name: "São Paulo", color: "#FF0000" },
-  { id: 5, name: "Fluminense", color: "#7B2D42" },
-  { id: 6, name: "Botafogo", color: "#000000" },
-  { id: 7, name: "Vasco", color: "#000000" },
-  { id: 8, name: "Atlético-MG", color: "#000000" },
-  { id: 9, name: "Cruzeiro", color: "#003DA5" },
-  { id: 10, name: "Internacional", color: "#E30613" },
-  { id: 11, name: "Grêmio", color: "#0A5EB6" },
-  { id: 12, name: "Santos", color: "#000000" },
-];
-
-const clubesSerieB = [
-  { id: 13, name: "Sport", color: "#E30613" },
-  { id: 14, name: "Ceará", color: "#000000" },
-  { id: 15, name: "Fortaleza", color: "#004A99" },
-  { id: 16, name: "Bahia", color: "#004A99" },
-  { id: 17, name: "Vitória", color: "#E30613" },
-  { id: 18, name: "Guarani", color: "#006437" },
-];
+import { brazilianClubs, getClubsByLeague, BrazilianClub } from "@/data/brazilianClubs";
+import { addDays } from "date-fns";
 
 const generateAvailableSlots = () => {
   const slots = [];
@@ -58,155 +34,122 @@ const terapeutasDemo = [
   {
     id: 1,
     name: "Dra. Ana Paula Silva",
-    crp: "CRP 12345",
-    degree: "Mestre em Psicologia",
+    crp: "CRP 06/12345",
+    degree: "Mestre em Psicologia Clínica - USP",
     experience: 8,
     location: "São Paulo, SP",
-    specialties: ["Ansiedade", "Terapia Cognitiva"],
+    specialties: ["Ansiedade", "Terapia Cognitiva", "Saúde Mental no Esporte"],
     verified: true,
     availableSlots: generateAvailableSlots(),
   },
   {
     id: 2,
     name: "Dr. Carlos Eduardo Santos",
-    crp: "CRP 67890",
+    crp: "CRP 05/67890",
     degree: "Especialista em Psicologia do Esporte",
     experience: 12,
     location: "Rio de Janeiro, RJ",
-    specialties: ["Psicologia Esportiva", "Estresse"],
+    specialties: ["Psicologia Esportiva", "Estresse", "Performance"],
     verified: true,
     availableSlots: generateAvailableSlots(),
   },
   {
     id: 3,
     name: "Dra. Mariana Costa",
-    crp: "CRP 11223",
-    degree: "Doutora em Neurociências",
+    crp: "CRP 04/11223",
+    degree: "Doutora em Neuropsicologia - UFMG",
     experience: 15,
     location: "Belo Horizonte, MG",
-    specialties: ["Depressão", "Traumas"],
+    specialties: ["Depressão", "Traumas", "Neuropsicologia"],
     verified: true,
     availableSlots: generateAvailableSlots(),
   },
   {
     id: 4,
     name: "Dr. Fernando Lima",
-    crp: "CRP 44556",
+    crp: "CRP 07/44556",
     degree: "Especialista em Terapia Familiar",
     experience: 10,
     location: "Porto Alegre, RS",
-    specialties: ["Família", "Relacionamentos"],
+    specialties: ["Família", "Relacionamentos", "Casais"],
     verified: false,
     availableSlots: generateAvailableSlots(),
   },
 ];
 
-type Step = "league" | "club" | "therapists";
+type Step = "club" | "therapists";
 
 const Terapeutas = () => {
-  const [step, setStep] = useState<Step>("league");
-  const [selectedLeague, setSelectedLeague] = useState<"A" | "B" | null>(null);
-  const [selectedClub, setSelectedClub] = useState<{
-    id: number;
-    name: string;
-    color: string;
-  } | null>(null);
+  const [step, setStep] = useState<Step>("club");
+  const [selectedClub, setSelectedClub] = useState<BrazilianClub | null>(null);
 
-  const handleLeagueSelect = (league: "A" | "B") => {
-    setSelectedLeague(league);
-    setStep("club");
-  };
+  const clubs = getClubsByLeague("serie_a");
 
-  const handleClubSelect = (club: { id: number; name: string; color: string }) => {
+  const handleClubSelect = (club: BrazilianClub) => {
     setSelectedClub(club);
     setStep("therapists");
   };
 
   const handleBack = () => {
-    if (step === "therapists") {
-      setStep("club");
-      setSelectedClub(null);
-    } else if (step === "club") {
-      setStep("league");
-      setSelectedLeague(null);
-    }
+    setStep("club");
+    setSelectedClub(null);
   };
 
-  const clubs = selectedLeague === "A" ? clubesSerieA : clubesSerieB;
-
   return (
-    <div className="min-h-screen bg-background">
+    <div 
+      className="min-h-screen transition-colors duration-500"
+      style={{ 
+        backgroundColor: selectedClub 
+          ? `color-mix(in srgb, ${selectedClub.primaryColor} 5%, hsl(var(--background)))` 
+          : "hsl(var(--background))" 
+      }}
+    >
       <Header />
 
       <main className="pt-20 pb-24 px-4">
-        {step !== "league" && (
+        {step === "therapists" && (
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 text-primary mb-6 hover:underline"
+            className="flex items-center gap-2 mb-6 hover:underline transition-colors"
+            style={{ color: selectedClub?.primaryColor || "hsl(var(--primary))" }}
           >
             <ChevronLeft className="w-5 h-5" />
             Voltar
           </button>
         )}
 
-        {step === "league" && (
-          <div className="animate-fade-in">
-            <h1 className="font-display text-4xl text-primary mb-2">
-              Túnel de Acesso
-            </h1>
-            <p className="text-muted-foreground mb-8">
-              Escolha a divisão do seu time
-            </p>
-
-            <div className="space-y-4">
-              <button
-                onClick={() => handleLeagueSelect("A")}
-                className="w-full bg-card border border-border rounded-2xl p-6 text-left hover:border-primary transition-colors group"
-              >
-                <h2 className="font-display text-3xl text-card-foreground group-hover:text-primary transition-colors">
-                  Série A
-                </h2>
-                <p className="text-muted-foreground">
-                  Primeira divisão do futebol brasileiro
-                </p>
-              </button>
-
-              <button
-                onClick={() => handleLeagueSelect("B")}
-                className="w-full bg-card border border-border rounded-2xl p-6 text-left hover:border-primary transition-colors group"
-              >
-                <h2 className="font-display text-3xl text-card-foreground group-hover:text-primary transition-colors">
-                  Série B
-                </h2>
-                <p className="text-muted-foreground">
-                  Segunda divisão do futebol brasileiro
-                </p>
-              </button>
-            </div>
-          </div>
-        )}
-
         {step === "club" && (
           <div className="animate-fade-in">
-            <h1 className="font-display text-4xl text-primary mb-2">
-              Série {selectedLeague}
-            </h1>
-            <p className="text-muted-foreground mb-8">Escolha seu time</p>
+            <div className="text-center mb-8">
+              <h1 className="font-display text-4xl text-primary mb-2">
+                Túnel de Acesso
+              </h1>
+              <p className="text-muted-foreground">
+                Selecione seu time do coração
+              </p>
+            </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
               {clubs.map((club) => (
                 <button
                   key={club.id}
                   onClick={() => handleClubSelect(club)}
-                  className="bg-card border border-border rounded-xl p-4 text-center hover:border-primary transition-colors group"
+                  className="bg-card border-2 border-border rounded-xl p-3 text-center hover:scale-105 transition-all group"
+                  style={{
+                    "--hover-color": club.primaryColor,
+                  } as React.CSSProperties}
                 >
-                  <div
-                    className="w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center text-2xl"
-                    style={{ backgroundColor: club.color + "20" }}
-                  >
-                    ⚽
+                  <div className="w-14 h-14 mx-auto mb-2 rounded-full bg-white p-1 shadow-md group-hover:shadow-lg transition-shadow">
+                    <img
+                      src={club.badgeUrl}
+                      alt={club.name}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${club.shortName}`;
+                      }}
+                    />
                   </div>
-                  <p className="text-card-foreground font-medium text-sm">
+                  <p className="text-card-foreground font-medium text-xs group-hover:text-primary transition-colors">
                     {club.name}
                   </p>
                 </button>
@@ -217,18 +160,50 @@ const Terapeutas = () => {
 
         {step === "therapists" && selectedClub && (
           <div className="animate-fade-in">
-            <h1 className="font-display text-4xl text-primary mb-2">
-              Terapeutas
-            </h1>
-            <p className="text-muted-foreground mb-8">
-              Especialistas para torcedores do {selectedClub.name}
-            </p>
+            {/* Club Header */}
+            <div 
+              className="rounded-2xl p-6 mb-6 flex items-center gap-4"
+              style={{ 
+                background: `linear-gradient(135deg, ${selectedClub.primaryColor}20 0%, ${selectedClub.secondaryColor}10 100%)`,
+                borderLeft: `4px solid ${selectedClub.primaryColor}`
+              }}
+            >
+              <div className="w-16 h-16 rounded-full bg-white p-2 shadow-lg">
+                <img
+                  src={selectedClub.badgeUrl}
+                  alt={selectedClub.name}
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${selectedClub.shortName}`;
+                  }}
+                />
+              </div>
+              <div>
+                <h1 
+                  className="font-display text-3xl"
+                  style={{ color: selectedClub.primaryColor }}
+                >
+                  {selectedClub.name}
+                </h1>
+                <p className="text-muted-foreground">
+                  Especialistas para a nossa torcida
+                </p>
+              </div>
+            </div>
+
+            <h2 
+              className="font-display text-xl mb-4"
+              style={{ color: selectedClub.primaryColor }}
+            >
+              Terapeutas Disponíveis
+            </h2>
 
             {terapeutasDemo.map((therapist) => (
               <TherapistCard
                 key={therapist.id}
                 therapist={therapist}
-                clubColor={selectedClub.color}
+                clubColor={selectedClub.primaryColor}
+                clubSecondaryColor={selectedClub.secondaryColor}
               />
             ))}
           </div>
