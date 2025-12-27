@@ -16,6 +16,8 @@ import Perfil from "./pages/Perfil";
 import Auth from "./pages/Auth";
 import ProfessionalDashboard from "./pages/ProfessionalDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminAccess from "./pages/AdminAccess";
+import DeveloperDashboard from "./pages/DeveloperDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +42,8 @@ const App = () => (
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/profissional" element={<ProfessionalDashboard />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/desenvolvedor" element={<DeveloperDashboard />} />
+            <Route path="/admin-access" element={<AdminAccess />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
