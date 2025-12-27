@@ -7,7 +7,7 @@ import { Briefcase, User, ChevronDown } from "lucide-react";
 import { allBrazilianClubs, getLeagueLabel } from "@/data/allBrazilianClubs";
 import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { supabase } from "@/integrations/supabase/client";
-import { useAppLogo } from "@/hooks/useAppLogo";
+import logoAuth from "@/assets/logo-auth.png";
 
 const emailSchema = z.string().email("Email inválido");
 const passwordSchema = z.string().min(6, "Senha deve ter no mínimo 6 caracteres");
@@ -46,7 +46,6 @@ const Auth = () => {
 
   const { signIn, signUp, user, hasRole } = useAuth();
   const navigate = useNavigate();
-  const { data: logo } = useAppLogo();
 
   // Get cities based on selected state
   const availableCities = signUpData.state ? getCitiesByState(signUpData.state) : [];
@@ -215,13 +214,7 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          {logo ? (
-            <img src={logo} alt="Logo" className="h-16 w-auto mx-auto mb-4" />
-          ) : (
-            <h1 className="font-display text-4xl text-primary mb-2">
-              fanática<span className="text-secondary">MENTE</span>
-            </h1>
-          )}
+          <img src={logoAuth} alt="Logo" className="h-20 w-auto mx-auto mb-4" />
           <p className="text-muted-foreground">
             {authMode === "professional" 
               ? "Área do Profissional Parceiro" 
