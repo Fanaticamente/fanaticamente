@@ -9,7 +9,7 @@ const slides = [
     subtitle: "Psicólogos especializados em torcedores",
     cta: "Agendar Consulta",
     ctaLink: "/terapeutas",
-    gradient: "from-secondary/90 to-secondary/60",
+    gradient: "from-secondary to-secondary/70",
     emoji: "🧠",
   },
   {
@@ -18,7 +18,7 @@ const slides = [
     subtitle: "Cursos para desenvolver inteligência emocional",
     cta: "Explorar Cursos",
     ctaLink: "/cursos",
-    gradient: "from-therapy/90 to-therapy/60",
+    gradient: "from-therapy to-therapy/70",
     emoji: "📚",
   },
   {
@@ -27,7 +27,7 @@ const slides = [
     subtitle: "Treine sua habilidade de escutar e comunicar",
     cta: "Jogar Agora",
     ctaLink: "/quiz",
-    gradient: "from-quiz/90 to-quiz/60",
+    gradient: "from-quiz to-quiz/70",
     emoji: "💬",
   },
 ];
@@ -44,7 +44,7 @@ const HeroCarousel = () => {
   }, []);
 
   return (
-    <div className="relative h-56 mx-4 my-4 overflow-hidden rounded-2xl">
+    <div className="relative h-48 mx-4 my-4 overflow-hidden rounded-2xl">
       {slides.map((slide, index) => (
         <div
           key={slide.id}
@@ -57,8 +57,8 @@ const HeroCarousel = () => {
           >
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-5xl mb-2 block">{slide.emoji}</span>
-                <h2 className="font-display text-3xl text-card-foreground mb-1">
+                <span className="text-4xl mb-2 block">{slide.emoji}</span>
+                <h2 className="font-display text-2xl md:text-3xl text-card-foreground mb-1">
                   {slide.title}
                 </h2>
                 <p className="text-card-foreground/80 text-sm">
@@ -84,10 +84,10 @@ const HeroCarousel = () => {
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-2 h-2 rounded-full transition-all ${
+            className={`h-2 rounded-full transition-all ${
               index === currentSlide
                 ? "bg-primary w-6"
-                : "bg-card-foreground/30"
+                : "bg-card-foreground/30 w-2"
             }`}
           />
         ))}
