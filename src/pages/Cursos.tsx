@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Play, Star, Clock, ChevronRight, Search } from "lucide-react";
+import { Play, Star, Clock, ChevronRight, Search, Plus, ThumbsUp, Share2, Download, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
@@ -114,95 +114,117 @@ const courses: Course[] = [
   },
 ];
 
-const categories = ["Todos", "Ansiedade", "Resiliência", "Relacionamentos", "Autoconhecimento", "Bem-estar", "Finanças"];
+const categories = ["Séries", "Filmes", "Categorias"];
 
 const Cursos = () => {
-  const [selectedCategory, setSelectedCategory] = useState("Todos");
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredCourses = courses.filter((course) => {
-    const matchesCategory = selectedCategory === "Todos" || course.category === selectedCategory;
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const continueWatching = courses.filter((c) => c.progress);
   const topTen = courses.filter((c) => c.tag === "Top 10");
+  const newEpisodes = courses.filter((c) => c.tag === "Novos episódios" || c.tag === "Nova temporada");
+  const featuredCourse = courses[0];
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-20 pb-24">
-        {/* Hero */}
-        <div className="px-4 mb-6">
-          <h1 className="font-display text-4xl text-primary mb-2">
-            Fanati<span className="text-secondary">Class</span>
-          </h1>
-          <p className="text-muted-foreground">
-            Cursos para desenvolver sua inteligência emocional
-          </p>
+      <main className="pt-16 pb-24">
+        {/* Category Pills */}
+        <div className="px-4 py-3 flex gap-2">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
+              className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors border ${
+                selectedCategory === cat
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-transparent border-border text-foreground hover:bg-muted"
+              }`}
+            >
+              {cat}
+              {cat === "Categorias" && <ChevronDown className="w-4 h-4 inline ml-1" />}
+            </button>
+          ))}
         </div>
 
-        {/* Search */}
+        {/* Featured Hero Card */}
         <div className="px-4 mb-6">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Buscar cursos..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-xl text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
-            />
+          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-b from-muted to-card aspect-[4/5] max-h-[500px]">
+            {/* Background with emoji */}
+            <div className="absolute inset-0 flex items-center justify-center text-[180px] opacity-30">
+              {featuredCourse.thumbnail}
+            </div>
+            
+            {/* Content overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+            
+            {/* Featured content */}
+            <div className="absolute bottom-0 left-0 right-0 p-6">
+              <h2 className="font-display text-3xl text-foreground mb-2 leading-tight">
+                {featuredCourse.title}
+              </h2>
+              <p className="text-muted-foreground text-sm mb-4">
+                {featuredCourse.description}
+              </p>
+              
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <Link
+                  to={`/curso/${featuredCourse.id}`}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-6 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 transition-colors"
+                >
+                  <Play className="w-5 h-5 fill-current" />
+                  Assistir
+                </Link>
+                <button className="flex items-center justify-center gap-2 py-3 px-6 bg-muted/80 text-foreground rounded-lg font-medium hover:bg-muted transition-colors">
+                  <Plus className="w-5 h-5" />
+                  Minha lista
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Categories */}
-        <div className="px-4 mb-6">
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
-                  selectedCategory === cat
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card border border-border text-card-foreground hover:border-primary"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Continue Watching */}
-        {continueWatching.length > 0 && selectedCategory === "Todos" && (
-          <div className="mb-8">
-            <h2 className="font-display text-2xl text-card-foreground px-4 mb-4">
-              Continue Assistindo
+        {/* New Episodes Section */}
+        {newEpisodes.length > 0 && (
+          <div className="mb-6">
+            <h2 className="font-display text-xl text-foreground px-4 mb-3">
+              Chega de tédio
             </h2>
-            <div className="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide">
-              {continueWatching.map((course) => (
+            <div className="flex gap-3 overflow-x-auto px-4 pb-4 scrollbar-hide">
+              {newEpisodes.map((course) => (
                 <Link
                   key={course.id}
                   to={`/curso/${course.id}`}
-                  className="flex-shrink-0 w-64 bg-card border border-border rounded-xl overflow-hidden group hover:border-primary transition-colors"
+                  className="flex-shrink-0 w-32 group"
                 >
-                  <div className="h-32 bg-muted flex items-center justify-center text-5xl">
-                    {course.thumbnail}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-card-foreground font-medium text-sm line-clamp-2 mb-2">
-                      {course.title}
-                    </h3>
-                    <div className="h-1 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary"
-                        style={{ width: `${course.progress}%` }}
-                      />
+                  <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-2">
+                    <div className="absolute inset-0 flex items-center justify-center text-5xl">
+                      {course.thumbnail}
                     </div>
+                    {course.tag && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-destructive text-destructive-foreground text-xs font-bold py-1 px-2 text-center">
+                        {course.tag}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ))}
+              {courses.slice(0, 4).map((course) => (
+                <Link
+                  key={`extra-${course.id}`}
+                  to={`/curso/${course.id}`}
+                  className="flex-shrink-0 w-32 group"
+                >
+                  <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-2">
+                    <div className="absolute inset-0 flex items-center justify-center text-5xl">
+                      {course.thumbnail}
+                    </div>
+                    {course.isPremium && (
+                      <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs font-bold py-0.5 px-2 rounded">
+                        TOP 10
+                      </div>
+                    )}
                   </div>
                 </Link>
               ))}
@@ -210,24 +232,45 @@ const Cursos = () => {
           </div>
         )}
 
-        {/* Top 10 */}
-        {topTen.length > 0 && selectedCategory === "Todos" && (
-          <div className="mb-8">
-            <h2 className="font-display text-2xl text-card-foreground px-4 mb-4">
-              Top 10 da Semana
+        {/* Top 10 Section */}
+        {topTen.length > 0 && (
+          <div className="mb-6">
+            <h2 className="font-display text-xl text-foreground px-4 mb-3">
+              Brasil: top 10 em séries hoje
             </h2>
-            <div className="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto px-4 pb-4 scrollbar-hide">
               {topTen.map((course, index) => (
                 <Link
                   key={course.id}
                   to={`/curso/${course.id}`}
-                  className="flex-shrink-0 flex items-center gap-2 group"
+                  className="flex-shrink-0 flex items-end"
                 >
-                  <span className="font-display text-6xl text-primary/30">
+                  <span className="font-display text-[100px] leading-none text-foreground/20 -mr-4 relative z-0">
                     {index + 1}
                   </span>
-                  <div className="w-28 h-40 bg-card border border-border rounded-xl overflow-hidden group-hover:border-primary transition-colors">
-                    <div className="h-full bg-muted flex items-center justify-center text-4xl">
+                  <div className="relative w-28 aspect-[2/3] rounded-lg overflow-hidden bg-muted z-10">
+                    <div className="absolute inset-0 flex items-center justify-center text-4xl">
+                      {course.thumbnail}
+                    </div>
+                    {course.tag && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-destructive text-destructive-foreground text-xs font-bold py-1 px-2 text-center">
+                        {course.tag}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ))}
+              {courses.slice(2, 5).map((course, index) => (
+                <Link
+                  key={`top-extra-${course.id}`}
+                  to={`/curso/${course.id}`}
+                  className="flex-shrink-0 flex items-end"
+                >
+                  <span className="font-display text-[100px] leading-none text-foreground/20 -mr-4 relative z-0">
+                    {index + 3}
+                  </span>
+                  <div className="relative w-28 aspect-[2/3] rounded-lg overflow-hidden bg-muted z-10">
+                    <div className="absolute inset-0 flex items-center justify-center text-4xl">
                       {course.thumbnail}
                     </div>
                   </div>
@@ -237,49 +280,112 @@ const Cursos = () => {
           </div>
         )}
 
-        {/* All Courses */}
-        <div className="px-4">
-          <h2 className="font-display text-2xl text-card-foreground mb-4">
-            {selectedCategory === "Todos" ? "Todos os Cursos" : selectedCategory}
-          </h2>
+        {/* Continue Watching */}
+        {continueWatching.length > 0 && (
+          <div className="mb-6">
+            <h2 className="font-display text-xl text-foreground px-4 mb-3">
+              Continuar assistindo
+            </h2>
+            <div className="flex gap-3 overflow-x-auto px-4 pb-4 scrollbar-hide">
+              {continueWatching.map((course) => (
+                <div key={course.id} className="flex-shrink-0 w-36">
+                  <Link to={`/curso/${course.id}`} className="block">
+                    <div className="relative aspect-video rounded-lg overflow-hidden bg-muted mb-1">
+                      <div className="absolute inset-0 flex items-center justify-center text-4xl">
+                        {course.thumbnail}
+                      </div>
+                      {/* Play overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full border-2 border-foreground flex items-center justify-center bg-background/50">
+                          <Play className="w-4 h-4 text-foreground fill-current ml-0.5" />
+                        </div>
+                      </div>
+                      {/* Progress bar */}
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted-foreground/30">
+                        <div 
+                          className="h-full bg-destructive" 
+                          style={{ width: `${course.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  </Link>
+                  {/* Action icons */}
+                  <div className="flex justify-between mt-2">
+                    <button className="p-2 hover:bg-muted rounded-full transition-colors">
+                      <span className="w-5 h-5 rounded-full border border-foreground flex items-center justify-center text-xs">i</span>
+                    </button>
+                    <button className="p-2 hover:bg-muted rounded-full transition-colors">
+                      <span className="text-foreground">⋮</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {courses.slice(1, 4).map((course) => (
+                <div key={`cont-${course.id}`} className="flex-shrink-0 w-36">
+                  <Link to={`/curso/${course.id}`} className="block">
+                    <div className="relative aspect-video rounded-lg overflow-hidden bg-muted mb-1">
+                      <div className="absolute inset-0 flex items-center justify-center text-4xl">
+                        {course.thumbnail}
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full border-2 border-foreground flex items-center justify-center bg-background/50">
+                          <Play className="w-4 h-4 text-foreground fill-current ml-0.5" />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                  <div className="flex justify-between mt-2">
+                    <button className="p-2 hover:bg-muted rounded-full transition-colors">
+                      <span className="w-5 h-5 rounded-full border border-foreground flex items-center justify-center text-xs">i</span>
+                    </button>
+                    <button className="p-2 hover:bg-muted rounded-full transition-colors">
+                      <span className="text-foreground">⋮</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-          <div className="space-y-4">
-            {filteredCourses.map((course) => (
+        {/* All Courses by Category */}
+        <div className="mb-6">
+          <h2 className="font-display text-xl text-foreground px-4 mb-3">
+            Bem-estar
+          </h2>
+          <div className="flex gap-3 overflow-x-auto px-4 pb-4 scrollbar-hide">
+            {courses.filter(c => c.category === "Bem-estar" || c.category === "Ansiedade").map((course) => (
               <Link
                 key={course.id}
                 to={`/curso/${course.id}`}
-                className="flex gap-4 bg-card border border-border rounded-xl p-4 hover:border-primary transition-colors group"
+                className="flex-shrink-0 w-32"
               >
-                <div className="w-20 h-20 rounded-xl bg-muted flex items-center justify-center text-3xl flex-shrink-0">
-                  {course.thumbnail}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <h3 className="text-card-foreground font-medium text-sm line-clamp-2">
-                      {course.title}
-                    </h3>
-                    {course.isPremium && (
-                      <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded flex-shrink-0">
-                        Premium
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-muted-foreground text-xs mb-2">
-                    {course.instructor}
-                  </p>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {course.duration}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Star className="w-3 h-3 text-primary" />
-                      {course.rating}
-                    </span>
-                    <span>{course.lessons} aulas</span>
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted">
+                  <div className="absolute inset-0 flex items-center justify-center text-5xl">
+                    {course.thumbnail}
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-primary self-center group-hover:translate-x-1 transition-transform" />
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <h2 className="font-display text-xl text-foreground px-4 mb-3">
+            Autoconhecimento
+          </h2>
+          <div className="flex gap-3 overflow-x-auto px-4 pb-4 scrollbar-hide">
+            {courses.filter(c => c.category === "Autoconhecimento" || c.category === "Resiliência").map((course) => (
+              <Link
+                key={course.id}
+                to={`/curso/${course.id}`}
+                className="flex-shrink-0 w-32"
+              >
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted">
+                  <div className="absolute inset-0 flex items-center justify-center text-5xl">
+                    {course.thumbnail}
+                  </div>
+                </div>
               </Link>
             ))}
           </div>

@@ -1,9 +1,9 @@
-import { Home, BookOpen, Newspaper, User } from "lucide-react";
+import { Home, Thermometer, Newspaper, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const navItems = [
   { icon: Home, label: "Início", path: "/" },
-  { icon: BookOpen, label: "Diário", path: "/diario" },
+  { icon: Thermometer, label: "Termômetro", path: "/diario" },
   { icon: Newspaper, label: "Futebol", path: "/futebol" },
   { icon: User, label: "Perfil", path: "/perfil" },
 ];

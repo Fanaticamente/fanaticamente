@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, Calendar, TrendingUp } from "lucide-react";
+import { Thermometer, Calendar, TrendingUp } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 
@@ -49,10 +49,10 @@ const Diario = () => {
         {/* Header */}
         <div className="text-center mb-6">
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-therapy/20 flex items-center justify-center">
-            <Heart className="w-10 h-10 text-therapy" />
+            <Thermometer className="w-10 h-10 text-therapy" />
           </div>
           <h1 className="font-display text-4xl text-primary mb-2">
-            Diário Emocional
+            Termômetro Torcedor
           </h1>
           <p className="text-muted-foreground">
             Como você está se sentindo hoje?

@@ -182,34 +182,50 @@ const Quiz = () => {
             {/* Options */}
             <div className="space-y-3 mb-6">
               {question.options.map((option) => {
-                let bgClass = "bg-card border-border hover:border-primary";
-                if (showFeedback && selectedOption === option.id) {
-                  bgClass = option.isCorrect
-                    ? "bg-secondary/20 border-secondary"
-                    : "bg-destructive/20 border-destructive";
+                const isSelected = selectedOption === option.id;
+                const correctOption = question.options.find((o) => o.isCorrect);
+                
+                let borderClass = "border-border hover:border-primary";
+                let bgClass = "bg-card";
+                
+                if (showFeedback) {
+                  if (option.isCorrect) {
+                    // Always show correct answer in green when feedback is shown
+                    borderClass = "border-secondary border-2";
+                    bgClass = "bg-secondary/20";
+                  } else if (isSelected && !option.isCorrect) {
+                    // Show selected wrong answer in red
+                    borderClass = "border-destructive border-2";
+                    bgClass = "bg-destructive/20";
+                  }
                 }
 
                 return (
-                  <button
-                    key={option.id}
-                    onClick={() => handleOptionSelect(option.id)}
-                    disabled={showFeedback}
-                    className={`w-full text-left border rounded-xl p-4 transition-colors ${bgClass}`}
-                  >
-                    <span className="text-card-foreground">{option.text}</span>
-                  </button>
+                  <div key={option.id}>
+                    <button
+                      onClick={() => handleOptionSelect(option.id)}
+                      disabled={showFeedback}
+                      className={`w-full text-left border rounded-xl p-4 transition-colors ${bgClass} ${borderClass}`}
+                    >
+                      <span className="text-card-foreground">{option.text}</span>
+                    </button>
+                    
+                    {/* Feedback below the selected option */}
+                    {showFeedback && isSelected && (
+                      <div className={`mt-2 p-3 rounded-lg animate-fade-in ${
+                        option.isCorrect 
+                          ? "bg-secondary/10 border border-secondary/30" 
+                          : "bg-destructive/10 border border-destructive/30"
+                      }`}>
+                        <p className={`text-sm ${option.isCorrect ? "text-secondary" : "text-destructive"}`}>
+                          {option.feedback}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>
-
-            {/* Feedback */}
-            {showFeedback && selectedOption && (
-              <div className="bg-muted rounded-xl p-4 mb-6 animate-fade-in">
-                <p className="text-card-foreground text-sm">
-                  {question.options.find((o) => o.id === selectedOption)?.feedback}
-                </p>
-              </div>
-            )}
 
             {/* Next Button */}
             {showFeedback && (
