@@ -18,6 +18,7 @@ import ProfessionalDashboard from "./pages/ProfessionalDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminAccess from "./pages/AdminAccess";
 import DeveloperDashboard from "./pages/DeveloperDashboard";
+import SetupTestUsers from "./pages/SetupTestUsers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/desenvolvedor" element={<DeveloperDashboard />} />
             <Route path="/admin-access" element={<AdminAccess />} />
+            <Route path="/setup-test" element={<SetupTestUsers />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
