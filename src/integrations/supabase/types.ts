@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_content: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          type: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          type?: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          type?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      app_menus: {
+        Row: {
+          created_at: string
+          id: string
+          items: Json
+          menu_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          items?: Json
+          menu_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          items?: Json
+          menu_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           created_at: string
