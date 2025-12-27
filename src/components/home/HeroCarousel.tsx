@@ -2,33 +2,34 @@ import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import heroSlide1 from "@/assets/hero-slide-1.jpg";
+import heroSlide2 from "@/assets/hero-slide-2.jpg";
+import heroSlide3 from "@/assets/hero-slide-3.jpg";
+
 const slides = [
   {
     id: 1,
-    title: "Encontre seu Terapeuta",
-    subtitle: "Psicólogos especializados em torcedores",
-    cta: "Agendar Consulta",
+    title: "CUIDE DA MENTE",
+    subtitle: "Jogue com equilíbrio",
+    cta: "COMEÇAR AGORA",
     ctaLink: "/terapeutas",
-    gradient: "from-secondary/90 to-secondary/60",
-    emoji: "🧠",
+    image: heroSlide1,
   },
   {
     id: 2,
-    title: "FanatiClass",
-    subtitle: "Cursos para desenvolver inteligência emocional",
-    cta: "Explorar Cursos",
-    ctaLink: "/cursos",
-    gradient: "from-therapy/90 to-therapy/60",
-    emoji: "📚",
+    title: "ENCONTRE SEU TERAPEUTA",
+    subtitle: "Psicólogos especializados em torcedores",
+    cta: "AGENDAR CONSULTA",
+    ctaLink: "/terapeutas",
+    image: heroSlide2,
   },
   {
     id: 3,
-    title: "Resenha Fanática",
-    subtitle: "Treine sua habilidade de escutar e comunicar",
-    cta: "Jogar Agora",
+    title: "COMUNIDADE FANÁTICA",
+    subtitle: "Apoio emocional entre torcedores",
+    cta: "PARTICIPAR",
     ctaLink: "/quiz",
-    gradient: "from-quiz/90 to-quiz/60",
-    emoji: "💬",
+    image: heroSlide3,
   },
 ];
 
@@ -44,51 +45,57 @@ const HeroCarousel = () => {
   }, []);
 
   return (
-    <div className="relative h-56 mx-4 my-4 overflow-hidden rounded-2xl">
+    <div className="relative h-[70vh] min-h-[480px] max-h-[600px] w-full overflow-hidden">
       {slides.map((slide, index) => (
         <div
           key={slide.id}
-          className={`absolute inset-0 transition-opacity duration-500 ${
-            index === currentSlide ? "opacity-100" : "opacity-0"
+          className={`absolute inset-0 transition-opacity duration-700 ${
+            index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
         >
-          <div
-            className={`h-full bg-gradient-to-r ${slide.gradient} p-6 flex flex-col justify-between`}
-          >
-            <div className="flex items-start justify-between">
-              <div>
-                <span className="text-5xl mb-2 block">{slide.emoji}</span>
-                <h2 className="font-display text-3xl text-card-foreground mb-1">
-                  {slide.title}
-                </h2>
-                <p className="text-card-foreground/80 text-sm">
-                  {slide.subtitle}
-                </p>
-              </div>
-            </div>
+          {/* Background Image */}
+          <div className="absolute inset-0">
+            <img
+              src={slide.image}
+              alt={slide.title}
+              className="w-full h-full object-cover"
+            />
+            {/* Dark overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          </div>
+
+          {/* Content */}
+          <div className="relative h-full flex flex-col justify-end p-6 pb-16">
+            <h2 className="font-display text-4xl md:text-5xl text-foreground font-bold mb-2 tracking-tight">
+              {slide.title}
+            </h2>
+            <p className="text-foreground/80 text-lg mb-6">
+              {slide.subtitle}
+            </p>
 
             <Link
               to={slide.ctaLink}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wide w-fit hover:scale-105 transition-transform"
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-bold text-sm uppercase tracking-wide w-fit hover:scale-105 transition-transform shadow-lg"
             >
               {slide.cta}
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-5 h-5" />
             </Link>
           </div>
         </div>
       ))}
 
-      {/* Dots */}
-      <div className="absolute bottom-4 right-4 flex gap-2">
+      {/* Dots Indicator */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`w-2 h-2 rounded-full transition-all ${
+            className={`h-2 rounded-full transition-all duration-300 ${
               index === currentSlide
-                ? "bg-primary w-6"
-                : "bg-card-foreground/30"
+                ? "bg-primary w-8"
+                : "bg-foreground/30 w-2 hover:bg-foreground/50"
             }`}
+            aria-label={`Ir para slide ${index + 1}`}
           />
         ))}
       </div>
