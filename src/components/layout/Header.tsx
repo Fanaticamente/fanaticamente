@@ -22,7 +22,7 @@ const Header = () => {
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-              <Menu className="w-6 h-6 text-primary" />
+              <Menu className="w-6 h-6 text-foreground" />
             </button>
           </SheetTrigger>
           <SheetContent side="left" className="w-80 bg-background border-border p-0">
@@ -41,7 +41,7 @@ const Header = () => {
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-4 p-4 rounded-xl hover:bg-muted transition-colors group"
                 >
-                  <item.icon className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                  <item.icon className="w-5 h-5 text-foreground group-hover:scale-110 transition-transform" />
                   <span className="text-card-foreground font-medium">{item.label}</span>
                 </Link>
               ))}
@@ -54,7 +54,7 @@ const Header = () => {
         </Link>
 
         <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-          <Search className="w-6 h-6 text-primary" />
+          <Search className="w-6 h-6 text-foreground" />
         </button>
       </div>
     </header>

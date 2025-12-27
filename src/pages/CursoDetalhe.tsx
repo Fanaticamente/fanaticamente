@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Play, ChevronLeft, Star, Clock, Lock, Check } from "lucide-react";
+import { Play, ChevronLeft, Star, Clock, Lock, Check, Plus, ThumbsUp, Share2, Download, ChevronDown, X, Cast, Volume2 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 
 interface Episode {
@@ -11,6 +10,7 @@ interface Episode {
   duration: string;
   description: string;
   progress?: number;
+  timeRemaining?: string;
 }
 
 interface Course {
@@ -46,8 +46,8 @@ const courses: Course[] = [
     seasons: 1,
     description: "Aprenda técnicas práticas para controlar a ansiedade antes, durante e depois dos jogos do seu time. Este curso aborda desde respiração até técnicas cognitivas avançadas.",
     episodes: [
-      { id: 1, number: 1, title: "Capítulo um: Entendendo a ansiedade do torcedor", duration: "24m", description: "Introdução ao fenômeno da ansiedade relacionada ao futebol.", progress: 100 },
-      { id: 2, number: 2, title: "Capítulo dois: Técnicas de respiração", duration: "18m", description: "Aprenda técnicas de respiração para momentos de tensão.", progress: 75 },
+      { id: 1, number: 1, title: "Capítulo um: Entendendo a ansiedade do torcedor", duration: "24m", description: "Introdução ao fenômeno da ansiedade relacionada ao futebol.", progress: 60, timeRemaining: "24m" },
+      { id: 2, number: 2, title: "Capítulo dois: Técnicas de respiração", duration: "18m", description: "Aprenda técnicas de respiração para momentos de tensão.", progress: 0 },
       { id: 3, number: 3, title: "Capítulo três: Reestruturação cognitiva", duration: "22m", description: "Como mudar pensamentos negativos." },
       { id: 4, number: 4, title: "Capítulo quatro: Mindfulness no estádio", duration: "20m", description: "Práticas de atenção plena." },
       { id: 5, number: 5, title: "Capítulo cinco: Gerenciando expectativas", duration: "25m", description: "Como criar expectativas realistas." },
@@ -60,174 +60,226 @@ const courses: Course[] = [
 
 const CursoDetalhe = () => {
   const { id } = useParams();
-  const [activeTab, setActiveTab] = useState<"episodes" | "about">("episodes");
+  const [activeTab, setActiveTab] = useState<"episodes" | "collection" | "similar">("episodes");
 
   const course = courses.find((c) => c.id === Number(id)) || courses[0];
+  const currentEpisode = course.episodes.find(e => e.progress && e.progress < 100) || course.episodes[0];
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
-      <main className="pt-20 pb-24">
-        {/* Back Button */}
-        <div className="px-4 mb-4">
-          <Link
-            to="/cursos"
-            className="flex items-center gap-2 text-primary hover:underline"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            Voltar
+      {/* Video Player Area */}
+      <div className="relative aspect-video bg-black">
+        {/* Video placeholder */}
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/50 to-background flex items-center justify-center">
+          <span className="text-[120px] opacity-50">{course.thumbnail}</span>
+        </div>
+        
+        {/* Top controls */}
+        <div className="absolute top-0 left-0 right-0 p-4 flex justify-end gap-4">
+          <button className="p-2 text-foreground">
+            <Cast className="w-6 h-6" />
+          </button>
+          <Link to="/cursos" className="p-2 text-foreground">
+            <X className="w-6 h-6" />
           </Link>
         </div>
 
-        {/* Hero */}
-        <div className="relative h-48 mx-4 rounded-2xl overflow-hidden mb-6">
-          <div className="absolute inset-0 bg-gradient-to-br from-therapy to-therapy/60 flex items-center justify-center">
-            <span className="text-8xl">{course.thumbnail}</span>
-          </div>
-          <button className="absolute inset-0 flex items-center justify-center bg-background/20 hover:bg-background/30 transition-colors group">
-            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Play className="w-8 h-8 text-primary-foreground fill-primary-foreground ml-1" />
-            </div>
+        {/* Volume control */}
+        <div className="absolute bottom-4 right-4">
+          <button className="p-2 text-foreground bg-background/50 rounded-full">
+            <Volume2 className="w-5 h-5" />
           </button>
         </div>
+      </div>
 
-        {/* Info */}
-        <div className="px-4 mb-6">
-          <div className="flex items-center gap-2 mb-2">
-            {course.isPremium && (
-              <span className="px-2 py-1 bg-primary text-primary-foreground text-xs rounded">
-                Premium
-              </span>
-            )}
-            <span className="text-muted-foreground text-sm">{course.year}</span>
-            <span className="text-muted-foreground text-sm">•</span>
-            <span className="text-muted-foreground text-sm">{course.seasons} temporada</span>
-          </div>
+      <main className="pb-24">
+        {/* Course Info */}
+        <div className="px-4 py-4">
+          {/* Brand/Category */}
+          <p className="text-destructive font-bold text-sm mb-1 tracking-wide">
+            FANATICLASS
+          </p>
 
-          <h1 className="font-display text-3xl text-card-foreground mb-2">
+          <h1 className="font-display text-2xl text-foreground mb-3">
             {course.title}
           </h1>
 
-          <p className="text-muted-foreground text-sm mb-4">
+          {/* Meta info */}
+          <div className="flex items-center gap-2 text-sm mb-3 flex-wrap">
+            <span className="text-foreground">{course.year}</span>
+            <span className="px-1.5 py-0.5 border border-muted-foreground text-muted-foreground text-xs rounded">
+              16
+            </span>
+            <span className="text-muted-foreground">{course.seasons} temporada</span>
+            <span className="px-1.5 py-0.5 border border-muted-foreground text-muted-foreground text-xs rounded">
+              HD
+            </span>
+          </div>
+
+          {/* Current episode info */}
+          <p className="text-foreground text-sm mb-3">
+            Novo episódio disponível agora
+          </p>
+
+          {/* Action Buttons */}
+          <div className="space-y-3 mb-4">
+            <button className="w-full flex items-center justify-center gap-2 py-3 bg-foreground text-background rounded-md font-medium">
+              <Play className="w-5 h-5 fill-current" />
+              Continuar
+            </button>
+            <button className="w-full flex items-center justify-center gap-2 py-3 bg-muted text-foreground rounded-md font-medium">
+              <Download className="w-5 h-5" />
+              Baixar T1:E1
+            </button>
+          </div>
+
+          {/* Episode Progress */}
+          <div className="mb-4">
+            <p className="text-foreground font-medium text-sm mb-1">
+              T1:E1 {currentEpisode.title}
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-destructive" 
+                  style={{ width: `${currentEpisode.progress || 0}%` }}
+                />
+              </div>
+              <span className="text-muted-foreground text-xs">
+                Tempo restante: {currentEpisode.timeRemaining || currentEpisode.duration}
+              </span>
+            </div>
+          </div>
+
+          {/* Description */}
+          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
             {course.description}
           </p>
 
-          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-            <span className="flex items-center gap-1">
-              <Star className="w-4 h-4 text-primary" />
-              {course.rating}
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              {course.duration}
-            </span>
-            <span>{course.lessons} aulas</span>
+          {/* Cast & Creator */}
+          <p className="text-muted-foreground text-xs mb-1">
+            <span className="text-foreground/70">Instrutor:</span> {course.instructor}
+          </p>
+          <p className="text-muted-foreground text-xs mb-6">
+            <span className="text-foreground/70">Criação:</span> FanaticaMente
+          </p>
+
+          {/* Quick Actions */}
+          <div className="flex justify-around border-b border-border pb-4 mb-4">
+            <button className="flex flex-col items-center gap-1 text-foreground">
+              <Plus className="w-6 h-6" />
+              <span className="text-xs">Minha lista</span>
+            </button>
+            <button className="flex flex-col items-center gap-1 text-foreground">
+              <ThumbsUp className="w-6 h-6" />
+              <span className="text-xs">Avaliar</span>
+            </button>
+            <button className="flex flex-col items-center gap-1 text-foreground">
+              <Share2 className="w-6 h-6" />
+              <span className="text-xs">Compartilhe</span>
+            </button>
+            <button className="flex flex-col items-center gap-1 text-foreground">
+              <Download className="w-6 h-6" />
+              <span className="text-xs text-center leading-tight">Baixar<br/>Temporada 1</span>
+            </button>
           </div>
 
-          <p className="text-card-foreground text-sm">
-            Por <span className="text-primary">{course.instructor}</span>
-          </p>
-        </div>
-
-        {/* Tabs */}
-        <div className="px-4 mb-4">
-          <div className="flex gap-4 border-b border-border">
+          {/* Tabs */}
+          <div className="flex gap-6 mb-4">
             <button
               onClick={() => setActiveTab("episodes")}
-              className={`pb-3 px-1 font-medium transition-colors ${
+              className={`pb-2 font-medium text-sm transition-colors ${
                 activeTab === "episodes"
-                  ? "text-primary border-b-2 border-primary"
+                  ? "text-foreground border-b-2 border-destructive"
                   : "text-muted-foreground"
               }`}
             >
               Episódios
             </button>
             <button
-              onClick={() => setActiveTab("about")}
-              className={`pb-3 px-1 font-medium transition-colors ${
-                activeTab === "about"
-                  ? "text-primary border-b-2 border-primary"
+              onClick={() => setActiveTab("collection")}
+              className={`pb-2 font-medium text-sm transition-colors ${
+                activeTab === "collection"
+                  ? "text-foreground border-b-2 border-destructive"
                   : "text-muted-foreground"
               }`}
             >
-              Sobre
+              Coleção
+            </button>
+            <button
+              onClick={() => setActiveTab("similar")}
+              className={`pb-2 font-medium text-sm transition-colors ${
+                activeTab === "similar"
+                  ? "text-foreground border-b-2 border-destructive"
+                  : "text-muted-foreground"
+              }`}
+            >
+              Títulos semelhantes
             </button>
           </div>
+
+          {/* Season Selector */}
+          {activeTab === "episodes" && (
+            <button className="flex items-center gap-2 px-4 py-2 bg-muted rounded-md mb-4">
+              <span className="text-foreground text-sm">{course.title}</span>
+              <ChevronDown className="w-4 h-4 text-foreground" />
+            </button>
+          )}
         </div>
 
-        {/* Episodes */}
+        {/* Episodes List */}
         {activeTab === "episodes" && (
-          <div className="px-4 space-y-3">
+          <div className="px-4 space-y-4">
             {course.episodes.map((episode) => (
-              <button
-                key={episode.id}
-                className="w-full flex items-center gap-4 bg-card border border-border rounded-xl p-4 hover:border-primary transition-colors group text-left"
-              >
-                <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                  {episode.progress === 100 ? (
-                    <Check className="w-6 h-6 text-secondary" />
-                  ) : (
-                    <span className="font-display text-xl text-muted-foreground">
-                      {episode.number}
-                    </span>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-card-foreground font-medium text-sm line-clamp-1 mb-1">
-                    {episode.title}
-                  </h3>
-                  <p className="text-muted-foreground text-xs line-clamp-1">
-                    {episode.description}
-                  </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-xs text-muted-foreground">
+              <div key={episode.id} className="flex gap-3">
+                {/* Episode thumbnail */}
+                <div className="relative w-28 aspect-video rounded-md overflow-hidden bg-muted flex-shrink-0">
+                  <div className="absolute inset-0 flex items-center justify-center text-2xl">
+                    {course.thumbnail}
+                  </div>
+                  {/* Play icon */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full border-2 border-foreground flex items-center justify-center bg-background/50">
+                      <Play className="w-3 h-3 text-foreground fill-current ml-0.5" />
+                    </div>
+                  </div>
+                  {/* Duration */}
+                  <div className="absolute bottom-1 right-1">
+                    <span className="text-foreground text-xs bg-background/70 px-1 rounded">
                       {episode.duration}
                     </span>
-                    {episode.progress !== undefined && episode.progress < 100 && (
-                      <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden max-w-20">
-                        <div
-                          className="h-full bg-primary"
-                          style={{ width: `${episode.progress}%` }}
-                        />
-                      </div>
-                    )}
                   </div>
                 </div>
-                <Play className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-              </button>
+                
+                {/* Episode info */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-foreground text-sm font-medium mb-1 line-clamp-2">
+                    {episode.number}. {episode.title.replace(`Capítulo ${episode.number === 1 ? 'um' : episode.number === 2 ? 'dois' : episode.number === 3 ? 'três' : episode.number === 4 ? 'quatro' : episode.number === 5 ? 'cinco' : episode.number === 6 ? 'seis' : episode.number === 7 ? 'sete' : 'oito'}: `, '')}
+                  </h3>
+                  <p className="text-muted-foreground text-xs line-clamp-2">
+                    {episode.description}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
         )}
 
-        {/* About */}
-        {activeTab === "about" && (
+        {/* Collection */}
+        {activeTab === "collection" && (
           <div className="px-4">
-            <div className="bg-card border border-border rounded-xl p-6">
-              <h3 className="font-display text-xl text-card-foreground mb-4">
-                Sobre o Curso
-              </h3>
-              <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-                {course.description}
-              </p>
+            <p className="text-muted-foreground text-center py-8">
+              Nenhum conteúdo adicional disponível
+            </p>
+          </div>
+        )}
 
-              <h4 className="font-display text-lg text-card-foreground mb-3">
-                Instrutor
-              </h4>
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-therapy/20 flex items-center justify-center">
-                  <span className="text-2xl">👨‍⚕️</span>
-                </div>
-                <div>
-                  <p className="text-card-foreground font-medium">
-                    {course.instructor}
-                  </p>
-                  <p className="text-muted-foreground text-sm">
-                    Psicólogo especialista
-                  </p>
-                </div>
-              </div>
-            </div>
+        {/* Similar */}
+        {activeTab === "similar" && (
+          <div className="px-4">
+            <p className="text-muted-foreground text-center py-8">
+              Em breve mais cursos semelhantes
+            </p>
           </div>
         )}
       </main>
