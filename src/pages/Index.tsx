@@ -1,12 +1,27 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import Header from "@/components/layout/Header";
+import BottomNav from "@/components/layout/BottomNav";
+import HeroCarousel from "@/components/home/HeroCarousel";
+import TunnelCard from "@/components/home/TunnelCard";
+import TicketCard from "@/components/home/TicketCard";
+import QuizCard from "@/components/home/QuizCard";
+import FanatiClassCard from "@/components/home/FanatiClassCard";
+import RadioCard from "@/components/home/RadioCard";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header />
+
+      <main className="pt-14">
+        <HeroCarousel />
+        <TunnelCard />
+        <TicketCard />
+        <QuizCard />
+        <FanatiClassCard />
+        <RadioCard />
+      </main>
+
+      <BottomNav />
     </div>
   );
 };

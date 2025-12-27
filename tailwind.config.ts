@@ -7,12 +7,16 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1rem",
       screens: {
         "2xl": "1400px",
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Roboto', 'sans-serif'],
+        display: ['Bebas Neue', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -47,6 +51,26 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        stadium: {
+          DEFAULT: "hsl(var(--stadium))",
+          foreground: "hsl(var(--stadium-foreground))",
+        },
+        ticket: {
+          DEFAULT: "hsl(var(--ticket))",
+          foreground: "hsl(var(--ticket-foreground))",
+        },
+        therapy: {
+          DEFAULT: "hsl(var(--therapy))",
+          foreground: "hsl(var(--therapy-foreground))",
+        },
+        quiz: {
+          DEFAULT: "hsl(var(--quiz))",
+          foreground: "hsl(var(--quiz-foreground))",
+        },
+        radio: {
+          DEFAULT: "hsl(var(--radio))",
+          foreground: "hsl(var(--radio-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -65,20 +89,16 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "carousel-slide": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "50%": { transform: "translateX(-100%)" },
         },
       },
       animation: {
