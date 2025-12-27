@@ -12,29 +12,29 @@ const QuizCard = () => {
 
       <div className="relative flex items-center gap-4">
         <div className="flex -space-x-3">
-          <div className="w-14 h-14 rounded-full bg-muted border-2 border-quiz flex items-center justify-center">
-            <span className="text-2xl">👨</span>
+          <div className="w-12 h-12 rounded-full bg-muted border-2 border-quiz flex items-center justify-center">
+            <span className="text-xl">😎</span>
           </div>
-          <div className="w-14 h-14 rounded-full bg-muted border-2 border-quiz flex items-center justify-center">
-            <span className="text-2xl">👩</span>
+          <div className="w-12 h-12 rounded-full bg-muted border-2 border-quiz flex items-center justify-center">
+            <span className="text-xl">🙂</span>
           </div>
         </div>
 
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <MessageCircle className="w-5 h-5 text-primary" />
-            <span className="text-sm text-quiz-foreground/70 uppercase tracking-wide">
+            <MessageCircle className="w-4 h-4 text-primary" />
+            <span className="text-xs text-quiz-foreground/70 uppercase tracking-wide">
               Resenha
             </span>
           </div>
-          <h3 className="font-display text-2xl text-quiz-foreground">
+          <h3 className="font-display text-xl text-quiz-foreground leading-tight">
             Treine sua habilidade de{" "}
             <span className="text-primary">escutar</span> e se{" "}
             <span className="text-primary">comunicar!</span>
           </h3>
         </div>
 
-        <ChevronRight className="w-8 h-8 text-primary group-hover:translate-x-1 transition-transform" />
+        <ChevronRight className="w-6 h-6 text-primary group-hover:translate-x-1 transition-transform" />
       </div>
     </Link>
   );
