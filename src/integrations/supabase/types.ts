@@ -14,16 +14,238 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      appointments: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          professional_id: string
+          scheduled_date: string
+          scheduled_time: string
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          professional_id: string
+          scheduled_date: string
+          scheduled_time: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          professional_id?: string
+          scheduled_date?: string
+          scheduled_time?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clubs: {
+        Row: {
+          badge_url: string | null
+          created_at: string
+          id: string
+          league: string | null
+          name: string
+          primary_color: string
+          secondary_color: string | null
+          short_name: string | null
+        }
+        Insert: {
+          badge_url?: string | null
+          created_at?: string
+          id: string
+          league?: string | null
+          name: string
+          primary_color: string
+          secondary_color?: string | null
+          short_name?: string | null
+        }
+        Update: {
+          badge_url?: string | null
+          created_at?: string
+          id?: string
+          league?: string | null
+          name?: string
+          primary_color?: string
+          secondary_color?: string | null
+          short_name?: string | null
+        }
+        Relationships: []
+      }
+      professional_availability: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          professional_id: string
+          time_slots: string[]
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          professional_id: string
+          time_slots?: string[]
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          professional_id?: string
+          time_slots?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_availability_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professionals: {
+        Row: {
+          bio: string | null
+          created_at: string
+          crp: string
+          degree: string | null
+          experience_years: number | null
+          hourly_rate: number | null
+          id: string
+          is_active: boolean | null
+          is_verified: boolean | null
+          location: string | null
+          specialties: string[] | null
+          subscription_expires_at: string | null
+          subscription_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          crp: string
+          degree?: string | null
+          experience_years?: number | null
+          hourly_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          location?: string | null
+          specialties?: string[] | null
+          subscription_expires_at?: string | null
+          subscription_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          crp?: string
+          degree?: string | null
+          experience_years?: number | null
+          hourly_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          location?: string | null
+          specialties?: string[] | null
+          subscription_expires_at?: string | null
+          subscription_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          favorite_club_id: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          favorite_club_id?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          favorite_club_id?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "professional" | "developer" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +372,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "professional", "developer", "admin"],
+    },
   },
 } as const
