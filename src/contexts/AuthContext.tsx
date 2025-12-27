@@ -34,6 +34,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Function to update pending profile data after signup
+  const updatePendingProfileData = async (userId: string) => {
+    const pendingData = localStorage.getItem('pendingProfileUpdate');
+    if (pendingData) {
+      try {
+        const profileData = JSON.parse(pendingData);
+        await supabase
+          .from('profiles')
+          .update(profileData)
+          .eq('user_id', userId);
+        localStorage.removeItem('pendingProfileUpdate');
+      } catch (error) {
+        console.error('Error updating pending profile data:', error);
+      }
+    }
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -43,6 +60,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (session?.user) {
           setTimeout(() => {
             fetchUserRoles(session.user.id);
+            // Check for pending profile updates
+            updatePendingProfileData(session.user.id);
           }, 0);
         } else {
           setRoles([]);
