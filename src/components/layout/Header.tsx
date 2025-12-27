@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, Search, Home, Users, BookOpen, Radio, Newspaper, User } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useAppLogo, useAppLogoSmall } from "@/hooks/useAppLogo";
+import logoHeader from "@/assets/logo-header.png";
 
 const menuItems = [
   { icon: Home, label: "Início", path: "/" },
@@ -15,8 +15,6 @@ const menuItems = [
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: logo } = useAppLogo();
-  const { data: logoSmall } = useAppLogoSmall();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass-dark">
@@ -28,15 +26,9 @@ const Header = () => {
             </button>
           </SheetTrigger>
           <SheetContent side="left" className="w-80 bg-background border-border p-0">
-            <div className="p-6 border-b border-border">
-              {logo ? (
-                <img src={logo} alt="Logo" className="h-10 w-auto" />
-              ) : (
-                <h2 className="font-display text-3xl text-primary">
-                  fanatica<span className="text-secondary">mente</span>
-                </h2>
-              )}
-              <p className="text-muted-foreground text-sm mt-1">
+            <div className="p-6 border-b border-border flex flex-col items-center">
+              <img src={logoHeader} alt="Logo" className="h-12 w-auto" />
+              <p className="text-muted-foreground text-sm mt-2">
                 Saúde mental para torcedores
               </p>
             </div>
@@ -58,14 +50,7 @@ const Header = () => {
         </Sheet>
 
         <Link to="/" className="flex items-center">
-          {logoSmall ? (
-            <img src={logoSmall} alt="Logo" className="h-8 w-auto" />
-          ) : (
-            <span className="font-display text-2xl">
-              <span className="text-primary">fanatica</span>
-              <span className="text-secondary">mente</span>
-            </span>
-          )}
+          <img src={logoHeader} alt="Logo" className="h-8 w-auto" />
         </Link>
 
         <button className="p-2 hover:bg-muted rounded-lg transition-colors">
