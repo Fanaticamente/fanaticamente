@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useAppContent, useUpdateContent, useCreateContent, useDeleteContent } from "@/hooks/useAppContent";
 import { toast } from "sonner";
-import { Edit2, Save, X, Plus, Trash2, Image, ExternalLink } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Edit2, Plus, Trash2, Image, ExternalLink, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,12 +11,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import ImageUploader from "./ImageUploader";
 
 const ImageManager = () => {
   const [editingKey, setEditingKey] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [newImage, setNewImage] = useState({ key: "", value: "", description: "" });
+  const [showUploader, setShowUploader] = useState(false);
+  const [newImage, setNewImage] = useState({ key: "", description: "" });
+  const [pendingUploadUrl, setPendingUploadUrl] = useState<string | null>(null);
   
   const { data: contents, isLoading } = useAppContent();
   const updateContent = useUpdateContent();
@@ -26,38 +28,45 @@ const ImageManager = () => {
 
   const imageContents = contents?.filter(c => c.type === 'image') || [];
 
-  const handleEdit = (key: string, value: string) => {
-    setEditingKey(key);
-    setEditValue(value);
-  };
-
-  const handleSave = async (key: string) => {
-    try {
-      await updateContent.mutateAsync({ key, value: editValue });
-      toast.success("Imagem atualizada com sucesso!");
-      setEditingKey(null);
-    } catch (error) {
-      toast.error("Erro ao atualizar imagem");
+  const handleUploadComplete = (url: string) => {
+    if (editingKey) {
+      // Updating existing image
+      updateContent.mutate(
+        { key: editingKey, value: url },
+        {
+          onSuccess: () => {
+            toast.success("Imagem atualizada com sucesso!");
+            setEditingKey(null);
+          },
+          onError: () => toast.error("Erro ao atualizar imagem")
+        }
+      );
+    } else {
+      // Creating new image - store URL and show key dialog
+      setPendingUploadUrl(url);
+      setShowUploader(false);
+      setShowAddDialog(true);
     }
   };
 
-  const handleAddImage = async () => {
-    if (!newImage.key || !newImage.value) {
-      toast.error("Preencha todos os campos obrigatórios");
+  const handleCreateImage = async () => {
+    if (!newImage.key || !pendingUploadUrl) {
+      toast.error("Preencha a chave da imagem");
       return;
     }
 
     try {
       await createContent.mutateAsync({
         key: newImage.key,
-        value: newImage.value,
+        value: pendingUploadUrl,
         type: 'image',
         category: 'images',
         description: newImage.description || null,
       });
       toast.success("Imagem adicionada com sucesso!");
       setShowAddDialog(false);
-      setNewImage({ key: "", value: "", description: "" });
+      setNewImage({ key: "", description: "" });
+      setPendingUploadUrl(null);
     } catch (error) {
       toast.error("Erro ao adicionar imagem");
     }
@@ -85,33 +94,52 @@ const ImageManager = () => {
   return (
     <div className="space-y-4">
       {/* Add Image Button */}
+      <Button 
+        variant="outline" 
+        className="w-full"
+        onClick={() => {
+          setPendingUploadUrl(null);
+          setShowUploader(true);
+        }}
+      >
+        <Upload className="w-4 h-4 mr-2" />
+        Fazer Upload de Nova Imagem
+      </Button>
+
+      {/* Image Uploader Modal */}
+      <ImageUploader
+        open={showUploader}
+        onOpenChange={setShowUploader}
+        onUploadComplete={handleUploadComplete}
+        title="Upload de Nova Imagem"
+      />
+
+      {/* New Image Key Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogTrigger asChild>
-          <Button variant="outline" className="w-full">
-            <Plus className="w-4 h-4 mr-2" />
-            Adicionar Nova Imagem
-          </Button>
-        </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Adicionar Imagem</DialogTitle>
+            <DialogTitle>Configurar Nova Imagem</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {pendingUploadUrl && (
+              <div className="aspect-video bg-muted rounded-lg overflow-hidden max-w-[200px] mx-auto">
+                <img
+                  src={pendingUploadUrl}
+                  alt="Preview"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            )}
             <div>
-              <Label>Chave (identificador único)</Label>
+              <Label>Chave (identificador único) *</Label>
               <Input
                 value={newImage.key}
                 onChange={(e) => setNewImage({ ...newImage, key: e.target.value })}
-                placeholder="ex: hero_background"
+                placeholder="ex: header_logo, hero_background"
               />
-            </div>
-            <div>
-              <Label>URL da Imagem</Label>
-              <Input
-                value={newImage.value}
-                onChange={(e) => setNewImage({ ...newImage, value: e.target.value })}
-                placeholder="https://..."
-              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Use snake_case para o identificador
+              </p>
             </div>
             <div>
               <Label>Descrição (opcional)</Label>
@@ -121,8 +149,8 @@ const ImageManager = () => {
                 placeholder="Descreva o uso desta imagem"
               />
             </div>
-            <Button onClick={handleAddImage} className="w-full">
-              Adicionar
+            <Button onClick={handleCreateImage} className="w-full" disabled={createContent.isPending}>
+              {createContent.isPending ? "Salvando..." : "Salvar Imagem"}
             </Button>
           </div>
         </DialogContent>
@@ -133,7 +161,7 @@ const ImageManager = () => {
         <div className="text-center py-12 text-muted-foreground">
           <Image className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p>Nenhuma imagem cadastrada</p>
-          <p className="text-sm">Adicione imagens para gerenciá-las aqui</p>
+          <p className="text-sm">Faça upload de imagens para gerenciá-las aqui</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -177,7 +205,10 @@ const ImageManager = () => {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => handleEdit(content.key, content.value)}
+                      onClick={() => {
+                        setEditingKey(content.key);
+                        setShowUploader(true);
+                      }}
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>
@@ -191,35 +222,24 @@ const ImageManager = () => {
                     </Button>
                   </div>
                 </div>
-
-                {editingKey === content.key && (
-                  <div className="flex gap-2 mt-3">
-                    <Input
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                      placeholder="Nova URL"
-                      className="flex-1"
-                    />
-                    <Button
-                      size="sm"
-                      onClick={() => handleSave(content.key)}
-                      disabled={updateContent.isPending}
-                    >
-                      <Save className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setEditingKey(null)}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Edit Image Uploader */}
+      {editingKey && (
+        <ImageUploader
+          open={showUploader && !!editingKey}
+          onOpenChange={(open) => {
+            setShowUploader(open);
+            if (!open) setEditingKey(null);
+          }}
+          onUploadComplete={handleUploadComplete}
+          currentImageUrl={imageContents.find(c => c.key === editingKey)?.value}
+          title={`Atualizar: ${editingKey}`}
+        />
       )}
     </div>
   );

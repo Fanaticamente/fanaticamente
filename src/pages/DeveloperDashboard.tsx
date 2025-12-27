@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import ContentEditor from "@/components/developer/ContentEditor";
 import MenuEditor from "@/components/developer/MenuEditor";
 import ImageManager from "@/components/developer/ImageManager";
+import ThemeEditor from "@/components/developer/ThemeEditor";
 import NewContentDialog from "@/components/developer/NewContentDialog";
 import { useAppContent } from "@/hooks/useAppContent";
 import { 
@@ -101,7 +102,7 @@ const DeveloperDashboard = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-3 w-full mb-4">
+            <TabsList className="grid grid-cols-4 w-full mb-4">
               <TabsTrigger value="content" className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
                 Textos
@@ -113,6 +114,10 @@ const DeveloperDashboard = () => {
               <TabsTrigger value="images" className="flex items-center gap-2">
                 <Image className="w-4 h-4" />
                 Imagens
+              </TabsTrigger>
+              <TabsTrigger value="theme" className="flex items-center gap-2">
+                <Palette className="w-4 h-4" />
+                Tema
               </TabsTrigger>
             </TabsList>
 
@@ -129,6 +134,10 @@ const DeveloperDashboard = () => {
 
             <TabsContent value="images">
               <ImageManager />
+            </TabsContent>
+
+            <TabsContent value="theme">
+              <ThemeEditor />
             </TabsContent>
           </Tabs>
         </div>
