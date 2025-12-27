@@ -3,12 +3,25 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Briefcase, User } from "lucide-react";
+import { Briefcase, User, ChevronDown } from "lucide-react";
+import { allBrazilianClubs, getLeagueLabel } from "@/data/allBrazilianClubs";
+import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
+import { supabase } from "@/integrations/supabase/client";
 
 const emailSchema = z.string().email("Email inválido");
 const passwordSchema = z.string().min(6, "Senha deve ter no mínimo 6 caracteres");
 
 type AuthMode = "user" | "professional";
+
+interface SignUpData {
+  fullName: string;
+  birthDate: string;
+  favoriteClub: string;
+  state: string;
+  city: string;
+  email: string;
+  password: string;
+}
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -18,16 +31,35 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [signUpData, setSignUpData] = useState<SignUpData>({
+    fullName: "",
+    birthDate: "",
+    favoriteClub: "",
+    state: "",
+    city: "",
+    email: "",
+    password: ""
+  });
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string }>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { signIn, signUp, user, hasRole } = useAuth();
   const navigate = useNavigate();
 
+  // Get cities based on selected state
+  const availableCities = signUpData.state ? getCitiesByState(signUpData.state) : [];
+
+  // Group clubs by league
+  const clubsByLeague = allBrazilianClubs.reduce((acc, club) => {
+    if (!acc[club.league]) {
+      acc[club.league] = [];
+    }
+    acc[club.league].push(club);
+    return acc;
+  }, {} as Record<string, typeof allBrazilianClubs>);
+
   useEffect(() => {
     if (user) {
-      // Redirect based on role
       if (hasRole("admin")) {
         navigate("/admin");
       } else if (hasRole("developer")) {
@@ -40,8 +72,8 @@ const Auth = () => {
     }
   }, [user, hasRole, navigate]);
 
-  const validateForm = () => {
-    const newErrors: { email?: string; password?: string; fullName?: string } = {};
+  const validateLoginForm = () => {
+    const newErrors: Record<string, string> = {};
 
     try {
       emailSchema.parse(email);
@@ -59,8 +91,54 @@ const Auth = () => {
       }
     }
 
-    if (!isLogin && !fullName.trim()) {
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateSignUpForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!signUpData.fullName.trim()) {
       newErrors.fullName = "Nome completo é obrigatório";
+    }
+
+    if (!signUpData.birthDate) {
+      newErrors.birthDate = "Data de nascimento é obrigatória";
+    } else {
+      const birthDate = new Date(signUpData.birthDate);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      if (age < 13) {
+        newErrors.birthDate = "Você deve ter pelo menos 13 anos";
+      }
+    }
+
+    if (!signUpData.favoriteClub) {
+      newErrors.favoriteClub = "Selecione seu time do coração";
+    }
+
+    if (!signUpData.state) {
+      newErrors.state = "Selecione seu estado";
+    }
+
+    if (!signUpData.city) {
+      newErrors.city = "Selecione sua cidade";
+    }
+
+    try {
+      emailSchema.parse(signUpData.email);
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        newErrors.email = e.errors[0].message;
+      }
+    }
+
+    try {
+      passwordSchema.parse(signUpData.password);
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        newErrors.password = e.errors[0].message;
+      }
     }
 
     setErrors(newErrors);
@@ -70,7 +148,11 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    if (isLogin) {
+      if (!validateLoginForm()) return;
+    } else {
+      if (!validateSignUpForm()) return;
+    }
 
     setIsLoading(true);
 
@@ -87,7 +169,9 @@ const Auth = () => {
           toast.success("Login realizado com sucesso!");
         }
       } else {
-        const { error } = await signUp(email, password, fullName);
+        // Sign up with additional user data
+        const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName);
+        
         if (error) {
           if (error.message.includes("already registered")) {
             toast.error("Este email já está cadastrado");
@@ -95,6 +179,14 @@ const Auth = () => {
             toast.error(error.message);
           }
         } else {
+          // Profile will be updated via the auth state change handler
+          // Store signup data in localStorage temporarily
+          localStorage.setItem('pendingProfileUpdate', JSON.stringify({
+            birth_date: signUpData.birthDate,
+            favorite_club_id: signUpData.favoriteClub,
+            city: signUpData.city,
+            state: signUpData.state
+          }));
           toast.success("Conta criada com sucesso!");
         }
       }
@@ -103,8 +195,22 @@ const Auth = () => {
     }
   };
 
+  const handleSignUpDataChange = (field: keyof SignUpData, value: string) => {
+    setSignUpData(prev => {
+      const newData = { ...prev, [field]: value };
+      // Reset city when state changes
+      if (field === 'state') {
+        newData.city = '';
+      }
+      return newData;
+    });
+  };
+
+  const inputClassName = "w-full px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors";
+  const selectClassName = "w-full px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors appearance-none cursor-pointer";
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="font-display text-4xl text-primary mb-2">
@@ -160,55 +266,195 @@ const Auth = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
-              <div>
-                <label className="block text-card-foreground text-sm mb-2">
-                  Nome completo
-                </label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors"
-                  placeholder="Seu nome"
-                />
-                {errors.fullName && (
-                  <p className="text-destructive text-sm mt-1">{errors.fullName}</p>
-                )}
-              </div>
+            {isLogin ? (
+              // Login Form
+              <>
+                <div>
+                  <label className="block text-card-foreground text-sm mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={inputClassName}
+                    placeholder="seu@email.com"
+                  />
+                  {errors.email && (
+                    <p className="text-destructive text-sm mt-1">{errors.email}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-card-foreground text-sm mb-2">
+                    Senha
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={inputClassName}
+                    placeholder="••••••••"
+                  />
+                  {errors.password && (
+                    <p className="text-destructive text-sm mt-1">{errors.password}</p>
+                  )}
+                </div>
+              </>
+            ) : (
+              // Sign Up Form
+              <>
+                {/* Full Name */}
+                <div>
+                  <label className="block text-card-foreground text-sm mb-2">
+                    Nome Completo *
+                  </label>
+                  <input
+                    type="text"
+                    value={signUpData.fullName}
+                    onChange={(e) => handleSignUpDataChange('fullName', e.target.value)}
+                    className={inputClassName}
+                    placeholder="Seu nome completo"
+                  />
+                  {errors.fullName && (
+                    <p className="text-destructive text-sm mt-1">{errors.fullName}</p>
+                  )}
+                </div>
+
+                {/* Birth Date */}
+                <div>
+                  <label className="block text-card-foreground text-sm mb-2">
+                    Data de Nascimento *
+                  </label>
+                  <input
+                    type="date"
+                    value={signUpData.birthDate}
+                    onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
+                    className={inputClassName}
+                    max={new Date().toISOString().split('T')[0]}
+                  />
+                  {errors.birthDate && (
+                    <p className="text-destructive text-sm mt-1">{errors.birthDate}</p>
+                  )}
+                </div>
+
+                {/* Favorite Club */}
+                <div>
+                  <label className="block text-card-foreground text-sm mb-2">
+                    Time do Coração *
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={signUpData.favoriteClub}
+                      onChange={(e) => handleSignUpDataChange('favoriteClub', e.target.value)}
+                      className={selectClassName}
+                    >
+                      <option value="">Selecione seu time</option>
+                      {(['serie_a', 'serie_b', 'serie_c', 'serie_d'] as const).map(league => (
+                        <optgroup key={league} label={getLeagueLabel(league)}>
+                          {clubsByLeague[league]?.map(club => (
+                            <option key={club.id} value={club.id}>
+                              {club.name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+                  </div>
+                  {errors.favoriteClub && (
+                    <p className="text-destructive text-sm mt-1">{errors.favoriteClub}</p>
+                  )}
+                </div>
+
+                {/* State */}
+                <div>
+                  <label className="block text-card-foreground text-sm mb-2">
+                    Estado *
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={signUpData.state}
+                      onChange={(e) => handleSignUpDataChange('state', e.target.value)}
+                      className={selectClassName}
+                    >
+                      <option value="">Selecione seu estado</option>
+                      {brazilianStates.map(state => (
+                        <option key={state.sigla} value={state.sigla}>
+                          {state.nome} ({state.sigla})
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+                  </div>
+                  {errors.state && (
+                    <p className="text-destructive text-sm mt-1">{errors.state}</p>
+                  )}
+                </div>
+
+                {/* City */}
+                <div>
+                  <label className="block text-card-foreground text-sm mb-2">
+                    Cidade *
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={signUpData.city}
+                      onChange={(e) => handleSignUpDataChange('city', e.target.value)}
+                      className={selectClassName}
+                      disabled={!signUpData.state}
+                    >
+                      <option value="">
+                        {signUpData.state ? "Selecione sua cidade" : "Selecione o estado primeiro"}
+                      </option>
+                      {availableCities.map(city => (
+                        <option key={city} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+                  </div>
+                  {errors.city && (
+                    <p className="text-destructive text-sm mt-1">{errors.city}</p>
+                  )}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-card-foreground text-sm mb-2">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    value={signUpData.email}
+                    onChange={(e) => handleSignUpDataChange('email', e.target.value)}
+                    className={inputClassName}
+                    placeholder="seu@email.com"
+                  />
+                  {errors.email && (
+                    <p className="text-destructive text-sm mt-1">{errors.email}</p>
+                  )}
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="block text-card-foreground text-sm mb-2">
+                    Senha *
+                  </label>
+                  <input
+                    type="password"
+                    value={signUpData.password}
+                    onChange={(e) => handleSignUpDataChange('password', e.target.value)}
+                    className={inputClassName}
+                    placeholder="Mínimo 6 caracteres"
+                  />
+                  {errors.password && (
+                    <p className="text-destructive text-sm mt-1">{errors.password}</p>
+                  )}
+                </div>
+              </>
             )}
-
-            <div>
-              <label className="block text-card-foreground text-sm mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors"
-                placeholder="seu@email.com"
-              />
-              {errors.email && (
-                <p className="text-destructive text-sm mt-1">{errors.email}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-card-foreground text-sm mb-2">
-                Senha
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors"
-                placeholder="••••••••"
-              />
-              {errors.password && (
-                <p className="text-destructive text-sm mt-1">{errors.password}</p>
-              )}
-            </div>
 
             <button
               type="submit"
