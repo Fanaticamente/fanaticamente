@@ -201,27 +201,22 @@ const generateClubProducts = (club: BrazilianClub): Product[] => {
 };
 
 // Import real products
-import { flamengoRealProducts, RealProduct } from "./realProducts";
+import { allRealProducts, RealProduct } from "./realProducts";
 
-// Generate all products for Serie A clubs (excluding Flamengo camisas since we have real ones)
+// Generate all products for Serie A clubs
 const generatedProducts: Product[] = brazilianClubs
   .filter((club) => club.league === "serie_a")
   .flatMap(generateClubProducts);
 
-// Filter out generated Flamengo camisas since we have real ones
+// Filter out generated camisas for clubs that have real products
+const clubsWithRealProducts = [...new Set(allRealProducts.map(p => p.clubId))];
 const filteredGeneratedProducts = generatedProducts.filter(
-  (product) => !(product.clubId === "flamengo" && product.category === "camisa")
+  (product) => !(clubsWithRealProducts.includes(product.clubId) && product.category === "camisa")
 );
-
-// Convert real products to Product type
-const realProductsAsProducts: Product[] = flamengoRealProducts.map((rp) => ({
-  ...rp,
-  source: "official_store" as const,
-}));
 
 // Combine real products first, then generated products
 export const allProducts: Product[] = [
-  ...realProductsAsProducts,
+  ...allRealProducts,
   ...filteredGeneratedProducts,
 ];
 
