@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Briefcase, User, ChevronDown } from "lucide-react";
-import { allBrazilianClubs, getLeagueLabel } from "@/data/allBrazilianClubs";
+import { allBrazilianClubs } from "@/data/allBrazilianClubs";
 import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { supabase } from "@/integrations/supabase/client";
 import logoAuth from "@/assets/logo-auth.png";
@@ -23,6 +23,11 @@ interface SignUpData {
   email: string;
   password: string;
 }
+
+// Get all clubs sorted alphabetically (no grouping by league)
+const sortedClubs = [...allBrazilianClubs].sort((a, b) => 
+  a.name.localeCompare(b.name, 'pt-BR')
+);
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -49,15 +54,6 @@ const Auth = () => {
 
   // Get cities based on selected state
   const availableCities = signUpData.state ? getCitiesByState(signUpData.state) : [];
-
-  // Group clubs by league
-  const clubsByLeague = allBrazilianClubs.reduce((acc, club) => {
-    if (!acc[club.league]) {
-      acc[club.league] = [];
-    }
-    acc[club.league].push(club);
-    return acc;
-  }, {} as Record<string, typeof allBrazilianClubs>);
 
   useEffect(() => {
     if (user) {
@@ -349,14 +345,10 @@ const Auth = () => {
                       className={selectClassName}
                     >
                       <option value="">Selecione seu time</option>
-                      {(['serie_a', 'serie_b', 'serie_c', 'serie_d'] as const).map(league => (
-                        <optgroup key={league} label={getLeagueLabel(league)}>
-                          {clubsByLeague[league]?.map(club => (
-                            <option key={club.id} value={club.id}>
-                              {club.name}
-                            </option>
-                          ))}
-                        </optgroup>
+                      {sortedClubs.map(club => (
+                        <option key={club.id} value={club.id}>
+                          {club.name}
+                        </option>
                       ))}
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
@@ -366,57 +358,60 @@ const Auth = () => {
                   )}
                 </div>
 
-                {/* State */}
-                <div>
-                  <label className="block text-card-foreground text-sm mb-2">
-                    Estado *
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={signUpData.state}
-                      onChange={(e) => handleSignUpDataChange('state', e.target.value)}
-                      className={selectClassName}
-                    >
-                      <option value="">Selecione seu estado</option>
-                      {brazilianStates.map(state => (
-                        <option key={state.sigla} value={state.sigla}>
-                          {state.nome} ({state.sigla})
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+                {/* State and City - Side by Side */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* State */}
+                  <div>
+                    <label className="block text-card-foreground text-sm mb-2">
+                      Estado *
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={signUpData.state}
+                        onChange={(e) => handleSignUpDataChange('state', e.target.value)}
+                        className={selectClassName}
+                      >
+                        <option value="">Estado</option>
+                        {brazilianStates.map(state => (
+                          <option key={state.sigla} value={state.sigla}>
+                            {state.sigla}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                    </div>
+                    {errors.state && (
+                      <p className="text-destructive text-xs mt-1">{errors.state}</p>
+                    )}
                   </div>
-                  {errors.state && (
-                    <p className="text-destructive text-sm mt-1">{errors.state}</p>
-                  )}
-                </div>
 
-                {/* City */}
-                <div>
-                  <label className="block text-card-foreground text-sm mb-2">
-                    Cidade *
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={signUpData.city}
-                      onChange={(e) => handleSignUpDataChange('city', e.target.value)}
-                      className={selectClassName}
-                      disabled={!signUpData.state}
-                    >
-                      <option value="">
-                        {signUpData.state ? "Selecione sua cidade" : "Selecione o estado primeiro"}
-                      </option>
-                      {availableCities.map(city => (
-                        <option key={city} value={city}>
-                          {city}
+                  {/* City */}
+                  <div>
+                    <label className="block text-card-foreground text-sm mb-2">
+                      Cidade *
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={signUpData.city}
+                        onChange={(e) => handleSignUpDataChange('city', e.target.value)}
+                        className={selectClassName}
+                        disabled={!signUpData.state}
+                      >
+                        <option value="">
+                          {signUpData.state ? "Cidade" : "—"}
                         </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+                        {availableCities.map(city => (
+                          <option key={city} value={city}>
+                            {city}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                    </div>
+                    {errors.city && (
+                      <p className="text-destructive text-xs mt-1">{errors.city}</p>
+                    )}
                   </div>
-                  {errors.city && (
-                    <p className="text-destructive text-sm mt-1">{errors.city}</p>
-                  )}
                 </div>
 
                 {/* Email */}
