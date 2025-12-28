@@ -13,7 +13,7 @@ const ShopHeader = ({ searchQuery, onSearchChange, showBack }: ShopHeaderProps) 
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-50 bg-zinc-900 border-b border-zinc-800">
+    <header className="bg-zinc-900 border-b border-zinc-800">
       <div className="container py-3">
         <div className="flex items-center gap-3">
           {showBack && (

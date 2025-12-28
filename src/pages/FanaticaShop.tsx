@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import ShopHeader from "@/components/shop/ShopHeader";
 import ClubFilter from "@/components/shop/ClubFilter";
@@ -53,66 +52,48 @@ const FanaticaShop = () => {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-20">
-      {/* Shop Header with Search */}
-      <ShopHeader
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
-
-      {/* Club Filter - Fixed position with scroll */}
-      <ClubFilter selectedClub={selectedClub} onSelectClub={handleSelectClub} />
-
-      {/* Category Tabs */}
-      <CategoryTabs
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-      />
+      {/* Fixed header stack */}
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <ShopHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+        <ClubFilter selectedClub={selectedClub} onSelectClub={handleSelectClub} />
+        <CategoryTabs
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
+      </div>
 
       {/* Content */}
-      {isSearching || hasFilters ? (
-        /* Filtered Results */
-        <ProductGrid
-          products={filteredProducts}
-          title={
-            isSearching
-              ? `Resultados para "${searchQuery}"`
-              : selectedClub
-              ? "Produtos do time"
-              : selectedCategory
-              ? "Produtos da categoria"
-              : undefined
-          }
-        />
-      ) : (
-        /* Home Content */
-        <div className="space-y-6">
-          {/* Featured Banner */}
-          <div className="pt-4">
-            <FeaturedBanner onSelectClub={handleSelectClub} />
+      <div className="pt-[176px]">
+        {isSearching || hasFilters ? (
+          <ProductGrid
+            products={filteredProducts}
+            title={
+              isSearching
+                ? `Resultados para "${searchQuery}"`
+                : selectedClub
+                ? "Produtos do time"
+                : selectedCategory
+                ? "Produtos da categoria"
+                : undefined
+            }
+          />
+        ) : (
+          <div className="space-y-6">
+            <div className="pt-4">
+              <FeaturedBanner onSelectClub={handleSelectClub} />
+            </div>
+
+            <HorizontalProductList title="🔥 Destaques" products={featuredProducts} />
+            <HorizontalProductList title="🆕 Novidades" products={newProducts} />
+            <HorizontalProductList
+              title="💰 Ofertas Imperdíveis"
+              products={discountedProducts}
+            />
+
+            <ProductGrid products={allProducts.slice(0, 20)} title="Todos os Produtos" />
           </div>
-
-          {/* Featured Products */}
-          <HorizontalProductList
-            title="🔥 Destaques"
-            products={featuredProducts}
-          />
-
-          {/* New Products */}
-          <HorizontalProductList
-            title="🆕 Novidades"
-            products={newProducts}
-          />
-
-          {/* Discounted Products */}
-          <HorizontalProductList
-            title="💰 Ofertas Imperdíveis"
-            products={discountedProducts}
-          />
-
-          {/* All Products */}
-          <ProductGrid products={allProducts.slice(0, 20)} title="Todos os Produtos" />
-        </div>
-      )}
+        )}
+      </div>
 
       <BottomNav />
     </div>
