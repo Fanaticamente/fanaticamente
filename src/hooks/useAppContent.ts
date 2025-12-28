@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
+
 interface AppContent {
   id: string;
   key: string;
@@ -28,25 +28,6 @@ interface AppMenu {
 }
 
 export const useAppContent = (category?: string) => {
-  const queryClient = useQueryClient();
-  
-  useEffect(() => {
-    const channel = supabase
-      .channel('app_content_changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'app_content' },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['app-content'] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
-
   return useQuery({
     queryKey: ['app-content', category],
     queryFn: async () => {
@@ -61,6 +42,7 @@ export const useAppContent = (category?: string) => {
       if (error) throw error;
       return data as AppContent[];
     },
+    staleTime: 0,
   });
 };
 
@@ -160,26 +142,6 @@ export const useDeleteContent = () => {
 
 // Menu hooks
 export const useAppMenus = () => {
-  const queryClient = useQueryClient();
-  
-  useEffect(() => {
-    const channel = supabase
-      .channel('app_menus_changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'app_menus' },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['app-menus'] });
-          queryClient.invalidateQueries({ queryKey: ['app-menu'] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
-
   return useQuery({
     queryKey: ['app-menus'],
     queryFn: async () => {
@@ -193,29 +155,11 @@ export const useAppMenus = () => {
         items: menu.items as unknown as MenuItem[]
       })) as AppMenu[];
     },
+    staleTime: 0,
   });
 };
 
 export const useAppMenu = (menuId: string) => {
-  const queryClient = useQueryClient();
-  
-  useEffect(() => {
-    const channel = supabase
-      .channel(`app_menu_${menuId}_changes`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'app_menus' },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['app-menu', menuId] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient, menuId]);
-
   return useQuery({
     queryKey: ['app-menu', menuId],
     queryFn: async () => {
