@@ -7,17 +7,18 @@ import MenuEditor from "@/components/developer/MenuEditor";
 import ImageManager from "@/components/developer/ImageManager";
 import ThemeEditor from "@/components/developer/ThemeEditor";
 import NewContentDialog from "@/components/developer/NewContentDialog";
+import StudioEditor from "@/components/studio/StudioEditor";
 import { useAppContent } from "@/hooks/useAppContent";
 import { 
   Code, Database, Server, Terminal, GitBranch, Bug, Activity, 
-  FileText, Menu, Image, Settings, ChevronRight, Layout, Palette
+  FileText, Menu, Image, Settings, ChevronRight, Layout, Palette, Layers
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DeveloperDashboard = () => {
   const { user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("content");
+  const [activeTab, setActiveTab] = useState("studio");
   
   const { data: contents } = useAppContent();
   const categories = contents 
@@ -102,7 +103,11 @@ const DeveloperDashboard = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-4 w-full mb-4">
+            <TabsList className="grid grid-cols-5 w-full mb-4">
+              <TabsTrigger value="studio" className="flex items-center gap-2">
+                <Layers className="w-4 h-4" />
+                Studio
+              </TabsTrigger>
               <TabsTrigger value="content" className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
                 Textos
@@ -120,6 +125,10 @@ const DeveloperDashboard = () => {
                 Tema
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="studio">
+              <StudioEditor />
+            </TabsContent>
 
             <TabsContent value="content">
               <NewContentDialog categories={categories} />

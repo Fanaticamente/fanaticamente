@@ -71,6 +71,54 @@ export type Database = {
         }
         Relationships: []
       }
+      app_modules: {
+        Row: {
+          config: Json
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_visible: boolean
+          module_id: string
+          module_type: string
+          name: string
+          order_index: number
+          page: string
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_visible?: boolean
+          module_id: string
+          module_type?: string
+          name: string
+          order_index?: number
+          page?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_visible?: boolean
+          module_id?: string
+          module_type?: string
+          name?: string
+          order_index?: number
+          page?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           created_at: string
