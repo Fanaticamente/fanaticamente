@@ -1,16 +1,7 @@
 import { Globe } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ModuleConfig } from "@/hooks/useAppModules";
 
-interface TicketCardProps {
-  config?: ModuleConfig;
-}
-
-const TicketCard = ({ config }: TicketCardProps) => {
-  const title = config?.title || "SEU INGRESSO NO MUNDO DA CONSCIÊNCIA";
-  const cta = config?.cta || "COMECE POR AQUI";
-  const link = config?.link || "/";
-
+const TicketCard = () => {
   return (
     <div className="mx-4 my-4">
       <div className="card-ticket p-0 overflow-hidden">
@@ -34,7 +25,7 @@ const TicketCard = ({ config }: TicketCardProps) => {
               </div>
 
               <h3 className="font-display text-2xl text-ticket-foreground mb-4 leading-tight">
-                {title.split(" ").slice(0, 4).join(" ")}<br />{title.split(" ").slice(4).join(" ")}
+                SEU INGRESSO NO MUNDO<br />DA CONSCIÊNCIA
               </h3>
 
               <div className="flex gap-6 mb-4 text-sm">
@@ -56,10 +47,10 @@ const TicketCard = ({ config }: TicketCardProps) => {
               </div>
 
               <Link
-                to={link}
+                to="/"
                 className="inline-block bg-ticket-foreground text-ticket px-6 py-2 rounded font-bold text-sm uppercase tracking-wide hover:bg-secondary hover:text-secondary-foreground transition-colors"
               >
-                {cta}
+                COMECE POR AQUI
               </Link>
             </div>
           </div>
