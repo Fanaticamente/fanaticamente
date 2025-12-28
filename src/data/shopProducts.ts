@@ -214,11 +214,18 @@ const filteredGeneratedProducts = generatedProducts.filter(
   (product) => !(clubsWithRealProducts.includes(product.clubId) && product.category === "camisa")
 );
 
-// Combine real products first, then generated products
+// Helper to check if image URL is a real product image (not placeholder)
+const hasRealImage = (imageUrl: string): boolean => {
+  return !imageUrl.includes('placehold.co') && 
+         !imageUrl.includes('placeholder') &&
+         imageUrl.startsWith('http');
+};
+
+// Combine real products first, then generated products - filter to only show products with real images
 export const allProducts: Product[] = [
   ...allRealProducts,
   ...filteredGeneratedProducts,
-];
+].filter(product => hasRealImage(product.imageUrl));
 
 export const getProductsByClub = (clubId: string): Product[] => {
   return allProducts.filter((product) => product.clubId === clubId);
