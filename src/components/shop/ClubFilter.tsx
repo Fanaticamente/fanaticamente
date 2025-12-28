@@ -11,7 +11,7 @@ const ClubFilter = ({ selectedClub, onSelectClub }: ClubFilterProps) => {
   const serieAClubs = brazilianClubs.filter((club) => club.league === "serie_a");
 
   return (
-    <div className="sticky top-[56px] z-30 bg-zinc-900 border-b border-zinc-800">
+    <div className="bg-zinc-900 border-b border-zinc-800">
       <div
         className={cn(
           "h-[72px] w-full overflow-x-auto overflow-y-hidden",
@@ -29,10 +29,9 @@ const ClubFilter = ({ selectedClub, onSelectClub }: ClubFilterProps) => {
           >
             <div
               className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center overflow-hidden",
-                selectedClub === null
-                  ? "bg-white ring-2 ring-white ring-offset-2 ring-offset-zinc-900"
-                  : "bg-zinc-700"
+                "w-12 h-12 rounded-full p-1.5 flex items-center justify-center overflow-hidden bg-white",
+                selectedClub === null &&
+                  "ring-2 ring-white ring-offset-2 ring-offset-zinc-900"
               )}
             >
               <img
