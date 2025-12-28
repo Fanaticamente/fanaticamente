@@ -1,5 +1,4 @@
 import { brazilianClubs } from "@/data/brazilianClubs";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 interface ClubFilterProps {
@@ -11,9 +10,14 @@ const ClubFilter = ({ selectedClub, onSelectClub }: ClubFilterProps) => {
   const serieAClubs = brazilianClubs.filter((club) => club.league === "serie_a");
 
   return (
-    <div className="py-3 sticky top-[57px] z-20 bg-zinc-900 border-b border-zinc-800">
-      <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex gap-3 px-4">
+    <div className="sticky top-[57px] z-20 bg-zinc-900 border-b border-zinc-800">
+      <div
+        className={cn(
+          "h-[86px] w-full overflow-x-auto overflow-y-hidden",
+          "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        )}
+      >
+        <div className="flex gap-3 px-4 h-full items-center">
           {/* All clubs option */}
           <button
             onClick={() => onSelectClub(null)}
@@ -65,8 +69,7 @@ const ClubFilter = ({ selectedClub, onSelectClub }: ClubFilterProps) => {
             </button>
           ))}
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
     </div>
   );
 };
