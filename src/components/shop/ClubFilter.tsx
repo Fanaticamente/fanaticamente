@@ -1,5 +1,6 @@
 import { brazilianClubs } from "@/data/brazilianClubs";
 import { cn } from "@/lib/utils";
+import fanaticaLogoIcon from "@/assets/fanatica-logo-icon.png";
 
 interface ClubFilterProps {
   selectedClub: string | null;
@@ -10,10 +11,10 @@ const ClubFilter = ({ selectedClub, onSelectClub }: ClubFilterProps) => {
   const serieAClubs = brazilianClubs.filter((club) => club.league === "serie_a");
 
   return (
-    <div className="sticky top-[57px] z-20 bg-zinc-900 border-b border-zinc-800">
+    <div className="sticky top-[56px] z-30 bg-zinc-900 border-b border-zinc-800">
       <div
         className={cn(
-          "h-[86px] w-full overflow-x-auto overflow-y-hidden",
+          "h-[72px] w-full overflow-x-auto overflow-y-hidden",
           "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         )}
       >
@@ -22,21 +23,24 @@ const ClubFilter = ({ selectedClub, onSelectClub }: ClubFilterProps) => {
           <button
             onClick={() => onSelectClub(null)}
             className={cn(
-              "flex flex-col items-center gap-1 min-w-[60px] transition-all flex-shrink-0",
+              "flex items-center justify-center transition-all flex-shrink-0",
               selectedClub === null ? "scale-105" : "opacity-60 hover:opacity-100"
             )}
           >
             <div
               className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold",
+                "w-12 h-12 rounded-full flex items-center justify-center overflow-hidden",
                 selectedClub === null
-                  ? "bg-white text-zinc-900 ring-2 ring-white ring-offset-2 ring-offset-zinc-900"
-                  : "bg-zinc-700 text-zinc-300"
+                  ? "bg-white ring-2 ring-white ring-offset-2 ring-offset-zinc-900"
+                  : "bg-zinc-700"
               )}
             >
-              TODOS
+              <img
+                src={fanaticaLogoIcon}
+                alt="Todos os times"
+                className="w-10 h-10 object-contain"
+              />
             </div>
-            <span className="text-xs text-zinc-400">Todos</span>
           </button>
 
           {serieAClubs.map((club) => (
@@ -44,7 +48,7 @@ const ClubFilter = ({ selectedClub, onSelectClub }: ClubFilterProps) => {
               key={club.id}
               onClick={() => onSelectClub(club.id)}
               className={cn(
-                "flex flex-col items-center gap-1 min-w-[60px] transition-all flex-shrink-0",
+                "flex items-center justify-center transition-all flex-shrink-0",
                 selectedClub === club.id
                   ? "scale-105"
                   : "opacity-60 hover:opacity-100"
@@ -63,9 +67,6 @@ const ClubFilter = ({ selectedClub, onSelectClub }: ClubFilterProps) => {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-xs text-zinc-400 truncate max-w-[60px]">
-                {club.shortName}
-              </span>
             </button>
           ))}
         </div>
