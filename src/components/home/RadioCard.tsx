@@ -1,10 +1,19 @@
 import { Radio, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ModuleConfig } from "@/hooks/useAppModules";
 
-const RadioCard = () => {
+interface RadioCardProps {
+  config?: ModuleConfig;
+}
+
+const RadioCard = ({ config }: RadioCardProps) => {
+  const title = config?.title || "Alambrado FM";
+  const subtitle = config?.subtitle || "As principais rádios esportivas do Brasil";
+  const link = config?.link || "/radio";
+
   return (
     <Link
-      to="/radio"
+      to={link}
       className="block mx-4 my-4 mb-24 relative overflow-hidden rounded-2xl bg-gradient-to-r from-radio to-radio/80 p-6 group"
     >
       <div className="absolute -right-4 -bottom-4 opacity-10">
@@ -18,10 +27,14 @@ const RadioCard = () => {
 
         <div className="flex-1">
           <h3 className="font-display text-3xl text-radio-foreground mb-1">
-            Alambrado <span className="text-primary">FM</span>
+            {title.includes("Alambrado") ? (
+              <>Alambrado <span className="text-primary">FM</span></>
+            ) : (
+              title
+            )}
           </h3>
           <p className="text-radio-foreground/80 text-sm">
-            As principais rádios esportivas do Brasil
+            {subtitle}
           </p>
         </div>
 

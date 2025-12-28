@@ -20,19 +20,19 @@ const StudioEditor = () => {
   }
 
   return (
-    <div className="h-[calc(100vh-200px)] flex bg-background rounded-xl overflow-hidden border border-border">
+    <div className="h-[calc(100vh-280px)] min-h-[500px] flex bg-background rounded-xl overflow-hidden border border-border">
       {/* Left Panel - Module Catalog */}
-      <div className="w-64 border-r border-border bg-card flex-shrink-0 overflow-hidden">
+      <div className="w-72 border-r border-border bg-card flex-shrink-0 overflow-hidden">
         <ModuleCatalog />
       </div>
       
       {/* Center - Mobile Preview */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 flex items-center justify-center bg-muted/30">
         <MobilePreview currentPage="/" />
       </div>
       
       {/* Right Panel - Module List or Editor */}
-      <div className="w-80 border-l border-border bg-card flex-shrink-0 overflow-hidden">
+      <div className="w-96 border-l border-border bg-card flex-shrink-0 overflow-hidden">
         {selectedModule ? (
           <ModuleEditor 
             module={selectedModule} 
