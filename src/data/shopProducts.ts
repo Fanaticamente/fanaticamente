@@ -15,6 +15,8 @@ export interface Product {
   featured?: boolean;
   isNew?: boolean;
   discount?: number;
+  externalUrl?: string;
+  source?: "generated" | "official_store";
 }
 
 export type ProductCategory = Product["category"];
@@ -30,6 +32,11 @@ export const categoryLabels: Record<ProductCategory, string> = {
 
 // Helper function to get the external store URL for a product
 export const getProductStoreUrl = (product: Product): string => {
+  // If product has a direct external URL, use it
+  if (product.externalUrl) {
+    return product.externalUrl;
+  }
+  
   const club = getClubById(product.clubId);
   if (club) {
     // Create a search query based on product name
@@ -193,10 +200,30 @@ const generateClubProducts = (club: BrazilianClub): Product[] => {
   }));
 };
 
-// Generate all products for Serie A clubs
-export const allProducts: Product[] = brazilianClubs
+// Import real products
+import { flamengoRealProducts, RealProduct } from "./realProducts";
+
+// Generate all products for Serie A clubs (excluding Flamengo camisas since we have real ones)
+const generatedProducts: Product[] = brazilianClubs
   .filter((club) => club.league === "serie_a")
   .flatMap(generateClubProducts);
+
+// Filter out generated Flamengo camisas since we have real ones
+const filteredGeneratedProducts = generatedProducts.filter(
+  (product) => !(product.clubId === "flamengo" && product.category === "camisa")
+);
+
+// Convert real products to Product type
+const realProductsAsProducts: Product[] = flamengoRealProducts.map((rp) => ({
+  ...rp,
+  source: "official_store" as const,
+}));
+
+// Combine real products first, then generated products
+export const allProducts: Product[] = [
+  ...realProductsAsProducts,
+  ...filteredGeneratedProducts,
+];
 
 export const getProductsByClub = (clubId: string): Product[] => {
   return allProducts.filter((product) => product.clubId === clubId);
