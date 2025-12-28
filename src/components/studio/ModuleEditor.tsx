@@ -20,8 +20,6 @@ interface SlideConfig {
   image: string;
   title: string;
   subtitle?: string;
-  cta?: string;
-  ctaLink?: string;
 }
 
 const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
@@ -107,7 +105,7 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
     const slides = (config.slides || []) as SlideConfig[];
     setConfig({
       ...config,
-      slides: [...slides, { image: "", title: "", subtitle: "", cta: "SAIBA MAIS", ctaLink: "/" }],
+      slides: [...slides, { image: "", title: "", subtitle: "" }],
     });
   };
 
@@ -239,7 +237,7 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
                         ) : (
                           <label className="w-full h-24 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
                             <Upload className="w-6 h-6 text-muted-foreground mb-1" />
-                            <span className="text-xs text-muted-foreground">Upload (1080 x 540 px)</span>
+                            <span className="text-xs text-muted-foreground">Upload</span>
                             <input
                               type="file"
                               className="hidden"
@@ -252,7 +250,6 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
                           </label>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">Recomendado: 1080 x 540 pixels</p>
                     </div>
                     
                     <div>
@@ -271,28 +268,6 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
                         onChange={(e) => updateSlide(index, "subtitle", e.target.value)}
                         className="mt-1"
                       />
-                    </div>
-                    
-                    <div>
-                      <Label>Texto do botão (CTA)</Label>
-                      <Input
-                        value={slide.cta || ""}
-                        onChange={(e) => updateSlide(index, "cta", e.target.value)}
-                        className="mt-1"
-                        placeholder="SAIBA MAIS"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label>Link do botão</Label>
-                      <div className="flex gap-2 mt-1">
-                        <Link className="w-4 h-4 text-muted-foreground mt-3" />
-                        <Input
-                          value={slide.ctaLink || ""}
-                          onChange={(e) => updateSlide(index, "ctaLink", e.target.value)}
-                          placeholder="/terapeutas"
-                        />
-                      </div>
                     </div>
                   </div>
                 ))}
@@ -328,7 +303,7 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
                       <label className="w-full h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
                         <Upload className="w-8 h-8 text-muted-foreground mb-2" />
                         <span className="text-sm text-muted-foreground">Clique para enviar</span>
-                        <span className="text-xs text-muted-foreground mt-1">Recomendado: 400 x 200 pixels</span>
+                        <span className="text-xs text-muted-foreground mt-1">1125 x 360 pixels</span>
                         <input
                           type="file"
                           className="hidden"

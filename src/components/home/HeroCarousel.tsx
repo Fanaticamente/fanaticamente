@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAppModules, type ModuleConfig } from "@/hooks/useAppModules";
 
 import heroSlide1 from "@/assets/hero-slide-1.jpg";
 import heroSlide2 from "@/assets/hero-slide-2.jpg";
 import heroSlide3 from "@/assets/hero-slide-3.jpg";
 
-// Fallback slides if database is empty
-const fallbackSlides = [
+const slides = [
   {
+    id: 1,
     title: "CUIDE DA MENTE",
     subtitle: "Jogue com equilíbrio",
     cta: "COMEÇAR AGORA",
@@ -17,6 +16,7 @@ const fallbackSlides = [
     image: heroSlide1,
   },
   {
+    id: 2,
     title: "ENCONTRE SEU TERAPEUTA",
     subtitle: "Psicólogos especializados em torcedores",
     cta: "AGENDAR CONSULTA",
@@ -24,6 +24,7 @@ const fallbackSlides = [
     image: heroSlide2,
   },
   {
+    id: 3,
     title: "COMUNIDADE FANÁTICA",
     subtitle: "Apoio emocional entre torcedores",
     cta: "PARTICIPAR",
@@ -34,22 +35,6 @@ const fallbackSlides = [
 
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { data: modules } = useAppModules("home");
-  
-  // Find the hero_carousel module
-  const carouselModule = modules?.find(m => m.module_id === 'hero_carousel');
-  const config = carouselModule?.config as ModuleConfig | undefined;
-  
-  // Use database slides or fallback
-  const slides = config?.slides && config.slides.length > 0
-    ? config.slides.map((slide, index) => ({
-        title: slide.title || `Slide ${index + 1}`,
-        subtitle: slide.subtitle || '',
-        cta: slide.cta || 'SAIBA MAIS',
-        ctaLink: slide.ctaLink || '/',
-        image: slide.image || fallbackSlides[index % fallbackSlides.length]?.image || heroSlide1,
-      }))
-    : fallbackSlides;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -57,18 +42,13 @@ const HeroCarousel = () => {
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [slides.length]);
+  }, []);
 
   return (
     <div className="relative h-[70vh] min-h-[480px] max-h-[600px] w-full overflow-hidden">
-      {/* Dimension hint for developers */}
-      <div className="absolute top-2 right-2 z-10 bg-background/80 text-xs text-muted-foreground px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity">
-        Recomendado: 1080 x 540 px
-      </div>
-      
       {slides.map((slide, index) => (
         <div
-          key={index}
+          key={slide.id}
           className={`absolute inset-0 transition-opacity duration-700 ${
             index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
