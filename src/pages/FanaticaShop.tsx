@@ -52,14 +52,14 @@ const FanaticaShop = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-20">
       {/* Shop Header with Search */}
       <ShopHeader
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
 
-      {/* Club Filter */}
+      {/* Club Filter - Fixed position with scroll */}
       <ClubFilter selectedClub={selectedClub} onSelectClub={handleSelectClub} />
 
       {/* Category Tabs */}

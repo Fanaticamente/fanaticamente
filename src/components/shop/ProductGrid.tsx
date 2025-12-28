@@ -10,7 +10,7 @@ interface ProductGridProps {
 const ProductGrid = ({ products, title }: ProductGridProps) => {
   if (products.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+      <div className="flex flex-col items-center justify-center py-16 text-zinc-400">
         <PackageX className="w-16 h-16 mb-4 opacity-50" />
         <p className="text-lg font-medium">Nenhum produto encontrado</p>
         <p className="text-sm">Tente ajustar os filtros de busca</p>
@@ -21,7 +21,7 @@ const ProductGrid = ({ products, title }: ProductGridProps) => {
   return (
     <div className="px-4 py-4">
       {title && (
-        <h2 className="text-lg font-bold mb-4 text-foreground">{title}</h2>
+        <h2 className="text-lg font-bold mb-4 text-zinc-100">{title}</h2>
       )}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
         {products.map((product) => (

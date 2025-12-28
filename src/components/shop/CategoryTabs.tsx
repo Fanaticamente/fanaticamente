@@ -21,7 +21,7 @@ const CategoryTabs = ({ selectedCategory, onSelectCategory }: CategoryTabsProps)
   const categories = Object.keys(categoryLabels) as ProductCategory[];
 
   return (
-    <div className="border-b border-border/50">
+    <div className="border-b border-zinc-800 bg-zinc-900">
       <ScrollArea className="w-full whitespace-nowrap">
         <div className="flex px-4">
           <button
@@ -29,8 +29,8 @@ const CategoryTabs = ({ selectedCategory, onSelectCategory }: CategoryTabsProps)
             className={cn(
               "flex items-center gap-2 px-4 py-3 border-b-2 transition-colors",
               selectedCategory === null
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+                ? "border-white text-white"
+                : "border-transparent text-zinc-400 hover:text-zinc-200"
             )}
           >
             Todos
@@ -43,8 +43,8 @@ const CategoryTabs = ({ selectedCategory, onSelectCategory }: CategoryTabsProps)
               className={cn(
                 "flex items-center gap-2 px-4 py-3 border-b-2 transition-colors",
                 selectedCategory === category
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  ? "border-white text-white"
+                  : "border-transparent text-zinc-400 hover:text-zinc-200"
               )}
             >
               {categoryIcons[category]}
