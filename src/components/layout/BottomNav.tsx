@@ -1,35 +1,19 @@
-import { Home, Thermometer, Newspaper, Shirt, Users, BookOpen, Radio, User, Settings, ShoppingBag } from "lucide-react";
+import { Home, Thermometer, Newspaper, Shirt } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import { useAppMenu } from "@/hooks/useAppContent";
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Home,
-  Thermometer,
-  Newspaper,
-  Shirt,
-  Users,
-  BookOpen,
-  Radio,
-  User,
-  Settings,
-  ShoppingBag,
-};
+const navItems = [
+  { icon: Home, label: "Início", path: "/" },
+  { icon: Thermometer, label: "Termômetro", path: "/diario" },
+  { icon: Newspaper, label: "Futebol", path: "/futebol" },
+  { icon: Shirt, label: "FanaticaShop", path: "/loja" },
+];
 
 const BottomNav = () => {
-  const { data: menuData } = useAppMenu('bottom_nav');
-
-  const navItems = menuData?.items || [
-    { icon: "Home", label: "Início", path: "/" },
-    { icon: "Thermometer", label: "Termômetro", path: "/diario" },
-    { icon: "Newspaper", label: "Futebol", path: "/futebol" },
-    { icon: "Shirt", label: "FanaticaShop", path: "/loja" },
-  ];
-
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass-dark">
       <div className="flex items-center justify-around py-2">
         {navItems.map((item) => {
-          const IconComponent = iconMap[item.icon] || Home;
+          const IconComponent = item.icon;
           return (
             <NavLink
               key={item.path}
