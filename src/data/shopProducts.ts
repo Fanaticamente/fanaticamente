@@ -1,4 +1,4 @@
-import { brazilianClubs, BrazilianClub } from "./brazilianClubs";
+import { brazilianClubs, BrazilianClub, getClubById } from "./brazilianClubs";
 
 export interface Product {
   id: string;
@@ -26,6 +26,18 @@ export const categoryLabels: Record<ProductCategory, string> = {
   acessorio: "Acessórios",
   calcado: "Calçados",
   infantil: "Infantil",
+};
+
+// Helper function to get the external store URL for a product
+export const getProductStoreUrl = (product: Product): string => {
+  const club = getClubById(product.clubId);
+  if (club) {
+    // Create a search query based on product name
+    const searchQuery = encodeURIComponent(product.name);
+    // Most stores support search via query parameter
+    return `${club.storeUrl}/busca?q=${searchQuery}`;
+  }
+  return "#";
 };
 
 // Generate products for each Serie A club

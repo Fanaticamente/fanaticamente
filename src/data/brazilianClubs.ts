@@ -6,6 +6,7 @@ export interface BrazilianClub {
   secondaryColor: string;
   badgeUrl: string;
   league: "serie_a" | "serie_b";
+  storeUrl: string;
 }
 
 export const brazilianClubs: BrazilianClub[] = [
@@ -17,6 +18,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#000000",
     badgeUrl: "https://logodetimes.com/times/flamengo/logo-flamengo-256.png",
     league: "serie_a",
+    storeUrl: "https://loja.flamengo.com.br",
   },
   {
     id: "palmeiras",
@@ -26,6 +28,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#FFFFFF",
     badgeUrl: "https://logodetimes.com/times/palmeiras/logo-palmeiras-256.png",
     league: "serie_a",
+    storeUrl: "https://www.palmeirasstore.com",
   },
   {
     id: "corinthians",
@@ -35,6 +38,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#FFFFFF",
     badgeUrl: "https://logodetimes.com/times/corinthians/logo-corinthians-256.png",
     league: "serie_a",
+    storeUrl: "https://www.shoptimao.com.br",
   },
   {
     id: "sao-paulo",
@@ -44,6 +48,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#000000",
     badgeUrl: "https://logodetimes.com/times/sao-paulo/logo-sao-paulo-256.png",
     league: "serie_a",
+    storeUrl: "https://www.saopaulomania.com.br",
   },
   {
     id: "fluminense",
@@ -53,6 +58,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#006437",
     badgeUrl: "https://logodetimes.com/times/fluminense/logo-fluminense-256.png",
     league: "serie_a",
+    storeUrl: "https://loja.fluminense.com.br",
   },
   {
     id: "botafogo",
@@ -62,6 +68,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#FFFFFF",
     badgeUrl: "https://logodetimes.com/times/botafogo/logo-botafogo-256.png",
     league: "serie_a",
+    storeUrl: "https://www.botafogostore.com.br",
   },
   {
     id: "vasco",
@@ -71,6 +78,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#FFFFFF",
     badgeUrl: "https://logodetimes.com/times/vasco-da-gama/logo-vasco-da-gama-256.png",
     league: "serie_a",
+    storeUrl: "https://www.vascostore.com.br",
   },
   {
     id: "atletico-mg",
@@ -80,6 +88,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#FFFFFF",
     badgeUrl: "https://logodetimes.com/times/atletico-mineiro/logo-atletico-mineiro-256.png",
     league: "serie_a",
+    storeUrl: "https://www.lojadogalo.com.br",
   },
   {
     id: "cruzeiro",
@@ -89,6 +98,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#FFFFFF",
     badgeUrl: "https://logodetimes.com/times/cruzeiro/logo-cruzeiro-256.png",
     league: "serie_a",
+    storeUrl: "https://shop.cruzeiro.com.br",
   },
   {
     id: "internacional",
@@ -98,6 +108,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#FFFFFF",
     badgeUrl: "https://logodetimes.com/times/internacional/logo-internacional-256.png",
     league: "serie_a",
+    storeUrl: "https://www.lojadointer.com.br",
   },
   {
     id: "gremio",
@@ -107,6 +118,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#000000",
     badgeUrl: "https://logodetimes.com/times/gremio/logo-gremio-256.png",
     league: "serie_a",
+    storeUrl: "https://www.gremiomania.com.br",
   },
   {
     id: "santos",
@@ -116,6 +128,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#FFFFFF",
     badgeUrl: "https://logodetimes.com/times/santos/logo-santos-256.png",
     league: "serie_a",
+    storeUrl: "https://www.santosstore.com.br",
   },
   {
     id: "athletico-pr",
@@ -125,6 +138,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#000000",
     badgeUrl: "https://logodetimes.com/times/athletico-paranaense/logo-athletico-paranaense-256.png",
     league: "serie_a",
+    storeUrl: "https://loja.athletico.com.br",
   },
   {
     id: "bahia",
@@ -134,6 +148,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#E30613",
     badgeUrl: "https://logodetimes.com/times/bahia/logo-bahia-256.png",
     league: "serie_a",
+    storeUrl: "https://www.lojaesquadrao.com.br",
   },
   {
     id: "fortaleza",
@@ -143,6 +158,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#E30613",
     badgeUrl: "https://logodetimes.com/times/fortaleza/logo-fortaleza-256.png",
     league: "serie_a",
+    storeUrl: "https://leao1918.com.br",
   },
   {
     id: "bragantino",
@@ -152,6 +168,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#FFFFFF",
     badgeUrl: "https://logodetimes.com/times/red-bull-bragantino/logo-red-bull-bragantino-256.png",
     league: "serie_a",
+    storeUrl: "https://www.redbullshop.com.br/collections/red-bull-bragantino",
   },
   {
     id: "cuiaba",
@@ -161,6 +178,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#FFD700",
     badgeUrl: "https://logodetimes.com/times/cuiaba/logo-cuiaba-256.png",
     league: "serie_a",
+    storeUrl: "https://www.douradostore.com.br",
   },
   {
     id: "juventude",
@@ -170,6 +188,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#FFFFFF",
     badgeUrl: "https://logodetimes.com/times/juventude/logo-juventude-256.png",
     league: "serie_a",
+    storeUrl: "https://www.19treze.com.br",
   },
   {
     id: "criciuma",
@@ -179,6 +198,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#000000",
     badgeUrl: "https://logodetimes.com/times/criciuma/logo-criciuma-256.png",
     league: "serie_a",
+    storeUrl: "https://www.tigreemaniastore.com.br",
   },
   {
     id: "vitoria",
@@ -188,6 +208,7 @@ export const brazilianClubs: BrazilianClub[] = [
     secondaryColor: "#000000",
     badgeUrl: "https://logodetimes.com/times/vitoria/logo-vitoria-256.png",
     league: "serie_a",
+    storeUrl: "https://www.lojanegroerubro.com.br",
   },
 ];
 
