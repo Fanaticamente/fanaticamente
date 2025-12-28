@@ -58,96 +58,101 @@ const DeveloperDashboard = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-20 pb-8 px-4 max-w-6xl mx-auto">
+      <main className="pt-20 pb-8 px-4">
         {/* Header */}
-        <div className="bg-gradient-to-r from-secondary/20 to-primary/20 border border-secondary/30 rounded-2xl p-6 mb-6">
+        <div className="bg-gradient-to-r from-secondary/20 to-primary/20 border border-secondary/30 rounded-2xl p-4 mb-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-secondary/30 flex items-center justify-center">
-              <Code className="w-8 h-8 text-secondary" />
+            <div className="w-12 h-12 rounded-xl bg-secondary/30 flex items-center justify-center">
+              <Code className="w-6 h-6 text-secondary" />
             </div>
-            <div>
-              <h1 className="font-display text-3xl text-card-foreground">
+            <div className="flex-1">
+              <h1 className="font-display text-2xl text-card-foreground">
                 Painel do Desenvolvedor
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Ferramentas completas de edição e desenvolvimento
               </p>
             </div>
-          </div>
-        </div>
-
-        {/* Content Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-card border border-border rounded-xl p-4 text-center">
-            <FileText className="w-6 h-6 text-primary mx-auto mb-2" />
-            <p className="text-2xl font-bold text-card-foreground">{contentStats.texts}</p>
-            <p className="text-xs text-muted-foreground">Textos</p>
-          </div>
-          <div className="bg-card border border-border rounded-xl p-4 text-center">
-            <Image className="w-6 h-6 text-secondary mx-auto mb-2" />
-            <p className="text-2xl font-bold text-card-foreground">{contentStats.images}</p>
-            <p className="text-xs text-muted-foreground">Imagens</p>
-          </div>
-          <div className="bg-card border border-border rounded-xl p-4 text-center">
-            <Layout className="w-6 h-6 text-therapy mx-auto mb-2" />
-            <p className="text-2xl font-bold text-card-foreground">{contentStats.total}</p>
-            <p className="text-xs text-muted-foreground">Total</p>
-          </div>
-        </div>
-
-        {/* Content Management Tabs */}
-        <div className="bg-card border border-border rounded-2xl p-6 mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Palette className="w-5 h-5 text-primary" />
-            <h2 className="font-display text-xl text-card-foreground">Gerenciador de Conteúdo</h2>
-          </div>
-
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-5 w-full mb-4">
-              <TabsTrigger value="studio" className="flex items-center gap-2">
-                <Layers className="w-4 h-4" />
-                Studio
-              </TabsTrigger>
-              <TabsTrigger value="content" className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Textos
-              </TabsTrigger>
-              <TabsTrigger value="menus" className="flex items-center gap-2">
-                <Menu className="w-4 h-4" />
-                Menus
-              </TabsTrigger>
-              <TabsTrigger value="images" className="flex items-center gap-2">
-                <Image className="w-4 h-4" />
-                Imagens
-              </TabsTrigger>
-              <TabsTrigger value="theme" className="flex items-center gap-2">
-                <Palette className="w-4 h-4" />
-                Tema
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="studio">
-              <StudioEditor />
-            </TabsContent>
-
-            <TabsContent value="content">
-              <NewContentDialog categories={categories} />
-              <div className="mt-4">
-                <ContentEditor />
+            {/* Content Stats inline */}
+            <div className="hidden md:flex gap-4">
+              <div className="flex items-center gap-2 bg-card/50 px-3 py-2 rounded-lg">
+                <FileText className="w-4 h-4 text-primary" />
+                <span className="text-sm font-bold text-card-foreground">{contentStats.texts}</span>
+                <span className="text-xs text-muted-foreground">Textos</span>
               </div>
-            </TabsContent>
+              <div className="flex items-center gap-2 bg-card/50 px-3 py-2 rounded-lg">
+                <Image className="w-4 h-4 text-secondary" />
+                <span className="text-sm font-bold text-card-foreground">{contentStats.images}</span>
+                <span className="text-xs text-muted-foreground">Imagens</span>
+              </div>
+              <div className="flex items-center gap-2 bg-card/50 px-3 py-2 rounded-lg">
+                <Layout className="w-4 h-4 text-therapy" />
+                <span className="text-sm font-bold text-card-foreground">{contentStats.total}</span>
+                <span className="text-xs text-muted-foreground">Total</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            <TabsContent value="menus">
-              <MenuEditor />
-            </TabsContent>
+        {/* Content Management Tabs - Full Width */}
+        <div className="bg-card border border-border rounded-2xl overflow-hidden mb-4">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <div className="flex items-center gap-2">
+              <Palette className="w-5 h-5 text-primary" />
+              <h2 className="font-display text-lg text-card-foreground">Gerenciador de Conteúdo</h2>
+            </div>
+          </div>
 
-            <TabsContent value="images">
-              <ImageManager />
-            </TabsContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="px-4 py-2 border-b border-border bg-muted/30">
+              <TabsList className="grid grid-cols-5 w-full max-w-2xl">
+                <TabsTrigger value="studio" className="flex items-center gap-2">
+                  <Layers className="w-4 h-4" />
+                  <span className="hidden sm:inline">Studio</span>
+                </TabsTrigger>
+                <TabsTrigger value="content" className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  <span className="hidden sm:inline">Textos</span>
+                </TabsTrigger>
+                <TabsTrigger value="menus" className="flex items-center gap-2">
+                  <Menu className="w-4 h-4" />
+                  <span className="hidden sm:inline">Menus</span>
+                </TabsTrigger>
+                <TabsTrigger value="images" className="flex items-center gap-2">
+                  <Image className="w-4 h-4" />
+                  <span className="hidden sm:inline">Imagens</span>
+                </TabsTrigger>
+                <TabsTrigger value="theme" className="flex items-center gap-2">
+                  <Palette className="w-4 h-4" />
+                  <span className="hidden sm:inline">Tema</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-            <TabsContent value="theme">
-              <ThemeEditor />
-            </TabsContent>
+            <div className="p-4">
+              <TabsContent value="studio" className="mt-0">
+                <StudioEditor />
+              </TabsContent>
+
+              <TabsContent value="content" className="mt-0">
+                <NewContentDialog categories={categories} />
+                <div className="mt-4">
+                  <ContentEditor />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="menus" className="mt-0">
+                <MenuEditor />
+              </TabsContent>
+
+              <TabsContent value="images" className="mt-0">
+                <ImageManager />
+              </TabsContent>
+
+              <TabsContent value="theme" className="mt-0">
+                <ThemeEditor />
+              </TabsContent>
+            </div>
           </Tabs>
         </div>
 

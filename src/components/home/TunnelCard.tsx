@@ -1,10 +1,19 @@
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ModuleConfig } from "@/hooks/useAppModules";
 
-const TunnelCard = () => {
+interface TunnelCardProps {
+  config?: ModuleConfig;
+}
+
+const TunnelCard = ({ config }: TunnelCardProps) => {
+  const title = config?.title || "Encontre um";
+  const subtitle = config?.subtitle || "Terapeuta";
+  const link = config?.link || "/terapeutas";
+
   return (
     <Link
-      to="/terapeutas"
+      to={link}
       className="block relative overflow-hidden rounded-2xl mx-4 my-4 h-40 group bg-gradient-to-r from-secondary via-secondary/80 to-secondary/60"
     >
       <div className="absolute inset-0 stadium-pattern" />
@@ -15,8 +24,8 @@ const TunnelCard = () => {
             TÚNEL DE ACESSO
           </p>
           <h3 className="font-display text-3xl md:text-4xl text-card-foreground">
-            Encontre um{" "}
-            <span className="text-primary">Terapeuta</span>
+            {title}{" "}
+            <span className="text-primary">{subtitle}</span>
           </h3>
         </div>
 

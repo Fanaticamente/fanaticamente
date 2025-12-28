@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useEffect } from "react";
 import type { Json } from "@/integrations/supabase/types";
 
 export interface AppModule {
@@ -20,8 +21,9 @@ export interface AppModule {
 }
 
 export interface ModuleConfig {
-  slides?: Array<{ image: string; title: string; subtitle?: string }>;
+  slides?: Array<{ image: string; title: string; subtitle?: string; cta?: string; ctaLink?: string }>;
   title?: string;
+  subtitle?: string;
   image?: string;
   link?: string;
   items?: Array<{ icon: string; label: string; path: string }>;
@@ -29,9 +31,34 @@ export interface ModuleConfig {
   showMenu?: boolean;
   path?: string;
   backgroundImage?: string;
+  cta?: string;
+  ctaLink?: string;
 }
 
 export const useAppModules = (page?: string) => {
+  const queryClient = useQueryClient();
+  
+  useEffect(() => {
+    const channel = supabase
+      .channel('app-modules-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'app_modules'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["app-modules"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ["app-modules", page],
     queryFn: async () => {

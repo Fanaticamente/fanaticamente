@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ModuleConfig } from "@/hooks/useAppModules";
 
 import heroSlide1 from "@/assets/hero-slide-1.jpg";
 import heroSlide2 from "@/assets/hero-slide-2.jpg";
 import heroSlide3 from "@/assets/hero-slide-3.jpg";
 
-const slides = [
+const defaultSlides = [
   {
     id: 1,
     title: "CUIDE DA MENTE",
@@ -33,8 +34,23 @@ const slides = [
   },
 ];
 
-const HeroCarousel = () => {
+interface HeroCarouselProps {
+  config?: ModuleConfig;
+}
+
+const HeroCarousel = ({ config }: HeroCarouselProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const slides = config?.slides?.length 
+    ? config.slides.map((slide, index) => ({
+        id: index + 1,
+        title: slide.title || defaultSlides[index]?.title || "",
+        subtitle: slide.subtitle || defaultSlides[index]?.subtitle || "",
+        cta: slide.cta || defaultSlides[index]?.cta || "SAIBA MAIS",
+        ctaLink: slide.ctaLink || defaultSlides[index]?.ctaLink || "/",
+        image: slide.image || defaultSlides[index]?.image || heroSlide1,
+      }))
+    : defaultSlides;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -42,7 +58,7 @@ const HeroCarousel = () => {
     }, 5000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   return (
     <div className="relative h-[70vh] min-h-[480px] max-h-[600px] w-full overflow-hidden">

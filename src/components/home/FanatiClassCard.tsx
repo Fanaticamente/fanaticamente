@@ -1,10 +1,19 @@
 import { Play, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ModuleConfig } from "@/hooks/useAppModules";
 
-const FanatiClassCard = () => {
+interface FanatiClassCardProps {
+  config?: ModuleConfig;
+}
+
+const FanatiClassCard = ({ config }: FanatiClassCardProps) => {
+  const title = config?.title || "FanatiClass";
+  const subtitle = config?.subtitle || "Cursos online para desenvolver sua inteligência emocional";
+  const link = config?.link || "/cursos";
+
   return (
     <Link
-      to="/cursos"
+      to={link}
       className="block mx-4 my-4 relative overflow-hidden rounded-2xl bg-gradient-to-br from-card to-muted p-6 group border border-border"
     >
       <div className="absolute top-4 right-4">
@@ -20,10 +29,14 @@ const FanatiClassCard = () => {
 
         <div className="flex-1">
           <h3 className="font-display text-3xl text-card-foreground mb-1">
-            Fanati<span className="text-primary">Class</span>
+            {title.includes("Fanati") ? (
+              <>Fanati<span className="text-primary">Class</span></>
+            ) : (
+              title
+            )}
           </h3>
           <p className="text-muted-foreground text-sm">
-            Cursos online para desenvolver sua inteligência emocional
+            {subtitle}
           </p>
         </div>
 
