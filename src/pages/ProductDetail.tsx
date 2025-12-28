@@ -68,7 +68,7 @@ const ProductDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-zinc-900 pb-20">
       <ShopHeader
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -79,7 +79,7 @@ const ProductDetail = () => {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Image Section */}
           <div className="space-y-4">
-            <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-muted">
+            <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-zinc-800">
               <img
                 src={product.imageUrl}
                 alt={product.name}
@@ -106,7 +106,7 @@ const ProductDetail = () => {
 
               {/* Club Badge */}
               {club && (
-                <div className="absolute top-4 right-4 bg-white rounded-full p-2">
+                <div className="absolute top-4 right-4 bg-zinc-800 rounded-full p-2">
                   <img
                     src={club.badgeUrl}
                     alt={club.name}
@@ -119,7 +119,7 @@ const ProductDetail = () => {
               <Button
                 variant="outline"
                 size="icon"
-                className="absolute bottom-4 right-4 bg-white/90 hover:bg-white"
+                className="absolute bottom-4 right-4 bg-zinc-800/90 hover:bg-zinc-700 border-zinc-600 text-white"
               >
                 <Heart className="w-5 h-5" />
               </Button>
@@ -130,11 +130,11 @@ const ProductDetail = () => {
           <div className="space-y-6">
             {/* Club Name */}
             {club && (
-              <p className="text-sm text-primary font-medium">{club.name}</p>
+              <p className="text-sm text-green-400 font-medium">{club.name}</p>
             )}
 
             {/* Product Name */}
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+            <h1 className="text-2xl md:text-3xl font-bold text-white">
               {product.name}
             </h1>
 
@@ -142,21 +142,21 @@ const ProductDetail = () => {
             <div className="space-y-1">
               <div className="flex items-baseline gap-3">
                 {product.originalPrice && (
-                  <span className="text-lg text-muted-foreground line-through">
+                  <span className="text-lg text-zinc-500 line-through">
                     {formatPrice(product.originalPrice)}
                   </span>
                 )}
-                <span className="text-3xl font-bold text-primary">
+                <span className="text-3xl font-bold text-white">
                   {formatPrice(product.price)}
                 </span>
               </div>
               {product.source === "official_store" ? (
-                <p className="text-sm text-blue-600 font-medium flex items-center gap-1">
+                <p className="text-sm text-green-400 font-medium flex items-center gap-1">
                   <BadgeCheck className="w-4 h-4" />
                   Preço atualizado da loja oficial
                 </p>
               ) : (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-zinc-400">
                   Preço de referência - confira o valor atualizado na loja oficial
                 </p>
               )}
@@ -165,14 +165,14 @@ const ProductDetail = () => {
             {/* Size Reference */}
             {product.sizes && product.sizes.length > 0 && (
               <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground">
+                <label className="text-sm font-medium text-zinc-100">
                   Tamanhos disponíveis
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => (
                     <span
                       key={size}
-                      className="px-4 py-2 rounded-lg border border-border bg-muted text-sm font-medium"
+                      className="px-4 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-sm font-medium text-zinc-200"
                     >
                       {size}
                     </span>
@@ -184,14 +184,14 @@ const ProductDetail = () => {
             {/* Color Reference */}
             {product.colors && product.colors.length > 0 && (
               <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground">
+                <label className="text-sm font-medium text-zinc-100">
                   Cores disponíveis
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {product.colors.map((color) => (
                     <span
                       key={color}
-                      className="px-4 py-2 rounded-lg border border-border bg-muted text-sm font-medium"
+                      className="px-4 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-sm font-medium text-zinc-200"
                     >
                       {color}
                     </span>
@@ -202,23 +202,23 @@ const ProductDetail = () => {
 
             {/* Info Notice */}
             {product.source === "official_store" ? (
-              <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex gap-3">
-                <BadgeCheck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div className="bg-green-950/30 border border-green-800 rounded-lg p-4 flex gap-3">
+                <BadgeCheck className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">
+                  <p className="font-medium text-green-400 mb-1">
                     Produto da Loja Oficial
                   </p>
-                  <p className="text-blue-600/80 dark:text-blue-300/80">
+                  <p className="text-green-300/80">
                     Este produto foi verificado diretamente na loja oficial do {club?.name}. 
                     Ao clicar em "Comprar", você será redirecionado para a página exata do produto.
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="bg-muted/50 border border-border rounded-lg p-4 flex gap-3">
-                <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-muted-foreground">
-                  <p className="font-medium text-foreground mb-1">
+              <div className="bg-zinc-800/50 border border-zinc-700 rounded-lg p-4 flex gap-3">
+                <Info className="w-5 h-5 text-zinc-400 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-zinc-400">
+                  <p className="font-medium text-zinc-200 mb-1">
                     Vitrine de Produtos
                   </p>
                   <p>
@@ -232,13 +232,13 @@ const ProductDetail = () => {
 
             {/* Action Buttons */}
             <div className="space-y-3 pt-4">
-              <Button className="w-full" size="lg" onClick={handleBuyNow}>
+              <Button className="w-full bg-white text-zinc-900 hover:bg-zinc-200" size="lg" onClick={handleBuyNow}>
                 <ExternalLink className="w-5 h-5 mr-2" />
                 Comprar na Loja Oficial
               </Button>
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full border-zinc-600 text-zinc-200 hover:bg-zinc-800"
                 size="lg"
                 onClick={handleVisitStore}
               >
@@ -248,25 +248,25 @@ const ProductDetail = () => {
             </div>
 
             {/* Benefits */}
-            <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border">
+            <div className="grid grid-cols-2 gap-4 pt-6 border-t border-zinc-700">
               <div className="flex flex-col items-center text-center gap-2">
-                <Shield className="w-6 h-6 text-primary" />
-                <span className="text-xs text-muted-foreground">
+                <Shield className="w-6 h-6 text-zinc-300" />
+                <span className="text-xs text-zinc-400">
                   Loja Oficial
                 </span>
               </div>
               <div className="flex flex-col items-center text-center gap-2">
-                <Truck className="w-6 h-6 text-primary" />
-                <span className="text-xs text-muted-foreground">
+                <Truck className="w-6 h-6 text-zinc-300" />
+                <span className="text-xs text-zinc-400">
                   Entrega pela Loja
                 </span>
               </div>
             </div>
 
             {/* Description */}
-            <div className="pt-6 border-t border-border">
-              <h3 className="font-medium text-foreground mb-2">Descrição</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+            <div className="pt-6 border-t border-zinc-700">
+              <h3 className="font-medium text-zinc-100 mb-2">Descrição</h3>
+              <p className="text-sm text-zinc-400 leading-relaxed">
                 {product.description}
               </p>
             </div>
