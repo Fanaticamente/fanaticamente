@@ -1,6 +1,6 @@
 import { Product, getProductStoreUrl } from "@/data/shopProducts";
 import { getClubById } from "@/data/brazilianClubs";
-import { ExternalLink, Heart } from "lucide-react";
+import { ExternalLink, Heart, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -47,6 +47,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
         
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
+          {product.source === "official_store" && (
+            <Badge className="bg-blue-600 text-white text-xs flex items-center gap-1">
+              <BadgeCheck className="w-3 h-3" />
+              Oficial
+            </Badge>
+          )}
           {product.isNew && (
             <Badge className="bg-green-500 text-white text-xs">Novo</Badge>
           )}
@@ -108,9 +114,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </span>
         </div>
         
-        <p className="text-xs text-muted-foreground mt-1">
-          Preço de referência
-        </p>
+        {product.source === "official_store" ? (
+          <p className="text-xs text-blue-600 font-medium mt-1 flex items-center gap-1">
+            <BadgeCheck className="w-3 h-3" />
+            Produto da Loja Oficial
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground mt-1">
+            Preço de referência
+          </p>
+        )}
       </div>
     </div>
   );

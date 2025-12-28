@@ -14,6 +14,7 @@ import {
   Store,
   ChevronLeft,
   Info,
+  BadgeCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -87,6 +88,12 @@ const ProductDetail = () => {
               
               {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
+                {product.source === "official_store" && (
+                  <Badge className="bg-blue-600 text-white flex items-center gap-1">
+                    <BadgeCheck className="w-3 h-3" />
+                    Produto Oficial
+                  </Badge>
+                )}
                 {product.isNew && (
                   <Badge className="bg-green-500 text-white">Novo</Badge>
                 )}
@@ -143,9 +150,16 @@ const ProductDetail = () => {
                   {formatPrice(product.price)}
                 </span>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Preço de referência - confira o valor atualizado na loja oficial
-              </p>
+              {product.source === "official_store" ? (
+                <p className="text-sm text-blue-600 font-medium flex items-center gap-1">
+                  <BadgeCheck className="w-4 h-4" />
+                  Preço atualizado da loja oficial
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Preço de referência - confira o valor atualizado na loja oficial
+                </p>
+              )}
             </div>
 
             {/* Size Reference */}
@@ -187,19 +201,34 @@ const ProductDetail = () => {
             )}
 
             {/* Info Notice */}
-            <div className="bg-muted/50 border border-border rounded-lg p-4 flex gap-3">
-              <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-muted-foreground">
-                <p className="font-medium text-foreground mb-1">
-                  Vitrine de Produtos
-                </p>
-                <p>
-                  Este é um catálogo de referência. Ao clicar em "Comprar na Loja Oficial", 
-                  você será redirecionado para a loja oficial do {club?.name} onde poderá 
-                  finalizar sua compra com segurança.
-                </p>
+            {product.source === "official_store" ? (
+              <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex gap-3">
+                <BadgeCheck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">
+                    Produto da Loja Oficial
+                  </p>
+                  <p className="text-blue-600/80 dark:text-blue-300/80">
+                    Este produto foi verificado diretamente na loja oficial do {club?.name}. 
+                    Ao clicar em "Comprar", você será redirecionado para a página exata do produto.
+                  </p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-muted/50 border border-border rounded-lg p-4 flex gap-3">
+                <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-muted-foreground">
+                  <p className="font-medium text-foreground mb-1">
+                    Vitrine de Produtos
+                  </p>
+                  <p>
+                    Este é um catálogo de referência. Ao clicar em "Comprar na Loja Oficial", 
+                    você será redirecionado para a loja oficial do {club?.name} onde poderá 
+                    finalizar sua compra com segurança.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className="space-y-3 pt-4">
