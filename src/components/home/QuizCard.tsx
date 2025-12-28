@@ -1,18 +1,10 @@
 import { MessageCircle, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ModuleConfig } from "@/hooks/useAppModules";
 
-interface QuizCardProps {
-  config?: ModuleConfig;
-}
-
-const QuizCard = ({ config }: QuizCardProps) => {
-  const title = config?.title || "Treine sua habilidade de escutar e se comunicar!";
-  const link = config?.link || "/quiz";
-
+const QuizCard = () => {
   return (
     <Link
-      to={link}
+      to="/quiz"
       className="block mx-4 my-4 relative overflow-hidden rounded-2xl bg-quiz p-6 group"
     >
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -36,15 +28,9 @@ const QuizCard = ({ config }: QuizCardProps) => {
             </span>
           </div>
           <h3 className="font-display text-2xl text-quiz-foreground">
-            {title.includes("escutar") ? (
-              <>
-                Treine sua habilidade de{" "}
-                <span className="text-primary">escutar</span> e se{" "}
-                <span className="text-primary">comunicar!</span>
-              </>
-            ) : (
-              title
-            )}
+            Treine sua habilidade de{" "}
+            <span className="text-primary">escutar</span> e se{" "}
+            <span className="text-primary">comunicar!</span>
           </h3>
         </div>
 
