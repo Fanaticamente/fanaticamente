@@ -48,7 +48,7 @@ const FeaturedBanner = ({ onSelectClub }: FeaturedBannerProps) => {
                   </p>
                   <Button
                     onClick={() => onSelectClub(club.id)}
-                    className="bg-white text-foreground hover:bg-white/90"
+                    className="bg-white text-zinc-900 hover:bg-zinc-200"
                   >
                     Ver Produtos
                     <ChevronRight className="w-4 h-4 ml-1" />

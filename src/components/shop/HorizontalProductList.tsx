@@ -20,13 +20,13 @@ const HorizontalProductList = ({
   return (
     <div className="py-4">
       <div className="flex items-center justify-between px-4 mb-3">
-        <h2 className="text-lg font-bold text-foreground">{title}</h2>
+        <h2 className="text-lg font-bold text-zinc-100">{title}</h2>
         {onSeeAll && (
           <Button
             variant="ghost"
             size="sm"
             onClick={onSeeAll}
-            className="text-primary"
+            className="text-zinc-300 hover:text-white hover:bg-zinc-800"
           >
             Ver todos
             <ChevronRight className="w-4 h-4 ml-1" />
