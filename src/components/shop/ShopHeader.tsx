@@ -1,7 +1,6 @@
-import { Search, ArrowLeft } from "lucide-react";
+import { Search, ArrowLeft, Store } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import CartSheet from "./CartSheet";
 import { useNavigate } from "react-router-dom";
 
 interface ShopHeaderProps {
@@ -28,6 +27,13 @@ const ShopHeader = ({ searchQuery, onSearchChange, showBack }: ShopHeaderProps) 
             </Button>
           )}
           
+          {!showBack && (
+            <div className="flex items-center gap-2 shrink-0">
+              <Store className="w-6 h-6 text-primary" />
+              <span className="font-bold text-lg">FanaticaShop</span>
+            </div>
+          )}
+          
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
@@ -37,8 +43,6 @@ const ShopHeader = ({ searchQuery, onSearchChange, showBack }: ShopHeaderProps) 
               className="pl-10 bg-muted/50 border-border/50"
             />
           </div>
-
-          <CartSheet />
         </div>
       </div>
     </header>

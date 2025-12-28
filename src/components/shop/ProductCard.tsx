@@ -1,9 +1,8 @@
-import { Product } from "@/data/shopProducts";
+import { Product, getProductStoreUrl } from "@/data/shopProducts";
 import { getClubById } from "@/data/brazilianClubs";
-import { ShoppingCart, Heart } from "lucide-react";
+import { ExternalLink, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -12,16 +11,14 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
-  const { addToCart, isInCart } = useCart();
   const navigate = useNavigate();
   const club = getClubById(product.clubId);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleBuyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const defaultSize = product.sizes?.[0];
-    const defaultColor = product.colors?.[0];
-    addToCart(product, defaultSize, defaultColor);
-    toast.success(`${product.name} adicionado ao carrinho!`);
+    const storeUrl = getProductStoreUrl(product);
+    window.open(storeUrl, "_blank", "noopener,noreferrer");
+    toast.success(`Redirecionando para a loja oficial do ${club?.name}...`);
   };
 
   const handleClick = () => {
@@ -77,10 +74,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
             <Button
               size="sm"
               className="flex-1 bg-primary hover:bg-primary/90"
-              onClick={handleAddToCart}
+              onClick={handleBuyClick}
             >
-              <ShoppingCart className="w-4 h-4 mr-1" />
-              {isInCart(product.id) ? "Adicionar +" : "Comprar"}
+              <ExternalLink className="w-4 h-4 mr-1" />
+              Ver na Loja Oficial
             </Button>
             <Button
               size="sm"
@@ -112,7 +109,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
         
         <p className="text-xs text-muted-foreground mt-1">
-          ou 10x de {formatPrice(product.price / 10)}
+          Preço de referência
         </p>
       </div>
     </div>

@@ -1,21 +1,19 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProductById } from "@/data/shopProducts";
+import { getProductById, getProductStoreUrl } from "@/data/shopProducts";
 import { getClubById } from "@/data/brazilianClubs";
-import { useCart } from "@/contexts/CartContext";
 import ShopHeader from "@/components/shop/ShopHeader";
 import BottomNav from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  ShoppingCart,
+  ExternalLink,
   Heart,
   Truck,
   Shield,
-  RotateCcw,
+  Store,
   ChevronLeft,
-  Plus,
-  Minus,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -23,7 +21,6 @@ import { cn } from "@/lib/utils";
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
   
   const product = id ? getProductById(id) : undefined;
   const club = product ? getClubById(product.clubId) : undefined;
@@ -34,7 +31,6 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState<string | undefined>(
     product?.colors?.[0]
   );
-  const [quantity, setQuantity] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
 
   if (!product) {
@@ -57,16 +53,17 @@ const ProductDetail = () => {
     });
   };
 
-  const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addToCart(product, selectedSize, selectedColor);
-    }
-    toast.success(`${quantity}x ${product.name} adicionado ao carrinho!`);
+  const handleBuyNow = () => {
+    const storeUrl = getProductStoreUrl(product);
+    window.open(storeUrl, "_blank", "noopener,noreferrer");
+    toast.success(`Redirecionando para a loja oficial do ${club?.name}...`);
   };
 
-  const handleBuyNow = () => {
-    handleAddToCart();
-    toast.success("Redirecionando para o checkout...");
+  const handleVisitStore = () => {
+    if (club) {
+      window.open(club.storeUrl, "_blank", "noopener,noreferrer");
+      toast.success(`Abrindo a loja oficial do ${club.name}...`);
+    }
   };
 
   return (
@@ -147,118 +144,92 @@ const ProductDetail = () => {
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">
-                ou 10x de {formatPrice(product.price / 10)} sem juros
+                Preço de referência - confira o valor atualizado na loja oficial
               </p>
             </div>
 
-            {/* Size Selector */}
+            {/* Size Reference */}
             {product.sizes && product.sizes.length > 0 && (
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground">
-                  Tamanho
+                  Tamanhos disponíveis
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => (
-                    <button
+                    <span
                       key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={cn(
-                        "px-4 py-2 rounded-lg border text-sm font-medium transition-all",
-                        selectedSize === size
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-background hover:border-primary"
-                      )}
+                      className="px-4 py-2 rounded-lg border border-border bg-muted text-sm font-medium"
                     >
                       {size}
-                    </button>
+                    </span>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Color Selector */}
+            {/* Color Reference */}
             {product.colors && product.colors.length > 0 && (
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground">
-                  Cor
+                  Cores disponíveis
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {product.colors.map((color) => (
-                    <button
+                    <span
                       key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={cn(
-                        "px-4 py-2 rounded-lg border text-sm font-medium transition-all",
-                        selectedColor === color
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-background hover:border-primary"
-                      )}
+                      className="px-4 py-2 rounded-lg border border-border bg-muted text-sm font-medium"
                     >
                       {color}
-                    </button>
+                    </span>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Quantity Selector */}
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-foreground">
-                Quantidade
-              </label>
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                >
-                  <Minus className="w-4 h-4" />
-                </Button>
-                <span className="w-12 text-center font-medium">{quantity}</span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setQuantity(quantity + 1)}
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
+            {/* Info Notice */}
+            <div className="bg-muted/50 border border-border rounded-lg p-4 flex gap-3">
+              <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-muted-foreground">
+                <p className="font-medium text-foreground mb-1">
+                  Vitrine de Produtos
+                </p>
+                <p>
+                  Este é um catálogo de referência. Ao clicar em "Comprar na Loja Oficial", 
+                  você será redirecionado para a loja oficial do {club?.name} onde poderá 
+                  finalizar sua compra com segurança.
+                </p>
               </div>
             </div>
 
             {/* Action Buttons */}
             <div className="space-y-3 pt-4">
               <Button className="w-full" size="lg" onClick={handleBuyNow}>
-                Comprar Agora
+                <ExternalLink className="w-5 h-5 mr-2" />
+                Comprar na Loja Oficial
               </Button>
               <Button
                 variant="outline"
                 className="w-full"
                 size="lg"
-                onClick={handleAddToCart}
+                onClick={handleVisitStore}
               >
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                Adicionar ao Carrinho
+                <Store className="w-5 h-5 mr-2" />
+                Visitar Loja do {club?.name}
               </Button>
             </div>
 
             {/* Benefits */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-border">
-              <div className="flex flex-col items-center text-center gap-2">
-                <Truck className="w-6 h-6 text-primary" />
-                <span className="text-xs text-muted-foreground">
-                  Frete Grátis
-                </span>
-              </div>
+            <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border">
               <div className="flex flex-col items-center text-center gap-2">
                 <Shield className="w-6 h-6 text-primary" />
                 <span className="text-xs text-muted-foreground">
-                  Compra Segura
+                  Loja Oficial
                 </span>
               </div>
               <div className="flex flex-col items-center text-center gap-2">
-                <RotateCcw className="w-6 h-6 text-primary" />
+                <Truck className="w-6 h-6 text-primary" />
                 <span className="text-xs text-muted-foreground">
-                  Troca Fácil
+                  Entrega pela Loja
                 </span>
               </div>
             </div>
