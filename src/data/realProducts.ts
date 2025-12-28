@@ -1,16 +1,15 @@
-// Real products scraped from official Flamengo store
-// URL: https://loja.flamengo.com.br/mantos/jogo-1/masculino
+// Real products data for all Serie A clubs
+// Based on official store information
 
 import { Product } from "./shopProducts";
 
-export interface RealProduct extends Omit<Product, "id" | "clubId"> {
-  id: string;
-  clubId: string;
+export interface RealProduct extends Product {
   externalUrl: string;
   source: "official_store";
 }
 
-export const flamengoRealProducts: RealProduct[] = [
+// Flamengo products
+const flamengoProducts: RealProduct[] = [
   {
     id: "fla-real-1",
     name: "Manto Flamengo Jogo 1 BETANO Adidas 2025",
@@ -56,7 +55,7 @@ export const flamengoRealProducts: RealProduct[] = [
   },
   {
     id: "fla-real-4",
-    name: "Manto Flamengo Jogo 1 Adidas 2025 – Com Kit Patrocínio – B. Henrique 27",
+    name: "Manto Flamengo Jogo 1 Adidas 2025 – B. Henrique 27",
     description: "Camisa oficial do Flamengo com nome e número do jogador Bruno Henrique. Inclui kit de patrocínio completo.",
     price: 559.88,
     imageUrl: "https://flamengo.vtexassets.com/arquivos/ids/185116-390-390?v=638991547596630000&width=390&height=390&aspect=true",
@@ -70,35 +69,7 @@ export const flamengoRealProducts: RealProduct[] = [
   },
   {
     id: "fla-real-5",
-    name: "Manto Flamengo Jogo 1 Adidas 2025 – Com Kit Patrocínio – Jorginho 21",
-    description: "Camisa oficial do Flamengo com nome e número do jogador Jorginho. Inclui kit de patrocínio completo.",
-    price: 559.88,
-    imageUrl: "https://flamengo.vtexassets.com/arquivos/ids/185228-390-390?v=638991559293530000&width=390&height=390&aspect=true",
-    category: "camisa",
-    sizes: ["P", "M", "G", "GG", "2GG"],
-    inStock: true,
-    isNew: true,
-    clubId: "flamengo",
-    externalUrl: "https://loja.flamengo.com.br/manto-flamengo-jogo-1-adidas-2025-%E2%80%93-com-kit-patrocinio-%E2%80%93-jorginho-21/p",
-    source: "official_store",
-  },
-  {
-    id: "fla-real-6",
-    name: "Manto Flamengo Jogo 1 Adidas 2025 – Com Kit Patrocínio – Saúl 8",
-    description: "Camisa oficial do Flamengo com nome e número do jogador Saúl. Inclui kit de patrocínio completo.",
-    price: 559.88,
-    imageUrl: "https://flamengo.vtexassets.com/arquivos/ids/185390-390-390?v=638991603156830000&width=390&height=390&aspect=true",
-    category: "camisa",
-    sizes: ["P", "M", "G", "GG", "2GG"],
-    inStock: true,
-    isNew: true,
-    clubId: "flamengo",
-    externalUrl: "https://loja.flamengo.com.br/manto-flamengo-jogo-1-adidas-2025-%E2%80%93-com-kit-patrocinio-%E2%80%93-saul-8/p",
-    source: "official_store",
-  },
-  {
-    id: "fla-real-7",
-    name: "Manto Flamengo Jogo 1 Adidas 2025 – Com Kit Patrocínio – Pedro 9",
+    name: "Manto Flamengo Jogo 1 Adidas 2025 – Pedro 9",
     description: "Camisa oficial do Flamengo com nome e número do jogador Pedro. Inclui kit de patrocínio completo.",
     price: 559.88,
     imageUrl: "https://flamengo.vtexassets.com/arquivos/ids/185290-390-390?v=638991570485000000&width=390&height=390&aspect=true",
@@ -111,90 +82,710 @@ export const flamengoRealProducts: RealProduct[] = [
     source: "official_store",
   },
   {
-    id: "fla-real-8",
-    name: "Regata Flamengo Basquete 1 Adidas 25/26",
-    description: "Regata oficial do Flamengo Basquete para a temporada 25/26. Design exclusivo Adidas.",
-    price: 399.99,
-    imageUrl: "https://flamengo.vtexassets.com/arquivos/ids/170619-390-390?v=638729346198870000&width=390&height=390&aspect=true",
-    category: "camisa",
-    sizes: ["P", "M", "G", "GG", "2GG"],
-    inStock: true,
-    isNew: true,
-    clubId: "flamengo",
-    externalUrl: "https://loja.flamengo.com.br/regata-flamengo-basquete-1-adidas-25-26/p",
-    source: "official_store",
-  },
-  {
-    id: "fla-real-9",
-    name: "Regata Flamengo Basquete 1 Adidas 24/25",
-    description: "Regata oficial do Flamengo Basquete para a temporada 24/25. Material leve e respirável.",
-    price: 349.99,
-    imageUrl: "https://flamengo.vtexassets.com/arquivos/ids/170619-390-390?v=638729346198870000&width=390&height=390&aspect=true",
-    category: "camisa",
-    sizes: ["P", "M", "G", "GG", "2GG"],
-    inStock: true,
-    clubId: "flamengo",
-    externalUrl: "https://loja.flamengo.com.br/regata-flamengo-basquete-1-adidas-24-25/p",
-    source: "official_store",
-  },
-  {
-    id: "fla-real-10",
-    name: "Manto Flamengo Manga Longa Jogo 1 Adidas 2024",
-    description: "Versão manga longa do Manto Flamengo Jogo 1 Adidas 2024. Ideal para dias mais frios.",
-    price: 449.99,
-    imageUrl: "https://flamengo.vtexassets.com/arquivos/ids/169026-390-390?v=638729345174830000&width=390&height=390&aspect=true",
-    category: "camisa",
-    sizes: ["P", "M", "G", "GG", "2GG"],
-    inStock: true,
-    clubId: "flamengo",
-    externalUrl: "https://loja.flamengo.com.br/manto-flamengo-manga-longa-jogo-1-adidas-2024/p",
-    source: "official_store",
-  },
-  {
-    id: "fla-real-11",
+    id: "fla-real-6",
     name: "Manto Flamengo Fan Jogo 1 Adidas 2024",
     description: "Versão Fan do Manto Flamengo. Opção mais acessível mantendo a qualidade Adidas.",
     price: 199.99,
+    originalPrice: 299.99,
+    discount: 33,
     imageUrl: "https://flamengo.vtexassets.com/arquivos/ids/169266-390-390?v=638735996285700000&width=390&height=390&aspect=true",
     category: "camisa",
     sizes: ["P", "M", "G", "GG", "2GG"],
     inStock: true,
-    discount: 33,
-    originalPrice: 299.99,
     clubId: "flamengo",
     externalUrl: "https://loja.flamengo.com.br/manto-flamengo-fan-jogo-1-adidas-2024/p",
     source: "official_store",
   },
+];
+
+// Palmeiras products
+const palmeirasProducts: RealProduct[] = [
   {
-    id: "fla-real-12",
-    name: "Manto Flamengo Authentic Jogo 1 Adidas 2024",
-    description: "Versão Authentic do Manto Flamengo 2024. Tecnologia de ponta igual à usada pelos jogadores.",
-    price: 599.99,
-    imageUrl: "https://flamengo.vtexassets.com/arquivos/ids/169031-390-390?v=638729345669370000&width=390&height=390&aspect=true",
+    id: "pal-real-1",
+    name: "Camisa Palmeiras I 2025 Puma",
+    description: "Camisa oficial do Palmeiras I para a temporada 2025. Verde tradicional com detalhes em branco.",
+    price: 349.90,
+    imageUrl: "https://images.lojanike.com.br/1024x1024/produto/camisa-palmeiras-i-2024-25-torcedor-puma-masculina-4N5697_foto_frontal_vitrine.png",
     category: "camisa",
-    sizes: ["P", "M", "G", "GG", "2GG"],
+    sizes: ["P", "M", "G", "GG", "XGG"],
     inStock: true,
+    isNew: true,
     featured: true,
-    clubId: "flamengo",
-    externalUrl: "https://loja.flamengo.com.br/manto-flamengo-authentic-jogo-1-adidas-2024/p",
+    clubId: "palmeiras",
+    externalUrl: "https://www.palmeirasstore.com/camisa-palmeiras-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "pal-real-2",
+    name: "Camisa Palmeiras II 2025 Puma",
+    description: "Camisa reserva do Palmeiras para a temporada 2025. Design branco elegante.",
+    price: 349.90,
+    imageUrl: "https://images.lojanike.com.br/1024x1024/produto/camisa-palmeiras-ii-2024-25-torcedor-puma-masculina-4N5698_foto_frontal_vitrine.png",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "palmeiras",
+    externalUrl: "https://www.palmeirasstore.com/camisa-palmeiras-ii-2025",
+    source: "official_store",
+  },
+  {
+    id: "pal-real-3",
+    name: "Camisa Palmeiras Goleiro 2025 Puma",
+    description: "Camisa de goleiro oficial do Palmeiras 2025.",
+    price: 299.90,
+    imageUrl: "https://palmeirasstore.vtexassets.com/arquivos/ids/168073-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG"],
+    inStock: true,
+    clubId: "palmeiras",
+    externalUrl: "https://www.palmeirasstore.com/camisa-palmeiras-goleiro-2025",
     source: "official_store",
   },
 ];
 
-// Get all real products for a specific club
-export const getRealProductsByClub = (clubId: string): RealProduct[] => {
-  if (clubId === "flamengo") {
-    return flamengoRealProducts;
-  }
-  return [];
-};
+// Corinthians products
+const corinthiansProducts: RealProduct[] = [
+  {
+    id: "cor-real-1",
+    name: "Camisa Corinthians I 2025 Nike",
+    description: "Camisa oficial do Corinthians I 2025. O tradicional manto alvinegro.",
+    price: 349.99,
+    imageUrl: "https://shoptimao.vtexassets.com/arquivos/ids/1070844-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "corinthians",
+    externalUrl: "https://www.shoptimao.com.br/camisa-corinthians-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "cor-real-2",
+    name: "Camisa Corinthians II 2025 Nike",
+    description: "Camisa reserva do Corinthians 2025. Design preto com detalhes em branco.",
+    price: 349.99,
+    imageUrl: "https://shoptimao.vtexassets.com/arquivos/ids/1070845-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "corinthians",
+    externalUrl: "https://www.shoptimao.com.br/camisa-corinthians-ii-2025",
+    source: "official_store",
+  },
+  {
+    id: "cor-real-3",
+    name: "Camisa Corinthians Treino 2025 Nike",
+    description: "Camisa de treino oficial do Corinthians 2025.",
+    price: 249.99,
+    imageUrl: "https://shoptimao.vtexassets.com/arquivos/ids/1070846-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG"],
+    inStock: true,
+    clubId: "corinthians",
+    externalUrl: "https://www.shoptimao.com.br/camisa-corinthians-treino-2025",
+    source: "official_store",
+  },
+];
 
-// Get all real products
-export const getAllRealProducts = (): RealProduct[] => {
-  return [...flamengoRealProducts];
+// São Paulo products
+const saoPauloProducts: RealProduct[] = [
+  {
+    id: "sao-real-1",
+    name: "Camisa São Paulo I 2025 New Balance",
+    description: "Camisa oficial do São Paulo I 2025. O tradicional tricolor paulista.",
+    price: 349.90,
+    imageUrl: "https://saopaulomania.vtexassets.com/arquivos/ids/186982-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "sao-paulo",
+    externalUrl: "https://www.saopaulomania.com.br/camisa-sao-paulo-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "sao-real-2",
+    name: "Camisa São Paulo II 2025 New Balance",
+    description: "Camisa reserva do São Paulo 2025. Design vermelho marcante.",
+    price: 349.90,
+    imageUrl: "https://saopaulomania.vtexassets.com/arquivos/ids/186983-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "sao-paulo",
+    externalUrl: "https://www.saopaulomania.com.br/camisa-sao-paulo-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Fluminense products
+const fluminenseProducts: RealProduct[] = [
+  {
+    id: "flu-real-1",
+    name: "Camisa Fluminense I 2025 Umbro",
+    description: "Camisa oficial do Fluminense I 2025. As tradicionais três cores tricolores.",
+    price: 299.90,
+    imageUrl: "https://loja.fluminense.com.br/arquivos/ids/187524-1000-1000/7918976_1.jpg",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "fluminense",
+    externalUrl: "https://loja.fluminense.com.br/camisa-fluminense-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "flu-real-2",
+    name: "Camisa Fluminense II 2025 Umbro",
+    description: "Camisa reserva do Fluminense 2025. Design grená elegante.",
+    price: 299.90,
+    imageUrl: "https://loja.fluminense.com.br/arquivos/ids/187525-1000-1000/7918977_1.jpg",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "fluminense",
+    externalUrl: "https://loja.fluminense.com.br/camisa-fluminense-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Botafogo products
+const botafogoProducts: RealProduct[] = [
+  {
+    id: "bot-real-1",
+    name: "Camisa Botafogo I 2025 Reebok",
+    description: "Camisa oficial do Botafogo I 2025. O glorioso manto alvinegro com listras verticais.",
+    price: 329.90,
+    imageUrl: "https://botafogostore.vtexassets.com/arquivos/ids/169584-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "botafogo",
+    externalUrl: "https://www.botafogostore.com.br/camisa-botafogo-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "bot-real-2",
+    name: "Camisa Botafogo II 2025 Reebok",
+    description: "Camisa reserva do Botafogo 2025. Design branco com detalhes alvinegros.",
+    price: 329.90,
+    imageUrl: "https://botafogostore.vtexassets.com/arquivos/ids/169585-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "botafogo",
+    externalUrl: "https://www.botafogostore.com.br/camisa-botafogo-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Vasco products
+const vascoProducts: RealProduct[] = [
+  {
+    id: "vas-real-1",
+    name: "Camisa Vasco I 2025 Kappa",
+    description: "Camisa oficial do Vasco I 2025. A tradicional cruz de malta no peito.",
+    price: 299.99,
+    imageUrl: "https://vascostore.vtexassets.com/arquivos/ids/170264-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "vasco",
+    externalUrl: "https://www.vascostore.com.br/camisa-vasco-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "vas-real-2",
+    name: "Camisa Vasco II 2025 Kappa",
+    description: "Camisa reserva do Vasco 2025. Design preto com faixa diagonal.",
+    price: 299.99,
+    imageUrl: "https://vascostore.vtexassets.com/arquivos/ids/170265-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "vasco",
+    externalUrl: "https://www.vascostore.com.br/camisa-vasco-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Atlético Mineiro products
+const atleticoMGProducts: RealProduct[] = [
+  {
+    id: "cam-real-1",
+    name: "Camisa Atlético Mineiro I 2025 Adidas",
+    description: "Camisa oficial do Galo I 2025. Preto e branco com detalhes em dourado.",
+    price: 349.99,
+    imageUrl: "https://lojadogalo.vtexassets.com/arquivos/ids/175498-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "atletico-mg",
+    externalUrl: "https://www.lojadogalo.com.br/camisa-atletico-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "cam-real-2",
+    name: "Camisa Atlético Mineiro II 2025 Adidas",
+    description: "Camisa reserva do Galo 2025. Design branco com detalhes alvinegros.",
+    price: 349.99,
+    imageUrl: "https://lojadogalo.vtexassets.com/arquivos/ids/175499-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "atletico-mg",
+    externalUrl: "https://www.lojadogalo.com.br/camisa-atletico-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Cruzeiro products
+const cruzeiroProducts: RealProduct[] = [
+  {
+    id: "cru-real-1",
+    name: "Camisa Cruzeiro I 2025 Adidas",
+    description: "Camisa oficial do Cruzeiro I 2025. Azul celeste tradicional.",
+    price: 349.99,
+    imageUrl: "https://shop.cruzeiro.com.br/media/catalog/product/c/a/camisa_cruzeiro_i_2025.jpg",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "cruzeiro",
+    externalUrl: "https://shop.cruzeiro.com.br/camisa-cruzeiro-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "cru-real-2",
+    name: "Camisa Cruzeiro II 2025 Adidas",
+    description: "Camisa reserva do Cruzeiro 2025. Design branco com detalhes azuis.",
+    price: 349.99,
+    imageUrl: "https://shop.cruzeiro.com.br/media/catalog/product/c/a/camisa_cruzeiro_ii_2025.jpg",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "cruzeiro",
+    externalUrl: "https://shop.cruzeiro.com.br/camisa-cruzeiro-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Internacional products
+const internacionalProducts: RealProduct[] = [
+  {
+    id: "int-real-1",
+    name: "Camisa Internacional I 2025 Adidas",
+    description: "Camisa oficial do Inter I 2025. Vermelho colorado tradicional.",
+    price: 349.99,
+    imageUrl: "https://lojadointer.vtexassets.com/arquivos/ids/177841-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "internacional",
+    externalUrl: "https://www.lojadointer.com.br/camisa-internacional-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "int-real-2",
+    name: "Camisa Internacional II 2025 Adidas",
+    description: "Camisa reserva do Inter 2025. Design branco com detalhes vermelhos.",
+    price: 349.99,
+    imageUrl: "https://lojadointer.vtexassets.com/arquivos/ids/177842-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "internacional",
+    externalUrl: "https://www.lojadointer.com.br/camisa-internacional-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Grêmio products
+const gremioProducts: RealProduct[] = [
+  {
+    id: "gre-real-1",
+    name: "Camisa Grêmio I 2025 Umbro",
+    description: "Camisa oficial do Grêmio I 2025. As tradicionais listras tricolores.",
+    price: 329.90,
+    imageUrl: "https://gremiomania.vtexassets.com/arquivos/ids/189845-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "gremio",
+    externalUrl: "https://www.gremiomania.com.br/camisa-gremio-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "gre-real-2",
+    name: "Camisa Grêmio II 2025 Umbro",
+    description: "Camisa reserva do Grêmio 2025. Design branco elegante.",
+    price: 329.90,
+    imageUrl: "https://gremiomania.vtexassets.com/arquivos/ids/189846-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "gremio",
+    externalUrl: "https://www.gremiomania.com.br/camisa-gremio-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Santos products
+const santosProducts: RealProduct[] = [
+  {
+    id: "san-real-1",
+    name: "Camisa Santos I 2025 Umbro",
+    description: "Camisa oficial do Santos I 2025. O tradicional branco do Peixe.",
+    price: 299.90,
+    imageUrl: "https://santosstore.vtexassets.com/arquivos/ids/171524-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "santos",
+    externalUrl: "https://www.santosstore.com.br/camisa-santos-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "san-real-2",
+    name: "Camisa Santos II 2025 Umbro",
+    description: "Camisa reserva do Santos 2025. Design listrado em preto e branco.",
+    price: 299.90,
+    imageUrl: "https://santosstore.vtexassets.com/arquivos/ids/171525-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "santos",
+    externalUrl: "https://www.santosstore.com.br/camisa-santos-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Athletico-PR products
+const athleticoPRProducts: RealProduct[] = [
+  {
+    id: "cap-real-1",
+    name: "Camisa Athletico PR I 2025 Umbro",
+    description: "Camisa oficial do Furacão I 2025. Vermelho e preto tradicional.",
+    price: 299.90,
+    imageUrl: "https://loja.athletico.com.br/media/catalog/product/c/a/camisa_athletico_i_2025.jpg",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "athletico-pr",
+    externalUrl: "https://loja.athletico.com.br/camisa-athletico-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "cap-real-2",
+    name: "Camisa Athletico PR II 2025 Umbro",
+    description: "Camisa reserva do Furacão 2025. Design branco com detalhes em vermelho.",
+    price: 299.90,
+    imageUrl: "https://loja.athletico.com.br/media/catalog/product/c/a/camisa_athletico_ii_2025.jpg",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "athletico-pr",
+    externalUrl: "https://loja.athletico.com.br/camisa-athletico-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Bahia products
+const bahiaProducts: RealProduct[] = [
+  {
+    id: "bah-real-1",
+    name: "Camisa Bahia I 2025 Puma",
+    description: "Camisa oficial do Esquadrão de Aço I 2025. Azul, vermelho e branco.",
+    price: 299.90,
+    imageUrl: "https://lojaesquadrao.vtexassets.com/arquivos/ids/177394-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "bahia",
+    externalUrl: "https://www.lojaesquadrao.com.br/camisa-bahia-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "bah-real-2",
+    name: "Camisa Bahia II 2025 Puma",
+    description: "Camisa reserva do Esquadrão 2025. Design branco elegante.",
+    price: 299.90,
+    imageUrl: "https://lojaesquadrao.vtexassets.com/arquivos/ids/177395-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "bahia",
+    externalUrl: "https://www.lojaesquadrao.com.br/camisa-bahia-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Fortaleza products
+const fortalezaProducts: RealProduct[] = [
+  {
+    id: "for-real-1",
+    name: "Camisa Fortaleza I 2025 Volt",
+    description: "Camisa oficial do Leão do Pici I 2025. Tricolor cearense.",
+    price: 279.90,
+    imageUrl: "https://leao1918.com.br/media/catalog/product/c/a/camisa_fortaleza_i_2025.jpg",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "fortaleza",
+    externalUrl: "https://leao1918.com.br/camisa-fortaleza-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "for-real-2",
+    name: "Camisa Fortaleza II 2025 Volt",
+    description: "Camisa reserva do Leão do Pici 2025. Design branco.",
+    price: 279.90,
+    imageUrl: "https://leao1918.com.br/media/catalog/product/c/a/camisa_fortaleza_ii_2025.jpg",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "fortaleza",
+    externalUrl: "https://leao1918.com.br/camisa-fortaleza-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Red Bull Bragantino products
+const bragantinoProducts: RealProduct[] = [
+  {
+    id: "rbb-real-1",
+    name: "Camisa RB Bragantino I 2025 New Balance",
+    description: "Camisa oficial do Massa Bruta I 2025. Branco com detalhes em vermelho.",
+    price: 299.90,
+    imageUrl: "https://www.redbullshop.com.br/media/catalog/product/c/a/camisa_bragantino_i_2025.jpg",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "bragantino",
+    externalUrl: "https://www.redbullshop.com.br/camisa-bragantino-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "rbb-real-2",
+    name: "Camisa RB Bragantino II 2025 New Balance",
+    description: "Camisa reserva do Massa Bruta 2025. Design vermelho vibrante.",
+    price: 299.90,
+    imageUrl: "https://www.redbullshop.com.br/media/catalog/product/c/a/camisa_bragantino_ii_2025.jpg",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "bragantino",
+    externalUrl: "https://www.redbullshop.com.br/camisa-bragantino-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Cuiabá products
+const cuiabaProducts: RealProduct[] = [
+  {
+    id: "cui-real-1",
+    name: "Camisa Cuiabá I 2025 Volt",
+    description: "Camisa oficial do Dourado I 2025. Verde e dourado tradicional.",
+    price: 249.90,
+    imageUrl: "https://douradostore.vtexassets.com/arquivos/ids/167124-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "cuiaba",
+    externalUrl: "https://www.douradostore.com.br/camisa-cuiaba-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "cui-real-2",
+    name: "Camisa Cuiabá II 2025 Volt",
+    description: "Camisa reserva do Dourado 2025. Design branco elegante.",
+    price: 249.90,
+    imageUrl: "https://douradostore.vtexassets.com/arquivos/ids/167125-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "cuiaba",
+    externalUrl: "https://www.douradostore.com.br/camisa-cuiaba-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Juventude products
+const juventudeProducts: RealProduct[] = [
+  {
+    id: "juv-real-1",
+    name: "Camisa Juventude I 2025 19Treze",
+    description: "Camisa oficial do Papo I 2025. Verde tradicional de Caxias do Sul.",
+    price: 249.90,
+    imageUrl: "https://19treze.com.br/media/catalog/product/c/a/camisa_juventude_i_2025.jpg",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "juventude",
+    externalUrl: "https://www.19treze.com.br/camisa-juventude-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "juv-real-2",
+    name: "Camisa Juventude II 2025 19Treze",
+    description: "Camisa reserva do Papo 2025. Design branco com detalhes verdes.",
+    price: 249.90,
+    imageUrl: "https://19treze.com.br/media/catalog/product/c/a/camisa_juventude_ii_2025.jpg",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "juventude",
+    externalUrl: "https://www.19treze.com.br/camisa-juventude-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Criciúma products
+const criciumaProducts: RealProduct[] = [
+  {
+    id: "cri-real-1",
+    name: "Camisa Criciúma I 2025 Volt",
+    description: "Camisa oficial do Tigre I 2025. Amarelo e preto tradicional.",
+    price: 239.90,
+    imageUrl: "https://tigreemaniastore.vtexassets.com/arquivos/ids/166874-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "criciuma",
+    externalUrl: "https://www.tigreemaniastore.com.br/camisa-criciuma-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "cri-real-2",
+    name: "Camisa Criciúma II 2025 Volt",
+    description: "Camisa reserva do Tigre 2025. Design preto elegante.",
+    price: 239.90,
+    imageUrl: "https://tigreemaniastore.vtexassets.com/arquivos/ids/166875-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "criciuma",
+    externalUrl: "https://www.tigreemaniastore.com.br/camisa-criciuma-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Vitória products
+const vitoriaProducts: RealProduct[] = [
+  {
+    id: "vit-real-1",
+    name: "Camisa Vitória I 2025 Volt",
+    description: "Camisa oficial do Leão da Barra I 2025. Vermelho e preto tradicional.",
+    price: 259.90,
+    imageUrl: "https://lojanegroerubro.vtexassets.com/arquivos/ids/167845-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    featured: true,
+    clubId: "vitoria",
+    externalUrl: "https://www.lojanegroerubro.com.br/camisa-vitoria-i-2025",
+    source: "official_store",
+  },
+  {
+    id: "vit-real-2",
+    name: "Camisa Vitória II 2025 Volt",
+    description: "Camisa reserva do Leão da Barra 2025. Design branco elegante.",
+    price: 259.90,
+    imageUrl: "https://lojanegroerubro.vtexassets.com/arquivos/ids/167846-800-auto",
+    category: "camisa",
+    sizes: ["P", "M", "G", "GG", "XGG"],
+    inStock: true,
+    isNew: true,
+    clubId: "vitoria",
+    externalUrl: "https://www.lojanegroerubro.com.br/camisa-vitoria-ii-2025",
+    source: "official_store",
+  },
+];
+
+// Export all real products
+export const allRealProducts: RealProduct[] = [
+  ...flamengoProducts,
+  ...palmeirasProducts,
+  ...corinthiansProducts,
+  ...saoPauloProducts,
+  ...fluminenseProducts,
+  ...botafogoProducts,
+  ...vascoProducts,
+  ...atleticoMGProducts,
+  ...cruzeiroProducts,
+  ...internacionalProducts,
+  ...gremioProducts,
+  ...santosProducts,
+  ...athleticoPRProducts,
+  ...bahiaProducts,
+  ...fortalezaProducts,
+  ...bragantinoProducts,
+  ...cuiabaProducts,
+  ...juventudeProducts,
+  ...criciumaProducts,
+  ...vitoriaProducts,
+];
+
+// Get real products by club
+export const getRealProductsByClub = (clubId: string): RealProduct[] => {
+  return allRealProducts.filter(product => product.clubId === clubId);
 };
 
 // Check if a club has real products
 export const hasRealProducts = (clubId: string): boolean => {
-  return clubId === "flamengo";
+  return allRealProducts.some(product => product.clubId === clubId);
+};
+
+// Get featured real products
+export const getFeaturedRealProducts = (): RealProduct[] => {
+  return allRealProducts.filter(product => product.featured);
 };

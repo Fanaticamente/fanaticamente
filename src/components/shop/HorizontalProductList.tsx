@@ -34,9 +34,9 @@ const HorizontalProductList = ({
         )}
       </div>
       <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex gap-3 px-4">
+        <div className="flex gap-3 px-4 pb-2">
           {products.slice(0, 10).map((product) => (
-            <div key={product.id} className="w-[160px] shrink-0">
+            <div key={product.id} className="w-[140px] shrink-0">
               <ProductCard product={product} />
             </div>
           ))}
