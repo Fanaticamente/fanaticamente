@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Smartphone, Tablet, Monitor, RotateCcw } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Smartphone, Tablet, Monitor, RotateCcw, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface MobilePreviewProps {
   children?: React.ReactNode;
@@ -10,11 +11,33 @@ interface MobilePreviewProps {
 const MobilePreview = ({ children, currentPage = "/" }: MobilePreviewProps) => {
   const [device, setDevice] = useState<"mobile" | "tablet" | "desktop">("mobile");
   const [scale, setScale] = useState(100);
+  const [iframeKey, setIframeKey] = useState(0);
+  const queryClient = useQueryClient();
   
   const deviceWidths = {
     mobile: 375,
     tablet: 768,
     desktop: 1024,
+  };
+
+  // Listen for any data changes and refresh iframe
+  useEffect(() => {
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (event?.type === 'updated' && 
+          (event.query.queryKey[0] === 'app-content' || 
+           event.query.queryKey[0] === 'app-menus' || 
+           event.query.queryKey[0] === 'app-menu' ||
+           event.query.queryKey[0] === 'app-modules')) {
+        // Refresh iframe when content/menu changes
+        setIframeKey(prev => prev + 1);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [queryClient]);
+
+  const handleRefresh = () => {
+    setIframeKey(prev => prev + 1);
   };
 
   return (
@@ -45,6 +68,16 @@ const MobilePreview = ({ children, currentPage = "/" }: MobilePreviewProps) => {
             className="h-8 w-8 p-0"
           >
             <Monitor className="w-4 h-4" />
+          </Button>
+          <div className="w-px h-6 bg-border mx-1" />
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleRefresh}
+            className="h-8 w-8 p-0"
+            title="Atualizar preview"
+          >
+            <RefreshCw className="w-4 h-4" />
           </Button>
         </div>
         
@@ -100,6 +133,7 @@ const MobilePreview = ({ children, currentPage = "/" }: MobilePreviewProps) => {
             <div className="h-full overflow-y-auto">
               {children || (
                 <iframe
+                  key={iframeKey}
                   src={currentPage}
                   className="w-full h-full border-0"
                   title="App Preview"
