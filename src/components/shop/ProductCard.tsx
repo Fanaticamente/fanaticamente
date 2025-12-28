@@ -88,8 +88,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
       </div>
 
       {/* Info */}
-      <div className="p-2 flex flex-col flex-1">
-        <h3 className="font-medium text-xs text-zinc-100 line-clamp-2 min-h-[32px] leading-tight">
+      <div className="p-3 flex flex-col flex-1">
+        <h3 className="font-medium text-sm text-zinc-100 line-clamp-2 min-h-[40px] leading-snug">
           {product.name}
         </h3>
         
