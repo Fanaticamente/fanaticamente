@@ -20,7 +20,7 @@ const CategoryTabs = ({ selectedCategory, onSelectCategory }: CategoryTabsProps)
   const categories = Object.keys(categoryLabels) as ProductCategory[];
 
   return (
-    <div className="sticky top-[143px] z-20 border-b border-zinc-800 bg-zinc-900">
+    <div className="sticky top-[128px] z-20 border-b border-zinc-800 bg-zinc-900">
       <div
         className={cn(
           "h-[48px] w-full overflow-x-auto overflow-y-hidden",
