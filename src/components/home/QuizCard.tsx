@@ -1,10 +1,17 @@
 import { MessageCircle, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
 
 const QuizCard = () => {
+  const { data: moduleConfig } = useModuleConfig('quiz_card');
+  
+  const config = moduleConfig?.config || {};
+  const title = (config.title as string) || "Quiz";
+  const link = (config.link as string) || "/quiz";
+
   return (
     <Link
-      to="/quiz"
+      to={link}
       className="block mx-4 my-4 relative overflow-hidden rounded-2xl bg-quiz p-6 group"
     >
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full -translate-y-1/2 translate-x-1/2" />

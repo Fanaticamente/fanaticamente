@@ -43,6 +43,8 @@ export const useRealtimeSubscriptions = () => {
         { event: '*', schema: 'public', table: 'app_modules' },
         () => {
           queryClient.invalidateQueries({ queryKey: ['app-modules'] });
+          queryClient.invalidateQueries({ queryKey: ['module-config'] });
+          queryClient.invalidateQueries({ queryKey: ['home-modules'] });
         }
       )
       .subscribe();

@@ -1,10 +1,17 @@
 import { Play, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
 
 const FanatiClassCard = () => {
+  const { data: moduleConfig } = useModuleConfig('fanaticlass_card');
+  
+  const config = moduleConfig?.config || {};
+  const title = (config.title as string) || "FanatiClass";
+  const link = (config.link as string) || "/cursos";
+
   return (
     <Link
-      to="/cursos"
+      to={link}
       className="block mx-4 my-4 relative overflow-hidden rounded-2xl bg-gradient-to-br from-card to-muted p-6 group border border-border"
     >
       <div className="absolute top-4 right-4">

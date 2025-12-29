@@ -1,14 +1,22 @@
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
 
 import heroSlide1 from "@/assets/hero-slide-1.jpg";
 import heroSlide2 from "@/assets/hero-slide-2.jpg";
 import heroSlide3 from "@/assets/hero-slide-3.jpg";
 
-const slides = [
+interface SlideConfig {
+  image: string;
+  title: string;
+  subtitle?: string;
+  cta?: string;
+  ctaLink?: string;
+}
+
+const defaultSlides: SlideConfig[] = [
   {
-    id: 1,
     title: "CUIDE DA MENTE",
     subtitle: "Jogue com equilíbrio",
     cta: "COMEÇAR AGORA",
@@ -16,7 +24,6 @@ const slides = [
     image: heroSlide1,
   },
   {
-    id: 2,
     title: "ENCONTRE SEU TERAPEUTA",
     subtitle: "Psicólogos especializados em torcedores",
     cta: "AGENDAR CONSULTA",
@@ -24,7 +31,6 @@ const slides = [
     image: heroSlide2,
   },
   {
-    id: 3,
     title: "COMUNIDADE FANÁTICA",
     subtitle: "Apoio emocional entre torcedores",
     cta: "PARTICIPAR",
@@ -35,6 +41,9 @@ const slides = [
 
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { data: moduleConfig } = useModuleConfig('hero_carousel');
+  
+  const slides: SlideConfig[] = moduleConfig?.config?.slides as SlideConfig[] || defaultSlides;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -42,13 +51,13 @@ const HeroCarousel = () => {
     }, 5000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   return (
     <div className="relative h-[70vh] min-h-[480px] max-h-[600px] w-full overflow-hidden">
       {slides.map((slide, index) => (
         <div
-          key={slide.id}
+          key={index}
           className={`absolute inset-0 transition-opacity duration-700 ${
             index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
@@ -73,13 +82,15 @@ const HeroCarousel = () => {
               {slide.subtitle}
             </p>
 
-            <Link
-              to={slide.ctaLink}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-bold text-sm uppercase tracking-wide w-fit hover:scale-105 transition-transform shadow-lg"
-            >
-              {slide.cta}
-              <ChevronRight className="w-5 h-5" />
-            </Link>
+            {slide.cta && slide.ctaLink && (
+              <Link
+                to={slide.ctaLink}
+                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-bold text-sm uppercase tracking-wide w-fit hover:scale-105 transition-transform shadow-lg"
+              >
+                {slide.cta}
+                <ChevronRight className="w-5 h-5" />
+              </Link>
+            )}
           </div>
         </div>
       ))}
