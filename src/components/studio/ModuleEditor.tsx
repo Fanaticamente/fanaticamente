@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Save, Upload, Plus, Trash2, Link, ImageIcon } from "lucide-react";
+import { X, Save, Upload, Plus, Trash2, Link, ImageIcon, Type, Palette } from "lucide-react";
 import { AppModule, useUpdateModule, useUpdateModuleConfig } from "@/hooks/useAppModules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
@@ -20,7 +21,37 @@ interface SlideConfig {
   image: string;
   title: string;
   subtitle?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  titleFont?: string;
+  subtitleFont?: string;
 }
+
+// Dimensões reais dos módulos baseadas no layout do app
+const MODULE_DIMENSIONS: Record<string, { width: number; height: number; label: string }> = {
+  hero_carousel: { width: 375, height: 480, label: "Carrossel Principal" },
+  tunnel_access: { width: 343, height: 160, label: "Túnel de Acesso" },
+  ticket_card: { width: 343, height: 200, label: "Ingresso Consciência" },
+  quiz_card: { width: 343, height: 96, label: "Quiz Emocional" },
+  fanaticlass_card: { width: 343, height: 96, label: "FanatiClass" },
+  radio_card: { width: 343, height: 96, label: "Rádio Fanática" },
+};
+
+const FONT_OPTIONS = [
+  { value: "inherit", label: "Padrão (Display)" },
+  { value: "font-sans", label: "Sans-serif" },
+  { value: "font-serif", label: "Serif" },
+  { value: "font-mono", label: "Monospace" },
+];
+
+const COLOR_PRESETS = [
+  { value: "#FFFFFF", label: "Branco" },
+  { value: "#F5C542", label: "Amarelo (Primary)" },
+  { value: "#000000", label: "Preto" },
+  { value: "#FF6B6B", label: "Vermelho" },
+  { value: "#4ECDC4", label: "Verde" },
+  { value: "#45B7D1", label: "Azul" },
+];
 
 const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
   const [name, setName] = useState("");
@@ -31,6 +62,8 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
   
   const updateModule = useUpdateModule();
   const updateConfig = useUpdateModuleConfig();
+
+  const dimensions = module ? MODULE_DIMENSIONS[module.module_id] : null;
 
   useEffect(() => {
     if (module) {
@@ -105,7 +138,15 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
     const slides = (config.slides || []) as SlideConfig[];
     setConfig({
       ...config,
-      slides: [...slides, { image: "", title: "", subtitle: "" }],
+      slides: [...slides, { 
+        image: "", 
+        title: "", 
+        subtitle: "",
+        titleColor: "#FFFFFF",
+        subtitleColor: "#FFFFFF",
+        titleFont: "inherit",
+        subtitleFont: "inherit"
+      }],
     });
   };
 
@@ -124,7 +165,7 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
   return (
     <div className="h-full flex flex-col bg-card border-l border-border">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
+      <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
         <div>
           <h3 className="font-display text-lg text-card-foreground">{module.name}</h3>
           <p className="text-xs text-muted-foreground">{module.module_type}</p>
@@ -152,7 +193,7 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
             {/* Basic Info */}
             <div className="space-y-4">
               <div>
-                <Label htmlFor="name">Título do módulo</Label>
+                <Label htmlFor="name">Título do módulo (uso interno)</Label>
                 <Input
                   id="name"
                   value={name}
@@ -161,7 +202,7 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
                   maxLength={30}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Máximo 30 caracteres
+                  Apenas para organização no gerenciador
                 </p>
               </div>
               
@@ -212,7 +253,14 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
                     </div>
                     
                     <div>
-                      <Label>Imagem</Label>
+                      <Label className="flex items-center justify-between">
+                        <span>Imagem</span>
+                        {dimensions && (
+                          <span className="text-xs text-primary font-normal">
+                            {dimensions.width} x {dimensions.height} px
+                          </span>
+                        )}
+                      </Label>
                       <div className="mt-1 flex gap-2">
                         {slide.image ? (
                           <div className="relative w-full h-24 rounded-lg overflow-hidden">
@@ -237,7 +285,12 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
                         ) : (
                           <label className="w-full h-24 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
                             <Upload className="w-6 h-6 text-muted-foreground mb-1" />
-                            <span className="text-xs text-muted-foreground">Upload</span>
+                            <span className="text-xs text-muted-foreground">Clique para enviar</span>
+                            {dimensions && (
+                              <span className="text-xs text-primary mt-1">
+                                {dimensions.width} x {dimensions.height} px
+                              </span>
+                            )}
                             <input
                               type="file"
                               className="hidden"
@@ -252,22 +305,138 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
                       </div>
                     </div>
                     
-                    <div>
-                      <Label>Título</Label>
+                    {/* Title with font and color options */}
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        <Type className="w-4 h-4" />
+                        Título
+                      </Label>
                       <Input
                         value={slide.title || ""}
                         onChange={(e) => updateSlide(index, "title", e.target.value)}
-                        className="mt-1"
                       />
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <Label className="text-xs text-muted-foreground">Fonte</Label>
+                          <Select 
+                            value={slide.titleFont || "inherit"}
+                            onValueChange={(value) => updateSlide(index, "titleFont", value)}
+                          >
+                            <SelectTrigger className="mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {FONT_OPTIONS.map((font) => (
+                                <SelectItem key={font.value} value={font.value}>
+                                  {font.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex-1">
+                          <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Palette className="w-3 h-3" />
+                            Cor
+                          </Label>
+                          <div className="flex gap-1 mt-1">
+                            <Input
+                              type="color"
+                              value={slide.titleColor || "#FFFFFF"}
+                              onChange={(e) => updateSlide(index, "titleColor", e.target.value)}
+                              className="w-10 h-9 p-1 cursor-pointer"
+                            />
+                            <Select 
+                              value={slide.titleColor || "#FFFFFF"}
+                              onValueChange={(value) => updateSlide(index, "titleColor", value)}
+                            >
+                              <SelectTrigger className="flex-1">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {COLOR_PRESETS.map((color) => (
+                                  <SelectItem key={color.value} value={color.value}>
+                                    <div className="flex items-center gap-2">
+                                      <div 
+                                        className="w-4 h-4 rounded border border-border" 
+                                        style={{ backgroundColor: color.value }}
+                                      />
+                                      {color.label}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     
-                    <div>
-                      <Label>Subtítulo</Label>
+                    {/* Subtitle with font and color options */}
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        <Type className="w-4 h-4" />
+                        Subtítulo
+                      </Label>
                       <Input
                         value={slide.subtitle || ""}
                         onChange={(e) => updateSlide(index, "subtitle", e.target.value)}
-                        className="mt-1"
                       />
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <Label className="text-xs text-muted-foreground">Fonte</Label>
+                          <Select 
+                            value={slide.subtitleFont || "inherit"}
+                            onValueChange={(value) => updateSlide(index, "subtitleFont", value)}
+                          >
+                            <SelectTrigger className="mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {FONT_OPTIONS.map((font) => (
+                                <SelectItem key={font.value} value={font.value}>
+                                  {font.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex-1">
+                          <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Palette className="w-3 h-3" />
+                            Cor
+                          </Label>
+                          <div className="flex gap-1 mt-1">
+                            <Input
+                              type="color"
+                              value={slide.subtitleColor || "#FFFFFF"}
+                              onChange={(e) => updateSlide(index, "subtitleColor", e.target.value)}
+                              className="w-10 h-9 p-1 cursor-pointer"
+                            />
+                            <Select 
+                              value={slide.subtitleColor || "#FFFFFF"}
+                              onValueChange={(value) => updateSlide(index, "subtitleColor", value)}
+                            >
+                              <SelectTrigger className="flex-1">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {COLOR_PRESETS.map((color) => (
+                                  <SelectItem key={color.value} value={color.value}>
+                                    <div className="flex items-center gap-2">
+                                      <div 
+                                        className="w-4 h-4 rounded border border-border" 
+                                        style={{ backgroundColor: color.value }}
+                                      />
+                                      {color.label}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -277,7 +446,14 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
             {module.module_type === "card" && (
               <div className="space-y-4">
                 <div>
-                  <Label>Imagem de fundo</Label>
+                  <Label className="flex items-center justify-between">
+                    <span>Imagem de fundo</span>
+                    {dimensions && (
+                      <span className="text-xs text-primary font-normal">
+                        {dimensions.width} x {dimensions.height} px
+                      </span>
+                    )}
+                  </Label>
                   <div className="mt-2">
                     {config.image ? (
                       <div className="relative w-full h-32 rounded-lg overflow-hidden">
@@ -303,7 +479,11 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
                       <label className="w-full h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
                         <Upload className="w-8 h-8 text-muted-foreground mb-2" />
                         <span className="text-sm text-muted-foreground">Clique para enviar</span>
-                        <span className="text-xs text-muted-foreground mt-1">1125 x 360 pixels</span>
+                        {dimensions && (
+                          <span className="text-xs text-primary mt-1">
+                            {dimensions.width} x {dimensions.height} px
+                          </span>
+                        )}
                         <input
                           type="file"
                           className="hidden"
@@ -319,12 +499,15 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
                 </div>
                 
                 <div>
-                  <Label>Título do card</Label>
+                  <Label>Título do card (uso interno)</Label>
                   <Input
                     value={(config.title as string) || ""}
                     onChange={(e) => setConfig({ ...config, title: e.target.value })}
                     className="mt-1"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Apenas para organização no gerenciador
+                  </p>
                 </div>
                 
                 <div>
@@ -368,15 +551,34 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
           </TabsContent>
           
           <TabsContent value="layout" className="p-4 space-y-4">
-            <div className="text-center py-8 text-muted-foreground">
-              <p>Opções de layout em breve</p>
+            {dimensions && (
+              <div className="p-4 bg-muted rounded-xl">
+                <Label className="text-sm font-medium">Dimensões do módulo</Label>
+                <p className="text-xs text-muted-foreground mt-1 mb-3">
+                  Tamanho recomendado para imagens neste módulo
+                </p>
+                <div className="flex gap-4">
+                  <div className="text-center">
+                    <span className="text-2xl font-bold text-primary">{dimensions.width}</span>
+                    <span className="text-xs text-muted-foreground block">largura (px)</span>
+                  </div>
+                  <div className="text-muted-foreground self-center">×</div>
+                  <div className="text-center">
+                    <span className="text-2xl font-bold text-primary">{dimensions.height}</span>
+                    <span className="text-xs text-muted-foreground block">altura (px)</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="text-center py-4 text-muted-foreground">
+              <p>Mais opções de layout em breve</p>
             </div>
           </TabsContent>
         </Tabs>
       </div>
       
       {/* Footer */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4 border-t border-border flex-shrink-0">
         <Button className="w-full" onClick={handleSave} disabled={updateModule.isPending || updateConfig.isPending}>
           <Save className="w-4 h-4 mr-2" />
           Salvar alterações
