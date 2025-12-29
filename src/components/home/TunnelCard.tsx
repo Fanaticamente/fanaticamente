@@ -1,13 +1,29 @@
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
 
 const TunnelCard = () => {
+  const { data: moduleConfig } = useModuleConfig('tunnel_access');
+  
+  const config = moduleConfig?.config || {};
+  const title = (config.title as string) || "Encontre um Terapeuta";
+  const link = (config.link as string) || "/terapeutas";
+  const image = config.image as string;
+
   return (
     <Link
-      to="/terapeutas"
+      to={link}
       className="block relative overflow-hidden rounded-2xl mx-4 my-4 h-40 group bg-gradient-to-r from-secondary via-secondary/80 to-secondary/60"
     >
-      <div className="absolute inset-0 stadium-pattern" />
+      {image && (
+        <img 
+          src={image} 
+          alt={title}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+      
+      {!image && <div className="absolute inset-0 stadium-pattern" />}
       
       <div className="absolute inset-0 flex items-center justify-between px-6">
         <div>
@@ -15,8 +31,8 @@ const TunnelCard = () => {
             TÚNEL DE ACESSO
           </p>
           <h3 className="font-display text-3xl md:text-4xl text-card-foreground">
-            Encontre um{" "}
-            <span className="text-primary">Terapeuta</span>
+            {title.split(' ').slice(0, -1).join(' ')}{" "}
+            <span className="text-primary">{title.split(' ').slice(-1)}</span>
           </h3>
         </div>
 

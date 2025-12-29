@@ -1,7 +1,14 @@
 import { Globe } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
 
 const TicketCard = () => {
+  const { data: moduleConfig } = useModuleConfig('ticket_card');
+  
+  const config = moduleConfig?.config || {};
+  const title = (config.title as string) || "Seu Ingresso";
+  const link = (config.link as string) || "/";
+
   return (
     <div className="mx-4 my-4">
       <div className="card-ticket p-0 overflow-hidden">
@@ -47,7 +54,7 @@ const TicketCard = () => {
               </div>
 
               <Link
-                to="/"
+                to={link}
                 className="inline-block bg-ticket-foreground text-ticket px-6 py-2 rounded font-bold text-sm uppercase tracking-wide hover:bg-secondary hover:text-secondary-foreground transition-colors"
               >
                 COMECE POR AQUI

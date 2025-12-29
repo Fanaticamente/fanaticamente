@@ -1,10 +1,17 @@
 import { Radio, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
 
 const RadioCard = () => {
+  const { data: moduleConfig } = useModuleConfig('radio_card');
+  
+  const config = moduleConfig?.config || {};
+  const title = (config.title as string) || "Rádio";
+  const link = (config.link as string) || "/radio";
+
   return (
     <Link
-      to="/radio"
+      to={link}
       className="block mx-4 my-4 mb-24 relative overflow-hidden rounded-2xl bg-gradient-to-r from-radio to-radio/80 p-6 group"
     >
       <div className="absolute -right-4 -bottom-4 opacity-10">
