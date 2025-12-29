@@ -1,6 +1,9 @@
-import { Play, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useModuleConfig } from "@/hooks/useModuleConfig";
+
+// Default background
+import fanatiClassDefaultBg from "@/assets/hero-slide-1.jpg";
 
 const FanatiClassCard = () => {
   const { data: moduleConfig } = useModuleConfig('fanaticlass_card');
@@ -8,42 +11,26 @@ const FanatiClassCard = () => {
   const config = moduleConfig?.config || {};
   const title = (config.title as string) || "FanatiClass";
   const link = (config.link as string) || "/cursos";
+  const image = (config.image as string) || fanatiClassDefaultBg;
 
   return (
     <Link
       to={link}
-      className="block mx-4 my-4 relative overflow-hidden rounded-2xl bg-gradient-to-br from-card to-muted p-6 group border border-border"
+      className="block mx-4 my-4 relative overflow-hidden rounded-2xl h-24 group"
     >
-      <div className="absolute top-4 right-4">
-        <span className="px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full uppercase">
-          Novo
-        </span>
-      </div>
+      {/* Background image */}
+      <img 
+        src={image} 
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30" />
 
-      <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-xl bg-secondary/20 flex items-center justify-center border border-secondary/30">
-          <Play className="w-8 h-8 text-secondary fill-secondary" />
-        </div>
-
-        <div className="flex-1">
-          <h3 className="font-display text-3xl text-card-foreground mb-1">
-            Fanati<span className="text-primary">Class</span>
-          </h3>
-          <p className="text-muted-foreground text-sm">
-            Cursos online para desenvolver sua inteligência emocional
-          </p>
-        </div>
-
-        <ChevronRight className="w-8 h-8 text-primary group-hover:translate-x-1 transition-transform" />
-      </div>
-
-      <div className="mt-4 flex gap-2">
-        <span className="px-2 py-1 bg-secondary/20 text-secondary text-xs rounded">
-          Gratuitos
-        </span>
-        <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">
-          Premium
-        </span>
+      {/* Arrow */}
+      <div className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+        <ChevronRight className="w-5 h-5 text-primary-foreground" />
       </div>
     </Link>
   );

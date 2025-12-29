@@ -30,9 +30,9 @@ const DeveloperDashboard = () => {
   }
 
   return (
-    <div className="h-screen w-screen bg-background flex flex-col overflow-hidden">
+    <div className="min-h-screen w-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="h-14 bg-card border-b border-border flex items-center justify-between px-4 flex-shrink-0">
+      <header className="h-14 bg-card border-b border-border flex items-center justify-between px-4 flex-shrink-0 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-secondary/30 flex items-center justify-center">
             <Code className="w-5 h-5 text-secondary" />
@@ -56,20 +56,20 @@ const DeveloperDashboard = () => {
         </div>
       </header>
 
-      {/* Main Content - Full Height */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* Main Content - Fixed Height for Manager */}
+      <div className="h-[calc(100vh-56px)] flex">
         {/* Left Panel - Module Catalog */}
         <aside className="w-64 bg-card border-r border-border flex-shrink-0 overflow-y-auto">
           <ModuleCatalog />
         </aside>
         
         {/* Center - Mobile Preview */}
-        <main className="flex-1 min-w-0 bg-muted/30">
+        <main className="flex-1 min-w-0 bg-muted/30 overflow-hidden">
           <MobilePreview currentPage="/" />
         </main>
         
         {/* Right Panel - Module List or Editor */}
-        <aside className="w-96 bg-card border-l border-border flex-shrink-0 overflow-hidden">
+        <aside className="w-96 bg-card border-l border-border flex-shrink-0 overflow-y-auto">
           {selectedModule ? (
             <ModuleEditor 
               module={selectedModule} 

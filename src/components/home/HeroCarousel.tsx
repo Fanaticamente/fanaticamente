@@ -13,6 +13,10 @@ interface SlideConfig {
   subtitle?: string;
   cta?: string;
   ctaLink?: string;
+  titleColor?: string;
+  subtitleColor?: string;
+  titleFont?: string;
+  subtitleFont?: string;
 }
 
 const defaultSlides: SlideConfig[] = [
@@ -22,6 +26,8 @@ const defaultSlides: SlideConfig[] = [
     cta: "COMEÇAR AGORA",
     ctaLink: "/terapeutas",
     image: heroSlide1,
+    titleColor: "#FFFFFF",
+    subtitleColor: "#FFFFFF",
   },
   {
     title: "ENCONTRE SEU TERAPEUTA",
@@ -29,6 +35,8 @@ const defaultSlides: SlideConfig[] = [
     cta: "AGENDAR CONSULTA",
     ctaLink: "/terapeutas",
     image: heroSlide2,
+    titleColor: "#FFFFFF",
+    subtitleColor: "#FFFFFF",
   },
   {
     title: "COMUNIDADE FANÁTICA",
@@ -36,6 +44,8 @@ const defaultSlides: SlideConfig[] = [
     cta: "PARTICIPAR",
     ctaLink: "/quiz",
     image: heroSlide3,
+    titleColor: "#FFFFFF",
+    subtitleColor: "#FFFFFF",
   },
 ];
 
@@ -52,6 +62,15 @@ const HeroCarousel = () => {
 
     return () => clearInterval(timer);
   }, [slides.length]);
+
+  const getFontClass = (font?: string) => {
+    switch (font) {
+      case "font-sans": return "font-sans";
+      case "font-serif": return "font-serif";
+      case "font-mono": return "font-mono";
+      default: return "font-display";
+    }
+  };
 
   return (
     <div className="relative h-[70vh] min-h-[480px] max-h-[600px] w-full overflow-hidden">
@@ -75,10 +94,16 @@ const HeroCarousel = () => {
 
           {/* Content */}
           <div className="relative h-full flex flex-col justify-end p-6 pb-16">
-            <h2 className="font-display text-4xl md:text-5xl text-foreground font-bold mb-2 tracking-tight">
+            <h2 
+              className={`${getFontClass(slide.titleFont)} text-4xl md:text-5xl font-bold mb-2 tracking-tight`}
+              style={{ color: slide.titleColor || "#FFFFFF" }}
+            >
               {slide.title}
             </h2>
-            <p className="text-foreground/80 text-lg mb-6">
+            <p 
+              className={`${getFontClass(slide.subtitleFont)} text-lg mb-6`}
+              style={{ color: slide.subtitleColor || "#FFFFFF", opacity: 0.8 }}
+            >
               {slide.subtitle}
             </p>
 
