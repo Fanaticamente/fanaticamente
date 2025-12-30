@@ -73,7 +73,7 @@ const HeroCarousel = () => {
   };
 
   return (
-    <div className="relative h-[70vh] min-h-[480px] max-h-[600px] w-full overflow-hidden">
+    <div className="relative w-full overflow-hidden" style={{ aspectRatio: '1/1', maxHeight: '1080px' }}>
       {slides.map((slide, index) => (
         <div
           key={index}

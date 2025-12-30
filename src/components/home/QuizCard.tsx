@@ -24,9 +24,6 @@ const QuizCard = () => {
         alt=""
         className="absolute inset-0 w-full h-full object-cover"
       />
-      
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30" />
 
       {/* Arrow */}
       <div className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
