@@ -16,7 +16,7 @@ const QuizCard = () => {
   return (
     <Link
       to={link}
-      className="block mx-4 my-4 relative overflow-hidden rounded-2xl h-24 group"
+      className="block mx-4 my-4 relative overflow-hidden rounded-2xl h-40 group"
     >
       {/* Background image */}
       <img 
