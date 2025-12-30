@@ -25,9 +25,6 @@ const TunnelCard = () => {
         className="absolute inset-0 w-full h-full object-cover"
       />
       
-      {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30" />
-      
       {/* Arrow button */}
       <div className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
         <ChevronRight className="w-6 h-6 text-primary-foreground" />
