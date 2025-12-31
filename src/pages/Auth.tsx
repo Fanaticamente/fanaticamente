@@ -16,6 +16,7 @@ type AuthMode = "user" | "professional";
 
 interface SignUpData {
   fullName: string;
+  crp: string;
   birthDate: string;
   favoriteClub: string;
   state: string;
@@ -39,6 +40,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [signUpData, setSignUpData] = useState<SignUpData>({
     fullName: "",
+    crp: "",
     birthDate: "",
     favoriteClub: "",
     state: "",
@@ -97,6 +99,19 @@ const Auth = () => {
 
     if (!signUpData.fullName.trim()) {
       newErrors.fullName = "Nome completo é obrigatório";
+    }
+
+    // Validate CRP only for professionals
+    if (authMode === "professional") {
+      if (!signUpData.crp.trim()) {
+        newErrors.crp = "CRP é obrigatório";
+      } else {
+        // CRP format: XX/XXXXX (2 digits / 4-6 digits)
+        const crpRegex = /^\d{2}\/\d{4,6}$/;
+        if (!crpRegex.test(signUpData.crp)) {
+          newErrors.crp = "Formato inválido. Use XX/XXXXX (ex: 06/12345)";
+        }
+      }
     }
 
     if (!signUpData.birthDate) {
@@ -178,12 +193,19 @@ const Auth = () => {
         } else {
           // Profile will be updated via the auth state change handler
           // Store signup data in localStorage temporarily
-          localStorage.setItem('pendingProfileUpdate', JSON.stringify({
+          const profileData: any = {
             birth_date: signUpData.birthDate,
             favorite_club_id: signUpData.favoriteClub,
             city: signUpData.city,
             state: signUpData.state
-          }));
+          };
+          
+          // Add CRP for professionals
+          if (authMode === "professional") {
+            profileData.crp = signUpData.crp;
+          }
+          
+          localStorage.setItem('pendingProfileUpdate', JSON.stringify(profileData));
           toast.success("Conta criada com sucesso!");
         }
       }
@@ -316,22 +338,62 @@ const Auth = () => {
                   )}
                 </div>
 
-                {/* Birth Date */}
-                <div>
-                  <label className="block text-card-foreground text-sm mb-2">
-                    Data de Nascimento *
-                  </label>
-                  <input
-                    type="date"
-                    value={signUpData.birthDate}
-                    onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
-                    className={inputClassName}
-                    max={new Date().toISOString().split('T')[0]}
-                  />
-                  {errors.birthDate && (
-                    <p className="text-destructive text-sm mt-1">{errors.birthDate}</p>
-                  )}
-                </div>
+                {/* CRP and Birth Date - Side by Side for Professionals */}
+                {authMode === "professional" ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* CRP */}
+                    <div>
+                      <label className="block text-card-foreground text-sm mb-2">
+                        CRP *
+                      </label>
+                      <input
+                        type="text"
+                        value={signUpData.crp}
+                        onChange={(e) => handleSignUpDataChange('crp', e.target.value)}
+                        className={inputClassName}
+                        placeholder="06/12345"
+                        maxLength={9}
+                      />
+                      {errors.crp && (
+                        <p className="text-destructive text-xs mt-1">{errors.crp}</p>
+                      )}
+                    </div>
+
+                    {/* Birth Date */}
+                    <div>
+                      <label className="block text-card-foreground text-sm mb-2">
+                        Nascimento *
+                      </label>
+                      <input
+                        type="date"
+                        value={signUpData.birthDate}
+                        onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
+                        className={inputClassName}
+                        max={new Date().toISOString().split('T')[0]}
+                      />
+                      {errors.birthDate && (
+                        <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  /* Birth Date - Full width for users */
+                  <div>
+                    <label className="block text-card-foreground text-sm mb-2">
+                      Data de Nascimento *
+                    </label>
+                    <input
+                      type="date"
+                      value={signUpData.birthDate}
+                      onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
+                      className={inputClassName}
+                      max={new Date().toISOString().split('T')[0]}
+                    />
+                    {errors.birthDate && (
+                      <p className="text-destructive text-sm mt-1">{errors.birthDate}</p>
+                    )}
+                  </div>
+                )}
 
                 {/* Favorite Club */}
                 <div>

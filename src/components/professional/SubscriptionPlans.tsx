@@ -1,0 +1,215 @@
+import { useState } from "react";
+import { Check, Star, Crown, Zap } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+interface SubscriptionPlansProps {
+  professionalId: string;
+  onSubscribe: () => void;
+}
+
+const plans = [
+  {
+    id: "monthly",
+    name: "Mensal",
+    price: 199.90,
+    originalPrice: null,
+    discount: null,
+    period: "mês",
+    icon: Zap,
+    color: "border-muted-foreground",
+    bgColor: "bg-muted/30",
+    features: [
+      "Perfil visível no marketplace",
+      "Sistema de agendamento",
+      "Painel de métricas básico",
+      "Suporte por email"
+    ]
+  },
+  {
+    id: "semiannual",
+    name: "Semestral",
+    price: 1079.90,
+    originalPrice: 1199.40,
+    discount: 10,
+    period: "semestre",
+    icon: Star,
+    color: "border-therapy",
+    bgColor: "bg-therapy/10",
+    popular: true,
+    features: [
+      "Tudo do plano Mensal",
+      "Destaque no ranking de busca",
+      "Selo de profissional destaque",
+      "Suporte prioritário"
+    ]
+  },
+  {
+    id: "annual",
+    name: "Anual",
+    price: 2038.90,
+    originalPrice: 2398.80,
+    discount: 15,
+    period: "ano",
+    icon: Crown,
+    color: "border-primary",
+    bgColor: "bg-primary/10",
+    features: [
+      "Tudo do plano Semestral",
+      "Posição premium no marketplace",
+      "Acesso antecipado a novidades",
+      "Mentoria exclusiva trimestral"
+    ]
+  }
+];
+
+const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansProps) => {
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleSubscribe = async () => {
+    if (!selectedPlan) {
+      toast.error("Selecione um plano");
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const plan = plans.find(p => p.id === selectedPlan);
+      if (!plan) return;
+
+      // Calculate expiration date
+      let expiresAt = new Date();
+      if (selectedPlan === "monthly") {
+        expiresAt.setMonth(expiresAt.getMonth() + 1);
+      } else if (selectedPlan === "semiannual") {
+        expiresAt.setMonth(expiresAt.getMonth() + 6);
+      } else {
+        expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+      }
+
+      // Update professional with subscription
+      const { error } = await supabase
+        .from('professionals')
+        .update({
+          subscription_type: selectedPlan,
+          subscription_expires_at: expiresAt.toISOString(),
+          is_active: true,
+          is_verified: true
+        })
+        .eq('id', professionalId);
+
+      if (error) throw error;
+
+      toast.success(`Plano ${plan.name} ativado com sucesso! Seu perfil está agora visível.`);
+      onSubscribe();
+    } catch (error) {
+      console.error("Subscription error:", error);
+      toast.error("Erro ao processar assinatura. Tente novamente.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <h2 className="font-display text-2xl text-card-foreground mb-2">
+          Escolha seu Plano
+        </h2>
+        <p className="text-muted-foreground">
+          Assine para ativar seu perfil no marketplace
+        </p>
+      </div>
+
+      <div className="grid gap-4">
+        {plans.map((plan) => {
+          const PlanIcon = plan.icon;
+          const isSelected = selectedPlan === plan.id;
+
+          return (
+            <button
+              key={plan.id}
+              onClick={() => setSelectedPlan(plan.id)}
+              className={`relative text-left p-5 rounded-xl border-2 transition-all ${
+                isSelected 
+                  ? `${plan.color} ${plan.bgColor} scale-[1.02]` 
+                  : "border-border bg-card hover:border-muted-foreground"
+              }`}
+            >
+              {plan.popular && (
+                <span className="absolute -top-3 right-4 px-3 py-1 bg-therapy text-therapy-foreground text-xs font-bold rounded-full">
+                  MAIS POPULAR
+                </span>
+              )}
+
+              <div className="flex items-start gap-4">
+                <div className={`p-3 rounded-xl ${plan.bgColor}`}>
+                  <PlanIcon className={`w-6 h-6 ${isSelected ? "text-therapy" : "text-muted-foreground"}`} />
+                </div>
+
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-display text-xl text-card-foreground">
+                      {plan.name}
+                    </h3>
+                    {plan.discount && (
+                      <span className="px-2 py-0.5 bg-green-500/20 text-green-500 text-xs font-bold rounded-full">
+                        -{plan.discount}%
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-baseline gap-2 mb-3">
+                    <span className="text-2xl font-bold text-card-foreground">
+                      R$ {plan.price.toFixed(2).replace('.', ',')}
+                    </span>
+                    <span className="text-muted-foreground text-sm">/{plan.period}</span>
+                    {plan.originalPrice && (
+                      <span className="text-muted-foreground text-sm line-through">
+                        R$ {plan.originalPrice.toFixed(2).replace('.', ',')}
+                      </span>
+                    )}
+                  </div>
+
+                  <ul className="space-y-1">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  isSelected ? "border-therapy bg-therapy" : "border-muted-foreground"
+                }`}>
+                  {isSelected && <Check className="w-3 h-3 text-therapy-foreground" />}
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="bg-muted/30 rounded-xl p-4 border border-border">
+        <p className="text-muted-foreground text-sm text-center">
+          💳 Pagamento seguro via Pix ou Cartão de Crédito
+          <br />
+          <span className="text-xs">Você será redirecionado para a página de pagamento</span>
+        </p>
+      </div>
+
+      <button
+        onClick={handleSubscribe}
+        disabled={!selectedPlan || isProcessing}
+        className="w-full py-4 bg-therapy text-therapy-foreground rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isProcessing ? "Processando..." : "Confirmar Assinatura"}
+      </button>
+    </div>
+  );
+};
+
+export default SubscriptionPlans;
