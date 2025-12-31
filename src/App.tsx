@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ClubThemeProvider } from "@/components/ClubThemeProvider";
+
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
 import Index from "./pages/Index";
 import Terapeutas from "./pages/Terapeutas";
@@ -37,34 +37,32 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <ClubThemeProvider>
-          <RealtimeProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/terapeutas" element={<Terapeutas />} />
-                <Route path="/cursos" element={<Cursos />} />
-                <Route path="/curso/:id" element={<CursoDetalhe />} />
-                <Route path="/quiz" element={<Quiz />} />
-                <Route path="/diario" element={<Diario />} />
-                <Route path="/radio" element={<Radio />} />
-                <Route path="/futebol" element={<Futebol />} />
-                <Route path="/perfil" element={<Perfil />} />
-                <Route path="/loja" element={<FanaticaShop />} />
-                <Route path="/loja/produto/:id" element={<ProductDetail />} />
-                <Route path="/profissional" element={<ProfessionalDashboard />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/desenvolvedor" element={<DeveloperDashboard />} />
-                <Route path="/admin-access" element={<AdminAccess />} />
-                <Route path="/setup-test" element={<SetupTestUsers />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </RealtimeProvider>
-        </ClubThemeProvider>
+        <RealtimeProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/terapeutas" element={<Terapeutas />} />
+              <Route path="/cursos" element={<Cursos />} />
+              <Route path="/curso/:id" element={<CursoDetalhe />} />
+              <Route path="/quiz" element={<Quiz />} />
+              <Route path="/diario" element={<Diario />} />
+              <Route path="/radio" element={<Radio />} />
+              <Route path="/futebol" element={<Futebol />} />
+              <Route path="/perfil" element={<Perfil />} />
+              <Route path="/loja" element={<FanaticaShop />} />
+              <Route path="/loja/produto/:id" element={<ProductDetail />} />
+              <Route path="/profissional" element={<ProfessionalDashboard />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/desenvolvedor" element={<DeveloperDashboard />} />
+              <Route path="/admin-access" element={<AdminAccess />} />
+              <Route path="/setup-test" element={<SetupTestUsers />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </RealtimeProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
