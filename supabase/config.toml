@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.update-products]
 verify_jwt = false
+
+[functions.complete-professional-signup]
+verify_jwt = false

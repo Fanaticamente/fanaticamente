@@ -37,40 +37,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Function to update pending profile data after signup
   const updatePendingProfileData = async (userId: string) => {
     const pendingData = localStorage.getItem("pendingProfileUpdate");
-    if (!pendingData) return;
+    if (!pendingData) {
+      console.log("No pending profile data found");
+      return;
+    }
+
+    console.log("Processing pending profile data:", pendingData);
 
     try {
       const profileData = JSON.parse(pendingData);
       const { crp, ...profileFields } = profileData;
 
       if (crp) {
+        console.log("Professional signup detected, calling edge function with CRP:", crp);
+        
         // Professional onboarding needs privileged writes (roles table). Do it via backend function.
-        const { error } = await supabase.functions.invoke("complete-professional-signup", {
+        const { data, error } = await supabase.functions.invoke("complete-professional-signup", {
           body: {
             crp,
             profile: profileFields,
           },
         });
 
+        console.log("Edge function response:", { data, error });
+
         if (!error) {
+          console.log("Professional signup completed successfully");
           await fetchUserRoles(userId);
           localStorage.removeItem("pendingProfileUpdate");
         } else {
           // Keep pending data so we can retry on next auth refresh
-          console.error("complete-professional-signup failed", error);
+          console.error("complete-professional-signup failed:", error);
         }
 
         return;
       }
 
       // Regular user: just update profile fields
+      console.log("Regular user, updating profile fields:", profileFields);
       const { error: profileError } = await supabase
         .from("profiles")
         .update(profileFields)
         .eq("user_id", userId);
 
       if (!profileError) {
+        console.log("Profile updated successfully");
         localStorage.removeItem("pendingProfileUpdate");
+      } else {
+        console.error("Profile update failed:", profileError);
       }
     } catch (error) {
       console.error("Error updating pending profile data:", error);

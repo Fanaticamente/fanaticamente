@@ -18,13 +18,18 @@ type Payload = {
 const CRP_REGEX = /^\d{2}\/\d{4,6}$/;
 
 Deno.serve(async (req) => {
+  console.log("complete-professional-signup: Request received", req.method);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const authHeader = req.headers.get("Authorization") ?? "";
+    console.log("complete-professional-signup: Auth header present:", !!authHeader);
+
     if (!authHeader) {
+      console.error("complete-professional-signup: Missing Authorization header");
       return new Response(JSON.stringify({ error: "Missing Authorization header" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -36,6 +41,11 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
     if (!supabaseUrl || !anonKey || !serviceRoleKey) {
+      console.error("complete-professional-signup: Backend not configured", {
+        hasUrl: !!supabaseUrl,
+        hasAnon: !!anonKey,
+        hasService: !!serviceRoleKey,
+      });
       return new Response(JSON.stringify({ error: "Backend not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -51,7 +61,13 @@ Deno.serve(async (req) => {
       error: userError,
     } = await anon.auth.getUser();
 
+    console.log("complete-professional-signup: User lookup result", {
+      userId: user?.id,
+      error: userError?.message,
+    });
+
     if (userError || !user) {
+      console.error("complete-professional-signup: Unauthorized", userError?.message);
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -61,7 +77,14 @@ Deno.serve(async (req) => {
     const payload = (await req.json()) as Payload;
     const crp = (payload?.crp ?? "").trim();
 
+    console.log("complete-professional-signup: Payload received", {
+      crp,
+      hasProfile: !!payload.profile,
+      profile: payload.profile,
+    });
+
     if (!crp) {
+      console.error("complete-professional-signup: CRP is required");
       return new Response(JSON.stringify({ error: "CRP is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -69,6 +92,7 @@ Deno.serve(async (req) => {
     }
 
     if (!CRP_REGEX.test(crp)) {
+      console.error("complete-professional-signup: Invalid CRP format", crp);
       return new Response(JSON.stringify({ error: "Invalid CRP format" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -79,22 +103,21 @@ Deno.serve(async (req) => {
 
     // Ensure profile exists + has the latest signup data
     if (payload.profile && Object.keys(payload.profile).length > 0) {
+      console.log("complete-professional-signup: Updating profile for user", user.id);
+      
       const { error: profileError } = await service
         .from("profiles")
-        .upsert(
-          {
-            user_id: user.id,
-            ...payload.profile,
-          },
-          { onConflict: "user_id" }
-        );
+        .update(payload.profile)
+        .eq("user_id", user.id);
 
       if (profileError) {
-        return new Response(JSON.stringify({ error: "Failed to update profile" }), {
+        console.error("complete-professional-signup: Profile update failed", profileError);
+        return new Response(JSON.stringify({ error: "Failed to update profile", details: profileError.message }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      console.log("complete-professional-signup: Profile updated successfully");
     }
 
     // Create professional row if missing
@@ -104,7 +127,12 @@ Deno.serve(async (req) => {
       .eq("user_id", user.id)
       .maybeSingle();
 
+    console.log("complete-professional-signup: Existing professional check", {
+      exists: !!existingProfessional,
+    });
+
     if (!existingProfessional) {
+      console.log("complete-professional-signup: Creating professional record");
       const { error: professionalError } = await service.from("professionals").insert({
         user_id: user.id,
         crp,
@@ -113,37 +141,54 @@ Deno.serve(async (req) => {
       });
 
       if (professionalError) {
-        return new Response(JSON.stringify({ error: "Failed to create professional" }), {
+        console.error("complete-professional-signup: Professional creation failed", professionalError);
+        return new Response(JSON.stringify({ error: "Failed to create professional", details: professionalError.message }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      console.log("complete-professional-signup: Professional record created");
     }
 
     // Ensure role exists
-    const { error: roleError } = await service
+    console.log("complete-professional-signup: Assigning professional role");
+    
+    // First check if role already exists
+    const { data: existingRole } = await service
       .from("user_roles")
-      .upsert(
-        {
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("role", "professional")
+      .maybeSingle();
+
+    if (!existingRole) {
+      const { error: roleError } = await service
+        .from("user_roles")
+        .insert({
           user_id: user.id,
           role: "professional",
-        },
-        { onConflict: "user_id,role" }
-      );
+        });
 
-    if (roleError) {
-      return new Response(JSON.stringify({ error: "Failed to assign role" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      if (roleError) {
+        console.error("complete-professional-signup: Role assignment failed", roleError);
+        return new Response(JSON.stringify({ error: "Failed to assign role", details: roleError.message }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      console.log("complete-professional-signup: Professional role assigned");
+    } else {
+      console.log("complete-professional-signup: Professional role already exists");
     }
 
+    console.log("complete-professional-signup: SUCCESS for user", user.id);
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("complete-professional-signup: Unexpected error", message);
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
