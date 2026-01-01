@@ -182,30 +182,34 @@ const Auth = () => {
         }
       } else {
         // Sign up with additional user data
-        const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName);
-        
+        // IMPORTANT: store signup data BEFORE calling signUp to avoid race conditions
+        const profileData: any = {
+          birth_date: signUpData.birthDate,
+          favorite_club_id: signUpData.favoriteClub,
+          city: signUpData.city,
+          state: signUpData.state,
+        };
+
+        if (authMode === "professional") {
+          profileData.crp = signUpData.crp;
+        }
+
+        localStorage.setItem("pendingProfileUpdate", JSON.stringify(profileData));
+
+        const { error } = await signUp(
+          signUpData.email,
+          signUpData.password,
+          signUpData.fullName
+        );
+
         if (error) {
+          localStorage.removeItem("pendingProfileUpdate");
           if (error.message.includes("already registered")) {
             toast.error("Este email já está cadastrado");
           } else {
             toast.error(error.message);
           }
         } else {
-          // Profile will be updated via the auth state change handler
-          // Store signup data in localStorage temporarily
-          const profileData: any = {
-            birth_date: signUpData.birthDate,
-            favorite_club_id: signUpData.favoriteClub,
-            city: signUpData.city,
-            state: signUpData.state
-          };
-          
-          // Add CRP for professionals
-          if (authMode === "professional") {
-            profileData.crp = signUpData.crp;
-          }
-          
-          localStorage.setItem('pendingProfileUpdate', JSON.stringify(profileData));
           toast.success("Conta criada com sucesso!");
         }
       }
@@ -227,7 +231,7 @@ const Auth = () => {
 
   const inputClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors";
   const selectClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors appearance-none cursor-pointer";
-  const dateInputClassName = "w-full h-12 px-3 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors text-sm";
+  const dateInputClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors appearance-none text-base leading-none";
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
