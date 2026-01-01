@@ -36,50 +36,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Function to update pending profile data after signup
   const updatePendingProfileData = async (userId: string) => {
-    const pendingData = localStorage.getItem('pendingProfileUpdate');
-    if (pendingData) {
-      try {
-        const profileData = JSON.parse(pendingData);
-        const { crp, ...profileFields } = profileData;
-        
-        // Update profile with non-CRP fields
-        await supabase
-          .from('profiles')
-          .update(profileFields)
-          .eq('user_id', userId);
-        
-        // If CRP exists, this is a professional signup
-        if (crp) {
-          // Create professional record
-          const { error: professionalError } = await supabase
-            .from('professionals')
-            .insert({
-              user_id: userId,
-              crp: crp,
-              is_active: false,
-              is_verified: false
-            });
-          
-          if (!professionalError) {
-            // Add professional role
-            await supabase
-              .from('user_roles')
-              .insert({
-                user_id: userId,
-                role: 'professional'
-              });
-            
-            // Refresh roles
-            fetchUserRoles(userId);
-          } else {
-            console.error('Error creating professional:', professionalError);
-          }
+    const pendingData = localStorage.getItem("pendingProfileUpdate");
+    if (!pendingData) return;
+
+    try {
+      const profileData = JSON.parse(pendingData);
+      const { crp, ...profileFields } = profileData;
+
+      if (crp) {
+        // Professional onboarding needs privileged writes (roles table). Do it via backend function.
+        const { error } = await supabase.functions.invoke("complete-professional-signup", {
+          body: {
+            crp,
+            profile: profileFields,
+          },
+        });
+
+        if (!error) {
+          await fetchUserRoles(userId);
+          localStorage.removeItem("pendingProfileUpdate");
+        } else {
+          // Keep pending data so we can retry on next auth refresh
+          console.error("complete-professional-signup failed", error);
         }
-        
-        localStorage.removeItem('pendingProfileUpdate');
-      } catch (error) {
-        console.error('Error updating pending profile data:', error);
+
+        return;
       }
+
+      // Regular user: just update profile fields
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update(profileFields)
+        .eq("user_id", userId);
+
+      if (!profileError) {
+        localStorage.removeItem("pendingProfileUpdate");
+      }
+    } catch (error) {
+      console.error("Error updating pending profile data:", error);
     }
   };
 
