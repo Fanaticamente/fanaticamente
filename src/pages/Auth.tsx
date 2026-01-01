@@ -225,8 +225,9 @@ const Auth = () => {
     });
   };
 
-  const inputClassName = "w-full px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors";
-  const selectClassName = "w-full px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors appearance-none cursor-pointer";
+  const inputClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors";
+  const selectClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors appearance-none cursor-pointer";
+  const dateInputClassName = "w-full h-12 px-3 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors text-sm";
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
@@ -368,7 +369,7 @@ const Auth = () => {
                         type="date"
                         value={signUpData.birthDate}
                         onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
-                        className={inputClassName}
+                        className={dateInputClassName}
                         max={new Date().toISOString().split('T')[0]}
                       />
                       {errors.birthDate && (
@@ -386,7 +387,7 @@ const Auth = () => {
                       type="date"
                       value={signUpData.birthDate}
                       onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
-                      className={inputClassName}
+                      className={dateInputClassName}
                       max={new Date().toISOString().split('T')[0]}
                     />
                     {errors.birthDate && (
