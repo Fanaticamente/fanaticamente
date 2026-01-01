@@ -40,10 +40,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (pendingData) {
       try {
         const profileData = JSON.parse(pendingData);
+        const { crp, ...profileFields } = profileData;
+        
+        // Update profile with non-CRP fields
         await supabase
           .from('profiles')
-          .update(profileData)
+          .update(profileFields)
           .eq('user_id', userId);
+        
+        // If CRP exists, this is a professional signup
+        if (crp) {
+          // Create professional record
+          const { error: professionalError } = await supabase
+            .from('professionals')
+            .insert({
+              user_id: userId,
+              crp: crp,
+              is_active: false,
+              is_verified: false
+            });
+          
+          if (!professionalError) {
+            // Add professional role
+            await supabase
+              .from('user_roles')
+              .insert({
+                user_id: userId,
+                role: 'professional'
+              });
+            
+            // Refresh roles
+            fetchUserRoles(userId);
+          } else {
+            console.error('Error creating professional:', professionalError);
+          }
+        }
+        
         localStorage.removeItem('pendingProfileUpdate');
       } catch (error) {
         console.error('Error updating pending profile data:', error);
