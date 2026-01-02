@@ -52,6 +52,7 @@ const ProfessionalDashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [club, setClub] = useState<Club | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [setupError, setSetupError] = useState(false);
   
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("status");
   const [activeTab, setActiveTab] = useState<DashboardTab>("agenda");
@@ -97,7 +98,7 @@ const ProfessionalDashboard = () => {
         }
       }
 
-      // Fetch or create professional record
+      // Fetch professional record
       let { data: profData } = await supabase
         .from("professionals")
         .select("*")
@@ -105,30 +106,48 @@ const ProfessionalDashboard = () => {
         .single();
 
       if (!profData) {
-        // Create professional record from pending profile data
+        // Professional record doesn't exist - try to complete signup via edge function
         const pendingData = localStorage.getItem('pendingProfileUpdate');
-        let crp = "00/00000";
         
         if (pendingData) {
           const parsed = JSON.parse(pendingData);
-          crp = parsed.crp || crp;
+          const crp = parsed.crp;
+          
+          if (crp) {
+            console.log("[Dashboard] Retrying professional signup via edge function");
+            const { crp: pendingCrp, ...profileFields } = parsed;
+            
+            const { error: fnError } = await supabase.functions.invoke("complete-professional-signup", {
+              body: {
+                crp: pendingCrp,
+                profile: profileFields,
+              },
+            });
+
+            if (!fnError) {
+              console.log("[Dashboard] Professional signup completed, refetching data");
+              localStorage.removeItem('pendingProfileUpdate');
+              
+              // Refetch professional data
+              const { data: newProfData } = await supabase
+                .from("professionals")
+                .select("*")
+                .eq("user_id", user.id)
+                .single();
+              
+              profData = newProfData;
+            } else {
+              console.error("[Dashboard] Edge function failed:", fnError);
+              toast.error("Erro ao completar cadastro profissional. Tente novamente.");
+            }
+          }
         }
-
-        const { data: newProf, error } = await supabase
-          .from("professionals")
-          .insert({
-            user_id: user.id,
-            crp: crp,
-            is_active: false,
-            is_verified: false
-          })
-          .select()
-          .single();
-
-        if (error) {
-          console.error("Error creating professional:", error);
-        } else {
-          profData = newProf;
+        
+        if (!profData) {
+          console.log("[Dashboard] No professional record found and no pending CRP data");
+          setSetupError(true);
+          setIsLoading(false);
+          return;
         }
       }
 
@@ -213,6 +232,38 @@ const ProfessionalDashboard = () => {
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-therapy border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (setupError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-destructive/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <XCircle className="w-8 h-8 text-destructive" />
+          </div>
+          <h2 className="font-display text-2xl text-card-foreground mb-2">
+            Cadastro Incompleto
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            Não encontramos seu cadastro profissional. Por favor, faça o cadastro novamente como profissional.
+          </p>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => navigate("/auth?mode=professional")}
+              className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:scale-[1.02] transition-transform"
+            >
+              Cadastrar como Profissional
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors"
+            >
+              Sair
+            </button>
+          </div>
         </div>
       </div>
     );
