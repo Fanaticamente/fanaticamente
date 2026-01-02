@@ -23,15 +23,6 @@ import DesktopFooter from "@/components/desktop/DesktopFooter";
 const Index = () => {
   const isMobile = useIsMobile();
 
-  // Show loading state while determining device type
-  if (isMobile === undefined) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   // Mobile Layout
   if (isMobile) {
     return (
