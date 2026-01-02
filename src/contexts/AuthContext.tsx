@@ -34,60 +34,70 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Function to complete professional signup via edge function
+  const completeProfessionalSignup = async (userId: string, crp: string, profileFields: Record<string, any>) => {
+    console.log("[Auth] Calling complete-professional-signup edge function for user:", userId, "CRP:", crp);
+    
+    const { data, error } = await supabase.functions.invoke("complete-professional-signup", {
+      body: {
+        crp,
+        profile: profileFields,
+      },
+    });
+
+    console.log("[Auth] Edge function response:", { data, error });
+
+    if (error) {
+      console.error("[Auth] Edge function failed:", error);
+      return false;
+    }
+
+    console.log("[Auth] Professional signup completed successfully");
+    await fetchUserRoles(userId);
+    return true;
+  };
+
   // Function to update pending profile data after signup
   const updatePendingProfileData = async (userId: string) => {
     const pendingData = localStorage.getItem("pendingProfileUpdate");
     if (!pendingData) {
-      console.log("No pending profile data found");
+      console.log("[Auth] No pending profile data found");
       return;
     }
 
-    console.log("Processing pending profile data:", pendingData);
+    console.log("[Auth] Processing pending profile data:", pendingData);
 
     try {
       const profileData = JSON.parse(pendingData);
       const { crp, ...profileFields } = profileData;
 
       if (crp) {
-        console.log("Professional signup detected, calling edge function with CRP:", crp);
+        console.log("[Auth] Professional signup detected with CRP:", crp);
         
-        // Professional onboarding needs privileged writes (roles table). Do it via backend function.
-        const { data, error } = await supabase.functions.invoke("complete-professional-signup", {
-          body: {
-            crp,
-            profile: profileFields,
-          },
-        });
-
-        console.log("Edge function response:", { data, error });
-
-        if (!error) {
-          console.log("Professional signup completed successfully");
-          await fetchUserRoles(userId);
+        const success = await completeProfessionalSignup(userId, crp, profileFields);
+        
+        if (success) {
           localStorage.removeItem("pendingProfileUpdate");
-        } else {
-          // Keep pending data so we can retry on next auth refresh
-          console.error("complete-professional-signup failed:", error);
         }
-
+        // Keep pending data on failure so we can retry
         return;
       }
 
       // Regular user: just update profile fields
-      console.log("Regular user, updating profile fields:", profileFields);
+      console.log("[Auth] Regular user, updating profile fields:", profileFields);
       const { error: profileError } = await supabase
         .from("profiles")
         .update(profileFields)
         .eq("user_id", userId);
 
       if (!profileError) {
-        console.log("Profile updated successfully");
+        console.log("[Auth] Profile updated successfully");
         localStorage.removeItem("pendingProfileUpdate");
       } else {
-        console.error("Profile update failed:", profileError);
+        console.error("[Auth] Profile update failed:", profileError);
       }
     } catch (error) {
-      console.error("Error updating pending profile data:", error);
+      console.error("[Auth] Error updating pending profile data:", error);
     }
   };
 
