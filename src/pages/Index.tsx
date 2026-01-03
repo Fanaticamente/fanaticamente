@@ -1,5 +1,3 @@
-import { useIsMobile } from "@/hooks/use-mobile";
-
 // Mobile Components
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
@@ -21,12 +19,10 @@ import DesktopCTA from "@/components/desktop/DesktopCTA";
 import DesktopFooter from "@/components/desktop/DesktopFooter";
 
 const Index = () => {
-  const isMobile = useIsMobile();
-
-  // Mobile Layout
-  if (isMobile) {
-    return (
-      <div className="min-h-screen bg-background">
+  return (
+    <>
+      {/* Mobile Layout (CSS-driven to avoid refresh flicker) */}
+      <div className="min-h-screen bg-background md:hidden">
         <Header />
         <main className="pt-14">
           <HeroCarousel />
@@ -38,24 +34,23 @@ const Index = () => {
         </main>
         <BottomNav />
       </div>
-    );
-  }
 
-  // Desktop Layout
-  return (
-    <div className="min-h-screen bg-[hsl(var(--desktop-bg))]">
-      <DesktopHeader />
-      <main className="pt-[72px]">
-        <DesktopHero />
-        <DesktopPartners />
-        <DesktopServices />
-        <DesktopSpecialists />
-        <DesktopTestimonials />
-        <DesktopCTA />
-      </main>
-      <DesktopFooter />
-    </div>
+      {/* Desktop Layout */}
+      <div className="hidden min-h-screen bg-[hsl(var(--desktop-bg))] md:block">
+        <DesktopHeader />
+        <main className="pt-[72px]">
+          <DesktopHero />
+          <DesktopPartners />
+          <DesktopServices />
+          <DesktopSpecialists />
+          <DesktopTestimonials />
+          <DesktopCTA />
+        </main>
+        <DesktopFooter />
+      </div>
+    </>
   );
 };
 
 export default Index;
+
