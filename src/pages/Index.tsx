@@ -21,8 +21,8 @@ import DesktopFooter from "@/components/desktop/DesktopFooter";
 const Index = () => {
   return (
     <>
-      {/* Mobile Layout (CSS-driven to avoid refresh flicker) */}
-      <div className="min-h-screen bg-background md:hidden">
+      {/* Mobile Layout */}
+      <div data-layout="mobile" className="min-h-screen bg-background md:hidden">
         <Header />
         <main className="pt-14">
           <HeroCarousel />
@@ -36,7 +36,7 @@ const Index = () => {
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden min-h-screen bg-[hsl(var(--desktop-bg))] md:block">
+      <div data-layout="desktop" className="hidden min-h-screen bg-[hsl(var(--desktop-bg))] md:block">
         <DesktopHeader />
         <main className="pt-[72px]">
           <DesktopHero />
