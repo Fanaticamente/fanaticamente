@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Prevent layout flash before Tailwind loads -->
+    <style>
+      @media (min-width: 768px) {
+        [data-layout="mobile"] { display: none !important; }
+      }
+      @media (max-width: 767.98px) {
+        [data-layout="desktop"] { display: none !important; }
+      }
+    </style>
     <!-- TODO: Set the document title to the name of your application -->
     <title>Lovable App</title>
     <meta name="description" content="Lovable Generated Project" />
