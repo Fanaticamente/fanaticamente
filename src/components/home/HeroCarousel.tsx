@@ -51,9 +51,21 @@ const defaultSlides: SlideConfig[] = [
 
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { data: moduleConfig } = useModuleConfig('hero_carousel');
-  
-  const slides: SlideConfig[] = moduleConfig?.config?.slides as SlideConfig[] || defaultSlides;
+  const moduleQuery = useModuleConfig("hero_carousel");
+
+  const dbSlides = (moduleQuery.data?.config as { slides?: SlideConfig[] } | undefined)?.slides;
+  const slides: SlideConfig[] | null = dbSlides ?? (moduleQuery.isError ? defaultSlides : null);
+
+  // Avoid showing fallback images briefly on refresh (prevents “flash” of another banner)
+  if (!slides) {
+    return (
+      <div
+        className="relative w-full overflow-hidden bg-background"
+        style={{ aspectRatio: "1/1", maxHeight: "1080px" }}
+        aria-busy="true"
+      />
+    );
+  }
 
   useEffect(() => {
     const timer = setInterval(() => {
