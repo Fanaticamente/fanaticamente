@@ -82,6 +82,16 @@ const HeroCarousel = () => {
     };
   }, [slides]);
 
+  useEffect(() => {
+    if (!slides || !isReady || slides.length <= 1) return;
+
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [slides, isReady]);
+
   if (!slides || !isReady) {
     return (
       <div
@@ -91,14 +101,6 @@ const HeroCarousel = () => {
       />
     );
   }
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, [slides.length]);
 
   const getFontClass = (font?: string) => {
     switch (font) {
