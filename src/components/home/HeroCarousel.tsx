@@ -51,13 +51,38 @@ const defaultSlides: SlideConfig[] = [
 
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isReady, setIsReady] = useState(false);
   const moduleQuery = useModuleConfig("hero_carousel");
 
   const dbSlides = (moduleQuery.data?.config as { slides?: SlideConfig[] } | undefined)?.slides;
   const slides: SlideConfig[] | null = dbSlides ?? (moduleQuery.isError ? defaultSlides : null);
 
   // Avoid showing fallback images briefly on refresh (prevents “flash” of another banner)
-  if (!slides) {
+  // Also wait until the first slide image is loaded before rendering the carousel.
+  useEffect(() => {
+    if (!slides || slides.length === 0) return;
+
+    setCurrentSlide(0);
+    setIsReady(false);
+
+    const firstSrc = slides[0]?.image;
+    if (!firstSrc) {
+      setIsReady(true);
+      return;
+    }
+
+    const img = new Image();
+    img.src = firstSrc;
+    img.onload = () => setIsReady(true);
+    img.onerror = () => setIsReady(true);
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [slides]);
+
+  if (!slides || !isReady) {
     return (
       <div
         className="relative w-full overflow-hidden bg-background"
@@ -77,10 +102,14 @@ const HeroCarousel = () => {
 
   const getFontClass = (font?: string) => {
     switch (font) {
-      case "font-sans": return "font-sans";
-      case "font-serif": return "font-serif";
-      case "font-mono": return "font-mono";
-      default: return "font-display";
+      case "font-sans":
+        return "font-sans";
+      case "font-serif":
+        return "font-serif";
+      case "font-mono":
+        return "font-mono";
+      default:
+        return "font-display";
     }
   };
 
@@ -97,8 +126,11 @@ const HeroCarousel = () => {
           <div className="absolute inset-0">
             <img
               src={slide.image}
-              alt={slide.title}
+              alt={slide.title || "Banner principal"}
               className="w-full h-full object-cover"
+              loading={index === 0 ? "eager" : "lazy"}
+              decoding="async"
+              {...(index === 0 ? ({ fetchPriority: "high" } as const) : {})}
             />
             {/* Dark overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
