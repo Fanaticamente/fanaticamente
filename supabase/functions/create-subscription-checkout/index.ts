@@ -66,7 +66,7 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "http://localhost:5173";
 
-    // Create checkout session for embedded checkout
+    // Create checkout session for embedded checkout with 180-day free trial
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -78,6 +78,9 @@ serve(async (req) => {
       ],
       mode: "subscription",
       ui_mode: "embedded",
+      subscription_data: {
+        trial_period_days: 180,
+      },
       return_url: `${origin}/profissional?checkout=success&plan=${planId}&session_id={CHECKOUT_SESSION_ID}`,
       metadata: {
         user_id: user.id,
