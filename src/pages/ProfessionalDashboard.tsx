@@ -400,7 +400,9 @@ const ProfessionalDashboard = () => {
                   bio: professional.bio || "",
                   degree: professional.degree || "",
                   specialties: professional.specialties || [],
-                  sessionPrice: professional.hourly_rate?.toString() || ""
+                  sessionPrice: professional.hourly_rate?.toString() || "",
+                  pixKey: (professional as any).pix_key || "",
+                  pixKeyType: (professional as any).pix_key_type || "cpf"
                 }}
                 onComplete={handleProfileComplete}
               />
@@ -649,7 +651,9 @@ const ProfessionalDashboard = () => {
                     degree: professional.degree || "",
                     specialties: professional.specialties || [],
                     sessionPrice: professional.hourly_rate?.toString() || "",
-                    imageUrl: profile?.avatar_url || ""
+                    imageUrl: profile?.avatar_url || "",
+                    pixKey: (professional as any).pix_key || "",
+                    pixKeyType: (professional as any).pix_key_type || "cpf"
                   }}
                   onComplete={() => {
                     toast.success("Perfil atualizado!");
