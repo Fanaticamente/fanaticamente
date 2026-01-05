@@ -122,7 +122,13 @@ const MeusAgendamentos = () => {
     const appointmentDate = parseISO(date);
     const past = isPast(appointmentDate) && !isToday(appointmentDate);
 
-    if (status === "confirmed") {
+    if (status === "in_progress") {
+      return {
+        label: "Em Atendimento",
+        className: "bg-blue-500/20 text-blue-500",
+        icon: Clock
+      };
+    } else if (status === "confirmed") {
       return {
         label: past ? "Realizada" : "Confirmada",
         className: "bg-green-500/20 text-green-500",
@@ -343,20 +349,12 @@ const MeusAgendamentos = () => {
                     </div>
                   )}
 
-                  {/* View Profile Button - Inside Card */}
-                  <button
-                    onClick={() => navigate(`/profissional/${apt.professional_id}`)}
-                    className="w-full mt-3 py-2 bg-therapy/10 text-therapy rounded-xl font-medium hover:bg-therapy/20 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <User className="w-4 h-4" />
-                    Ver Perfil do Profissional
-                  </button>
 
-                  {/* Session Info Button - for confirmed appointments */}
-                  {!isPastAppointment && apt.status === "confirmed" && (
+                  {/* Session Info Button - for confirmed and in_progress appointments */}
+                  {!isPastAppointment && (apt.status === "confirmed" || apt.status === "in_progress") && (
                     <button
                       onClick={() => setSelectedAppointment(apt)}
-                      className="w-full mt-2 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors flex items-center justify-center gap-2"
+                      className="w-full mt-3 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors flex items-center justify-center gap-2"
                     >
                       <Info className="w-4 h-4" />
                       Informações da Sessão

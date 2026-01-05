@@ -62,6 +62,7 @@ const ProfessionalDashboard = () => {
   
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("status");
   const [activeTab, setActiveTab] = useState<DashboardTab>("perfil");
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
   
   const [availableDates, setAvailableDates] = useState<{ date: string; times: string[] }[]>([]);
   const [showAddSlot, setShowAddSlot] = useState(false);
@@ -537,36 +538,129 @@ const ProfessionalDashboard = () => {
         {/* Perfil Tab */}
         {activeTab === "perfil" && professional && (
           <div className="space-y-6">
-            <h2 className="font-display text-2xl text-card-foreground mb-4">
-              Editar Perfil
-            </h2>
-            <ProfileCompletionForm 
-              professionalId={professional.id}
-              existingData={{
-                bio: professional.bio || "",
-                degree: professional.degree || "",
-                specialties: professional.specialties || [],
-                sessionPrice: professional.hourly_rate?.toString() || "",
-                imageUrl: profile?.avatar_url || ""
-              }}
-              onComplete={() => {
-                toast.success("Perfil atualizado!");
-                fetchProfessionalData();
-              }}
-            />
-            
-            {/* Payment Cards */}
-            <div className="space-y-4 mt-8">
-              <h3 className="font-display text-xl text-card-foreground">
-                Métodos de Recebimento
-              </h3>
-              <PixPaymentCard 
-                professionalId={professional.id}
-                pixKey={(professional as any).pix_key || null} 
-                onUpdate={fetchProfessionalData}
-              />
-              <StripeConnectCard professionalId={professional.id} />
-            </div>
+            {!isEditingProfile ? (
+              <>
+                {/* Profile Summary View */}
+                <div className="bg-card border border-border rounded-2xl p-6">
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className="w-20 h-20 rounded-xl bg-therapy/20 flex items-center justify-center overflow-hidden">
+                      {profile?.avatar_url ? (
+                        <img
+                          src={profile.avatar_url}
+                          alt="Foto profissional"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-10 h-10 text-therapy" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-display text-xl text-card-foreground mb-1">
+                        {profile?.full_name || "Nome não informado"}
+                      </h3>
+                      <p className="text-muted-foreground text-sm">
+                        CRP: {professional.crp}
+                      </p>
+                      {professional.degree && (
+                        <p className="text-muted-foreground text-sm">
+                          {professional.degree}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {professional.bio && (
+                    <div className="mb-4">
+                      <p className="text-sm text-muted-foreground mb-1">Bio</p>
+                      <p className="text-card-foreground text-sm line-clamp-2">
+                        {professional.bio}
+                      </p>
+                    </div>
+                  )}
+
+                  {professional.specialties && professional.specialties.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-sm text-muted-foreground mb-2">Especialidades</p>
+                      <div className="flex flex-wrap gap-2">
+                        {professional.specialties.slice(0, 4).map((specialty) => (
+                          <span
+                            key={specialty}
+                            className="px-3 py-1 bg-therapy/20 text-therapy text-xs rounded-full"
+                          >
+                            {specialty}
+                          </span>
+                        ))}
+                        {professional.specialties.length > 4 && (
+                          <span className="px-3 py-1 bg-muted text-muted-foreground text-xs rounded-full">
+                            +{professional.specialties.length - 4}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {professional.hourly_rate && (
+                    <div className="flex items-center justify-between text-sm mb-4">
+                      <span className="text-muted-foreground">Valor da sessão</span>
+                      <span className="font-bold text-card-foreground">
+                        R$ {professional.hourly_rate.toFixed(2).replace(".", ",")}
+                      </span>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => setIsEditingProfile(true)}
+                    className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    Editar Cadastro Profissional
+                  </button>
+                </div>
+                
+                {/* Payment Cards - Always visible */}
+                <div className="space-y-4">
+                  <h3 className="font-display text-xl text-card-foreground">
+                    Métodos de Recebimento
+                  </h3>
+                  <PixPaymentCard 
+                    professionalId={professional.id}
+                    pixKey={(professional as any).pix_key || null} 
+                    onUpdate={fetchProfessionalData}
+                  />
+                  <StripeConnectCard professionalId={professional.id} />
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Edit Profile Form */}
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-display text-2xl text-card-foreground">
+                    Editar Perfil
+                  </h2>
+                  <button
+                    onClick={() => setIsEditingProfile(false)}
+                    className="px-4 py-2 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors text-sm"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+                <ProfileCompletionForm 
+                  professionalId={professional.id}
+                  existingData={{
+                    bio: professional.bio || "",
+                    degree: professional.degree || "",
+                    specialties: professional.specialties || [],
+                    sessionPrice: professional.hourly_rate?.toString() || "",
+                    imageUrl: profile?.avatar_url || ""
+                  }}
+                  onComplete={() => {
+                    toast.success("Perfil atualizado!");
+                    setIsEditingProfile(false);
+                    fetchProfessionalData();
+                  }}
+                />
+              </>
+            )}
           </div>
         )}
 
@@ -644,14 +738,26 @@ const ProfessionalDashboard = () => {
                         </div>
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            apt.status === "confirmed"
+                            apt.status === "in_progress"
+                              ? "bg-blue-500/20 text-blue-500"
+                              : apt.status === "confirmed"
                               ? "bg-green-500/20 text-green-500"
+                              : apt.status === "completed"
+                              ? "bg-purple-500/20 text-purple-500"
                               : apt.status === "cancelled"
                               ? "bg-red-500/20 text-red-500"
                               : "bg-yellow-500/20 text-yellow-500"
                           }`}
                         >
-                          {apt.status === "confirmed" ? "Confirmado" : apt.status === "cancelled" ? "Recusado" : "Pendente"}
+                          {apt.status === "in_progress" 
+                            ? "Em Atendimento" 
+                            : apt.status === "confirmed" 
+                            ? "Confirmado" 
+                            : apt.status === "completed"
+                            ? "Concluído"
+                            : apt.status === "cancelled" 
+                            ? "Recusado" 
+                            : "Pendente"}
                         </span>
                       </div>
                       
