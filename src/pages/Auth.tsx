@@ -21,8 +21,11 @@ interface SignUpData {
   favoriteClub: string;
   state: string;
   city: string;
+  phone: string;
   email: string;
   password: string;
+  documentType: 'cpf' | 'cnpj' | '';
+  documentNumber: string;
 }
 
 // Get all clubs sorted alphabetically (no grouping by league)
@@ -45,8 +48,11 @@ const Auth = () => {
     favoriteClub: "",
     state: "",
     city: "",
+    phone: "",
     email: "",
-    password: ""
+    password: "",
+    documentType: "",
+    documentNumber: ""
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -111,6 +117,32 @@ const Auth = () => {
         if (!crpRegex.test(signUpData.crp)) {
           newErrors.crp = "Formato inválido. Use XX/XXXXX (ex: 06/12345)";
         }
+      }
+
+      // Validate document type and number for professionals
+      if (!signUpData.documentType) {
+        newErrors.documentType = "Selecione CPF ou CNPJ";
+      }
+      if (!signUpData.documentNumber.trim()) {
+        newErrors.documentNumber = "Número do documento é obrigatório";
+      } else {
+        // Basic validation for CPF (11 digits) and CNPJ (14 digits)
+        const cleanDoc = signUpData.documentNumber.replace(/\D/g, '');
+        if (signUpData.documentType === 'cpf' && cleanDoc.length !== 11) {
+          newErrors.documentNumber = "CPF deve ter 11 dígitos";
+        } else if (signUpData.documentType === 'cnpj' && cleanDoc.length !== 14) {
+          newErrors.documentNumber = "CNPJ deve ter 14 dígitos";
+        }
+      }
+    }
+
+    // Validate phone
+    if (!signUpData.phone.trim()) {
+      newErrors.phone = "Telefone é obrigatório";
+    } else {
+      const cleanPhone = signUpData.phone.replace(/\D/g, '');
+      if (cleanPhone.length < 10 || cleanPhone.length > 11) {
+        newErrors.phone = "Telefone inválido (DDD + número)";
       }
     }
 
@@ -188,10 +220,13 @@ const Auth = () => {
           favorite_club_id: signUpData.favoriteClub,
           city: signUpData.city,
           state: signUpData.state,
+          phone: signUpData.phone,
         };
 
         if (authMode === "professional") {
           profileData.crp = signUpData.crp;
+          profileData.document_type = signUpData.documentType;
+          profileData.document_number = signUpData.documentNumber.replace(/\D/g, '');
         }
 
         localStorage.setItem("pendingProfileUpdate", JSON.stringify(profileData));
@@ -382,22 +417,105 @@ const Auth = () => {
                     </div>
                   </div>
                 ) : (
-                  /* Birth Date - Full width for users */
+                  /* Birth Date and Phone - Side by Side for Users */
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-card-foreground text-sm mb-2">
+                        Nascimento *
+                      </label>
+                      <input
+                        type="date"
+                        value={signUpData.birthDate}
+                        onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
+                        className={dateInputClassName}
+                        max={new Date().toISOString().split('T')[0]}
+                      />
+                      {errors.birthDate && (
+                        <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-card-foreground text-sm mb-2">
+                        Telefone *
+                      </label>
+                      <input
+                        type="tel"
+                        value={signUpData.phone}
+                        onChange={(e) => handleSignUpDataChange('phone', e.target.value)}
+                        className={inputClassName}
+                        placeholder="(11) 99999-9999"
+                        maxLength={15}
+                      />
+                      {errors.phone && (
+                        <p className="text-destructive text-xs mt-1">{errors.phone}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Phone for Professionals */}
+                {authMode === "professional" && (
                   <div>
                     <label className="block text-card-foreground text-sm mb-2">
-                      Data de Nascimento *
+                      Telefone com DDD *
                     </label>
                     <input
-                      type="date"
-                      value={signUpData.birthDate}
-                      onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
-                      className={dateInputClassName}
-                      max={new Date().toISOString().split('T')[0]}
+                      type="tel"
+                      value={signUpData.phone}
+                      onChange={(e) => handleSignUpDataChange('phone', e.target.value)}
+                      className={inputClassName}
+                      placeholder="(11) 99999-9999"
+                      maxLength={15}
                     />
-                    {errors.birthDate && (
-                      <p className="text-destructive text-sm mt-1">{errors.birthDate}</p>
+                    {errors.phone && (
+                      <p className="text-destructive text-sm mt-1">{errors.phone}</p>
                     )}
                   </div>
+                )}
+
+                {/* Document Type Selection for Professionals */}
+                {authMode === "professional" && (
+                  <>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-card-foreground text-sm mb-2">
+                          Tipo de Documento *
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={signUpData.documentType}
+                            onChange={(e) => handleSignUpDataChange('documentType', e.target.value as 'cpf' | 'cnpj')}
+                            className={selectClassName}
+                          >
+                            <option value="">Selecione</option>
+                            <option value="cpf">CPF</option>
+                            <option value="cnpj">CNPJ</option>
+                          </select>
+                          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                        </div>
+                        {errors.documentType && (
+                          <p className="text-destructive text-xs mt-1">{errors.documentType}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-card-foreground text-sm mb-2">
+                          {signUpData.documentType === 'cnpj' ? 'CNPJ *' : 'CPF *'}
+                        </label>
+                        <input
+                          type="text"
+                          value={signUpData.documentNumber}
+                          onChange={(e) => handleSignUpDataChange('documentNumber', e.target.value)}
+                          className={inputClassName}
+                          placeholder={signUpData.documentType === 'cnpj' ? '00.000.000/0001-00' : '000.000.000-00'}
+                          maxLength={signUpData.documentType === 'cnpj' ? 18 : 14}
+                          disabled={!signUpData.documentType}
+                        />
+                        {errors.documentNumber && (
+                          <p className="text-destructive text-xs mt-1">{errors.documentNumber}</p>
+                        )}
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 {/* Favorite Club */}

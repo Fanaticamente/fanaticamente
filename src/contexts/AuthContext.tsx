@@ -35,13 +35,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Function to complete professional signup via edge function
-  const completeProfessionalSignup = async (userId: string, crp: string, profileFields: Record<string, any>) => {
+  const completeProfessionalSignup = async (userId: string, crp: string, profileFields: Record<string, any>, documentType?: string, documentNumber?: string) => {
     console.log("[Auth] Calling complete-professional-signup edge function for user:", userId, "CRP:", crp);
     
     const { data, error } = await supabase.functions.invoke("complete-professional-signup", {
       body: {
         crp,
         profile: profileFields,
+        document_type: documentType,
+        document_number: documentNumber,
       },
     });
 
@@ -69,12 +71,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const profileData = JSON.parse(pendingData);
-      const { crp, ...profileFields } = profileData;
+      const { crp, document_type, document_number, ...profileFields } = profileData;
 
       if (crp) {
         console.log("[Auth] Professional signup detected with CRP:", crp);
         
-        const success = await completeProfessionalSignup(userId, crp, profileFields);
+        const success = await completeProfessionalSignup(userId, crp, profileFields, document_type, document_number);
         
         if (success) {
           localStorage.removeItem("pendingProfileUpdate");

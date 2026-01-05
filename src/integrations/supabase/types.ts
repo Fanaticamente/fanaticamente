@@ -121,6 +121,7 @@ export type Database = {
       }
       appointments: {
         Row: {
+          consultation_link: string | null
           created_at: string
           id: string
           notes: string | null
@@ -133,6 +134,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          consultation_link?: string | null
           created_at?: string
           id?: string
           notes?: string | null
@@ -145,6 +147,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          consultation_link?: string | null
           created_at?: string
           id?: string
           notes?: string | null
@@ -237,6 +240,8 @@ export type Database = {
           created_at: string
           crp: string
           degree: string | null
+          document_number: string | null
+          document_type: string | null
           experience_years: number | null
           hourly_rate: number | null
           id: string
@@ -258,6 +263,8 @@ export type Database = {
           created_at?: string
           crp: string
           degree?: string | null
+          document_number?: string | null
+          document_type?: string | null
           experience_years?: number | null
           hourly_rate?: number | null
           id?: string
@@ -279,6 +286,8 @@ export type Database = {
           created_at?: string
           crp?: string
           degree?: string | null
+          document_number?: string | null
+          document_type?: string | null
           experience_years?: number | null
           hourly_rate?: number | null
           id?: string

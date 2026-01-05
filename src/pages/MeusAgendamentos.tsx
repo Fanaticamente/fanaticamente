@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Loader2 } from "lucide-react";
+import { ChevronLeft, Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Loader2, Info } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO, isPast, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import SessionInfoDialog from "@/components/user/SessionInfoDialog";
 
 interface Appointment {
   id: string;
@@ -13,6 +14,7 @@ interface Appointment {
   scheduled_time: string;
   status: string;
   notes: string | null;
+  consultation_link: string | null;
   created_at: string;
   professional?: {
     crp: string;
@@ -22,7 +24,9 @@ interface Appointment {
   profile?: {
     full_name: string | null;
     avatar_url: string | null;
+    phone?: string | null;
   } | null;
+  professional_email?: string;
 }
 
 const MeusAgendamentos = () => {
@@ -31,6 +35,7 @@ const MeusAgendamentos = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "upcoming" | "past">("upcoming");
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -338,13 +343,23 @@ const MeusAgendamentos = () => {
                     </div>
                   )}
 
-                  {/* Action for upcoming confirmed appointments */}
+                  {/* View Profile Button - Inside Card */}
+                  <button
+                    onClick={() => navigate(`/profissional/${apt.professional_id}`)}
+                    className="w-full mt-3 py-2 bg-therapy/10 text-therapy rounded-xl font-medium hover:bg-therapy/20 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <User className="w-4 h-4" />
+                    Ver Perfil do Profissional
+                  </button>
+
+                  {/* Session Info Button - for confirmed appointments */}
                   {!isPastAppointment && apt.status === "confirmed" && (
                     <button
-                      onClick={() => navigate(`/profissional/${apt.professional_id}`)}
-                      className="w-full mt-4 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors"
+                      onClick={() => setSelectedAppointment(apt)}
+                      className="w-full mt-2 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors flex items-center justify-center gap-2"
                     >
-                      Ver Perfil do Profissional
+                      <Info className="w-4 h-4" />
+                      Informações da Sessão
                     </button>
                   )}
 
@@ -360,6 +375,14 @@ const MeusAgendamentos = () => {
               );
             })}
           </div>
+        )}
+
+        {/* Session Info Dialog */}
+        {selectedAppointment && (
+          <SessionInfoDialog
+            appointment={selectedAppointment}
+            onClose={() => setSelectedAppointment(null)}
+          />
         )}
       </main>
     </div>
