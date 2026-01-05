@@ -456,7 +456,7 @@ const ProfessionalDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <AccountSettingsDialog />
+            <AccountSettingsDialog isProfessional={true} />
             <button
               onClick={handleLogout}
               className="p-2 hover:bg-muted rounded-lg transition-colors"
