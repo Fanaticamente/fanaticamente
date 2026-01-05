@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
 
 const Perfil = () => {
   const { user, roles, signOut, hasRole, loading } = useAuth();
@@ -145,9 +146,18 @@ const Perfil = () => {
               )}
             </div>
             <div className="flex-1">
-              <h1 className="font-display text-2xl text-card-foreground">
-                {profile?.full_name || "Torcedor Fanático"}
-              </h1>
+              <div className="flex items-center justify-between">
+                <h1 className="font-display text-2xl text-card-foreground">
+                  {profile?.full_name || "Torcedor Fanático"}
+                </h1>
+                <AccountSettingsDialog 
+                  trigger={
+                    <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+                      <Settings className="w-5 h-5 text-muted-foreground" />
+                    </button>
+                  }
+                />
+              </div>
               <p className="text-muted-foreground text-sm">
                 {user?.email}
               </p>

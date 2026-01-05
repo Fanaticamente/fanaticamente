@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Calendar, Clock, Users, TrendingUp, Settings, LogOut, Plus, CheckCircle, XCircle, Edit2, ChevronRight, User, ChevronLeft, Upload } from "lucide-react";
+import { Calendar, Clock, Users, TrendingUp, LogOut, Plus, CheckCircle, XCircle, Edit2, ChevronRight, User, ChevronLeft, Upload } from "lucide-react";
+import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -343,12 +344,7 @@ const ProfessionalDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setActiveTab("perfil")}
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
-            >
-              <Settings className="w-5 h-5 text-muted-foreground" />
-            </button>
+            <AccountSettingsDialog />
             <button
               onClick={handleLogout}
               className="p-2 hover:bg-muted rounded-lg transition-colors"
