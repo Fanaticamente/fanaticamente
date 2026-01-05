@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
-import { Upload, X, Plus, Info, Edit2 } from "lucide-react";
+import { Upload, X, Plus, Info, Edit2, FileText, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+
 interface ProfileData {
   bio: string;
   degree: string;
@@ -12,6 +13,8 @@ interface ProfileData {
   sessionPrice: string;
   showPrice: boolean;
   imageUrl: string;
+  crpDocumentFrontUrl: string;
+  crpDocumentBackUrl: string;
 }
 
 interface ProfileCompletionFormProps {
@@ -51,13 +54,19 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
     sessionDuration: existingData?.sessionDuration || "50",
     sessionPrice: existingData?.sessionPrice || "",
     showPrice: existingData?.showPrice ?? true,
-    imageUrl: existingData?.imageUrl || ""
+    imageUrl: existingData?.imageUrl || "",
+    crpDocumentFrontUrl: existingData?.crpDocumentFrontUrl || "",
+    crpDocumentBackUrl: existingData?.crpDocumentBackUrl || ""
   });
   
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingCrpFront, setIsUploadingCrpFront] = useState(false);
+  const [isUploadingCrpBack, setIsUploadingCrpBack] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [newSpecialty, setNewSpecialty] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const crpFrontInputRef = useRef<HTMLInputElement>(null);
+  const crpBackInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -112,6 +121,76 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
       toast.error("Erro ao enviar imagem. Tente novamente.");
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleCrpDocumentUpload = async (file: File, side: 'front' | 'back') => {
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+      toast.error("Por favor, selecione uma imagem ou PDF");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("O arquivo deve ter no máximo 5MB");
+      return;
+    }
+
+    if (side === 'front') {
+      setIsUploadingCrpFront(true);
+    } else {
+      setIsUploadingCrpBack(true);
+    }
+
+    try {
+      if (!user) throw new Error("Not authenticated");
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${side}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('crp-documents')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get signed URL for private bucket
+      const { data: signedData, error: signedError } = await supabase.storage
+        .from('crp-documents')
+        .createSignedUrl(fileName, 60 * 60 * 24 * 365); // 1 year
+
+      if (signedError) throw signedError;
+
+      const documentUrl = signedData.signedUrl;
+
+      // Save to professionals table
+      const updateField = side === 'front' ? 'crp_document_front_url' : 'crp_document_back_url';
+      const { error: updateError } = await supabase
+        .from('professionals')
+        .update({ [updateField]: documentUrl })
+        .eq('id', professionalId);
+
+      if (updateError) throw updateError;
+
+      if (side === 'front') {
+        setFormData(prev => ({ ...prev, crpDocumentFrontUrl: documentUrl }));
+      } else {
+        setFormData(prev => ({ ...prev, crpDocumentBackUrl: documentUrl }));
+      }
+
+      toast.success(`Documento (${side === 'front' ? 'frente' : 'verso'}) enviado com sucesso!`);
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Erro ao enviar documento. Tente novamente.");
+    } finally {
+      if (side === 'front') {
+        setIsUploadingCrpFront(false);
+      } else {
+        setIsUploadingCrpBack(false);
+      }
     }
   };
 
@@ -264,6 +343,83 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
           className={inputClassName}
           placeholder="Ex: Mestre em Psicologia Clínica - USP"
         />
+      </div>
+
+      {/* CRP Document Upload */}
+      <div className="border border-border rounded-xl p-4 bg-muted/30">
+        <label className="block text-card-foreground text-sm font-medium mb-3">
+          Carteira de Identificação de Psicólogo (CRP) *
+        </label>
+        <p className="text-xs text-muted-foreground mb-4">
+          Envie uma foto frente e verso da sua carteira do CRP para verificação.
+        </p>
+        <div className="grid grid-cols-2 gap-4">
+          {/* Front */}
+          <div>
+            <label className="text-xs text-muted-foreground mb-2 block">Frente</label>
+            <div 
+              className="h-28 rounded-xl border-2 border-dashed border-muted-foreground/50 bg-background flex items-center justify-center overflow-hidden cursor-pointer hover:border-therapy transition-colors"
+              onClick={() => crpFrontInputRef.current?.click()}
+            >
+              {formData.crpDocumentFrontUrl ? (
+                <div className="flex items-center gap-2 text-therapy">
+                  <CheckCircle className="w-5 h-5" />
+                  <span className="text-sm">Enviado</span>
+                </div>
+              ) : isUploadingCrpFront ? (
+                <span className="text-sm text-therapy">Enviando...</span>
+              ) : (
+                <div className="text-center p-2">
+                  <FileText className="w-6 h-6 text-muted-foreground mx-auto mb-1" />
+                  <span className="text-xs text-muted-foreground">Clique para enviar</span>
+                </div>
+              )}
+            </div>
+            <input
+              ref={crpFrontInputRef}
+              type="file"
+              accept="image/*,application/pdf"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleCrpDocumentUpload(file, 'front');
+              }}
+              className="hidden"
+            />
+          </div>
+
+          {/* Back */}
+          <div>
+            <label className="text-xs text-muted-foreground mb-2 block">Verso</label>
+            <div 
+              className="h-28 rounded-xl border-2 border-dashed border-muted-foreground/50 bg-background flex items-center justify-center overflow-hidden cursor-pointer hover:border-therapy transition-colors"
+              onClick={() => crpBackInputRef.current?.click()}
+            >
+              {formData.crpDocumentBackUrl ? (
+                <div className="flex items-center gap-2 text-therapy">
+                  <CheckCircle className="w-5 h-5" />
+                  <span className="text-sm">Enviado</span>
+                </div>
+              ) : isUploadingCrpBack ? (
+                <span className="text-sm text-therapy">Enviando...</span>
+              ) : (
+                <div className="text-center p-2">
+                  <FileText className="w-6 h-6 text-muted-foreground mx-auto mb-1" />
+                  <span className="text-xs text-muted-foreground">Clique para enviar</span>
+                </div>
+              )}
+            </div>
+            <input
+              ref={crpBackInputRef}
+              type="file"
+              accept="image/*,application/pdf"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleCrpDocumentUpload(file, 'back');
+              }}
+              className="hidden"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Specializations */}

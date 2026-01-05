@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_messages: {
+        Row: {
+          admin_user_id: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          message_type: string | null
+          professional_id: string
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          message_type?: string | null
+          professional_id: string
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          message_type?: string | null
+          professional_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_messages_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_content: {
         Row: {
           category: string
@@ -236,9 +274,12 @@ export type Database = {
       }
       professionals: {
         Row: {
+          approval_status: string | null
           bio: string | null
           created_at: string
           crp: string
+          crp_document_back_url: string | null
+          crp_document_front_url: string | null
           degree: string | null
           document_number: string | null
           document_type: string | null
@@ -250,6 +291,7 @@ export type Database = {
           location: string | null
           pix_key: string | null
           pix_key_type: string | null
+          rejection_reason: string | null
           specialties: string[] | null
           stripe_account_id: string | null
           stripe_account_status: string | null
@@ -259,9 +301,12 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          approval_status?: string | null
           bio?: string | null
           created_at?: string
           crp: string
+          crp_document_back_url?: string | null
+          crp_document_front_url?: string | null
           degree?: string | null
           document_number?: string | null
           document_type?: string | null
@@ -273,6 +318,7 @@ export type Database = {
           location?: string | null
           pix_key?: string | null
           pix_key_type?: string | null
+          rejection_reason?: string | null
           specialties?: string[] | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
@@ -282,9 +328,12 @@ export type Database = {
           user_id: string
         }
         Update: {
+          approval_status?: string | null
           bio?: string | null
           created_at?: string
           crp?: string
+          crp_document_back_url?: string | null
+          crp_document_front_url?: string | null
           degree?: string | null
           document_number?: string | null
           document_type?: string | null
@@ -296,6 +345,7 @@ export type Database = {
           location?: string | null
           pix_key?: string | null
           pix_key_type?: string | null
+          rejection_reason?: string | null
           specialties?: string[] | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
