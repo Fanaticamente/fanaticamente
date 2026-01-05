@@ -12,6 +12,8 @@ interface ProfileData {
   sessionPrice: string;
   showPrice: boolean;
   imageUrl: string;
+  pixKey: string;
+  pixKeyType: string;
 }
 
 interface ProfileCompletionFormProps {
@@ -51,7 +53,9 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
     sessionDuration: existingData?.sessionDuration || "50",
     sessionPrice: existingData?.sessionPrice || "",
     showPrice: existingData?.showPrice ?? true,
-    imageUrl: existingData?.imageUrl || ""
+    imageUrl: existingData?.imageUrl || "",
+    pixKey: existingData?.pixKey || "",
+    pixKeyType: existingData?.pixKeyType || "cpf"
   });
   
   const [isUploading, setIsUploading] = useState(false);
@@ -165,7 +169,9 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
           bio: formData.bio,
           degree: formData.degree,
           specialties: formData.specialties,
-          hourly_rate: formData.sessionPrice ? parseFloat(formData.sessionPrice) : null
+          hourly_rate: formData.sessionPrice ? parseFloat(formData.sessionPrice) : null,
+          pix_key: formData.pixKey || null,
+          pix_key_type: formData.pixKeyType || null
         })
         .eq('id', professionalId);
 
@@ -346,6 +352,46 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
             min="0"
             step="10"
           />
+        </div>
+      </div>
+
+      {/* PIX Key */}
+      <div className="border-t border-border pt-6">
+        <label className="block text-card-foreground text-sm font-medium mb-2">
+          Chave PIX para Recebimentos (opcional)
+        </label>
+        <p className="text-muted-foreground text-xs mb-3">
+          Informe sua chave PIX para receber pagamentos diretamente dos pacientes
+        </p>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <select
+              value={formData.pixKeyType}
+              onChange={(e) => setFormData(prev => ({ ...prev, pixKeyType: e.target.value }))}
+              className={inputClassName}
+            >
+              <option value="cpf">CPF</option>
+              <option value="cnpj">CNPJ</option>
+              <option value="email">E-mail</option>
+              <option value="phone">Telefone</option>
+              <option value="random">Aleatória</option>
+            </select>
+          </div>
+          <div className="col-span-2">
+            <input
+              type="text"
+              value={formData.pixKey}
+              onChange={(e) => setFormData(prev => ({ ...prev, pixKey: e.target.value }))}
+              className={inputClassName}
+              placeholder={
+                formData.pixKeyType === "cpf" ? "000.000.000-00" :
+                formData.pixKeyType === "cnpj" ? "00.000.000/0000-00" :
+                formData.pixKeyType === "email" ? "seu@email.com" :
+                formData.pixKeyType === "phone" ? "+55 11 99999-9999" :
+                "Chave aleatória"
+              }
+            />
+          </div>
         </div>
       </div>
 

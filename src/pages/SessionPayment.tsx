@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, CreditCard, Clock, User, Calendar, AlertCircle, Loader2 } from "lucide-react";
+import { ChevronLeft, CreditCard, Clock, User, Calendar, AlertCircle, Loader2, Copy, Check, QrCode } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { QRCodeSVG } from "qrcode.react";
 
 interface Professional {
   id: string;
@@ -15,6 +16,8 @@ interface Professional {
   user_id: string;
   stripe_account_id: string | null;
   stripe_account_status: string | null;
+  pix_key: string | null;
+  pix_key_type: string | null;
 }
 
 interface Profile {
@@ -28,6 +31,61 @@ interface Club {
   primary_color: string;
   badge_url: string | null;
 }
+
+type PaymentMethod = "card" | "pix" | null;
+
+// Generate PIX EMV Code (Simplified BR Code)
+const generatePixCode = (pixKey: string, amount: number, name: string): string => {
+  const formatField = (id: string, value: string) => {
+    const len = value.length.toString().padStart(2, '0');
+    return `${id}${len}${value}`;
+  };
+
+  // Merchant Account Information (PIX)
+  const gui = formatField('00', 'br.gov.bcb.pix');
+  const key = formatField('01', pixKey);
+  const merchantAccountInfo = formatField('26', gui + key);
+
+  // Transaction Amount
+  const amountStr = amount.toFixed(2);
+  const transactionAmount = formatField('54', amountStr);
+
+  // Merchant Name (max 25 chars)
+  const merchantName = formatField('59', name.substring(0, 25));
+
+  // Merchant City
+  const merchantCity = formatField('60', 'BRASIL');
+
+  // Build payload without CRC
+  const payload = 
+    formatField('00', '01') + // Payload Format Indicator
+    merchantAccountInfo +
+    formatField('52', '0000') + // Merchant Category Code
+    formatField('53', '986') + // Transaction Currency (BRL)
+    transactionAmount +
+    formatField('58', 'BR') + // Country Code
+    merchantName +
+    merchantCity +
+    '6304'; // CRC placeholder
+
+  // Calculate CRC16 CCITT
+  const crc16 = (str: string): string => {
+    let crc = 0xFFFF;
+    for (let i = 0; i < str.length; i++) {
+      crc ^= str.charCodeAt(i) << 8;
+      for (let j = 0; j < 8; j++) {
+        if (crc & 0x8000) {
+          crc = (crc << 1) ^ 0x1021;
+        } else {
+          crc <<= 1;
+        }
+      }
+    }
+    return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+  };
+
+  return payload + crc16(payload);
+};
 
 const SessionPayment = () => {
   const navigate = useNavigate();
@@ -44,6 +102,8 @@ const SessionPayment = () => {
   const [club, setClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
+  const [pixCopied, setPixCopied] = useState(false);
 
   useEffect(() => {
     if (canceled === "true") {
@@ -104,17 +164,18 @@ const SessionPayment = () => {
   }, [id, navigate]);
 
   const clubColor = club?.primary_color || "#10b981";
-  const canProcessPayment = professional?.stripe_account_status === "active";
+  const canProcessStripe = professional?.stripe_account_status === "active";
+  const hasPixKey = !!professional?.pix_key;
 
-  const handlePayment = async () => {
+  const handleCardPayment = async () => {
     if (!user) {
       toast.error("Você precisa estar logado para agendar uma sessão");
       navigate("/auth");
       return;
     }
 
-    if (!canProcessPayment) {
-      toast.error("Este profissional ainda não configurou o recebimento de pagamentos");
+    if (!canProcessStripe) {
+      toast.error("Este profissional ainda não configurou o recebimento via cartão");
       return;
     }
 
@@ -154,6 +215,26 @@ const SessionPayment = () => {
     }
   };
 
+  const handleCopyPix = () => {
+    if (!professional?.pix_key || !profile?.full_name) return;
+    
+    const pixCode = generatePixCode(
+      professional.pix_key,
+      professional.hourly_rate || 150,
+      profile.full_name
+    );
+    
+    navigator.clipboard.writeText(pixCode);
+    setPixCopied(true);
+    toast.success("Código PIX copiado!");
+    setTimeout(() => setPixCopied(false), 3000);
+  };
+
+  const handlePixConfirmation = () => {
+    toast.success("Pagamento confirmado! Aguardando validação do profissional.");
+    navigate(`/pagamento/confirmacao/${id}?date=${scheduledDate}&time=${scheduledTime}`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -171,6 +252,9 @@ const SessionPayment = () => {
   }
 
   const sessionPrice = professional.hourly_rate || 150;
+  const pixCode = professional.pix_key && profile.full_name 
+    ? generatePixCode(professional.pix_key, sessionPrice, profile.full_name)
+    : null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -243,90 +327,170 @@ const SessionPayment = () => {
           </div>
         </div>
 
-        {/* Payment Method Card */}
-        <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
-          <h2 className="font-bold text-lg mb-4" style={{ color: clubColor }}>Formas de Pagamento</h2>
-          
-          <div className="space-y-3">
-            <div 
-              className="p-4 rounded-xl border flex items-center gap-4"
-              style={{ borderColor: clubColor + "40" }}
-            >
-              <div 
-                className="w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: clubColor + "20" }}
-              >
-                <CreditCard className="w-6 h-6" style={{ color: clubColor }} />
-              </div>
-              <div className="text-left">
-                <p className="font-semibold text-gray-800">Cartão de Crédito</p>
-                <p className="text-sm text-gray-500">Visa, Mastercard, Elo e outros</p>
-              </div>
-            </div>
+        {/* Payment Method Selection */}
+        {!paymentMethod && (
+          <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
+            <h2 className="font-bold text-lg mb-4" style={{ color: clubColor }}>Escolha a Forma de Pagamento</h2>
             
-            <div 
-              className="p-4 rounded-xl border flex items-center gap-4"
-              style={{ borderColor: clubColor + "40" }}
-            >
-              <div 
-                className="w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: clubColor + "20" }}
-              >
-                <svg className="w-6 h-6" style={{ color: clubColor }} viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M9.5 4h5l1 1.5L12 10l-3.5-4.5L9.5 4zM4 9.5l1.5-1L10 12l-4.5 3.5L4 14.5v-5zM14.5 20h-5l-1-1.5L12 14l3.5 4.5-1 1.5zM20 14.5l-1.5 1L14 12l4.5-3.5 1.5 1v5z"/>
-                </svg>
-              </div>
-              <div className="text-left">
-                <p className="font-semibold text-gray-800">PIX</p>
-                <p className="text-sm text-gray-500">Pagamento instantâneo</p>
-              </div>
+            <div className="space-y-3">
+              {/* Card Option */}
+              {canProcessStripe && (
+                <button
+                  onClick={() => setPaymentMethod("card")}
+                  className="w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all hover:border-current"
+                  style={{ borderColor: clubColor + "40" }}
+                >
+                  <div 
+                    className="w-12 h-12 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: clubColor + "20" }}
+                  >
+                    <CreditCard className="w-6 h-6" style={{ color: clubColor }} />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-gray-800">Cartão de Crédito</p>
+                    <p className="text-sm text-gray-500">Visa, Mastercard, Elo e outros</p>
+                  </div>
+                </button>
+              )}
+              
+              {/* PIX Option */}
+              {hasPixKey && (
+                <button
+                  onClick={() => setPaymentMethod("pix")}
+                  className="w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all hover:border-current"
+                  style={{ borderColor: clubColor + "40" }}
+                >
+                  <div 
+                    className="w-12 h-12 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: clubColor + "20" }}
+                  >
+                    <QrCode className="w-6 h-6" style={{ color: clubColor }} />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-gray-800">PIX</p>
+                    <p className="text-sm text-gray-500">Pagamento instantâneo</p>
+                  </div>
+                </button>
+              )}
             </div>
-          </div>
-          
-          <p className="text-xs text-gray-400 text-center mt-4">
-            Você escolherá o método de pagamento na próxima tela
-          </p>
-        </div>
 
-        {/* Warning if professional hasn't set up Stripe Connect */}
-        {!canProcessPayment && (
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-medium text-amber-800">Profissional ainda não configurou pagamentos</p>
-              <p className="text-sm text-amber-600 mt-1">
-                Este profissional precisa configurar sua conta de recebimento antes de aceitar pagamentos online.
-              </p>
-            </div>
+            {/* Warning if no payment methods available */}
+            {!canProcessStripe && !hasPixKey && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-amber-800">Pagamento não disponível</p>
+                  <p className="text-sm text-amber-600 mt-1">
+                    Este profissional ainda não configurou formas de recebimento.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Info Text */}
-        <div className="text-center mb-6">
-          <p className="text-xs text-gray-400">
-            O pagamento será processado após a confirmação da sessão pelo profissional.
-          </p>
-        </div>
+        {/* Card Payment Confirmation */}
+        {paymentMethod === "card" && (
+          <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-lg" style={{ color: clubColor }}>Pagamento com Cartão</h2>
+              <button
+                onClick={() => setPaymentMethod(null)}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                Voltar
+              </button>
+            </div>
+            
+            <p className="text-gray-600 mb-4">
+              Você será redirecionado para o checkout seguro do Stripe.
+            </p>
 
-        {/* Payment Button */}
-        <button
-          onClick={handlePayment}
-          disabled={processing || !canProcessPayment}
-          className="w-full py-4 rounded-xl font-bold uppercase tracking-wide transition-all shadow-lg disabled:opacity-70"
-          style={{ 
-            backgroundColor: clubColor, 
-            color: "#fff" 
-          }}
-        >
-          {processing ? (
-            <span className="flex items-center justify-center gap-2">
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Redirecionando...
-            </span>
-          ) : (
-            `Pagar R$ ${sessionPrice.toFixed(2).replace(".", ",")}`
-          )}
-        </button>
+            <button
+              onClick={handleCardPayment}
+              disabled={processing}
+              className="w-full py-5 rounded-xl font-bold uppercase tracking-wide transition-all shadow-lg disabled:opacity-70"
+              style={{ backgroundColor: clubColor, color: "#fff" }}
+            >
+              {processing ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Redirecionando...
+                </span>
+              ) : (
+                `Pagar R$ ${sessionPrice.toFixed(2).replace(".", ",")}`
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* PIX Payment */}
+        {paymentMethod === "pix" && pixCode && (
+          <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-lg" style={{ color: clubColor }}>Pague com PIX</h2>
+              <button
+                onClick={() => setPaymentMethod(null)}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                Voltar
+              </button>
+            </div>
+            
+            <div className="flex flex-col items-center">
+              {/* QR Code */}
+              <div 
+                className="p-4 rounded-xl mb-4"
+                style={{ backgroundColor: clubColor + "10" }}
+              >
+                <QRCodeSVG 
+                  value={pixCode} 
+                  size={200}
+                  level="M"
+                  includeMargin
+                />
+              </div>
+              
+              <p className="text-sm text-gray-500 text-center mb-4">
+                Escaneie o QR Code ou copie o código PIX abaixo
+              </p>
+
+              {/* Copy Button */}
+              <button
+                onClick={handleCopyPix}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all mb-4"
+                style={{ 
+                  backgroundColor: pixCopied ? "#10b981" : clubColor + "20",
+                  color: pixCopied ? "#fff" : clubColor
+                }}
+              >
+                {pixCopied ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    Código Copiado!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-5 h-5" />
+                    Copiar Código PIX
+                  </>
+                )}
+              </button>
+
+              <p className="text-xs text-gray-400 text-center mb-6">
+                Após realizar o pagamento, clique no botão abaixo para confirmar
+              </p>
+
+              <button
+                onClick={handlePixConfirmation}
+                className="w-full py-5 rounded-xl font-bold uppercase tracking-wide transition-all shadow-lg"
+                style={{ backgroundColor: clubColor, color: "#fff" }}
+              >
+                Já Fiz o Pagamento
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
