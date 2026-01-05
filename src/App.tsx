@@ -9,6 +9,8 @@ import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
 import Index from "./pages/Index";
 import Terapeutas from "./pages/Terapeutas";
 import ProfessionalProfile from "./pages/ProfessionalProfile";
+import SessionPayment from "./pages/SessionPayment";
+import PaymentConfirmation from "./pages/PaymentConfirmation";
 import Cursos from "./pages/Cursos";
 import CursoDetalhe from "./pages/CursoDetalhe";
 import Quiz from "./pages/Quiz";
@@ -47,6 +49,8 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/terapeutas" element={<Terapeutas />} />
               <Route path="/terapeuta/:id" element={<ProfessionalProfile />} />
+              <Route path="/pagamento/:id" element={<SessionPayment />} />
+              <Route path="/pagamento/confirmacao/:id" element={<PaymentConfirmation />} />
               <Route path="/cursos" element={<Cursos />} />
               <Route path="/curso/:id" element={<CursoDetalhe />} />
               <Route path="/quiz" element={<Quiz />} />
