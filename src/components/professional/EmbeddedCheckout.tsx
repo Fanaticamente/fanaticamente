@@ -7,8 +7,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft } from "lucide-react";
 
-// Stripe publishable key
-const stripePromise = loadStripe("pk_live_51Sm53AFTvMjF2L2no6WLSAnDPvn0PbWNljNUBVBaGGOc2fgSMfLBWHjDNxDxg5QNSqPlJC9DdCYWLuNTVMQlYrSU00MIU2LMZk");
+// Stripe publishable key - using test key for development
+const stripePromise = loadStripe("pk_test_51Sm53AFTvMjF2L2noilMRVBCsoxgvzUvYMcFfxzPxhb6k5ZgdF6qJHHIY5ijZKLKfyghHVIIQHD8dY5zrPkxHJe600dWXNVLAE");
 
 interface EmbeddedCheckoutProps {
   planId: string;
