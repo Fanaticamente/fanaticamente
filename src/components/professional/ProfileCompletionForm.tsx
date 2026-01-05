@@ -199,7 +199,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
               <img 
                 src={formData.imageUrl} 
                 alt="Preview" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-top"
               />
             ) : (
               <div className="text-center p-2">

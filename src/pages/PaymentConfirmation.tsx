@@ -139,7 +139,7 @@ const PaymentConfirmation = () => {
                 <img 
                   src={profile.avatar_url} 
                   alt={profile.full_name || "Profissional"} 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-top"
                 />
               ) : (
                 <div 

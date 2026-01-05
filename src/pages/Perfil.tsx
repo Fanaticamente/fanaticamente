@@ -149,7 +149,7 @@ const Perfil = () => {
           <div className="flex items-center gap-4 mb-4">
             <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover object-top" />
               ) : (
                 <User className="w-10 h-10 text-primary" />
               )}

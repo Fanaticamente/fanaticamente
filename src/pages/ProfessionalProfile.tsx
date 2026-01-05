@@ -214,7 +214,7 @@ const ProfessionalProfile = () => {
                   <img 
                     src={profile.avatar_url} 
                     alt={profile.full_name || 'Profissional'}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-top"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-100 flex items-center justify-center">

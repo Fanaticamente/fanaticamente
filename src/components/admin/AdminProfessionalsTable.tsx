@@ -167,7 +167,7 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
                             <img 
                               src={prof.profile.avatar_url} 
                               alt="" 
-                              className="w-8 h-8 rounded-full object-cover"
+                              className="w-8 h-8 rounded-full object-cover object-top"
                             />
                           ) : (
                             <span className="text-sm">🧑‍⚕️</span>

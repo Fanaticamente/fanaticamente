@@ -299,7 +299,7 @@ const MeusAgendamentos = () => {
                           <img 
                             src={apt.profile.avatar_url} 
                             alt={apt.profile.full_name || "Profissional"} 
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover object-top"
                           />
                         ) : (
                           <User className="w-6 h-6 text-therapy" />

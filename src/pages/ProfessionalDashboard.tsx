@@ -432,7 +432,7 @@ const ProfessionalDashboard = () => {
                 <img
                   src={profile.avatar_url}
                   alt="Avatar"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-top"
                 />
               </div>
             ) : (
@@ -562,7 +562,7 @@ const ProfessionalDashboard = () => {
                         <img
                           src={profile.avatar_url}
                           alt="Foto profissional"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-top"
                         />
                       ) : (
                         <User className="w-10 h-10 text-therapy" />
