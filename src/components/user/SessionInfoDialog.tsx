@@ -1,4 +1,3 @@
-import { useState, useEffect, useRef } from "react";
 import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, ExternalLink } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -30,30 +29,6 @@ interface SessionInfoDialogProps {
 
 const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => {
   const navigate = useNavigate();
-  const [elapsedTime, setElapsedTime] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Start timer when status is "in_progress"
-  useEffect(() => {
-    if (appointment.status === "in_progress") {
-      timerRef.current = setInterval(() => {
-        setElapsedTime((prev) => prev + 1);
-      }, 1000);
-    }
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [appointment.status]);
-
-  const formatElapsedTime = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
 
   const getStatusDisplay = () => {
     switch (appointment.status) {
@@ -228,19 +203,12 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
             </div>
           )}
 
-          {/* Status with Timer for in_progress */}
+          {/* Status */}
           <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
             <span className="text-muted-foreground text-sm">Status</span>
-            <div className="flex items-center gap-2">
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusDisplay.className}`}>
-                {statusDisplay.label}
-              </span>
-              {appointment.status === "in_progress" && (
-                <span className="px-2 py-1 bg-blue-500/10 text-blue-500 rounded-lg text-xs font-mono">
-                  {formatElapsedTime(elapsedTime)}
-                </span>
-              )}
-            </div>
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusDisplay.className}`}>
+              {statusDisplay.label}
+            </span>
           </div>
         </div>
       </div>

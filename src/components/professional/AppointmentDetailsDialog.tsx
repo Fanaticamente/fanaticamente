@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, Copy, Check, Play, Square } from "lucide-react";
 import { format, parseISO, subMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -29,37 +29,7 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
   const [isSaving, setIsSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(appointment.status);
-  const [elapsedTime, setElapsedTime] = useState(0);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Start timer when status is "in_progress"
-  useEffect(() => {
-    if (currentStatus === "in_progress") {
-      timerRef.current = setInterval(() => {
-        setElapsedTime((prev) => prev + 1);
-      }, 1000);
-    } else {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      setElapsedTime(0);
-    }
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [currentStatus]);
-
-  const formatElapsedTime = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
 
   const handleSaveLink = async () => {
     if (!consultationLink.trim()) {
@@ -301,16 +271,9 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
               <span className="text-muted-foreground text-sm">Status</span>
-              <div className="flex items-center gap-2">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusDisplay.className}`}>
-                  {statusDisplay.label}
-                </span>
-                {currentStatus === "in_progress" && (
-                  <span className="px-2 py-1 bg-blue-500/10 text-blue-500 rounded-lg text-xs font-mono">
-                    {formatElapsedTime(elapsedTime)}
-                  </span>
-                )}
-              </div>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusDisplay.className}`}>
+                {statusDisplay.label}
+              </span>
             </div>
 
             {/* Session Control Buttons */}
@@ -333,9 +296,6 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
               >
                 <Square className="w-4 h-4" />
                 {isUpdatingStatus ? "Encerrando..." : "Encerrar Atendimento"}
-                <span className="ml-2 font-mono text-sm opacity-80">
-                  {formatElapsedTime(elapsedTime)}
-                </span>
               </button>
             )}
           </div>
