@@ -13,6 +13,7 @@ import SubscriptionPlans from "@/components/professional/SubscriptionPlans";
 import StripeConnectCard from "@/components/professional/StripeConnectCard";
 import PixPaymentCard from "@/components/professional/PixPaymentCard";
 import SubscriptionManager from "@/components/professional/SubscriptionManager";
+import AppointmentDetailsDialog from "@/components/professional/AppointmentDetailsDialog";
 
 interface Professional {
   id: string;
@@ -69,6 +70,7 @@ const ProfessionalDashboard = () => {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loadingAppointments, setLoadingAppointments] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<any | null>(null);
 
   // Check for checkout success and verify subscription
   useEffect(() => {
@@ -614,7 +616,12 @@ const ProfessionalDashboard = () => {
                   appointments.map((apt) => (
                     <div
                       key={apt.id}
-                      className="bg-card border border-border rounded-xl p-4"
+                      className="bg-card border border-border rounded-xl p-4 cursor-pointer hover:border-therapy/50 transition-colors"
+                      onClick={(e) => {
+                        // Don't open dialog if clicking on buttons
+                        if ((e.target as HTMLElement).closest('button')) return;
+                        setSelectedAppointment(apt);
+                      }}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-4">
@@ -652,7 +659,10 @@ const ProfessionalDashboard = () => {
                       {apt.receipt_url && (
                         <div className="mt-4 pt-4 border-t border-border">
                           <button
-                            onClick={() => handleViewReceipt(apt.receipt_url)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewReceipt(apt.receipt_url);
+                            }}
                             className="flex items-center gap-2 text-sm text-therapy hover:underline"
                           >
                             <Upload className="w-4 h-4" />
@@ -665,14 +675,20 @@ const ProfessionalDashboard = () => {
                       {apt.status === "pending" && (
                         <div className="mt-4 pt-4 border-t border-border flex gap-2">
                           <button 
-                            onClick={() => handleUpdateAppointmentStatus(apt.id, 'confirmed')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUpdateAppointmentStatus(apt.id, 'confirmed');
+                            }}
                             className="flex-1 py-2 bg-green-500/20 text-green-600 rounded-lg font-medium hover:bg-green-500/30 transition-colors flex items-center justify-center gap-2"
                           >
                             <CheckCircle className="w-4 h-4" />
                             Confirmar
                           </button>
                           <button 
-                            onClick={() => handleUpdateAppointmentStatus(apt.id, 'cancelled')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUpdateAppointmentStatus(apt.id, 'cancelled');
+                            }}
                             className="flex-1 py-2 bg-red-500/20 text-red-600 rounded-lg font-medium hover:bg-red-500/30 transition-colors flex items-center justify-center gap-2"
                           >
                             <XCircle className="w-4 h-4" />
@@ -682,6 +698,18 @@ const ProfessionalDashboard = () => {
                       )}
                     </div>
                   ))
+                )}
+
+                {/* Appointment Details Dialog */}
+                {selectedAppointment && (
+                  <AppointmentDetailsDialog
+                    appointment={selectedAppointment}
+                    onClose={() => setSelectedAppointment(null)}
+                    onUpdate={() => {
+                      fetchAppointments();
+                      setSelectedAppointment(null);
+                    }}
+                  />
                 )}
 
                 {/* Receipt Modal */}

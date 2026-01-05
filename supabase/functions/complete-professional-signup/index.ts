@@ -12,7 +12,10 @@ type Payload = {
     favorite_club_id?: string;
     city?: string;
     state?: string;
+    phone?: string;
   };
+  document_type?: 'cpf' | 'cnpj';
+  document_number?: string;
 };
 
 const CRP_REGEX = /^\d{2}\/\d{4,6}$/;
@@ -133,12 +136,22 @@ Deno.serve(async (req) => {
 
     if (!existingProfessional) {
       console.log("complete-professional-signup: Creating professional record");
-      const { error: professionalError } = await service.from("professionals").insert({
+      const professionalData: any = {
         user_id: user.id,
         crp,
         is_active: false,
         is_verified: false,
-      });
+      };
+      
+      // Add document info if provided
+      if (payload.document_type) {
+        professionalData.document_type = payload.document_type;
+      }
+      if (payload.document_number) {
+        professionalData.document_number = payload.document_number;
+      }
+      
+      const { error: professionalError } = await service.from("professionals").insert(professionalData);
 
       if (professionalError) {
         console.error("complete-professional-signup: Professional creation failed", professionalError);
