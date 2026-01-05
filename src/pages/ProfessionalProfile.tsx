@@ -6,9 +6,11 @@ import { format, addDays, startOfWeek, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
+import { useToast } from "@/hooks/use-toast";
 
 interface Professional {
   id: string;
+  user_id: string;
   crp: string;
   bio: string | null;
   degree: string | null;
@@ -60,11 +62,13 @@ const generateAvailableSlots = () => {
 const ProfessionalProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const [professional, setProfessional] = useState<Professional | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [club, setClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   
   const [currentWeekStart, setCurrentWeekStart] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
@@ -73,6 +77,15 @@ const ProfessionalProfile = () => {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [availableSlots] = useState(generateAvailableSlots());
   const [showBioExpanded, setShowBioExpanded] = useState(false);
+
+  // Get current user
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    getCurrentUser();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -150,6 +163,16 @@ const ProfessionalProfile = () => {
   };
 
   const handleSchedule = () => {
+    // Check if user is trying to book with themselves
+    if (professional && currentUserId && professional.user_id === currentUserId) {
+      toast({
+        title: "Ação não permitida",
+        description: "Você não pode agendar uma sessão consigo mesmo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (selectedDate && selectedTime) {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
       navigate(`/pagamento/${id}?date=${dateStr}&time=${encodeURIComponent(selectedTime)}`);
