@@ -277,7 +277,7 @@ const ProfessionalDashboard = () => {
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/")}
               className="p-2 hover:bg-muted rounded-lg transition-colors"
             >
               <ChevronLeft className="w-5 h-5 text-muted-foreground" />
