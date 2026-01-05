@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Check, Star, Crown, Zap, ExternalLink } from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { Check, Star, Crown, Zap } from "lucide-react";
+import EmbeddedCheckout from "./EmbeddedCheckout";
 
 interface SubscriptionPlansProps {
   professionalId: string;
@@ -65,42 +64,28 @@ const plans = [
 
 const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansProps) => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
 
-  const handleSubscribe = async () => {
-    if (!selectedPlan) {
-      toast.error("Selecione um plano");
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      const plan = plans.find(p => p.id === selectedPlan);
-      if (!plan) return;
-
-      // Call the Stripe checkout edge function
-      const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
-        body: { planId: selectedPlan }
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        // Open Stripe Checkout in a new tab
-        window.open(data.url, '_blank');
-        toast.info("Redirecionando para o pagamento...", {
-          description: "Complete o pagamento na nova aba"
-        });
-      } else {
-        throw new Error("URL de checkout não recebida");
-      }
-    } catch (error) {
-      console.error("Subscription error:", error);
-      toast.error("Erro ao iniciar checkout. Tente novamente.");
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleProceedToCheckout = () => {
+    if (!selectedPlan) return;
+    setShowCheckout(true);
   };
+
+  const handleBackToPlans = () => {
+    setShowCheckout(false);
+  };
+
+  const selectedPlanData = plans.find(p => p.id === selectedPlan);
+
+  if (showCheckout && selectedPlan && selectedPlanData) {
+    return (
+      <EmbeddedCheckout
+        planId={selectedPlan}
+        planName={selectedPlanData.name}
+        onBack={handleBackToPlans}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -187,17 +172,15 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
       <div className="bg-muted/30 rounded-xl p-4 border border-border">
         <p className="text-muted-foreground text-sm text-center">
           💳 Pagamento seguro via Pix ou Cartão de Crédito
-          <br />
-          <span className="text-xs">Você será redirecionado para a página de pagamento</span>
         </p>
       </div>
 
       <button
-        onClick={handleSubscribe}
-        disabled={!selectedPlan || isProcessing}
+        onClick={handleProceedToCheckout}
+        disabled={!selectedPlan}
         className="w-full py-4 bg-therapy text-therapy-foreground rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isProcessing ? "Processando..." : "Confirmar Assinatura"}
+        Ir para Pagamento
       </button>
     </div>
   );
