@@ -1,10 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import TherapistCard from "@/components/terapeutas/TherapistCard";
-import { brazilianClubs, getClubsByLeague, BrazilianClub } from "@/data/brazilianClubs";
+import { getClubsByLeague, BrazilianClub } from "@/data/brazilianClubs";
+import { supabase } from "@/integrations/supabase/client";
 import { addDays } from "date-fns";
+
+interface Professional {
+  id: string;
+  user_id: string;
+  crp: string;
+  degree: string | null;
+  experience_years: number | null;
+  location: string | null;
+  specialties: string[] | null;
+  is_verified: boolean | null;
+  bio: string | null;
+  hourly_rate: number | null;
+}
+
+interface Profile {
+  full_name: string | null;
+  avatar_url: string | null;
+  favorite_club_id: string | null;
+}
+
+interface TherapistData {
+  id: string;
+  name: string;
+  crp: string;
+  degree: string;
+  experience: number;
+  location: string;
+  specialties: string[];
+  verified: boolean;
+  imageUrl?: string;
+  availableSlots: { date: Date; times: string[] }[];
+}
 
 const generateAvailableSlots = () => {
   const slots = [];
@@ -30,69 +63,90 @@ const generateAvailableSlots = () => {
   return slots;
 };
 
-const terapeutasDemo = [
-  {
-    id: 1,
-    name: "Dra. Ana Paula Silva",
-    crp: "CRP 06/12345",
-    degree: "Mestre em Psicologia Clínica - USP",
-    experience: 8,
-    location: "São Paulo, SP",
-    specialties: ["Ansiedade", "Terapia Cognitiva", "Saúde Mental no Esporte"],
-    verified: true,
-    availableSlots: generateAvailableSlots(),
-  },
-  {
-    id: 2,
-    name: "Dr. Carlos Eduardo Santos",
-    crp: "CRP 05/67890",
-    degree: "Especialista em Psicologia do Esporte",
-    experience: 12,
-    location: "Rio de Janeiro, RJ",
-    specialties: ["Psicologia Esportiva", "Estresse", "Performance"],
-    verified: true,
-    availableSlots: generateAvailableSlots(),
-  },
-  {
-    id: 3,
-    name: "Dra. Mariana Costa",
-    crp: "CRP 04/11223",
-    degree: "Doutora em Neuropsicologia - UFMG",
-    experience: 15,
-    location: "Belo Horizonte, MG",
-    specialties: ["Depressão", "Traumas", "Neuropsicologia"],
-    verified: true,
-    availableSlots: generateAvailableSlots(),
-  },
-  {
-    id: 4,
-    name: "Dr. Fernando Lima",
-    crp: "CRP 07/44556",
-    degree: "Especialista em Terapia Familiar",
-    experience: 10,
-    location: "Porto Alegre, RS",
-    specialties: ["Família", "Relacionamentos", "Casais"],
-    verified: false,
-    availableSlots: generateAvailableSlots(),
-  },
-];
-
 type Step = "club" | "therapists";
 
 const Terapeutas = () => {
   const [step, setStep] = useState<Step>("club");
   const [selectedClub, setSelectedClub] = useState<BrazilianClub | null>(null);
+  const [therapists, setTherapists] = useState<TherapistData[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const clubs = getClubsByLeague("serie_a");
+
+  const fetchTherapistsForClub = async (clubId: string) => {
+    setLoading(true);
+    try {
+      // Buscar profissionais ativos cujo perfil tem o clube favorito selecionado
+      const { data: professionals, error } = await supabase
+        .from('professionals')
+        .select('*')
+        .eq('is_active', true);
+
+      if (error) {
+        console.error('Erro ao buscar profissionais:', error);
+        setTherapists([]);
+        return;
+      }
+
+      if (!professionals || professionals.length === 0) {
+        setTherapists([]);
+        return;
+      }
+
+      // Buscar perfis dos profissionais com o clube selecionado
+      const userIds = professionals.map(p => p.user_id);
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url, favorite_club_id')
+        .in('user_id', userIds)
+        .eq('favorite_club_id', clubId);
+
+      if (profilesError) {
+        console.error('Erro ao buscar perfis:', profilesError);
+        setTherapists([]);
+        return;
+      }
+
+      // Mapear profissionais com seus perfis
+      const therapistData: TherapistData[] = [];
+      
+      for (const profile of (profiles || [])) {
+        const professional = professionals.find(p => p.user_id === profile.user_id);
+        if (professional) {
+          therapistData.push({
+            id: professional.id,
+            name: profile.full_name || 'Profissional',
+            crp: professional.crp,
+            degree: professional.degree || 'Psicólogo(a)',
+            experience: professional.experience_years || 0,
+            location: professional.location || 'Brasil',
+            specialties: professional.specialties || [],
+            verified: professional.is_verified || false,
+            imageUrl: profile.avatar_url || undefined,
+            availableSlots: generateAvailableSlots(),
+          });
+        }
+      }
+
+      setTherapists(therapistData);
+    } catch (err) {
+      console.error('Erro:', err);
+      setTherapists([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleClubSelect = (club: BrazilianClub) => {
     setSelectedClub(club);
     setStep("therapists");
+    fetchTherapistsForClub(club.id);
   };
 
   const handleBack = () => {
     setStep("club");
     setSelectedClub(null);
+    setTherapists([]);
   };
 
   return (
@@ -198,14 +252,29 @@ const Terapeutas = () => {
               Terapeutas Disponíveis
             </h2>
 
-            {terapeutasDemo.map((therapist) => (
-              <TherapistCard
-                key={therapist.id}
-                therapist={therapist}
-                clubColor={selectedClub.primaryColor}
-                clubSecondaryColor={selectedClub.secondaryColor}
-              />
-            ))}
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+              </div>
+            ) : therapists.length === 0 ? (
+              <div className="text-center py-12 bg-card border border-border rounded-2xl">
+                <p className="text-muted-foreground text-lg mb-2">
+                  Nenhum terapeuta disponível ainda
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  Em breve teremos profissionais para a torcida do {selectedClub.name}
+                </p>
+              </div>
+            ) : (
+              therapists.map((therapist) => (
+                <TherapistCard
+                  key={therapist.id}
+                  therapist={therapist}
+                  clubColor={selectedClub.primaryColor}
+                  clubSecondaryColor={selectedClub.secondaryColor}
+                />
+              ))
+            )}
           </div>
         )}
       </main>
