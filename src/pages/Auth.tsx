@@ -79,6 +79,47 @@ const Auth = () => {
     }
   }, [user, hasRole, navigate, roleValidated, loading]);
 
+  // Enforce correct login mode AFTER roles are loaded (prevents false logout)
+  useEffect(() => {
+    const enforceMode = async () => {
+      if (!user || !roleValidated || loading) return;
+
+      const isProfessional = hasRole("professional");
+      const isAdmin = hasRole("admin");
+      const isDeveloper = hasRole("developer");
+
+      // Admins and developers can access from any mode
+      if (isAdmin || isDeveloper) return;
+
+      if (authMode === "professional" && !isProfessional) {
+        await supabase.auth.signOut();
+        setRoleValidated(false);
+        setEmail("");
+        setPassword("");
+        setAuthMode("user");
+        toast.error(
+          "Esta conta não é de um profissional. Você será direcionado para o login de Torcedor."
+        );
+        navigate("/auth?mode=user", { replace: true });
+        return;
+      }
+
+      if (authMode === "user" && isProfessional) {
+        await supabase.auth.signOut();
+        setRoleValidated(false);
+        setEmail("");
+        setPassword("");
+        setAuthMode("professional");
+        toast.error(
+          "Esta conta é de um profissional. Você será direcionado para o login de Profissional."
+        );
+        navigate("/auth?mode=professional", { replace: true });
+      }
+    };
+
+    enforceMode();
+  }, [user, roleValidated, loading, hasRole, authMode, navigate]);
+
   // Handle already logged-in users visiting the auth page
   useEffect(() => {
     const checkExistingUser = async () => {
@@ -266,72 +307,8 @@ const Auth = () => {
             toast.error(error.message);
           }
         } else {
-          // After successful login, verify user role matches the auth mode
-          // Wait a moment for the session to be fully established
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          const { data: { user: loggedUser } } = await supabase.auth.getUser();
-          
-          if (loggedUser) {
-            // Check user roles with retry logic
-            let roles: string[] = [];
-            let retries = 3;
-            
-            while (retries > 0) {
-              const { data: userRoles, error } = await supabase
-                .from('user_roles')
-                .select('role')
-                .eq('user_id', loggedUser.id);
-              
-              if (!error && userRoles && userRoles.length > 0) {
-                roles = userRoles.map(r => r.role);
-                break;
-              }
-              
-              retries--;
-              if (retries > 0) {
-                await new Promise(resolve => setTimeout(resolve, 300));
-              }
-            }
-            
-            const isProfessional = roles.includes('professional');
-            const isAdmin = roles.includes('admin');
-            const isDeveloper = roles.includes('developer');
-            
-            // If no roles found, default to allowing login (will be handled by dashboard)
-            if (roles.length === 0) {
-              console.warn("No roles found for user, proceeding with login");
-              setRoleValidated(true);
-              toast.success("Login realizado com sucesso!");
-              return;
-            }
-            
-            // If logging in through professional mode but user is not a professional
-            if (authMode === "professional" && !isProfessional && !isAdmin && !isDeveloper) {
-              await supabase.auth.signOut();
-              setRoleValidated(false);
-              setEmail("");
-              setPassword("");
-              setAuthMode("user");
-              toast.error("Esta conta não é de um profissional. Você será direcionado para o login de Torcedor.");
-              navigate("/auth?mode=user", { replace: true });
-              return;
-            }
-            
-            // If logging in through user mode but user is a professional (and not admin/developer)
-            if (authMode === "user" && isProfessional && !isAdmin && !isDeveloper) {
-              await supabase.auth.signOut();
-              setRoleValidated(false);
-              setEmail("");
-              setPassword("");
-              setAuthMode("professional");
-              toast.error("Esta conta é de um profissional. Você será direcionado para o login de Profissional.");
-              navigate("/auth?mode=professional", { replace: true });
-              return;
-            }
-          }
-          
-          // Role validated successfully, allow redirect
+          // Let the global auth state + roles loader decide the redirect.
+          // This avoids race conditions where roles are not ready right after login.
           setRoleValidated(true);
           toast.success("Login realizado com sucesso!");
         }
