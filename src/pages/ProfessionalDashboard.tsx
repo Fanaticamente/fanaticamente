@@ -231,22 +231,45 @@ const ProfessionalDashboard = () => {
     setLoadingAppointments(true);
     
     try {
-      const { data, error } = await supabase
+      // First fetch appointments
+      const { data: appointmentsData, error: appointmentsError } = await supabase
         .from('appointments')
-        .select(`
-          *,
-          profiles:user_id (
-            full_name,
-            avatar_url,
-            phone
-          )
-        `)
+        .select('*')
         .eq('professional_id', professional.id)
         .order('scheduled_date', { ascending: true })
         .order('scheduled_time', { ascending: true });
 
-      if (error) throw error;
-      setAppointments(data || []);
+      if (appointmentsError) throw appointmentsError;
+
+      if (!appointmentsData || appointmentsData.length === 0) {
+        setAppointments([]);
+        return;
+      }
+
+      // Get unique user IDs
+      const userIds = [...new Set(appointmentsData.map(a => a.user_id))];
+
+      // Fetch profiles for those users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url, phone')
+        .in('user_id', userIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+      }
+
+      // Map profiles to appointments
+      const profilesMap = new Map(
+        (profilesData || []).map(p => [p.user_id, p])
+      );
+
+      const enrichedAppointments = appointmentsData.map(apt => ({
+        ...apt,
+        profiles: profilesMap.get(apt.user_id) || null
+      }));
+
+      setAppointments(enrichedAppointments);
     } catch (error) {
       console.error('Error fetching appointments:', error);
     } finally {
