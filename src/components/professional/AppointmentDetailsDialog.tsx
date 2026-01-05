@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, Copy, Check } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, Copy, Check, Play, Square } from "lucide-react";
 import { format, parseISO, subMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +28,38 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
   const [consultationLink, setConsultationLink] = useState(appointment.consultation_link || "");
   const [isSaving, setIsSaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState(appointment.status);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Start timer when status is "in_progress"
+  useEffect(() => {
+    if (currentStatus === "in_progress") {
+      timerRef.current = setInterval(() => {
+        setElapsedTime((prev) => prev + 1);
+      }, 1000);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      setElapsedTime(0);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [currentStatus]);
+
+  const formatElapsedTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   const handleSaveLink = async () => {
     if (!consultationLink.trim()) {
@@ -61,9 +93,68 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
     toast.success("Link copiado!");
   };
 
+  const handleStartSession = async () => {
+    setIsUpdatingStatus(true);
+    try {
+      const { error } = await supabase
+        .from("appointments")
+        .update({ status: "in_progress" })
+        .eq("id", appointment.id);
+
+      if (error) throw error;
+      
+      setCurrentStatus("in_progress");
+      toast.success("Atendimento iniciado!");
+      onUpdate();
+    } catch (error) {
+      console.error("Error starting session:", error);
+      toast.error("Erro ao iniciar atendimento");
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
+  const handleEndSession = async () => {
+    setIsUpdatingStatus(true);
+    try {
+      const { error } = await supabase
+        .from("appointments")
+        .update({ status: "completed" })
+        .eq("id", appointment.id);
+
+      if (error) throw error;
+      
+      setCurrentStatus("completed");
+      toast.success("Atendimento encerrado!");
+      onUpdate();
+    } catch (error) {
+      console.error("Error ending session:", error);
+      toast.error("Erro ao encerrar atendimento");
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
   // Calculate reminder time (10 min before)
   const appointmentDateTime = parseISO(`${appointment.scheduled_date}T${appointment.scheduled_time}`);
   const reminderTime = subMinutes(appointmentDateTime, 10);
+
+  const getStatusDisplay = () => {
+    switch (currentStatus) {
+      case "in_progress":
+        return { label: "Em Atendimento", className: "bg-blue-500/20 text-blue-500" };
+      case "confirmed":
+        return { label: "Confirmado", className: "bg-green-500/20 text-green-500" };
+      case "completed":
+        return { label: "Concluído", className: "bg-purple-500/20 text-purple-500" };
+      case "cancelled":
+        return { label: "Cancelado", className: "bg-red-500/20 text-red-500" };
+      default:
+        return { label: "Pendente", className: "bg-yellow-500/20 text-yellow-500" };
+    }
+  };
+
+  const statusDisplay = getStatusDisplay();
 
   return (
     <div 
@@ -206,24 +297,47 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
             </div>
           )}
 
-          {/* Status */}
-          <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
-            <span className="text-muted-foreground text-sm">Status</span>
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-medium ${
-                appointment.status === "confirmed"
-                  ? "bg-green-500/20 text-green-500"
-                  : appointment.status === "cancelled"
-                  ? "bg-red-500/20 text-red-500"
-                  : "bg-yellow-500/20 text-yellow-500"
-              }`}
-            >
-              {appointment.status === "confirmed" 
-                ? "Confirmado" 
-                : appointment.status === "cancelled" 
-                ? "Cancelado" 
-                : "Pendente"}
-            </span>
+          {/* Status with Session Control */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
+              <span className="text-muted-foreground text-sm">Status</span>
+              <div className="flex items-center gap-2">
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusDisplay.className}`}>
+                  {statusDisplay.label}
+                </span>
+                {currentStatus === "in_progress" && (
+                  <span className="px-2 py-1 bg-blue-500/10 text-blue-500 rounded-lg text-xs font-mono">
+                    {formatElapsedTime(elapsedTime)}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Session Control Buttons */}
+            {currentStatus === "confirmed" && (
+              <button
+                onClick={handleStartSession}
+                disabled={isUpdatingStatus}
+                className="w-full py-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                <Play className="w-4 h-4" />
+                {isUpdatingStatus ? "Iniciando..." : "Iniciar Atendimento"}
+              </button>
+            )}
+
+            {currentStatus === "in_progress" && (
+              <button
+                onClick={handleEndSession}
+                disabled={isUpdatingStatus}
+                className="w-full py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                <Square className="w-4 h-4" />
+                {isUpdatingStatus ? "Encerrando..." : "Encerrar Atendimento"}
+                <span className="ml-2 font-mono text-sm opacity-80">
+                  {formatElapsedTime(elapsedTime)}
+                </span>
+              </button>
+            )}
           </div>
         </div>
       </div>
