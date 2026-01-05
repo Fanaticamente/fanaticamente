@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Calendar, Clock, Users, TrendingUp, LogOut, Plus, CheckCircle, XCircle, Edit2, ChevronRight, User, ChevronLeft, Upload, Lock } from "lucide-react";
+import { Calendar, Clock, Users, TrendingUp, LogOut, Plus, CheckCircle, XCircle, Edit2, ChevronRight, User, ChevronLeft, Upload, Lock, Loader2 } from "lucide-react";
 import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -66,6 +66,9 @@ const ProfessionalDashboard = () => {
   const [showAddSlot, setShowAddSlot] = useState(false);
   const [newDate, setNewDate] = useState("");
   const [newTimes, setNewTimes] = useState<string[]>([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [loadingAppointments, setLoadingAppointments] = useState(false);
+  const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
 
   // Check for checkout success and verify subscription
   useEffect(() => {
@@ -216,18 +219,81 @@ const ProfessionalDashboard = () => {
   const isProfileComplete = !!(professional?.bio && professional?.degree && professional?.specialties?.length);
   const isSubscribed = !!(professional?.subscription_type && professional?.is_active);
 
-  const stats = [
-    { label: "Consultas este mês", value: isSubscribed ? "24" : "0", icon: Calendar, color: "text-therapy" },
-    { label: "Pacientes atendidos", value: isSubscribed ? "18" : "0", icon: Users, color: "text-secondary" },
-    { label: "Taxa de conclusão", value: isSubscribed ? "94%" : "—", icon: TrendingUp, color: "text-green-500" },
-    { label: "Avaliação média", value: isSubscribed ? "4.9" : "—", icon: CheckCircle, color: "text-yellow-500" },
-  ];
+  // Fetch appointments when professional is loaded and subscribed
+  useEffect(() => {
+    if (professional && isSubscribed) {
+      fetchAppointments();
+    }
+  }, [professional, isSubscribed]);
 
-  const demoAppointments = isSubscribed ? [
-    { id: "1", patientName: "João Silva", date: format(addDays(new Date(), 1), "dd/MM/yyyy"), time: "09:00", status: "confirmed" },
-    { id: "2", patientName: "Maria Santos", date: format(addDays(new Date(), 1), "dd/MM/yyyy"), time: "10:00", status: "pending" },
-    { id: "3", patientName: "Pedro Costa", date: format(addDays(new Date(), 2), "dd/MM/yyyy"), time: "14:00", status: "confirmed" },
-  ] : [];
+  const fetchAppointments = async () => {
+    if (!professional) return;
+    setLoadingAppointments(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select(`
+          *,
+          profiles:user_id (
+            full_name,
+            avatar_url,
+            phone
+          )
+        `)
+        .eq('professional_id', professional.id)
+        .order('scheduled_date', { ascending: true })
+        .order('scheduled_time', { ascending: true });
+
+      if (error) throw error;
+      setAppointments(data || []);
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+    } finally {
+      setLoadingAppointments(false);
+    }
+  };
+
+  const handleUpdateAppointmentStatus = async (appointmentId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('appointments')
+        .update({ status: newStatus })
+        .eq('id', appointmentId);
+
+      if (error) throw error;
+      
+      toast.success(newStatus === 'confirmed' ? 'Agendamento confirmado!' : 'Agendamento recusado');
+      fetchAppointments();
+    } catch (error) {
+      console.error('Error updating appointment:', error);
+      toast.error('Erro ao atualizar agendamento');
+    }
+  };
+
+  const handleViewReceipt = async (receiptPath: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('payment-receipts')
+        .createSignedUrl(receiptPath, 3600); // 1 hour expiry
+
+      if (error) throw error;
+      
+      if (data?.signedUrl) {
+        setSelectedReceipt(data.signedUrl);
+      }
+    } catch (error) {
+      console.error('Error getting receipt:', error);
+      toast.error('Erro ao carregar comprovante');
+    }
+  };
+
+  const stats = [
+    { label: "Consultas este mês", value: isSubscribed ? appointments.length.toString() : "0", icon: Calendar, color: "text-therapy" },
+    { label: "Pacientes atendidos", value: isSubscribed ? appointments.filter(a => a.status === 'confirmed').length.toString() : "0", icon: Users, color: "text-secondary" },
+    { label: "Taxa de conclusão", value: isSubscribed && appointments.length > 0 ? `${Math.round((appointments.filter(a => a.status === 'confirmed').length / appointments.length) * 100)}%` : "—", icon: TrendingUp, color: "text-green-500" },
+    { label: "Pendentes", value: isSubscribed ? appointments.filter(a => a.status === 'pending').length.toString() : "—", icon: Clock, color: "text-yellow-500" },
+  ];
 
   const timeSlots = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
 
@@ -509,53 +575,123 @@ const ProfessionalDashboard = () => {
             {activeTab === "agenda" && (
               <div className="space-y-4">
                 <h2 className="font-display text-2xl text-card-foreground mb-4">
-                  Próximos Agendamentos
+                  Agendamentos
                 </h2>
-                {demoAppointments.length === 0 ? (
+                
+                {loadingAppointments ? (
+                  <div className="flex items-center justify-center p-8">
+                    <Loader2 className="w-8 h-8 animate-spin text-therapy" />
+                  </div>
+                ) : appointments.length === 0 ? (
                   <div className="bg-card border border-border rounded-xl p-8 text-center">
                     <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">Nenhum agendamento ainda</p>
                   </div>
                 ) : (
-                  demoAppointments.map((apt) => (
+                  appointments.map((apt) => (
                     <div
                       key={apt.id}
-                      className="bg-card border border-border rounded-xl p-4 flex items-center justify-between"
+                      className="bg-card border border-border rounded-xl p-4"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-therapy/20 flex items-center justify-center">
-                          <User className="w-6 h-6 text-therapy" />
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-full bg-therapy/20 flex items-center justify-center">
+                            <User className="w-6 h-6 text-therapy" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-card-foreground">
+                              {apt.profiles?.full_name || 'Paciente'}
+                            </h3>
+                            <p className="text-muted-foreground text-sm">
+                              {format(new Date(apt.scheduled_date), "dd/MM/yyyy")} às {apt.scheduled_time}
+                            </p>
+                            {apt.profiles?.phone && (
+                              <p className="text-muted-foreground text-xs mt-1">
+                                Tel: {apt.profiles.phone}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-medium text-card-foreground">{apt.patientName}</h3>
-                          <p className="text-muted-foreground text-sm">
-                            {apt.date} às {apt.time}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-medium ${
                             apt.status === "confirmed"
                               ? "bg-green-500/20 text-green-500"
+                              : apt.status === "cancelled"
+                              ? "bg-red-500/20 text-red-500"
                               : "bg-yellow-500/20 text-yellow-500"
                           }`}
                         >
-                          {apt.status === "confirmed" ? "Confirmado" : "Pendente"}
+                          {apt.status === "confirmed" ? "Confirmado" : apt.status === "cancelled" ? "Recusado" : "Pendente"}
                         </span>
-                        {apt.status === "pending" && (
-                          <div className="flex gap-1">
-                            <button className="p-2 hover:bg-green-500/20 rounded-lg transition-colors">
-                              <CheckCircle className="w-5 h-5 text-green-500" />
-                            </button>
-                            <button className="p-2 hover:bg-destructive/20 rounded-lg transition-colors">
-                              <XCircle className="w-5 h-5 text-destructive" />
-                            </button>
-                          </div>
+                      </div>
+                      
+                      {/* Receipt Section */}
+                      {apt.receipt_url && (
+                        <div className="mt-4 pt-4 border-t border-border">
+                          <button
+                            onClick={() => handleViewReceipt(apt.receipt_url)}
+                            className="flex items-center gap-2 text-sm text-therapy hover:underline"
+                          >
+                            <Upload className="w-4 h-4" />
+                            Ver Comprovante de Pagamento
+                          </button>
+                        </div>
+                      )}
+                      
+                      {/* Action Buttons for Pending */}
+                      {apt.status === "pending" && (
+                        <div className="mt-4 pt-4 border-t border-border flex gap-2">
+                          <button 
+                            onClick={() => handleUpdateAppointmentStatus(apt.id, 'confirmed')}
+                            className="flex-1 py-2 bg-green-500/20 text-green-600 rounded-lg font-medium hover:bg-green-500/30 transition-colors flex items-center justify-center gap-2"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                            Confirmar
+                          </button>
+                          <button 
+                            onClick={() => handleUpdateAppointmentStatus(apt.id, 'cancelled')}
+                            className="flex-1 py-2 bg-red-500/20 text-red-600 rounded-lg font-medium hover:bg-red-500/30 transition-colors flex items-center justify-center gap-2"
+                          >
+                            <XCircle className="w-4 h-4" />
+                            Recusar
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+
+                {/* Receipt Modal */}
+                {selectedReceipt && (
+                  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedReceipt(null)}>
+                    <div className="bg-card rounded-2xl max-w-lg w-full max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-between p-4 border-b border-border">
+                        <h3 className="font-medium text-card-foreground">Comprovante de Pagamento</h3>
+                        <button onClick={() => setSelectedReceipt(null)} className="p-2 hover:bg-muted rounded-lg">
+                          <XCircle className="w-5 h-5 text-muted-foreground" />
+                        </button>
+                      </div>
+                      <div className="p-4">
+                        {selectedReceipt.includes('.pdf') ? (
+                          <a 
+                            href={selectedReceipt} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-therapy hover:underline"
+                          >
+                            <Upload className="w-5 h-5" />
+                            Abrir PDF em nova aba
+                          </a>
+                        ) : (
+                          <img 
+                            src={selectedReceipt} 
+                            alt="Comprovante" 
+                            className="w-full rounded-lg"
+                          />
                         )}
                       </div>
                     </div>
-                  ))
+                  </div>
                 )}
               </div>
             )}
