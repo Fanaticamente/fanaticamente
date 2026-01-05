@@ -67,11 +67,10 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "http://localhost:5173";
 
     // Create checkout session for embedded checkout with 180-day free trial
-    // PIX + Card payment methods enabled
+    // Note: PIX is not supported for recurring subscriptions, only card payments
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
-      payment_method_types: ["card", "pix"],
       line_items: [
         {
           price: priceId,
