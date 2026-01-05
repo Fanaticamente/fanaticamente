@@ -84,7 +84,7 @@ const TherapistCard = ({ therapist, clubColor }: TherapistCardProps) => {
                 />
               )}
             </div>
-            <p className="text-gray-600 text-sm">{therapist.crp}</p>
+            <p className="text-gray-600 text-sm">CRP {therapist.crp}</p>
             <p className="text-gray-600 text-sm mb-3">{therapist.degree}</p>
 
             <div className="flex items-center gap-4 text-sm text-gray-600">
