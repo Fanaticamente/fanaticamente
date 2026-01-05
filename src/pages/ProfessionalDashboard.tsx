@@ -252,11 +252,24 @@ const ProfessionalDashboard = () => {
       // Get unique user IDs
       const userIds = [...new Set(appointmentsData.map(a => a.user_id))];
 
-      // Fetch profiles for those users
+      // Fetch profiles for those users (including birth_date for age calculation)
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, full_name, avatar_url, phone')
+        .select('user_id, full_name, avatar_url, phone, birth_date')
         .in('user_id', userIds);
+
+      // Fetch user emails via edge function
+      let emailsMap = new Map<string, string>();
+      try {
+        const { data: emailsData } = await supabase.functions.invoke('get-user-emails', {
+          body: { userIds }
+        });
+        if (emailsData?.emails) {
+          emailsMap = new Map(Object.entries(emailsData.emails));
+        }
+      } catch (error) {
+        console.error('Error fetching emails:', error);
+      }
 
       if (profilesError) {
         console.error('Error fetching profiles:', profilesError);
@@ -269,7 +282,8 @@ const ProfessionalDashboard = () => {
 
       const enrichedAppointments = appointmentsData.map(apt => ({
         ...apt,
-        profiles: profilesMap.get(apt.user_id) || null
+        profiles: profilesMap.get(apt.user_id) || null,
+        user_email: emailsMap.get(apt.user_id) || null
       }));
 
       setAppointments(enrichedAppointments);
