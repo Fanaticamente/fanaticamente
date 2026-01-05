@@ -192,7 +192,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
         </label>
         <div className="flex items-start gap-4">
           <div 
-            className="w-28 h-36 rounded-xl border-2 border-dashed border-border bg-muted/50 flex items-center justify-center overflow-hidden cursor-pointer hover:border-therapy transition-colors"
+            className="w-28 h-36 rounded-xl border-2 border-dashed border-muted-foreground/50 bg-muted/50 flex items-center justify-center overflow-hidden cursor-pointer hover:border-therapy transition-colors"
             onClick={() => fileInputRef.current?.click()}
           >
             {formData.imageUrl ? (
@@ -203,8 +203,8 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
               />
             ) : (
               <div className="text-center p-2">
-                <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-1" />
-                <span className="text-xs text-muted-foreground">Upload</span>
+                <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-1" />
+                <span className="text-xs text-muted-foreground">Enviar foto</span>
               </div>
             )}
           </div>

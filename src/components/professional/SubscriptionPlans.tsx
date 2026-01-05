@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Star, Crown, Zap } from "lucide-react";
+import { Check, Star, Crown, Zap, Shield } from "lucide-react";
 import EmbeddedCheckout from "./EmbeddedCheckout";
 
 interface SubscriptionPlansProps {
@@ -124,8 +124,8 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
                   <PlanIcon className={`w-6 h-6 ${isSelected ? "text-therapy" : "text-muted-foreground"}`} />
                 </div>
 
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
                     <h3 className="font-display text-xl text-card-foreground">
                       {plan.name}
                     </h3>
@@ -136,10 +136,13 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
                     )}
                   </div>
 
-                  <div className="flex items-baseline gap-2 mb-3">
-                    <span className="text-2xl font-bold text-card-foreground">
-                      R$ {plan.price.toFixed(2).replace('.', ',')}
-                    </span>
+                  <div className="flex items-baseline gap-2 mb-3 flex-wrap">
+                    <div className="flex items-baseline">
+                      <span className="text-sm text-muted-foreground mr-1">R$</span>
+                      <span className="text-2xl font-bold text-card-foreground">
+                        {plan.price.toFixed(2).replace('.', ',')}
+                      </span>
+                    </div>
                     <span className="text-muted-foreground text-sm">/{plan.period}</span>
                     {plan.originalPrice && (
                       <span className="text-muted-foreground text-sm line-through">
@@ -148,7 +151,7 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
                     )}
                   </div>
 
-                  <ul className="space-y-1">
+                  <ul className="space-y-1.5">
                     {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -156,9 +159,22 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
                       </li>
                     ))}
                   </ul>
+
+                  {/* Botão dentro do card selecionado */}
+                  {isSelected && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleProceedToCheckout();
+                      }}
+                      className="w-full mt-4 py-3 bg-therapy text-therapy-foreground rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform"
+                    >
+                      Finalizar Pagamento
+                    </button>
+                  )}
                 </div>
 
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                   isSelected ? "border-therapy bg-therapy" : "border-muted-foreground"
                 }`}>
                   {isSelected && <Check className="w-3 h-3 text-therapy-foreground" />}
@@ -170,18 +186,11 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
       </div>
 
       <div className="bg-muted/30 rounded-xl p-4 border border-border">
-        <p className="text-muted-foreground text-sm text-center">
-          💳 Pagamento seguro via Pix ou Cartão de Crédito
+        <p className="text-muted-foreground text-sm text-center flex items-center justify-center gap-2">
+          <Shield className="w-4 h-4" />
+          Pagamento seguro via Stripe
         </p>
       </div>
-
-      <button
-        onClick={handleProceedToCheckout}
-        disabled={!selectedPlan}
-        className="w-full py-4 bg-therapy text-therapy-foreground rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Ir para Pagamento
-      </button>
     </div>
   );
 };

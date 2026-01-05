@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Calendar, Clock, Users, TrendingUp, Settings, LogOut, Plus, CheckCircle, XCircle, Edit2, ChevronRight, User, ChevronLeft } from "lucide-react";
+import { Calendar, Clock, Users, TrendingUp, Settings, LogOut, Plus, CheckCircle, XCircle, Edit2, ChevronRight, User, ChevronLeft, Upload } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -318,13 +318,17 @@ const ProfessionalDashboard = () => {
             >
               <ChevronLeft className="w-5 h-5 text-muted-foreground" />
             </button>
-            {club && (
-              <div className="w-10 h-10 rounded-full bg-white p-1 shadow-md">
+            {profile?.avatar_url ? (
+              <div className="w-10 h-10 rounded-full overflow-hidden shadow-md">
                 <img
-                  src={club.badge_url || `https://via.placeholder.com/40?text=${club.name.charAt(0)}`}
-                  alt={club.name}
-                  className="w-full h-full object-contain"
+                  src={profile.avatar_url}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
                 />
+              </div>
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-muted border border-border flex items-center justify-center">
+                <Upload className="w-5 h-5 text-muted-foreground" />
               </div>
             )}
             <div>
