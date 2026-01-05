@@ -12,7 +12,6 @@ interface ProfileData {
   sessionPrice: string;
   showPrice: boolean;
   imageUrl: string;
-  pixKey: string;
 }
 
 interface ProfileCompletionFormProps {
@@ -52,8 +51,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
     sessionDuration: existingData?.sessionDuration || "50",
     sessionPrice: existingData?.sessionPrice || "",
     showPrice: existingData?.showPrice ?? true,
-    imageUrl: existingData?.imageUrl || "",
-    pixKey: existingData?.pixKey || ""
+    imageUrl: existingData?.imageUrl || ""
   });
   
   const [isUploading, setIsUploading] = useState(false);
@@ -167,9 +165,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
           bio: formData.bio,
           degree: formData.degree,
           specialties: formData.specialties,
-          hourly_rate: formData.sessionPrice ? parseFloat(formData.sessionPrice) : null,
-          pix_key: formData.pixKey || null,
-          pix_key_type: null
+          hourly_rate: formData.sessionPrice ? parseFloat(formData.sessionPrice) : null
         })
         .eq('id', professionalId);
 
@@ -353,23 +349,6 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
         </div>
       </div>
 
-      {/* PIX Key */}
-      <div className="border-t border-border pt-6">
-        <label className="block text-card-foreground text-sm font-medium mb-2">
-          Chave PIX para Recebimentos (opcional)
-        </label>
-        <p className="text-muted-foreground text-xs mb-3">
-          Informe sua chave PIX (CPF, CNPJ, e-mail, telefone ou chave aleatória) para receber pagamentos diretamente dos pacientes
-        </p>
-        <input
-          type="text"
-          value={formData.pixKey}
-          onChange={(e) => setFormData(prev => ({ ...prev, pixKey: e.target.value }))}
-          className={inputClassName}
-          placeholder="CPF, e-mail, telefone ou chave aleatória"
-        />
-      </div>
-
       {/* Show Price Toggle */}
       <div className="flex items-center gap-3">
         <input
@@ -383,14 +362,6 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
           Exibir valor da sessão no meu card
         </label>
       </div>
-
-      <button
-        type="submit"
-        disabled={isSaving}
-        className="w-full py-4 bg-therapy text-therapy-foreground rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform disabled:opacity-50"
-      >
-        {isSaving ? "Salvando..." : "Salvar e Continuar"}
-      </button>
     </form>
   );
 };
