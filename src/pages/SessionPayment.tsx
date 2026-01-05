@@ -245,26 +245,47 @@ const SessionPayment = () => {
 
         {/* Payment Method Card */}
         <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
-          <h2 className="font-bold text-lg mb-4" style={{ color: clubColor }}>Forma de Pagamento</h2>
+          <h2 className="font-bold text-lg mb-4" style={{ color: clubColor }}>Formas de Pagamento</h2>
           
-          <div 
-            className="p-4 rounded-xl border-2 flex items-center gap-4"
-            style={{ 
-              borderColor: clubColor,
-              backgroundColor: clubColor + "10"
-            }}
-          >
+          <div className="space-y-3">
             <div 
-              className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: clubColor + "20" }}
+              className="p-4 rounded-xl border flex items-center gap-4"
+              style={{ borderColor: clubColor + "40" }}
             >
-              <CreditCard className="w-6 h-6" style={{ color: clubColor }} />
+              <div 
+                className="w-12 h-12 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: clubColor + "20" }}
+              >
+                <CreditCard className="w-6 h-6" style={{ color: clubColor }} />
+              </div>
+              <div className="text-left">
+                <p className="font-semibold text-gray-800">Cartão de Crédito</p>
+                <p className="text-sm text-gray-500">Visa, Mastercard, Elo e outros</p>
+              </div>
             </div>
-            <div className="text-left">
-              <p className="font-semibold text-gray-800">Cartão de Crédito</p>
-              <p className="text-sm text-gray-500">Pagamento seguro via Stripe</p>
+            
+            <div 
+              className="p-4 rounded-xl border flex items-center gap-4"
+              style={{ borderColor: clubColor + "40" }}
+            >
+              <div 
+                className="w-12 h-12 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: clubColor + "20" }}
+              >
+                <svg className="w-6 h-6" style={{ color: clubColor }} viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9.5 4h5l1 1.5L12 10l-3.5-4.5L9.5 4zM4 9.5l1.5-1L10 12l-4.5 3.5L4 14.5v-5zM14.5 20h-5l-1-1.5L12 14l3.5 4.5-1 1.5zM20 14.5l-1.5 1L14 12l4.5-3.5 1.5 1v5z"/>
+                </svg>
+              </div>
+              <div className="text-left">
+                <p className="font-semibold text-gray-800">PIX</p>
+                <p className="text-sm text-gray-500">Pagamento instantâneo</p>
+              </div>
             </div>
           </div>
+          
+          <p className="text-xs text-gray-400 text-center mt-4">
+            Você escolherá o método de pagamento na próxima tela
+          </p>
         </div>
 
         {/* Warning if professional hasn't set up Stripe Connect */}

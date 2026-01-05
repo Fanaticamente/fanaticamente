@@ -188,7 +188,7 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
       <div className="bg-muted/30 rounded-xl p-4 border border-border">
         <p className="text-muted-foreground text-sm text-center flex items-center justify-center gap-2">
           <Shield className="w-4 h-4" />
-          Pagamento seguro via Stripe
+          Pagamento seguro via Stripe • Cartão ou PIX
         </p>
       </div>
     </div>

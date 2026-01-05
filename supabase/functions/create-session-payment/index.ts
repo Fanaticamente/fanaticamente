@@ -88,9 +88,11 @@ serve(async (req) => {
 
     // Create a checkout session with transfer to connected account
     // Stripe fees will be deducted automatically from the payment
+    // PIX + Card payment methods enabled for Brazilian customers
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
+      payment_method_types: ["card", "pix"],
       line_items: [
         {
           price_data: {
