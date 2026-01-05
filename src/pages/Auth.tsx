@@ -56,6 +56,7 @@ const Auth = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [roleValidated, setRoleValidated] = useState(false);
 
   const { signIn, signUp, user, hasRole } = useAuth();
   const navigate = useNavigate();
@@ -64,7 +65,8 @@ const Auth = () => {
   const availableCities = signUpData.state ? getCitiesByState(signUpData.state) : [];
 
   useEffect(() => {
-    if (user) {
+    // Only redirect if role has been validated or user was already logged in before visiting this page
+    if (user && roleValidated) {
       if (hasRole("admin")) {
         navigate("/admin");
       } else if (hasRole("developer")) {
@@ -75,7 +77,44 @@ const Auth = () => {
         navigate("/");
       }
     }
-  }, [user, hasRole, navigate]);
+  }, [user, hasRole, navigate, roleValidated]);
+
+  // Handle already logged-in users visiting the auth page
+  useEffect(() => {
+    const checkExistingUser = async () => {
+      if (user && !roleValidated) {
+        // User was already logged in, validate their role matches the current mode
+        const isProfessional = hasRole("professional");
+        const isAdmin = hasRole("admin");
+        const isDeveloper = hasRole("developer");
+        
+        // Admins and developers can access from any mode
+        if (isAdmin || isDeveloper) {
+          setRoleValidated(true);
+          return;
+        }
+        
+        // If on professional mode but user is not a professional
+        if (authMode === "professional" && !isProfessional) {
+          await supabase.auth.signOut();
+          toast.error("Esta conta não é de um profissional. Use a aba 'Torcedor' para entrar.");
+          return;
+        }
+        
+        // If on user mode but user is a professional
+        if (authMode === "user" && isProfessional) {
+          await supabase.auth.signOut();
+          toast.error("Esta conta é de um profissional. Use a aba 'Profissional' para entrar.");
+          return;
+        }
+        
+        // Role matches, allow redirect
+        setRoleValidated(true);
+      }
+    };
+    
+    checkExistingUser();
+  }, [user, authMode, hasRole, roleValidated]);
 
   const validateLoginForm = () => {
     const newErrors: Record<string, string> = {};
@@ -240,6 +279,8 @@ const Auth = () => {
             }
           }
           
+          // Role validated successfully, allow redirect
+          setRoleValidated(true);
           toast.success("Login realizado com sucesso!");
         }
       } else {
@@ -275,6 +316,8 @@ const Auth = () => {
             toast.error(error.message);
           }
         } else {
+          // Sign up successful, set role validated for new users
+          setRoleValidated(true);
           toast.success("Conta criada com sucesso!");
         }
       }
