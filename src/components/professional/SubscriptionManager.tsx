@@ -62,65 +62,38 @@ const SubscriptionManager = ({ professionalId, currentPlan, expiresAt, onUpdate 
   const availableUpgrades = plans.filter((_, index) => index > currentPlanIndex);
   const expirationDate = new Date(expiresAt);
 
-  const handleCancelSubscription = async () => {
+  const handleManageSubscription = async () => {
     setIsProcessing(true);
     try {
-      const { error } = await supabase
-        .from('professionals')
-        .update({
-          is_active: false,
-          subscription_type: null,
-          subscription_expires_at: null
-        })
-        .eq('id', professionalId);
+      const { data, error } = await supabase.functions.invoke('customer-portal');
 
       if (error) throw error;
 
-      toast.success("Assinatura cancelada. Seu perfil foi removido do marketplace.");
-      setShowCancelDialog(false);
-      onUpdate();
+      if (data?.url) {
+        window.open(data.url, '_blank');
+        toast.info("Abrindo portal de gerenciamento...");
+      } else {
+        throw new Error("URL do portal não recebida");
+      }
     } catch (error) {
-      console.error("Cancel error:", error);
-      toast.error("Erro ao cancelar assinatura");
+      console.error("Portal error:", error);
+      toast.error("Erro ao abrir portal. Tente novamente.");
     } finally {
       setIsProcessing(false);
     }
   };
 
+  const handleCancelSubscription = async () => {
+    // Redirect to Stripe Customer Portal for cancellation
+    await handleManageSubscription();
+    setShowCancelDialog(false);
+  };
+
   const handleUpgrade = async () => {
-    if (!selectedUpgrade) {
-      toast.error("Selecione um plano");
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      const plan = plans.find(p => p.id === selectedUpgrade);
-      if (!plan) return;
-
-      let expiresAt = new Date();
-      expiresAt.setMonth(expiresAt.getMonth() + plan.months);
-
-      const { error } = await supabase
-        .from('professionals')
-        .update({
-          subscription_type: selectedUpgrade,
-          subscription_expires_at: expiresAt.toISOString()
-        })
-        .eq('id', professionalId);
-
-      if (error) throw error;
-
-      toast.success(`Upgrade para ${plan.name} realizado com sucesso!`);
-      setShowUpgradeDialog(false);
-      setSelectedUpgrade(null);
-      onUpdate();
-    } catch (error) {
-      console.error("Upgrade error:", error);
-      toast.error("Erro ao fazer upgrade");
-    } finally {
-      setIsProcessing(false);
-    }
+    // Redirect to Stripe Customer Portal for upgrade
+    await handleManageSubscription();
+    setShowUpgradeDialog(false);
+    setSelectedUpgrade(null);
   };
 
   if (!currentPlanData) return null;

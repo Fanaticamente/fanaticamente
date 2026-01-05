@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Calendar, Clock, Users, TrendingUp, Settings, LogOut, Plus, CheckCircle, XCircle, Edit2, ChevronRight, User, ChevronLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,6 +48,7 @@ type DashboardTab = "agenda" | "disponibilidade" | "metricas" | "perfil" | "assi
 const ProfessionalDashboard = () => {
   const { user, signOut, hasRole } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   const [professional, setProfessional] = useState<Professional | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -62,6 +63,41 @@ const ProfessionalDashboard = () => {
   const [showAddSlot, setShowAddSlot] = useState(false);
   const [newDate, setNewDate] = useState("");
   const [newTimes, setNewTimes] = useState<string[]>([]);
+
+  // Check for checkout success and verify subscription
+  useEffect(() => {
+    const checkoutStatus = searchParams.get("checkout");
+    const planId = searchParams.get("plan");
+    
+    if (checkoutStatus === "success" && planId) {
+      toast.success("Pagamento processado! Verificando assinatura...");
+      // Clear URL params
+      setSearchParams({});
+      // Verify subscription with Stripe
+      verifySubscription();
+    } else if (checkoutStatus === "cancelled") {
+      toast.info("Checkout cancelado");
+      setSearchParams({});
+    }
+  }, [searchParams]);
+
+  const verifySubscription = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-professional-subscription');
+      
+      if (error) {
+        console.error("Error verifying subscription:", error);
+        return;
+      }
+      
+      if (data?.subscribed) {
+        toast.success("Assinatura ativada! Seu perfil está agora visível no marketplace.");
+        fetchProfessionalData();
+      }
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+    }
+  };
 
   useEffect(() => {
     if (!hasRole("professional")) {

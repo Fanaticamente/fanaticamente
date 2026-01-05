@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Star, Crown, Zap } from "lucide-react";
+import { Check, Star, Crown, Zap, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -78,34 +78,25 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
       const plan = plans.find(p => p.id === selectedPlan);
       if (!plan) return;
 
-      // Calculate expiration date
-      let expiresAt = new Date();
-      if (selectedPlan === "monthly") {
-        expiresAt.setMonth(expiresAt.getMonth() + 1);
-      } else if (selectedPlan === "semiannual") {
-        expiresAt.setMonth(expiresAt.getMonth() + 6);
-      } else {
-        expiresAt.setFullYear(expiresAt.getFullYear() + 1);
-      }
-
-      // Update professional with subscription
-      const { error } = await supabase
-        .from('professionals')
-        .update({
-          subscription_type: selectedPlan,
-          subscription_expires_at: expiresAt.toISOString(),
-          is_active: true,
-          is_verified: true
-        })
-        .eq('id', professionalId);
+      // Call the Stripe checkout edge function
+      const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
+        body: { planId: selectedPlan }
+      });
 
       if (error) throw error;
 
-      toast.success(`Plano ${plan.name} ativado com sucesso! Seu perfil está agora visível.`);
-      onSubscribe();
+      if (data?.url) {
+        // Open Stripe Checkout in a new tab
+        window.open(data.url, '_blank');
+        toast.info("Redirecionando para o pagamento...", {
+          description: "Complete o pagamento na nova aba"
+        });
+      } else {
+        throw new Error("URL de checkout não recebida");
+      }
     } catch (error) {
       console.error("Subscription error:", error);
-      toast.error("Erro ao processar assinatura. Tente novamente.");
+      toast.error("Erro ao iniciar checkout. Tente novamente.");
     } finally {
       setIsProcessing(false);
     }
