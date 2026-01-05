@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, Clock, Users, TrendingUp, Settings, LogOut, Plus, CheckCircle, XCircle, Edit2, ChevronRight, User } from "lucide-react";
+import { Calendar, Clock, Users, TrendingUp, Settings, LogOut, Plus, CheckCircle, XCircle, Edit2, ChevronRight, User, ChevronLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import { ptBR } from "date-fns/locale";
 import ProfileStatusCard from "@/components/professional/ProfileStatusCard";
 import ProfileCompletionForm from "@/components/professional/ProfileCompletionForm";
 import SubscriptionPlans from "@/components/professional/SubscriptionPlans";
+import SubscriptionManager from "@/components/professional/SubscriptionManager";
 
 interface Professional {
   id: string;
@@ -42,7 +43,7 @@ interface Club {
 }
 
 type OnboardingStep = "status" | "profile" | "subscription";
-type DashboardTab = "agenda" | "disponibilidade" | "metricas" | "perfil";
+type DashboardTab = "agenda" | "disponibilidade" | "metricas" | "perfil" | "assinatura";
 
 const ProfessionalDashboard = () => {
   const { user, signOut, hasRole } = useAuth();
@@ -275,6 +276,12 @@ const ProfessionalDashboard = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-4">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 text-muted-foreground" />
+            </button>
             {club && (
               <div className="w-10 h-10 rounded-full bg-white p-1 shadow-md">
                 <img
@@ -390,6 +397,7 @@ const ProfessionalDashboard = () => {
                 { id: "disponibilidade", label: "Disponibilidade" },
                 { id: "metricas", label: "Métricas" },
                 { id: "perfil", label: "Meu Perfil" },
+                { id: "assinatura", label: "Assinatura" },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -599,12 +607,28 @@ const ProfessionalDashboard = () => {
                     bio: professional.bio || "",
                     degree: professional.degree || "",
                     specialties: professional.specialties || [],
-                    sessionPrice: professional.hourly_rate?.toString() || ""
+                    sessionPrice: professional.hourly_rate?.toString() || "",
+                    imageUrl: profile?.avatar_url || ""
                   }}
                   onComplete={() => {
                     toast.success("Perfil atualizado!");
                     fetchProfessionalData();
                   }}
+                />
+              </div>
+            )}
+
+            {/* Assinatura Tab */}
+            {activeTab === "assinatura" && professional && professional.subscription_type && professional.subscription_expires_at && (
+              <div>
+                <h2 className="font-display text-2xl text-card-foreground mb-4">
+                  Gerenciar Assinatura
+                </h2>
+                <SubscriptionManager 
+                  professionalId={professional.id}
+                  currentPlan={professional.subscription_type}
+                  expiresAt={professional.subscription_expires_at}
+                  onUpdate={fetchProfessionalData}
                 />
               </div>
             )}

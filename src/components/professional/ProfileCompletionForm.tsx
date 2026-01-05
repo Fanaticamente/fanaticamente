@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Upload, X, Plus, Info } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-
+import { useAuth } from "@/contexts/AuthContext";
 interface ProfileData {
   bio: string;
   degree: string;
@@ -42,6 +42,7 @@ const SPECIALTY_OPTIONS = [
 ];
 
 const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: ProfileCompletionFormProps) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState<ProfileData>({
     bio: existingData?.bio || "",
     degree: existingData?.degree || "",
@@ -90,8 +91,22 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
         .from('avatars')
         .getPublicUrl(filePath);
 
+      // Salvar a URL no banco de dados imediatamente
+      if (user) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: publicUrl })
+          .eq('user_id', user.id);
+
+        if (updateError) {
+          console.error("Error updating avatar_url:", updateError);
+          toast.error("Erro ao salvar foto no perfil");
+          return;
+        }
+      }
+
       setFormData(prev => ({ ...prev, imageUrl: publicUrl }));
-      toast.success("Imagem enviada com sucesso!");
+      toast.success("Imagem enviada e salva com sucesso!");
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Erro ao enviar imagem. Tente novamente.");
