@@ -51,48 +51,29 @@ const defaultSlides: SlideConfig[] = [
 
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isReady, setIsReady] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
   const moduleQuery = useModuleConfig("hero_carousel");
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
   const dbSlides = (moduleQuery.data?.config as { slides?: SlideConfig[] } | undefined)?.slides;
-  const slides: SlideConfig[] | null = dbSlides ?? (moduleQuery.isError ? defaultSlides : null);
+  const slides: SlideConfig[] = dbSlides ?? defaultSlides;
 
-  // Avoid showing fallback images briefly on refresh (prevents "flash" of another banner)
-  // Also wait until the first slide image is loaded before rendering the carousel.
+  // Reset slide index when slides change
   useEffect(() => {
-    if (!slides || slides.length === 0) return;
-
     setCurrentSlide(0);
-    setIsReady(false);
+  }, [dbSlides]);
 
-    const firstSrc = slides[0]?.image;
-    if (!firstSrc) {
-      setIsReady(true);
-      return;
-    }
-
-    const img = new Image();
-    img.src = firstSrc;
-    img.onload = () => setIsReady(true);
-    img.onerror = () => setIsReady(true);
-
-    return () => {
-      img.onload = null;
-      img.onerror = null;
-    };
-  }, [slides]);
-
+  // Auto-rotate slides
   useEffect(() => {
-    if (!slides || !isReady || slides.length <= 1) return;
+    if (slides.length <= 1) return;
 
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [slides, isReady]);
+  }, [slides.length]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX;
@@ -103,17 +84,15 @@ const HeroCarousel = () => {
   };
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current || !slides) return;
+    if (!touchStartX.current || !touchEndX.current) return;
     
     const diff = touchStartX.current - touchEndX.current;
     const minSwipeDistance = 50;
 
     if (Math.abs(diff) > minSwipeDistance) {
       if (diff > 0) {
-        // Swipe left - next slide
         setCurrentSlide((prev) => (prev + 1) % slides.length);
       } else {
-        // Swipe right - previous slide
         setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
       }
     }
@@ -122,15 +101,9 @@ const HeroCarousel = () => {
     touchEndX.current = null;
   };
 
-  if (!slides || !isReady) {
-    return (
-      <div
-        className="relative w-full overflow-hidden bg-background"
-        style={{ aspectRatio: "1/1", maxHeight: "1080px" }}
-        aria-busy="true"
-      />
-    );
-  }
+  const handleImageLoad = (index: number) => {
+    setImagesLoaded(prev => ({ ...prev, [index]: true }));
+  };
 
   const getFontClass = (font?: string) => {
     switch (font) {
@@ -156,18 +129,19 @@ const HeroCarousel = () => {
       {slides.map((slide, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-opacity duration-700 ${
+          className={`absolute inset-0 transition-opacity duration-500 ${
             index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
         >
           {/* Background Image */}
-          <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-muted">
             <img
               src={slide.image}
               alt={slide.title || "Banner principal"}
-              className="w-full h-full object-cover"
+              className={`w-full h-full object-cover transition-opacity duration-300 ${imagesLoaded[index] ? 'opacity-100' : 'opacity-0'}`}
               loading={index === 0 ? "eager" : "lazy"}
               decoding="async"
+              onLoad={() => handleImageLoad(index)}
             />
             {/* Dark overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
