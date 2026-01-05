@@ -21,7 +21,7 @@ interface AvailableSlot {
 }
 
 interface Therapist {
-  id: number;
+  id: number | string;
   name: string;
   crp: string;
   degree: string;
@@ -86,7 +86,7 @@ const TherapistCard = ({ therapist, clubColor, clubSecondaryColor }: TherapistCa
     }
   };
 
-  const imageUrl = therapist.imageUrl || therapistImages[(therapist.id - 1) % 4];
+  const imageUrl = therapist.imageUrl || therapistImages[(typeof therapist.id === 'number' ? therapist.id - 1 : 0) % 4];
 
   return (
     <div 

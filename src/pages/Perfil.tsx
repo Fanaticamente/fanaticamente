@@ -15,7 +15,11 @@ const Perfil = () => {
     if (!loading && !user) {
       navigate("/auth");
     }
-  }, [user, loading, navigate]);
+    // Redirecionar profissionais para o painel profissional
+    if (!loading && user && hasRole("professional")) {
+      navigate("/profissional");
+    }
+  }, [user, loading, navigate, hasRole]);
 
   useEffect(() => {
     const fetchProfile = async () => {
