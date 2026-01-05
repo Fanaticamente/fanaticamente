@@ -168,7 +168,6 @@ const HeroCarousel = () => {
               className="w-full h-full object-cover"
               loading={index === 0 ? "eager" : "lazy"}
               decoding="async"
-              {...(index === 0 ? ({ fetchPriority: "high" } as const) : {})}
             />
             {/* Dark overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
