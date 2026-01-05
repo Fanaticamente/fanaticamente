@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, CreditCard, QrCode, Copy, Check, Clock, User, Calendar } from "lucide-react";
+import { ChevronLeft, CreditCard, Clock, User, Calendar, AlertCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Professional {
   id: string;
@@ -11,6 +13,8 @@ interface Professional {
   degree: string | null;
   hourly_rate: number | null;
   user_id: string;
+  stripe_account_id: string | null;
+  stripe_account_status: string | null;
 }
 
 interface Profile {
@@ -27,19 +31,25 @@ interface Club {
 
 const SessionPayment = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   
   const scheduledDate = searchParams.get("date");
   const scheduledTime = searchParams.get("time");
+  const canceled = searchParams.get("canceled");
   
   const [professional, setProfessional] = useState<Professional | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [club, setClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "pix" | null>(null);
-  const [pixCopied, setPixCopied] = useState(false);
   const [processing, setProcessing] = useState(false);
+
+  useEffect(() => {
+    if (canceled === "true") {
+      toast.info("Pagamento cancelado");
+    }
+  }, [canceled]);
 
   useEffect(() => {
     const fetchProfessionalData = async () => {
@@ -58,7 +68,7 @@ const SessionPayment = () => {
           return;
         }
 
-        setProfessional(professionalData);
+        setProfessional(professionalData as Professional);
 
         // Fetch profile data
         const { data: profileData } = await supabase
@@ -94,21 +104,54 @@ const SessionPayment = () => {
   }, [id, navigate]);
 
   const clubColor = club?.primary_color || "#10b981";
-
-  const handleCopyPix = () => {
-    navigator.clipboard.writeText("00020126580014br.gov.bcb.pix0136example-pix-key-here5204000053039865802BR5913Fanatica Saude6008BRASILIA62070503***6304ABCD");
-    setPixCopied(true);
-    setTimeout(() => setPixCopied(false), 3000);
-  };
+  const canProcessPayment = professional?.stripe_account_status === "active";
 
   const handlePayment = async () => {
+    if (!user) {
+      toast.error("Você precisa estar logado para agendar uma sessão");
+      navigate("/auth");
+      return;
+    }
+
+    if (!canProcessPayment) {
+      toast.error("Este profissional ainda não configurou o recebimento de pagamentos");
+      return;
+    }
+
     setProcessing(true);
     
-    // Simulate payment processing
-    setTimeout(() => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Sessão expirada. Faça login novamente.");
+        navigate("/auth");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("create-session-payment", {
+        body: {
+          professionalId: id,
+          scheduledDate,
+          scheduledTime,
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("URL de pagamento não recebida");
+      }
+    } catch (error) {
+      console.error("Error creating payment:", error);
+      toast.error("Erro ao iniciar pagamento. Tente novamente.");
+    } finally {
       setProcessing(false);
-      navigate(`/pagamento/confirmacao/${id}?date=${scheduledDate}&time=${scheduledTime}`);
-    }, 2000);
+    }
   };
 
   if (loading) {
@@ -200,172 +243,69 @@ const SessionPayment = () => {
           </div>
         </div>
 
-        {/* Payment Methods */}
+        {/* Payment Method Card */}
         <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
           <h2 className="font-bold text-lg mb-4" style={{ color: clubColor }}>Forma de Pagamento</h2>
           
-          <div className="space-y-3">
-            {/* Credit Card Option */}
-            <button
-              onClick={() => setPaymentMethod("card")}
-              className={`w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all ${
-                paymentMethod === "card" ? "border-2" : "border-gray-200"
-              }`}
-              style={{ 
-                borderColor: paymentMethod === "card" ? clubColor : undefined,
-                backgroundColor: paymentMethod === "card" ? clubColor + "10" : undefined
-              }}
+          <div 
+            className="p-4 rounded-xl border-2 flex items-center gap-4"
+            style={{ 
+              borderColor: clubColor,
+              backgroundColor: clubColor + "10"
+            }}
+          >
+            <div 
+              className="w-12 h-12 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: clubColor + "20" }}
             >
-              <div 
-                className="w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: clubColor + "20" }}
-              >
-                <CreditCard className="w-6 h-6" style={{ color: clubColor }} />
-              </div>
-              <div className="text-left">
-                <p className="font-semibold text-gray-800">Cartão de Crédito</p>
-                <p className="text-sm text-gray-500">Pagamento seguro via cartão</p>
-              </div>
-            </button>
-
-            {/* PIX Option */}
-            <button
-              onClick={() => setPaymentMethod("pix")}
-              className={`w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all ${
-                paymentMethod === "pix" ? "border-2" : "border-gray-200"
-              }`}
-              style={{ 
-                borderColor: paymentMethod === "pix" ? clubColor : undefined,
-                backgroundColor: paymentMethod === "pix" ? clubColor + "10" : undefined
-              }}
-            >
-              <div 
-                className="w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: clubColor + "20" }}
-              >
-                <QrCode className="w-6 h-6" style={{ color: clubColor }} />
-              </div>
-              <div className="text-left">
-                <p className="font-semibold text-gray-800">PIX</p>
-                <p className="text-sm text-gray-500">Pagamento instantâneo</p>
-              </div>
-            </button>
+              <CreditCard className="w-6 h-6" style={{ color: clubColor }} />
+            </div>
+            <div className="text-left">
+              <p className="font-semibold text-gray-800">Cartão de Crédito</p>
+              <p className="text-sm text-gray-500">Pagamento seguro via Stripe</p>
+            </div>
           </div>
         </div>
 
-        {/* Card Payment Form */}
-        {paymentMethod === "card" && (
-          <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
-            <h3 className="font-bold text-lg mb-4" style={{ color: clubColor }}>Dados do Cartão</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Número do Cartão</label>
-                <input
-                  type="text"
-                  placeholder="0000 0000 0000 0000"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nome no Cartão</label>
-                <input
-                  type="text"
-                  placeholder="Nome como está no cartão"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Validade</label>
-                  <input
-                    type="text"
-                    placeholder="MM/AA"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-                  <input
-                    type="text"
-                    placeholder="123"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* PIX Payment */}
-        {paymentMethod === "pix" && (
-          <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
-            <h3 className="font-bold text-lg mb-4" style={{ color: clubColor }}>Pague com PIX</h3>
-            
-            <div className="flex flex-col items-center">
-              {/* QR Code Placeholder */}
-              <div 
-                className="w-48 h-48 rounded-xl flex items-center justify-center mb-4"
-                style={{ backgroundColor: clubColor + "10" }}
-              >
-                <QrCode className="w-32 h-32" style={{ color: clubColor }} />
-              </div>
-              
-              <p className="text-sm text-gray-500 text-center mb-4">
-                Escaneie o QR Code acima ou copie o código PIX abaixo
-              </p>
-
-              <button
-                onClick={handleCopyPix}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all"
-                style={{ 
-                  backgroundColor: pixCopied ? "#10b981" : clubColor + "20",
-                  color: pixCopied ? "#fff" : clubColor
-                }}
-              >
-                {pixCopied ? (
-                  <>
-                    <Check className="w-5 h-5" />
-                    Código Copiado!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-5 h-5" />
-                    Copiar Código PIX
-                  </>
-                )}
-              </button>
-
-              <p className="text-xs text-gray-400 text-center mt-4">
-                O pagamento será confirmado automaticamente em até 5 minutos
+        {/* Warning if professional hasn't set up Stripe Connect */}
+        {!canProcessPayment && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-amber-800">Profissional ainda não configurou pagamentos</p>
+              <p className="text-sm text-amber-600 mt-1">
+                Este profissional precisa configurar sua conta de recebimento antes de aceitar pagamentos online.
               </p>
             </div>
           </div>
         )}
+
+        {/* Info Text */}
+        <div className="text-center mb-6">
+          <p className="text-xs text-gray-400">
+            O pagamento será processado após a confirmação da sessão pelo profissional.
+          </p>
+        </div>
 
         {/* Payment Button */}
-        {paymentMethod && (
-          <button
-            onClick={handlePayment}
-            disabled={processing}
-            className="w-full py-4 rounded-xl font-bold uppercase tracking-wide transition-all shadow-lg disabled:opacity-70"
-            style={{ 
-              backgroundColor: clubColor, 
-              color: "#fff" 
-            }}
-          >
-            {processing ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Processando...
-              </span>
-            ) : paymentMethod === "pix" ? (
-              "Já Fiz o Pagamento"
-            ) : (
-              `Pagar R$ ${sessionPrice.toFixed(2).replace(".", ",")}`
-            )}
-          </button>
-        )}
+        <button
+          onClick={handlePayment}
+          disabled={processing || !canProcessPayment}
+          className="w-full py-4 rounded-xl font-bold uppercase tracking-wide transition-all shadow-lg disabled:opacity-70"
+          style={{ 
+            backgroundColor: clubColor, 
+            color: "#fff" 
+          }}
+        >
+          {processing ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Redirecionando...
+            </span>
+          ) : (
+            `Pagar R$ ${sessionPrice.toFixed(2).replace(".", ",")}`
+          )}
+        </button>
       </main>
     </div>
   );

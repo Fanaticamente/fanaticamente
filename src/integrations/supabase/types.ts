@@ -241,6 +241,8 @@ export type Database = {
           is_verified: boolean | null
           location: string | null
           specialties: string[] | null
+          stripe_account_id: string | null
+          stripe_account_status: string | null
           subscription_expires_at: string | null
           subscription_type: string | null
           updated_at: string
@@ -258,6 +260,8 @@ export type Database = {
           is_verified?: boolean | null
           location?: string | null
           specialties?: string[] | null
+          stripe_account_id?: string | null
+          stripe_account_status?: string | null
           subscription_expires_at?: string | null
           subscription_type?: string | null
           updated_at?: string
@@ -275,6 +279,8 @@ export type Database = {
           is_verified?: boolean | null
           location?: string | null
           specialties?: string[] | null
+          stripe_account_id?: string | null
+          stripe_account_status?: string | null
           subscription_expires_at?: string | null
           subscription_type?: string | null
           updated_at?: string

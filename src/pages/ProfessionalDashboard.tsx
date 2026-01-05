@@ -9,6 +9,7 @@ import { ptBR } from "date-fns/locale";
 import ProfileStatusCard from "@/components/professional/ProfileStatusCard";
 import ProfileCompletionForm from "@/components/professional/ProfileCompletionForm";
 import SubscriptionPlans from "@/components/professional/SubscriptionPlans";
+import StripeConnectCard from "@/components/professional/StripeConnectCard";
 import SubscriptionManager from "@/components/professional/SubscriptionManager";
 
 interface Professional {
@@ -660,7 +661,7 @@ const ProfessionalDashboard = () => {
 
             {/* Assinatura Tab */}
             {activeTab === "assinatura" && professional && professional.subscription_type && professional.subscription_expires_at && (
-              <div>
+              <div className="space-y-6">
                 <h2 className="font-display text-2xl text-card-foreground mb-4">
                   Gerenciar Assinatura
                 </h2>
@@ -670,6 +671,9 @@ const ProfessionalDashboard = () => {
                   expiresAt={professional.subscription_expires_at}
                   onUpdate={fetchProfessionalData}
                 />
+                
+                {/* Stripe Connect Card for receiving payments */}
+                <StripeConnectCard professionalId={professional.id} />
               </div>
             )}
           </>
