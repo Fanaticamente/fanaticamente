@@ -51,52 +51,48 @@ const defaultSlides: SlideConfig[] = [
 
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [dbImagesLoaded, setDbImagesLoaded] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const moduleQuery = useModuleConfig("hero_carousel");
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
   const dbSlides = (moduleQuery.data?.config as { slides?: SlideConfig[] } | undefined)?.slides;
-  
-  // Use default slides immediately, then switch to DB slides when loaded
-  const slides: SlideConfig[] = dbImagesLoaded && dbSlides ? dbSlides : defaultSlides;
+  const slides: SlideConfig[] | null = dbSlides ?? (moduleQuery.isError ? defaultSlides : null);
 
-  // Pre-load DB images in background
+  // Avoid showing fallback images briefly on refresh (prevents "flash" of another banner)
+  // Also wait until the first slide image is loaded before rendering the carousel.
   useEffect(() => {
-    if (!dbSlides || dbSlides.length === 0) {
-      setDbImagesLoaded(false);
-      return;
-    }
+    if (!slides || slides.length === 0) return;
 
-    const firstSrc = dbSlides[0]?.image;
+    setCurrentSlide(0);
+    setIsReady(false);
+
+    const firstSrc = slides[0]?.image;
     if (!firstSrc) {
-      setDbImagesLoaded(true);
+      setIsReady(true);
       return;
     }
 
     const img = new Image();
     img.src = firstSrc;
-    img.onload = () => {
-      setDbImagesLoaded(true);
-      setCurrentSlide(0);
-    };
-    img.onerror = () => setDbImagesLoaded(false);
+    img.onload = () => setIsReady(true);
+    img.onerror = () => setIsReady(true);
 
     return () => {
       img.onload = null;
       img.onerror = null;
     };
-  }, [dbSlides]);
+  }, [slides]);
 
   useEffect(() => {
-    if (slides.length <= 1) return;
+    if (!slides || !isReady || slides.length <= 1) return;
 
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [slides]);
+  }, [slides, isReady]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX;
@@ -107,7 +103,7 @@ const HeroCarousel = () => {
   };
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
+    if (!touchStartX.current || !touchEndX.current || !slides) return;
     
     const diff = touchStartX.current - touchEndX.current;
     const minSwipeDistance = 50;
@@ -125,6 +121,16 @@ const HeroCarousel = () => {
     touchStartX.current = null;
     touchEndX.current = null;
   };
+
+  if (!slides || !isReady) {
+    return (
+      <div
+        className="relative w-full overflow-hidden bg-background"
+        style={{ aspectRatio: "1/1", maxHeight: "1080px" }}
+        aria-busy="true"
+      />
+    );
+  }
 
   const getFontClass = (font?: string) => {
     switch (font) {
