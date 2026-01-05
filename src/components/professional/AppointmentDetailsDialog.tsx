@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, Copy, Check, Play, Square, Cake } from "lucide-react";
+import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, Copy, Check, Play, Square, Cake, MapPin } from "lucide-react";
 import { format, parseISO, subMinutes, differenceInYears } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,7 @@ interface AppointmentDetailsDialogProps {
       avatar_url: string | null;
       phone: string | null;
       birth_date: string | null;
+      city: string | null;
     } | null;
     user_email?: string;
   };
@@ -188,6 +189,13 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
                 <div className="flex items-center gap-3 text-sm">
                   <Phone className="w-4 h-4 text-muted-foreground" />
                   <span className="text-card-foreground">{appointment.profiles.phone}</span>
+                </div>
+              )}
+              
+              {appointment.profiles?.city && (
+                <div className="flex items-center gap-3 text-sm">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-card-foreground">{appointment.profiles.city}</span>
                 </div>
               )}
             </div>

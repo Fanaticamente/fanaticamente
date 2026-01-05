@@ -252,10 +252,10 @@ const ProfessionalDashboard = () => {
       // Get unique user IDs
       const userIds = [...new Set(appointmentsData.map(a => a.user_id))];
 
-      // Fetch profiles for those users (including birth_date for age calculation)
+      // Fetch profiles for those users (including birth_date for age calculation and city)
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, full_name, avatar_url, phone, birth_date')
+        .select('user_id, full_name, avatar_url, phone, birth_date, city')
         .in('user_id', userIds);
 
       // Fetch user emails via edge function
