@@ -11,3 +11,12 @@ verify_jwt = false
 
 [functions.complete-professional-signup]
 verify_jwt = false
+
+[functions.create-subscription-checkout]
+verify_jwt = false
+
+[functions.check-professional-subscription]
+verify_jwt = false
+
+[functions.customer-portal]
+verify_jwt = false
