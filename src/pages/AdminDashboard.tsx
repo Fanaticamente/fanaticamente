@@ -16,7 +16,7 @@ import AdminAppointmentsTable from "@/components/admin/AdminAppointmentsTable";
 type TabType = "dashboard" | "financeiro" | "usuarios" | "profissionais" | "agendamentos" | "configuracoes";
 
 const AdminDashboard = () => {
-  const { user, signOut, hasRole } = useAuth();
+  const { user, signOut, hasRole, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -34,12 +34,22 @@ const AdminDashboard = () => {
     setSearchParams({ tab: activeTab }, { replace: true });
   }, [activeTab, setSearchParams]);
 
+  // Wait for loading to complete before checking role
   useEffect(() => {
-    if (!hasRole("admin")) {
+    if (!loading && !hasRole("admin")) {
       navigate("/");
       return;
     }
-  }, [hasRole, navigate]);
+  }, [hasRole, navigate, loading]);
+
+  // Show nothing while loading to prevent flash
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin w-8 h-8 border-4 border-secondary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   const handleLogout = async () => {
     await signOut();
