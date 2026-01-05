@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, Copy, Check, Play, Square } from "lucide-react";
-import { format, parseISO, subMinutes } from "date-fns";
+import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, Copy, Check, Play, Square, Cake } from "lucide-react";
+import { format, parseISO, subMinutes, differenceInYears } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ interface AppointmentDetailsDialogProps {
       full_name: string | null;
       avatar_url: string | null;
       phone: string | null;
+      birth_date: string | null;
     } | null;
     user_email?: string;
   };
@@ -166,6 +167,15 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
                   </p>
                 </div>
               </div>
+              
+              {appointment.profiles?.birth_date && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Cake className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-card-foreground">
+                    {differenceInYears(new Date(), parseISO(appointment.profiles.birth_date))} anos
+                  </span>
+                </div>
+              )}
               
               {appointment.user_email && (
                 <div className="flex items-center gap-3 text-sm">

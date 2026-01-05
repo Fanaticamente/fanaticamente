@@ -121,10 +121,10 @@ const PaymentConfirmation = () => {
           <CheckCircle className="w-14 h-14 text-white" />
         </div>
 
-        <h1 className="text-2xl font-bold text-gray-800 mb-2 text-center">
+        <h1 className="text-2xl font-bold text-foreground mb-2 text-center">
           Agendamento Confirmado!
         </h1>
-        <p className="text-gray-500 text-center mb-8">
+        <p className="text-muted-foreground text-center mb-8">
           Sua sessão foi agendada com sucesso
         </p>
 
