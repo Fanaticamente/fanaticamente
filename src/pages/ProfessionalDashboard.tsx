@@ -454,8 +454,7 @@ const ProfessionalDashboard = () => {
                 specialties: professional.specialties || [],
                 sessionPrice: professional.hourly_rate?.toString() || "",
                 imageUrl: profile?.avatar_url || "",
-                pixKey: (professional as any).pix_key || "",
-                pixKeyType: (professional as any).pix_key_type || "cpf"
+                pixKey: (professional as any).pix_key || ""
               }}
               onComplete={() => {
                 toast.success("Perfil atualizado!");
