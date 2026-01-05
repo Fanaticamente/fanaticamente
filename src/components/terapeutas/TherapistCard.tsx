@@ -46,7 +46,7 @@ const TherapistCard = ({ therapist, clubColor }: TherapistCardProps) => {
   return (
     <div 
       onClick={handleClick}
-      className="bg-card border-2 rounded-2xl overflow-hidden mb-4 transition-all hover:scale-[1.01] cursor-pointer"
+      className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all hover:scale-[1.01] cursor-pointer"
       style={{ borderColor: clubColor + "40" }}
     >
       {/* Header with club color accent */}
@@ -71,7 +71,10 @@ const TherapistCard = ({ therapist, clubColor }: TherapistCardProps) => {
           
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-display text-xl text-card-foreground">
+              <h3 
+                className="font-display text-xl font-bold"
+                style={{ color: clubColor }}
+              >
                 {therapist.name}
               </h3>
               {therapist.verified && (
@@ -81,16 +84,16 @@ const TherapistCard = ({ therapist, clubColor }: TherapistCardProps) => {
                 />
               )}
             </div>
-            <p className="text-muted-foreground text-sm">{therapist.crp}</p>
-            <p className="text-muted-foreground text-sm mb-3">{therapist.degree}</p>
+            <p className="text-gray-600 text-sm">{therapist.crp}</p>
+            <p className="text-gray-600 text-sm mb-3">{therapist.degree}</p>
 
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-4 text-sm text-gray-600">
               <span className="flex items-center gap-1">
                 <Star className="w-4 h-4" style={{ color: clubColor }} />
                 {therapist.experience} anos
               </span>
               <span className="flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4" style={{ color: clubColor }} />
                 {therapist.location}
               </span>
             </div>
