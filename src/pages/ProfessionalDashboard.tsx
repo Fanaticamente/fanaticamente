@@ -10,6 +10,7 @@ import ProfileStatusCard from "@/components/professional/ProfileStatusCard";
 import ProfileCompletionForm from "@/components/professional/ProfileCompletionForm";
 import SubscriptionPlans from "@/components/professional/SubscriptionPlans";
 import StripeConnectCard from "@/components/professional/StripeConnectCard";
+import PixPaymentCard from "@/components/professional/PixPaymentCard";
 import SubscriptionManager from "@/components/professional/SubscriptionManager";
 
 interface Professional {
@@ -442,7 +443,7 @@ const ProfessionalDashboard = () => {
 
         {/* Perfil Tab */}
         {activeTab === "perfil" && professional && (
-          <div>
+          <div className="space-y-6">
             <h2 className="font-display text-2xl text-card-foreground mb-4">
               Editar Perfil
             </h2>
@@ -461,6 +462,15 @@ const ProfessionalDashboard = () => {
                 fetchProfessionalData();
               }}
             />
+            
+            {/* Payment Cards */}
+            <div className="space-y-4 mt-8">
+              <h3 className="font-display text-xl text-card-foreground">
+                Métodos de Recebimento
+              </h3>
+              <PixPaymentCard pixKey={(professional as any).pix_key || null} />
+              <StripeConnectCard professionalId={professional.id} />
+            </div>
           </div>
         )}
 
@@ -471,15 +481,12 @@ const ProfessionalDashboard = () => {
               {isSubscribed ? "Gerenciar Assinatura" : "Escolha seu Plano"}
             </h2>
             {isSubscribed && professional.subscription_type && professional.subscription_expires_at ? (
-              <>
-                <SubscriptionManager 
-                  professionalId={professional.id}
-                  currentPlan={professional.subscription_type}
-                  expiresAt={professional.subscription_expires_at}
-                  onUpdate={fetchProfessionalData}
-                />
-                <StripeConnectCard professionalId={professional.id} />
-              </>
+              <SubscriptionManager 
+                professionalId={professional.id}
+                currentPlan={professional.subscription_type}
+                expiresAt={professional.subscription_expires_at}
+                onUpdate={fetchProfessionalData}
+              />
             ) : (
               <SubscriptionPlans 
                 professionalId={professional.id}
