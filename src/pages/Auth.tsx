@@ -260,19 +260,44 @@ const Auth = () => {
           }
         } else {
           // After successful login, verify user role matches the auth mode
+          // Wait a moment for the session to be fully established
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
           const { data: { user: loggedUser } } = await supabase.auth.getUser();
           
           if (loggedUser) {
-            // Check user roles
-            const { data: userRoles } = await supabase
-              .from('user_roles')
-              .select('role')
-              .eq('user_id', loggedUser.id);
+            // Check user roles with retry logic
+            let roles: string[] = [];
+            let retries = 3;
             
-            const roles = userRoles?.map(r => r.role) || [];
+            while (retries > 0) {
+              const { data: userRoles, error } = await supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', loggedUser.id);
+              
+              if (!error && userRoles && userRoles.length > 0) {
+                roles = userRoles.map(r => r.role);
+                break;
+              }
+              
+              retries--;
+              if (retries > 0) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+              }
+            }
+            
             const isProfessional = roles.includes('professional');
             const isAdmin = roles.includes('admin');
             const isDeveloper = roles.includes('developer');
+            
+            // If no roles found, default to allowing login (will be handled by dashboard)
+            if (roles.length === 0) {
+              console.warn("No roles found for user, proceeding with login");
+              setRoleValidated(true);
+              toast.success("Login realizado com sucesso!");
+              return;
+            }
             
             // If logging in through professional mode but user is not a professional
             if (authMode === "professional" && !isProfessional && !isAdmin && !isDeveloper) {
