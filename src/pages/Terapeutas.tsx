@@ -78,11 +78,12 @@ const Terapeutas = () => {
   const fetchTherapistsForClub = async (clubId: string) => {
     setLoading(true);
     try {
-      // Buscar profissionais ativos cujo perfil tem o clube favorito selecionado
+      // Buscar profissionais ativos E aprovados cujo perfil tem o clube favorito selecionado
       const { data: professionals, error } = await supabase
         .from('professionals')
         .select('*')
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .eq('approval_status', 'approved');
 
       if (error) {
         console.error('Erro ao buscar profissionais:', error);

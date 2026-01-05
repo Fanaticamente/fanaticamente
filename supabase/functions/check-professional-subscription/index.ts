@@ -88,21 +88,41 @@ serve(async (req) => {
       }
       logStep("Determined plan", { planId });
 
+      // Check current approval status
+      const { data: currentProfessional } = await supabaseClient
+        .from('professionals')
+        .select('approval_status')
+        .eq('user_id', user.id)
+        .single();
+
+      const currentStatus = currentProfessional?.approval_status;
+      
+      // Determine new approval status based on current status
+      // If pending_payment or no status, change to pending_approval
+      // If already approved, keep approved
+      // If needs_correction, keep needs_correction until admin approves
+      let newApprovalStatus = currentStatus;
+      if (!currentStatus || currentStatus === 'pending_payment') {
+        newApprovalStatus = 'pending_approval';
+      }
+
       // Update professionals table with subscription info
       const { error: updateError } = await supabaseClient
         .from('professionals')
         .update({
           subscription_type: planId,
           subscription_expires_at: subscriptionEnd,
-          is_active: true,
-          is_verified: true
+          // Only set is_active if already approved by admin
+          is_active: currentStatus === 'approved',
+          is_verified: currentStatus === 'approved',
+          approval_status: newApprovalStatus
         })
         .eq('user_id', user.id);
 
       if (updateError) {
         logStep("Error updating professional", { error: updateError.message });
       } else {
-        logStep("Professional record updated");
+        logStep("Professional record updated", { newApprovalStatus });
       }
     } else {
       logStep("No active subscription found");

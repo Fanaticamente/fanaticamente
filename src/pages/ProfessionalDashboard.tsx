@@ -14,6 +14,8 @@ import StripeConnectCard from "@/components/professional/StripeConnectCard";
 import PixPaymentCard from "@/components/professional/PixPaymentCard";
 import SubscriptionManager from "@/components/professional/SubscriptionManager";
 import AppointmentDetailsDialog from "@/components/professional/AppointmentDetailsDialog";
+import AdminMessagesAlert from "@/components/professional/AdminMessagesAlert";
+import ApprovalPendingBanner from "@/components/professional/ApprovalPendingBanner";
 
 interface Professional {
   id: string;
@@ -29,6 +31,10 @@ interface Professional {
   subscription_type: string | null;
   subscription_expires_at: string | null;
   location: string | null;
+  approval_status: string | null;
+  rejection_reason: string | null;
+  crp_document_front_url: string | null;
+  crp_document_back_url: string | null;
 }
 
 interface Profile {
@@ -462,6 +468,34 @@ const ProfessionalDashboard = () => {
       </header>
 
       <main className="pt-24 pb-8 px-4 max-w-6xl mx-auto">
+        {/* Admin Messages Alert */}
+        {professional && (
+          <AdminMessagesAlert professionalId={professional.id} />
+        )}
+
+        {/* Approval Status Banner */}
+        {professional && (
+          <ApprovalPendingBanner
+            approvalStatus={professional.approval_status}
+            rejectionReason={professional.rejection_reason}
+            onResubmit={async () => {
+              try {
+                const { error } = await supabase
+                  .from('professionals')
+                  .update({ approval_status: 'pending_approval' })
+                  .eq('id', professional.id);
+                
+                if (error) throw error;
+                toast.success("Perfil reenviado para análise!");
+                fetchProfessionalData();
+              } catch (error) {
+                console.error("Error resubmitting:", error);
+                toast.error("Erro ao reenviar perfil");
+              }
+            }}
+          />
+        )}
+
         {/* Profile Status */}
         <div className="mb-6">
           <ProfileStatusCard 
