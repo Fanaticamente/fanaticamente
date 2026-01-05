@@ -454,8 +454,7 @@ const ProfessionalDashboard = () => {
                 degree: professional.degree || "",
                 specialties: professional.specialties || [],
                 sessionPrice: professional.hourly_rate?.toString() || "",
-                imageUrl: profile?.avatar_url || "",
-                pixKey: (professional as any).pix_key || ""
+                imageUrl: profile?.avatar_url || ""
               }}
               onComplete={() => {
                 toast.success("Perfil atualizado!");
@@ -468,7 +467,11 @@ const ProfessionalDashboard = () => {
               <h3 className="font-display text-xl text-card-foreground">
                 Métodos de Recebimento
               </h3>
-              <PixPaymentCard pixKey={(professional as any).pix_key || null} />
+              <PixPaymentCard 
+                professionalId={professional.id}
+                pixKey={(professional as any).pix_key || null} 
+                onUpdate={fetchProfessionalData}
+              />
               <StripeConnectCard professionalId={professional.id} />
             </div>
           </div>
