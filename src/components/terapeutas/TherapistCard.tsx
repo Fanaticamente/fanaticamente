@@ -1,14 +1,5 @@
-import { useState } from "react";
-import { CheckCircle, MapPin, Star, ChevronLeft, ChevronRight, Calendar, Clock } from "lucide-react";
-import { format, addDays, startOfWeek, isSameDay } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { CheckCircle, MapPin, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import therapist1 from "@/assets/therapist-1.jpg";
 import therapist2 from "@/assets/therapist-2.jpg";
@@ -31,6 +22,8 @@ interface Therapist {
   verified: boolean;
   availableSlots: AvailableSlot[];
   imageUrl?: string;
+  hourlyRate?: number;
+  bio?: string;
 }
 
 interface TherapistCardProps {
@@ -41,56 +34,19 @@ interface TherapistCardProps {
 
 const therapistImages = [therapist1, therapist2, therapist3, therapist4];
 
-const TherapistCard = ({ therapist, clubColor, clubSecondaryColor }: TherapistCardProps) => {
-  const [currentWeekStart, setCurrentWeekStart] = useState(
-    startOfWeek(new Date(), { weekStartsOn: 1 })
-  );
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-
-  const weekDays = Array.from({ length: 7 }, (_, i) =>
-    addDays(currentWeekStart, i)
-  );
-
-  const getAvailableTimesForDate = (date: Date) => {
-    const slot = therapist.availableSlots.find((s) => isSameDay(s.date, date));
-    return slot?.times || [];
-  };
-
-  const handlePreviousWeek = () => {
-    setCurrentWeekStart(addDays(currentWeekStart, -7));
-    setSelectedDate(null);
-    setSelectedTime(null);
-  };
-
-  const handleNextWeek = () => {
-    setCurrentWeekStart(addDays(currentWeekStart, 7));
-    setSelectedDate(null);
-    setSelectedTime(null);
-  };
-
-  const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
-    setSelectedTime(null);
-  };
-
-  const handleSchedule = () => {
-    if (selectedDate && selectedTime) {
-      alert(
-        `Consulta agendada com ${therapist.name} para ${format(
-          selectedDate,
-          "dd/MM/yyyy",
-          { locale: ptBR }
-        )} às ${selectedTime}`
-      );
-    }
-  };
+const TherapistCard = ({ therapist, clubColor }: TherapistCardProps) => {
+  const navigate = useNavigate();
 
   const imageUrl = therapist.imageUrl || therapistImages[(typeof therapist.id === 'number' ? therapist.id - 1 : 0) % 4];
 
+  const handleClick = () => {
+    navigate(`/terapeuta/${therapist.id}`);
+  };
+
   return (
     <div 
-      className="bg-card border-2 rounded-2xl overflow-hidden mb-4 transition-all hover:scale-[1.01]"
+      onClick={handleClick}
+      className="bg-card border-2 rounded-2xl overflow-hidden mb-4 transition-all hover:scale-[1.01] cursor-pointer"
       style={{ borderColor: clubColor + "40" }}
     >
       {/* Header with club color accent */}
@@ -138,11 +94,24 @@ const TherapistCard = ({ therapist, clubColor, clubSecondaryColor }: TherapistCa
                 {therapist.location}
               </span>
             </div>
+
+            {/* Hourly Rate */}
+            {therapist.hourlyRate && (
+              <div 
+                className="mt-3 inline-block px-3 py-1 rounded-full text-sm font-bold"
+                style={{ 
+                  backgroundColor: clubColor + "20", 
+                  color: clubColor 
+                }}
+              >
+                R$ {therapist.hourlyRate.toFixed(2).replace('.', ',')}
+              </div>
+            )}
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-4">
-          {therapist.specialties.map((specialty) => (
+          {therapist.specialties.slice(0, 3).map((specialty) => (
             <span
               key={specialty}
               className="px-3 py-1 text-xs rounded-full"
@@ -154,122 +123,23 @@ const TherapistCard = ({ therapist, clubColor, clubSecondaryColor }: TherapistCa
               {specialty}
             </span>
           ))}
+          {therapist.specialties.length > 3 && (
+            <span className="px-3 py-1 text-xs rounded-full bg-muted text-muted-foreground">
+              +{therapist.specialties.length - 3}
+            </span>
+          )}
         </div>
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <button
-              className="w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg"
-              style={{ 
-                backgroundColor: clubColor, 
-                color: "#fff",
-                boxShadow: `0 4px 14px ${clubColor}40`
-              }}
-            >
-              Agendar Consulta
-            </button>
-          </DialogTrigger>
-          <DialogContent className="bg-card border-border max-w-md">
-            <DialogHeader>
-              <DialogTitle className="font-display text-2xl text-card-foreground">
-                Agendar com {therapist.name}
-              </DialogTitle>
-            </DialogHeader>
-
-            <div className="mt-4">
-              {/* Week Navigation */}
-              <div className="flex items-center justify-between mb-4">
-                <button
-                  onClick={handlePreviousWeek}
-                  className="p-2 hover:bg-muted rounded-lg transition-colors"
-                >
-                  <ChevronLeft className="w-5 h-5" style={{ color: clubColor }} />
-                </button>
-                <span className="text-card-foreground font-medium">
-                  {format(currentWeekStart, "MMMM yyyy", { locale: ptBR })}
-                </span>
-                <button
-                  onClick={handleNextWeek}
-                  className="p-2 hover:bg-muted rounded-lg transition-colors"
-                >
-                  <ChevronRight className="w-5 h-5" style={{ color: clubColor }} />
-                </button>
-              </div>
-
-              {/* Week Days */}
-              <div className="grid grid-cols-7 gap-2 mb-4">
-                {weekDays.map((day) => {
-                  const times = getAvailableTimesForDate(day);
-                  const isAvailable = times.length > 0;
-                  const isSelected = selectedDate && isSameDay(day, selectedDate);
-
-                  return (
-                    <button
-                      key={day.toString()}
-                      onClick={() => isAvailable && handleDateSelect(day)}
-                      disabled={!isAvailable}
-                      className="flex flex-col items-center p-2 rounded-lg transition-all"
-                      style={{
-                        backgroundColor: isSelected ? clubColor : isAvailable ? "hsl(var(--muted))" : "hsl(var(--muted) / 0.3)",
-                        color: isSelected ? "#fff" : isAvailable ? "hsl(var(--card-foreground))" : "hsl(var(--muted-foreground))",
-                        opacity: isAvailable ? 1 : 0.5,
-                        cursor: isAvailable ? "pointer" : "not-allowed"
-                      }}
-                    >
-                      <span className="text-xs uppercase">
-                        {format(day, "EEE", { locale: ptBR })}
-                      </span>
-                      <span className="text-lg font-bold">
-                        {format(day, "d")}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Time Slots */}
-              {selectedDate && (
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Clock className="w-4 h-4" style={{ color: clubColor }} />
-                    <span className="text-card-foreground font-medium">
-                      Horários disponíveis
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-4 gap-2">
-                    {getAvailableTimesForDate(selectedDate).map((time) => (
-                      <button
-                        key={time}
-                        onClick={() => setSelectedTime(time)}
-                        className="py-2 px-3 rounded-lg text-sm font-medium transition-all"
-                        style={{
-                          backgroundColor: selectedTime === time ? clubColor : "hsl(var(--muted))",
-                          color: selectedTime === time ? "#fff" : "hsl(var(--card-foreground))"
-                        }}
-                      >
-                        {time}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Confirm Button */}
-              {selectedDate && selectedTime && (
-                <button
-                  onClick={handleSchedule}
-                  className="w-full mt-6 py-3 rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-all"
-                  style={{ 
-                    backgroundColor: clubSecondaryColor || clubColor, 
-                    color: "#fff" 
-                  }}
-                >
-                  Confirmar Agendamento
-                </button>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
+        <button
+          className="w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg"
+          style={{ 
+            backgroundColor: clubColor, 
+            color: "#fff",
+            boxShadow: `0 4px 14px ${clubColor}40`
+          }}
+        >
+          Ver Perfil
+        </button>
       </div>
     </div>
   );

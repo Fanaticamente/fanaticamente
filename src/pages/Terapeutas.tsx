@@ -37,6 +37,8 @@ interface TherapistData {
   verified: boolean;
   imageUrl?: string;
   availableSlots: { date: Date; times: string[] }[];
+  hourlyRate?: number;
+  bio?: string;
 }
 
 const generateAvailableSlots = () => {
@@ -124,6 +126,8 @@ const Terapeutas = () => {
             verified: professional.is_verified || false,
             imageUrl: profile.avatar_url || undefined,
             availableSlots: generateAvailableSlots(),
+            hourlyRate: professional.hourly_rate || undefined,
+            bio: professional.bio || undefined,
           });
         }
       }

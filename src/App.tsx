@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
 import Index from "./pages/Index";
 import Terapeutas from "./pages/Terapeutas";
+import ProfessionalProfile from "./pages/ProfessionalProfile";
 import Cursos from "./pages/Cursos";
 import CursoDetalhe from "./pages/CursoDetalhe";
 import Quiz from "./pages/Quiz";
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/terapeutas" element={<Terapeutas />} />
+              <Route path="/terapeuta/:id" element={<ProfessionalProfile />} />
               <Route path="/cursos" element={<Cursos />} />
               <Route path="/curso/:id" element={<CursoDetalhe />} />
               <Route path="/quiz" element={<Quiz />} />
