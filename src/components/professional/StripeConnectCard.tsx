@@ -135,10 +135,10 @@ const StripeConnectCard = ({ professionalId, onStatusChange }: StripeConnectCard
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <CreditCard className="w-5 h-5 text-therapy" />
-          Recebimento de Pagamentos
+          Recebimentos via Cartão
         </CardTitle>
         <CardDescription>
-          Configure sua conta para receber pagamentos das sessões
+          Receba pagamentos de sessões via cartão de crédito
         </CardDescription>
       </CardHeader>
       <CardContent>
