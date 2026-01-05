@@ -34,57 +34,74 @@ interface Club {
 
 type PaymentMethod = "card" | "pix" | null;
 
-// Generate PIX EMV Code (Simplified BR Code)
-const generatePixCode = (pixKey: string, amount: number, name: string): string => {
+// Generate PIX EMV Code (BR Code / EMV)
+// Spec reference: BACEN / EMVCo (Field 62 / TXID is commonly required by bank apps)
+const generatePixCode = (
+  pixKey: string,
+  amount: number,
+  merchantName: string,
+  txid: string,
+  merchantCity = "SAO PAULO"
+): string => {
+  const onlyAscii = (value: string) =>
+    value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^A-Za-z0-9 \-\.\/]/g, "")
+      .trim();
+
   const formatField = (id: string, value: string) => {
-    const len = value.length.toString().padStart(2, '0');
+    const len = value.length.toString().padStart(2, "0");
     return `${id}${len}${value}`;
   };
 
-  // Merchant Account Information (PIX)
-  const gui = formatField('00', 'br.gov.bcb.pix');
-  const key = formatField('01', pixKey);
-  const merchantAccountInfo = formatField('26', gui + key);
+  // Merchant Account Information (26)
+  const gui = formatField("00", "br.gov.bcb.pix");
+  const key = formatField("01", onlyAscii(pixKey));
+  const merchantAccountInfo = formatField("26", gui + key);
 
-  // Transaction Amount
-  const amountStr = amount.toFixed(2);
-  const transactionAmount = formatField('54', amountStr);
+  // Required core fields
+  const payloadFormatIndicator = formatField("00", "01");
+  const merchantCategoryCode = formatField("52", "0000");
+  const transactionCurrency = formatField("53", "986"); // BRL
 
-  // Merchant Name (max 25 chars)
-  const merchantName = formatField('59', name.substring(0, 25));
+  const amountStr = Number.isFinite(amount) ? amount.toFixed(2) : "0.00";
+  const transactionAmount = formatField("54", amountStr);
 
-  // Merchant City
-  const merchantCity = formatField('60', 'BRASIL');
+  const countryCode = formatField("58", "BR");
+  const name = formatField("59", onlyAscii(merchantName).substring(0, 25));
+  const city = formatField("60", onlyAscii(merchantCity).substring(0, 15) || "SAO PAULO");
 
-  // Build payload without CRC
-  const payload = 
-    formatField('00', '01') + // Payload Format Indicator
+  // Additional Data Field Template (62) with TXID (05)
+  const safeTxid = onlyAscii(txid).replace(/\s+/g, "").substring(0, 25) || "***";
+  const additionalData = formatField("62", formatField("05", safeTxid));
+
+  // CRC16 placeholder
+  const payloadNoCrc =
+    payloadFormatIndicator +
     merchantAccountInfo +
-    formatField('52', '0000') + // Merchant Category Code
-    formatField('53', '986') + // Transaction Currency (BRL)
+    merchantCategoryCode +
+    transactionCurrency +
     transactionAmount +
-    formatField('58', 'BR') + // Country Code
-    merchantName +
-    merchantCity +
-    '6304'; // CRC placeholder
+    countryCode +
+    name +
+    city +
+    additionalData +
+    "6304";
 
-  // Calculate CRC16 CCITT
-  const crc16 = (str: string): string => {
-    let crc = 0xFFFF;
+  // CRC16/CCITT-FALSE
+  const crc16ccitt = (str: string): string => {
+    let crc = 0xffff;
     for (let i = 0; i < str.length; i++) {
       crc ^= str.charCodeAt(i) << 8;
       for (let j = 0; j < 8; j++) {
-        if (crc & 0x8000) {
-          crc = (crc << 1) ^ 0x1021;
-        } else {
-          crc <<= 1;
-        }
+        crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
       }
     }
-    return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+    return (crc & 0xffff).toString(16).toUpperCase().padStart(4, "0");
   };
 
-  return payload + crc16(payload);
+  return payloadNoCrc + crc16ccitt(payloadNoCrc);
 };
 
 const SessionPayment = () => {
@@ -216,14 +233,17 @@ const SessionPayment = () => {
   };
 
   const handleCopyPix = () => {
-    if (!professional?.pix_key || !profile?.full_name) return;
-    
+    if (!professional?.pix_key || !profile?.full_name || !scheduledDate || !scheduledTime) return;
+
+    const txid = `SESS${(id ?? "").replace(/-/g, "").slice(0, 8)}${scheduledDate.replace(/-/g, "").slice(2)}${scheduledTime.replace(":", "")}`;
+
     const pixCode = generatePixCode(
       professional.pix_key,
       professional.hourly_rate || 150,
-      profile.full_name
+      profile.full_name,
+      txid
     );
-    
+
     navigator.clipboard.writeText(pixCode);
     setPixCopied(true);
     toast.success("Código PIX copiado!");
@@ -252,8 +272,10 @@ const SessionPayment = () => {
   }
 
   const sessionPrice = professional.hourly_rate || 150;
-  const pixCode = professional.pix_key && profile.full_name 
-    ? generatePixCode(professional.pix_key, sessionPrice, profile.full_name)
+  const txid = `SESS${(id ?? "").replace(/-/g, "").slice(0, 8)}${scheduledDate.replace(/-/g, "").slice(2)}${scheduledTime.replace(":", "")}`;
+
+  const pixCode = professional.pix_key && profile.full_name
+    ? generatePixCode(professional.pix_key, sessionPrice, profile.full_name, txid)
     : null;
 
   return (
