@@ -366,7 +366,9 @@ const ProfessionalProfile = () => {
                   }}
                 >
                   <span className="text-xs uppercase">
-                    {format(day, "EEE", { locale: ptBR })}
+                    {format(day, "EEEEE", { locale: ptBR }).toUpperCase() === "S" 
+                      ? (day.getDay() === 0 ? "DOM" : "SÁB")
+                      : format(day, "EEE", { locale: ptBR }).substring(0, 3).toUpperCase()}
                   </span>
                   <span className="text-lg font-bold">
                     {format(day, "d")}
@@ -410,7 +412,7 @@ const ProfessionalProfile = () => {
 
         {/* Schedule Button - Fixed at bottom */}
         {selectedDate && selectedTime && (
-          <div className="fixed bottom-20 left-4 right-4 z-40">
+          <div className="fixed bottom-24 left-4 right-4 z-40">
             <button
               onClick={handleSchedule}
               className="w-full py-4 rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-all shadow-xl"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useModuleConfig } from "@/hooks/useModuleConfig";
@@ -53,11 +53,13 @@ const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isReady, setIsReady] = useState(false);
   const moduleQuery = useModuleConfig("hero_carousel");
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   const dbSlides = (moduleQuery.data?.config as { slides?: SlideConfig[] } | undefined)?.slides;
   const slides: SlideConfig[] | null = dbSlides ?? (moduleQuery.isError ? defaultSlides : null);
 
-  // Avoid showing fallback images briefly on refresh (prevents “flash” of another banner)
+  // Avoid showing fallback images briefly on refresh (prevents "flash" of another banner)
   // Also wait until the first slide image is loaded before rendering the carousel.
   useEffect(() => {
     if (!slides || slides.length === 0) return;
@@ -92,6 +94,34 @@ const HeroCarousel = () => {
     return () => clearInterval(timer);
   }, [slides, isReady]);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current || !slides) return;
+    
+    const diff = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(diff) > minSwipeDistance) {
+      if (diff > 0) {
+        // Swipe left - next slide
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+      } else {
+        // Swipe right - previous slide
+        setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+      }
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
   if (!slides || !isReady) {
     return (
       <div
@@ -116,7 +146,13 @@ const HeroCarousel = () => {
   };
 
   return (
-    <div className="relative w-full overflow-hidden" style={{ aspectRatio: '1/1', maxHeight: '1080px' }}>
+    <div 
+      className="relative w-full overflow-hidden" 
+      style={{ aspectRatio: '1/1', maxHeight: '1080px' }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {slides.map((slide, index) => (
         <div
           key={index}

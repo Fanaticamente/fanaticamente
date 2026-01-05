@@ -104,6 +104,19 @@
     font-family: 'Roboto', sans-serif;
   }
 
+  /* Hide scrollbar on mobile */
+  @media (max-width: 768px) {
+    body, html {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    
+    body::-webkit-scrollbar,
+    html::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   /* Normalize iOS date input height so it matches other inputs (48px / h-12) */
   input[type='date'] {
     -webkit-appearance: none;
