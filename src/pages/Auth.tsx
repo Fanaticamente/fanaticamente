@@ -97,14 +97,24 @@ const Auth = () => {
         // If on professional mode but user is not a professional
         if (authMode === "professional" && !isProfessional) {
           await supabase.auth.signOut();
-          toast.error("Esta conta não é de um profissional. Use a aba 'Torcedor' para entrar.");
+          setRoleValidated(false);
+          setEmail("");
+          setPassword("");
+          setAuthMode("user");
+          toast.error("Esta conta não é de um profissional. Você será direcionado para o login de Torcedor.");
+          navigate("/auth?mode=user", { replace: true });
           return;
         }
         
         // If on user mode but user is a professional
         if (authMode === "user" && isProfessional) {
           await supabase.auth.signOut();
-          toast.error("Esta conta é de um profissional. Use a aba 'Profissional' para entrar.");
+          setRoleValidated(false);
+          setEmail("");
+          setPassword("");
+          setAuthMode("professional");
+          toast.error("Esta conta é de um profissional. Você será direcionado para o login de Profissional.");
+          navigate("/auth?mode=professional", { replace: true });
           return;
         }
         
@@ -267,14 +277,24 @@ const Auth = () => {
             // If logging in through professional mode but user is not a professional
             if (authMode === "professional" && !isProfessional && !isAdmin && !isDeveloper) {
               await supabase.auth.signOut();
-              toast.error("Esta conta não é de um profissional. Use a aba 'Torcedor' para entrar.");
+              setRoleValidated(false);
+              setEmail("");
+              setPassword("");
+              setAuthMode("user");
+              toast.error("Esta conta não é de um profissional. Você será direcionado para o login de Torcedor.");
+              navigate("/auth?mode=user", { replace: true });
               return;
             }
             
             // If logging in through user mode but user is a professional (and not admin/developer)
             if (authMode === "user" && isProfessional && !isAdmin && !isDeveloper) {
               await supabase.auth.signOut();
-              toast.error("Esta conta é de um profissional. Use a aba 'Profissional' para entrar.");
+              setRoleValidated(false);
+              setEmail("");
+              setPassword("");
+              setAuthMode("professional");
+              toast.error("Esta conta é de um profissional. Você será direcionado para o login de Profissional.");
+              navigate("/auth?mode=professional", { replace: true });
               return;
             }
           }
