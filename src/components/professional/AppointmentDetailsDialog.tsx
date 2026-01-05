@@ -238,7 +238,7 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
                 disabled={isSaving || !consultationLink.trim()}
                 className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSaving ? "Salvando..." : "Salvar Link"}
+                {isSaving ? "Enviando..." : "Enviar Link"}
               </button>
 
               {/* Reminder Info */}
