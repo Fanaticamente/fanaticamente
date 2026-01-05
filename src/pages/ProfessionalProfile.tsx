@@ -207,7 +207,7 @@ const ProfessionalProfile = () => {
 
       <main className="pt-20 pb-24 px-4">
         {/* Profile Card */}
-        <div className="bg-card border border-border rounded-2xl overflow-hidden mb-6">
+        <div className="bg-white border-2 rounded-2xl overflow-hidden mb-6" style={{ borderColor: clubColor + "30" }}>
           <div className="p-6">
             <div className="flex gap-4">
               {/* Photo */}
@@ -222,32 +222,35 @@ const ProfessionalProfile = () => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-muted flex items-center justify-center">
-                    <User className="w-12 h-12 text-muted-foreground" />
+                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                    <User className="w-12 h-12" style={{ color: clubColor }} />
                   </div>
                 )}
               </div>
               
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <h2 className="font-display text-2xl text-card-foreground">
+                  <h2 
+                    className="font-display text-2xl font-bold"
+                    style={{ color: clubColor }}
+                  >
                     {profile.full_name}
                   </h2>
                   {professional.is_verified && (
                     <CheckCircle className="w-5 h-5" style={{ color: clubColor }} />
                   )}
                 </div>
-                <p className="text-muted-foreground text-sm">{professional.degree || 'Psicólogo(a)'}</p>
-                <p className="text-muted-foreground text-sm mb-3">CRP: {professional.crp}</p>
+                <p className="text-gray-600 text-sm">{professional.degree || 'Psicólogo(a)'}</p>
+                <p className="text-gray-600 text-sm mb-3">CRP: {professional.crp}</p>
 
-                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
                   <span className="flex items-center gap-1">
                     <Star className="w-4 h-4" style={{ color: clubColor }} />
                     {professional.experience_years || 0} anos
                   </span>
                   {professional.location && (
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
+                      <MapPin className="w-4 h-4" style={{ color: clubColor }} />
                       {professional.location}
                     </span>
                   )}
@@ -272,12 +275,12 @@ const ProfessionalProfile = () => {
 
         {/* Bio Section */}
         {professional.bio && (
-          <div className="bg-card border border-border rounded-2xl p-6 mb-6">
+          <div className="bg-white border-2 rounded-2xl p-6 mb-6" style={{ borderColor: clubColor + "30" }}>
             <div className="flex items-center gap-2 mb-3">
               <User className="w-5 h-5" style={{ color: clubColor }} />
-              <h3 className="font-display text-lg text-card-foreground">Sobre mim</h3>
+              <h3 className="font-display text-lg font-bold" style={{ color: clubColor }}>Sobre mim</h3>
             </div>
-            <p className={`text-muted-foreground ${!showBioExpanded ? 'line-clamp-3' : ''}`}>
+            <p className={`text-gray-600 ${!showBioExpanded ? 'line-clamp-3' : ''}`}>
               {professional.bio}
             </p>
             {professional.bio.length > 150 && (
@@ -294,10 +297,10 @@ const ProfessionalProfile = () => {
 
         {/* Specialties */}
         {professional.specialties && professional.specialties.length > 0 && (
-          <div className="bg-card border border-border rounded-2xl p-6 mb-6">
+          <div className="bg-white border-2 rounded-2xl p-6 mb-6" style={{ borderColor: clubColor + "30" }}>
             <div className="flex items-center gap-2 mb-3">
               <Award className="w-5 h-5" style={{ color: clubColor }} />
-              <h3 className="font-display text-lg text-card-foreground">Sou especialista em:</h3>
+              <h3 className="font-display text-lg font-bold" style={{ color: clubColor }}>Sou especialista em:</h3>
             </div>
             <div className="flex flex-wrap gap-2">
               {professional.specialties.map((specialty) => (
@@ -317,26 +320,26 @@ const ProfessionalProfile = () => {
         )}
 
         {/* Scheduling Section */}
-        <div className="bg-card border border-border rounded-2xl p-6 mb-6">
+        <div className="bg-white border-2 rounded-2xl p-6 mb-6" style={{ borderColor: clubColor + "30" }}>
           <div className="flex items-center gap-2 mb-4">
             <Clock className="w-5 h-5" style={{ color: clubColor }} />
-            <h3 className="font-display text-lg text-card-foreground">Escolha um horário</h3>
+            <h3 className="font-display text-lg font-bold" style={{ color: clubColor }}>Escolha um horário</h3>
           </div>
 
           {/* Week Navigation */}
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={handlePreviousWeek}
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <ChevronLeft className="w-5 h-5" style={{ color: clubColor }} />
             </button>
-            <span className="text-card-foreground font-medium capitalize">
+            <span className="text-gray-700 font-medium capitalize">
               {format(currentWeekStart, "MMMM yyyy", { locale: ptBR })}
             </span>
             <button
               onClick={handleNextWeek}
-              className="p-2 hover:bg-muted rounded-lg transition-colors rotate-180"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors rotate-180"
             >
               <ChevronLeft className="w-5 h-5" style={{ color: clubColor }} />
             </button>
@@ -356,8 +359,8 @@ const ProfessionalProfile = () => {
                   disabled={!isAvailable}
                   className="flex flex-col items-center p-2 rounded-lg transition-all"
                   style={{
-                    backgroundColor: isSelected ? clubColor : isAvailable ? "hsl(var(--muted))" : "hsl(var(--muted) / 0.3)",
-                    color: isSelected ? "#fff" : isAvailable ? "hsl(var(--card-foreground))" : "hsl(var(--muted-foreground))",
+                    backgroundColor: isSelected ? clubColor : isAvailable ? "#f3f4f6" : "#f9fafb",
+                    color: isSelected ? "#fff" : isAvailable ? "#374151" : "#9ca3af",
                     opacity: isAvailable ? 1 : 0.5,
                     cursor: isAvailable ? "pointer" : "not-allowed"
                   }}
@@ -376,7 +379,7 @@ const ProfessionalProfile = () => {
           {/* Time Slots */}
           {selectedDate && (
             <div>
-              <p className="text-muted-foreground text-sm mb-3">
+              <p className="text-gray-600 text-sm mb-3">
                 Horários disponíveis para {format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
               </p>
               <div className="grid grid-cols-4 gap-2">
@@ -386,8 +389,8 @@ const ProfessionalProfile = () => {
                     onClick={() => setSelectedTime(time)}
                     className="py-2 px-3 rounded-lg text-sm font-medium transition-all"
                     style={{
-                      backgroundColor: selectedTime === time ? clubColor : "hsl(var(--muted))",
-                      color: selectedTime === time ? "#fff" : "hsl(var(--card-foreground))"
+                      backgroundColor: selectedTime === time ? clubColor : "#f3f4f6",
+                      color: selectedTime === time ? "#fff" : "#374151"
                     }}
                   >
                     {time}
@@ -399,7 +402,7 @@ const ProfessionalProfile = () => {
 
           {/* Not available message */}
           {selectedDate && getAvailableTimesForDate(selectedDate).length === 0 && (
-            <p className="text-muted-foreground text-center py-4">
+            <p className="text-gray-500 text-center py-4">
               Dia selecionado indisponível
             </p>
           )}
