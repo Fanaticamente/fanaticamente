@@ -480,12 +480,20 @@ const ProfessionalDashboard = () => {
             rejectionReason={professional.rejection_reason}
             onResubmit={async () => {
               try {
+                // Update approval status
                 const { error } = await supabase
                   .from('professionals')
-                  .update({ approval_status: 'pending_approval' })
+                  .update({ approval_status: 'pending_approval', rejection_reason: null })
                   .eq('id', professional.id);
                 
                 if (error) throw error;
+
+                // Mark all admin messages as read (correction messages disappear)
+                await supabase
+                  .from('admin_messages')
+                  .update({ is_read: true })
+                  .eq('professional_id', professional.id);
+
                 toast.success("Perfil reenviado para análise!");
                 fetchProfessionalData();
               } catch (error) {
