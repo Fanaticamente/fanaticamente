@@ -125,6 +125,7 @@ export type Database = {
           id: string
           notes: string | null
           professional_id: string
+          receipt_url: string | null
           scheduled_date: string
           scheduled_time: string
           status: string | null
@@ -136,6 +137,7 @@ export type Database = {
           id?: string
           notes?: string | null
           professional_id: string
+          receipt_url?: string | null
           scheduled_date: string
           scheduled_time: string
           status?: string | null
@@ -147,6 +149,7 @@ export type Database = {
           id?: string
           notes?: string | null
           professional_id?: string
+          receipt_url?: string | null
           scheduled_date?: string
           scheduled_time?: string
           status?: string | null

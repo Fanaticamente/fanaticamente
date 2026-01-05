@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, CreditCard, Clock, User, Calendar, AlertCircle, Loader2, Copy, Check, QrCode } from "lucide-react";
+import { ChevronLeft, CreditCard, Clock, User, Calendar, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -121,6 +121,10 @@ const SessionPayment = () => {
   const [processing, setProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
   const [pixCopied, setPixCopied] = useState(false);
+  const [showReceiptUpload, setShowReceiptUpload] = useState(false);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (canceled === "true") {
@@ -250,9 +254,87 @@ const SessionPayment = () => {
     setTimeout(() => setPixCopied(false), 3000);
   };
 
-  const handlePixConfirmation = () => {
-    toast.success("Pagamento confirmado! Aguardando validação do profissional.");
-    navigate(`/pagamento/confirmacao/${id}?date=${scheduledDate}&time=${scheduledTime}`);
+  const handleShowReceiptUpload = () => {
+    setShowReceiptUpload(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        toast.error("Formato inválido. Envie uma imagem ou PDF.");
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Arquivo muito grande. Máximo 5MB.");
+        return;
+      }
+      setReceiptFile(file);
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setReceiptFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleConfirmAppointment = async () => {
+    if (!user) {
+      toast.error("Você precisa estar logado");
+      navigate("/auth");
+      return;
+    }
+
+    if (!receiptFile) {
+      toast.error("Por favor, envie o comprovante de pagamento");
+      return;
+    }
+
+    setUploadingReceipt(true);
+
+    try {
+      // Upload receipt to storage
+      const fileExt = receiptFile.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}-receipt.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('payment-receipts')
+        .upload(fileName, receiptFile);
+
+      if (uploadError) throw uploadError;
+
+      // Get the URL
+      const { data: urlData } = supabase.storage
+        .from('payment-receipts')
+        .getPublicUrl(fileName);
+
+      // Create appointment with receipt
+      const { error: appointmentError } = await supabase
+        .from('appointments')
+        .insert({
+          user_id: user.id,
+          professional_id: id,
+          scheduled_date: scheduledDate,
+          scheduled_time: scheduledTime,
+          status: 'pending',
+          receipt_url: fileName, // Store the path, not public URL
+        });
+
+      if (appointmentError) throw appointmentError;
+
+      toast.success("Agendamento enviado! O profissional irá verificar o comprovante.");
+      navigate(`/pagamento/confirmacao/${id}?date=${scheduledDate}&time=${scheduledTime}`);
+    } catch (error) {
+      console.error("Error confirming appointment:", error);
+      toast.error("Erro ao enviar agendamento. Tente novamente.");
+    } finally {
+      setUploadingReceipt(false);
+    }
   };
 
   if (loading) {
@@ -499,17 +581,96 @@ const SessionPayment = () => {
                 )}
               </button>
 
-              <p className="text-xs text-gray-400 text-center mb-6">
-                Após realizar o pagamento, clique no botão abaixo para confirmar
-              </p>
+              {!showReceiptUpload ? (
+                <>
+                  <p className="text-xs text-gray-400 text-center mb-6">
+                    Após realizar o pagamento, clique no botão abaixo para enviar o comprovante
+                  </p>
 
-              <button
-                onClick={handlePixConfirmation}
-                className="w-full py-5 rounded-xl font-bold uppercase tracking-wide transition-all shadow-lg"
-                style={{ backgroundColor: clubColor, color: "#fff" }}
-              >
-                Já Fiz o Pagamento
-              </button>
+                  <button
+                    onClick={handleShowReceiptUpload}
+                    className="w-full py-5 rounded-xl font-bold uppercase tracking-wide transition-all shadow-lg"
+                    style={{ backgroundColor: clubColor, color: "#fff" }}
+                  >
+                    Já Fiz o Pagamento
+                  </button>
+                </>
+              ) : (
+                <div className="w-full space-y-4">
+                  <p className="text-sm text-gray-600 text-center">
+                    Envie o comprovante de pagamento (foto ou PDF)
+                  </p>
+
+                  {/* File Upload Area */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+
+                  {!receiptFile ? (
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full p-6 border-2 border-dashed rounded-xl flex flex-col items-center gap-2 transition-colors hover:border-current"
+                      style={{ borderColor: clubColor + "60" }}
+                    >
+                      <Upload className="w-8 h-8" style={{ color: clubColor }} />
+                      <span className="text-gray-600 text-sm">Clique para selecionar arquivo</span>
+                      <span className="text-gray-400 text-xs">JPG, PNG ou PDF (máx. 5MB)</span>
+                    </button>
+                  ) : (
+                    <div 
+                      className="w-full p-4 rounded-xl flex items-center justify-between"
+                      style={{ backgroundColor: clubColor + "10" }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-10 h-10 rounded-full flex items-center justify-center"
+                          style={{ backgroundColor: clubColor + "20" }}
+                        >
+                          {receiptFile.type === 'application/pdf' ? (
+                            <FileText className="w-5 h-5" style={{ color: clubColor }} />
+                          ) : (
+                            <Check className="w-5 h-5" style={{ color: clubColor }} />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-800 truncate max-w-[180px]">
+                            {receiptFile.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {(receiptFile.size / 1024).toFixed(0)} KB
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleRemoveFile}
+                        className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                      >
+                        <X className="w-5 h-5 text-gray-500" />
+                      </button>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleConfirmAppointment}
+                    disabled={!receiptFile || uploadingReceipt}
+                    className="w-full py-5 rounded-xl font-bold uppercase tracking-wide transition-all shadow-lg disabled:opacity-50"
+                    style={{ backgroundColor: clubColor, color: "#fff" }}
+                  >
+                    {uploadingReceipt ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Enviando...
+                      </span>
+                    ) : (
+                      "Confirmar Agendamento"
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
