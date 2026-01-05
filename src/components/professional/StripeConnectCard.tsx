@@ -2,17 +2,47 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, AlertCircle, Loader2, ExternalLink, CreditCard } from "lucide-react";
+import { CheckCircle, AlertCircle, Loader2, ExternalLink, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface StripeConnectCardProps {
   professionalId: string;
   onStatusChange?: (status: string) => void;
 }
 
+const stripeSteps = [
+  {
+    number: 1,
+    title: "Clique em 'Conectar Conta Stripe'",
+    description: "Você será redirecionado para a plataforma Stripe para criar ou conectar sua conta.",
+  },
+  {
+    number: 2,
+    title: "Preencha seus dados",
+    description: "Informe seus dados pessoais, documentos e informações bancárias para verificação.",
+  },
+  {
+    number: 3,
+    title: "Adicione sua conta bancária",
+    description: "Cadastre a conta bancária onde deseja receber os pagamentos das suas sessões.",
+  },
+  {
+    number: 4,
+    title: "Aguarde a verificação",
+    description: "O Stripe verificará seus dados. Isso pode levar alguns minutos ou até alguns dias.",
+  },
+  {
+    number: 5,
+    title: "Pronto para receber!",
+    description: "Após aprovado, os pagamentos via cartão serão habilitados automaticamente na sua página.",
+  },
+];
+
 const StripeConnectCard = ({ professionalId, onStatusChange }: StripeConnectCardProps) => {
   const [status, setStatus] = useState<string>("loading");
   const [loading, setLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const checkStatus = async () => {
     try {
@@ -129,6 +159,7 @@ const StripeConnectCard = ({ professionalId, onStatusChange }: StripeConnectCard
   };
 
   const statusDisplay = getStatusDisplay();
+  const showSteps = status !== "active" && status !== "loading";
 
   return (
     <Card className="border-therapy/20">
@@ -149,6 +180,53 @@ const StripeConnectCard = ({ professionalId, onStatusChange }: StripeConnectCard
             <p className="text-sm text-muted-foreground mt-1">{statusDisplay.description}</p>
           </div>
         </div>
+
+        {showSteps && (
+          <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="mt-4">
+            <CollapsibleTrigger asChild>
+              <Button 
+                variant="ghost" 
+                className="w-full flex items-center justify-between p-3 h-auto hover:bg-muted/50"
+              >
+                <span className="text-sm font-medium text-card-foreground">
+                  {isExpanded ? "Ocultar instruções" : "Ver como funciona"}
+                </span>
+                {isExpanded ? (
+                  <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2">
+              <div className="bg-muted/30 rounded-lg p-4 space-y-4">
+                <h4 className="font-medium text-card-foreground text-sm">
+                  Passo a passo para conectar sua conta Stripe:
+                </h4>
+                <div className="space-y-3">
+                  {stripeSteps.map((step) => (
+                    <div key={step.number} className="flex gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-therapy/20 text-therapy flex items-center justify-center text-xs font-bold">
+                        {step.number}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-card-foreground">{step.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{step.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mt-4">
+                  <p className="text-xs text-amber-700 dark:text-amber-400">
+                    <strong>Importante:</strong> Você não precisa fornecer nenhuma API Key. 
+                    O Stripe Connect cuida de tudo automaticamente de forma segura.
+                  </p>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
 
         {status !== "active" && status !== "loading" && (
           <Button 
