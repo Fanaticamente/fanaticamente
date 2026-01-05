@@ -17,8 +17,8 @@ const ApprovalPendingBanner = ({ approvalStatus, rejectionReason, onResubmit }: 
         return {
           title: "Aguardando Aprovação",
           message: "Seu perfil está em análise pela nossa equipe. Verificaremos seus dados e número do CRP. Este processo pode levar até 48 horas úteis.",
-          style: "bg-yellow-500/10 border-yellow-500/30 text-yellow-600",
-          iconColor: "text-yellow-500"
+          style: "bg-therapy/10 border-therapy/30 text-therapy",
+          iconColor: "text-therapy"
         };
       case "pending_payment":
         return {
