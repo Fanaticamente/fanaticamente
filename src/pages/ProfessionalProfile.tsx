@@ -273,52 +273,6 @@ const ProfessionalProfile = () => {
           </div>
         </div>
 
-        {/* Bio Section */}
-        {professional.bio && (
-          <div className="bg-white border-2 rounded-2xl p-6 mb-6" style={{ borderColor: clubColor + "30" }}>
-            <div className="flex items-center gap-2 mb-3">
-              <User className="w-5 h-5" style={{ color: clubColor }} />
-              <h3 className="font-display text-lg font-bold" style={{ color: clubColor }}>Sobre mim</h3>
-            </div>
-            <p className={`text-gray-600 ${!showBioExpanded ? 'line-clamp-3' : ''}`}>
-              {professional.bio}
-            </p>
-            {professional.bio.length > 150 && (
-              <button 
-                onClick={() => setShowBioExpanded(!showBioExpanded)}
-                className="mt-2 text-sm font-medium"
-                style={{ color: clubColor }}
-              >
-                {showBioExpanded ? 'Mostrar menos' : 'Mostrar mais'}
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Specialties */}
-        {professional.specialties && professional.specialties.length > 0 && (
-          <div className="bg-white border-2 rounded-2xl p-6 mb-6" style={{ borderColor: clubColor + "30" }}>
-            <div className="flex items-center gap-2 mb-3">
-              <Award className="w-5 h-5" style={{ color: clubColor }} />
-              <h3 className="font-display text-lg font-bold" style={{ color: clubColor }}>Sou especialista em:</h3>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {professional.specialties.map((specialty) => (
-                <span
-                  key={specialty}
-                  className="px-3 py-2 text-sm rounded-full"
-                  style={{ 
-                    backgroundColor: clubColor + "20", 
-                    color: clubColor 
-                  }}
-                >
-                  {specialty}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Scheduling Section */}
         <div className="bg-white border-2 rounded-2xl p-6 mb-6" style={{ borderColor: clubColor + "30" }}>
           <div className="flex items-center gap-2 mb-4">
@@ -409,6 +363,52 @@ const ProfessionalProfile = () => {
             </p>
           )}
         </div>
+
+        {/* Bio Section */}
+        {professional.bio && (
+          <div className="bg-white border-2 rounded-2xl p-6 mb-6" style={{ borderColor: clubColor + "30" }}>
+            <div className="flex items-center gap-2 mb-3">
+              <User className="w-5 h-5" style={{ color: clubColor }} />
+              <h3 className="font-display text-lg font-bold" style={{ color: clubColor }}>Sobre mim</h3>
+            </div>
+            <p className={`text-gray-600 ${!showBioExpanded ? 'line-clamp-3' : ''}`}>
+              {professional.bio}
+            </p>
+            {professional.bio.length > 150 && (
+              <button 
+                onClick={() => setShowBioExpanded(!showBioExpanded)}
+                className="mt-2 text-sm font-medium"
+                style={{ color: clubColor }}
+              >
+                {showBioExpanded ? 'Mostrar menos' : 'Mostrar mais'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Specialties */}
+        {professional.specialties && professional.specialties.length > 0 && (
+          <div className="bg-white border-2 rounded-2xl p-6 mb-6" style={{ borderColor: clubColor + "30" }}>
+            <div className="flex items-center gap-2 mb-3">
+              <Award className="w-5 h-5" style={{ color: clubColor }} />
+              <h3 className="font-display text-lg font-bold" style={{ color: clubColor }}>Sou especialista em:</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {professional.specialties.map((specialty) => (
+                <span
+                  key={specialty}
+                  className="px-3 py-2 text-sm rounded-full"
+                  style={{ 
+                    backgroundColor: clubColor + "20", 
+                    color: clubColor 
+                  }}
+                >
+                  {specialty}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Schedule Button - Fixed at bottom */}
         {selectedDate && selectedTime && (
