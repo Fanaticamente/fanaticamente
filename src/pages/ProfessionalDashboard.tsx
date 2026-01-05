@@ -58,7 +58,7 @@ const ProfessionalDashboard = () => {
   const [setupError, setSetupError] = useState(false);
   
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("status");
-  const [activeTab, setActiveTab] = useState<DashboardTab>("agenda");
+  const [activeTab, setActiveTab] = useState<DashboardTab>("perfil");
   
   const [availableDates, setAvailableDates] = useState<{ date: string; times: string[] }[]>([]);
   const [showAddSlot, setShowAddSlot] = useState(false);
@@ -368,13 +368,44 @@ const ProfessionalDashboard = () => {
           />
         </div>
 
-        {/* Onboarding Flow */}
+        {/* Tabs - Always visible, some disabled without subscription */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          {[
+            { id: "perfil", label: "Meu Perfil", locked: false },
+            { id: "assinatura", label: "Assinatura", locked: false },
+            { id: "agenda", label: "Agendamentos", locked: !isSubscribed },
+            { id: "disponibilidade", label: "Disponibilidade", locked: !isSubscribed },
+            { id: "metricas", label: "Métricas", locked: !isSubscribed },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                if (tab.locked) {
+                  toast.info("Complete sua assinatura para acessar esta funcionalidade");
+                  return;
+                }
+                setActiveTab(tab.id as DashboardTab);
+              }}
+              className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
+                activeTab === tab.id
+                  ? "bg-therapy text-therapy-foreground"
+                  : tab.locked 
+                    ? "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              {tab.label}
+              {tab.locked && <span className="text-xs">🔒</span>}
+            </button>
+          ))}
+        </div>
+
+        {/* Onboarding Progress (only shown when not subscribed) */}
         {!isSubscribed && (
-          <div className="bg-card border border-border rounded-2xl p-6 mb-6">
-            {/* Progress Steps */}
-            <div className="flex items-center justify-center gap-2 mb-6">
+          <div className="bg-card border border-border rounded-2xl p-4 mb-6">
+            <div className="flex items-center justify-center gap-2">
               <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                onboardingStep === "profile" || isProfileComplete ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground"
+                isProfileComplete ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground"
               }`}>
                 <span className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-sm font-bold">
                   {isProfileComplete ? <CheckCircle className="w-4 h-4" /> : "1"}
@@ -383,7 +414,7 @@ const ProfessionalDashboard = () => {
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
               <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                onboardingStep === "subscription" ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground"
+                isSubscribed ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground"
               }`}>
                 <span className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-sm font-bold">
                   {isSubscribed ? <CheckCircle className="w-4 h-4" /> : "2"}
@@ -391,24 +422,66 @@ const ProfessionalDashboard = () => {
                 <span className="text-sm font-medium hidden sm:inline">Assinar Plano</span>
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Step Content */}
-            {onboardingStep === "profile" && professional && (
-              <ProfileCompletionForm 
-                professionalId={professional.id}
-                existingData={{
-                  bio: professional.bio || "",
-                  degree: professional.degree || "",
-                  specialties: professional.specialties || [],
-                  sessionPrice: professional.hourly_rate?.toString() || "",
-                  pixKey: (professional as any).pix_key || "",
-                  pixKeyType: (professional as any).pix_key_type || "cpf"
-                }}
-                onComplete={handleProfileComplete}
-              />
-            )}
+        {/* Stats (only shown when subscribed) */}
+        {isSubscribed && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {stats.map((stat) => (
+              <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                  <span className="text-muted-foreground text-sm">{stat.label}</span>
+                </div>
+                <p className="font-display text-3xl text-card-foreground">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
-            {onboardingStep === "subscription" && professional && (
+        {/* Perfil Tab */}
+        {activeTab === "perfil" && professional && (
+          <div>
+            <h2 className="font-display text-2xl text-card-foreground mb-4">
+              Editar Perfil
+            </h2>
+            <ProfileCompletionForm 
+              professionalId={professional.id}
+              existingData={{
+                bio: professional.bio || "",
+                degree: professional.degree || "",
+                specialties: professional.specialties || [],
+                sessionPrice: professional.hourly_rate?.toString() || "",
+                imageUrl: profile?.avatar_url || "",
+                pixKey: (professional as any).pix_key || "",
+                pixKeyType: (professional as any).pix_key_type || "cpf"
+              }}
+              onComplete={() => {
+                toast.success("Perfil atualizado!");
+                fetchProfessionalData();
+              }}
+            />
+          </div>
+        )}
+
+        {/* Assinatura Tab */}
+        {activeTab === "assinatura" && professional && (
+          <div className="space-y-6">
+            <h2 className="font-display text-2xl text-card-foreground mb-4">
+              {isSubscribed ? "Gerenciar Assinatura" : "Escolha seu Plano"}
+            </h2>
+            {isSubscribed && professional.subscription_type && professional.subscription_expires_at ? (
+              <>
+                <SubscriptionManager 
+                  professionalId={professional.id}
+                  currentPlan={professional.subscription_type}
+                  expiresAt={professional.subscription_expires_at}
+                  onUpdate={fetchProfessionalData}
+                />
+                <StripeConnectCard professionalId={professional.id} />
+              </>
+            ) : (
               <SubscriptionPlans 
                 professionalId={professional.id}
                 onSubscribe={handleSubscriptionComplete}
@@ -417,44 +490,9 @@ const ProfessionalDashboard = () => {
           </div>
         )}
 
-        {/* Main Dashboard Content (only shown when subscribed) */}
+        {/* Content only available with subscription */}
         {isSubscribed && (
           <>
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              {stats.map((stat) => (
-                <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                    <span className="text-muted-foreground text-sm">{stat.label}</span>
-                  </div>
-                  <p className="font-display text-3xl text-card-foreground">{stat.value}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Tabs */}
-            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-              {[
-                { id: "agenda", label: "Agenda" },
-                { id: "disponibilidade", label: "Disponibilidade" },
-                { id: "metricas", label: "Métricas" },
-                { id: "perfil", label: "Meu Perfil" },
-                { id: "assinatura", label: "Assinatura" },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as DashboardTab)}
-                  className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors ${
-                    activeTab === tab.id
-                      ? "bg-therapy text-therapy-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
 
             {/* Agenda Tab */}
             {activeTab === "agenda" && (
@@ -638,64 +676,7 @@ const ProfessionalDashboard = () => {
               </div>
             )}
 
-            {/* Perfil Tab */}
-            {activeTab === "perfil" && professional && (
-              <div>
-                <h2 className="font-display text-2xl text-card-foreground mb-4">
-                  Editar Perfil
-                </h2>
-                <ProfileCompletionForm 
-                  professionalId={professional.id}
-                  existingData={{
-                    bio: professional.bio || "",
-                    degree: professional.degree || "",
-                    specialties: professional.specialties || [],
-                    sessionPrice: professional.hourly_rate?.toString() || "",
-                    imageUrl: profile?.avatar_url || "",
-                    pixKey: (professional as any).pix_key || "",
-                    pixKeyType: (professional as any).pix_key_type || "cpf"
-                  }}
-                  onComplete={() => {
-                    toast.success("Perfil atualizado!");
-                    fetchProfessionalData();
-                  }}
-                />
-              </div>
-            )}
-
-            {/* Assinatura Tab */}
-            {activeTab === "assinatura" && professional && professional.subscription_type && professional.subscription_expires_at && (
-              <div className="space-y-6">
-                <h2 className="font-display text-2xl text-card-foreground mb-4">
-                  Gerenciar Assinatura
-                </h2>
-                <SubscriptionManager 
-                  professionalId={professional.id}
-                  currentPlan={professional.subscription_type}
-                  expiresAt={professional.subscription_expires_at}
-                  onUpdate={fetchProfessionalData}
-                />
-                
-                {/* Stripe Connect Card for receiving payments */}
-                <StripeConnectCard professionalId={professional.id} />
-              </div>
-            )}
           </>
-        )}
-
-        {/* Empty State for non-subscribed */}
-        {!isSubscribed && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 opacity-50">
-            {stats.map((stat) => (
-              <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <stat.icon className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-muted-foreground text-sm">{stat.label}</span>
-                </div>
-                <p className="font-display text-3xl text-muted-foreground">—</p>
-              </div>
-            ))}
-          </div>
         )}
       </main>
     </div>
