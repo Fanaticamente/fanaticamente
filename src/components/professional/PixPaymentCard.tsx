@@ -84,17 +84,17 @@ const PixPaymentCard = ({ professionalId, pixKey, onUpdate }: PixPaymentCardProp
           <div className="space-y-4">
             <div>
               <label className="block text-card-foreground text-sm font-medium mb-2">
-                Chave PIX
+                Chave PIX Aleatória
               </label>
               <p className="text-muted-foreground text-xs mb-3">
-                Informe sua chave PIX (CPF, CNPJ, e-mail, telefone ou chave aleatória)
+                Informe sua chave PIX aleatória (única chave aceita para maior segurança)
               </p>
               <input
                 type="text"
                 value={newPixKey}
                 onChange={(e) => setNewPixKey(e.target.value)}
                 className="w-full px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-therapy focus:outline-none transition-colors"
-                placeholder="CPF, e-mail, telefone ou chave aleatória"
+                placeholder="Cole aqui sua chave PIX aleatória"
                 autoFocus
               />
             </div>
