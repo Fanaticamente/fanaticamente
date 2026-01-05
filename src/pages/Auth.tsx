@@ -58,15 +58,15 @@ const Auth = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [roleValidated, setRoleValidated] = useState(false);
 
-  const { signIn, signUp, user, hasRole } = useAuth();
+  const { signIn, signUp, user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
 
   // Get cities based on selected state
   const availableCities = signUpData.state ? getCitiesByState(signUpData.state) : [];
 
   useEffect(() => {
-    // Only redirect if role has been validated or user was already logged in before visiting this page
-    if (user && roleValidated) {
+    // Only redirect if role has been validated AND roles are loaded
+    if (user && roleValidated && !loading) {
       if (hasRole("admin")) {
         navigate("/admin");
       } else if (hasRole("developer")) {
@@ -77,23 +77,26 @@ const Auth = () => {
         navigate("/");
       }
     }
-  }, [user, hasRole, navigate, roleValidated]);
+  }, [user, hasRole, navigate, roleValidated, loading]);
 
   // Handle already logged-in users visiting the auth page
   useEffect(() => {
     const checkExistingUser = async () => {
+      // Wait for roles to finish loading to avoid false negatives (which caused unwanted logout)
+      if (loading) return;
+
       if (user && !roleValidated) {
         // User was already logged in, validate their role matches the current mode
         const isProfessional = hasRole("professional");
         const isAdmin = hasRole("admin");
         const isDeveloper = hasRole("developer");
-        
+
         // Admins and developers can access from any mode
         if (isAdmin || isDeveloper) {
           setRoleValidated(true);
           return;
         }
-        
+
         // If on professional mode but user is not a professional
         if (authMode === "professional" && !isProfessional) {
           await supabase.auth.signOut();
@@ -101,11 +104,13 @@ const Auth = () => {
           setEmail("");
           setPassword("");
           setAuthMode("user");
-          toast.error("Esta conta não é de um profissional. Você será direcionado para o login de Torcedor.");
+          toast.error(
+            "Esta conta não é de um profissional. Você será direcionado para o login de Torcedor."
+          );
           navigate("/auth?mode=user", { replace: true });
           return;
         }
-        
+
         // If on user mode but user is a professional
         if (authMode === "user" && isProfessional) {
           await supabase.auth.signOut();
@@ -113,18 +118,20 @@ const Auth = () => {
           setEmail("");
           setPassword("");
           setAuthMode("professional");
-          toast.error("Esta conta é de um profissional. Você será direcionado para o login de Profissional.");
+          toast.error(
+            "Esta conta é de um profissional. Você será direcionado para o login de Profissional."
+          );
           navigate("/auth?mode=professional", { replace: true });
           return;
         }
-        
+
         // Role matches, allow redirect
         setRoleValidated(true);
       }
     };
-    
+
     checkExistingUser();
-  }, [user, authMode, hasRole, roleValidated]);
+  }, [user, authMode, hasRole, roleValidated, loading, navigate]);
 
   const validateLoginForm = () => {
     const newErrors: Record<string, string> = {};
