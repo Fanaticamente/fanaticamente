@@ -150,14 +150,9 @@ const ProfessionalProfile = () => {
   };
 
   const handleSchedule = () => {
-    if (selectedDate && selectedTime && profile) {
-      alert(
-        `Consulta agendada com ${profile.full_name} para ${format(
-          selectedDate,
-          "dd/MM/yyyy",
-          { locale: ptBR }
-        )} às ${selectedTime}`
-      );
+    if (selectedDate && selectedTime) {
+      const dateStr = format(selectedDate, "yyyy-MM-dd");
+      navigate(`/pagamento/${id}?date=${dateStr}&time=${encodeURIComponent(selectedTime)}`);
     }
   };
 
@@ -353,6 +348,20 @@ const ProfessionalProfile = () => {
                   </button>
                 ))}
               </div>
+
+              {/* Schedule Button - Inside scheduling section */}
+              {selectedTime && (
+                <button
+                  onClick={handleSchedule}
+                  className="w-full mt-4 py-4 rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-all shadow-lg"
+                  style={{ 
+                    backgroundColor: clubColor, 
+                    color: "#fff" 
+                  }}
+                >
+                  Agendar Sessão
+                </button>
+              )}
             </div>
           )}
 
@@ -410,22 +419,6 @@ const ProfessionalProfile = () => {
           </div>
         )}
 
-        {/* Schedule Button - Fixed at bottom */}
-        {selectedDate && selectedTime && (
-          <div className="fixed bottom-24 left-4 right-4 z-40">
-            <button
-              onClick={handleSchedule}
-              className="w-full py-4 rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-all shadow-xl"
-              style={{ 
-                backgroundColor: clubColor, 
-                color: "#fff",
-                boxShadow: `0 4px 20px ${clubColor}60`
-              }}
-            >
-              Agendar Sessão
-            </button>
-          </div>
-        )}
       </main>
 
       <BottomNav />
