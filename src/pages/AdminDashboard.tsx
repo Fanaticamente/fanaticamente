@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { 
   Users, UserCheck, Calendar, Settings, LogOut, Search, Filter, 
   Shield, Sun, Moon, LayoutDashboard, DollarSign 
@@ -13,12 +13,26 @@ import AdminUsersTable from "@/components/admin/AdminUsersTable";
 import AdminProfessionalsTable from "@/components/admin/AdminProfessionalsTable";
 import AdminAppointmentsTable from "@/components/admin/AdminAppointmentsTable";
 
+type TabType = "dashboard" | "financeiro" | "usuarios" | "profissionais" | "agendamentos" | "configuracoes";
+
 const AdminDashboard = () => {
   const { user, signOut, hasRole } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"dashboard" | "financeiro" | "usuarios" | "profissionais" | "agendamentos" | "configuracoes">("dashboard");
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Read initial tab from URL or default to "dashboard"
+  const urlTab = searchParams.get("tab") as TabType | null;
+  const validTabs: TabType[] = ["dashboard", "financeiro", "usuarios", "profissionais", "agendamentos", "configuracoes"];
+  const initialTab: TabType = urlTab && validTabs.includes(urlTab) ? urlTab : "dashboard";
+  
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Sync tab changes to URL
+  useEffect(() => {
+    setSearchParams({ tab: activeTab }, { replace: true });
+  }, [activeTab, setSearchParams]);
 
   useEffect(() => {
     if (!hasRole("admin")) {
