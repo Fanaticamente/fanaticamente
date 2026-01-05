@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppModules, AppModule } from "@/hooks/useAppModules";
 import ModuleCatalog from "@/components/studio/ModuleCatalog";
@@ -11,9 +11,20 @@ import { Code, Loader2 } from "lucide-react";
 const DeveloperDashboard = () => {
   const { user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Read initial page from URL or default to "home"
+  const urlPage = searchParams.get("page");
+  const initialPage = urlPage || "home";
+  
   const [selectedModule, setSelectedModule] = useState<AppModule | null>(null);
-  const [currentPage, setCurrentPage] = useState("home");
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const { data: modules, isLoading } = useAppModules();
+
+  // Sync page changes to URL
+  useEffect(() => {
+    setSearchParams({ page: currentPage }, { replace: true });
+  }, [currentPage, setSearchParams]);
 
   useEffect(() => {
     if (!loading && (!user || !hasRole("developer"))) {
