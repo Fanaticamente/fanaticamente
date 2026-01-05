@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Upload, X, Plus, Info } from "lucide-react";
+import { Upload, X, Plus, Info, Edit2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -362,6 +362,25 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
           Exibir valor da sessão no meu card
         </label>
       </div>
+
+      {/* Save Button */}
+      <button
+        type="submit"
+        disabled={isSaving}
+        className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        {isSaving ? (
+          <>
+            <div className="w-4 h-4 border-2 border-therapy-foreground border-t-transparent rounded-full animate-spin" />
+            Salvando...
+          </>
+        ) : (
+          <>
+            <Edit2 className="w-4 h-4" />
+            Salvar Alterações
+          </>
+        )}
+      </button>
     </form>
   );
 };

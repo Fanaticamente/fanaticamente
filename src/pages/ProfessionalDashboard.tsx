@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Calendar, Clock, Users, TrendingUp, LogOut, Plus, CheckCircle, XCircle, Edit2, ChevronRight, User, ChevronLeft, Upload } from "lucide-react";
+import { Calendar, Clock, Users, TrendingUp, LogOut, Plus, CheckCircle, XCircle, Edit2, ChevronRight, User, ChevronLeft, Upload, Lock } from "lucide-react";
 import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -392,7 +392,7 @@ const ProfessionalDashboard = () => {
               }`}
             >
               {tab.label}
-              {tab.locked && <span className="text-xs">🔒</span>}
+              {tab.locked && <Lock className="w-3.5 h-3.5 text-muted-foreground/40" />}
             </button>
           ))}
         </div>
@@ -401,23 +401,29 @@ const ProfessionalDashboard = () => {
         {!isSubscribed && (
           <div className="bg-card border border-border rounded-2xl p-4 mb-6">
             <div className="flex items-center justify-center gap-2">
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                isProfileComplete ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground"
-              }`}>
+              <button
+                onClick={() => setActiveTab("perfil")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
+                  isProfileComplete ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+              >
                 <span className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-sm font-bold">
                   {isProfileComplete ? <CheckCircle className="w-4 h-4" /> : "1"}
                 </span>
                 <span className="text-sm font-medium hidden sm:inline">Completar Perfil</span>
-              </div>
+              </button>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                isSubscribed ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground"
-              }`}>
+              <button
+                onClick={() => setActiveTab("assinatura")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
+                  isSubscribed ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+              >
                 <span className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-sm font-bold">
                   {isSubscribed ? <CheckCircle className="w-4 h-4" /> : "2"}
                 </span>
                 <span className="text-sm font-medium hidden sm:inline">Assinar Plano</span>
-              </div>
+              </button>
             </div>
           </div>
         )}
