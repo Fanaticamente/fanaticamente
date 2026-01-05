@@ -11,6 +11,7 @@ const Perfil = () => {
   const { user, roles, signOut, hasRole, loading } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
+  const [appointmentsCount, setAppointmentsCount] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -34,6 +35,14 @@ const Perfil = () => {
         if (data) {
           setProfile(data);
         }
+
+        // Fetch appointments count
+        const { count } = await supabase
+          .from("appointments")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id);
+        
+        setAppointmentsCount(count || 0);
       }
     };
 
@@ -59,7 +68,7 @@ const Perfil = () => {
       label: "Meus Agendamentos",
       description: "Ver consultas marcadas",
       path: "/perfil/agendamentos",
-      badge: "2",
+      badge: appointmentsCount > 0 ? appointmentsCount.toString() : null,
     },
     {
       icon: BookOpen,
@@ -240,7 +249,7 @@ const Perfil = () => {
             <p className="text-muted-foreground text-xs">Cursos feitos</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-4 text-center">
-            <p className="font-display text-3xl text-therapy">2</p>
+            <p className="font-display text-3xl text-therapy">{appointmentsCount}</p>
             <p className="text-muted-foreground text-xs">Consultas</p>
           </div>
         </div>

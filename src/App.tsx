@@ -18,6 +18,7 @@ import Diario from "./pages/Diario";
 import Radio from "./pages/Radio";
 import Futebol from "./pages/Futebol";
 import Perfil from "./pages/Perfil";
+import MeusAgendamentos from "./pages/MeusAgendamentos";
 import FanaticaShop from "./pages/FanaticaShop";
 import ProductDetail from "./pages/ProductDetail";
 import Auth from "./pages/Auth";
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/radio" element={<Radio />} />
               <Route path="/futebol" element={<Futebol />} />
               <Route path="/perfil" element={<Perfil />} />
+              <Route path="/perfil/agendamentos" element={<MeusAgendamentos />} />
               <Route path="/loja" element={<FanaticaShop />} />
               <Route path="/loja/produto/:id" element={<ProductDetail />} />
               <Route path="/profissional" element={<ProfessionalDashboard />} />
