@@ -210,6 +210,36 @@ const Auth = () => {
             toast.error(error.message);
           }
         } else {
+          // After successful login, verify user role matches the auth mode
+          const { data: { user: loggedUser } } = await supabase.auth.getUser();
+          
+          if (loggedUser) {
+            // Check user roles
+            const { data: userRoles } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', loggedUser.id);
+            
+            const roles = userRoles?.map(r => r.role) || [];
+            const isProfessional = roles.includes('professional');
+            const isAdmin = roles.includes('admin');
+            const isDeveloper = roles.includes('developer');
+            
+            // If logging in through professional mode but user is not a professional
+            if (authMode === "professional" && !isProfessional && !isAdmin && !isDeveloper) {
+              await supabase.auth.signOut();
+              toast.error("Esta conta não é de um profissional. Use a aba 'Torcedor' para entrar.");
+              return;
+            }
+            
+            // If logging in through user mode but user is a professional (and not admin/developer)
+            if (authMode === "user" && isProfessional && !isAdmin && !isDeveloper) {
+              await supabase.auth.signOut();
+              toast.error("Esta conta é de um profissional. Use a aba 'Profissional' para entrar.");
+              return;
+            }
+          }
+          
           toast.success("Login realizado com sucesso!");
         }
       } else {
