@@ -9,21 +9,27 @@ const AdminAccess = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const { signIn, user, hasRole, loading } = useAuth();
+  const { signIn, signOut, user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && user) {
-      if (hasRole("admin")) {
-        navigate("/admin");
-      } else if (hasRole("developer")) {
-        navigate("/desenvolvedor");
-      } else {
-        toast.error("Você não tem permissão para acessar esta área");
-        navigate("/");
-      }
+    if (loading || !user) return;
+
+    if (hasRole("admin")) {
+      navigate("/admin");
+      return;
     }
-  }, [user, hasRole, loading, navigate]);
+
+    if (hasRole("developer")) {
+      navigate("/desenvolvedor");
+      return;
+    }
+
+    // Se o usuário estiver logado como torcedor/profissional, mantemos esta tela
+    // independente: deslogamos e deixamos o formulário disponível.
+    toast.error("Você não tem permissão nesta conta. Entre com uma conta Admin/Dev.");
+    signOut();
+  }, [user, hasRole, loading, navigate, signOut]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
