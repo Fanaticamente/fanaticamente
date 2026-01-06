@@ -21,14 +21,16 @@
         overscroll-behavior: auto;
       }
 
-      /* Hide scrollbar on iOS */
-      html::-webkit-scrollbar,
-      body::-webkit-scrollbar,
-      *::-webkit-scrollbar {
-        display: none !important;
-        width: 0 !important;
-        height: 0 !important;
-        background: transparent !important;
+      /* Hide scrollbars only on mobile (keeps desktop dashboards scrollable) */
+      @media (max-width: 768px) {
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar,
+        *::-webkit-scrollbar {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+          background: transparent !important;
+        }
       }
 
       /* iOS safe area support */

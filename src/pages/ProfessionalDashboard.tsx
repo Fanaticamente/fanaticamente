@@ -79,12 +79,13 @@ const ProfessionalDashboard = () => {
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<any | null>(null);
 
+  const [hasSyncedSubscription, setHasSyncedSubscription] = useState(false);
+
   // Check for checkout success and verify subscription
   useEffect(() => {
     const checkoutStatus = searchParams.get("checkout");
-    const planId = searchParams.get("plan");
-    
-    if (checkoutStatus === "success" && planId) {
+
+    if (checkoutStatus === "success") {
       toast.success("Pagamento processado! Verificando assinatura...");
       // Clear URL params
       setSearchParams({});
@@ -94,23 +95,28 @@ const ProfessionalDashboard = () => {
       toast.info("Checkout cancelado");
       setSearchParams({});
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const verifySubscription = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('check-professional-subscription');
-      
+      const { data, error } = await supabase.functions.invoke("check-professional-subscription");
+
       if (error) {
         console.error("Error verifying subscription:", error);
+        toast.error("Não foi possível verificar a assinatura. Tente novamente em instantes.");
         return;
       }
-      
+
       if (data?.subscribed) {
-        toast.success("Assinatura ativada! Seu perfil está agora visível no marketplace.");
+        toast.success("Assinatura confirmada! Seu perfil entrou em análise.");
         fetchProfessionalData();
+      } else {
+        toast.info("Assinatura ainda não identificada. Tente novamente em instantes.");
       }
     } catch (error) {
       console.error("Error checking subscription:", error);
+      toast.error("Erro ao verificar assinatura");
     }
   };
 
@@ -217,14 +223,14 @@ const ProfessionalDashboard = () => {
 
       if (profData) {
         setProfessional(profData);
-        
+
         // Determine onboarding step
-        const isProfileComplete = !!(profData.bio && profData.degree && profData.specialties?.length);
-        const isSubscribed = !!(profData.subscription_type && profData.is_active);
-        
-        if (!isProfileComplete) {
+        const profileComplete = !!(profData.bio && profData.degree && profData.specialties?.length);
+        const hasSubscription = !!profData.subscription_type;
+
+        if (!profileComplete) {
           setOnboardingStep("profile");
-        } else if (!isSubscribed) {
+        } else if (!hasSubscription) {
           setOnboardingStep("subscription");
         } else {
           setOnboardingStep("status");
@@ -238,14 +244,25 @@ const ProfessionalDashboard = () => {
   };
 
   const isProfileComplete = !!(professional?.bio && professional?.degree && professional?.specialties?.length);
-  const isSubscribed = !!(professional?.subscription_type && professional?.is_active);
+  const hasSubscription = !!professional?.subscription_type;
+  const isMarketplaceActive = !!professional?.is_active;
 
-  // Fetch appointments when professional is loaded and subscribed
+  // Fetch appointments when professional is loaded and approved/active
   useEffect(() => {
-    if (professional && isSubscribed) {
+    if (professional && isMarketplaceActive) {
       fetchAppointments();
     }
-  }, [professional, isSubscribed]);
+  }, [professional, isMarketplaceActive]);
+
+  // If the user paid but the status is still "pending_payment", sync with billing provider.
+  useEffect(() => {
+    if (!professional || hasSyncedSubscription) return;
+
+    if (professional.approval_status === "pending_payment") {
+      setHasSyncedSubscription(true);
+      verifySubscription();
+    }
+  }, [professional, hasSyncedSubscription]);
 
   const fetchAppointments = async () => {
     if (!professional) return;
@@ -347,10 +364,10 @@ const ProfessionalDashboard = () => {
   };
 
   const stats = [
-    { label: "Consultas este mês", value: isSubscribed ? appointments.length.toString() : "0", icon: Calendar, color: "text-therapy" },
-    { label: "Pacientes atendidos", value: isSubscribed ? appointments.filter(a => a.status === 'confirmed').length.toString() : "0", icon: Users, color: "text-secondary" },
-    { label: "Taxa de conclusão", value: isSubscribed && appointments.length > 0 ? `${Math.round((appointments.filter(a => a.status === 'confirmed').length / appointments.length) * 100)}%` : "—", icon: TrendingUp, color: "text-green-500" },
-    { label: "Pendentes", value: isSubscribed ? appointments.filter(a => a.status === 'pending').length.toString() : "—", icon: Clock, color: "text-yellow-500" },
+    { label: "Consultas este mês", value: isMarketplaceActive ? appointments.length.toString() : "0", icon: Calendar, color: "text-therapy" },
+    { label: "Pacientes atendidos", value: isMarketplaceActive ? appointments.filter(a => a.status === 'confirmed').length.toString() : "0", icon: Users, color: "text-secondary" },
+    { label: "Taxa de conclusão", value: isMarketplaceActive && appointments.length > 0 ? `${Math.round((appointments.filter(a => a.status === 'confirmed').length / appointments.length) * 100)}%` : "—", icon: TrendingUp, color: "text-green-500" },
+    { label: "Pendentes", value: isMarketplaceActive ? appointments.filter(a => a.status === 'pending').length.toString() : "—", icon: Clock, color: "text-yellow-500" },
   ];
 
   const timeSlots = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
@@ -489,14 +506,14 @@ const ProfessionalDashboard = () => {
           />
         )}
 
-        {/* Tabs - Always visible, some disabled without subscription */}
+        {/* Tabs - Always visible, some disabled until approval */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {[
             { id: "perfil", label: "Meu Perfil", locked: false },
             { id: "assinatura", label: "Assinatura", locked: false },
-            { id: "agenda", label: "Agendamentos", locked: !isSubscribed },
-            { id: "disponibilidade", label: "Disponibilidade", locked: !isSubscribed },
-            { id: "metricas", label: "Métricas", locked: !isSubscribed },
+            { id: "agenda", label: "Agendamentos", locked: !isMarketplaceActive },
+            { id: "disponibilidade", label: "Disponibilidade", locked: !isMarketplaceActive },
+            { id: "metricas", label: "Métricas", locked: !isMarketplaceActive },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -521,8 +538,8 @@ const ProfessionalDashboard = () => {
           ))}
         </div>
 
-        {/* Onboarding Progress (only shown when not subscribed) */}
-        {!isSubscribed && (
+        {/* Onboarding Progress (only shown before subscription) */}
+        {!hasSubscription && (
           <div className="bg-card border border-border rounded-2xl p-4 mb-6">
             <div className="flex items-center justify-center gap-2">
               <button
@@ -540,11 +557,11 @@ const ProfessionalDashboard = () => {
               <button
                 onClick={() => setActiveTab("assinatura")}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
-                  isSubscribed ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  hasSubscription ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground hover:bg-muted/80"
                 }`}
               >
                 <span className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-sm font-bold">
-                  {isSubscribed ? <CheckCircle className="w-4 h-4" /> : "2"}
+                  {hasSubscription ? <CheckCircle className="w-4 h-4" /> : "2"}
                 </span>
                 <span className="text-sm font-medium hidden sm:inline">Assinar Plano</span>
               </button>
@@ -552,8 +569,8 @@ const ProfessionalDashboard = () => {
           </div>
         )}
 
-        {/* Stats (only shown when subscribed) */}
-        {isSubscribed && (
+        {/* Stats (only shown when approved/active) */}
+        {isMarketplaceActive && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {stats.map((stat) => (
               <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
@@ -700,9 +717,9 @@ const ProfessionalDashboard = () => {
         {activeTab === "assinatura" && professional && (
           <div className="space-y-6">
             <h2 className="font-display text-2xl text-card-foreground mb-4">
-              {isSubscribed ? "Gerenciar Assinatura" : "Escolha seu Plano"}
+              {hasSubscription ? "Gerenciar Assinatura" : "Escolha seu Plano"}
             </h2>
-            {isSubscribed && professional.subscription_type && professional.subscription_expires_at ? (
+            {hasSubscription && professional.subscription_type && professional.subscription_expires_at ? (
               <SubscriptionManager 
                 professionalId={professional.id}
                 currentPlan={professional.subscription_type}
@@ -718,8 +735,8 @@ const ProfessionalDashboard = () => {
           </div>
         )}
 
-        {/* Content only available with subscription */}
-        {isSubscribed && (
+        {/* Content only available when approved by admin */}
+        {isMarketplaceActive && (
           <>
 
             {/* Agenda Tab */}
