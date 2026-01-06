@@ -16,13 +16,6 @@ const TunnelCard = () => {
     setImageLoaded(false);
   }, [image]);
 
-  // Show placeholder while loading from database
-  if (moduleQuery.isLoading) {
-    return (
-      <div className="block relative overflow-hidden rounded-2xl mx-4 my-4 h-40 bg-muted animate-pulse" />
-    );
-  }
-
   return (
     <Link
       to={link}

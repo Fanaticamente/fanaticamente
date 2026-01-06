@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -10,21 +11,62 @@ interface ModuleConfig {
   config: Record<string, unknown>;
 }
 
+type CachedModuleConfig = {
+  updatedAt: number;
+  data: ModuleConfig;
+};
+
+const STORAGE_PREFIX = "lovable:module-config:";
+
+const readCached = (moduleId: string): CachedModuleConfig | null => {
+  try {
+    const raw = localStorage.getItem(`${STORAGE_PREFIX}${moduleId}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as CachedModuleConfig;
+    if (!parsed?.data || typeof parsed.updatedAt !== "number") return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
+const writeCached = (moduleId: string, data: ModuleConfig) => {
+  try {
+    const payload: CachedModuleConfig = { updatedAt: Date.now(), data };
+    localStorage.setItem(`${STORAGE_PREFIX}${moduleId}`, JSON.stringify(payload));
+  } catch {
+    // ignore storage errors (private mode, quota, etc.)
+  }
+};
+
 export const useModuleConfig = (moduleId: string) => {
-  return useQuery({
-    queryKey: ['module-config', moduleId],
+  const cached = typeof window !== "undefined" ? readCached(moduleId) : null;
+
+  const query = useQuery({
+    queryKey: ["module-config", moduleId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('app_modules')
-        .select('*')
-        .eq('module_id', moduleId)
+        .from("app_modules")
+        .select("*")
+        .eq("module_id", moduleId)
         .single();
-      
+
       if (error) throw error;
       return data as unknown as ModuleConfig;
     },
-    staleTime: 0,
+    initialData: cached?.data,
+    initialDataUpdatedAt: cached?.updatedAt,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (query.data) writeCached(moduleId, query.data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduleId, query.data]);
+
+  return query;
 };
 
 export const useAllHomeModules = () => {
