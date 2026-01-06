@@ -223,7 +223,7 @@ const ProfessionalProfile = () => {
         </div>
       </header>
 
-      <main className="pt-20 pb-24 px-4">
+      <main className="pt-20 px-4">
         {/* Profile Card */}
         <div className="bg-white border-2 rounded-2xl overflow-hidden mb-6" style={{ borderColor: clubColor + "30" }}>
           <div className="p-6">

@@ -85,7 +85,7 @@ const Futebol = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-20 pb-24">
+      <main className="pt-20">
         {/* Header */}
         <div className="px-4 mb-6">
           <h1 className="font-display text-4xl text-primary mb-2">

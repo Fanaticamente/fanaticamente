@@ -92,7 +92,7 @@ const CursoDetalhe = () => {
         </div>
       </div>
 
-      <main className="pb-24">
+      <main>
         {/* Course Info */}
         <div className="px-4 py-4">
           {/* Brand/Category */}
