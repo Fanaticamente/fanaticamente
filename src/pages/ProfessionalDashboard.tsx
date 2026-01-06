@@ -127,14 +127,11 @@ const ProfessionalDashboard = () => {
   useEffect(() => {
     if (!setupError) return;
 
-    toast.error("Conta inválida ou não cadastrada.");
+    toast.error("Conta inválida ou não cadastrada. Revise os dados ou cadastre-se.");
 
-    const run = async () => {
-      await signOut();
-      navigate("/auth?mode=professional", { replace: true });
-    };
-
-    run();
+    // Fire-and-forget: avoid rendering intermediate "redirecionando" screens.
+    void signOut();
+    navigate("/auth?mode=professional", { replace: true });
   }, [setupError, signOut, navigate]);
 
   const fetchProfessionalData = async () => {
@@ -405,14 +402,8 @@ const ProfessionalDashboard = () => {
   }
 
   if (setupError) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-therapy border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Redirecionando...</p>
-        </div>
-      </div>
-    );
+    // Nothing should appear here besides the toast message.
+    return null;
   }
 
   return (
