@@ -55,7 +55,7 @@ const ClubFilter = ({ selectedClub, onSelectClub }: ClubFilterProps) => {
             >
               <div
                 className={cn(
-                  "w-12 h-12 rounded-full p-1.5 flex items-center justify-center bg-white",
+                  "w-12 h-12 rounded-full p-1 flex items-center justify-center bg-white overflow-hidden",
                   selectedClub === club.id &&
                     "ring-2 ring-white ring-offset-2 ring-offset-zinc-900"
                 )}
@@ -63,7 +63,7 @@ const ClubFilter = ({ selectedClub, onSelectClub }: ClubFilterProps) => {
                 <img
                   src={club.badgeUrl}
                   alt={club.name}
-                  className="w-full h-full object-contain"
+                  className="w-9 h-9 object-contain"
                 />
               </div>
             </button>

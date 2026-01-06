@@ -217,11 +217,11 @@ const Terapeutas = () => {
                     "--hover-color": club.primaryColor,
                   } as React.CSSProperties}
                 >
-                  <div className="w-14 h-14 mx-auto mb-2 rounded-full bg-white p-1 shadow-md group-hover:shadow-lg transition-shadow">
+                  <div className="w-14 h-14 mx-auto mb-2 rounded-full bg-white p-1.5 shadow-md group-hover:shadow-lg transition-shadow overflow-hidden flex items-center justify-center">
                     <img
                       src={club.badgeUrl}
                       alt={club.name}
-                      className="w-full h-full object-contain"
+                      className="w-10 h-10 object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${club.shortName}`;
                       }}
@@ -245,11 +245,11 @@ const Terapeutas = () => {
                 borderLeft: `4px solid ${selectedClub.primaryColor}`
               }}
             >
-              <div className="w-16 h-16 rounded-full bg-white p-2 shadow-lg">
+              <div className="w-16 h-16 rounded-full bg-white p-2 shadow-lg overflow-hidden flex items-center justify-center">
                 <img
                   src={selectedClub.badgeUrl}
                   alt={selectedClub.name}
-                  className="w-full h-full object-contain"
+                  className="w-11 h-11 object-contain"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${selectedClub.shortName}`;
                   }}
