@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
+import { useRouteRestoration } from "@/hooks/useRouteRestoration";
 import Index from "./pages/Index";
 import Terapeutas from "./pages/Terapeutas";
 import ProfessionalProfile from "./pages/ProfessionalProfile";
@@ -32,9 +33,10 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Component that handles realtime subscriptions
-const RealtimeProvider = ({ children }: { children: React.ReactNode }) => {
+// Component that handles realtime subscriptions and route restoration
+const AppProviders = ({ children }: { children: React.ReactNode }) => {
   useRealtimeSubscriptions();
+  useRouteRestoration();
   return <>{children}</>;
 };
 
@@ -42,10 +44,10 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <RealtimeProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+        <BrowserRouter>
+          <AppProviders>
+            <Toaster />
+            <Sonner />
             <Routes>
               {/* Public routes */}
               <Route path="/auth" element={<Auth />} />
@@ -74,8 +76,8 @@ const App = () => (
 
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </RealtimeProvider>
+          </AppProviders>
+        </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
