@@ -42,16 +42,23 @@ serve(async (req) => {
       );
     }
 
-    // Check if user is a professional
+    // Check if user is a professional or admin
     const { data: professional } = await supabaseAdmin
       .from("professionals")
       .select("id")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    if (!professional) {
+    const { data: adminRole } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .in("role", ["admin", "developer"])
+      .maybeSingle();
+
+    if (!professional && !adminRole) {
       return new Response(
-        JSON.stringify({ error: "Not authorized - must be a professional" }),
+        JSON.stringify({ error: "Not authorized - must be a professional or admin" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
