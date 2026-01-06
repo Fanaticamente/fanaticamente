@@ -33,6 +33,13 @@
         }
       }
 
+      /* Force show scrollbar on desktop */
+      @media (min-width: 769px) {
+        html, body {
+          overflow-y: scroll !important;
+        }
+      }
+
       /* iOS safe area support */
       body {
         padding-top: env(safe-area-inset-top);

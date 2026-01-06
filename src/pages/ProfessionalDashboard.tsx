@@ -98,25 +98,38 @@ const ProfessionalDashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  const verifySubscription = async () => {
+  const verifySubscription = async (silent = false) => {
     try {
+      if (!silent) {
+        toast.info("Verificando assinatura...");
+      }
+      
       const { data, error } = await supabase.functions.invoke("check-professional-subscription");
 
       if (error) {
         console.error("Error verifying subscription:", error);
-        toast.error("Não foi possível verificar a assinatura. Tente novamente em instantes.");
-        return;
+        if (!silent) {
+          toast.error("Não foi possível verificar a assinatura. Tente novamente em instantes.");
+        }
+        return false;
       }
 
       if (data?.subscribed) {
         toast.success("Assinatura confirmada! Seu perfil entrou em análise.");
         fetchProfessionalData();
+        return true;
       } else {
-        toast.info("Assinatura ainda não identificada. Tente novamente em instantes.");
+        if (!silent) {
+          toast.info("Assinatura ainda não identificada. Tente novamente em instantes.");
+        }
+        return false;
       }
     } catch (error) {
       console.error("Error checking subscription:", error);
-      toast.error("Erro ao verificar assinatura");
+      if (!silent) {
+        toast.error("Erro ao verificar assinatura");
+      }
+      return false;
     }
   };
 
@@ -260,7 +273,7 @@ const ProfessionalDashboard = () => {
 
     if (professional.approval_status === "pending_payment") {
       setHasSyncedSubscription(true);
-      verifySubscription();
+      verifySubscription(true);
     }
   }, [professional, hasSyncedSubscription]);
 
@@ -716,9 +729,20 @@ const ProfessionalDashboard = () => {
         {/* Assinatura Tab */}
         {activeTab === "assinatura" && professional && (
           <div className="space-y-6">
-            <h2 className="font-display text-2xl text-card-foreground mb-4">
-              {hasSubscription ? "Gerenciar Assinatura" : "Escolha seu Plano"}
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-2xl text-card-foreground">
+                {hasSubscription ? "Gerenciar Assinatura" : "Escolha seu Plano"}
+              </h2>
+              {!hasSubscription && (
+                <button
+                  onClick={() => verifySubscription()}
+                  className="px-4 py-2 bg-therapy/20 text-therapy rounded-lg text-sm font-medium hover:bg-therapy/30 transition-colors flex items-center gap-2"
+                >
+                  <Loader2 className="w-4 h-4" />
+                  Verificar Assinatura
+                </button>
+              )}
+            </div>
             {hasSubscription && professional.subscription_type && professional.subscription_expires_at ? (
               <SubscriptionManager 
                 professionalId={professional.id}
@@ -727,10 +751,17 @@ const ProfessionalDashboard = () => {
                 onUpdate={fetchProfessionalData}
               />
             ) : (
-              <SubscriptionPlans 
-                professionalId={professional.id}
-                onSubscribe={handleSubscriptionComplete}
-              />
+              <>
+                <SubscriptionPlans 
+                  professionalId={professional.id}
+                  onSubscribe={handleSubscriptionComplete}
+                />
+                <div className="bg-muted/30 rounded-xl p-4 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Após realizar o pagamento, clique em "Verificar Assinatura" caso o plano não seja exibido automaticamente.
+                  </p>
+                </div>
+              </>
             )}
           </div>
         )}
