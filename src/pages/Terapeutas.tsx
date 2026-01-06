@@ -1,16 +1,12 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import TherapistCard from "@/components/terapeutas/TherapistCard";
 import { getClubsByLeague, BrazilianClub } from "@/data/brazilianClubs";
 import { supabase } from "@/integrations/supabase/client";
 import { addDays } from "date-fns";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 interface Professional {
   id: string;
@@ -23,12 +19,6 @@ interface Professional {
   is_verified: boolean | null;
   bio: string | null;
   hourly_rate: number | null;
-}
-
-interface Profile {
-  full_name: string | null;
-  avatar_url: string | null;
-  favorite_club_id: string | null;
 }
 
 interface TherapistData {
@@ -71,18 +61,22 @@ const generateAvailableSlots = () => {
 };
 
 type Step = "club" | "therapists";
+type League = "serie_a" | "serie_b" | "serie_c";
+
+const leagueLabels: Record<League, string> = {
+  serie_a: "Série A",
+  serie_b: "Série B",
+  serie_c: "Série C",
+};
 
 const Terapeutas = () => {
   const [step, setStep] = useState<Step>("club");
+  const [selectedLeague, setSelectedLeague] = useState<League>("serie_a");
   const [selectedClub, setSelectedClub] = useState<BrazilianClub | null>(null);
   const [therapists, setTherapists] = useState<TherapistData[]>([]);
   const [loading, setLoading] = useState(false);
-  const [serieBOpen, setSerieBOpen] = useState(false);
-  const [serieCOpen, setSerieCOpen] = useState(false);
 
-  const clubsSerieA = getClubsByLeague("serie_a");
-  const clubsSerieB = getClubsByLeague("serie_b");
-  const clubsSerieC = getClubsByLeague("serie_c");
+  const clubs = getClubsByLeague(selectedLeague);
 
   const fetchTherapistsForClub = async (clubId: string) => {
     setLoading(true);
@@ -160,35 +154,6 @@ const Terapeutas = () => {
     setTherapists([]);
   };
 
-  const ClubGrid = ({ clubs }: { clubs: BrazilianClub[] }) => (
-    <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-      {clubs.map((club) => (
-        <button
-          key={club.id}
-          onClick={() => handleClubSelect(club)}
-          className="bg-card border-2 border-border rounded-xl p-3 text-center hover:scale-105 transition-all group"
-          style={{
-            "--hover-color": club.primaryColor,
-          } as React.CSSProperties}
-        >
-          <div className="w-14 h-14 mx-auto mb-2 rounded-full bg-white p-1 shadow-md group-hover:shadow-lg transition-shadow">
-            <img
-              src={club.badgeUrl}
-              alt={club.name}
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${club.shortName}`;
-              }}
-            />
-          </div>
-          <p className="text-card-foreground font-medium text-xs group-hover:text-primary transition-colors">
-            {club.name}
-          </p>
-        </button>
-      ))}
-    </div>
-  );
-
   return (
     <div 
       className="min-h-screen transition-colors duration-500"
@@ -214,7 +179,7 @@ const Terapeutas = () => {
 
         {step === "club" && (
           <div className="animate-fade-in">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <h1 className="font-display text-4xl text-primary mb-2">
                 Túnel de Acesso
               </h1>
@@ -223,50 +188,51 @@ const Terapeutas = () => {
               </p>
             </div>
 
-            {/* Série A - 2026 */}
-            <div className="mb-6">
-              <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-primary" />
-                Série A 2026
-              </h2>
-              <ClubGrid clubs={clubsSerieA} />
+            {/* League Tabs */}
+            <div className="flex gap-2 mb-6">
+              {(Object.keys(leagueLabels) as League[]).map((league) => (
+                <button
+                  key={league}
+                  onClick={() => setSelectedLeague(league)}
+                  className={cn(
+                    "flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all",
+                    selectedLeague === league
+                      ? "bg-primary text-primary-foreground shadow-lg"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  )}
+                >
+                  {leagueLabels[league]}
+                </button>
+              ))}
             </div>
 
-            {/* Série B - Collapsible */}
-            <Collapsible open={serieBOpen} onOpenChange={setSerieBOpen} className="mb-4">
-              <CollapsibleTrigger className="w-full flex items-center justify-between p-4 bg-muted rounded-xl hover:bg-muted/80 transition-colors">
-                <span className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-muted-foreground" />
-                  Série B 2026
-                </span>
-                {serieBOpen ? (
-                  <ChevronUp className="w-5 h-5 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                )}
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-4">
-                <ClubGrid clubs={clubsSerieB} />
-              </CollapsibleContent>
-            </Collapsible>
-
-            {/* Série C - Collapsible */}
-            <Collapsible open={serieCOpen} onOpenChange={setSerieCOpen} className="mb-4">
-              <CollapsibleTrigger className="w-full flex items-center justify-between p-4 bg-muted rounded-xl hover:bg-muted/80 transition-colors">
-                <span className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-muted-foreground" />
-                  Série C 2026
-                </span>
-                {serieCOpen ? (
-                  <ChevronUp className="w-5 h-5 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                )}
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-4">
-                <ClubGrid clubs={clubsSerieC} />
-              </CollapsibleContent>
-            </Collapsible>
+            {/* Clubs Grid */}
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+              {clubs.map((club) => (
+                <button
+                  key={club.id}
+                  onClick={() => handleClubSelect(club)}
+                  className="bg-card border-2 border-border rounded-xl p-3 text-center hover:scale-105 transition-all group"
+                  style={{
+                    "--hover-color": club.primaryColor,
+                  } as React.CSSProperties}
+                >
+                  <div className="w-14 h-14 mx-auto mb-2 rounded-full bg-white p-1 shadow-md group-hover:shadow-lg transition-shadow">
+                    <img
+                      src={club.badgeUrl}
+                      alt={club.name}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${club.shortName}`;
+                      }}
+                    />
+                  </div>
+                  <p className="text-card-foreground font-medium text-xs group-hover:text-primary transition-colors">
+                    {club.name}
+                  </p>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
