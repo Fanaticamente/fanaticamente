@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import ProfileStatusCard from "@/components/professional/ProfileStatusCard";
+
 import ProfileCompletionForm from "@/components/professional/ProfileCompletionForm";
 import SubscriptionPlans from "@/components/professional/SubscriptionPlans";
 import StripeConnectCard from "@/components/professional/StripeConnectCard";
@@ -488,15 +488,6 @@ const ProfessionalDashboard = () => {
             }}
           />
         )}
-
-        {/* Profile Status */}
-        <div className="mb-6">
-          <ProfileStatusCard 
-            isProfileComplete={isProfileComplete}
-            isSubscribed={isSubscribed}
-            clubName={club?.name || null}
-          />
-        </div>
 
         {/* Tabs - Always visible, some disabled without subscription */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
