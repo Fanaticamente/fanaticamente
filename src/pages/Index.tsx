@@ -24,13 +24,15 @@ const Index = () => {
       {/* Mobile Layout */}
       <div data-layout="mobile" className="min-h-screen bg-background md:hidden">
         <Header />
-        <main className="pt-14 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+        <main className="pt-14">
           <HeroCarousel />
           <TunnelCard />
           <TicketCard />
           <QuizCard />
           <FanatiClassCard />
           <RadioCard />
+          {/* Spacer para manter distância do BottomNav (igual ao espaçamento entre cards) */}
+          <div aria-hidden className="h-[calc(6.5rem+env(safe-area-inset-bottom))]" />
         </main>
         <BottomNav />
       </div>
