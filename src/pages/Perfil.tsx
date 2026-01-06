@@ -6,11 +6,13 @@ import BottomNav from "@/components/layout/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
+import { getClubById, BrazilianClub } from "@/data/brazilianClubs";
 
 const Perfil = () => {
   const { user, roles, signOut, hasRole, loading } = useAuth();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null; favorite_club_id: string | null } | null>(null);
+  const [favoriteClub, setFavoriteClub] = useState<BrazilianClub | null>(null);
   const [appointmentsCount, setAppointmentsCount] = useState(0);
 
   useEffect(() => {
@@ -28,12 +30,17 @@ const Perfil = () => {
       if (user) {
         const { data } = await supabase
           .from("profiles")
-          .select("full_name, avatar_url")
+          .select("full_name, avatar_url, favorite_club_id")
           .eq("user_id", user.id)
           .single();
         
         if (data) {
           setProfile(data);
+          // Buscar dados do clube favorito
+          if (data.favorite_club_id) {
+            const club = getClubById(data.favorite_club_id);
+            setFavoriteClub(club || null);
+          }
         }
 
         // Fetch appointments count
@@ -228,13 +235,33 @@ const Perfil = () => {
             Meu Time do Coração
           </h2>
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
-              <span className="text-3xl">⚽</span>
-            </div>
-            <div>
-              <p className="text-card-foreground font-bold text-lg">Flamengo</p>
-              <p className="text-muted-foreground text-sm">Série A - Brasileiro</p>
-            </div>
+            {favoriteClub ? (
+              <>
+                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden p-2">
+                  <img 
+                    src={favoriteClub.badgeUrl} 
+                    alt={`Escudo ${favoriteClub.name}`}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div>
+                  <p className="text-card-foreground font-bold text-lg">{favoriteClub.name}</p>
+                  <p className="text-muted-foreground text-sm">
+                    {favoriteClub.league === "serie_a" ? "Série A" : "Série B"} - Brasileiro
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
+                  <span className="text-3xl">⚽</span>
+                </div>
+                <div>
+                  <p className="text-card-foreground font-bold text-lg">Nenhum time selecionado</p>
+                  <p className="text-muted-foreground text-sm">Configure nas preferências</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
