@@ -21,19 +21,32 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   
-  // Read initial tab from URL or default to "dashboard"
-  const urlTab = searchParams.get("tab") as TabType | null;
+  // Valid tabs
   const validTabs: TabType[] = ["dashboard", "financeiro", "usuarios", "gestao", "profissionais", "agendamentos", "configuracoes"];
-  const initialTab: TabType = urlTab && validTabs.includes(urlTab) ? urlTab : "dashboard";
   
-  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
+  // Get tab from URL or default
+  const getTabFromUrl = (): TabType => {
+    const urlTab = searchParams.get("tab") as TabType | null;
+    return urlTab && validTabs.includes(urlTab) ? urlTab : "dashboard";
+  };
+  
+  const [activeTab, setActiveTab] = useState<TabType>(getTabFromUrl);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Sync tab changes to URL
+  // Sync activeTab when URL changes (e.g., browser back/forward)
   useEffect(() => {
-    setSearchParams({ tab: activeTab }, { replace: true });
-  }, [activeTab, setSearchParams]);
+    const urlTab = getTabFromUrl();
+    if (urlTab !== activeTab) {
+      setActiveTab(urlTab);
+    }
+  }, [searchParams]);
+
+  // Sync URL when tab changes via click
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    setSearchParams({ tab }, { replace: true });
+  };
 
   // Wait for loading to complete before checking role
   useEffect(() => {
@@ -121,7 +134,7 @@ const AdminDashboard = () => {
           {navItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id as typeof activeTab)}
+              onClick={() => handleTabChange(item.id as TabType)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
                 activeTab === item.id
                   ? "bg-secondary text-secondary-foreground"
