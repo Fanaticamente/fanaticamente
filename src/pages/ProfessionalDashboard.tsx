@@ -122,6 +122,21 @@ const ProfessionalDashboard = () => {
     fetchProfessionalData();
   }, [hasRole, navigate, user]);
 
+  // If the user has a professional role but no professional record exists,
+  // treat it as an invalid/non-registered account and send them back to login.
+  useEffect(() => {
+    if (!setupError) return;
+
+    toast.error("Conta inválida ou não cadastrada.");
+
+    const run = async () => {
+      await signOut();
+      navigate("/auth?mode=professional", { replace: true });
+    };
+
+    run();
+  }, [setupError, signOut, navigate]);
+
   const fetchProfessionalData = async () => {
     if (!user) return;
 
@@ -131,18 +146,18 @@ const ProfessionalDashboard = () => {
         .from("profiles")
         .select("full_name, favorite_club_id, avatar_url, city, state")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (profileData) {
         setProfile(profileData);
 
         // Fetch club data if user has favorite club
         if (profileData.favorite_club_id) {
-          const { data: clubData } = await supabase
-            .from("clubs")
-            .select("id, name, primary_color, badge_url")
-            .eq("id", profileData.favorite_club_id)
-            .single();
+            const { data: clubData } = await supabase
+              .from("clubs")
+              .select("id, name, primary_color, badge_url")
+              .eq("id", profileData.favorite_club_id)
+              .maybeSingle();
 
           if (clubData) {
             setClub(clubData);
@@ -155,7 +170,7 @@ const ProfessionalDashboard = () => {
         .from("professionals")
         .select("*")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (!profData) {
         // Professional record doesn't exist - try to complete signup via edge function
@@ -391,31 +406,10 @@ const ProfessionalDashboard = () => {
 
   if (setupError) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <div className="text-center max-w-md">
-          <div className="w-16 h-16 bg-destructive/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <XCircle className="w-8 h-8 text-destructive" />
-          </div>
-          <h2 className="font-display text-2xl text-card-foreground mb-2">
-            Cadastro Incompleto
-          </h2>
-          <p className="text-muted-foreground mb-6">
-            Não encontramos seu cadastro profissional. Por favor, faça o cadastro novamente como profissional.
-          </p>
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={() => navigate("/auth?mode=professional")}
-              className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:scale-[1.02] transition-transform"
-            >
-              Cadastrar como Profissional
-            </button>
-            <button
-              onClick={handleLogout}
-              className="w-full py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors"
-            >
-              Sair
-            </button>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-therapy border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Redirecionando...</p>
         </div>
       </div>
     );
