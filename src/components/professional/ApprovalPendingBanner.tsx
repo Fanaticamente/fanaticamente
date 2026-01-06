@@ -24,8 +24,8 @@ const ApprovalPendingBanner = ({ approvalStatus, rejectionReason, onResubmit }: 
         return {
           title: "Aguardando Assinatura",
           message: "Complete o perfil e faça a assinatura de um plano para que seu perfil entre em análise e seja publicado no marketplace.",
-          style: "bg-therapy/10 border-therapy/30 text-therapy",
-          iconColor: "text-therapy"
+          style: "bg-orange-500/10 border-orange-500/30 text-orange-600",
+          iconColor: "text-orange-500"
         };
       case "needs_correction":
         return {

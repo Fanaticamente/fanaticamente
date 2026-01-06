@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { 
   Users, UserCheck, Calendar, Settings, LogOut, Search, Filter, 
-  Shield, Sun, Moon, LayoutDashboard, DollarSign 
+  Shield, Sun, Moon, LayoutDashboard, DollarSign, ClipboardList 
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import adminLogoLight from "@/assets/admin-logo-light.png";
@@ -11,9 +11,10 @@ import AdminMetricsDashboard from "@/components/admin/AdminMetricsDashboard";
 import AdminFinanceDashboard from "@/components/admin/AdminFinanceDashboard";
 import AdminUsersTable from "@/components/admin/AdminUsersTable";
 import AdminProfessionalsTable from "@/components/admin/AdminProfessionalsTable";
+import AdminProfessionalsManagement from "@/components/admin/AdminProfessionalsManagement";
 import AdminAppointmentsTable from "@/components/admin/AdminAppointmentsTable";
 
-type TabType = "dashboard" | "financeiro" | "usuarios" | "profissionais" | "agendamentos" | "configuracoes";
+type TabType = "dashboard" | "financeiro" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "configuracoes";
 
 const AdminDashboard = () => {
   const { user, signOut, hasRole, loading } = useAuth();
@@ -22,7 +23,7 @@ const AdminDashboard = () => {
   
   // Read initial tab from URL or default to "dashboard"
   const urlTab = searchParams.get("tab") as TabType | null;
-  const validTabs: TabType[] = ["dashboard", "financeiro", "usuarios", "profissionais", "agendamentos", "configuracoes"];
+  const validTabs: TabType[] = ["dashboard", "financeiro", "usuarios", "gestao", "profissionais", "agendamentos", "configuracoes"];
   const initialTab: TabType = urlTab && validTabs.includes(urlTab) ? urlTab : "dashboard";
   
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
@@ -87,6 +88,7 @@ const AdminDashboard = () => {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "financeiro", label: "Financeiro", icon: DollarSign },
     { id: "usuarios", label: "Usuários", icon: Users },
+    { id: "gestao", label: "Gestão", icon: ClipboardList },
     { id: "profissionais", label: "Profissionais", icon: UserCheck },
     { id: "agendamentos", label: "Agendamentos", icon: Calendar },
     { id: "configuracoes", label: "Configurações", icon: Settings },
@@ -186,6 +188,11 @@ const AdminDashboard = () => {
         {/* Usuários Tab */}
         {activeTab === "usuarios" && (
           <AdminUsersTable themeStyles={themeStyles} searchTerm={searchTerm} />
+        )}
+
+        {/* Gestão Tab */}
+        {activeTab === "gestao" && (
+          <AdminProfessionalsManagement themeStyles={themeStyles} />
         )}
 
         {/* Profissionais Tab */}
