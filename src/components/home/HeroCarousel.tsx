@@ -57,7 +57,10 @@ const HeroCarousel = () => {
   const touchEndX = useRef<number | null>(null);
 
   const dbSlides = (moduleQuery.data?.config as { slides?: SlideConfig[] } | undefined)?.slides;
-  const slides: SlideConfig[] = dbSlides ?? defaultSlides;
+  
+  // Only show slides from database - wait for data to load
+  const slides: SlideConfig[] = dbSlides ?? [];
+  const isLoading = moduleQuery.isLoading || slides.length === 0;
 
   // Reset state when slides change
   useEffect(() => {
@@ -117,6 +120,16 @@ const HeroCarousel = () => {
         return "font-display";
     }
   };
+
+  // Show placeholder while loading
+  if (isLoading) {
+    return (
+      <div 
+        className="relative w-full overflow-hidden bg-muted animate-pulse" 
+        style={{ aspectRatio: '1/1', maxHeight: '1080px' }}
+      />
+    );
+  }
 
   return (
     <div 

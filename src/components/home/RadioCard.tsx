@@ -4,10 +4,10 @@ import { useModuleConfig } from "@/hooks/useModuleConfig";
 import { useState, useEffect } from "react";
 
 const RadioCard = () => {
-  const { data: moduleConfig } = useModuleConfig('radio_card');
+  const moduleQuery = useModuleConfig('radio_card');
   const [imageLoaded, setImageLoaded] = useState(false);
   
-  const config = moduleConfig?.config || {};
+  const config = moduleQuery.data?.config || {};
   const link = (config.link as string) || "/radio";
   const image = config.image as string | undefined;
 
@@ -15,6 +15,13 @@ const RadioCard = () => {
   useEffect(() => {
     setImageLoaded(false);
   }, [image]);
+
+  // Show placeholder while loading from database
+  if (moduleQuery.isLoading) {
+    return (
+      <div className="block mx-4 my-4 relative overflow-hidden rounded-2xl h-40 bg-muted animate-pulse" />
+    );
+  }
 
   return (
     <Link
