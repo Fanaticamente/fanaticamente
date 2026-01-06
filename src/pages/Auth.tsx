@@ -302,7 +302,7 @@ const Auth = () => {
         const { error } = await signIn(email, password);
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
-            toast.error("Esta conta não está cadastrada ou foi excluída. Verifique seus dados ou crie uma nova conta.");
+            toast.error("Conta inválida ou não cadastrada.");
           } else {
             toast.error(error.message);
           }
