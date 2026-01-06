@@ -3,10 +3,6 @@ import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useModuleConfig } from "@/hooks/useModuleConfig";
 
-import heroSlide1 from "@/assets/hero-slide-1.jpg";
-import heroSlide2 from "@/assets/hero-slide-2.jpg";
-import heroSlide3 from "@/assets/hero-slide-3.jpg";
-
 interface SlideConfig {
   image: string;
   title: string;
@@ -18,36 +14,6 @@ interface SlideConfig {
   titleFont?: string;
   subtitleFont?: string;
 }
-
-const defaultSlides: SlideConfig[] = [
-  {
-    title: "CUIDE DA MENTE",
-    subtitle: "Jogue com equilíbrio",
-    cta: "COMEÇAR AGORA",
-    ctaLink: "/terapeutas",
-    image: heroSlide1,
-    titleColor: "#FFFFFF",
-    subtitleColor: "#FFFFFF",
-  },
-  {
-    title: "ENCONTRE SEU TERAPEUTA",
-    subtitle: "Psicólogos especializados em torcedores",
-    cta: "AGENDAR CONSULTA",
-    ctaLink: "/terapeutas",
-    image: heroSlide2,
-    titleColor: "#FFFFFF",
-    subtitleColor: "#FFFFFF",
-  },
-  {
-    title: "COMUNIDADE FANÁTICA",
-    subtitle: "Apoio emocional entre torcedores",
-    cta: "PARTICIPAR",
-    ctaLink: "/quiz",
-    image: heroSlide3,
-    titleColor: "#FFFFFF",
-    subtitleColor: "#FFFFFF",
-  },
-];
 
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
