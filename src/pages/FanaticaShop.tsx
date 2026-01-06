@@ -93,7 +93,7 @@ const FanaticaShop = () => {
             <ProductGrid products={allProducts.slice(0, 20)} title="Todos os Produtos" />
 
             {/* Spacer para manter distância do BottomNav */}
-            <div aria-hidden className="h-[calc(6.5rem+env(safe-area-inset-bottom))]" />
+            <div aria-hidden className="h-28" />
           </div>
         )}
       </div>

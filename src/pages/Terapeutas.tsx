@@ -284,7 +284,7 @@ const Terapeutas = () => {
         )}
 
         {/* Spacer para manter distância do BottomNav */}
-        <div aria-hidden className="h-[calc(6.5rem+env(safe-area-inset-bottom))]" />
+        <div aria-hidden className="h-28" />
       </main>
 
       <BottomNav />
