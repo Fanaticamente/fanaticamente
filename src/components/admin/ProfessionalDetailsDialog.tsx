@@ -348,32 +348,38 @@ const ProfessionalDetailsDialog = ({
           <div className="space-y-6">
             {/* Personal Info */}
             <div className="grid grid-cols-2 gap-5">
-              {professional.email && (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Mail className="w-5 h-5 text-emerald-600" />
-                  <span className="text-base text-gray-800">{professional.email}</span>
-                </div>
-              )}
-              {professional.profile?.phone && (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Phone className="w-5 h-5 text-emerald-600" />
-                  <span className="text-base text-gray-800">{professional.profile.phone}</span>
-                </div>
-              )}
-              {age && (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Calendar className="w-5 h-5 text-emerald-600" />
-                  <span className="text-base text-gray-800">{age} anos</span>
-                </div>
-              )}
-              {(professional.profile?.city || professional.profile?.state) && (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <MapPin className="w-5 h-5 text-emerald-600" />
-                  <span className="text-base text-gray-800">
-                    {[professional.profile.city, professional.profile.state].filter(Boolean).join(", ")}
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <Mail className="w-5 h-5 text-emerald-600" />
+                <span className="text-base text-gray-800">{professional.email || "Não informado"}</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <Phone className="w-5 h-5 text-emerald-600" />
+                <span className="text-base text-gray-800">{professional.profile?.phone || "Não informado"}</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <Calendar className="w-5 h-5 text-emerald-600" />
+                <span className="text-base text-gray-800">{age ? `${age} anos` : "Não informado"}</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <MapPin className="w-5 h-5 text-emerald-600" />
+                <span className="text-base text-gray-800">
+                  {professional.profile?.city && professional.profile?.state 
+                    ? `${professional.profile.city}, ${professional.profile.state}`
+                    : professional.profile?.city || professional.profile?.state || "Não informado"}
+                </span>
+              </div>
+            </div>
+
+            {/* Document Info */}
+            <div className="grid grid-cols-2 gap-5">
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm text-gray-500">Tipo de Documento</span>
+                <p className="text-base font-medium text-gray-800">{professional.document_type?.toUpperCase() || "Não informado"}</p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm text-gray-500">Número do Documento</span>
+                <p className="text-base font-medium text-gray-800">{professional.document_number || "Não informado"}</p>
+              </div>
             </div>
 
             {/* Professional Info */}
@@ -414,18 +420,14 @@ const ProfessionalDetailsDialog = ({
                   <span className="text-sm text-gray-500">Consultas</span>
                   <p className="text-base font-medium text-gray-800">{professional.appointmentsCount}</p>
                 </div>
-                {professional.hourly_rate && (
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm text-gray-500">Valor da sessão</span>
-                    <p className="text-base font-medium text-emerald-600">R$ {professional.hourly_rate}</p>
-                  </div>
-                )}
-                {professional.document_type && professional.document_number && (
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm text-gray-500">{professional.document_type.toUpperCase()}</span>
-                    <p className="text-base font-medium text-gray-800">{professional.document_number}</p>
-                  </div>
-                )}
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm text-gray-500">Valor da sessão</span>
+                  <p className="text-base font-medium text-emerald-600">{professional.hourly_rate ? `R$ ${professional.hourly_rate}` : "Não definido"}</p>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm text-gray-500">Anos de experiência</span>
+                  <p className="text-base font-medium text-gray-800">{professional.experience_years || 0}</p>
+                </div>
               </div>
             </div>
 
