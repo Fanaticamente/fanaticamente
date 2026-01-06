@@ -302,15 +302,15 @@ const Auth = () => {
         const { error } = await signIn(email, password);
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
-            toast.error("Conta inválida ou não cadastrada.");
+            toast.error("Conta inválida ou não cadastrada. Revise os dados ou cadastre-se.");
           } else {
             toast.error(error.message);
           }
         } else {
           // Let the global auth state + roles loader decide the redirect.
           // This avoids race conditions where roles are not ready right after login.
+          // Don't show success toast here - wait for full validation in dashboard
           setRoleValidated(true);
-          toast.success("Login realizado com sucesso!");
         }
       } else {
         // Sign up with additional user data
