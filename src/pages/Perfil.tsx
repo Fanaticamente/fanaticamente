@@ -287,6 +287,9 @@ const Perfil = () => {
           <LogOut className="w-5 h-5" />
           Sair da Conta
         </button>
+
+        {/* Spacer para manter distância do BottomNav */}
+        <div aria-hidden className="h-[calc(6.5rem+env(safe-area-inset-bottom))]" />
       </main>
 
       <BottomNav />

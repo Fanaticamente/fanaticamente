@@ -169,6 +169,9 @@ const Futebol = () => {
             ))}
           </div>
         </div>
+
+        {/* Spacer para manter distância do BottomNav */}
+        <div aria-hidden className="h-[calc(6.5rem+env(safe-area-inset-bottom))]" />
       </main>
 
       <BottomNav />
