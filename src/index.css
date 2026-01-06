@@ -139,6 +139,14 @@
       width: 0 !important;
       height: 0 !important;
     }
+
+    /* iOS PWA: blur em elementos fixed pode causar 'travadas' ao rolar */
+    @supports (-webkit-touch-callout: none) {
+      .glass-dark {
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+      }
+    }
   }
 
 
