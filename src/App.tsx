@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
 import Index from "./pages/Index";
@@ -46,27 +47,31 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
+              {/* Public routes */}
               <Route path="/auth" element={<Auth />} />
-              <Route path="/terapeutas" element={<Terapeutas />} />
-              <Route path="/terapeuta/:id" element={<ProfessionalProfile />} />
-              <Route path="/pagamento/:id" element={<SessionPayment />} />
-              <Route path="/pagamento/confirmacao/:id" element={<PaymentConfirmation />} />
-              <Route path="/cursos" element={<Cursos />} />
-              <Route path="/curso/:id" element={<CursoDetalhe />} />
-              <Route path="/quiz" element={<Quiz />} />
-              <Route path="/diario" element={<Diario />} />
-              <Route path="/radio" element={<Radio />} />
-              <Route path="/futebol" element={<Futebol />} />
-              <Route path="/perfil" element={<Perfil />} />
-              <Route path="/perfil/agendamentos" element={<MeusAgendamentos />} />
-              <Route path="/loja" element={<FanaticaShop />} />
-              <Route path="/loja/produto/:id" element={<ProductDetail />} />
-              <Route path="/profissional" element={<ProfessionalDashboard />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/desenvolvedor" element={<DeveloperDashboard />} />
               <Route path="/admin-access" element={<AdminAccess />} />
               <Route path="/setup-test" element={<SetupTestUsers />} />
+
+              {/* Protected routes - require login */}
+              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/terapeutas" element={<ProtectedRoute><Terapeutas /></ProtectedRoute>} />
+              <Route path="/terapeuta/:id" element={<ProtectedRoute><ProfessionalProfile /></ProtectedRoute>} />
+              <Route path="/pagamento/:id" element={<ProtectedRoute><SessionPayment /></ProtectedRoute>} />
+              <Route path="/pagamento/confirmacao/:id" element={<ProtectedRoute><PaymentConfirmation /></ProtectedRoute>} />
+              <Route path="/cursos" element={<ProtectedRoute><Cursos /></ProtectedRoute>} />
+              <Route path="/curso/:id" element={<ProtectedRoute><CursoDetalhe /></ProtectedRoute>} />
+              <Route path="/quiz" element={<ProtectedRoute><Quiz /></ProtectedRoute>} />
+              <Route path="/diario" element={<ProtectedRoute><Diario /></ProtectedRoute>} />
+              <Route path="/radio" element={<ProtectedRoute><Radio /></ProtectedRoute>} />
+              <Route path="/futebol" element={<ProtectedRoute><Futebol /></ProtectedRoute>} />
+              <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+              <Route path="/perfil/agendamentos" element={<ProtectedRoute><MeusAgendamentos /></ProtectedRoute>} />
+              <Route path="/loja" element={<ProtectedRoute><FanaticaShop /></ProtectedRoute>} />
+              <Route path="/loja/produto/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
+              <Route path="/profissional" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/desenvolvedor" element={<ProtectedRoute><DeveloperDashboard /></ProtectedRoute>} />
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
