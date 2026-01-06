@@ -24,7 +24,7 @@ const Index = () => {
       {/* Mobile Layout */}
       <div data-layout="mobile" className="min-h-screen bg-background md:hidden">
         <Header />
-        <main className="pt-14">
+        <main className="pt-14 pb-28">
           <HeroCarousel />
           <TunnelCard />
           <TicketCard />
