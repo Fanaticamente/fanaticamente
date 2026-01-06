@@ -79,8 +79,12 @@ serve(async (req) => {
 
     if (hasActiveSub) {
       const subscription = activeSubscriptions[0];
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      productId = subscription.items.data[0].price.product as string;
+      // Handle subscription end date safely
+      const periodEnd = subscription.current_period_end;
+      subscriptionEnd = periodEnd 
+        ? new Date(periodEnd * 1000).toISOString() 
+        : new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(); // Default 180 days for trial
+      productId = subscription.items?.data?.[0]?.price?.product as string || null;
       logStep("Active/trialing subscription found", { 
         subscriptionId: subscription.id, 
         status: subscription.status,
