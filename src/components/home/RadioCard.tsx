@@ -29,14 +29,14 @@ const RadioCard = () => {
   // Show placeholder while loading
   if (isLoading || !isReady || !image) {
     return (
-      <div className="block mx-4 my-4 mb-24 relative overflow-hidden rounded-2xl h-40 bg-muted animate-pulse" />
+      <div className="block mx-4 my-4 relative overflow-hidden rounded-2xl h-40 bg-muted animate-pulse" />
     );
   }
 
   return (
     <Link
       to={link}
-      className="block mx-4 my-4 mb-24 relative overflow-hidden rounded-2xl h-40 group"
+      className="block mx-4 my-4 relative overflow-hidden rounded-2xl h-40 group"
     >
       <img 
         src={image} 
