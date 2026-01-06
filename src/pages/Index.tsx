@@ -32,7 +32,7 @@ const Index = () => {
           <FanatiClassCard />
           <RadioCard />
           {/* Spacer para manter distância do BottomNav (igual ao espaçamento entre cards) */}
-          <div aria-hidden className="h-[calc(6.5rem+env(safe-area-inset-bottom))]" />
+          <div aria-hidden className="h-28" />
         </main>
         <BottomNav />
       </div>
