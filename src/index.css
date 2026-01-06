@@ -99,6 +99,12 @@
     @apply border-border;
   }
 
+  html,
+  body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Roboto', sans-serif;
@@ -106,11 +112,23 @@
 
   /* Hide scrollbar on mobile */
   @media (max-width: 768px) {
-    html, body, * {
+    html,
+    body {
+      -webkit-overflow-scrolling: touch;
       scrollbar-width: none !important;
       -ms-overflow-style: none !important;
     }
-    
+
+    /* Hide scrollbars even on internal scroll containers */
+    * {
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+
+    body {
+      overscroll-behavior: none;
+    }
+
     html::-webkit-scrollbar,
     body::-webkit-scrollbar,
     *::-webkit-scrollbar {
@@ -119,6 +137,8 @@
       height: 0 !important;
     }
   }
+
+
 
   /* Normalize iOS date input height so it matches other inputs (48px / h-12) */
   input[type='date'] {
