@@ -10,7 +10,7 @@ const navItems = [
 
 const BottomNav = () => {
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50">
+    <div className="fixed bottom-4 left-4 right-4 z-50 pb-[env(safe-area-inset-bottom)]">
       <nav className="glass-dark rounded-[32px] mx-auto max-w-md">
         <div className="flex items-center justify-around py-3 px-2">
         {navItems.map((item) => {
