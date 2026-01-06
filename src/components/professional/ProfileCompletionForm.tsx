@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Upload, X, Plus, Info, Edit2, FileText, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,20 +44,49 @@ const SPECIALTY_OPTIONS = [
   "Transtornos Alimentares"
 ];
 
+const LOCAL_STORAGE_KEY = "professional_profile_draft";
+
 const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: ProfileCompletionFormProps) => {
   const { user } = useAuth();
-  const [formData, setFormData] = useState<ProfileData>({
-    bio: existingData?.bio || "",
-    degree: existingData?.degree || "",
-    specializations: existingData?.specializations || "",
-    specialties: existingData?.specialties || [],
-    sessionDuration: existingData?.sessionDuration || "50",
-    sessionPrice: existingData?.sessionPrice || "",
-    showPrice: existingData?.showPrice ?? true,
-    imageUrl: existingData?.imageUrl || "",
-    crpDocumentFrontUrl: existingData?.crpDocumentFrontUrl || "",
-    crpDocumentBackUrl: existingData?.crpDocumentBackUrl || ""
-  });
+  
+  // Função para carregar dados do localStorage
+  const loadDraftFromStorage = useCallback((): Partial<ProfileData> | null => {
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Verificar se o draft é do mesmo profissional
+        if (parsed.professionalId === professionalId) {
+          return parsed.data;
+        }
+      }
+    } catch (e) {
+      console.error("Error loading draft:", e);
+    }
+    return null;
+  }, [professionalId]);
+
+  // Carregar draft ou dados existentes
+  const getInitialData = useCallback((): ProfileData => {
+    const draft = loadDraftFromStorage();
+    
+    // Priorizar draft local sobre dados existentes (exceto URLs de imagens que são persistidos no banco)
+    return {
+      bio: draft?.bio ?? existingData?.bio ?? "",
+      degree: draft?.degree ?? existingData?.degree ?? "",
+      specializations: draft?.specializations ?? existingData?.specializations ?? "",
+      specialties: draft?.specialties ?? existingData?.specialties ?? [],
+      sessionDuration: draft?.sessionDuration ?? existingData?.sessionDuration ?? "50",
+      sessionPrice: draft?.sessionPrice ?? existingData?.sessionPrice ?? "",
+      showPrice: draft?.showPrice ?? existingData?.showPrice ?? true,
+      // Imagens sempre vêm do banco de dados (são salvas imediatamente no upload)
+      imageUrl: existingData?.imageUrl ?? draft?.imageUrl ?? "",
+      crpDocumentFrontUrl: existingData?.crpDocumentFrontUrl ?? draft?.crpDocumentFrontUrl ?? "",
+      crpDocumentBackUrl: existingData?.crpDocumentBackUrl ?? draft?.crpDocumentBackUrl ?? ""
+    };
+  }, [existingData, loadDraftFromStorage]);
+
+  const [formData, setFormData] = useState<ProfileData>(getInitialData);
   
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingCrpFront, setIsUploadingCrpFront] = useState(false);
@@ -67,6 +96,34 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
   const fileInputRef = useRef<HTMLInputElement>(null);
   const crpFrontInputRef = useRef<HTMLInputElement>(null);
   const crpBackInputRef = useRef<HTMLInputElement>(null);
+
+  // Salvar draft no localStorage sempre que formData mudar
+  useEffect(() => {
+    const saveDraft = () => {
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
+          professionalId,
+          data: formData,
+          savedAt: new Date().toISOString()
+        }));
+      } catch (e) {
+        console.error("Error saving draft:", e);
+      }
+    };
+    
+    // Debounce para não salvar a cada keystroke
+    const timeoutId = setTimeout(saveDraft, 500);
+    return () => clearTimeout(timeoutId);
+  }, [formData, professionalId]);
+
+  // Limpar draft após salvar com sucesso
+  const clearDraft = useCallback(() => {
+    try {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    } catch (e) {
+      console.error("Error clearing draft:", e);
+    }
+  }, []);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -250,6 +307,9 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
 
       if (error) throw error;
 
+      // Limpar o rascunho após salvar com sucesso
+      clearDraft();
+      
       toast.success("Perfil atualizado com sucesso!");
       onComplete();
     } catch (error) {
