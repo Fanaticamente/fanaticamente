@@ -220,19 +220,23 @@ const ProfessionalDetailsDialog = ({
 
     setIsDeleting(true);
     try {
-      const { error } = await supabase
-        .from("professionals")
-        .delete()
-        .eq("id", professional.id);
+      // Call edge function to completely delete user and all related data
+      const { data, error } = await supabase.functions.invoke("delete-user-completely", {
+        body: {
+          userId: professional.user_id,
+          adminPassword: deletePassword,
+        },
+      });
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
-      toast.success("Perfil profissional excluído com sucesso!");
+      toast.success("Conta excluída completamente do sistema!");
       onRefresh();
       onClose();
     } catch (error) {
       console.error("Error deleting:", error);
-      toast.error("Erro ao excluir profissional");
+      toast.error("Erro ao excluir conta");
     } finally {
       setIsDeleting(false);
       setDeletePassword("");
