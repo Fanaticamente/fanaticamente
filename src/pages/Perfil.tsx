@@ -14,6 +14,7 @@ const Perfil = () => {
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null; favorite_club_id: string | null } | null>(null);
   const [favoriteClub, setFavoriteClub] = useState<BrazilianClub | null>(null);
   const [appointmentsCount, setAppointmentsCount] = useState(0);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -27,7 +28,8 @@ const Perfil = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (user) {
+      // Só buscar profile se não for profissional (evita flash antes do redirect)
+      if (user && !loading && !hasRole("professional")) {
         const { data } = await supabase
           .from("profiles")
           .select("full_name, avatar_url, favorite_club_id")
@@ -50,23 +52,23 @@ const Perfil = () => {
           .eq("user_id", user.id);
         
         setAppointmentsCount(count || 0);
+        setProfileLoading(false);
+      } else if (!loading && !user) {
+        setProfileLoading(false);
       }
     };
 
     fetchProfile();
-  }, [user]);
+  }, [user, loading, hasRole]);
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
-      </div>
-    );
+  // Aguardar auth e evitar flash para profissionais
+  if (loading || hasRole("professional") || profileLoading) {
+    return null;
   }
 
   const baseMenuItems = [
