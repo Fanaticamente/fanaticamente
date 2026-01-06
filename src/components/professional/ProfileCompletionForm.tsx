@@ -93,9 +93,12 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
   const [isUploadingCrpBack, setIsUploadingCrpBack] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [newSpecialty, setNewSpecialty] = useState("");
+  const [isAddingCustom, setIsAddingCustom] = useState(false);
+  const [customSpecialty, setCustomSpecialty] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const crpFrontInputRef = useRef<HTMLInputElement>(null);
   const crpBackInputRef = useRef<HTMLInputElement>(null);
+  const customSpecialtyInputRef = useRef<HTMLInputElement>(null);
 
   // Salvar draft no localStorage sempre que formData mudar
   useEffect(() => {
@@ -256,13 +259,29 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
       toast.error("Máximo de 6 especialidades");
       return;
     }
-    if (!formData.specialties.includes(specialty)) {
+    const trimmed = specialty.trim();
+    if (trimmed && !formData.specialties.includes(trimmed)) {
       setFormData(prev => ({
         ...prev,
-        specialties: [...prev.specialties, specialty]
+        specialties: [...prev.specialties, trimmed]
       }));
     }
     setNewSpecialty("");
+  };
+
+  const addCustomSpecialty = () => {
+    const trimmed = customSpecialty.trim();
+    if (!trimmed) {
+      toast.error("Digite o nome da especialidade");
+      return;
+    }
+    if (trimmed.length > 30) {
+      toast.error("Máximo de 30 caracteres");
+      return;
+    }
+    addSpecialty(trimmed);
+    setCustomSpecialty("");
+    setIsAddingCustom(false);
   };
 
   const removeSpecialty = (specialty: string) => {
@@ -518,17 +537,74 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
             </span>
           ))}
         </div>
+        
+        {/* Input para especialidade personalizada */}
+        {isAddingCustom ? (
+          <div className="flex gap-2 mb-3">
+            <input
+              ref={customSpecialtyInputRef}
+              type="text"
+              value={customSpecialty}
+              onChange={(e) => setCustomSpecialty(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addCustomSpecialty();
+                } else if (e.key === 'Escape') {
+                  setIsAddingCustom(false);
+                  setCustomSpecialty("");
+                }
+              }}
+              className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-card-foreground text-sm focus:border-therapy focus:outline-none"
+              placeholder="Digite sua especialidade..."
+              maxLength={30}
+              autoFocus
+            />
+            <button
+              type="button"
+              onClick={addCustomSpecialty}
+              className="px-3 py-2 bg-therapy text-white text-sm rounded-lg hover:bg-therapy/90 transition-colors"
+            >
+              Adicionar
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsAddingCustom(false);
+                setCustomSpecialty("");
+              }}
+              className="px-3 py-2 bg-muted text-muted-foreground text-sm rounded-lg hover:bg-muted/80 transition-colors"
+            >
+              Cancelar
+            </button>
+          </div>
+        ) : null}
+        
         <div className="flex flex-wrap gap-2">
           {SPECIALTY_OPTIONS.filter(s => !formData.specialties.includes(s)).slice(0, 12).map((specialty) => (
             <button
               key={specialty}
               type="button"
               onClick={() => addSpecialty(specialty)}
-              className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-full hover:bg-therapy/20 hover:text-therapy transition-colors"
+              disabled={formData.specialties.length >= 6}
+              className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-full hover:bg-therapy/20 hover:text-therapy transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               + {specialty}
             </button>
           ))}
+          {/* Botão "Outro" */}
+          {!isAddingCustom && formData.specialties.length < 6 && (
+            <button
+              type="button"
+              onClick={() => {
+                setIsAddingCustom(true);
+                setTimeout(() => customSpecialtyInputRef.current?.focus(), 100);
+              }}
+              className="px-3 py-1 bg-therapy/10 text-therapy text-sm rounded-full hover:bg-therapy/20 transition-colors border border-therapy/30"
+            >
+              + Outro
+            </button>
+          )}
         </div>
       </div>
 
