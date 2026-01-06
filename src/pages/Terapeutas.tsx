@@ -165,7 +165,7 @@ const Terapeutas = () => {
     >
       <Header />
 
-      <main className="pt-20 pb-24 px-4">
+      <main className="pt-20 px-4">
         {step === "therapists" && (
           <button
             onClick={handleBack}

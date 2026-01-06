@@ -128,7 +128,7 @@ const Cursos = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-16 pb-24">
+      <main className="pt-16">
         {/* Category Pills */}
         <div className="px-4 py-3 flex gap-2">
           {categories.map((cat) => (

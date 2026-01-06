@@ -68,7 +68,7 @@ const ProductDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-900 pb-20">
+    <div className="min-h-screen bg-zinc-900">
       <ShopHeader
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}

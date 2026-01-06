@@ -95,7 +95,7 @@ const Quiz = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-20 pb-24 px-4">
+      <main className="pt-20 px-4">
         {!category && (
           <div className="animate-fade-in">
             <div className="text-center mb-8">

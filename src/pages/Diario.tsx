@@ -45,7 +45,7 @@ const Diario = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-20 pb-24 px-4">
+      <main className="pt-20 px-4">
         {/* Header */}
         <div className="text-center mb-6">
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-therapy/20 flex items-center justify-center">

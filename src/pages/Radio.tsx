@@ -50,7 +50,7 @@ const Radio = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-20 pb-32 px-4">
+      <main className="pt-20 px-4">
         {/* Header */}
         <div className="text-center mb-6">
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-radio/20 flex items-center justify-center">

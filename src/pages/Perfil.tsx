@@ -143,7 +143,7 @@ const Perfil = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-20 pb-24 px-4">
+      <main className="pt-20 px-4">
         {/* Profile Header */}
         <div className="bg-card border border-border rounded-2xl p-6 mb-6">
           <div className="flex items-center gap-4 mb-4">

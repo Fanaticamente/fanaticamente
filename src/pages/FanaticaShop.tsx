@@ -51,7 +51,7 @@ const FanaticaShop = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-20">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
       {/* Fixed header stack */}
       <div className="fixed top-0 left-0 right-0 z-50">
         <ShopHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
