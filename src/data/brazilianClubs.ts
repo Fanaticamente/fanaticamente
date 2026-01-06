@@ -1,3 +1,15 @@
+// Badge imports for clubs with local images
+import athleticoPrBadge from "@/assets/badges/athletico-pr.png";
+import athleticClubBadge from "@/assets/badges/athletic-club.png";
+import criciumaBadge from "@/assets/badges/criciuma.png";
+import goiasBadge from "@/assets/badges/goias.png";
+import londrinaBadge from "@/assets/badges/londrina.png";
+import novorizontinoBadge from "@/assets/badges/novorizontino.png";
+import sportBadge from "@/assets/badges/sport.png";
+import vilaNovaBadge from "@/assets/badges/vila-nova.png";
+import amazonasBadge from "@/assets/badges/amazonas.png";
+import anapolisBadge from "@/assets/badges/anapolis.png";
+
 export interface BrazilianClub {
   id: string;
   name: string;
@@ -17,7 +29,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "CAP",
     primaryColor: "#E30613",
     secondaryColor: "#000000",
-    badgeUrl: "https://logodetimes.com/times/athletico-paranaense/logo-athletico-paranaense-256.png",
+    badgeUrl: athleticoPrBadge,
     league: "serie_a",
     storeUrl: "https://loja.athletico.com.br",
   },
@@ -217,9 +229,9 @@ export const brazilianClubs: BrazilianClub[] = [
     id: "athletic",
     name: "Athletic Club",
     shortName: "ATH",
-    primaryColor: "#E30613",
+    primaryColor: "#000000",
     secondaryColor: "#FFFFFF",
-    badgeUrl: "https://logodetimes.com/times/athletic-club/logo-athletic-club-256.png",
+    badgeUrl: athleticClubBadge,
     league: "serie_b",
     storeUrl: "https://www.athleticclub.com.br",
   },
@@ -279,7 +291,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "CRI",
     primaryColor: "#FFD700",
     secondaryColor: "#000000",
-    badgeUrl: "https://logodetimes.com/times/criciuma/logo-criciuma-256.png",
+    badgeUrl: criciumaBadge,
     league: "serie_b",
     storeUrl: "https://www.tigreemaniastore.com.br",
   },
@@ -309,7 +321,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "GOI",
     primaryColor: "#006437",
     secondaryColor: "#FFFFFF",
-    badgeUrl: "https://logodetimes.com/times/goias/logo-goias-256.png",
+    badgeUrl: goiasBadge,
     league: "serie_b",
     storeUrl: "https://www.goiasec.com.br",
   },
@@ -329,7 +341,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "LON",
     primaryColor: "#004A99",
     secondaryColor: "#FFFFFF",
-    badgeUrl: "https://logodetimes.com/times/londrina/logo-londrina-256.png",
+    badgeUrl: londrinaBadge,
     league: "serie_b",
     storeUrl: "https://www.londrinaec.com.br",
   },
@@ -349,7 +361,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "NOV",
     primaryColor: "#FFD700",
     secondaryColor: "#000000",
-    badgeUrl: "https://logodetimes.com/times/novorizontino/logo-novorizontino-256.png",
+    badgeUrl: novorizontinoBadge,
     league: "serie_b",
     storeUrl: "https://www.novorizontino.com.br",
   },
@@ -389,7 +401,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "SPT",
     primaryColor: "#E30613",
     secondaryColor: "#000000",
-    badgeUrl: "https://logodetimes.com/times/sport/logo-sport-256.png",
+    badgeUrl: sportBadge,
     league: "serie_b",
     storeUrl: "https://www.sportrecife.com.br",
   },
@@ -399,7 +411,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "VIL",
     primaryColor: "#E30613",
     secondaryColor: "#FFFFFF",
-    badgeUrl: "https://logodetimes.com/times/vila-nova/logo-vila-nova-256.png",
+    badgeUrl: vilaNovaBadge,
     league: "serie_b",
     storeUrl: "https://www.vilanova.com.br",
   },
@@ -411,7 +423,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "AMA",
     primaryColor: "#FFD700",
     secondaryColor: "#000000",
-    badgeUrl: "https://logodetimes.com/times/amazonas/logo-amazonas-256.png",
+    badgeUrl: amazonasBadge,
     league: "serie_c",
     storeUrl: "https://www.amazonasfc.com.br",
   },
@@ -421,7 +433,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "ANA",
     primaryColor: "#E30613",
     secondaryColor: "#FFFFFF",
-    badgeUrl: "https://logodetimes.com/times/anapolis/logo-anapolis-256.png",
+    badgeUrl: anapolisBadge,
     league: "serie_c",
     storeUrl: "https://www.anapolisfc.com.br",
   },

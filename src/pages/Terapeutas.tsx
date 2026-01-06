@@ -221,7 +221,7 @@ const Terapeutas = () => {
                     <img
                       src={club.badgeUrl}
                       alt={club.name}
-                      className="w-10 h-10 object-contain"
+                      className={club.id === "coritiba" ? "w-12 h-12 object-contain" : "w-10 h-10 object-contain"}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${club.shortName}`;
                       }}
@@ -249,7 +249,7 @@ const Terapeutas = () => {
                 <img
                   src={selectedClub.badgeUrl}
                   alt={selectedClub.name}
-                  className="w-11 h-11 object-contain"
+                  className={selectedClub.id === "coritiba" ? "w-13 h-13 object-contain" : "w-11 h-11 object-contain"}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${selectedClub.shortName}`;
                   }}
