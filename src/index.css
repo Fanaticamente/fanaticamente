@@ -143,12 +143,12 @@
     /* iOS PWA: blur em elementos fixed pode causar 'travadas' ao rolar */
     @supports (-webkit-touch-callout: none) {
       .glass-dark {
-        -webkit-backdrop-filter: blur(12px);
-        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        background-color: hsl(var(--background) / 0.92);
       }
     }
   }
-
 
 
   /* Normalize iOS date input height so it matches other inputs (48px / h-12) */
