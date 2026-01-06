@@ -105,7 +105,7 @@
     height: 100%;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
+    overscroll-behavior-y: auto;
   }
 
   body {
@@ -131,9 +131,6 @@
       -ms-overflow-style: none !important;
     }
 
-    body {
-      overscroll-behavior: none;
-    }
 
     html::-webkit-scrollbar,
     body::-webkit-scrollbar,
