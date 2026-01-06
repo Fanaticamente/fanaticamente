@@ -15,17 +15,17 @@ const ApprovalPendingBanner = ({ approvalStatus, rejectionReason, onResubmit }: 
     switch (approvalStatus) {
       case "pending_approval":
         return {
-          title: "Aguardando Aprovação",
-          message: "Seu perfil está em análise pela nossa equipe. Verificaremos seus dados e número do CRP. Este processo pode levar até 48 horas úteis.",
+          title: "Dados e Documentos em Análise",
+          message: "Seu pagamento foi confirmado! Agora nossa equipe está verificando seus dados, documentos e número do CRP. Este processo pode levar até 48 horas úteis.",
           style: "bg-therapy/10 border-therapy/30 text-therapy",
           iconColor: "text-therapy"
         };
       case "pending_payment":
         return {
-          title: "Aguardando Pagamento",
+          title: "Aguardando Assinatura",
           message: "Complete a assinatura para que seu perfil entre em análise e seja publicado no marketplace.",
-          style: "bg-blue-500/10 border-blue-500/30 text-blue-600",
-          iconColor: "text-blue-500"
+          style: "bg-therapy/10 border-therapy/30 text-therapy",
+          iconColor: "text-therapy"
         };
       case "needs_correction":
         return {
