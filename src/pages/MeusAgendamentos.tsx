@@ -387,7 +387,8 @@ const MeusAgendamentos = () => {
 
 
                   {/* Session Info Button - for link_sent and in_progress appointments (show regardless of date) */}
-                  {(apt.status === "link_sent" || apt.status === "in_progress") && (
+                  {/* Session Info Button - for confirmed, link_sent and in_progress appointments */}
+                  {(apt.status === "confirmed" || apt.status === "link_sent" || apt.status === "in_progress") && (
                     <button
                       onClick={() => setSelectedAppointment(apt)}
                       className="w-full mt-3 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors flex items-center justify-center gap-2"
