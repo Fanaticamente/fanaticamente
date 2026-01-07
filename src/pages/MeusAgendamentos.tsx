@@ -359,15 +359,17 @@ const MeusAgendamentos = () => {
                   {/* Header with status */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-therapy/20 flex items-center justify-center overflow-hidden">
+                      <div className="w-12 h-12 rounded-full bg-therapy/20 flex-shrink-0 overflow-hidden">
                         {apt.profile?.avatar_url ? (
                           <img 
                             src={apt.profile.avatar_url} 
                             alt={apt.profile.full_name || "Profissional"} 
-                            className="w-full h-full object-cover object-top"
+                            className="w-12 h-12 rounded-full object-cover object-top"
                           />
                         ) : (
-                          <User className="w-6 h-6 text-therapy" />
+                          <div className="w-12 h-12 rounded-full bg-therapy/20 flex items-center justify-center">
+                            <User className="w-6 h-6 text-therapy" />
+                          </div>
                         )}
                       </div>
                       <div>
