@@ -272,6 +272,41 @@ export type Database = {
           },
         ]
       }
+      professional_weekly_availability: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          id: string
+          professional_id: string
+          time_slots: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          id?: string
+          professional_id: string
+          time_slots?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          id?: string
+          professional_id?: string
+          time_slots?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_weekly_availability_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professionals: {
         Row: {
           approval_status: string | null
@@ -284,6 +319,7 @@ export type Database = {
           document_number: string | null
           document_type: string | null
           experience_years: number | null
+          google_calendar_url: string | null
           hourly_rate: number | null
           id: string
           is_active: boolean | null
@@ -311,6 +347,7 @@ export type Database = {
           document_number?: string | null
           document_type?: string | null
           experience_years?: number | null
+          google_calendar_url?: string | null
           hourly_rate?: number | null
           id?: string
           is_active?: boolean | null
@@ -338,6 +375,7 @@ export type Database = {
           document_number?: string | null
           document_type?: string | null
           experience_years?: number | null
+          google_calendar_url?: string | null
           hourly_rate?: number | null
           id?: string
           is_active?: boolean | null

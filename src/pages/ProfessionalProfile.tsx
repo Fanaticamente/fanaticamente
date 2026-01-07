@@ -35,29 +35,10 @@ interface Club {
   badge_url: string | null;
 }
 
-const generateAvailableSlots = () => {
-  const slots = [];
-  const today = new Date();
-  for (let i = 1; i <= 14; i++) {
-    const date = addDays(today, i);
-    const dayOfWeek = date.getDay();
-    if (dayOfWeek === 0 || dayOfWeek === 6) continue;
-
-    const times = [];
-    const randomTimes = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
-    const numSlots = Math.floor(Math.random() * 4) + 2;
-    for (let j = 0; j < numSlots; j++) {
-      const randomIndex = Math.floor(Math.random() * randomTimes.length);
-      if (!times.includes(randomTimes[randomIndex])) {
-        times.push(randomTimes[randomIndex]);
-      }
-    }
-    if (times.length > 0) {
-      slots.push({ date, times: times.sort() });
-    }
-  }
-  return slots;
-};
+interface WeeklyAvailability {
+  day_of_week: number;
+  time_slots: string[];
+}
 
 const ProfessionalProfile = () => {
   const { id } = useParams();
@@ -69,13 +50,13 @@ const ProfessionalProfile = () => {
   const [club, setClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [weeklyAvailability, setWeeklyAvailability] = useState<WeeklyAvailability[]>([]);
   
   const [currentWeekStart, setCurrentWeekStart] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [availableSlots] = useState(generateAvailableSlots());
   const [showBioExpanded, setShowBioExpanded] = useState(false);
 
   // Get current user
@@ -107,6 +88,17 @@ const ProfessionalProfile = () => {
         }
         
         setProfessional(profData);
+
+        // Fetch weekly availability
+        const { data: availabilityData } = await supabase
+          .from('professional_weekly_availability')
+          .select('day_of_week, time_slots')
+          .eq('professional_id', id)
+          .order('day_of_week', { ascending: true });
+        
+        if (availabilityData) {
+          setWeeklyAvailability(availabilityData);
+        }
         
         // Fetch profile
         const { data: profileData } = await supabase
@@ -145,9 +137,11 @@ const ProfessionalProfile = () => {
     addDays(currentWeekStart, i)
   );
 
+  // Get available times for a specific date based on weekly availability
   const getAvailableTimesForDate = (date: Date) => {
-    const slot = availableSlots.find((s) => isSameDay(s.date, date));
-    return slot?.times || [];
+    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const availability = weeklyAvailability.find(a => a.day_of_week === dayOfWeek);
+    return availability?.time_slots || [];
   };
 
   const handlePreviousWeek = () => {
