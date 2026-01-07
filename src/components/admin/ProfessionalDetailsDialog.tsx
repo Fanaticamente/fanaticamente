@@ -6,6 +6,40 @@ import { toast } from "sonner";
 import { format, parseISO, differenceInYears } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+// Format functions for display
+const formatCPFDisplay = (value: string | null): string => {
+  if (!value) return "Não informado";
+  const digits = value.replace(/\D/g, '');
+  if (digits.length !== 11) return value;
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
+};
+
+const formatCNPJDisplay = (value: string | null): string => {
+  if (!value) return "Não informado";
+  const digits = value.replace(/\D/g, '');
+  if (digits.length !== 14) return value;
+  return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12, 14)}`;
+};
+
+const formatPhoneDisplay = (value: string | null): string => {
+  if (!value) return "Não informado";
+  const digits = value.replace(/\D/g, '');
+  if (digits.length === 11) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+  }
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6, 10)}`;
+  }
+  return value;
+};
+
+const formatDocumentDisplay = (type: string | null, number: string | null): string => {
+  if (!number) return "Não informado";
+  if (type === 'cpf') return formatCPFDisplay(number);
+  if (type === 'cnpj') return formatCNPJDisplay(number);
+  return number;
+};
+
 interface ThemeStyles {
   bg: string;
   card: string;
@@ -354,7 +388,7 @@ const ProfessionalDetailsDialog = ({
               </div>
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <Phone className="w-5 h-5 text-emerald-600" />
-                <span className="text-base text-gray-800">{professional.profile?.phone || "Não informado"}</span>
+                <span className="text-base text-gray-800">{formatPhoneDisplay(professional.profile?.phone || null)}</span>
               </div>
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <Calendar className="w-5 h-5 text-emerald-600" />
@@ -385,7 +419,7 @@ const ProfessionalDetailsDialog = ({
               </div>
               <div className="p-3 bg-gray-50 rounded-lg">
                 <span className="text-sm text-gray-500">Número do Documento</span>
-                <p className="text-base font-medium text-gray-800">{professional.document_number || "Não informado"}</p>
+                <p className="text-base font-medium text-gray-800">{formatDocumentDisplay(professional.document_type, professional.document_number)}</p>
               </div>
             </div>
 
