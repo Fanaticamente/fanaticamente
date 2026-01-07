@@ -20,6 +20,11 @@ interface Appointment {
   consultation_link: string | null;
   created_at: string;
   rating?: number | null;
+  rejection_reason?: string | null;
+  user_pix_key?: string | null;
+  user_pix_key_type?: string | null;
+  refund_receipt_url?: string | null;
+  refund_deadline?: string | null;
   professional?: {
     crp: string;
     degree: string | null;

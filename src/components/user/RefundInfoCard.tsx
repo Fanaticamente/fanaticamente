@@ -13,11 +13,11 @@ interface RefundInfoCardProps {
     scheduled_date: string;
     scheduled_time: string;
     status: string;
-    rejection_reason: string | null;
-    user_pix_key: string | null;
-    user_pix_key_type: string | null;
-    refund_receipt_url: string | null;
-    refund_deadline: string | null;
+    rejection_reason?: string | null;
+    user_pix_key?: string | null;
+    user_pix_key_type?: string | null;
+    refund_receipt_url?: string | null;
+    refund_deadline?: string | null;
     profile?: {
       full_name: string | null;
       avatar_url: string | null;
