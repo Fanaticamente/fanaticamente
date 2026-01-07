@@ -58,6 +58,7 @@ interface Club {
 
 type OnboardingStep = "status" | "profile" | "subscription";
 type DashboardTab = "agenda" | "disponibilidade" | "metricas" | "perfil" | "assinatura";
+type AppointmentFilter = "proximos" | "realizados" | "todos";
 
 const ProfessionalDashboard = () => {
   const { user, signOut, hasRole } = useAuth();
@@ -72,6 +73,9 @@ const ProfessionalDashboard = () => {
   
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("status");
   const [activeTab, setActiveTab] = useState<DashboardTab>("perfil");
+  const [appointmentFilter, setAppointmentFilter] = useState<AppointmentFilter>("proximos");
+  const [hasNewAppointments, setHasNewAppointments] = useState(false);
+  const [lastSeenAppointmentCount, setLastSeenAppointmentCount] = useState<number | null>(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   
   const [appointments, setAppointments] = useState<any[]>([]);
@@ -267,6 +271,18 @@ const ProfessionalDashboard = () => {
   const hasSubscription = !!professional?.subscription_type;
   const isMarketplaceActive = !!professional?.is_active;
 
+  // Load last seen count from localStorage
+  useEffect(() => {
+    if (professional) {
+      const stored = localStorage.getItem(`lastSeenAppointments_${professional.id}`);
+      if (stored) {
+        setLastSeenAppointmentCount(parseInt(stored, 10));
+      } else {
+        setLastSeenAppointmentCount(0);
+      }
+    }
+  }, [professional]);
+
   // Fetch appointments when professional is loaded and approved/active
   useEffect(() => {
     if (professional && isMarketplaceActive) {
@@ -342,6 +358,11 @@ const ProfessionalDashboard = () => {
       }));
 
       setAppointments(enrichedAppointments);
+
+      // Check for new appointments (comparing count with last seen)
+      if (lastSeenAppointmentCount !== null && enrichedAppointments.length > lastSeenAppointmentCount) {
+        setHasNewAppointments(true);
+      }
     } catch (error) {
       console.error('Error fetching appointments:', error);
     } finally {
@@ -385,7 +406,7 @@ const ProfessionalDashboard = () => {
 
   // Calculate stats based on completed consultations only
   const completedAppointments = appointments.filter(a => a.status === 'completed');
-  const pendingAppointments = appointments.filter(a => ['pending', 'confirmed', 'link_sent'].includes(a.status));
+  const pendingAppointments = appointments.filter(a => ['pending', 'confirmed', 'link_sent', 'in_progress'].includes(a.status));
   const totalRelevantAppointments = appointments.filter(a => !['cancelled'].includes(a.status));
   
   const stats = [
@@ -394,6 +415,31 @@ const ProfessionalDashboard = () => {
     { label: "Taxa de conclusão", value: isMarketplaceActive && totalRelevantAppointments.length > 0 ? `${Math.round((completedAppointments.length / totalRelevantAppointments.length) * 100)}%` : "0%", icon: TrendingUp, color: "text-green-500" },
     { label: "Pendentes", value: isMarketplaceActive ? pendingAppointments.length.toString() : "0", icon: Clock, color: "text-yellow-500" },
   ];
+
+  // Clear new appointments badge when visiting the agenda tab
+  const handleTabChange = (tabId: DashboardTab) => {
+    setActiveTab(tabId);
+    if (tabId === "agenda" && professional) {
+      setHasNewAppointments(false);
+      localStorage.setItem(`lastSeenAppointments_${professional.id}`, appointments.length.toString());
+      setLastSeenAppointmentCount(appointments.length);
+    }
+  };
+
+  // Filter appointments for display
+  const getFilteredAppointments = () => {
+    if (appointmentFilter === "proximos") {
+      // "Próximos" = pending, confirmed, link_sent, in_progress (not completed or cancelled)
+      return appointments.filter(a => ['pending', 'confirmed', 'link_sent', 'in_progress'].includes(a.status));
+    } else if (appointmentFilter === "realizados") {
+      return appointments.filter(a => a.status === 'completed');
+    }
+    return appointments; // "todos"
+  };
+
+  const filteredAppointments = getFilteredAppointments();
+  const proximosCount = appointments.filter(a => ['pending', 'confirmed', 'link_sent', 'in_progress'].includes(a.status)).length;
+  const realizadosCount = appointments.filter(a => a.status === 'completed').length;
 
   const handleLogout = async () => {
     await signOut();
@@ -509,15 +555,21 @@ const ProfessionalDashboard = () => {
           />
         )}
 
-        {/* Tabs - Always visible, some disabled until approval */}
+        {/* Tabs - Order changes based on approval status */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          {[
+          {(isMarketplaceActive ? [
+            { id: "agenda", label: "Agendamentos", locked: false, hasNotification: hasNewAppointments },
+            { id: "disponibilidade", label: "Disponibilidade", locked: false },
+            { id: "metricas", label: "Métricas", locked: false },
             { id: "perfil", label: "Meu Perfil", locked: false },
             { id: "assinatura", label: "Assinatura", locked: false },
-            { id: "agenda", label: "Agendamentos", locked: !isMarketplaceActive },
-            { id: "disponibilidade", label: "Disponibilidade", locked: !isMarketplaceActive },
-            { id: "metricas", label: "Métricas", locked: !isMarketplaceActive },
-          ].map((tab) => (
+          ] : [
+            { id: "perfil", label: "Meu Perfil", locked: false },
+            { id: "assinatura", label: "Assinatura", locked: false },
+            { id: "agenda", label: "Agendamentos", locked: true },
+            { id: "disponibilidade", label: "Disponibilidade", locked: true },
+            { id: "metricas", label: "Métricas", locked: true },
+          ]).map((tab) => (
             <button
               key={tab.id}
               onClick={() => {
@@ -525,9 +577,9 @@ const ProfessionalDashboard = () => {
                   toast.info("Complete sua assinatura para acessar esta funcionalidade");
                   return;
                 }
-                setActiveTab(tab.id as DashboardTab);
+                handleTabChange(tab.id as DashboardTab);
               }}
-              className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 relative ${
                 activeTab === tab.id
                   ? "bg-therapy text-therapy-foreground"
                   : tab.locked 
@@ -537,6 +589,9 @@ const ProfessionalDashboard = () => {
             >
               {tab.label}
               {tab.locked && <Lock className="w-3.5 h-3.5 text-muted-foreground/40" />}
+              {'hasNotification' in tab && tab.hasNotification && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+              )}
             </button>
           ))}
         </div>
@@ -752,18 +807,72 @@ const ProfessionalDashboard = () => {
                 <h2 className="font-display text-2xl text-card-foreground mb-4">
                   Agendamentos
                 </h2>
+
+                {/* Sub-filter tabs: Próximos, Realizados, Todos */}
+                <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                  <button
+                    onClick={() => setAppointmentFilter("proximos")}
+                    className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
+                      appointmentFilter === "proximos"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    Próximos
+                    {proximosCount > 0 && (
+                      <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${
+                        appointmentFilter === "proximos" ? "bg-white/20" : "bg-primary text-primary-foreground"
+                      }`}>
+                        {proximosCount}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setAppointmentFilter("realizados")}
+                    className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
+                      appointmentFilter === "realizados"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    Realizados
+                    {realizadosCount > 0 && (
+                      <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${
+                        appointmentFilter === "realizados" ? "bg-white/20" : "bg-muted-foreground/20"
+                      }`}>
+                        {realizadosCount}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setAppointmentFilter("todos")}
+                    className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors ${
+                      appointmentFilter === "todos"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    Todos
+                  </button>
+                </div>
                 
                 {loadingAppointments ? (
                   <div className="flex items-center justify-center p-8">
                     <Loader2 className="w-8 h-8 animate-spin text-therapy" />
                   </div>
-                ) : appointments.length === 0 ? (
+                ) : filteredAppointments.length === 0 ? (
                   <div className="bg-card border border-border rounded-xl p-8 text-center">
                     <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">Nenhum agendamento ainda</p>
+                    <p className="text-muted-foreground">
+                      {appointmentFilter === "proximos" 
+                        ? "Nenhum agendamento próximo" 
+                        : appointmentFilter === "realizados" 
+                        ? "Nenhuma consulta realizada" 
+                        : "Nenhum agendamento ainda"}
+                    </p>
                   </div>
                 ) : (
-                  appointments.map((apt) => (
+                  filteredAppointments.map((apt) => (
                     <div
                       key={apt.id}
                       className="bg-card border border-border rounded-xl p-4 cursor-pointer hover:border-therapy/50 transition-colors"
