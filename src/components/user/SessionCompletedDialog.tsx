@@ -257,24 +257,24 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                 </div>
               )}
 
-              {/* Reschedule Option */}
-              <div className="pt-4 border-t border-border">
-                <button
-                  onClick={() => setShowReschedule(true)}
-                  className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Calendar className="w-5 h-5" />
-                  Agendar Nova Sessão
-                </button>
-                {canClose && (
+              {/* Reschedule Option - Only show after rating */}
+              {hasRated && (
+                <div className="pt-4 border-t border-border">
+                  <button
+                    onClick={() => setShowReschedule(true)}
+                    className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Calendar className="w-5 h-5" />
+                    Agendar Nova Sessão
+                  </button>
                   <button
                     onClick={onClose}
                     className="w-full mt-3 py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors"
                   >
                     Fechar
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </>
           ) : (
             <>
