@@ -8,6 +8,19 @@ import { ptBR } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+// Format phone for display
+const formatPhoneDisplay = (value: string | null): string => {
+  if (!value) return "Não informado";
+  const digits = value.replace(/\D/g, '');
+  if (digits.length === 11) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+  }
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6, 10)}`;
+  }
+  return value;
+};
+
 interface ThemeStyles {
   bg: string;
   card: string;
@@ -179,7 +192,7 @@ const UserDetailsDialog = ({
                 <Phone className="w-5 h-5 text-emerald-600" />
                 <div>
                   <span className="text-sm text-gray-500">Telefone</span>
-                  <p className="text-base text-gray-800">{user.phone || "Não informado"}</p>
+                  <p className="text-base text-gray-800">{formatPhoneDisplay(user.phone)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">

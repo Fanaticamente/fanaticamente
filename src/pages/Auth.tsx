@@ -3,12 +3,42 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Briefcase, User, ChevronDown } from "lucide-react";
+import { Briefcase, User, ChevronDown, Brain } from "lucide-react";
 import { allBrazilianClubs } from "@/data/allBrazilianClubs";
 import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { supabase } from "@/integrations/supabase/client";
 import logoAuth from "@/assets/logo-auth.png";
 
+// Mask functions
+const formatCRP = (value: string): string => {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 7)}`;
+};
+
+const formatPhone = (value: string): string => {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length <= 2) return digits.length ? `(${digits}` : '';
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+};
+
+const formatCPF = (value: string): string => {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+  if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
+};
+
+const formatCNPJ = (value: string): string => {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+  if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+  if (digits.length <= 12) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+  return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12, 14)}`;
+};
 const emailSchema = z.string().email("Email inválido");
 const passwordSchema = z.string().min(6, "Senha deve ter no mínimo 6 caracteres");
 
@@ -375,9 +405,9 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img src={logoAuth} alt="Logo" className="h-44 w-auto mx-auto mb-6" />
-          <p className="text-muted-foreground">
+          <p className={`text-muted-foreground ${authMode === "professional" ? "text-lg font-medium" : ""}`}>
             {authMode === "professional" 
-              ? "Área do Profissional Parceiro" 
+              ? "Área do Profissional" 
               : isLogin ? "Entre na sua conta" : "Crie sua conta"}
           </p>
         </div>
@@ -415,11 +445,14 @@ const Auth = () => {
         }`}>
           {authMode === "professional" && (
             <div className="mb-6 p-4 bg-therapy/10 border border-therapy/30 rounded-xl">
-              <p className="text-therapy text-sm font-medium">
-                🩺 Área exclusiva para profissionais de saúde mental parceiros.
+              <p className="text-therapy text-sm font-medium flex items-center gap-2">
+                <Brain className="w-5 h-5 text-therapy" />
+                Área exclusiva para profissionais de saúde mental parceiros.
               </p>
               <p className="text-muted-foreground text-xs mt-1">
-                Acesse seu painel para gerenciar consultas e disponibilidade.
+                {isLogin 
+                  ? "Acesse seu painel para gerenciar consultas e disponibilidade."
+                  : "Cadastre-se para integrar o time de profissionais parceiros do Fanticamente."}
               </p>
             </div>
           )}
@@ -491,10 +524,10 @@ const Auth = () => {
                       <input
                         type="text"
                         value={signUpData.crp}
-                        onChange={(e) => handleSignUpDataChange('crp', e.target.value)}
+                        onChange={(e) => handleSignUpDataChange('crp', formatCRP(e.target.value))}
                         className={inputClassName}
                         placeholder="06/12345"
-                        maxLength={9}
+                        maxLength={8}
                       />
                       {errors.crp && (
                         <p className="text-destructive text-xs mt-1">{errors.crp}</p>
@@ -543,7 +576,7 @@ const Auth = () => {
                       <input
                         type="tel"
                         value={signUpData.phone}
-                        onChange={(e) => handleSignUpDataChange('phone', e.target.value)}
+                        onChange={(e) => handleSignUpDataChange('phone', formatPhone(e.target.value))}
                         className={inputClassName}
                         placeholder="(11) 99999-9999"
                         maxLength={15}
@@ -564,7 +597,7 @@ const Auth = () => {
                     <input
                       type="tel"
                       value={signUpData.phone}
-                      onChange={(e) => handleSignUpDataChange('phone', e.target.value)}
+                      onChange={(e) => handleSignUpDataChange('phone', formatPhone(e.target.value))}
                       className={inputClassName}
                       placeholder="(11) 99999-9999"
                       maxLength={15}
@@ -606,7 +639,12 @@ const Auth = () => {
                         <input
                           type="text"
                           value={signUpData.documentNumber}
-                          onChange={(e) => handleSignUpDataChange('documentNumber', e.target.value)}
+                          onChange={(e) => {
+                            const formatted = signUpData.documentType === 'cnpj' 
+                              ? formatCNPJ(e.target.value) 
+                              : formatCPF(e.target.value);
+                            handleSignUpDataChange('documentNumber', formatted);
+                          }}
                           className={inputClassName}
                           placeholder={signUpData.documentType === 'cnpj' ? '00.000.000/0001-00' : '000.000.000-00'}
                           maxLength={signUpData.documentType === 'cnpj' ? 18 : 14}
