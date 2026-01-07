@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { MoreVertical, CheckCircle2, Clock, XCircle, AlertTriangle, CreditCard, ChevronDown, ChevronUp, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ProfessionalDetailsDialog from "./ProfessionalDetailsDialog";
 
 interface ThemeStyles {
@@ -65,120 +66,115 @@ interface Club {
   badge_url: string | null;
 }
 
+const fetchProfessionalsData = async (): Promise<Professional[]> => {
+  // Fetch professionals with all new fields
+  const { data: professionalsData, error: professionalsError } = await supabase
+    .from("professionals")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (professionalsError) throw professionalsError;
+
+  // Fetch profiles for names and club info
+  const userIds = (professionalsData || []).map(p => p.user_id);
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("user_id, full_name, avatar_url, phone, birth_date, city, state, favorite_club_id")
+    .in("user_id", userIds);
+
+  // Fetch clubs for professionals
+  const clubIds = [...new Set((profiles || []).map(p => p.favorite_club_id).filter(Boolean))];
+  const { data: clubsData } = await supabase
+    .from("clubs")
+    .select("id, name, primary_color, badge_url")
+    .in("id", clubIds);
+
+  // Fetch emails via edge function
+  let emailsMap = new Map<string, string>();
+  try {
+    const { data: emailsData } = await supabase.functions.invoke("get-user-emails", {
+      body: { userIds }
+    });
+    if (emailsData?.emails) {
+      emailsMap = new Map(Object.entries(emailsData.emails));
+    }
+  } catch (error) {
+    console.error("Error fetching emails:", error);
+  }
+
+  // Fetch appointment counts
+  const { data: appointments } = await supabase
+    .from("appointments")
+    .select("professional_id");
+
+  const appointmentCounts = new Map<string, number>();
+  (appointments || []).forEach(a => {
+    const count = appointmentCounts.get(a.professional_id) || 0;
+    appointmentCounts.set(a.professional_id, count + 1);
+  });
+
+  // Create maps
+  const profilesMap = new Map(
+    (profiles || []).map(p => [p.user_id, p])
+  );
+  const clubsMap = new Map(
+    (clubsData || []).map(c => [c.id, c])
+  );
+
+  // Combine data
+  return (professionalsData || []).map(p => {
+    const profile = profilesMap.get(p.user_id);
+    return {
+      ...p,
+      profile,
+      email: emailsMap.get(p.user_id),
+      club: profile?.favorite_club_id ? clubsMap.get(profile.favorite_club_id) : undefined,
+      appointmentsCount: appointmentCounts.get(p.id) || 0
+    };
+  });
+};
+
+const fetchClubsData = async (): Promise<Club[]> => {
+  const { data: clubsData } = await supabase
+    .from("clubs")
+    .select("id, name, primary_color, badge_url")
+    .order("name");
+  return clubsData || [];
+};
+
 const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionalsTableProps) => {
-  const [professionals, setProfessionals] = useState<Professional[]>([]);
-  const [clubs, setClubs] = useState<Club[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
   const [expandedClubs, setExpandedClubs] = useState<Set<string>>(new Set());
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
+  const { data: professionals = [], isLoading: loading } = useQuery({
+    queryKey: ['admin-professionals'],
+    queryFn: fetchProfessionalsData,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const { data: clubs = [] } = useQuery({
+    queryKey: ['admin-clubs'],
+    queryFn: fetchClubsData,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  });
+
+  // Auto-expand clubs that have professionals
   useEffect(() => {
-    fetchProfessionals();
-    fetchClubs();
-  }, []);
-
-  const fetchClubs = async () => {
-    try {
-      const { data: clubsData } = await supabase
-        .from("clubs")
-        .select("id, name, primary_color, badge_url")
-        .order("name");
-
-      if (clubsData) {
-        setClubs(clubsData);
-      }
-    } catch (error) {
-      console.error("Error fetching clubs:", error);
-    }
-  };
-
-  const fetchProfessionals = async () => {
-    try {
-      setLoading(true);
-
-      // Fetch professionals with all new fields
-      const { data: professionalsData, error: professionalsError } = await supabase
-        .from("professionals")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (professionalsError) throw professionalsError;
-
-      // Fetch profiles for names and club info
-      const userIds = (professionalsData || []).map(p => p.user_id);
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, avatar_url, phone, birth_date, city, state, favorite_club_id")
-        .in("user_id", userIds);
-
-      // Fetch clubs for professionals
-      const clubIds = [...new Set((profiles || []).map(p => p.favorite_club_id).filter(Boolean))];
-      const { data: clubsData } = await supabase
-        .from("clubs")
-        .select("id, name, primary_color, badge_url")
-        .in("id", clubIds);
-
-      // Fetch emails via edge function
-      let emailsMap = new Map<string, string>();
-      try {
-        const { data: emailsData } = await supabase.functions.invoke("get-user-emails", {
-          body: { userIds }
-        });
-        if (emailsData?.emails) {
-          emailsMap = new Map(Object.entries(emailsData.emails));
-        }
-      } catch (error) {
-        console.error("Error fetching emails:", error);
-      }
-
-      // Fetch appointment counts
-      const { data: appointments } = await supabase
-        .from("appointments")
-        .select("professional_id");
-
-      const appointmentCounts = new Map<string, number>();
-      (appointments || []).forEach(a => {
-        const count = appointmentCounts.get(a.professional_id) || 0;
-        appointmentCounts.set(a.professional_id, count + 1);
-      });
-
-      // Create maps
-      const profilesMap = new Map(
-        (profiles || []).map(p => [p.user_id, p])
-      );
-      const clubsMap = new Map(
-        (clubsData || []).map(c => [c.id, c])
-      );
-
-      // Combine data
-      const professionalsWithDetails = (professionalsData || []).map(p => {
-        const profile = profilesMap.get(p.user_id);
-        return {
-          ...p,
-          profile,
-          email: emailsMap.get(p.user_id),
-          club: profile?.favorite_club_id ? clubsMap.get(profile.favorite_club_id) : undefined,
-          appointmentsCount: appointmentCounts.get(p.id) || 0
-        };
-      });
-
-      setProfessionals(professionalsWithDetails);
-      
-      // Auto-expand clubs that have professionals
+    if (professionals.length > 0) {
       const clubsWithProfessionals = new Set(
-        professionalsWithDetails
+        professionals
           .filter(p => p.club?.id)
           .map(p => p.club!.id)
       );
       setExpandedClubs(clubsWithProfessionals);
-    } catch (error) {
-      console.error("Error fetching professionals:", error);
-      toast.error("Erro ao carregar profissionais");
-    } finally {
-      setLoading(false);
     }
+  }, [professionals]);
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['admin-professionals'] });
   };
 
   const filteredProfessionals = professionals.filter(prof => {
@@ -464,7 +460,7 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
         open={!!selectedProfessional}
         onClose={() => setSelectedProfessional(null)}
         themeStyles={themeStyles}
-        onRefresh={fetchProfessionals}
+        onRefresh={handleRefresh}
       />
     </div>
   );

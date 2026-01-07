@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import UserDetailsDialog from "./UserDetailsDialog";
 
 interface ThemeStyles {
@@ -40,70 +41,64 @@ interface User {
   };
 }
 
+const fetchUsersData = async (): Promise<User[]> => {
+  // Fetch profiles
+  const { data: profiles, error: profilesError } = await supabase
+    .from("profiles")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (profilesError) throw profilesError;
+
+  // Fetch user roles
+  const { data: roles, error: rolesError } = await supabase
+    .from("user_roles")
+    .select("user_id, role");
+
+  if (rolesError) throw rolesError;
+
+  // Fetch clubs for favorite_club_id
+  const clubIds = [...new Set((profiles || []).map(p => p.favorite_club_id).filter(Boolean))];
+  let clubsMap = new Map<string, { id: string; name: string; primary_color: string; badge_url: string | null }>();
+  
+  if (clubIds.length > 0) {
+    const { data: clubs } = await supabase
+      .from("clubs")
+      .select("id, name, primary_color, badge_url")
+      .in("id", clubIds);
+    
+    (clubs || []).forEach(club => {
+      clubsMap.set(club.id, club);
+    });
+  }
+
+  // Map roles to users
+  const rolesMap = new Map<string, string[]>();
+  (roles || []).forEach(r => {
+    const existing = rolesMap.get(r.user_id) || [];
+    rolesMap.set(r.user_id, [...existing, r.role]);
+  });
+
+  return (profiles || []).map(profile => ({
+    ...profile,
+    club: profile.favorite_club_id ? clubsMap.get(profile.favorite_club_id) : undefined,
+    roles: rolesMap.get(profile.user_id) || ["user"]
+  }));
+};
+
 const AdminUsersTable = ({ themeStyles, searchTerm }: AdminUsersTableProps) => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const { data: users = [], isLoading: loading } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: fetchUsersData,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-
-      // Fetch profiles
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (profilesError) throw profilesError;
-
-      // Fetch user roles
-      const { data: roles, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("user_id, role");
-
-      if (rolesError) throw rolesError;
-
-      // Fetch clubs for favorite_club_id
-      const clubIds = [...new Set((profiles || []).map(p => p.favorite_club_id).filter(Boolean))];
-      let clubsMap = new Map<string, { id: string; name: string; primary_color: string; badge_url: string | null }>();
-      
-      if (clubIds.length > 0) {
-        const { data: clubs } = await supabase
-          .from("clubs")
-          .select("id, name, primary_color, badge_url")
-          .in("id", clubIds);
-        
-        (clubs || []).forEach(club => {
-          clubsMap.set(club.id, club);
-        });
-      }
-
-      // Map roles to users
-      const rolesMap = new Map<string, string[]>();
-      (roles || []).forEach(r => {
-        const existing = rolesMap.get(r.user_id) || [];
-        rolesMap.set(r.user_id, [...existing, r.role]);
-      });
-
-      const usersWithRoles = (profiles || []).map(profile => ({
-        ...profile,
-        club: profile.favorite_club_id ? clubsMap.get(profile.favorite_club_id) : undefined,
-        roles: rolesMap.get(profile.user_id) || ["user"]
-      }));
-
-      setUsers(usersWithRoles);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      toast.error("Erro ao carregar usuários");
-    } finally {
-      setLoading(false);
-    }
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['admin-users'] });
   };
 
   const handleUserClick = (user: User) => {
@@ -223,7 +218,7 @@ const AdminUsersTable = ({ themeStyles, searchTerm }: AdminUsersTableProps) => {
           setSelectedUser(null);
         }}
         themeStyles={themeStyles}
-        onRefresh={fetchUsers}
+        onRefresh={handleRefresh}
       />
     </>
   );

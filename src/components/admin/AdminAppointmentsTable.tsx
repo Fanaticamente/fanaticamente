@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
 import { Calendar, Clock, CheckCircle2, XCircle, AlertCircle, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { parseISO, format } from "date-fns";
 
 interface ThemeStyles {
   bg: string;
@@ -32,76 +32,64 @@ interface Appointment {
   professionalName?: string;
 }
 
+const fetchAppointmentsData = async (): Promise<Appointment[]> => {
+  // Fetch appointments
+  const { data: appointmentsData, error: appointmentsError } = await supabase
+    .from("appointments")
+    .select("*")
+    .order("scheduled_date", { ascending: false });
+
+  if (appointmentsError) throw appointmentsError;
+
+  // Fetch user profiles
+  const userIds = [...new Set((appointmentsData || []).map(a => a.user_id))];
+  const { data: userProfiles } = await supabase
+    .from("profiles")
+    .select("user_id, full_name")
+    .in("user_id", userIds);
+
+  // Fetch professionals with profiles
+  const professionalIds = [...new Set((appointmentsData || []).map(a => a.professional_id))];
+  const { data: professionals } = await supabase
+    .from("professionals")
+    .select("id, user_id")
+    .in("id", professionalIds);
+
+  const profUserIds = (professionals || []).map(p => p.user_id);
+  const { data: profProfiles } = await supabase
+    .from("profiles")
+    .select("user_id, full_name")
+    .in("user_id", profUserIds);
+
+  // Create maps
+  const userNamesMap = new Map<string, string>();
+  (userProfiles || []).forEach(p => {
+    userNamesMap.set(p.user_id, p.full_name || "Sem nome");
+  });
+
+  const profIdToUserIdMap = new Map<string, string>();
+  (professionals || []).forEach(p => {
+    profIdToUserIdMap.set(p.id, p.user_id);
+  });
+
+  const profUserNamesMap = new Map<string, string>();
+  (profProfiles || []).forEach(p => {
+    profUserNamesMap.set(p.user_id, p.full_name || "Sem nome");
+  });
+
+  return (appointmentsData || []).map(a => ({
+    ...a,
+    userName: userNamesMap.get(a.user_id) || "Usuário desconhecido",
+    professionalName: profUserNamesMap.get(profIdToUserIdMap.get(a.professional_id) || "") || "Profissional desconhecido"
+  }));
+};
+
 const AdminAppointmentsTable = ({ themeStyles, searchTerm }: AdminAppointmentsTableProps) => {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
-
-  const fetchAppointments = async () => {
-    try {
-      setLoading(true);
-
-      // Fetch appointments
-      const { data: appointmentsData, error: appointmentsError } = await supabase
-        .from("appointments")
-        .select("*")
-        .order("scheduled_date", { ascending: false });
-
-      if (appointmentsError) throw appointmentsError;
-
-      // Fetch user profiles
-      const userIds = [...new Set((appointmentsData || []).map(a => a.user_id))];
-      const { data: userProfiles } = await supabase
-        .from("profiles")
-        .select("user_id, full_name")
-        .in("user_id", userIds);
-
-      // Fetch professionals with profiles
-      const professionalIds = [...new Set((appointmentsData || []).map(a => a.professional_id))];
-      const { data: professionals } = await supabase
-        .from("professionals")
-        .select("id, user_id")
-        .in("id", professionalIds);
-
-      const profUserIds = (professionals || []).map(p => p.user_id);
-      const { data: profProfiles } = await supabase
-        .from("profiles")
-        .select("user_id, full_name")
-        .in("user_id", profUserIds);
-
-      // Create maps
-      const userNamesMap = new Map<string, string>();
-      (userProfiles || []).forEach(p => {
-        userNamesMap.set(p.user_id, p.full_name || "Sem nome");
-      });
-
-      const profIdToUserIdMap = new Map<string, string>();
-      (professionals || []).forEach(p => {
-        profIdToUserIdMap.set(p.id, p.user_id);
-      });
-
-      const profUserNamesMap = new Map<string, string>();
-      (profProfiles || []).forEach(p => {
-        profUserNamesMap.set(p.user_id, p.full_name || "Sem nome");
-      });
-
-      const appointmentsWithNames = (appointmentsData || []).map(a => ({
-        ...a,
-        userName: userNamesMap.get(a.user_id) || "Usuário desconhecido",
-        professionalName: profUserNamesMap.get(profIdToUserIdMap.get(a.professional_id) || "") || "Profissional desconhecido"
-      }));
-
-      setAppointments(appointmentsWithNames);
-    } catch (error) {
-      console.error("Error fetching appointments:", error);
-      toast.error("Erro ao carregar agendamentos");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: appointments = [], isLoading: loading } = useQuery({
+    queryKey: ['admin-appointments'],
+    queryFn: fetchAppointmentsData,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
   const filteredAppointments = appointments.filter(apt => {
     if (!searchTerm) return true;
@@ -170,7 +158,7 @@ const AdminAppointmentsTable = ({ themeStyles, searchTerm }: AdminAppointmentsTa
                     <td className={`p-4 ${themeStyles.textMuted}`}>
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4" />
-                        {new Date(apt.scheduled_date).toLocaleDateString("pt-BR")}
+                        {format(parseISO(apt.scheduled_date), "dd/MM/yyyy")}
                       </div>
                     </td>
                     <td className={`p-4 ${themeStyles.textMuted}`}>
