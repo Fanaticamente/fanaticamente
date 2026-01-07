@@ -151,6 +151,82 @@ const ProfessionalProfile = () => {
     fetchData();
   }, [id, navigate]);
 
+  // Realtime subscription for appointments updates
+  useEffect(() => {
+    if (!id) return;
+
+    const channel = supabase
+      .channel(`appointments-${id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'appointments',
+          filter: `professional_id=eq.${id}`
+        },
+        (payload) => {
+          console.log('Appointment realtime update:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            const newAppointment = payload.new as Appointment & { professional_id: string };
+            if (['pending', 'confirmed', 'paid'].includes(newAppointment.status)) {
+              setBookedAppointments(prev => [...prev, {
+                scheduled_date: newAppointment.scheduled_date,
+                scheduled_time: newAppointment.scheduled_time,
+                status: newAppointment.status
+              }]);
+              
+              // Clear selection if the selected slot was just booked
+              if (selectedDate && selectedTime) {
+                const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+                if (newAppointment.scheduled_date === selectedDateStr && 
+                    newAppointment.scheduled_time === selectedTime) {
+                  setSelectedTime(null);
+                  toast({
+                    title: "Horário indisponível",
+                    description: "Este horário acabou de ser reservado por outro usuário.",
+                    variant: "destructive",
+                  });
+                }
+              }
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedAppointment = payload.new as Appointment & { professional_id: string };
+            setBookedAppointments(prev => {
+              // If status changed to cancelled, remove from booked
+              if (['cancelled'].includes(updatedAppointment.status)) {
+                return prev.filter(apt => 
+                  !(apt.scheduled_date === updatedAppointment.scheduled_date && 
+                    apt.scheduled_time === updatedAppointment.scheduled_time)
+                );
+              }
+              // Otherwise update the existing appointment
+              return prev.map(apt => 
+                apt.scheduled_date === updatedAppointment.scheduled_date && 
+                apt.scheduled_time === updatedAppointment.scheduled_time
+                  ? { ...apt, status: updatedAppointment.status }
+                  : apt
+              );
+            });
+          } else if (payload.eventType === 'DELETE') {
+            const deletedAppointment = payload.old as Appointment;
+            setBookedAppointments(prev => 
+              prev.filter(apt => 
+                !(apt.scheduled_date === deletedAppointment.scheduled_date && 
+                  apt.scheduled_time === deletedAppointment.scheduled_time)
+              )
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, selectedDate, selectedTime, toast]);
+
   const weekDays = Array.from({ length: 7 }, (_, i) =>
     addDays(currentWeekStart, i)
   );
