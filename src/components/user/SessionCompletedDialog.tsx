@@ -102,13 +102,12 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
       if (error) throw error;
 
       setHasRated(true);
-      toast({
-        title: "Obrigado pela avaliação!",
-        description: `Você avaliou a sessão com ${rating} estrela${rating > 1 ? 's' : ''}.`,
-      });
       
       // Notify parent that rating was submitted so it can update the list
       onRatingSubmitted?.();
+      
+      // Close the dialog automatically after rating
+      onClose();
     } catch (error) {
       console.error('Error saving rating:', error);
       toast({
@@ -176,7 +175,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" 
+      className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" 
       onClick={handleBackdropClick}
     >
       <div 
@@ -215,12 +214,12 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
               </div>
 
               {/* Rating Section */}
-              {!hasRated ? (
-                <div className="space-y-4">
+              {!hasRated && (
+                <div className="space-y-4 pb-4">
                   <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide text-center">
                     Avalie sua experiência
                   </h4>
-                  <div className="flex justify-center gap-2">
+                  <div className="flex justify-center gap-2 pb-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
@@ -248,12 +247,6 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                       {isSubmittingRating ? "Enviando..." : "Enviar Avaliação"}
                     </button>
                   )}
-                </div>
-              ) : (
-                <div className="text-center p-4 bg-green-500/10 rounded-xl">
-                  <p className="text-green-600 font-medium">
-                    Obrigado pela sua avaliação!
-                  </p>
                 </div>
               )}
 
