@@ -23,6 +23,7 @@ interface SessionCompletedDialogProps {
     professional_id: string;
     scheduled_date: string;
     scheduled_time: string;
+    rating?: number | null;
     professional?: {
       crp: string;
       degree: string | null;
@@ -42,7 +43,8 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule }: SessionC
   const navigate = useNavigate();
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
-  const [hasRated, setHasRated] = useState(false);
+  const [hasRated, setHasRated] = useState(!!appointment.rating);
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
   const [showReschedule, setShowReschedule] = useState(false);
   const [weeklyAvailability, setWeeklyAvailability] = useState<WeeklyAvailability[]>([]);
   const [bookedAppointments, setBookedAppointments] = useState<Appointment[]>([]);
@@ -89,12 +91,30 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule }: SessionC
   const handleRatingSubmit = async () => {
     if (rating === 0) return;
     
-    // For now, just show success - in future could save to database
-    setHasRated(true);
-    toast({
-      title: "Obrigado pela avaliação!",
-      description: `Você avaliou a sessão com ${rating} estrela${rating > 1 ? 's' : ''}.`,
-    });
+    setIsSubmittingRating(true);
+    try {
+      const { error } = await supabase
+        .from('appointments')
+        .update({ rating })
+        .eq('id', appointment.id);
+
+      if (error) throw error;
+
+      setHasRated(true);
+      toast({
+        title: "Obrigado pela avaliação!",
+        description: `Você avaliou a sessão com ${rating} estrela${rating > 1 ? 's' : ''}.`,
+      });
+    } catch (error) {
+      console.error('Error saving rating:', error);
+      toast({
+        title: "Erro ao salvar avaliação",
+        description: "Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingRating(false);
+    }
   };
 
   const weekDays = Array.from({ length: 7 }, (_, i) =>
@@ -206,9 +226,10 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule }: SessionC
                   {rating > 0 && (
                     <button
                       onClick={handleRatingSubmit}
-                      className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors"
+                      disabled={isSubmittingRating}
+                      className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
                     >
-                      Enviar Avaliação
+                      {isSubmittingRating ? "Enviando..." : "Enviar Avaliação"}
                     </button>
                   )}
                 </div>

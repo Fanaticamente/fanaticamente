@@ -17,6 +17,7 @@ import AppointmentDetailsDialog from "@/components/professional/AppointmentDetai
 import AdminMessagesAlert from "@/components/professional/AdminMessagesAlert";
 import ApprovalPendingBanner from "@/components/professional/ApprovalPendingBanner";
 import WeeklyAvailabilityManager from "@/components/professional/WeeklyAvailabilityManager";
+import ProfessionalMetricsTab from "@/components/professional/ProfessionalMetricsTab";
 
 interface Professional {
   id: string;
@@ -829,20 +830,13 @@ const ProfessionalDashboard = () => {
                   </button>
                   <button
                     onClick={() => setAppointmentFilter("realizados")}
-                    className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
+                    className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors ${
                       appointmentFilter === "realizados"
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground hover:bg-muted/80"
                     }`}
                   >
                     Realizados
-                    {realizadosCount > 0 && (
-                      <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${
-                        appointmentFilter === "realizados" ? "bg-white/20" : "bg-muted-foreground/20"
-                      }`}>
-                        {realizadosCount}
-                      </span>
-                    )}
                   </button>
                   <button
                     onClick={() => setAppointmentFilter("todos")}
@@ -1033,27 +1027,7 @@ const ProfessionalDashboard = () => {
 
             {/* Métricas Tab */}
             {activeTab === "metricas" && (
-              <div>
-                <h2 className="font-display text-2xl text-card-foreground mb-4">
-                  Métricas de Desempenho
-                </h2>
-                <div className="bg-card border border-border rounded-xl p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="font-medium text-card-foreground mb-4">Consultas por Semana</h3>
-                      <div className="h-48 bg-muted/50 rounded-xl flex items-center justify-center">
-                        <span className="text-muted-foreground">Gráfico em breve</span>
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-card-foreground mb-4">Taxa de Satisfação</h3>
-                      <div className="h-48 bg-muted/50 rounded-xl flex items-center justify-center">
-                        <span className="text-muted-foreground">Gráfico em breve</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ProfessionalMetricsTab appointments={appointments} />
             )}
 
           </>

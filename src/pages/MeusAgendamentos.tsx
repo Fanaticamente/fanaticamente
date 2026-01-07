@@ -256,20 +256,13 @@ const MeusAgendamentos = () => {
           </button>
           <button
             onClick={() => setFilter("realizados")}
-            className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors ${
               filter === "realizados"
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
             Realizados
-            {realizadosCount > 0 && (
-              <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${
-                filter === "realizados" ? "bg-white/20" : "bg-muted-foreground/20"
-              }`}>
-                {realizadosCount}
-              </span>
-            )}
           </button>
           <button
             onClick={() => setFilter("todos")}
