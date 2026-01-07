@@ -682,8 +682,8 @@ const ProfessionalDashboard = () => {
           </div>
         )}
 
-        {/* Stats (only shown when approved/active) */}
-        {isMarketplaceActive && (
+        {/* Stats (only shown when approved/active AND on agenda tab) */}
+        {isMarketplaceActive && activeTab === "agenda" && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {stats.map((stat) => (
               <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
