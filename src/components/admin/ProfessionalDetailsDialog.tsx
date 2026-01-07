@@ -358,7 +358,14 @@ const ProfessionalDetailsDialog = ({
               </div>
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <Calendar className="w-5 h-5 text-emerald-600" />
-                <span className="text-base text-gray-800">{age ? `${age} anos` : "Não informado"}</span>
+                <span className="text-base text-gray-800">
+                  {age ? `${age} anos` : "Não informado"}
+                  {professional.profile?.birth_date && (
+                    <span className="text-gray-500 ml-1">
+                      ({format(parseISO(professional.profile.birth_date), "dd/MM/yyyy")})
+                    </span>
+                  )}
+                </span>
               </div>
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <MapPin className="w-5 h-5 text-emerald-600" />
