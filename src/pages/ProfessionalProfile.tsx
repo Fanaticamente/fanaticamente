@@ -231,19 +231,42 @@ const ProfessionalProfile = () => {
     addDays(currentWeekStart, i)
   );
 
-  // Get available times for a specific date based on weekly availability (filtering booked slots)
+  // Get available times for a specific date based on weekly availability (filtering booked slots and past times)
   const getAvailableTimesForDate = (date: Date) => {
+    const now = new Date();
+    const todayStr = format(now, "yyyy-MM-dd");
+    const dateStr = format(date, "yyyy-MM-dd");
+    
+    // If the date is in the past, return no slots
+    if (dateStr < todayStr) {
+      return [];
+    }
+    
     const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
     const availability = weeklyAvailability.find(a => a.day_of_week === dayOfWeek);
     const allSlots = availability?.time_slots || [];
     
     // Filter out booked slots
-    const dateStr = format(date, "yyyy-MM-dd");
     const bookedTimes = bookedAppointments
       .filter(apt => apt.scheduled_date === dateStr)
       .map(apt => apt.scheduled_time);
     
-    return allSlots.filter(slot => !bookedTimes.includes(slot));
+    // Filter out slots that are booked or (if today) less than 1 hour from now
+    return allSlots.filter(slot => {
+      if (bookedTimes.includes(slot)) return false;
+      
+      // If it's today, check if the slot is at least 1 hour in the future
+      if (dateStr === todayStr) {
+        const [hours, minutes] = slot.split(':').map(Number);
+        const slotTime = new Date(date);
+        slotTime.setHours(hours, minutes, 0, 0);
+        
+        const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000);
+        if (slotTime < oneHourFromNow) return false;
+      }
+      
+      return true;
+    });
   };
 
   // Day name abbreviations in Portuguese
