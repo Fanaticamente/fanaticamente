@@ -106,8 +106,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
       // Notify parent that rating was submitted so it can update the list
       onRatingSubmitted?.();
       
-      // Close the dialog automatically after rating
-      onClose();
+      // Don't auto-close - show reschedule/close options after rating
     } catch (error) {
       console.error('Error saving rating:', error);
       toast({
