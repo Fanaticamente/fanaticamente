@@ -316,6 +316,8 @@ export type Database = {
           crp_document_back_url: string | null
           crp_document_front_url: string | null
           degree: string | null
+          degree_document_back_url: string | null
+          degree_document_front_url: string | null
           document_number: string | null
           document_type: string | null
           experience_years: number | null
@@ -344,6 +346,8 @@ export type Database = {
           crp_document_back_url?: string | null
           crp_document_front_url?: string | null
           degree?: string | null
+          degree_document_back_url?: string | null
+          degree_document_front_url?: string | null
           document_number?: string | null
           document_type?: string | null
           experience_years?: number | null
@@ -372,6 +376,8 @@ export type Database = {
           crp_document_back_url?: string | null
           crp_document_front_url?: string | null
           degree?: string | null
+          degree_document_back_url?: string | null
+          degree_document_front_url?: string | null
           document_number?: string | null
           document_type?: string | null
           experience_years?: number | null
