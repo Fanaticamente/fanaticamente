@@ -8,6 +8,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
 import { useRouteRestoration } from "@/hooks/useRouteRestoration";
+import { useGlobalSessionCompletion } from "@/hooks/useGlobalSessionCompletion";
+import SessionCompletedDialog from "@/components/user/SessionCompletedDialog";
 import Index from "./pages/Index";
 import Terapeutas from "./pages/Terapeutas";
 import ProfessionalProfile from "./pages/ProfessionalProfile";
@@ -33,11 +35,25 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Component that handles realtime subscriptions and route restoration
+// Component that handles realtime subscriptions, route restoration, and global session completion
 const AppProviders = ({ children }: { children: React.ReactNode }) => {
   useRealtimeSubscriptions();
   useRouteRestoration();
-  return <>{children}</>;
+  const { completedAppointment, clearCompletedAppointment } = useGlobalSessionCompletion();
+
+  return (
+    <>
+      {children}
+      {/* Global Session Completion Dialog - shows on any page */}
+      {completedAppointment && (
+        <SessionCompletedDialog
+          appointment={completedAppointment}
+          onClose={clearCompletedAppointment}
+          onRatingSubmitted={clearCompletedAppointment}
+        />
+      )}
+    </>
+  );
 };
 
 const App = () => (
