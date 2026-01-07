@@ -16,6 +16,7 @@ import SubscriptionManager from "@/components/professional/SubscriptionManager";
 import AppointmentDetailsDialog from "@/components/professional/AppointmentDetailsDialog";
 import AdminMessagesAlert from "@/components/professional/AdminMessagesAlert";
 import ApprovalPendingBanner from "@/components/professional/ApprovalPendingBanner";
+import WeeklyAvailabilityManager from "@/components/professional/WeeklyAvailabilityManager";
 
 interface Professional {
   id: string;
@@ -35,6 +36,7 @@ interface Professional {
   rejection_reason: string | null;
   crp_document_front_url: string | null;
   crp_document_back_url: string | null;
+  google_calendar_url: string | null;
 }
 
 interface Profile {
@@ -70,10 +72,6 @@ const ProfessionalDashboard = () => {
   const [activeTab, setActiveTab] = useState<DashboardTab>("perfil");
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   
-  const [availableDates, setAvailableDates] = useState<{ date: string; times: string[] }[]>([]);
-  const [showAddSlot, setShowAddSlot] = useState(false);
-  const [newDate, setNewDate] = useState("");
-  const [newTimes, setNewTimes] = useState<string[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loadingAppointments, setLoadingAppointments] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
@@ -389,28 +387,6 @@ const ProfessionalDashboard = () => {
     { label: "Taxa de conclusão", value: isMarketplaceActive && appointments.length > 0 ? `${Math.round((appointments.filter(a => a.status === 'confirmed').length / appointments.length) * 100)}%` : "—", icon: TrendingUp, color: "text-green-500" },
     { label: "Pendentes", value: isMarketplaceActive ? appointments.filter(a => a.status === 'pending').length.toString() : "—", icon: Clock, color: "text-yellow-500" },
   ];
-
-  const timeSlots = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00"];
-
-  const handleAddAvailability = () => {
-    if (!newDate || newTimes.length === 0) {
-      toast.error("Selecione data e horários");
-      return;
-    }
-    setAvailableDates([...availableDates, { date: newDate, times: newTimes }]);
-    toast.success("Disponibilidade adicionada!");
-    setShowAddSlot(false);
-    setNewDate("");
-    setNewTimes([]);
-  };
-
-  const toggleTime = (time: string) => {
-    if (newTimes.includes(time)) {
-      setNewTimes(newTimes.filter((t) => t !== time));
-    } else {
-      setNewTimes([...newTimes, time]);
-    }
-  };
 
   const handleLogout = async () => {
     await signOut();
@@ -923,105 +899,12 @@ const ProfessionalDashboard = () => {
             )}
 
             {/* Disponibilidade Tab */}
-            {activeTab === "disponibilidade" && (
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-display text-2xl text-card-foreground">
-                    Seus Horários
-                  </h2>
-                  <button
-                    onClick={() => setShowAddSlot(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-therapy text-therapy-foreground rounded-xl font-medium hover:scale-[1.02] transition-transform"
-                  >
-                    <Plus className="w-5 h-5" />
-                    Adicionar
-                  </button>
-                </div>
-
-                {showAddSlot && (
-                  <div className="bg-card border border-border rounded-xl p-4 mb-4 animate-fade-in">
-                    <h3 className="font-medium text-card-foreground mb-4">Nova Disponibilidade</h3>
-                    <div className="mb-4">
-                      <label className="block text-muted-foreground text-sm mb-2">Data</label>
-                      <input
-                        type="date"
-                        value={newDate}
-                        onChange={(e) => setNewDate(e.target.value)}
-                        className="w-full px-4 py-3 bg-background border border-border rounded-xl text-card-foreground"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-muted-foreground text-sm mb-2">Horários</label>
-                      <div className="grid grid-cols-4 gap-2">
-                        {timeSlots.map((time) => (
-                          <button
-                            key={time}
-                            onClick={() => toggleTime(time)}
-                            className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                              newTimes.includes(time)
-                                ? "bg-therapy text-therapy-foreground"
-                                : "bg-muted text-muted-foreground hover:bg-muted/80"
-                            }`}
-                          >
-                            {time}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={handleAddAvailability}
-                        className="flex-1 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium"
-                      >
-                        Salvar
-                      </button>
-                      <button
-                        onClick={() => setShowAddSlot(false)}
-                        className="flex-1 py-3 bg-muted text-muted-foreground rounded-xl font-medium"
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  {availableDates.length === 0 ? (
-                    <div className="bg-card border border-border rounded-xl p-8 text-center">
-                      <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">
-                        Nenhuma disponibilidade cadastrada
-                      </p>
-                    </div>
-                  ) : (
-                    availableDates.map((slot, index) => (
-                      <div
-                        key={index}
-                        className="bg-card border border-border rounded-xl p-4"
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="font-medium text-card-foreground">
-                            {format(new Date(slot.date), "EEEE, dd 'de' MMMM", { locale: ptBR })}
-                          </h3>
-                          <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-                            <Edit2 className="w-4 h-4 text-muted-foreground" />
-                          </button>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {slot.times.map((time) => (
-                            <span
-                              key={time}
-                              className="px-3 py-1 bg-therapy/20 text-therapy text-sm rounded-full"
-                            >
-                              {time}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
+            {activeTab === "disponibilidade" && professional && (
+              <WeeklyAvailabilityManager
+                professionalId={professional.id}
+                googleCalendarUrl={professional.google_calendar_url}
+                onUpdate={fetchProfessionalData}
+              />
             )}
 
             {/* Métricas Tab */}
