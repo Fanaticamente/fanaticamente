@@ -513,6 +513,7 @@ const MeusAgendamentos = () => {
             currentTime={rescheduleAppointment.scheduled_time}
             onClose={() => setRescheduleAppointment(null)}
             onRescheduled={() => {
+              setRescheduleAppointment(null);
               fetchAppointments();
             }}
           />

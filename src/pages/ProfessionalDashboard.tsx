@@ -73,7 +73,7 @@ const ProfessionalDashboard = () => {
   const [setupError, setSetupError] = useState(false);
   
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("status");
-  const [activeTab, setActiveTab] = useState<DashboardTab>("perfil");
+  const [activeTab, setActiveTab] = useState<DashboardTab | null>(null);
   const [appointmentFilter, setAppointmentFilter] = useState<AppointmentFilter>("proximos");
   const [hasNewAppointments, setHasNewAppointments] = useState(false);
   const [lastSeenAppointmentCount, setLastSeenAppointmentCount] = useState<number | null>(null);
@@ -272,7 +272,7 @@ const ProfessionalDashboard = () => {
   const hasSubscription = !!professional?.subscription_type;
   const isMarketplaceActive = !!professional?.is_active;
 
-  // Load last seen timestamp from localStorage
+  // Load last seen timestamp from localStorage and set default active tab based on approval
   useEffect(() => {
     if (professional) {
       const stored = localStorage.getItem(`lastSeenAppointmentsTime_${professional.id}`);
@@ -282,8 +282,13 @@ const ProfessionalDashboard = () => {
         // If never seen, set to 0 so any appointment will trigger notification
         setLastSeenAppointmentCount(0);
       }
+      
+      // Set default tab based on marketplace status (approved professionals start on agenda)
+      if (activeTab === null) {
+        setActiveTab(professional.is_active ? "agenda" : "perfil");
+      }
     }
-  }, [professional]);
+  }, [professional, activeTab]);
 
   // Fetch appointments when professional is loaded and approved/active
   useEffect(() => {
@@ -506,7 +511,7 @@ const ProfessionalDashboard = () => {
     fetchProfessionalData();
   };
 
-  if (isLoading) {
+  if (isLoading || activeTab === null) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
