@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Loader2, Info } from "lucide-react";
+import { ChevronLeft, Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Loader2, Info, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO, isPast, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import SessionInfoDialog from "@/components/user/SessionInfoDialog";
-
+import SessionCompletedDialog from "@/components/user/SessionCompletedDialog";
 interface Appointment {
   id: string;
   professional_id: string;
@@ -36,6 +36,7 @@ const MeusAgendamentos = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "upcoming" | "past">("upcoming");
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [completedAppointment, setCompletedAppointment] = useState<Appointment | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -46,6 +47,31 @@ const MeusAgendamentos = () => {
   useEffect(() => {
     if (user) {
       fetchAppointments();
+
+      // Subscribe to realtime updates for this user's appointments
+      const channel = supabase
+        .channel(`user-appointments-${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'appointments',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Appointment status updated:', payload);
+            const updated = payload.new as Appointment;
+            setAppointments(prev => 
+              prev.map(apt => apt.id === updated.id ? { ...apt, ...updated } : apt)
+            );
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 
@@ -362,14 +388,25 @@ const MeusAgendamentos = () => {
                   )}
 
 
-                  {/* Session Info Button - for confirmed, link_sent, and in_progress appointments */}
-                  {!isPastAppointment && (apt.status === "confirmed" || apt.status === "link_sent" || apt.status === "in_progress") && (
+                  {/* Session Info Button - for link_sent and in_progress appointments (show regardless of date) */}
+                  {(apt.status === "link_sent" || apt.status === "in_progress") && (
                     <button
                       onClick={() => setSelectedAppointment(apt)}
                       className="w-full mt-3 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors flex items-center justify-center gap-2"
                     >
                       <Info className="w-4 h-4" />
                       Informações da Sessão
+                    </button>
+                  )}
+
+                  {/* Completed session - show review button */}
+                  {apt.status === "completed" && (
+                    <button
+                      onClick={() => setCompletedAppointment(apt)}
+                      className="w-full mt-3 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Star className="w-4 h-4" />
+                      Avaliar e Reagendar
                     </button>
                   )}
 
@@ -392,6 +429,14 @@ const MeusAgendamentos = () => {
           <SessionInfoDialog
             appointment={selectedAppointment}
             onClose={() => setSelectedAppointment(null)}
+          />
+        )}
+
+        {/* Session Completed Dialog - for rating and reschedule */}
+        {completedAppointment && (
+          <SessionCompletedDialog
+            appointment={completedAppointment}
+            onClose={() => setCompletedAppointment(null)}
           />
         )}
       </main>
