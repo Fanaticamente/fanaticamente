@@ -156,7 +156,7 @@ const MeusAgendamentos = () => {
       };
     } else if (status === "link_sent") {
       return {
-        label: "Link Enviado",
+        label: "Link Recebido",
         className: "bg-cyan-500/20 text-cyan-500",
         icon: CheckCircle
       };
