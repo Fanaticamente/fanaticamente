@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, Copy, Check, Play, Square, Cake, MapPin } from "lucide-react";
+import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, Copy, Check, Play, Square, Cake, MapPin, RefreshCw, CheckCircle } from "lucide-react";
 import { format, parseISO, subMinutes, differenceInYears } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,6 +32,8 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
   const [copied, setCopied] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(appointment.status);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [linkSent, setLinkSent] = useState(!!appointment.consultation_link);
+  const [isEditing, setIsEditing] = useState(!appointment.consultation_link);
 
   const handleSaveLink = async () => {
     if (!consultationLink.trim()) {
@@ -53,6 +55,8 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
       if (error) throw error;
       
       setCurrentStatus("link_sent");
+      setLinkSent(true);
+      setIsEditing(false);
       toast.success("Link enviado com sucesso!");
       onUpdate();
     } catch (error) {
@@ -233,38 +237,75 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
               Link da Consulta Online
             </h4>
             <div className="space-y-3">
-              <div className="flex gap-2">
-                <div className="flex-1 relative">
-                  <Link className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <input
-                    type="url"
-                    value={consultationLink}
-                    onChange={(e) => setConsultationLink(e.target.value)}
-                    placeholder="https://meet.google.com/... ou zoom.us/..."
-                    className="w-full h-12 pl-10 pr-4 bg-background border border-border rounded-xl text-card-foreground focus:border-therapy focus:outline-none transition-colors"
-                  />
-                </div>
-                {consultationLink && (
-                  <button
-                    onClick={handleCopyLink}
-                    className="px-3 bg-muted hover:bg-muted/80 rounded-xl transition-colors"
-                  >
-                    {copied ? (
-                      <Check className="w-5 h-5 text-green-500" />
-                    ) : (
-                      <Copy className="w-5 h-5 text-muted-foreground" />
+              {linkSent && !isEditing ? (
+                <>
+                  {/* Link sent success message */}
+                  <div className="flex items-center gap-3 p-4 bg-green-500/10 rounded-xl">
+                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-green-600 font-medium">Link enviado!</p>
+                      <p className="text-green-600/70 text-sm truncate">{consultationLink}</p>
+                    </div>
+                    {consultationLink && (
+                      <button
+                        onClick={handleCopyLink}
+                        className="p-2 bg-green-500/20 hover:bg-green-500/30 rounded-lg transition-colors"
+                      >
+                        {copied ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <Copy className="w-4 h-4 text-green-600" />
+                        )}
+                      </button>
                     )}
+                  </div>
+                  
+                  {/* Resend button */}
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="w-full py-3 bg-muted hover:bg-muted/80 text-card-foreground rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Enviar Novamente
                   </button>
-                )}
-              </div>
-              
-              <button
-                onClick={handleSaveLink}
-                disabled={isSaving || !consultationLink.trim()}
-                className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSaving ? "Enviando..." : "Enviar Link"}
-              </button>
+                </>
+              ) : (
+                <>
+                  {/* Link input field */}
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <Link className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <input
+                        type="url"
+                        value={consultationLink}
+                        onChange={(e) => setConsultationLink(e.target.value)}
+                        placeholder="https://meet.google.com/... ou zoom.us/..."
+                        className="w-full h-12 pl-10 pr-4 bg-background border border-border rounded-xl text-card-foreground focus:border-therapy focus:outline-none transition-colors"
+                      />
+                    </div>
+                    {consultationLink && (
+                      <button
+                        onClick={handleCopyLink}
+                        className="px-3 bg-muted hover:bg-muted/80 rounded-xl transition-colors"
+                      >
+                        {copied ? (
+                          <Check className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <Copy className="w-5 h-5 text-muted-foreground" />
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  
+                  <button
+                    onClick={handleSaveLink}
+                    disabled={isSaving || !consultationLink.trim()}
+                    className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSaving ? "Enviando..." : "Enviar Link"}
+                  </button>
+                </>
+              )}
 
               {/* Reminder Info */}
               <div className="flex items-start gap-2 p-3 bg-yellow-500/10 rounded-xl">
@@ -279,8 +320,6 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
               </div>
             </div>
           </div>
-
-          {/* Notes */}
           {appointment.notes && (
             <div className="space-y-3">
               <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
