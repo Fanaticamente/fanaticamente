@@ -452,6 +452,17 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
       toast.error("Faça upload de uma foto profissional");
       return;
     }
+    // Validate degree documents when title is selected
+    if (formData.degreeTitle) {
+      if (!formData.degreeDocumentFrontUrl) {
+        toast.error("Envie a frente do diploma/certificado de titulação");
+        return;
+      }
+      if (!formData.degreeDocumentBackUrl) {
+        toast.error("Envie o verso do diploma/certificado de titulação");
+        return;
+      }
+    }
 
     setIsSaving(true);
     try {
