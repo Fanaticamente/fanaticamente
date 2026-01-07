@@ -383,11 +383,16 @@ const ProfessionalDashboard = () => {
     }
   };
 
+  // Calculate stats based on completed consultations only
+  const completedAppointments = appointments.filter(a => a.status === 'completed');
+  const pendingAppointments = appointments.filter(a => ['pending', 'confirmed', 'link_sent'].includes(a.status));
+  const totalRelevantAppointments = appointments.filter(a => !['cancelled'].includes(a.status));
+  
   const stats = [
-    { label: "Consultas este mês", value: isMarketplaceActive ? appointments.length.toString() : "0", icon: Calendar, color: "text-therapy" },
-    { label: "Pacientes atendidos", value: isMarketplaceActive ? appointments.filter(a => a.status === 'confirmed').length.toString() : "0", icon: Users, color: "text-secondary" },
-    { label: "Taxa de conclusão", value: isMarketplaceActive && appointments.length > 0 ? `${Math.round((appointments.filter(a => a.status === 'confirmed').length / appointments.length) * 100)}%` : "—", icon: TrendingUp, color: "text-green-500" },
-    { label: "Pendentes", value: isMarketplaceActive ? appointments.filter(a => a.status === 'pending').length.toString() : "—", icon: Clock, color: "text-yellow-500" },
+    { label: "Consultas este mês", value: isMarketplaceActive ? completedAppointments.length.toString() : "0", icon: Calendar, color: "text-therapy" },
+    { label: "Pacientes atendidos", value: isMarketplaceActive ? completedAppointments.length.toString() : "0", icon: Users, color: "text-secondary" },
+    { label: "Taxa de conclusão", value: isMarketplaceActive && totalRelevantAppointments.length > 0 ? `${Math.round((completedAppointments.length / totalRelevantAppointments.length) * 100)}%` : "0%", icon: TrendingUp, color: "text-green-500" },
+    { label: "Pendentes", value: isMarketplaceActive ? pendingAppointments.length.toString() : "0", icon: Clock, color: "text-yellow-500" },
   ];
 
   const handleLogout = async () => {
@@ -791,6 +796,8 @@ const ProfessionalDashboard = () => {
                           className={`px-3 py-1 rounded-full text-xs font-medium ${
                             apt.status === "in_progress"
                               ? "bg-blue-500/20 text-blue-500"
+                              : apt.status === "link_sent"
+                              ? "bg-cyan-500/20 text-cyan-500"
                               : apt.status === "confirmed"
                               ? "bg-green-500/20 text-green-500"
                               : apt.status === "completed"
@@ -802,6 +809,8 @@ const ProfessionalDashboard = () => {
                         >
                           {apt.status === "in_progress" 
                             ? "Em Atendimento" 
+                            : apt.status === "link_sent"
+                            ? "Link Enviado"
                             : apt.status === "confirmed" 
                             ? "Confirmado" 
                             : apt.status === "completed"
@@ -828,12 +837,13 @@ const ProfessionalDashboard = () => {
                         </div>
                       )}
                       
-                      {/* Action Buttons for Pending */}
+                      {/* Action Buttons for Pending - Confirm keeps status pending, just validates receipt */}
                       {apt.status === "pending" && (
                         <div className="mt-4 pt-4 border-t border-border flex gap-2">
                           <button 
                             onClick={(e) => {
                               e.stopPropagation();
+                              // Keep status as pending, just confirm the appointment was reviewed
                               handleUpdateAppointmentStatus(apt.id, 'confirmed');
                             }}
                             className="flex-1 py-2 bg-green-500/20 text-green-600 rounded-lg font-medium hover:bg-green-500/30 transition-colors flex items-center justify-center gap-2"
