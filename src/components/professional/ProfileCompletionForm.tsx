@@ -6,7 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface ProfileData {
   bio: string;
-  degree: string;
+  degreeBase: string; // Psicólogo or Psicóloga
+  degreeTitle: string; // Optional: Mestre/Mestra/Dr./Dra.
   specializations: string;
   specialties: string[];
   sessionDuration: string;
@@ -17,9 +18,36 @@ interface ProfileData {
   crpDocumentBackUrl: string;
 }
 
+const DEGREE_BASE_OPTIONS = [
+  { value: "Psicólogo", label: "Psicólogo" },
+  { value: "Psicóloga", label: "Psicóloga" }
+];
+
+const DEGREE_TITLE_OPTIONS = [
+  { value: "", label: "Nenhuma titulação adicional" },
+  { value: "Mestre em Psicologia", label: "Mestre em Psicologia" },
+  { value: "Mestra em Psicologia", label: "Mestra em Psicologia" },
+  { value: "Dr. em Psicologia", label: "Dr. em Psicologia" },
+  { value: "Dra. em Psicologia", label: "Dra. em Psicologia" }
+];
+
+// Props interface with degree as input (for backwards compatibility)
+interface ExistingProfileData {
+  bio?: string;
+  degree?: string; // Combined degree string from database
+  specializations?: string;
+  specialties?: string[];
+  sessionDuration?: string;
+  sessionPrice?: string;
+  showPrice?: boolean;
+  imageUrl?: string;
+  crpDocumentFrontUrl?: string;
+  crpDocumentBackUrl?: string;
+}
+
 interface ProfileCompletionFormProps {
   professionalId: string;
-  existingData?: Partial<ProfileData>;
+  existingData?: ExistingProfileData;
   onComplete: () => void;
 }
 
@@ -66,14 +94,39 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
     return null;
   }, [professionalId]);
 
+  // Parse existing degree into base and title
+  const parseDegree = (degree: string | undefined): { base: string; title: string } => {
+    if (!degree) return { base: "", title: "" };
+    
+    // Check if degree contains a title
+    const titles = ["Mestre em Psicologia", "Mestra em Psicologia", "Dr. em Psicologia", "Dra. em Psicologia"];
+    for (const title of titles) {
+      if (degree.includes(title)) {
+        // Extract base (Psicólogo/Psicóloga) if present
+        const base = degree.includes("Psicóloga") ? "Psicóloga" : degree.includes("Psicólogo") ? "Psicólogo" : "";
+        return { base, title };
+      }
+    }
+    
+    // Only base degree
+    if (degree === "Psicólogo" || degree === "Psicóloga") {
+      return { base: degree, title: "" };
+    }
+    
+    // Legacy format - try to determine base from degree string
+    return { base: degree.includes("a") ? "Psicóloga" : "Psicólogo", title: "" };
+  };
+
   // Carregar draft ou dados existentes
   const getInitialData = useCallback((): ProfileData => {
     const draft = loadDraftFromStorage();
+    const parsedDegree = parseDegree(existingData?.degree);
     
     // Priorizar draft local sobre dados existentes (exceto URLs de imagens que são persistidos no banco)
     return {
       bio: draft?.bio ?? existingData?.bio ?? "",
-      degree: draft?.degree ?? existingData?.degree ?? "",
+      degreeBase: draft?.degreeBase ?? parsedDegree.base ?? "",
+      degreeTitle: draft?.degreeTitle ?? parsedDegree.title ?? "",
       specializations: draft?.specializations ?? existingData?.specializations ?? "",
       specialties: draft?.specialties ?? existingData?.specialties ?? [],
       sessionDuration: draft?.sessionDuration ?? existingData?.sessionDuration ?? "50",
@@ -291,6 +344,14 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
     }));
   };
 
+  // Combine degree base and title for storage
+  const getCombinedDegree = (): string => {
+    if (formData.degreeTitle) {
+      return `${formData.degreeBase}, ${formData.degreeTitle}`;
+    }
+    return formData.degreeBase;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -299,8 +360,8 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
       toast.error("A bio deve ter pelo menos 50 caracteres");
       return;
     }
-    if (!formData.degree.trim()) {
-      toast.error("Informe sua formação");
+    if (!formData.degreeBase) {
+      toast.error("Selecione sua formação base (Psicólogo/Psicóloga)");
       return;
     }
     if (formData.specialties.length === 0) {
@@ -314,11 +375,12 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
 
     setIsSaving(true);
     try {
+      const combinedDegree = getCombinedDegree();
       const { error } = await supabase
         .from('professionals')
         .update({
           bio: formData.bio,
-          degree: formData.degree,
+          degree: combinedDegree,
           specialties: formData.specialties,
           hourly_rate: formData.sessionPrice ? parseFloat(formData.sessionPrice) : null
         })
@@ -415,13 +477,56 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
         <label className="block text-card-foreground text-sm font-medium mb-2">
           Formação / Titulação *
         </label>
-        <input
-          type="text"
-          value={formData.degree}
-          onChange={(e) => setFormData(prev => ({ ...prev, degree: e.target.value }))}
-          className={inputClassName}
-          placeholder="Ex: Mestre em Psicologia Clínica - USP"
-        />
+        <div className="space-y-3">
+          {/* Base degree selection */}
+          <div>
+            <p className="text-muted-foreground text-xs mb-2">Formação base:</p>
+            <div className="flex gap-2">
+              {DEGREE_BASE_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, degreeBase: option.value }))}
+                  className={`flex-1 py-3 px-4 rounded-xl border-2 font-medium transition-all ${
+                    formData.degreeBase === option.value
+                      ? "border-therapy bg-therapy/10 text-therapy"
+                      : "border-border bg-background text-muted-foreground hover:border-therapy/50"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Title selection */}
+          <div>
+            <p className="text-muted-foreground text-xs mb-2">Titulação adicional (opcional):</p>
+            <select
+              value={formData.degreeTitle}
+              onChange={(e) => setFormData(prev => ({ ...prev, degreeTitle: e.target.value }))}
+              className={inputClassName}
+            >
+              {DEGREE_TITLE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Preview of combined degree */}
+          {formData.degreeBase && (
+            <div className="bg-muted/30 rounded-lg p-3 border border-border">
+              <p className="text-xs text-muted-foreground mb-1">Exibição no card:</p>
+              <p className="text-sm text-card-foreground font-medium">
+                {formData.degreeTitle 
+                  ? `${formData.degreeBase}, ${formData.degreeTitle}` 
+                  : formData.degreeBase}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* CRP Document Upload */}
@@ -518,7 +623,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
       {/* Specialties Tags */}
       <div>
         <label className="block text-card-foreground text-sm font-medium mb-2">
-          Especialidades de Atendimento * <span className="text-muted-foreground font-normal">(máx. 6)</span>
+          Atendo principalmente demandas relacionadas a: * <span className="text-muted-foreground font-normal">(máx. 6)</span>
         </label>
         <div className="flex flex-wrap gap-2 mb-3">
           {formData.specialties.map((specialty) => (

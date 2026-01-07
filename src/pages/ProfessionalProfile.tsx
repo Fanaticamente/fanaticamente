@@ -524,7 +524,7 @@ const ProfessionalProfile = () => {
           <div className="bg-white border-2 rounded-2xl p-6 mb-6" style={{ borderColor: clubColor + "30" }}>
             <div className="flex items-center gap-2 mb-3">
               <Award className="w-5 h-5" style={{ color: clubColor }} />
-              <h3 className="font-display text-lg font-bold" style={{ color: clubColor }}>Sou especialista em:</h3>
+              <h3 className="font-display text-lg font-bold" style={{ color: clubColor }}>Atendo principalmente demandas relacionadas a:</h3>
             </div>
             <div className="flex flex-wrap gap-2">
               {professional.specialties.map((specialty) => (
