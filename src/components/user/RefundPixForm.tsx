@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 interface RefundPixFormProps {
   appointmentId: string;
+  appointmentStatus: string;
   rejectionReason?: string | null;
   professionalHourlyRate?: number | null;
   onPixSaved: () => void;
@@ -18,7 +19,7 @@ const PIX_KEY_TYPES = [
   { value: "random", label: "Chave Aleatória" }
 ];
 
-const RefundPixForm = ({ appointmentId, rejectionReason, professionalHourlyRate, onPixSaved }: RefundPixFormProps) => {
+const RefundPixForm = ({ appointmentId, appointmentStatus, rejectionReason, professionalHourlyRate, onPixSaved }: RefundPixFormProps) => {
   const [pixKey, setPixKey] = useState("");
   const [pixKeyType, setPixKeyType] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -31,12 +32,19 @@ const RefundPixForm = ({ appointmentId, rejectionReason, professionalHourlyRate,
 
     setIsSaving(true);
     try {
+      const updatePayload: Record<string, any> = {
+        user_pix_key: pixKey.trim(),
+        user_pix_key_type: pixKeyType,
+      };
+
+      // When a rejection was stored as "cancelled", move it to the refund flow
+      if (appointmentStatus === 'cancelled') {
+        updatePayload.status = 'refund_pending';
+      }
+
       const { error } = await supabase
         .from("appointments")
-        .update({
-          user_pix_key: pixKey.trim(),
-          user_pix_key_type: pixKeyType
-        })
+        .update(updatePayload)
         .eq("id", appointmentId);
 
       if (error) throw error;

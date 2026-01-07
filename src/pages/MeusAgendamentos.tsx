@@ -215,51 +215,68 @@ const MeusAgendamentos = () => {
 
   // Filter by status instead of date
   // "Próximos" includes completed sessions that haven't been rated yet (user must interact first)
-  // Also includes refund_pending without user_pix_key (user still needs to provide PIX key)
+  // Also includes cancellations awaiting PIX key (user still needs to provide PIX key)
   const filteredAppointments = appointments.filter(apt => {
     if (filter === "proximos") {
-      // "Próximos" = pending, confirmed, link_sent, in_progress + completed without rating
+      // Active appointments
       if (['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status)) {
         return true;
       }
+
       // Keep completed sessions in "Próximos" until rated
       if (apt.status === 'completed' && !apt.rating) {
         return true;
       }
+
+      // Keep "cancelled" (rejeitada) visible until user sends PIX
+      if (apt.status === 'cancelled' && !apt.user_pix_key) {
+        return true;
+      }
+
       // Keep refund_pending without PIX key in "Próximos" - user needs to provide PIX key
       if (apt.status === 'refund_pending' && !apt.user_pix_key) {
         return true;
       }
+
       return false;
     } else if (filter === "realizados") {
       // Only show completed sessions that have been rated
-      return apt.status === 'completed' && apt.rating;
+      return apt.status === 'completed' && !!apt.rating;
     } else if (filter === "cancelados") {
-      // Show cancelled, refund_pending (with PIX key), refund_sent, disputed
-      if (apt.status === 'cancelled' || apt.status === 'refund_sent' || apt.status === 'disputed') {
+      // Show refund flow + cancelled once PIX is provided
+      if (apt.status === 'refund_sent' || apt.status === 'disputed') {
         return true;
       }
+
       // refund_pending with PIX key goes to "Cancelados"
-      if (apt.status === 'refund_pending' && apt.user_pix_key) {
+      if (apt.status === 'refund_pending' && !!apt.user_pix_key) {
         return true;
       }
+
+      // Safety: if for some reason status is still cancelled but PIX already exists, treat as cancelled bucket
+      if (apt.status === 'cancelled' && !!apt.user_pix_key) {
+        return true;
+      }
+
       return false;
     }
+
     return true; // "todos"
   });
 
   const proximosCount = appointments.filter(apt => {
     if (['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status)) return true;
     if (apt.status === 'completed' && !apt.rating) return true;
-    // refund_pending without PIX key counts as "Próximos"
+    if (apt.status === 'cancelled' && !apt.user_pix_key) return true;
     if (apt.status === 'refund_pending' && !apt.user_pix_key) return true;
     return false;
   }).length;
 
-  const realizadosCount = appointments.filter(apt => apt.status === 'completed' && apt.rating).length;
+  const realizadosCount = appointments.filter(apt => apt.status === 'completed' && !!apt.rating).length;
   const canceladosCount = appointments.filter(apt => {
-    if (['cancelled', 'refund_sent', 'disputed'].includes(apt.status)) return true;
-    if (apt.status === 'refund_pending' && apt.user_pix_key) return true;
+    if (['refund_sent', 'disputed'].includes(apt.status)) return true;
+    if (apt.status === 'refund_pending' && !!apt.user_pix_key) return true;
+    if (apt.status === 'cancelled' && !!apt.user_pix_key) return true;
     return false;
   }).length;
 
@@ -509,10 +526,11 @@ const MeusAgendamentos = () => {
                     </div>
                   )}
 
-                  {/* Refund PIX Form - for rejected appointments without PIX key (shown in "Próximos") */}
-                  {apt.status === "refund_pending" && !apt.user_pix_key && (
+                  {/* Refund PIX Form - keep rejected/cancelled visible until PIX is provided */}
+                  {['cancelled', 'refund_pending'].includes(apt.status) && !apt.user_pix_key && (
                     <RefundPixForm
                       appointmentId={apt.id}
+                      appointmentStatus={apt.status}
                       rejectionReason={apt.rejection_reason}
                       professionalHourlyRate={apt.professional?.hourly_rate}
                       onPixSaved={fetchAppointments}
