@@ -9,6 +9,7 @@ import SessionInfoDialog from "@/components/user/SessionInfoDialog";
 import SessionCompletedDialog from "@/components/user/SessionCompletedDialog";
 import RescheduleDialog from "@/components/user/RescheduleDialog";
 import RefundInfoCard from "@/components/user/RefundInfoCard";
+import RefundPixForm from "@/components/user/RefundPixForm";
 
 interface Appointment {
   id: string;
@@ -197,7 +198,7 @@ const MeusAgendamentos = () => {
         className: "bg-purple-500/20 text-purple-500",
         icon: CheckCircle
       };
-    } else if (status === "cancelled") {
+    } else if (status === "cancelled" || status === "refund_pending" || status === "refund_sent" || status === "disputed") {
       return {
         label: "Cancelada",
         className: "bg-red-500/20 text-red-500",
@@ -214,6 +215,7 @@ const MeusAgendamentos = () => {
 
   // Filter by status instead of date
   // "Próximos" includes completed sessions that haven't been rated yet (user must interact first)
+  // Also includes refund_pending without user_pix_key (user still needs to provide PIX key)
   const filteredAppointments = appointments.filter(apt => {
     if (filter === "proximos") {
       // "Próximos" = pending, confirmed, link_sent, in_progress + completed without rating
@@ -224,13 +226,24 @@ const MeusAgendamentos = () => {
       if (apt.status === 'completed' && !apt.rating) {
         return true;
       }
+      // Keep refund_pending without PIX key in "Próximos" - user needs to provide PIX key
+      if (apt.status === 'refund_pending' && !apt.user_pix_key) {
+        return true;
+      }
       return false;
     } else if (filter === "realizados") {
       // Only show completed sessions that have been rated
       return apt.status === 'completed' && apt.rating;
     } else if (filter === "cancelados") {
-      // Show cancelled, refund_pending, refund_sent, disputed
-      return ['cancelled', 'refund_pending', 'refund_sent', 'disputed'].includes(apt.status);
+      // Show cancelled, refund_pending (with PIX key), refund_sent, disputed
+      if (apt.status === 'cancelled' || apt.status === 'refund_sent' || apt.status === 'disputed') {
+        return true;
+      }
+      // refund_pending with PIX key goes to "Cancelados"
+      if (apt.status === 'refund_pending' && apt.user_pix_key) {
+        return true;
+      }
+      return false;
     }
     return true; // "todos"
   });
@@ -238,11 +251,17 @@ const MeusAgendamentos = () => {
   const proximosCount = appointments.filter(apt => {
     if (['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status)) return true;
     if (apt.status === 'completed' && !apt.rating) return true;
+    // refund_pending without PIX key counts as "Próximos"
+    if (apt.status === 'refund_pending' && !apt.user_pix_key) return true;
     return false;
   }).length;
 
   const realizadosCount = appointments.filter(apt => apt.status === 'completed' && apt.rating).length;
-  const canceladosCount = appointments.filter(apt => ['cancelled', 'refund_pending', 'refund_sent', 'disputed'].includes(apt.status)).length;
+  const canceladosCount = appointments.filter(apt => {
+    if (['cancelled', 'refund_sent', 'disputed'].includes(apt.status)) return true;
+    if (apt.status === 'refund_pending' && apt.user_pix_key) return true;
+    return false;
+  }).length;
 
   if (authLoading) {
     return (
@@ -490,8 +509,18 @@ const MeusAgendamentos = () => {
                     </div>
                   )}
 
-                  {/* Reschedule button - available for pending, confirmed, link_sent statuses (not completed or in_progress) */}
-                  {!['completed', 'cancelled', 'in_progress'].includes(apt.status) && (
+                  {/* Refund PIX Form - for rejected appointments without PIX key (shown in "Próximos") */}
+                  {apt.status === "refund_pending" && !apt.user_pix_key && (
+                    <RefundPixForm
+                      appointmentId={apt.id}
+                      rejectionReason={apt.rejection_reason}
+                      professionalHourlyRate={apt.professional?.hourly_rate}
+                      onPixSaved={fetchAppointments}
+                    />
+                  )}
+
+                  {/* Reschedule button - available for pending, confirmed, link_sent statuses (not completed, cancelled, in_progress or refund_pending) */}
+                  {!['completed', 'cancelled', 'in_progress', 'refund_pending', 'refund_sent', 'disputed'].includes(apt.status) && (
                     <div className="mt-3">
                       <button
                         onClick={() => {
