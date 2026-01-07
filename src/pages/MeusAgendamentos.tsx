@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Loader2, Info, Star } from "lucide-react";
+import { ChevronLeft, Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Loader2, Info, Star, RefreshCw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { format, parseISO, isPast, isToday } from "date-fns";
+import { format, parseISO, isPast, isToday, isBefore, addMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import SessionInfoDialog from "@/components/user/SessionInfoDialog";
 import SessionCompletedDialog from "@/components/user/SessionCompletedDialog";
+import RescheduleDialog from "@/components/user/RescheduleDialog";
+
 interface Appointment {
   id: string;
   professional_id: string;
@@ -38,6 +40,7 @@ const MeusAgendamentos = () => {
   const [filter, setFilter] = useState<"proximos" | "realizados" | "todos">("proximos");
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [completedAppointment, setCompletedAppointment] = useState<Appointment | null>(null);
+  const [rescheduleAppointment, setRescheduleAppointment] = useState<Appointment | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -340,6 +343,12 @@ const MeusAgendamentos = () => {
               const appointmentDate = parseISO(apt.scheduled_date);
               const isPastAppointment = isPast(appointmentDate) && !isToday(appointmentDate);
 
+              // Check if can reschedule (30 min before appointment)
+              const appointmentDateTime = new Date(`${apt.scheduled_date}T${apt.scheduled_time}`);
+              const thirtyMinutesBefore = addMinutes(appointmentDateTime, -30);
+              const canReschedule = !['completed', 'cancelled', 'in_progress'].includes(apt.status) && 
+                                    isBefore(new Date(), thirtyMinutesBefore);
+
               return (
                 <div
                   key={apt.id}
@@ -405,8 +414,6 @@ const MeusAgendamentos = () => {
                     </div>
                   )}
 
-
-                  {/* Session Info Button - for link_sent and in_progress appointments (show regardless of date) */}
                   {/* Session Info Button - for confirmed, link_sent and in_progress appointments */}
                   {(apt.status === "confirmed" || apt.status === "link_sent" || apt.status === "in_progress") && (
                     <button
@@ -434,6 +441,31 @@ const MeusAgendamentos = () => {
                     <div className="mt-3 p-3 bg-yellow-500/10 rounded-xl">
                       <p className="text-yellow-600 text-sm text-center">
                         Aguardando confirmação do profissional
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Reschedule button - available for pending, confirmed, link_sent statuses (not completed or in_progress) */}
+                  {!['completed', 'cancelled', 'in_progress'].includes(apt.status) && (
+                    <div className="mt-3">
+                      <button
+                        onClick={() => {
+                          if (canReschedule) {
+                            setRescheduleAppointment(apt);
+                          }
+                        }}
+                        disabled={!canReschedule}
+                        className={`w-full py-2.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
+                          canReschedule
+                            ? "bg-muted hover:bg-muted/80 text-card-foreground"
+                            : "bg-muted/50 text-muted-foreground cursor-not-allowed"
+                        }`}
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        Reagendar Consulta
+                      </button>
+                      <p className="text-[10px] text-muted-foreground text-center mt-1">
+                        Disponível até 30 minutos antes da consulta
                       </p>
                     </div>
                   )}
@@ -466,6 +498,21 @@ const MeusAgendamentos = () => {
                 )
               );
               // Refresh to get actual rating value
+              fetchAppointments();
+            }}
+          />
+        )}
+
+        {/* Reschedule Dialog */}
+        {rescheduleAppointment && (
+          <RescheduleDialog
+            appointmentId={rescheduleAppointment.id}
+            professionalId={rescheduleAppointment.professional_id}
+            professionalName={rescheduleAppointment.profile?.full_name || "Profissional"}
+            currentDate={rescheduleAppointment.scheduled_date}
+            currentTime={rescheduleAppointment.scheduled_time}
+            onClose={() => setRescheduleAppointment(null)}
+            onRescheduled={() => {
               fetchAppointments();
             }}
           />
