@@ -176,6 +176,10 @@ const AdminDashboard = () => {
               <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${themeStyles.textMuted}`} />
               <input
                 type="text"
+                name="admin_search"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
                 placeholder="Buscar..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
