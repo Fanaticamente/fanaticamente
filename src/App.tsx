@@ -49,7 +49,10 @@ const AppProviders = ({ children }: { children: React.ReactNode }) => {
         <SessionCompletedDialog
           appointment={completedAppointment}
           onClose={clearCompletedAppointment}
-          onRatingSubmitted={clearCompletedAppointment}
+          onRatingSubmitted={() => {
+            // Don't close immediately - let user see reschedule/close options
+            // The dialog will handle showing those options after rating
+          }}
         />
       )}
     </>
