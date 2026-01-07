@@ -25,11 +25,15 @@ const DEGREE_BASE_OPTIONS = [
   { value: "Psicóloga", label: "Psicóloga" }
 ];
 
-const DEGREE_TITLE_OPTIONS = [
+const DEGREE_TITLE_OPTIONS_MALE = [
   { value: "", label: "Nenhuma titulação adicional" },
   { value: "Mestre em Psicologia", label: "Mestre em Psicologia" },
+  { value: "Dr. em Psicologia", label: "Dr. em Psicologia" }
+];
+
+const DEGREE_TITLE_OPTIONS_FEMALE = [
+  { value: "", label: "Nenhuma titulação adicional" },
   { value: "Mestra em Psicologia", label: "Mestra em Psicologia" },
-  { value: "Dr. em Psicologia", label: "Dr. em Psicologia" },
   { value: "Dra. em Psicologia", label: "Dra. em Psicologia" }
 ];
 
@@ -577,7 +581,15 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, degreeBase: option.value }))}
+                  onClick={() => setFormData(prev => ({ 
+                    ...prev, 
+                    degreeBase: option.value,
+                    // Clear title when base changes to avoid gender mismatch
+                    degreeTitle: prev.degreeBase !== option.value ? "" : prev.degreeTitle,
+                    // Clear degree documents when title is cleared
+                    degreeDocumentFrontUrl: prev.degreeBase !== option.value ? "" : prev.degreeDocumentFrontUrl,
+                    degreeDocumentBackUrl: prev.degreeBase !== option.value ? "" : prev.degreeDocumentBackUrl
+                  }))}
                   className={`flex-1 py-3 px-4 rounded-xl border-2 font-medium transition-all ${
                     formData.degreeBase === option.value
                       ? "border-therapy bg-therapy/10 text-therapy"
@@ -597,8 +609,9 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
               value={formData.degreeTitle}
               onChange={(e) => setFormData(prev => ({ ...prev, degreeTitle: e.target.value }))}
               className={inputClassName}
+              disabled={!formData.degreeBase}
             >
-              {DEGREE_TITLE_OPTIONS.map((option) => (
+              {(formData.degreeBase === "Psicóloga" ? DEGREE_TITLE_OPTIONS_FEMALE : DEGREE_TITLE_OPTIONS_MALE).map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
