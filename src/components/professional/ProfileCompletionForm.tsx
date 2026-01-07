@@ -16,6 +16,8 @@ interface ProfileData {
   imageUrl: string;
   crpDocumentFrontUrl: string;
   crpDocumentBackUrl: string;
+  degreeDocumentFrontUrl: string;
+  degreeDocumentBackUrl: string;
 }
 
 const DEGREE_BASE_OPTIONS = [
@@ -43,6 +45,8 @@ interface ExistingProfileData {
   imageUrl?: string;
   crpDocumentFrontUrl?: string;
   crpDocumentBackUrl?: string;
+  degreeDocumentFrontUrl?: string;
+  degreeDocumentBackUrl?: string;
 }
 
 interface ProfileCompletionFormProps {
@@ -135,7 +139,9 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
       // Imagens sempre vêm do banco de dados (são salvas imediatamente no upload)
       imageUrl: existingData?.imageUrl ?? draft?.imageUrl ?? "",
       crpDocumentFrontUrl: existingData?.crpDocumentFrontUrl ?? draft?.crpDocumentFrontUrl ?? "",
-      crpDocumentBackUrl: existingData?.crpDocumentBackUrl ?? draft?.crpDocumentBackUrl ?? ""
+      crpDocumentBackUrl: existingData?.crpDocumentBackUrl ?? draft?.crpDocumentBackUrl ?? "",
+      degreeDocumentFrontUrl: existingData?.degreeDocumentFrontUrl ?? draft?.degreeDocumentFrontUrl ?? "",
+      degreeDocumentBackUrl: existingData?.degreeDocumentBackUrl ?? draft?.degreeDocumentBackUrl ?? ""
     };
   }, [existingData, loadDraftFromStorage]);
 
@@ -144,6 +150,8 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingCrpFront, setIsUploadingCrpFront] = useState(false);
   const [isUploadingCrpBack, setIsUploadingCrpBack] = useState(false);
+  const [isUploadingDegreeFront, setIsUploadingDegreeFront] = useState(false);
+  const [isUploadingDegreeBack, setIsUploadingDegreeBack] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [newSpecialty, setNewSpecialty] = useState("");
   const [isAddingCustom, setIsAddingCustom] = useState(false);
@@ -151,6 +159,8 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
   const fileInputRef = useRef<HTMLInputElement>(null);
   const crpFrontInputRef = useRef<HTMLInputElement>(null);
   const crpBackInputRef = useRef<HTMLInputElement>(null);
+  const degreeFrontInputRef = useRef<HTMLInputElement>(null);
+  const degreeBackInputRef = useRef<HTMLInputElement>(null);
   const customSpecialtyInputRef = useRef<HTMLInputElement>(null);
 
   // Salvar draft no localStorage sempre que formData mudar
@@ -303,6 +313,76 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
         setIsUploadingCrpFront(false);
       } else {
         setIsUploadingCrpBack(false);
+      }
+    }
+  };
+
+  const handleDegreeDocumentUpload = async (file: File, side: 'front' | 'back') => {
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+      toast.error("Por favor, selecione uma imagem ou PDF");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("O arquivo deve ter no máximo 5MB");
+      return;
+    }
+
+    if (side === 'front') {
+      setIsUploadingDegreeFront(true);
+    } else {
+      setIsUploadingDegreeBack(true);
+    }
+
+    try {
+      if (!user) throw new Error("Not authenticated");
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/degree-${side}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('crp-documents')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get signed URL for private bucket
+      const { data: signedData, error: signedError } = await supabase.storage
+        .from('crp-documents')
+        .createSignedUrl(fileName, 60 * 60 * 24 * 365); // 1 year
+
+      if (signedError) throw signedError;
+
+      const documentUrl = signedData.signedUrl;
+
+      // Save to professionals table
+      const updateField = side === 'front' ? 'degree_document_front_url' : 'degree_document_back_url';
+      const { error: updateError } = await supabase
+        .from('professionals')
+        .update({ [updateField]: documentUrl })
+        .eq('id', professionalId);
+
+      if (updateError) throw updateError;
+
+      if (side === 'front') {
+        setFormData(prev => ({ ...prev, degreeDocumentFrontUrl: documentUrl }));
+      } else {
+        setFormData(prev => ({ ...prev, degreeDocumentBackUrl: documentUrl }));
+      }
+
+      toast.success(`Diploma (${side === 'front' ? 'frente' : 'verso'}) enviado com sucesso!`);
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Erro ao enviar diploma. Tente novamente.");
+    } finally {
+      if (side === 'front') {
+        setIsUploadingDegreeFront(false);
+      } else {
+        setIsUploadingDegreeBack(false);
       }
     }
   };
@@ -514,6 +594,85 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
               ))}
             </select>
           </div>
+
+          {/* Degree Document Upload - only visible when title is selected */}
+          {formData.degreeTitle && (
+            <div className="border border-border rounded-xl p-4 bg-background">
+              <label className="block text-card-foreground text-sm font-medium mb-2">
+                Diploma/Certificado de Titulação
+              </label>
+              <p className="text-xs text-muted-foreground mb-4">
+                Envie uma foto frente e verso do seu diploma ou certificado de {formData.degreeTitle}.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Front */}
+                <div>
+                  <label className="text-xs text-muted-foreground mb-2 block">Frente</label>
+                  <div 
+                    className="h-28 rounded-xl border-2 border-dashed border-muted-foreground/50 bg-muted/50 flex items-center justify-center overflow-hidden cursor-pointer hover:border-therapy transition-colors"
+                    onClick={() => degreeFrontInputRef.current?.click()}
+                  >
+                    {formData.degreeDocumentFrontUrl ? (
+                      <div className="flex items-center gap-2 text-therapy">
+                        <CheckCircle className="w-5 h-5" />
+                        <span className="text-sm">Enviado</span>
+                      </div>
+                    ) : isUploadingDegreeFront ? (
+                      <span className="text-sm text-therapy">Enviando...</span>
+                    ) : (
+                      <div className="text-center p-2">
+                        <FileText className="w-6 h-6 text-muted-foreground mx-auto mb-1" />
+                        <span className="text-xs text-muted-foreground">Clique para enviar</span>
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    ref={degreeFrontInputRef}
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleDegreeDocumentUpload(file, 'front');
+                    }}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Back */}
+                <div>
+                  <label className="text-xs text-muted-foreground mb-2 block">Verso</label>
+                  <div 
+                    className="h-28 rounded-xl border-2 border-dashed border-muted-foreground/50 bg-muted/50 flex items-center justify-center overflow-hidden cursor-pointer hover:border-therapy transition-colors"
+                    onClick={() => degreeBackInputRef.current?.click()}
+                  >
+                    {formData.degreeDocumentBackUrl ? (
+                      <div className="flex items-center gap-2 text-therapy">
+                        <CheckCircle className="w-5 h-5" />
+                        <span className="text-sm">Enviado</span>
+                      </div>
+                    ) : isUploadingDegreeBack ? (
+                      <span className="text-sm text-therapy">Enviando...</span>
+                    ) : (
+                      <div className="text-center p-2">
+                        <FileText className="w-6 h-6 text-muted-foreground mx-auto mb-1" />
+                        <span className="text-xs text-muted-foreground">Clique para enviar</span>
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    ref={degreeBackInputRef}
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleDegreeDocumentUpload(file, 'back');
+                    }}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Preview of combined degree */}
           {formData.degreeBase && (
