@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Plus, Trash2, Link as LinkIcon, ExternalLink, Loader2 } from "lucide-react";
+import { Calendar, Plus, Trash2, Pencil, X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -12,7 +12,6 @@ interface WeeklyAvailability {
 
 interface WeeklyAvailabilityManagerProps {
   professionalId: string;
-  googleCalendarUrl: string | null;
   onUpdate: () => void;
 }
 
@@ -34,7 +33,6 @@ const TIME_SLOTS = [
 
 const WeeklyAvailabilityManager = ({ 
   professionalId, 
-  googleCalendarUrl,
   onUpdate 
 }: WeeklyAvailabilityManagerProps) => {
   const [availabilities, setAvailabilities] = useState<WeeklyAvailability[]>([]);
@@ -43,8 +41,11 @@ const WeeklyAvailabilityManager = ({
   const [showAddSlot, setShowAddSlot] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
-  const [calendarUrl, setCalendarUrl] = useState(googleCalendarUrl || "");
-  const [savingCalendar, setSavingCalendar] = useState(false);
+  
+  // Edit mode state
+  const [editingAvailability, setEditingAvailability] = useState<WeeklyAvailability | null>(null);
+  const [editTimes, setEditTimes] = useState<string[]>([]);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     fetchAvailabilities();
@@ -117,6 +118,7 @@ const WeeklyAvailabilityManager = ({
       if (error) throw error;
 
       toast.success("Disponibilidade removida!");
+      setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
     } catch (error) {
@@ -125,23 +127,30 @@ const WeeklyAvailabilityManager = ({
     }
   };
 
-  const handleSaveCalendarUrl = async () => {
-    setSavingCalendar(true);
+  const handleUpdateAvailability = async () => {
+    if (!editingAvailability || editTimes.length === 0) {
+      toast.error("Selecione pelo menos um horário");
+      return;
+    }
+
+    setSavingEdit(true);
     try {
       const { error } = await supabase
-        .from("professionals")
-        .update({ google_calendar_url: calendarUrl || null })
-        .eq("id", professionalId);
+        .from("professional_weekly_availability")
+        .update({ time_slots: editTimes.sort() })
+        .eq("id", editingAvailability.id);
 
       if (error) throw error;
 
-      toast.success("Link da agenda salvo!");
+      toast.success("Horários atualizados!");
+      setEditingAvailability(null);
+      fetchAvailabilities();
       onUpdate();
     } catch (error) {
-      console.error("Error saving calendar URL:", error);
-      toast.error("Erro ao salvar link da agenda");
+      console.error("Error updating availability:", error);
+      toast.error("Erro ao atualizar horários");
     } finally {
-      setSavingCalendar(false);
+      setSavingEdit(false);
     }
   };
 
@@ -151,6 +160,19 @@ const WeeklyAvailabilityManager = ({
     } else {
       setSelectedTimes([...selectedTimes, time]);
     }
+  };
+
+  const toggleEditTime = (time: string) => {
+    if (editTimes.includes(time)) {
+      setEditTimes(editTimes.filter(t => t !== time));
+    } else {
+      setEditTimes([...editTimes, time]);
+    }
+  };
+
+  const openEditMode = (availability: WeeklyAvailability) => {
+    setEditingAvailability(availability);
+    setEditTimes([...availability.time_slots]);
   };
 
   const getDayLabel = (dayOfWeek: number) => {
@@ -265,6 +287,69 @@ const WeeklyAvailabilityManager = ({
         </div>
       )}
 
+      {/* Edit Availability Modal */}
+      {editingAvailability && (
+        <div className="bg-card border border-border rounded-xl p-4 animate-fade-in">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <span className="w-10 h-10 rounded-lg bg-therapy/20 text-therapy font-bold flex items-center justify-center text-sm">
+                {getDayAbbr(editingAvailability.day_of_week)}
+              </span>
+              <h3 className="font-medium text-card-foreground">
+                Editar {getDayLabel(editingAvailability.day_of_week)}
+              </h3>
+            </div>
+            <button
+              onClick={() => setEditingAvailability(null)}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+            >
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+
+          {/* Time Selection for Edit */}
+          <div className="mb-4">
+            <label className="block text-muted-foreground text-sm mb-2">
+              Selecione os horários
+            </label>
+            <div className="grid grid-cols-5 gap-2">
+              {TIME_SLOTS.map((time) => (
+                <button
+                  key={time}
+                  onClick={() => toggleEditTime(time)}
+                  className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                    editTimes.includes(time)
+                      ? "bg-therapy text-therapy-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2">
+            <button
+              onClick={handleUpdateAvailability}
+              disabled={savingEdit || editTimes.length === 0}
+              className="flex-1 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {savingEdit && <Loader2 className="w-4 h-4 animate-spin" />}
+              Salvar Alterações
+            </button>
+            <button
+              onClick={() => handleDeleteAvailability(editingAvailability.id)}
+              className="py-3 px-4 bg-destructive/10 text-destructive rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-destructive/20 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              Excluir
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Current Availabilities */}
       <div className="space-y-4">
         {availabilities.length === 0 ? (
@@ -293,10 +378,10 @@ const WeeklyAvailabilityManager = ({
                   </h3>
                 </div>
                 <button 
-                  onClick={() => handleDeleteAvailability(availability.id)}
-                  className="p-2 hover:bg-destructive/10 rounded-lg transition-colors group"
+                  onClick={() => openEditMode(availability)}
+                  className="p-2 hover:bg-muted rounded-lg transition-colors group"
                 >
-                  <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-destructive" />
+                  <Pencil className="w-4 h-4 text-muted-foreground group-hover:text-therapy" />
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -311,49 +396,6 @@ const WeeklyAvailabilityManager = ({
               </div>
             </div>
           ))
-        )}
-      </div>
-
-      {/* Google Calendar Integration */}
-      <div className="bg-card border border-border rounded-xl p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <LinkIcon className="w-5 h-5 text-therapy" />
-          <h3 className="font-medium text-card-foreground">Integração Google Agenda</h3>
-        </div>
-        <p className="text-muted-foreground text-sm mb-4">
-          Conecte sua Google Agenda para sincronizar automaticamente seus horários disponíveis.
-          Use o link de compartilhamento público da sua agenda.
-        </p>
-        <div className="flex gap-2">
-          <input
-            type="url"
-            value={calendarUrl}
-            onChange={(e) => setCalendarUrl(e.target.value)}
-            placeholder="Cole o link público da sua Google Agenda"
-            className="flex-1 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground placeholder:text-muted-foreground"
-          />
-          <button
-            onClick={handleSaveCalendarUrl}
-            disabled={savingCalendar}
-            className="px-4 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium disabled:opacity-50 flex items-center gap-2"
-          >
-            {savingCalendar ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              "Salvar"
-            )}
-          </button>
-        </div>
-        {calendarUrl && (
-          <a
-            href={calendarUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-3 text-sm text-therapy hover:underline"
-          >
-            <ExternalLink className="w-4 h-4" />
-            Ver agenda conectada
-          </a>
         )}
       </div>
     </div>

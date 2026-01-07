@@ -902,7 +902,6 @@ const ProfessionalDashboard = () => {
             {activeTab === "disponibilidade" && professional && (
               <WeeklyAvailabilityManager
                 professionalId={professional.id}
-                googleCalendarUrl={professional.google_calendar_url}
                 onUpdate={fetchProfessionalData}
               />
             )}
