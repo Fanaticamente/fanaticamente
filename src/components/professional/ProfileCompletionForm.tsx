@@ -623,7 +623,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
           {formData.degreeTitle && (
             <div className="border border-border rounded-xl p-4 bg-background">
               <label className="block text-card-foreground text-sm font-medium mb-2">
-                Diploma/Certificado de Titulação
+                Diploma/Certificado de Titulação <span className="text-red-500">*</span>
               </label>
               <p className="text-xs text-muted-foreground mb-4">
                 Envie uma foto frente e verso do seu diploma ou certificado de {formData.degreeTitle}.
