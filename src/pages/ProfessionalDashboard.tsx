@@ -291,6 +291,37 @@ const ProfessionalDashboard = () => {
     }
   }, [professional, isMarketplaceActive]);
 
+  // Realtime subscription for new appointments
+  useEffect(() => {
+    if (!professional || !isMarketplaceActive) return;
+
+    const channel = supabase
+      .channel('professional-appointments')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'appointments',
+          filter: `professional_id=eq.${professional.id}`
+        },
+        (payload) => {
+          console.log('[Dashboard] New appointment received:', payload);
+          // Only set notification if not currently on agenda tab
+          if (activeTab !== 'agenda') {
+            setHasNewAppointments(true);
+          }
+          // Refresh appointments list
+          fetchAppointments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [professional, isMarketplaceActive, activeTab]);
+
   // If the user paid but the status is still "pending_payment", sync with billing provider.
   useEffect(() => {
     if (!professional || hasSyncedSubscription) return;
