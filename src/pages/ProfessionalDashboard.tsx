@@ -934,7 +934,7 @@ const ProfessionalDashboard = () => {
                 </div>
                 
                 {/* Refund Pending Cards - Show at top when there are pending refunds */}
-                {appointmentFilter !== "cancelados" && appointments.filter(a => a.status === 'refund_pending' && a.user_pix_key).length > 0 && (
+                {appointments.filter(a => a.status === 'refund_pending' && a.user_pix_key).length > 0 && (
                   <div className="space-y-3 mb-4">
                     <h3 className="text-sm font-medium text-orange-600 uppercase tracking-wide flex items-center gap-2">
                       <Clock className="w-4 h-4" />
