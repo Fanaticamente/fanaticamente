@@ -1,19 +1,7 @@
 import { useState, useEffect } from "react";
-import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import UserDetailsDialog from "./UserDetailsDialog";
 
 interface ThemeStyles {
   bg: string;
@@ -39,18 +27,24 @@ interface User {
   favorite_club_id: string | null;
   city: string | null;
   state: string | null;
+  birth_date: string | null;
+  avatar_url: string | null;
   created_at: string;
   email?: string;
   roles: string[];
+  club?: {
+    id: string;
+    name: string;
+    primary_color: string;
+    badge_url: string | null;
+  };
 }
 
 const AdminUsersTable = ({ themeStyles, searchTerm }: AdminUsersTableProps) => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [adminPassword, setAdminPassword] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -75,6 +69,21 @@ const AdminUsersTable = ({ themeStyles, searchTerm }: AdminUsersTableProps) => {
 
       if (rolesError) throw rolesError;
 
+      // Fetch clubs for favorite_club_id
+      const clubIds = [...new Set((profiles || []).map(p => p.favorite_club_id).filter(Boolean))];
+      let clubsMap = new Map<string, { id: string; name: string; primary_color: string; badge_url: string | null }>();
+      
+      if (clubIds.length > 0) {
+        const { data: clubs } = await supabase
+          .from("clubs")
+          .select("id, name, primary_color, badge_url")
+          .in("id", clubIds);
+        
+        (clubs || []).forEach(club => {
+          clubsMap.set(club.id, club);
+        });
+      }
+
       // Map roles to users
       const rolesMap = new Map<string, string[]>();
       (roles || []).forEach(r => {
@@ -84,6 +93,7 @@ const AdminUsersTable = ({ themeStyles, searchTerm }: AdminUsersTableProps) => {
 
       const usersWithRoles = (profiles || []).map(profile => ({
         ...profile,
+        club: profile.favorite_club_id ? clubsMap.get(profile.favorite_club_id) : undefined,
         roles: rolesMap.get(profile.user_id) || ["user"]
       }));
 
@@ -96,51 +106,16 @@ const AdminUsersTable = ({ themeStyles, searchTerm }: AdminUsersTableProps) => {
     }
   };
 
-  const handleDeleteClick = (user: User) => {
+  const handleUserClick = (user: User) => {
     setSelectedUser(user);
-    setAdminPassword("");
-    setDeleteDialogOpen(true);
+    setDetailsDialogOpen(true);
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!selectedUser || !adminPassword) {
-      toast.error("Digite a senha de segurança");
-      return;
-    }
-
-    setIsDeleting(true);
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      
-      const response = await supabase.functions.invoke("delete-user-completely", {
-        body: {
-          userId: selectedUser.user_id,
-          adminPassword: adminPassword,
-        },
-      });
-
-      if (response.error) {
-        throw new Error(response.error.message || "Erro ao excluir usuário");
-      }
-
-      if (response.data?.error) {
-        throw new Error(response.data.error);
-      }
-
-      toast.success("Usuário excluído com sucesso");
-      setDeleteDialogOpen(false);
-      setSelectedUser(null);
-      setAdminPassword("");
-      fetchUsers();
-    } catch (error: any) {
-      console.error("Error deleting user:", error);
-      toast.error(error.message || "Erro ao excluir usuário");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
+  // Filter out professionals - they have their own page
   const filteredUsers = users.filter(user => {
+    // Exclude professionals
+    if (user.roles.includes("professional")) return false;
+    
     if (!searchTerm) return true;
     const search = searchTerm.toLowerCase();
     return (
@@ -158,15 +133,7 @@ const AdminUsersTable = ({ themeStyles, searchTerm }: AdminUsersTableProps) => {
     if (roles.includes("developer")) {
       return { label: "Developer", className: "bg-purple-500/20 text-purple-500" };
     }
-    if (roles.includes("professional")) {
-      return { label: "Profissional", className: "bg-secondary/20 text-secondary" };
-    }
     return { label: "Torcedor", className: "bg-primary/20 text-primary" };
-  };
-
-  const canDelete = (roles: string[]) => {
-    // Não permitir excluir admins ou developers
-    return !roles.includes("admin") && !roles.includes("developer");
   };
 
   if (loading) {
@@ -194,22 +161,28 @@ const AdminUsersTable = ({ themeStyles, searchTerm }: AdminUsersTableProps) => {
                 <th className={`text-left p-4 ${themeStyles.textMuted} font-medium`}>Tipo</th>
                 <th className={`text-left p-4 ${themeStyles.textMuted} font-medium`}>Localização</th>
                 <th className={`text-left p-4 ${themeStyles.textMuted} font-medium`}>Cadastro</th>
-                <th className={`text-left p-4 ${themeStyles.textMuted} font-medium`}>Ações</th>
               </tr>
             </thead>
             <tbody>
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user) => {
                   const roleBadge = getRoleBadge(user.roles);
-                  const deletable = canDelete(user.roles);
                   return (
-                    <tr key={user.id} className={`border-b ${themeStyles.border} ${themeStyles.hoverBg}`}>
+                    <tr 
+                      key={user.id} 
+                      className={`border-b ${themeStyles.border} ${themeStyles.hoverBg} cursor-pointer transition-colors`}
+                      onClick={() => handleUserClick(user)}
+                    >
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                            <span className="text-sm">
-                              {user.full_name?.charAt(0).toUpperCase() || "?"}
-                            </span>
+                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+                            {user.avatar_url ? (
+                              <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-sm">
+                                {user.full_name?.charAt(0).toUpperCase() || "?"}
+                              </span>
+                            )}
                           </div>
                           <span className={themeStyles.text}>{user.full_name || "Sem nome"}</span>
                         </div>
@@ -226,27 +199,12 @@ const AdminUsersTable = ({ themeStyles, searchTerm }: AdminUsersTableProps) => {
                       <td className={`p-4 ${themeStyles.textMuted}`}>
                         {new Date(user.created_at).toLocaleDateString("pt-BR")}
                       </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-1">
-                          {deletable ? (
-                            <button 
-                              onClick={() => handleDeleteClick(user)}
-                              className="p-2 hover:bg-destructive/20 rounded-lg transition-colors"
-                              title="Excluir usuário"
-                            >
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </button>
-                          ) : (
-                            <span className={`text-xs ${themeStyles.textMuted}`}>Protegido</span>
-                          )}
-                        </div>
-                      </td>
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan={6} className={`p-8 text-center ${themeStyles.textMuted}`}>
+                  <td colSpan={5} className={`p-8 text-center ${themeStyles.textMuted}`}>
                     {searchTerm ? "Nenhum usuário encontrado" : "Nenhum usuário cadastrado"}
                   </td>
                 </tr>
@@ -256,49 +214,17 @@ const AdminUsersTable = ({ themeStyles, searchTerm }: AdminUsersTableProps) => {
         </div>
       </div>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="bg-white">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-destructive">
-              Excluir Usuário Permanentemente
-            </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-3">
-              <p>
-                Você está prestes a excluir permanentemente o usuário{" "}
-                <strong>{selectedUser?.full_name || "Sem nome"}</strong>.
-              </p>
-              <p className="text-destructive font-medium">
-                Esta ação é irreversível e removerá todos os dados associados a este usuário.
-              </p>
-              <div className="pt-2">
-                <Label htmlFor="adminPassword">Senha de Segurança</Label>
-                <Input
-                  id="adminPassword"
-                  type="password"
-                  placeholder="Digite a senha de segurança"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleDeleteConfirm();
-              }}
-              disabled={isDeleting || !adminPassword}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              {isDeleting ? "Excluindo..." : "Excluir Permanentemente"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* User Details Dialog */}
+      <UserDetailsDialog
+        user={selectedUser}
+        open={detailsDialogOpen}
+        onClose={() => {
+          setDetailsDialogOpen(false);
+          setSelectedUser(null);
+        }}
+        themeStyles={themeStyles}
+        onRefresh={fetchUsers}
+      />
     </>
   );
 };
