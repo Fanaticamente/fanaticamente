@@ -34,6 +34,8 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
     switch (appointment.status) {
       case "in_progress":
         return { label: "Em Atendimento", className: "bg-blue-500/20 text-blue-500" };
+      case "link_sent":
+        return { label: "Link Enviado", className: "bg-cyan-500/20 text-cyan-500" };
       case "confirmed":
         return { label: "Confirmado", className: "bg-green-500/20 text-green-500" };
       case "completed":

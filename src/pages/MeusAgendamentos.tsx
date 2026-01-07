@@ -128,10 +128,22 @@ const MeusAgendamentos = () => {
         className: "bg-blue-500/20 text-blue-500",
         icon: Clock
       };
+    } else if (status === "link_sent") {
+      return {
+        label: "Link Enviado",
+        className: "bg-cyan-500/20 text-cyan-500",
+        icon: CheckCircle
+      };
     } else if (status === "confirmed") {
       return {
         label: past ? "Realizada" : "Confirmada",
         className: "bg-green-500/20 text-green-500",
+        icon: CheckCircle
+      };
+    } else if (status === "completed") {
+      return {
+        label: "Concluída",
+        className: "bg-purple-500/20 text-purple-500",
         icon: CheckCircle
       };
     } else if (status === "cancelled") {
@@ -350,8 +362,8 @@ const MeusAgendamentos = () => {
                   )}
 
 
-                  {/* Session Info Button - for confirmed and in_progress appointments */}
-                  {!isPastAppointment && (apt.status === "confirmed" || apt.status === "in_progress") && (
+                  {/* Session Info Button - for confirmed, link_sent, and in_progress appointments */}
+                  {!isPastAppointment && (apt.status === "confirmed" || apt.status === "link_sent" || apt.status === "in_progress") && (
                     <button
                       onClick={() => setSelectedAppointment(apt)}
                       className="w-full mt-3 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors flex items-center justify-center gap-2"

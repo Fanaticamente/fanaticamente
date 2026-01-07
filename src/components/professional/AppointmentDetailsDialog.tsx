@@ -41,14 +41,19 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
 
     setIsSaving(true);
     try {
+      // Update both consultation_link and status to 'link_sent'
       const { error } = await supabase
         .from("appointments")
-        .update({ consultation_link: consultationLink.trim() })
+        .update({ 
+          consultation_link: consultationLink.trim(),
+          status: "link_sent"
+        })
         .eq("id", appointment.id);
 
       if (error) throw error;
       
-      toast.success("Link salvo com sucesso!");
+      setCurrentStatus("link_sent");
+      toast.success("Link enviado com sucesso!");
       onUpdate();
     } catch (error) {
       console.error("Error saving consultation link:", error);
@@ -115,6 +120,8 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
     switch (currentStatus) {
       case "in_progress":
         return { label: "Em Atendimento", className: "bg-blue-500/20 text-blue-500" };
+      case "link_sent":
+        return { label: "Link Enviado", className: "bg-cyan-500/20 text-cyan-500" };
       case "confirmed":
         return { label: "Confirmado", className: "bg-green-500/20 text-green-500" };
       case "completed":
@@ -295,14 +302,14 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
             </div>
 
             {/* Session Control Buttons */}
-            {currentStatus === "confirmed" && (
+            {currentStatus === "link_sent" && (
               <button
                 onClick={handleStartSession}
                 disabled={isUpdatingStatus}
                 className="w-full py-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Play className="w-4 h-4" />
-                {isUpdatingStatus ? "Iniciando..." : "Iniciar Atendimento"}
+                {isUpdatingStatus ? "Iniciando..." : "Iniciar Consulta"}
               </button>
             )}
 
@@ -313,7 +320,7 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
                 className="w-full py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Square className="w-4 h-4" />
-                {isUpdatingStatus ? "Encerrando..." : "Encerrar Atendimento"}
+                {isUpdatingStatus ? "Encerrando..." : "Encerrar Consulta"}
               </button>
             )}
           </div>
