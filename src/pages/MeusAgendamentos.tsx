@@ -8,6 +8,7 @@ import { ptBR } from "date-fns/locale";
 import SessionInfoDialog from "@/components/user/SessionInfoDialog";
 import SessionCompletedDialog from "@/components/user/SessionCompletedDialog";
 import RescheduleDialog from "@/components/user/RescheduleDialog";
+import RefundInfoCard from "@/components/user/RefundInfoCard";
 
 interface Appointment {
   id: string;
@@ -37,7 +38,7 @@ const MeusAgendamentos = () => {
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"proximos" | "realizados" | "todos">("proximos");
+  const [filter, setFilter] = useState<"proximos" | "realizados" | "cancelados" | "todos">("proximos");
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [completedAppointment, setCompletedAppointment] = useState<Appointment | null>(null);
   const [rescheduleAppointment, setRescheduleAppointment] = useState<Appointment | null>(null);
@@ -222,6 +223,9 @@ const MeusAgendamentos = () => {
     } else if (filter === "realizados") {
       // Only show completed sessions that have been rated
       return apt.status === 'completed' && apt.rating;
+    } else if (filter === "cancelados") {
+      // Show cancelled, refund_pending, refund_sent, disputed
+      return ['cancelled', 'refund_pending', 'refund_sent', 'disputed'].includes(apt.status);
     }
     return true; // "todos"
   });
@@ -233,6 +237,7 @@ const MeusAgendamentos = () => {
   }).length;
 
   const realizadosCount = appointments.filter(apt => apt.status === 'completed' && apt.rating).length;
+  const canceladosCount = appointments.filter(apt => ['cancelled', 'refund_pending', 'refund_sent', 'disputed'].includes(apt.status)).length;
 
   if (authLoading) {
     return (
@@ -288,23 +293,56 @@ const MeusAgendamentos = () => {
             onClick={() => setFilter("realizados")}
             className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors ${
               filter === "realizados"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            }`}
-          >
-            Realizados
-          </button>
-          <button
-            onClick={() => setFilter("todos")}
-            className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors ${
-              filter === "todos"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            }`}
-          >
-            Todos
-          </button>
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:bg-muted/80"
+          }`}
+        >
+          Realizados
+        </button>
+        <button
+          onClick={() => setFilter("cancelados")}
+          className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
+            filter === "cancelados"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:bg-muted/80"
+          }`}
+        >
+          Cancelados
+          {canceladosCount > 0 && (
+            <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${
+              filter === "cancelados" ? "bg-white/20" : "bg-red-500 text-white"
+            }`}>
+              {canceladosCount}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setFilter("todos")}
+          className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors ${
+            filter === "todos"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:bg-muted/80"
+          }`}
+        >
+          Todos
+        </button>
+      </div>
+
+      {/* Refund Cards for cancelled/refund flow */}
+      {filter === "cancelados" && filteredAppointments.filter(apt => ['refund_pending', 'refund_sent', 'disputed'].includes(apt.status)).length > 0 && (
+        <div className="space-y-3 mb-4">
+          {filteredAppointments
+            .filter(apt => ['refund_pending', 'refund_sent', 'disputed'].includes(apt.status))
+            .map(apt => (
+              <RefundInfoCard 
+                key={apt.id} 
+                appointment={apt} 
+                onUpdate={fetchAppointments} 
+              />
+            ))
+          }
         </div>
+      )}
 
         {/* Appointments List */}
         {loading ? (

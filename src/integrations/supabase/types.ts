@@ -157,48 +157,119 @@ export type Database = {
         }
         Relationships: []
       }
+      appointment_disputes: {
+        Row: {
+          admin_notes: string | null
+          appointment_id: string
+          created_at: string
+          id: string
+          professional_id: string
+          reason: string
+          resolved_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          appointment_id: string
+          created_at?: string
+          id?: string
+          professional_id: string
+          reason: string
+          resolved_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          appointment_id?: string
+          created_at?: string
+          id?: string
+          professional_id?: string
+          reason?: string
+          resolved_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_disputes_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           consultation_link: string | null
           created_at: string
+          dispute_created_at: string | null
+          dispute_reason: string | null
           id: string
           notes: string | null
           professional_id: string
           rating: number | null
           receipt_url: string | null
+          refund_deadline: string | null
+          refund_receipt_url: string | null
+          refund_sent_at: string | null
+          rejection_reason: string | null
           scheduled_date: string
           scheduled_time: string
           status: string | null
           updated_at: string
           user_id: string
+          user_pix_key: string | null
+          user_pix_key_type: string | null
         }
         Insert: {
           consultation_link?: string | null
           created_at?: string
+          dispute_created_at?: string | null
+          dispute_reason?: string | null
           id?: string
           notes?: string | null
           professional_id: string
           rating?: number | null
           receipt_url?: string | null
+          refund_deadline?: string | null
+          refund_receipt_url?: string | null
+          refund_sent_at?: string | null
+          rejection_reason?: string | null
           scheduled_date: string
           scheduled_time: string
           status?: string | null
           updated_at?: string
           user_id: string
+          user_pix_key?: string | null
+          user_pix_key_type?: string | null
         }
         Update: {
           consultation_link?: string | null
           created_at?: string
+          dispute_created_at?: string | null
+          dispute_reason?: string | null
           id?: string
           notes?: string | null
           professional_id?: string
           rating?: number | null
           receipt_url?: string | null
+          refund_deadline?: string | null
+          refund_receipt_url?: string | null
+          refund_sent_at?: string | null
+          rejection_reason?: string | null
           scheduled_date?: string
           scheduled_time?: string
           status?: string | null
           updated_at?: string
           user_id?: string
+          user_pix_key?: string | null
+          user_pix_key_type?: string | null
         }
         Relationships: [
           {

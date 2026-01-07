@@ -18,6 +18,8 @@ import AdminMessagesAlert from "@/components/professional/AdminMessagesAlert";
 import ApprovalPendingBanner from "@/components/professional/ApprovalPendingBanner";
 import WeeklyAvailabilityManager from "@/components/professional/WeeklyAvailabilityManager";
 import ProfessionalMetricsTab from "@/components/professional/ProfessionalMetricsTab";
+import RejectAppointmentDialog from "@/components/professional/RejectAppointmentDialog";
+import RefundPendingCard from "@/components/professional/RefundPendingCard";
 
 interface Professional {
   id: string;
@@ -59,7 +61,7 @@ interface Club {
 
 type OnboardingStep = "status" | "profile" | "subscription";
 type DashboardTab = "agenda" | "disponibilidade" | "metricas" | "perfil" | "assinatura";
-type AppointmentFilter = "proximos" | "realizados" | "todos";
+type AppointmentFilter = "proximos" | "realizados" | "cancelados" | "todos";
 
 const ProfessionalDashboard = () => {
   const { user, signOut, hasRole } = useAuth();
@@ -83,6 +85,7 @@ const ProfessionalDashboard = () => {
   const [loadingAppointments, setLoadingAppointments] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<any | null>(null);
+  const [rejectingAppointment, setRejectingAppointment] = useState<any | null>(null);
 
   const [hasSyncedSubscription, setHasSyncedSubscription] = useState(false);
 
@@ -460,12 +463,17 @@ const ProfessionalDashboard = () => {
   // Calculate stats based on completed consultations only
   const completedAppointments = appointments.filter(a => a.status === 'completed');
   const pendingAppointments = appointments.filter(a => ['pending', 'confirmed', 'link_sent', 'in_progress'].includes(a.status));
-  const totalRelevantAppointments = appointments.filter(a => !['cancelled'].includes(a.status));
+  const cancelledAppointments = appointments.filter(a => ['cancelled', 'refund_pending', 'refund_sent', 'disputed'].includes(a.status));
+  const totalRelevantAppointments = appointments.filter(a => !['cancelled', 'refund_pending', 'refund_sent', 'disputed'].includes(a.status));
+  
+  // Calculate completion rate (completed / (completed + cancelled))
+  const totalFinished = completedAppointments.length + cancelledAppointments.length;
+  const completionRate = totalFinished > 0 ? Math.round((completedAppointments.length / totalFinished) * 100) : 0;
   
   const stats = [
     { label: "Consultas este mês", value: isMarketplaceActive ? completedAppointments.length.toString() : "0", icon: Calendar, color: "text-therapy" },
     { label: "Pacientes atendidos", value: isMarketplaceActive ? completedAppointments.length.toString() : "0", icon: Users, color: "text-secondary" },
-    { label: "Taxa de conclusão", value: isMarketplaceActive && totalRelevantAppointments.length > 0 ? `${Math.round((completedAppointments.length / totalRelevantAppointments.length) * 100)}%` : "0%", icon: TrendingUp, color: "text-green-500" },
+    { label: "Taxa de conclusão", value: isMarketplaceActive ? `${completionRate}%` : "0%", icon: TrendingUp, color: completionRate >= 80 ? "text-green-500" : completionRate >= 50 ? "text-yellow-500" : "text-red-500" },
     { label: "Pendentes", value: isMarketplaceActive ? pendingAppointments.length.toString() : "0", icon: Clock, color: "text-yellow-500" },
   ];
 
@@ -484,10 +492,13 @@ const ProfessionalDashboard = () => {
   // Filter appointments for display
   const getFilteredAppointments = () => {
     if (appointmentFilter === "proximos") {
-      // "Próximos" = pending, confirmed, link_sent, in_progress (not completed or cancelled)
+      // "Próximos" = pending, confirmed, link_sent, in_progress (not completed, cancelled, or refund related)
       return appointments.filter(a => ['pending', 'confirmed', 'link_sent', 'in_progress'].includes(a.status));
     } else if (appointmentFilter === "realizados") {
       return appointments.filter(a => a.status === 'completed');
+    } else if (appointmentFilter === "cancelados") {
+      // Cancelled includes: cancelled, refund_pending, refund_sent, disputed
+      return appointments.filter(a => ['cancelled', 'refund_pending', 'refund_sent', 'disputed'].includes(a.status));
     }
     return appointments; // "todos"
   };
@@ -495,6 +506,7 @@ const ProfessionalDashboard = () => {
   const filteredAppointments = getFilteredAppointments();
   const proximosCount = appointments.filter(a => ['pending', 'confirmed', 'link_sent', 'in_progress'].includes(a.status)).length;
   const realizadosCount = appointments.filter(a => a.status === 'completed').length;
+  const canceladosCount = appointments.filter(a => ['cancelled', 'refund_pending', 'refund_sent', 'disputed'].includes(a.status)).length;
 
   const handleLogout = async () => {
     await signOut();
@@ -893,6 +905,23 @@ const ProfessionalDashboard = () => {
                     Realizados
                   </button>
                   <button
+                    onClick={() => setAppointmentFilter("cancelados")}
+                    className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
+                      appointmentFilter === "cancelados"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    Cancelados
+                    {canceladosCount > 0 && (
+                      <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${
+                        appointmentFilter === "cancelados" ? "bg-white/20" : "bg-red-500 text-white"
+                      }`}>
+                        {canceladosCount}
+                      </span>
+                    )}
+                  </button>
+                  <button
                     onClick={() => setAppointmentFilter("todos")}
                     className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors ${
                       appointmentFilter === "todos"
@@ -903,6 +932,26 @@ const ProfessionalDashboard = () => {
                     Todos
                   </button>
                 </div>
+                
+                {/* Refund Pending Cards - Show at top when there are pending refunds */}
+                {appointmentFilter !== "cancelados" && appointments.filter(a => a.status === 'refund_pending' && a.user_pix_key).length > 0 && (
+                  <div className="space-y-3 mb-4">
+                    <h3 className="text-sm font-medium text-orange-600 uppercase tracking-wide flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      Ressarcimentos Pendentes
+                    </h3>
+                    {appointments
+                      .filter(a => a.status === 'refund_pending' && a.user_pix_key)
+                      .map(apt => (
+                        <RefundPendingCard 
+                          key={apt.id} 
+                          appointment={apt} 
+                          onUpdate={fetchAppointments} 
+                        />
+                      ))
+                    }
+                  </div>
+                )}
                 
                 {loadingAppointments ? (
                   <div className="flex items-center justify-center p-8">
@@ -915,7 +964,9 @@ const ProfessionalDashboard = () => {
                       {appointmentFilter === "proximos" 
                         ? "Nenhum agendamento próximo" 
                         : appointmentFilter === "realizados" 
-                        ? "Nenhuma consulta realizada" 
+                        ? "Nenhuma consulta realizada"
+                        : appointmentFilter === "cancelados"
+                        ? "Nenhum agendamento cancelado"
                         : "Nenhum agendamento ainda"}
                     </p>
                   </div>
@@ -961,6 +1012,12 @@ const ProfessionalDashboard = () => {
                               ? "bg-purple-500/20 text-purple-500"
                               : apt.status === "cancelled"
                               ? "bg-red-500/20 text-red-500"
+                              : apt.status === "refund_pending"
+                              ? "bg-orange-500/20 text-orange-500"
+                              : apt.status === "refund_sent"
+                              ? "bg-green-500/20 text-green-500"
+                              : apt.status === "disputed"
+                              ? "bg-red-500/20 text-red-500"
                               : "bg-yellow-500/20 text-yellow-500"
                           }`}
                         >
@@ -973,7 +1030,13 @@ const ProfessionalDashboard = () => {
                             : apt.status === "completed"
                             ? "Concluído"
                             : apt.status === "cancelled" 
-                            ? "Recusado" 
+                            ? "Recusado"
+                            : apt.status === "refund_pending"
+                            ? "Aguardando Ressarcimento"
+                            : apt.status === "refund_sent"
+                            ? "Ressarcimento Enviado"
+                            : apt.status === "disputed"
+                            ? "Em Disputa"
                             : "Pendente"}
                         </span>
                       </div>
@@ -1000,7 +1063,6 @@ const ProfessionalDashboard = () => {
                           <button 
                             onClick={(e) => {
                               e.stopPropagation();
-                              // Keep status as pending, just confirm the appointment was reviewed
                               handleUpdateAppointmentStatus(apt.id, 'confirmed');
                             }}
                             className="flex-1 py-2 bg-green-500/20 text-green-600 rounded-lg font-medium hover:bg-green-500/30 transition-colors flex items-center justify-center gap-2"
@@ -1011,7 +1073,7 @@ const ProfessionalDashboard = () => {
                           <button 
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleUpdateAppointmentStatus(apt.id, 'cancelled');
+                              setRejectingAppointment(apt);
                             }}
                             className="flex-1 py-2 bg-red-500/20 text-red-600 rounded-lg font-medium hover:bg-red-500/30 transition-colors flex items-center justify-center gap-2"
                           >
@@ -1022,6 +1084,18 @@ const ProfessionalDashboard = () => {
                       )}
                     </div>
                   ))
+                )}
+
+                {/* Reject Appointment Dialog */}
+                {rejectingAppointment && (
+                  <RejectAppointmentDialog
+                    appointment={rejectingAppointment}
+                    onClose={() => setRejectingAppointment(null)}
+                    onRejected={() => {
+                      setRejectingAppointment(null);
+                      fetchAppointments();
+                    }}
+                  />
                 )}
 
                 {/* Appointment Details Dialog */}
