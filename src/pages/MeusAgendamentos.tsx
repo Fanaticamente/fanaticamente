@@ -16,6 +16,7 @@ interface Appointment {
   notes: string | null;
   consultation_link: string | null;
   created_at: string;
+  rating?: number | null;
   professional?: {
     crp: string;
     degree: string | null;
@@ -61,10 +62,25 @@ const MeusAgendamentos = () => {
           },
           (payload) => {
             console.log('Appointment status updated:', payload);
-            const updated = payload.new as Appointment;
+            const updated = payload.new as any;
+            const previousStatus = (payload.old as any)?.status;
+            
+            // Update appointments list
             setAppointments(prev => 
               prev.map(apt => apt.id === updated.id ? { ...apt, ...updated } : apt)
             );
+            
+            // Auto-open SessionCompletedDialog when professional marks session as completed
+            if (updated.status === 'completed' && previousStatus !== 'completed') {
+              // Find the full appointment data with professional/profile info
+              setAppointments(prev => {
+                const apt = prev.find(a => a.id === updated.id);
+                if (apt && !apt.rating) {
+                  setCompletedAppointment({ ...apt, ...updated });
+                }
+                return prev;
+              });
+            }
           }
         )
         .subscribe();
@@ -80,10 +96,10 @@ const MeusAgendamentos = () => {
     setLoading(true);
 
     try {
-      // Fetch appointments
+      // Fetch appointments including rating
       const { data: appointmentsData, error: appointmentsError } = await supabase
         .from("appointments")
-        .select("*")
+        .select("*, rating")
         .eq("user_id", user.id)
         .order("scheduled_date", { ascending: false })
         .order("scheduled_time", { ascending: false });
@@ -188,21 +204,32 @@ const MeusAgendamentos = () => {
   };
 
   // Filter by status instead of date
+  // "Próximos" includes completed sessions that haven't been rated yet (user must interact first)
   const filteredAppointments = appointments.filter(apt => {
     if (filter === "proximos") {
-      // "Próximos" = pending, confirmed, link_sent, in_progress (not completed or cancelled)
-      return ['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status);
+      // "Próximos" = pending, confirmed, link_sent, in_progress + completed without rating
+      if (['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status)) {
+        return true;
+      }
+      // Keep completed sessions in "Próximos" until rated
+      if (apt.status === 'completed' && !apt.rating) {
+        return true;
+      }
+      return false;
     } else if (filter === "realizados") {
-      return apt.status === 'completed';
+      // Only show completed sessions that have been rated
+      return apt.status === 'completed' && apt.rating;
     }
     return true; // "todos"
   });
 
-  const proximosCount = appointments.filter(apt => 
-    ['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status)
-  ).length;
+  const proximosCount = appointments.filter(apt => {
+    if (['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status)) return true;
+    if (apt.status === 'completed' && !apt.rating) return true;
+    return false;
+  }).length;
 
-  const realizadosCount = appointments.filter(apt => apt.status === 'completed').length;
+  const realizadosCount = appointments.filter(apt => apt.status === 'completed' && apt.rating).length;
 
   if (authLoading) {
     return (
@@ -429,6 +456,18 @@ const MeusAgendamentos = () => {
           <SessionCompletedDialog
             appointment={completedAppointment}
             onClose={() => setCompletedAppointment(null)}
+            onRatingSubmitted={() => {
+              // Update the appointment in the list with the rating
+              setAppointments(prev => 
+                prev.map(apt => 
+                  apt.id === completedAppointment.id 
+                    ? { ...apt, rating: 1 } // Mark as rated (actual value comes from Supabase)
+                    : apt
+                )
+              );
+              // Refresh to get actual rating value
+              fetchAppointments();
+            }}
           />
         )}
       </main>

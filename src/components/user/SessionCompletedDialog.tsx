@@ -36,9 +36,10 @@ interface SessionCompletedDialogProps {
   };
   onClose: () => void;
   onReschedule?: () => void;
+  onRatingSubmitted?: () => void;
 }
 
-const SessionCompletedDialog = ({ appointment, onClose, onReschedule }: SessionCompletedDialogProps) => {
+const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSubmitted }: SessionCompletedDialogProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [rating, setRating] = useState(0);
@@ -105,6 +106,9 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule }: SessionC
         title: "Obrigado pela avaliação!",
         description: `Você avaliou a sessão com ${rating} estrela${rating > 1 ? 's' : ''}.`,
       });
+      
+      // Notify parent that rating was submitted so it can update the list
+      onRatingSubmitted?.();
     } catch (error) {
       console.error('Error saving rating:', error);
       toast({
@@ -116,6 +120,9 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule }: SessionC
       setIsSubmittingRating(false);
     }
   };
+
+  // User can only close after rating or scheduling
+  const canClose = hasRated;
 
   const weekDays = Array.from({ length: 7 }, (_, i) =>
     addDays(currentWeekStart, i)
@@ -160,10 +167,17 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule }: SessionC
     }
   };
 
+  // Handle backdrop click - only close if allowed
+  const handleBackdropClick = () => {
+    if (canClose) {
+      onClose();
+    }
+  };
+
   return (
     <div 
       className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" 
-      onClick={onClose}
+      onClick={handleBackdropClick}
     >
       <div 
         className="bg-card rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto" 
@@ -174,12 +188,14 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule }: SessionC
           <h3 className="font-display text-lg text-card-foreground">
             {showReschedule ? "Agendar Nova Sessão" : "Sessão Concluída"}
           </h3>
-          <button 
-            onClick={onClose} 
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-muted-foreground" />
-          </button>
+          {canClose && (
+            <button 
+              onClick={onClose} 
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5 text-muted-foreground" />
+            </button>
+          )}
         </div>
 
         <div className="p-4 space-y-6">
@@ -250,12 +266,14 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule }: SessionC
                   <Calendar className="w-5 h-5" />
                   Agendar Nova Sessão
                 </button>
-                <button
-                  onClick={onClose}
-                  className="w-full mt-3 py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors"
-                >
-                  Fechar
-                </button>
+                {canClose && (
+                  <button
+                    onClick={onClose}
+                    className="w-full mt-3 py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors"
+                  >
+                    Fechar
+                  </button>
+                )}
               </div>
             </>
           ) : (
