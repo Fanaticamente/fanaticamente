@@ -34,7 +34,7 @@ const MeusAgendamentos = () => {
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "upcoming" | "past">("upcoming");
+  const [filter, setFilter] = useState<"proximos" | "realizados" | "todos">("proximos");
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [completedAppointment, setCompletedAppointment] = useState<Appointment | null>(null);
 
@@ -187,24 +187,22 @@ const MeusAgendamentos = () => {
     }
   };
 
+  // Filter by status instead of date
   const filteredAppointments = appointments.filter(apt => {
-    const appointmentDate = parseISO(apt.scheduled_date);
-    const past = isPast(appointmentDate) && !isToday(appointmentDate);
-
-    if (filter === "upcoming") return !past;
-    if (filter === "past") return past;
-    return true;
+    if (filter === "proximos") {
+      // "Próximos" = pending, confirmed, link_sent, in_progress (not completed or cancelled)
+      return ['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status);
+    } else if (filter === "realizados") {
+      return apt.status === 'completed';
+    }
+    return true; // "todos"
   });
 
-  const upcomingCount = appointments.filter(apt => {
-    const appointmentDate = parseISO(apt.scheduled_date);
-    return !isPast(appointmentDate) || isToday(appointmentDate);
-  }).length;
+  const proximosCount = appointments.filter(apt => 
+    ['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status)
+  ).length;
 
-  const pastCount = appointments.filter(apt => {
-    const appointmentDate = parseISO(apt.scheduled_date);
-    return isPast(appointmentDate) && !isToday(appointmentDate);
-  }).length;
+  const realizadosCount = appointments.filter(apt => apt.status === 'completed').length;
 
   if (authLoading) {
     return (
@@ -240,48 +238,48 @@ const MeusAgendamentos = () => {
         {/* Filter Tabs */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           <button
-            onClick={() => setFilter("upcoming")}
+            onClick={() => setFilter("proximos")}
             className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
-              filter === "upcoming"
+              filter === "proximos"
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
-            Próximas
-            {upcomingCount > 0 && (
+            Próximos
+            {proximosCount > 0 && (
               <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${
-                filter === "upcoming" ? "bg-white/20" : "bg-primary text-primary-foreground"
+                filter === "proximos" ? "bg-white/20" : "bg-primary text-primary-foreground"
               }`}>
-                {upcomingCount}
+                {proximosCount}
               </span>
             )}
           </button>
           <button
-            onClick={() => setFilter("past")}
+            onClick={() => setFilter("realizados")}
             className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
-              filter === "past"
+              filter === "realizados"
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
-            Realizadas
-            {pastCount > 0 && (
+            Realizados
+            {realizadosCount > 0 && (
               <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${
-                filter === "past" ? "bg-white/20" : "bg-muted-foreground/20"
+                filter === "realizados" ? "bg-white/20" : "bg-muted-foreground/20"
               }`}>
-                {pastCount}
+                {realizadosCount}
               </span>
             )}
           </button>
           <button
-            onClick={() => setFilter("all")}
+            onClick={() => setFilter("todos")}
             className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors ${
-              filter === "all"
+              filter === "todos"
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
-            Todas
+            Todos
           </button>
         </div>
 
@@ -294,18 +292,18 @@ const MeusAgendamentos = () => {
           <div className="bg-card border border-border rounded-2xl p-8 text-center">
             <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-card-foreground font-medium mb-2">
-              {filter === "upcoming" 
+              {filter === "proximos" 
                 ? "Nenhuma consulta agendada" 
-                : filter === "past" 
+                : filter === "realizados" 
                 ? "Nenhuma consulta realizada" 
                 : "Nenhum agendamento"}
             </p>
             <p className="text-muted-foreground text-sm mb-4">
-              {filter === "upcoming" 
+              {filter === "proximos" 
                 ? "Agende uma sessão com um dos nossos especialistas" 
                 : "Suas consultas passadas aparecerão aqui"}
             </p>
-            {filter === "upcoming" && (
+            {filter === "proximos" && (
               <button
                 onClick={() => navigate("/terapeutas")}
                 className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors"
