@@ -5,7 +5,7 @@ import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { format, addDays } from "date-fns";
+import { format, addDays, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import ProfileCompletionForm from "@/components/professional/ProfileCompletionForm";
@@ -940,7 +940,7 @@ const ProfessionalDashboard = () => {
                               {apt.profiles?.full_name || 'Paciente'}
                             </h3>
                             <p className="text-muted-foreground text-sm">
-                              {format(new Date(apt.scheduled_date), "dd/MM/yyyy")} às {apt.scheduled_time}
+                              {format(parseISO(apt.scheduled_date), "dd/MM/yyyy")} às {apt.scheduled_time}
                             </p>
                             {apt.profiles?.phone && (
                               <p className="text-muted-foreground text-xs mt-1">
