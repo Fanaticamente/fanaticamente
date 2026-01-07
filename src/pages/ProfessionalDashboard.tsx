@@ -272,13 +272,14 @@ const ProfessionalDashboard = () => {
   const hasSubscription = !!professional?.subscription_type;
   const isMarketplaceActive = !!professional?.is_active;
 
-  // Load last seen count from localStorage
+  // Load last seen timestamp from localStorage
   useEffect(() => {
     if (professional) {
-      const stored = localStorage.getItem(`lastSeenAppointments_${professional.id}`);
+      const stored = localStorage.getItem(`lastSeenAppointmentsTime_${professional.id}`);
       if (stored) {
         setLastSeenAppointmentCount(parseInt(stored, 10));
       } else {
+        // If never seen, set to 0 so any appointment will trigger notification
         setLastSeenAppointmentCount(0);
       }
     }
@@ -290,6 +291,21 @@ const ProfessionalDashboard = () => {
       fetchAppointments();
     }
   }, [professional, isMarketplaceActive]);
+
+  // Check for new appointments based on lastSeenAppointmentTime
+  useEffect(() => {
+    if (lastSeenAppointmentCount !== null && appointments.length > 0 && activeTab !== 'agenda') {
+      // Check if there are appointments created after last seen time
+      const lastSeenTime = lastSeenAppointmentCount;
+      const hasNewOnes = appointments.some(apt => {
+        const createdAt = new Date(apt.created_at).getTime();
+        return createdAt > lastSeenTime && apt.status === 'pending';
+      });
+      if (hasNewOnes) {
+        setHasNewAppointments(true);
+      }
+    }
+  }, [appointments, lastSeenAppointmentCount, activeTab]);
 
   // Realtime subscription for new appointments
   useEffect(() => {
@@ -453,8 +469,10 @@ const ProfessionalDashboard = () => {
     setActiveTab(tabId);
     if (tabId === "agenda" && professional) {
       setHasNewAppointments(false);
-      localStorage.setItem(`lastSeenAppointments_${professional.id}`, appointments.length.toString());
-      setLastSeenAppointmentCount(appointments.length);
+      // Save current timestamp as last seen time
+      const now = Date.now();
+      localStorage.setItem(`lastSeenAppointmentsTime_${professional.id}`, now.toString());
+      setLastSeenAppointmentCount(now);
     }
   };
 
