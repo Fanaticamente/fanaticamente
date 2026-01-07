@@ -611,7 +611,7 @@ const ProfessionalDashboard = () => {
                 }
                 handleTabChange(tab.id as DashboardTab);
               }}
-              className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 relative ${
+              className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 relative overflow-visible ${
                 activeTab === tab.id
                   ? "bg-therapy text-therapy-foreground"
                   : tab.locked 
