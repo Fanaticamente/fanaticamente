@@ -256,6 +256,10 @@ const UserDetailsDialog = ({
               </Label>
               <Input
                 id="deletePassword"
+                name="admin_delete_password"
+                autoComplete="new-password"
+                autoCorrect="off"
+                spellCheck={false}
                 type="password"
                 placeholder="Digite a senha de segurança para confirmar"
                 value={deletePassword}

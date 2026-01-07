@@ -593,6 +593,10 @@ const ProfessionalDetailsDialog = ({
               <label className="text-base font-medium text-gray-700">Senha de Segurança</label>
               <input
                 type="password"
+                name="admin_delete_password"
+                autoComplete="new-password"
+                autoCorrect="off"
+                spellCheck={false}
                 value={deletePassword}
                 onChange={(e) => setDeletePassword(e.target.value)}
                 placeholder="Digite a senha de segurança do administrador"

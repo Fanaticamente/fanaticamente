@@ -532,6 +532,10 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
                   <div className="relative">
                     <Input
                       id="newPassword"
+                      name="new_password"
+                      autoComplete="new-password"
+                      autoCorrect="off"
+                      spellCheck={false}
                       type={showNewPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
@@ -554,6 +558,10 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
                   <div className="relative">
                     <Input
                       id="confirmPassword"
+                      name="confirm_new_password"
+                      autoComplete="new-password"
+                      autoCorrect="off"
+                      spellCheck={false}
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
