@@ -40,6 +40,12 @@ interface WeeklyAvailability {
   time_slots: string[];
 }
 
+interface Appointment {
+  scheduled_date: string;
+  scheduled_time: string;
+  status: string;
+}
+
 const ProfessionalProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -51,6 +57,7 @@ const ProfessionalProfile = () => {
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [weeklyAvailability, setWeeklyAvailability] = useState<WeeklyAvailability[]>([]);
+  const [bookedAppointments, setBookedAppointments] = useState<Appointment[]>([]);
   
   const [currentWeekStart, setCurrentWeekStart] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
@@ -99,6 +106,17 @@ const ProfessionalProfile = () => {
         if (availabilityData) {
           setWeeklyAvailability(availabilityData);
         }
+
+        // Fetch existing appointments to filter out booked slots
+        const { data: appointmentsData } = await supabase
+          .from('appointments')
+          .select('scheduled_date, scheduled_time, status')
+          .eq('professional_id', id)
+          .in('status', ['pending', 'confirmed', 'paid']);
+        
+        if (appointmentsData) {
+          setBookedAppointments(appointmentsData);
+        }
         
         // Fetch profile
         const { data: profileData } = await supabase
@@ -137,11 +155,26 @@ const ProfessionalProfile = () => {
     addDays(currentWeekStart, i)
   );
 
-  // Get available times for a specific date based on weekly availability
+  // Get available times for a specific date based on weekly availability (filtering booked slots)
   const getAvailableTimesForDate = (date: Date) => {
     const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
     const availability = weeklyAvailability.find(a => a.day_of_week === dayOfWeek);
-    return availability?.time_slots || [];
+    const allSlots = availability?.time_slots || [];
+    
+    // Filter out booked slots
+    const dateStr = format(date, "yyyy-MM-dd");
+    const bookedTimes = bookedAppointments
+      .filter(apt => apt.scheduled_date === dateStr)
+      .map(apt => apt.scheduled_time);
+    
+    return allSlots.filter(slot => !bookedTimes.includes(slot));
+  };
+
+  // Day name abbreviations in Portuguese
+  const getDayAbbreviation = (date: Date): string => {
+    const dayOfWeek = date.getDay();
+    const abbreviations = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+    return abbreviations[dayOfWeek];
   };
 
   const handlePreviousWeek = () => {
@@ -332,9 +365,7 @@ const ProfessionalProfile = () => {
                   }}
                 >
                   <span className="text-xs uppercase">
-                    {format(day, "EEEEE", { locale: ptBR }).toUpperCase() === "S" 
-                      ? (day.getDay() === 0 ? "DOM" : "SÁB")
-                      : format(day, "EEE", { locale: ptBR }).substring(0, 3).toUpperCase()}
+                    {getDayAbbreviation(day)}
                   </span>
                   <span className="text-lg font-bold">
                     {format(day, "d")}
