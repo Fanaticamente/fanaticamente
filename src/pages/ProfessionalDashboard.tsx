@@ -36,6 +36,8 @@ interface Professional {
   rejection_reason: string | null;
   crp_document_front_url: string | null;
   crp_document_back_url: string | null;
+  degree_document_front_url: string | null;
+  degree_document_back_url: string | null;
   google_calendar_url: string | null;
 }
 
@@ -696,7 +698,11 @@ const ProfessionalDashboard = () => {
                     degree: professional.degree || "",
                     specialties: professional.specialties || [],
                     sessionPrice: professional.hourly_rate?.toString() || "",
-                    imageUrl: profile?.avatar_url || ""
+                    imageUrl: profile?.avatar_url || "",
+                    crpDocumentFrontUrl: professional.crp_document_front_url || "",
+                    crpDocumentBackUrl: professional.crp_document_back_url || "",
+                    degreeDocumentFrontUrl: professional.degree_document_front_url || "",
+                    degreeDocumentBackUrl: professional.degree_document_back_url || ""
                   }}
                   onComplete={() => {
                     toast.success("Perfil atualizado!");
