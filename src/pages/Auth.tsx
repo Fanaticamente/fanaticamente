@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -7,7 +7,9 @@ import { Briefcase, User, ChevronDown, Brain } from "lucide-react";
 import { allBrazilianClubs } from "@/data/allBrazilianClubs";
 import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { supabase } from "@/integrations/supabase/client";
+import { Checkbox } from "@/components/ui/checkbox";
 import logoAuth from "@/assets/logo-auth.png";
+
 
 // Mask functions
 const formatCRP = (value: string): string => {
@@ -87,6 +89,7 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [roleValidated, setRoleValidated] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const { signIn, signUp, user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
@@ -310,6 +313,11 @@ const Auth = () => {
       if (e instanceof z.ZodError) {
         newErrors.password = e.errors[0].message;
       }
+    }
+
+    // Validate terms acceptance
+    if (!acceptedTerms) {
+      newErrors.terms = "Você deve aceitar os termos e política de privacidade";
     }
 
     setErrors(newErrors);
@@ -770,6 +778,40 @@ const Auth = () => {
                   />
                   {errors.password && (
                     <p className="text-destructive text-sm mt-1">{errors.password}</p>
+                  )}
+                </div>
+
+                {/* Terms Acceptance */}
+                <div className="mt-4 p-4 bg-muted/50 rounded-xl">
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      id="accept-terms"
+                      checked={acceptedTerms}
+                      onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                      className="mt-0.5"
+                    />
+                    <label htmlFor="accept-terms" className="text-sm text-foreground cursor-pointer leading-relaxed">
+                      Li e aceito a{" "}
+                      <Link 
+                        to="/politica-privacidade" 
+                        target="_blank"
+                        className={`underline font-medium ${
+                          authMode === "professional" ? "text-therapy" : "text-primary"
+                        }`}
+                      >
+                        Política de Privacidade
+                      </Link>
+                      {" "}e os{" "}
+                      <span className={`font-medium ${
+                        authMode === "professional" ? "text-therapy" : "text-primary"
+                      }`}>
+                        Termos de Uso
+                      </span>
+                      {" "}da plataforma Fanaticamente.
+                    </label>
+                  </div>
+                  {errors.terms && (
+                    <p className="text-destructive text-sm mt-2 ml-7">{errors.terms}</p>
                   )}
                 </div>
               </>

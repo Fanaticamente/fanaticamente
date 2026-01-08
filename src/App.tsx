@@ -31,6 +31,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminAccess from "./pages/AdminAccess";
 import DeveloperDashboard from "./pages/DeveloperDashboard";
 import SetupTestUsers from "./pages/SetupTestUsers";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -71,6 +72,7 @@ const App = () => (
               {/* Public routes */}
               <Route path="/auth" element={<Auth />} />
               <Route path="/admin-access" element={<AdminAccess />} />
+              <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
               <Route path="/setup-test" element={<SetupTestUsers />} />
 
               {/* Protected routes - require login */}
