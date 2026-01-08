@@ -232,7 +232,7 @@ const RejectAppointmentDialog = ({ appointment, onClose, onRejected }: RejectApp
                 <div className="flex items-start gap-2 p-3 bg-red-500/10 rounded-xl">
                   <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                   <p className="text-red-600 text-sm">
-                    O usuário será <strong>notificado</strong> sobre o problema no pagamento no card do agendamento.
+                    O usuário será <strong>notificado</strong> sobre o problema no pagamento do agendamento.
                   </p>
                 </div>
               )}
