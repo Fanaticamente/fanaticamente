@@ -379,57 +379,104 @@ const SessionPayment = () => {
       </header>
 
       <main className="p-4 pb-24">
-        {/* Session Summary Card */}
-        <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
-          <h2 className="font-bold text-lg mb-4" style={{ color: clubColor }}>Resumo da Sessão</h2>
-          
-          <div className="flex items-center gap-4 mb-4">
+        {/* Session Summary Ticket */}
+        <div className="mb-6 relative">
+          {/* Ticket Container */}
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden border" style={{ borderColor: clubColor + "20" }}>
+            {/* Ticket Header */}
             <div 
-              className="w-16 h-16 rounded-full overflow-hidden border-2"
-              style={{ borderColor: clubColor }}
+              className="px-5 py-3"
+              style={{ backgroundColor: clubColor }}
             >
-              {profile.avatar_url ? (
-                <img 
-                  src={profile.avatar_url} 
-                  alt={profile.full_name || "Profissional"} 
-                  className="w-full h-full object-cover object-top"
-                />
-              ) : (
+              <h2 className="font-bold text-white text-sm tracking-wide uppercase">Resumo da Sessão</h2>
+            </div>
+            
+            {/* Ticket Body */}
+            <div className="p-5">
+              {/* Professional Info */}
+              <div className="flex items-center gap-4 mb-5">
                 <div 
-                  className="w-full h-full flex items-center justify-center"
-                  style={{ backgroundColor: clubColor + "20" }}
+                  className="w-16 h-16 rounded-full overflow-hidden border-2 flex-shrink-0"
+                  style={{ borderColor: clubColor }}
                 >
-                  <User className="w-8 h-8" style={{ color: clubColor }} />
+                  {profile.avatar_url ? (
+                    <img 
+                      src={profile.avatar_url} 
+                      alt={profile.full_name || "Profissional"} 
+                      className="w-full h-full object-cover object-top"
+                    />
+                  ) : (
+                    <div 
+                      className="w-full h-full flex items-center justify-center"
+                      style={{ backgroundColor: clubColor + "20" }}
+                    >
+                      <User className="w-8 h-8" style={{ color: clubColor }} />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-800">{profile.full_name}</h3>
-              <p className="text-sm text-gray-500">CRP {professional.crp}</p>
-              {professional.degree && (
-                <p className="text-sm text-gray-500">{professional.degree}</p>
-              )}
-            </div>
-          </div>
+                <div>
+                  <h3 className="font-bold text-gray-800">{profile.full_name}</h3>
+                  <p className="text-sm text-gray-500">CRP {professional.crp}</p>
+                  {professional.degree && (
+                    <p className="text-sm text-gray-500">{professional.degree}</p>
+                  )}
+                </div>
+              </div>
 
-          <div className="space-y-3 border-t pt-4" style={{ borderColor: clubColor + "20" }}>
-            <div className="flex items-center gap-3">
-              <Calendar className="w-5 h-5" style={{ color: clubColor }} />
-              <span className="text-gray-700">
-                {format(parseISO(scheduledDate), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5" style={{ color: clubColor }} />
-              <span className="text-gray-700">{scheduledTime}</span>
-            </div>
-          </div>
+              {/* Ticket Perforation Line */}
+              <div className="relative my-4">
+                <div 
+                  className="absolute left-0 w-4 h-8 -ml-5 rounded-r-full"
+                  style={{ backgroundColor: "#f9fafb" }}
+                />
+                <div 
+                  className="absolute right-0 w-4 h-8 -mr-5 rounded-l-full"
+                  style={{ backgroundColor: "#f9fafb" }}
+                />
+                <div 
+                  className="border-t-2 border-dashed"
+                  style={{ borderColor: clubColor + "30" }}
+                />
+              </div>
 
-          <div className="mt-4 pt-4 border-t flex justify-between items-center" style={{ borderColor: clubColor + "20" }}>
-            <span className="text-gray-600">Valor da sessão</span>
-            <span className="text-2xl font-bold" style={{ color: clubColor }}>
-              R$ {sessionPrice.toFixed(2).replace(".", ",")}
-            </span>
+              {/* Date and Time */}
+              <div className="space-y-3 mb-5">
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-5 h-5" style={{ color: clubColor }} />
+                  <span className="text-gray-700">
+                    {format(parseISO(scheduledDate), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5" style={{ color: clubColor }} />
+                  <span className="text-gray-700">{scheduledTime}</span>
+                </div>
+              </div>
+
+              {/* Ticket Perforation Line */}
+              <div className="relative my-4">
+                <div 
+                  className="absolute left-0 w-4 h-8 -ml-5 rounded-r-full"
+                  style={{ backgroundColor: "#f9fafb" }}
+                />
+                <div 
+                  className="absolute right-0 w-4 h-8 -mr-5 rounded-l-full"
+                  style={{ backgroundColor: "#f9fafb" }}
+                />
+                <div 
+                  className="border-t-2 border-dashed"
+                  style={{ borderColor: clubColor + "30" }}
+                />
+              </div>
+
+              {/* Price Section */}
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Valor da sessão</span>
+                <span className="text-2xl font-bold" style={{ color: clubColor }}>
+                  R$ {sessionPrice.toFixed(2).replace(".", ",")}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
