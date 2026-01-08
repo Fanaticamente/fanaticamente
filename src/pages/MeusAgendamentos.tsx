@@ -198,6 +198,12 @@ const MeusAgendamentos = () => {
         className: "bg-purple-500/20 text-purple-500",
         icon: CheckCircle
       };
+    } else if (status === "payment_issue") {
+      return {
+        label: "Problema no Pagamento",
+        className: "bg-orange-500/20 text-orange-500",
+        icon: AlertCircle
+      };
     } else if (status === "cancelled" || status === "refund_pending" || status === "refund_sent" || status === "disputed") {
       return {
         label: "Cancelada",
@@ -235,6 +241,11 @@ const MeusAgendamentos = () => {
 
       // Keep refund_pending without PIX key in "Próximos" - user needs to provide PIX key
       if (apt.status === 'refund_pending' && !apt.user_pix_key) {
+        return true;
+      }
+
+      // Keep payment_issue in "Próximos" so user can see it
+      if (apt.status === 'payment_issue') {
         return true;
       }
 
@@ -523,6 +534,24 @@ const MeusAgendamentos = () => {
                       <p className="text-yellow-600 text-sm text-center">
                         Aguardando confirmação do profissional
                       </p>
+                    </div>
+                  )}
+
+                  {/* Payment issue alert - shown when professional rejects due to payment problems */}
+                  {apt.status === "payment_issue" && (
+                    <div className="mt-3 p-3 bg-orange-500/10 rounded-xl border border-orange-500/30">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-orange-700 font-medium text-sm">Problema no Pagamento</p>
+                          <p className="text-orange-600 text-sm mt-1">
+                            {apt.rejection_reason || "O profissional identificou um problema com o pagamento desta consulta."}
+                          </p>
+                          <p className="text-orange-600/80 text-xs mt-2">
+                            Entre em contato com o profissional para regularizar a situação.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   )}
 
