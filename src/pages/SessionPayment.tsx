@@ -440,8 +440,8 @@ const SessionPayment = () => {
           clubColor={clubColor}
         />
 
-        {/* Payment Method Selection - Only show if terms accepted */}
-        {termsAccepted && !paymentMethod && (
+        {/* Payment Method Selection - Always visible but requires terms acceptance */}
+        {!paymentMethod && (
           <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
             <h2 className="font-bold text-lg mb-4" style={{ color: clubColor }}>Escolha a Forma de Pagamento</h2>
             
@@ -449,7 +449,13 @@ const SessionPayment = () => {
               {/* Card Option */}
               {canProcessStripe && (
                 <button
-                  onClick={() => setPaymentMethod("card")}
+                  onClick={() => {
+                    if (!termsAccepted) {
+                      toast.error("Por favor, aceite os Termos e Política de Agendamento para continuar");
+                      return;
+                    }
+                    setPaymentMethod("card");
+                  }}
                   className="w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all hover:border-current"
                   style={{ borderColor: clubColor + "40" }}
                 >
@@ -469,7 +475,13 @@ const SessionPayment = () => {
               {/* PIX Option */}
               {hasPixKey && (
                 <button
-                  onClick={() => setPaymentMethod("pix")}
+                  onClick={() => {
+                    if (!termsAccepted) {
+                      toast.error("Por favor, aceite os Termos e Política de Agendamento para continuar");
+                      return;
+                    }
+                    setPaymentMethod("pix");
+                  }}
                   className="w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all hover:border-current"
                   style={{ borderColor: clubColor + "40" }}
                 >
