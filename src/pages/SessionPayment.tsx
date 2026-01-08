@@ -7,6 +7,7 @@ import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { QRCodeSVG } from "qrcode.react";
+import BookingTermsDialog from "@/components/booking/BookingTermsDialog";
 
 interface Professional {
   id: string;
@@ -124,6 +125,7 @@ const SessionPayment = () => {
   const [showReceiptUpload, setShowReceiptUpload] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -431,8 +433,15 @@ const SessionPayment = () => {
           </div>
         </div>
 
-        {/* Payment Method Selection */}
-        {!paymentMethod && (
+        {/* Booking Terms - Must accept before seeing payment options */}
+        <BookingTermsDialog
+          accepted={termsAccepted}
+          onAcceptChange={setTermsAccepted}
+          clubColor={clubColor}
+        />
+
+        {/* Payment Method Selection - Only show if terms accepted */}
+        {termsAccepted && !paymentMethod && (
           <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
             <h2 className="font-bold text-lg mb-4" style={{ color: clubColor }}>Escolha a Forma de Pagamento</h2>
             
