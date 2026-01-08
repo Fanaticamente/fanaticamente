@@ -83,7 +83,7 @@ const RefundPixForm = ({ appointmentId, appointmentStatus, rejectionReason, prof
 
       <div className="space-y-2">
         <p className="text-card-foreground text-sm">
-          Informe sua chave Pix para receber o ressarcimento
+          Informe uma chave PIX registrada em seu nome para receber o ressarcimento
           {professionalHourlyRate && (
             <span className="font-semibold"> de R$ {professionalHourlyRate.toFixed(2).replace(".", ",")}</span>
           )}:

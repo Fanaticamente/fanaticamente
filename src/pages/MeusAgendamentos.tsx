@@ -543,12 +543,9 @@ const MeusAgendamentos = () => {
                       <div className="flex items-start gap-2">
                         <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-orange-700 font-medium text-sm">Problema no Pagamento</p>
-                          <p className="text-orange-600 text-sm mt-1">
-                            {apt.rejection_reason || "O profissional identificou um problema com o pagamento desta consulta."}
-                          </p>
-                          <p className="text-orange-600/80 text-xs mt-2">
-                            Entre em contato com o profissional para regularizar a situação.
+                          <p className="text-orange-700 font-medium text-sm">Pagamento não identificado</p>
+                          <p className="text-orange-600/80 text-sm mt-1">
+                            O(a) profissional não identificou pagamento. Reagende uma nova consulta.
                           </p>
                         </div>
                       </div>
