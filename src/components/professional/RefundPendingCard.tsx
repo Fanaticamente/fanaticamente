@@ -53,53 +53,72 @@ const RefundPendingCard = ({ appointment, onUpdate }: RefundPendingCardProps) =>
   }, [appointment.refund_deadline]);
 
   const handleUploadReceipt = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const inputEl = e.currentTarget;
+    const file = inputEl.files?.[0];
     if (!file) return;
 
     // Validate file
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
     if (!allowedTypes.includes(file.type)) {
       toast.error("Formato não suportado. Use JPG, PNG, WebP ou PDF.");
+      inputEl.value = "";
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Arquivo muito grande. Máximo 5MB.");
+      inputEl.value = "";
       return;
     }
 
     setIsUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError) throw userError;
+      if (!user) throw new Error("Not authenticated");
+
+      const fileExt = file.name.split(".").pop();
       const fileName = `refund-${appointment.id}-${Date.now()}.${fileExt}`;
-      const filePath = `refunds/${fileName}`;
+
+      // IMPORTANT: the storage bucket policy requires the first folder to be the auth.uid()
+      const filePath = `${user.id}/refunds/${fileName}`;
 
       // Upload to storage
       const { error: uploadError } = await supabase.storage
-        .from('payment-receipts')
+        .from("payment-receipts")
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       // Update appointment with refund receipt
       const { error: updateError } = await supabase
-        .from('appointments')
+        .from("appointments")
         .update({
           refund_receipt_url: filePath,
           refund_sent_at: new Date().toISOString(),
-          status: 'refund_sent'
+          status: "refund_sent",
         })
-        .eq('id', appointment.id);
+        .eq("id", appointment.id);
 
       if (updateError) throw updateError;
 
       toast.success("Comprovante enviado com sucesso!");
       onUpdate();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error uploading refund receipt:", error);
-      toast.error("Erro ao enviar comprovante");
+      const msg =
+        typeof error?.message === "string" && error.message.length
+          ? error.message
+          : "Erro ao enviar comprovante";
+      toast.error(msg);
     } finally {
       setIsUploading(false);
+      // allow re-selecting the same file
+      inputEl.value = "";
     }
   };
 
