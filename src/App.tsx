@@ -33,6 +33,14 @@ import DeveloperDashboard from "./pages/DeveloperDashboard";
 import SetupTestUsers from "./pages/SetupTestUsers";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
+import FanaticaLab from "./pages/FanaticaLab";
+import ClinicalNotes from "./pages/fanatica-lab/ClinicalNotes";
+import ObservationMap from "./pages/fanatica-lab/ObservationMap";
+import TherapeuticPlan from "./pages/fanatica-lab/TherapeuticPlan";
+import CaseReview from "./pages/fanatica-lab/CaseReview";
+import ReferenceLibrary from "./pages/fanatica-lab/ReferenceLibrary";
+import PsiHouse from "./pages/PsiHouse";
+import Conecta from "./pages/Conecta";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +100,14 @@ const App = () => (
               <Route path="/loja" element={<ProtectedRoute><FanaticaShop /></ProtectedRoute>} />
               <Route path="/loja/produto/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
               <Route path="/profissional" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />
+              <Route path="/fanatica-lab" element={<ProtectedRoute><FanaticaLab /></ProtectedRoute>} />
+              <Route path="/fanatica-lab/notas-clinicas" element={<ProtectedRoute><ClinicalNotes /></ProtectedRoute>} />
+              <Route path="/fanatica-lab/mapa-observacao" element={<ProtectedRoute><ObservationMap /></ProtectedRoute>} />
+              <Route path="/fanatica-lab/plano-terapeutico" element={<ProtectedRoute><TherapeuticPlan /></ProtectedRoute>} />
+              <Route path="/fanatica-lab/revisao-caso" element={<ProtectedRoute><CaseReview /></ProtectedRoute>} />
+              <Route path="/fanatica-lab/biblioteca" element={<ProtectedRoute><ReferenceLibrary /></ProtectedRoute>} />
+              <Route path="/psi-house" element={<ProtectedRoute><PsiHouse /></ProtectedRoute>} />
+              <Route path="/conecta" element={<ProtectedRoute><Conecta /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               <Route path="/desenvolvedor" element={<ProtectedRoute><DeveloperDashboard /></ProtectedRoute>} />
 
