@@ -281,6 +281,135 @@ export type Database = {
           },
         ]
       }
+      case_reviews: {
+        Row: {
+          created_at: string
+          difficulties: string | null
+          feelings: string | null
+          id: string
+          needs_supervision: boolean | null
+          patient_code: string
+          professional_id: string
+          supervision_notes: string | null
+          updated_at: string
+          whats_working: string | null
+        }
+        Insert: {
+          created_at?: string
+          difficulties?: string | null
+          feelings?: string | null
+          id?: string
+          needs_supervision?: boolean | null
+          patient_code: string
+          professional_id: string
+          supervision_notes?: string | null
+          updated_at?: string
+          whats_working?: string | null
+        }
+        Update: {
+          created_at?: string
+          difficulties?: string | null
+          feelings?: string | null
+          id?: string
+          needs_supervision?: boolean | null
+          patient_code?: string
+          professional_id?: string
+          supervision_notes?: string | null
+          updated_at?: string
+          whats_working?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_reviews_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinical_notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          patient_code: string
+          professional_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          patient_code: string
+          professional_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          patient_code?: string
+          professional_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_notes_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinical_observations: {
+        Row: {
+          attention_points: string | null
+          created_at: string
+          id: string
+          observed_emotions: string | null
+          patient_code: string
+          patient_resources: string | null
+          professional_id: string
+          recurring_themes: string | null
+          trigger_situations: string | null
+          updated_at: string
+        }
+        Insert: {
+          attention_points?: string | null
+          created_at?: string
+          id?: string
+          observed_emotions?: string | null
+          patient_code: string
+          patient_resources?: string | null
+          professional_id: string
+          recurring_themes?: string | null
+          trigger_situations?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attention_points?: string | null
+          created_at?: string
+          id?: string
+          observed_emotions?: string | null
+          patient_code?: string
+          patient_resources?: string | null
+          professional_id?: string
+          recurring_themes?: string | null
+          trigger_situations?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_observations_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clubs: {
         Row: {
           badge_url: string | null
@@ -515,6 +644,85 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      reference_library: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          link: string | null
+          notes: string | null
+          professional_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          notes?: string | null
+          professional_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          notes?: string | null
+          professional_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reference_library_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      therapeutic_plans: {
+        Row: {
+          created_at: string
+          general_objectives: string | null
+          id: string
+          patient_code: string
+          professional_id: string
+          strategies: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          general_objectives?: string | null
+          id?: string
+          patient_code: string
+          professional_id: string
+          strategies?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          general_objectives?: string | null
+          id?: string
+          patient_code?: string
+          professional_id?: string
+          strategies?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "therapeutic_plans_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
