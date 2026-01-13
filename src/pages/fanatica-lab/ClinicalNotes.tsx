@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Plus, FileText, Clock, Search, Trash2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,12 @@ const ClinicalNotes = () => {
   const [newNote, setNewNote] = useState({ patient_code: "", content: "" });
   const [saving, setSaving] = useState(false);
   const [professionalId, setProfessionalId] = useState<string | null>(null);
+
+  // Force light theme
+  useLayoutEffect(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+  }, []);
 
   useEffect(() => {
     fetchProfessionalAndNotes();
@@ -168,9 +174,9 @@ const ClinicalNotes = () => {
                     className="mt-1.5 min-h-[150px]"
                   />
                 </div>
-                <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-lg">
-                  <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                  <p className="text-xs text-amber-700">Uso pessoal. Não substitui prontuário clínico.</p>
+                <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                  <p className="text-xs text-primary">Uso pessoal. Não substitui prontuário clínico.</p>
                 </div>
                 <Button 
                   onClick={handleSaveNote} 

@@ -1,8 +1,15 @@
+import { useLayoutEffect } from "react";
 import { Users, Construction } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
 
 const Conecta = () => {
+  // Force light theme
+  useLayoutEffect(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
