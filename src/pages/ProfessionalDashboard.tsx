@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Calendar, Clock, Users, TrendingUp, LogOut, Plus, CheckCircle, XCircle, Edit2, ChevronRight, User, ChevronLeft, Upload, Lock, Loader2 } from "lucide-react";
 import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
@@ -68,12 +68,9 @@ const ProfessionalDashboard = () => {
   const { user, signOut, hasRole } = useAuth();
 
   // Force light theme for professional dashboard
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.classList.remove('dark');
     document.documentElement.classList.add('light');
-    return () => {
-      // Restore theme on unmount if needed
-    };
   }, []);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
