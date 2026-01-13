@@ -20,6 +20,7 @@ import WeeklyAvailabilityManager from "@/components/professional/WeeklyAvailabil
 import ProfessionalMetricsTab from "@/components/professional/ProfessionalMetricsTab";
 import RejectAppointmentDialog from "@/components/professional/RejectAppointmentDialog";
 import RefundPendingCard from "@/components/professional/RefundPendingCard";
+import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
 
 interface Professional {
   id: string;
@@ -1160,7 +1161,13 @@ const ProfessionalDashboard = () => {
 
           </>
         )}
+
+        {/* Bottom spacer for nav */}
+        <div className="h-28" />
       </main>
+
+      {/* Professional Bottom Navigation */}
+      <ProfessionalBottomNav />
     </div>
   );
 };
