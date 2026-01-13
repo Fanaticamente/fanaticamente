@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Plus, RefreshCw, Clock, Search, Trash2, Edit, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,12 @@ const CaseReview = () => {
   });
   const [saving, setSaving] = useState(false);
   const [professionalId, setProfessionalId] = useState<string | null>(null);
+
+  // Force light theme
+  useLayoutEffect(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+  }, []);
 
   useEffect(() => {
     fetchProfessionalAndReviews();
@@ -246,10 +252,10 @@ const CaseReview = () => {
                     className="mt-1.5"
                   />
                 </div>
-                <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-primary/10 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-600" />
-                    <Label htmlFor="needs_supervision" className="text-sm text-amber-700">
+                    <AlertTriangle className="w-4 h-4 text-primary" />
+                    <Label htmlFor="needs_supervision" className="text-sm text-primary">
                       Preciso discutir em supervisão?
                     </Label>
                   </div>

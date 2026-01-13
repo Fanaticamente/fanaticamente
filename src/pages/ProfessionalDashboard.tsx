@@ -66,6 +66,15 @@ type AppointmentFilter = "proximos" | "realizados" | "cancelados" | "todos";
 
 const ProfessionalDashboard = () => {
   const { user, signOut, hasRole } = useAuth();
+
+  // Force light theme for professional dashboard
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    return () => {
+      // Restore theme on unmount if needed
+    };
+  }, []);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   

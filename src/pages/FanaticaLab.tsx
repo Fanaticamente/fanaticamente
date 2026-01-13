@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   FlaskConical, 
@@ -58,6 +58,12 @@ const modules = [
 
 const FanaticaLab = () => {
   const navigate = useNavigate();
+
+  // Force light theme
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -120,8 +126,8 @@ const FanaticaLab = () => {
         </div>
 
         {/* Ethical Notice */}
-        <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-          <p className="text-xs text-amber-700 text-center">
+        <div className="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-xl">
+          <p className="text-xs text-primary text-center">
             ⚠️ Este espaço não substitui prontuário clínico. Não realiza diagnósticos 
             ou atendimento psicológico. Uso pessoal e sigiloso.
           </p>

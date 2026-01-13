@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Plus, Target, Clock, Search, Trash2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,12 @@ const TherapeuticPlan = () => {
   });
   const [saving, setSaving] = useState(false);
   const [professionalId, setProfessionalId] = useState<string | null>(null);
+
+  // Force light theme
+  useLayoutEffect(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+  }, []);
 
   useEffect(() => {
     fetchProfessionalAndPlans();
