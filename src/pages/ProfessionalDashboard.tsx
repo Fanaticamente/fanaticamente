@@ -482,13 +482,8 @@ const ProfessionalDashboard = () => {
   const stats = [
     { label: "Consultas este mês", value: isMarketplaceActive ? completedAppointments.length.toString() : "0", icon: Calendar, color: "text-therapy" },
     { label: "Pacientes atendidos", value: isMarketplaceActive ? completedAppointments.length.toString() : "0", icon: Users, color: "text-secondary" },
-    {
-      label: "Taxa de conclusão",
-      value: isMarketplaceActive ? `${completionRate}%` : "0%",
-      icon: TrendingUp,
-      color: completionRate >= 80 ? "text-green-500" : completionRate >= 50 ? "text-primary" : "text-red-500",
-    },
-    { label: "Pendentes", value: isMarketplaceActive ? pendingAppointments.length.toString() : "0", icon: Clock, color: "text-primary" },
+    { label: "Taxa de conclusão", value: isMarketplaceActive ? `${completionRate}%` : "0%", icon: TrendingUp, color: completionRate >= 80 ? "text-green-500" : completionRate >= 50 ? "text-yellow-500" : "text-red-500" },
+    { label: "Pendentes", value: isMarketplaceActive ? pendingAppointments.length.toString() : "0", icon: Clock, color: "text-yellow-500" },
   ];
 
   // Clear new appointments badge when visiting the agenda tab
@@ -1032,7 +1027,7 @@ const ProfessionalDashboard = () => {
                               ? "bg-green-500/20 text-green-500"
                               : apt.status === "disputed"
                               ? "bg-red-500/20 text-red-500"
-                              : "bg-primary/10 text-primary"
+                              : "bg-yellow-500/20 text-yellow-500"
                           }`}
                         >
                           {apt.status === "in_progress" 

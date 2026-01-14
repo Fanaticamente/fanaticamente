@@ -13,9 +13,9 @@ const ProfileStatusCard = ({ isProfileComplete, isSubscribed, clubName }: Profil
         status: "incomplete",
         label: "Perfil Incompleto",
         message: "Complete seu perfil para aparecer no marketplace",
-        color: "text-primary",
-        bgColor: "bg-primary/10",
-        borderColor: "border-primary/30",
+        color: "text-yellow-500",
+        bgColor: "bg-yellow-500/10",
+        borderColor: "border-yellow-500/30",
         icon: AlertCircle
       };
     }
