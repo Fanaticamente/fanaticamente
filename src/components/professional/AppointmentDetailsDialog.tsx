@@ -133,7 +133,7 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
       case "cancelled":
         return { label: "Cancelado", className: "bg-red-500/20 text-red-500" };
       default:
-        return { label: "Pendente", className: "bg-yellow-500/20 text-yellow-500" };
+        return { label: "Pendente", className: "bg-primary/10 text-primary" };
     }
   };
 
@@ -309,12 +309,12 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
                 )}
 
                 {/* Reminder Info */}
-                <div className="flex items-start gap-2 p-3 bg-yellow-500/10 rounded-xl">
-                  <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2 p-3 bg-primary/10 rounded-xl">
+                  <AlertCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                   <div className="text-sm">
-                    <p className="text-yellow-700 font-medium">Lembrete importante</p>
-                    <p className="text-yellow-600/80">
-                      Envie o link ao paciente <strong>10 minutos antes</strong> do horário agendado 
+                    <p className="text-primary font-medium">Lembrete importante</p>
+                    <p className="text-primary/80">
+                      Envie o link ao paciente <strong>10 minutos antes</strong> do horário agendado
                       ({format(reminderTime, "HH:mm", { locale: ptBR })}).
                     </p>
                   </div>
