@@ -167,8 +167,8 @@ const RefundPendingCard = ({ appointment, onUpdate }: RefundPendingCardProps) =>
           </p>
         </div>
       ) : (
-        <div className="mb-4 p-3 bg-yellow-500/10 rounded-lg">
-          <p className="text-sm text-yellow-600">
+        <div className="mb-4 p-3 bg-primary/10 rounded-lg">
+          <p className="text-sm text-primary">
             Aguardando o paciente informar a chave PIX para ressarcimento.
           </p>
         </div>
