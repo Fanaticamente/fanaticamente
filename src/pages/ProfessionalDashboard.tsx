@@ -71,7 +71,9 @@ const ProfessionalDashboard = () => {
   useLayoutEffect(() => {
     document.documentElement.classList.remove('dark');
     document.documentElement.classList.add('light');
+    document.documentElement.style.colorScheme = 'light';
   }, []);
+  
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   

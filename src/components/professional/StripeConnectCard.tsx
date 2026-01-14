@@ -133,19 +133,19 @@ const StripeConnectCard = ({ professionalId, onStatusChange }: StripeConnectCard
         };
       case "pending_verification":
         return {
-          icon: <AlertCircle className="w-6 h-6 text-amber-500" />,
+          icon: <AlertCircle className="w-6 h-6 text-primary" />,
           title: "Aguardando Verificação",
           description: "Sua conta está sendo analisada pelo Stripe. Isso pode levar alguns dias.",
-          color: "text-amber-500",
-          bgColor: "bg-amber-500/10",
+          color: "text-primary",
+          bgColor: "bg-primary/10",
         };
       case "pending":
         return {
-          icon: <AlertCircle className="w-6 h-6 text-amber-500" />,
+          icon: <AlertCircle className="w-6 h-6 text-primary" />,
           title: "Cadastro Incompleto",
           description: "Complete o cadastro da sua conta Stripe para receber pagamentos.",
-          color: "text-amber-500",
-          bgColor: "bg-amber-500/10",
+          color: "text-primary",
+          bgColor: "bg-primary/10",
         };
       default:
         return {
@@ -217,8 +217,8 @@ const StripeConnectCard = ({ professionalId, onStatusChange }: StripeConnectCard
                   ))}
                 </div>
 
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mt-4">
-                  <p className="text-xs text-amber-700 dark:text-amber-400">
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 mt-4">
+                  <p className="text-xs text-primary">
                     <strong>Importante:</strong> Você não precisa fornecer nenhuma API Key. 
                     O Stripe Connect cuida de tudo automaticamente de forma segura.
                   </p>
