@@ -129,11 +129,11 @@ const RejectAppointmentDialog = ({ appointment, onClose, onRejected }: RejectApp
         <div className="p-4 space-y-4">
           {step === "confirm" ? (
             <>
-              <div className="flex items-center gap-3 p-4 bg-primary/10 rounded-xl">
-                <AlertTriangle className="w-6 h-6 text-primary flex-shrink-0" />
+              <div className="flex items-center gap-3 p-4 bg-yellow-500/10 rounded-xl">
+                <AlertTriangle className="w-6 h-6 text-yellow-600 flex-shrink-0" />
                 <div>
-                  <p className="text-primary font-medium">Atenção!</p>
-                  <p className="text-primary/80 text-sm">
+                  <p className="text-yellow-700 font-medium">Atenção!</p>
+                  <p className="text-yellow-600 text-sm">
                     A recusa de agendamentos afeta sua Taxa de Conclusão.
                   </p>
                 </div>

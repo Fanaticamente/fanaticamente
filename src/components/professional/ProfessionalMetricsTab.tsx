@@ -30,18 +30,11 @@ const ProfessionalMetricsTab = ({ appointments }: ProfessionalMetricsTabProps) =
     const averageRating = ratedAppointments.length > 0 ? totalRating / ratedAppointments.length : 0;
     
     // Calculate rating distribution for pie chart
-    const ratingDistribution = [1, 2, 3, 4, 5]
-      .map((star) => ({
-        name: `${star} estrela${star > 1 ? "s" : ""}`,
-        value: ratedAppointments.filter((a) => a.rating === star).length,
-        color:
-          star >= 4
-            ? "hsl(var(--therapy))"
-            : star === 3
-              ? "hsl(var(--primary))"
-              : "hsl(var(--destructive))",
-      }))
-      .filter((item) => item.value > 0);
+    const ratingDistribution = [1, 2, 3, 4, 5].map(star => ({
+      name: `${star} estrela${star > 1 ? 's' : ''}`,
+      value: ratedAppointments.filter(a => a.rating === star).length,
+      color: star >= 4 ? '#22c55e' : star === 3 ? '#eab308' : '#ef4444'
+    })).filter(item => item.value > 0);
     
     // Calculate weekly appointments for the last 4 weeks
     const today = new Date();
@@ -79,7 +72,7 @@ const ProfessionalMetricsTab = ({ appointments }: ProfessionalMetricsTabProps) =
             key={star}
             className={`w-5 h-5 ${
               star <= Math.round(rating)
-                ? "fill-primary text-primary"
+                ? "fill-yellow-400 text-yellow-400"
                 : "text-muted-foreground/30"
             }`}
           />
@@ -105,8 +98,8 @@ const ProfessionalMetricsTab = ({ appointments }: ProfessionalMetricsTabProps) =
         </div>
         
         <div className="bg-card border border-border rounded-xl p-4">
-          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center mb-3">
-            <Star className="w-5 h-5 text-primary" />
+          <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center mb-3">
+            <Star className="w-5 h-5 text-yellow-500" />
           </div>
           <p className="font-display text-3xl text-card-foreground">
             {metrics.averageRating > 0 ? metrics.averageRating.toFixed(1) : "-"}

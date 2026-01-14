@@ -61,7 +61,7 @@ const AdminMessagesAlert = ({ professionalId }: AdminMessagesAlertProps) => {
       case "info":
         return <Info className="w-5 h-5 text-blue-500" />;
       case "warning":
-        return <AlertTriangle className="w-5 h-5 text-primary" />;
+        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
       case "alert":
         return <AlertCircle className="w-5 h-5 text-red-500" />;
       case "approval":
@@ -78,7 +78,7 @@ const AdminMessagesAlert = ({ professionalId }: AdminMessagesAlertProps) => {
       case "info":
         return "bg-blue-500/10 border-blue-500/30";
       case "warning":
-        return "bg-primary/10 border-primary/30";
+        return "bg-yellow-500/10 border-yellow-500/30";
       case "alert":
         return "bg-red-500/10 border-red-500/30";
       case "approval":
