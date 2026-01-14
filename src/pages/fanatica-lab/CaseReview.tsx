@@ -325,7 +325,7 @@ const CaseReview = () => {
                           {review.patient_code}
                         </span>
                         {review.needs_supervision && (
-                          <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full flex items-center gap-1">
+                          <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full flex items-center gap-1">
                             <AlertTriangle className="w-3 h-3" />
                             Supervisão
                           </span>

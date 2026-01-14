@@ -58,11 +58,11 @@ const PixPaymentCard = ({ professionalId, pixKey, onUpdate }: PixPaymentCardProp
       };
     }
     return {
-      icon: <AlertCircle className="w-6 h-6 text-amber-500" />,
+      icon: <AlertCircle className="w-6 h-6 text-primary" />,
       title: "PIX Não Configurado",
       description: "Cadastre sua chave PIX para receber pagamentos via PIX.",
-      color: "text-amber-500",
-      bgColor: "bg-amber-500/10",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
     };
   };
 
