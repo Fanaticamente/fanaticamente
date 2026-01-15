@@ -489,7 +489,7 @@ const ProfessionalDashboard = () => {
   
   const stats = [
     { label: "Consultas este mês", value: isMarketplaceActive ? completedAppointments.length.toString() : "0", icon: Calendar, color: "text-therapy" },
-    { label: "Pacientes atendidos", value: isMarketplaceActive ? completedAppointments.length.toString() : "0", icon: Users, color: "text-secondary" },
+    { label: "Pacientes atendidos", value: isMarketplaceActive ? completedAppointments.length.toString() : "0", icon: Users, color: "text-primary" },
     { label: "Taxa de conclusão", value: isMarketplaceActive ? `${completionRate}%` : "0%", icon: TrendingUp, color: completionRate >= 80 ? "text-green-500" : completionRate >= 50 ? "text-yellow-500" : "text-red-500" },
     { label: "Pendentes", value: isMarketplaceActive ? pendingAppointments.length.toString() : "0", icon: Clock, color: "text-yellow-500" },
   ];
