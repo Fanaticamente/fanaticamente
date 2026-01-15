@@ -40,10 +40,19 @@ const TherapeuticPlan = () => {
   const [saving, setSaving] = useState(false);
   const [professionalId, setProfessionalId] = useState<string | null>(null);
 
-  // Force light theme
+  // Force light theme for professional environment
   useLayoutEffect(() => {
     document.documentElement.classList.remove('dark');
-    document.documentElement.classList.add('light');
+    document.documentElement.classList.add('light', 'professional-theme');
+    document.documentElement.style.colorScheme = 'light';
+    document.body.style.backgroundColor = '#ffffff';
+    document.body.style.color = '#1a1a1a';
+    
+    return () => {
+      document.documentElement.classList.remove('professional-theme');
+      document.body.style.backgroundColor = '';
+      document.body.style.color = '';
+    };
   }, []);
 
   useEffect(() => {

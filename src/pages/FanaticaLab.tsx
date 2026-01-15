@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   FlaskConical, 
@@ -36,7 +36,7 @@ const modules = [
     description: "Defina objetivos e estratégias terapêuticas",
     icon: Target,
     path: "/fanatica-lab/plano-terapeutico",
-    color: "bg-green-500"
+    color: "bg-primary"
   },
   {
     id: "case-review",
@@ -59,10 +59,19 @@ const modules = [
 const FanaticaLab = () => {
   const navigate = useNavigate();
 
-  // Force light theme
-  useEffect(() => {
+  // Force light theme for professional environment
+  useLayoutEffect(() => {
     document.documentElement.classList.remove('dark');
-    document.documentElement.classList.add('light');
+    document.documentElement.classList.add('light', 'professional-theme');
+    document.documentElement.style.colorScheme = 'light';
+    document.body.style.backgroundColor = '#ffffff';
+    document.body.style.color = '#1a1a1a';
+    
+    return () => {
+      document.documentElement.classList.remove('professional-theme');
+      document.body.style.backgroundColor = '';
+      document.body.style.color = '';
+    };
   }, []);
 
   return (

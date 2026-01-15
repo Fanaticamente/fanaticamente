@@ -70,8 +70,16 @@ const ProfessionalDashboard = () => {
   // Force light theme for professional dashboard
   useLayoutEffect(() => {
     document.documentElement.classList.remove('dark');
-    document.documentElement.classList.add('light');
+    document.documentElement.classList.add('light', 'professional-theme');
     document.documentElement.style.colorScheme = 'light';
+    document.body.style.backgroundColor = '#ffffff';
+    document.body.style.color = '#1a1a1a';
+    
+    return () => {
+      document.documentElement.classList.remove('professional-theme');
+      document.body.style.backgroundColor = '';
+      document.body.style.color = '';
+    };
   }, []);
   
   const navigate = useNavigate();
