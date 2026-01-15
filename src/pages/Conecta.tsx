@@ -97,11 +97,19 @@ const Conecta = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
 
-  // Force light theme
+  // Force light theme for professional environment
   useLayoutEffect(() => {
     document.documentElement.classList.remove('dark');
-    document.documentElement.classList.add('light');
+    document.documentElement.classList.add('light', 'professional-theme');
     document.documentElement.style.colorScheme = 'light';
+    document.body.style.backgroundColor = '#ffffff';
+    document.body.style.color = '#1a1a1a';
+    
+    return () => {
+      document.documentElement.classList.remove('professional-theme');
+      document.body.style.backgroundColor = '';
+      document.body.style.color = '';
+    };
   }, []);
 
   const handleLike = (postId: string) => {
