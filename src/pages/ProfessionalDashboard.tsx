@@ -559,17 +559,17 @@ const ProfessionalDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-4">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-3">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             <button
               onClick={() => navigate("/")}
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              className="p-1.5 hover:bg-muted rounded-lg transition-colors flex-shrink-0"
             >
               <ChevronLeft className="w-5 h-5 text-muted-foreground" />
             </button>
             {profile?.avatar_url ? (
-              <div className="w-10 h-10 rounded-full overflow-hidden shadow-md">
+              <div className="w-9 h-9 rounded-full overflow-hidden shadow-md flex-shrink-0">
                 <img
                   src={profile.avatar_url}
                   alt="Avatar"
@@ -577,24 +577,24 @@ const ProfessionalDashboard = () => {
                 />
               </div>
             ) : (
-              <div className="w-10 h-10 rounded-full bg-muted border border-border flex items-center justify-center">
-                <Upload className="w-5 h-5 text-muted-foreground" />
+              <div className="w-9 h-9 rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0">
+                <Upload className="w-4 h-4 text-muted-foreground" />
               </div>
             )}
-            <div>
-              <h1 className="font-display text-2xl text-therapy">
-                Painel do Profissional
+            <div className="min-w-0 flex-1">
+              <h1 className="font-display text-lg sm:text-xl text-therapy whitespace-nowrap">
+                Painel Profissional
               </h1>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-xs sm:text-sm truncate">
                 {profile?.full_name || user?.email} {club && `• ${club.name}`}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <AccountSettingsDialog isProfessional={true} />
             <button
               onClick={handleLogout}
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              className="p-1.5 hover:bg-muted rounded-lg transition-colors"
             >
               <LogOut className="w-5 h-5 text-muted-foreground" />
             </button>
@@ -602,7 +602,7 @@ const ProfessionalDashboard = () => {
         </div>
       </header>
 
-      <main className="pt-24 pb-8 px-4 max-w-6xl mx-auto">
+      <main className="pt-20 pb-8 px-4 max-w-6xl mx-auto">
         {/* Admin Messages Alert */}
         {professional && (
           <AdminMessagesAlert professionalId={professional.id} />
