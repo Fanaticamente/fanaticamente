@@ -812,8 +812,11 @@ export type Database = {
     Views: {
       professionals_public: {
         Row: {
+          approval_status: string | null
           bio: string | null
           created_at: string | null
+          crp: string | null
+          degree: string | null
           experience_years: number | null
           google_calendar_url: string | null
           hourly_rate: number | null
@@ -826,8 +829,11 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          approval_status?: string | null
           bio?: string | null
           created_at?: string | null
+          crp?: string | null
+          degree?: string | null
           experience_years?: number | null
           google_calendar_url?: string | null
           hourly_rate?: number | null
@@ -840,8 +846,11 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          approval_status?: string | null
           bio?: string | null
           created_at?: string | null
+          crp?: string | null
+          degree?: string | null
           experience_years?: number | null
           google_calendar_url?: string | null
           hourly_rate?: number | null

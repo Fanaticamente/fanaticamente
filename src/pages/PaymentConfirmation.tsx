@@ -43,8 +43,9 @@ const PaymentConfirmation = () => {
       if (!id) return;
 
       try {
+        // Usando VIEW pública segura que não expõe dados sensíveis
         const { data: professionalData, error: professionalError } = await supabase
-          .from("professionals")
+          .from("professionals_public")
           .select("*")
           .eq("id", id)
           .single();

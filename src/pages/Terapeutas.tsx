@@ -81,10 +81,10 @@ const Terapeutas = () => {
   const fetchTherapistsForClub = async (clubId: string) => {
     setLoading(true);
     try {
+      // Usando VIEW pública segura que não expõe dados sensíveis
       const { data: professionals, error } = await supabase
-        .from('professionals')
+        .from('professionals_public')
         .select('*')
-        .eq('is_active', true)
         .eq('approval_status', 'approved');
 
       if (error) {

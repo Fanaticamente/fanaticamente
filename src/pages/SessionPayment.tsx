@@ -9,17 +9,33 @@ import { useAuth } from "@/contexts/AuthContext";
 import { QRCodeSVG } from "qrcode.react";
 import BookingTermsDialog from "@/components/booking/BookingTermsDialog";
 
-interface Professional {
+// Interface para dados públicos do profissional (da VIEW professionals_public)
+interface ProfessionalPublic {
   id: string;
   crp: string;
   degree: string | null;
   hourly_rate: number | null;
   user_id: string;
-  stripe_account_id: string | null;
+  bio: string | null;
+  location: string | null;
+  specialties: string[] | null;
+  experience_years: number | null;
+  is_verified: boolean | null;
+  is_active: boolean | null;
+  approval_status: string | null;
+  google_calendar_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Interface para dados sensíveis de pagamento (acessível apenas para usuários autenticados)
+interface ProfessionalPaymentInfo {
   stripe_account_status: string | null;
   pix_key: string | null;
-  pix_key_type: string | null;
 }
+
+// Combinação de dados públicos + dados de pagamento
+type Professional = ProfessionalPublic & Partial<ProfessionalPaymentInfo>;
 
 interface Profile {
   full_name: string | null;
@@ -139,9 +155,9 @@ const SessionPayment = () => {
       if (!id) return;
 
       try {
-        // Fetch professional data
+        // Fetch professional usando VIEW pública segura
         const { data: professionalData, error: professionalError } = await supabase
-          .from("professionals")
+          .from("professionals_public")
           .select("*")
           .eq("id", id)
           .single();
@@ -151,7 +167,21 @@ const SessionPayment = () => {
           return;
         }
 
-        setProfessional(professionalData as Professional);
+        // Buscar dados de pagamento sensíveis separadamente (apenas usuários autenticados têm acesso)
+        const { data: paymentInfo } = await supabase
+          .from("professionals")
+          .select("stripe_account_status, pix_key")
+          .eq("id", id)
+          .single();
+
+        // Combinar dados públicos com dados de pagamento
+        const fullProfessionalData: Professional = {
+          ...professionalData,
+          stripe_account_status: paymentInfo?.stripe_account_status ?? null,
+          pix_key: paymentInfo?.pix_key ?? null,
+        };
+
+        setProfessional(fullProfessionalData);
 
         // Fetch profile data
         const { data: profileData } = await supabase
