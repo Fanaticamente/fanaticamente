@@ -50,6 +50,13 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "admin_messages_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       app_content: {
@@ -279,6 +286,13 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "appointments_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       case_reviews: {
@@ -326,6 +340,13 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "case_reviews_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       clinical_notes: {
@@ -359,6 +380,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinical_notes_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -406,6 +434,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinical_observations_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -473,6 +508,13 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "professional_availability_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       professional_weekly_availability: {
@@ -506,6 +548,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_weekly_availability_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -684,6 +733,13 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "reference_library_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       therapeutic_plans: {
@@ -722,6 +778,13 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "therapeutic_plans_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_roles: {
@@ -747,7 +810,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      professionals_public: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          experience_years: number | null
+          google_calendar_url: string | null
+          hourly_rate: number | null
+          id: string | null
+          is_active: boolean | null
+          is_verified: boolean | null
+          location: string | null
+          specialties: string[] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string | null
+          experience_years?: number | null
+          google_calendar_url?: string | null
+          hourly_rate?: number | null
+          id?: string | null
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          location?: string | null
+          specialties?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string | null
+          experience_years?: number | null
+          google_calendar_url?: string | null
+          hourly_rate?: number | null
+          id?: string | null
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          location?: string | null
+          specialties?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
