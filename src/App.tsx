@@ -77,27 +77,30 @@ const App = () => (
             <Toaster />
             <Sonner />
             <Routes>
-              {/* Public routes */}
+              {/* Public routes - accessible without login */}
               <Route path="/auth" element={<Auth />} />
               <Route path="/admin-access" element={<AdminAccess />} />
               <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
               <Route path="/setup-test" element={<SetupTestUsers />} />
+              
+              {/* Public content routes - viewable without login (desktop navigation) */}
+              <Route path="/" element={<Index />} />
+              <Route path="/terapeutas" element={<Terapeutas />} />
+              <Route path="/terapeuta/:id" element={<ProfessionalProfile />} />
+              <Route path="/cursos" element={<Cursos />} />
+              <Route path="/curso/:id" element={<CursoDetalhe />} />
+              <Route path="/quiz" element={<Quiz />} />
+              <Route path="/radio" element={<Radio />} />
+              <Route path="/futebol" element={<Futebol />} />
+              <Route path="/loja" element={<FanaticaShop />} />
+              <Route path="/loja/produto/:id" element={<ProductDetail />} />
 
               {/* Protected routes - require login */}
-              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/terapeutas" element={<ProtectedRoute><Terapeutas /></ProtectedRoute>} />
-              <Route path="/terapeuta/:id" element={<ProtectedRoute><ProfessionalProfile /></ProtectedRoute>} />
               <Route path="/pagamento/:id" element={<ProtectedRoute><SessionPayment /></ProtectedRoute>} />
               <Route path="/pagamento/confirmacao/:id" element={<ProtectedRoute><PaymentConfirmation /></ProtectedRoute>} />
-              <Route path="/cursos" element={<ProtectedRoute><Cursos /></ProtectedRoute>} />
-              <Route path="/curso/:id" element={<ProtectedRoute><CursoDetalhe /></ProtectedRoute>} />
-              <Route path="/quiz" element={<ProtectedRoute><Quiz /></ProtectedRoute>} />
               <Route path="/diario" element={<ProtectedRoute><Diario /></ProtectedRoute>} />
-              <Route path="/radio" element={<ProtectedRoute><Radio /></ProtectedRoute>} />
-              <Route path="/futebol" element={<ProtectedRoute><Futebol /></ProtectedRoute>} />
               <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
               <Route path="/perfil/agendamentos" element={<ProtectedRoute><MeusAgendamentos /></ProtectedRoute>} />
-              <Route path="/loja" element={<ProtectedRoute><FanaticaShop /></ProtectedRoute>} />
               <Route path="/loja/produto/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
               <Route path="/profissional" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />
               <Route path="/fanatica-lab" element={<ProtectedRoute><FanaticaLab /></ProtectedRoute>} />
