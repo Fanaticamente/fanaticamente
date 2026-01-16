@@ -1,68 +1,55 @@
-import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const ROUTE_STORAGE_KEY = "fanatica_last_route";
-const APP_STATE_KEY = "fanatica_app_state";
 
 // Rotas públicas que não devem participar da restauração
 const PUBLIC_ROUTES = ["/auth", "/admin-access", "/setup-test"];
 
+const isPublicRoute = (path: string) =>
+  PUBLIC_ROUTES.some((route) => path.startsWith(route));
+
 export const useRouteRestoration = () => {
   const location = useLocation();
-  const isFirstRender = useRef(true);
+  const navigate = useNavigate();
 
-  // Salvar rota atual (sem forçar recarregamentos)
+  // 1) Persistir a rota atual.
+  //    Usamos localStorage (sobrevive a fechar o app/OS matar o processo)
+  //    e sessionStorage (rápido e isolado por aba).
   useEffect(() => {
     const currentPath = location.pathname + location.search;
-    
-    // Não salvar rotas públicas
-    if (PUBLIC_ROUTES.some(route => location.pathname.startsWith(route))) {
-      return;
-    }
 
-    // Salvar rota no sessionStorage
-    sessionStorage.setItem(ROUTE_STORAGE_KEY, currentPath);
-    
-    // Marcar que o app já foi inicializado (previne reloads desnecessários)
-    sessionStorage.setItem(APP_STATE_KEY, "active");
+    if (isPublicRoute(location.pathname)) return;
+
+    try {
+      localStorage.setItem(ROUTE_STORAGE_KEY, currentPath);
+      sessionStorage.setItem(ROUTE_STORAGE_KEY, currentPath);
+    } catch {
+      // Se storage estiver indisponível (modo privado, etc.), apenas ignora.
+    }
   }, [location.pathname, location.search]);
 
-  // Prevenir comportamento padrão de reload ao retornar ao app
+  // 2) Ao montar o app (após um reload), voltar para a última rota salva.
+  //    IMPORTANTE: isso não evita o reload (se o SO matar o app, ele vai recarregar),
+  //    mas evita cair sempre na Home e devolve o usuário para onde parou.
   useEffect(() => {
-    // Handler para quando o app volta ao foco
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        // App voltou ao foco - não fazer nada, manter estado atual
-        // Isso previne qualquer tentativa de reload
-        return;
-      }
-    };
+    const currentPath = location.pathname;
+    if (isPublicRoute(currentPath)) return;
 
-    // Handler para prevenir reload no beforeunload (apenas em navegações reais)
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // Não interferir em navegações normais, apenas marcar estado
-      sessionStorage.setItem(APP_STATE_KEY, "navigating");
-    };
+    const savedRoute =
+      sessionStorage.getItem(ROUTE_STORAGE_KEY) ||
+      localStorage.getItem(ROUTE_STORAGE_KEY);
 
-    // Handler para quando a página ganha foco
-    const handleFocus = () => {
-      // Restaurar estado ativo
-      sessionStorage.setItem(APP_STATE_KEY, "active");
-    };
+    if (!savedRoute) return;
+    if (isPublicRoute(savedRoute)) return;
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.addEventListener("focus", handleFocus);
-    
-    // Marcar primeira renderização como completa
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    // Só restaura quando o app nasce na raiz (comportamento padrão do PWA/browser)
+    if (currentPath === "/" && savedRoute !== "/") {
+      const timer = window.setTimeout(() => {
+        navigate(savedRoute, { replace: true });
+      }, 0);
+
+      return () => window.clearTimeout(timer);
     }
-    
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("focus", handleFocus);
-    };
-  }, []);
+  }, []); // executar apenas uma vez ao montar
 };
