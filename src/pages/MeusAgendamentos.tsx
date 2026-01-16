@@ -124,9 +124,9 @@ const MeusAgendamentos = () => {
       // Get unique professional IDs
       const professionalIds = [...new Set(appointmentsData.map(a => a.professional_id))];
 
-      // Fetch professionals
+      // Fetch professionals usando VIEW pública segura
       const { data: professionalsData } = await supabase
-        .from("professionals")
+        .from("professionals_public")
         .select("id, user_id, crp, degree, hourly_rate")
         .in("id", professionalIds);
 

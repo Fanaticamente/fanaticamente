@@ -81,9 +81,9 @@ const ProfessionalProfile = () => {
       
       setLoading(true);
       try {
-        // Fetch professional
+        // Fetch professional usando VIEW pública segura
         const { data: profData, error: profError } = await supabase
-          .from('professionals')
+          .from('professionals_public')
           .select('*')
           .eq('id', id)
           .single();
