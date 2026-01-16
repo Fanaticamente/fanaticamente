@@ -60,7 +60,7 @@ interface UserDetailsDialogProps {
   onRefresh: () => void;
 }
 
-const ADMIN_PASSWORD = "fanatica2025";
+// Password verification is now done server-side only
 
 const UserDetailsDialog = ({
   user,
@@ -80,8 +80,8 @@ const UserDetailsDialog = ({
     : null;
 
   const handleDelete = async () => {
-    if (deletePassword !== ADMIN_PASSWORD) {
-      toast.error("Senha de segurança incorreta");
+    if (!deletePassword.trim()) {
+      toast.error("Digite a senha de segurança");
       return;
     }
 

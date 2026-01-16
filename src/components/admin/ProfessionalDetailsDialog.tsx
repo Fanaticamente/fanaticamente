@@ -96,7 +96,7 @@ interface ProfessionalDetailsDialogProps {
   onRefresh: () => void;
 }
 
-const ADMIN_PASSWORD = "fanatica2025"; // In production, this should be verified server-side
+// Password verification is now done server-side only
 
 const ProfessionalDetailsDialog = ({
   professional,
@@ -247,8 +247,8 @@ const ProfessionalDetailsDialog = ({
   };
 
   const handleDelete = async () => {
-    if (deletePassword !== ADMIN_PASSWORD) {
-      toast.error("Senha de segurança incorreta");
+    if (!deletePassword.trim()) {
+      toast.error("Digite a senha de segurança");
       return;
     }
 
