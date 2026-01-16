@@ -7,14 +7,14 @@ const services = [
     title: "Psicólogos Especializados",
     description: "Profissionais que entendem a paixão pelo futebol e como ela afeta suas emoções.",
     link: "/terapeutas",
-    color: "262 83% 58%",
+    color: "160 84% 39%",
   },
   {
     icon: Users,
     title: "Comunidade de Apoio",
     description: "Conecte-se com outros torcedores que compartilham das mesmas experiências.",
     link: "/quiz",
-    color: "145 63% 32%",
+    color: "145 63% 42%",
   },
   {
     icon: BookOpen,
@@ -42,7 +42,7 @@ const services = [
     title: "Diário do Torcedor",
     description: "Registre suas emoções e acompanhe sua jornada emocional ao longo da temporada.",
     link: "/diario",
-    color: "280 60% 50%",
+    color: "160 70% 45%",
   },
 ];
 
