@@ -56,8 +56,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get the user ID to delete from request body
-    const { userId, adminPassword } = await req.json();
+    // Get the user ID to delete and admin password from request body
+    const { userId, adminPassword: requestedPassword } = await req.json();
 
     if (!userId) {
       return new Response(JSON.stringify({ error: "Missing userId" }), {
@@ -66,8 +66,16 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Verify admin password
-    if (adminPassword !== "fanatica2025") {
+    // Verify admin password from environment variable
+    const adminPassword = Deno.env.get("ADMIN_DELETE_PASSWORD");
+    if (!adminPassword) {
+      return new Response(JSON.stringify({ error: "Admin password not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (adminPassword !== requestedPassword) {
       return new Response(JSON.stringify({ error: "Invalid admin password" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
