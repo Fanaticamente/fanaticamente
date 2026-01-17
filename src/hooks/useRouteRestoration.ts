@@ -2,7 +2,12 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const ROUTE_STORAGE_KEY = "fanatica_last_route";
-const ROUTE_RESTORED_KEY = "fanatica_route_restored_v1";
+
+// Evita disparar restauração múltiplas vezes na mesma execução do app.
+// Importante: isso precisa ser em memória (não sessionStorage), porque em iOS/PWA
+// o processo pode ser morto e o app recarregar mantendo sessionStorage; ainda assim
+// queremos restaurar a rota novamente após um reload real.
+let restoredThisRuntime = false;
 
 // Rotas públicas que não devem participar da restauração
 const PUBLIC_ROUTES = ["/auth", "/admin-access", "/setup-test"];
@@ -37,13 +42,8 @@ export const useRouteRestoration = () => {
     const currentPath = location.pathname;
     if (isPublicRoute(currentPath)) return;
 
-    try {
-      // Se já restauramos nesta sessão, não redireciona novamente.
-      if (sessionStorage.getItem(ROUTE_RESTORED_KEY) === "1") return;
-      sessionStorage.setItem(ROUTE_RESTORED_KEY, "1");
-    } catch {
-      // Sem sessionStorage disponível: seguimos sem o “restore once”.
-    }
+    if (restoredThisRuntime) return;
+    restoredThisRuntime = true;
 
     const savedRoute =
       sessionStorage.getItem(ROUTE_STORAGE_KEY) ||
