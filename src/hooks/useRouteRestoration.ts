@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const ROUTE_STORAGE_KEY = "fanatica_last_route";
+const ROUTE_RESTORED_KEY = "fanatica_route_restored_v1";
 
 // Rotas públicas que não devem participar da restauração
 const PUBLIC_ROUTES = ["/auth", "/admin-access", "/setup-test"];
@@ -29,12 +30,20 @@ export const useRouteRestoration = () => {
     }
   }, [location.pathname, location.search]);
 
-  // 2) Ao montar o app (após um reload), voltar para a última rota salva.
-  //    IMPORTANTE: isso não evita o reload (se o SO matar o app, ele vai recarregar),
-  //    mas evita cair sempre na Home e devolve o usuário para onde parou.
+  // 2) Ao montar o app, voltar para a última rota salva.
+  //    Para evitar “piscadas/recarregamentos” ao alternar de app/aba,
+  //    fazemos a restauração no máximo 1x por sessão.
   useEffect(() => {
     const currentPath = location.pathname;
     if (isPublicRoute(currentPath)) return;
+
+    try {
+      // Se já restauramos nesta sessão, não redireciona novamente.
+      if (sessionStorage.getItem(ROUTE_RESTORED_KEY) === "1") return;
+      sessionStorage.setItem(ROUTE_RESTORED_KEY, "1");
+    } catch {
+      // Sem sessionStorage disponível: seguimos sem o “restore once”.
+    }
 
     const savedRoute =
       sessionStorage.getItem(ROUTE_STORAGE_KEY) ||
