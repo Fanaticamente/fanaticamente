@@ -14,7 +14,9 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
-      registerType: "autoUpdate",
+      // Não recarrega automaticamente ao detectar nova versão.
+      // A atualização será aplicada somente quando o usuário confirmar.
+      registerType: "prompt",
       includeAssets: ["favicon.ico", "robots.txt"],
       manifest: {
         name: "Fanática - Saúde Mental para Torcedores",
