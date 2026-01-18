@@ -292,23 +292,73 @@ const ProfessionalDashboard = () => {
   const hasSubscription = !!professional?.subscription_type;
   const isMarketplaceActive = !!professional?.is_active;
 
-  // Load last seen timestamp from localStorage and set default active tab based on approval
+  // Load last seen timestamp from localStorage and restore dashboard UI state
   useEffect(() => {
-    if (professional) {
-      const stored = localStorage.getItem(`lastSeenAppointmentsTime_${professional.id}`);
-      if (stored) {
-        setLastSeenAppointmentCount(parseInt(stored, 10));
-      } else {
-        // If never seen, set to 0 so any appointment will trigger notification
-        setLastSeenAppointmentCount(0);
-      }
-      
-      // Set default tab based on marketplace status (approved professionals start on agenda)
-      if (activeTab === null) {
+    if (!professional) return;
+
+    const stored = localStorage.getItem(`lastSeenAppointmentsTime_${professional.id}`);
+    if (stored) {
+      setLastSeenAppointmentCount(parseInt(stored, 10));
+    } else {
+      // If never seen, set to 0 so any appointment will trigger notification
+      setLastSeenAppointmentCount(0);
+    }
+
+    // Restore last UI state (tab + filters + edit mode) for this professional.
+    // This prevents the app from “voltar para o padrão” após o iOS matar o processo.
+    const uiStateKey = `professional_dashboard_ui_${professional.id}`;
+
+    if (activeTab === null) {
+      try {
+        const raw = localStorage.getItem(uiStateKey);
+        const parsed = raw ? (JSON.parse(raw) as Partial<{
+          activeTab: DashboardTab;
+          appointmentFilter: AppointmentFilter;
+          isEditingProfile: boolean;
+        }>) : null;
+
+        const savedTab = parsed?.activeTab;
+        const savedFilter = parsed?.appointmentFilter;
+        const savedEditing = parsed?.isEditingProfile;
+
+        // If pro is not active yet, force tabs to allowed ones.
+        const allowedWhenInactive: DashboardTab[] = ["perfil", "assinatura"];
+        const resolvedTab: DashboardTab = !professional.is_active
+          ? (allowedWhenInactive.includes(savedTab as DashboardTab)
+              ? (savedTab as DashboardTab)
+              : "perfil")
+          : ((savedTab as DashboardTab) || (professional.is_active ? "agenda" : "perfil"));
+
+        setActiveTab(resolvedTab);
+
+        if (savedFilter) setAppointmentFilter(savedFilter);
+        if (typeof savedEditing === "boolean") setIsEditingProfile(savedEditing);
+      } catch {
         setActiveTab(professional.is_active ? "agenda" : "perfil");
       }
     }
   }, [professional, activeTab]);
+
+  // Persist dashboard UI state so that returning to the app resumes exactly where the user was.
+  useEffect(() => {
+    if (!professional || activeTab === null) return;
+
+    const uiStateKey = `professional_dashboard_ui_${professional.id}`;
+
+    try {
+      localStorage.setItem(
+        uiStateKey,
+        JSON.stringify({
+          activeTab,
+          appointmentFilter,
+          isEditingProfile,
+          savedAt: new Date().toISOString(),
+        })
+      );
+    } catch {
+      // ignore
+    }
+  }, [professional, activeTab, appointmentFilter, isEditingProfile]);
 
   // Fetch appointments when professional is loaded and approved/active
   useEffect(() => {

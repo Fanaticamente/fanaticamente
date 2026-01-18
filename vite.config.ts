@@ -14,6 +14,10 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
+      // Desliga o registrador injetado automaticamente (evita qualquer comportamento de update fora do nosso controle)
+      // e mantém o update 100% sob comando do usuário via `registerSW` em src/main.tsx.
+      injectRegister: null,
+
       // Não recarrega automaticamente ao detectar nova versão.
       // A atualização será aplicada somente quando o usuário confirmar.
       registerType: "prompt",
