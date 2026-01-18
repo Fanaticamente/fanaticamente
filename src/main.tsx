@@ -3,10 +3,12 @@ import App from "./App.tsx";
 import "./index.css";
 
 // PWA: atualiza SOMENTE sob comando do usuário
-import { registerSW } from "virtual:pwa-register/react";
+// Obs: em vite-plugin-pwa, `registerSW` vem de `virtual:pwa-register`.
+import { registerSW } from "virtual:pwa-register";
 
 const updateSW = registerSW({
-  immediate: true,
+  // Não força checagem imediata; só registra e reage quando houver update.
+  immediate: false,
   onNeedRefresh() {
     const shouldUpdate = window.confirm(
       "Uma nova versão do app está disponível. Deseja atualizar agora?"

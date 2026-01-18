@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 // Types for vite-plugin-pwa virtual modules
-declare module "virtual:pwa-register/react" {
+declare module "virtual:pwa-register" {
   export interface RegisterSWOptions {
     immediate?: boolean;
     onNeedRefresh?: () => void;
@@ -10,7 +10,9 @@ declare module "virtual:pwa-register/react" {
     onRegisterError?: (error: unknown) => void;
   }
 
-  export type RegisterSW = (options?: RegisterSWOptions) => (reloadPage?: boolean) => Promise<void>;
+  export type RegisterSW = (
+    options?: RegisterSWOptions
+  ) => (reloadPage?: boolean) => Promise<void>;
 
   export const registerSW: RegisterSW;
 }
