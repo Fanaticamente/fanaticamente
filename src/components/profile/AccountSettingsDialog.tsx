@@ -46,13 +46,13 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
   const { user, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  
+
   // Auth fields
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [deleteReason, setDeleteReason] = useState("");
-  
+
   // Profile fields
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -60,22 +60,86 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
   const [favoriteClubId, setFavoriteClubId] = useState("");
-  
+
   // Professional fields
   const [crp, setCrp] = useState("");
   const [documentType, setDocumentType] = useState("");
   const [documentNumber, setDocumentNumber] = useState("");
-  
+
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const [loadingEmail, setLoadingEmail] = useState(false);
   const [loadingPassword, setLoadingPassword] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
 
+  // Draft/persistence to avoid losing progress when iOS/PWA kills the process.
+  const storageKey = user
+    ? `account_settings_dialog_state_${user.id}_${isProfessional ? "pro" : "user"}`
+    : null;
+  const [draftRestoredForThisOpen, setDraftRestoredForThisOpen] = useState(false);
+
   const cities = state ? getCitiesByState(state) : [];
+
+  const restoreDraft = () => {
+    if (!storageKey) return;
+
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return;
+
+      const parsed = JSON.parse(raw) as Partial<{
+        open: boolean;
+        data: Partial<{
+          fullName: string;
+          phone: string;
+          birthDate: string;
+          state: string;
+          city: string;
+          favoriteClubId: string;
+          crp: string;
+          documentType: string;
+          documentNumber: string;
+          email: string;
+        }>;
+      }>;
+
+      const d = parsed.data;
+      if (!d) return;
+
+      if (typeof d.fullName === "string") setFullName(d.fullName);
+      if (typeof d.phone === "string") setPhone(d.phone);
+      if (typeof d.birthDate === "string") setBirthDate(d.birthDate);
+      if (typeof d.state === "string") setState(d.state);
+      if (typeof d.city === "string") setCity(d.city);
+      if (typeof d.favoriteClubId === "string") setFavoriteClubId(d.favoriteClubId);
+
+      if (typeof d.crp === "string") setCrp(d.crp);
+      if (typeof d.documentType === "string") setDocumentType(d.documentType);
+      if (typeof d.documentNumber === "string") setDocumentNumber(d.documentNumber);
+
+      // Email can be updated; keep draft if user was editing it.
+      if (typeof d.email === "string") setEmail(d.email);
+    } catch {
+      // ignore
+    }
+  };
+
+  // Restore dialog state (open + draft) on mount.
+  useEffect(() => {
+    if (!storageKey) return;
+
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Partial<{ open: boolean }>;
+      if (parsed.open) setOpen(true);
+    } catch {
+      // ignore
+    }
+  }, [storageKey]);
 
   useEffect(() => {
     if (user?.email) {
@@ -85,13 +149,68 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
 
   useEffect(() => {
     if (open && user) {
-      loadUserData();
+      // First restore any in-progress draft for this overlay, then fetch server data.
+      if (!draftRestoredForThisOpen) {
+        restoreDraft();
+        setDraftRestoredForThisOpen(true);
+      }
+      loadUserData({ fillOnlyMissing: true });
     }
+
+    if (!open) {
+      // Next time it opens, restore draft again.
+      setDraftRestoredForThisOpen(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, user]);
 
-  const loadUserData = async () => {
+  // Persist open state + draft continuously.
+  useEffect(() => {
+    if (!storageKey) return;
+
+    try {
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({
+          open,
+          updatedAt: new Date().toISOString(),
+          data: {
+            fullName,
+            phone,
+            birthDate,
+            state,
+            city,
+            favoriteClubId,
+            crp,
+            documentType,
+            documentNumber,
+            email,
+          },
+        })
+      );
+    } catch {
+      // ignore
+    }
+  }, [
+    storageKey,
+    open,
+    fullName,
+    phone,
+    birthDate,
+    state,
+    city,
+    favoriteClubId,
+    crp,
+    documentType,
+    documentNumber,
+    email,
+  ]);
+
+  const loadUserData = async (opts?: { fillOnlyMissing?: boolean }) => {
     if (!user) return;
-    
+
+    const fillOnlyMissing = !!opts?.fillOnlyMissing;
+
     setLoadingProfile(true);
     try {
       // Load profile data
@@ -100,14 +219,14 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
         .select('*')
         .eq('user_id', user.id)
         .single();
-      
+
       if (profileData && !profileError) {
-        setFullName(profileData.full_name || "");
-        setPhone(profileData.phone || "");
-        setBirthDate(profileData.birth_date || "");
-        setState(profileData.state || "");
-        setCity(profileData.city || "");
-        setFavoriteClubId(profileData.favorite_club_id || "");
+        if (!fillOnlyMissing || !fullName) setFullName(profileData.full_name || "");
+        if (!fillOnlyMissing || !phone) setPhone(profileData.phone || "");
+        if (!fillOnlyMissing || !birthDate) setBirthDate(profileData.birth_date || "");
+        if (!fillOnlyMissing || !state) setState(profileData.state || "");
+        if (!fillOnlyMissing || !city) setCity(profileData.city || "");
+        if (!fillOnlyMissing || !favoriteClubId) setFavoriteClubId(profileData.favorite_club_id || "");
       }
 
       // If professional, load professional data
@@ -117,11 +236,11 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
           .select('crp, document_type, document_number')
           .eq('user_id', user.id)
           .single();
-        
+
         if (profData && !profError) {
-          setCrp(profData.crp || "");
-          setDocumentType(profData.document_type || "");
-          setDocumentNumber(profData.document_number || "");
+          if (!fillOnlyMissing || !crp) setCrp(profData.crp || "");
+          if (!fillOnlyMissing || !documentType) setDocumentType(profData.document_type || "");
+          if (!fillOnlyMissing || !documentNumber) setDocumentNumber(profData.document_number || "");
         }
       }
     } catch (error) {
@@ -168,6 +287,15 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
       }
 
       toast.success("Dados atualizados com sucesso!");
+
+      // Clear draft after a successful save so it doesn't reopen stale data.
+      if (storageKey) {
+        try {
+          localStorage.removeItem(storageKey);
+        } catch {
+          // ignore
+        }
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao salvar dados");
     } finally {
