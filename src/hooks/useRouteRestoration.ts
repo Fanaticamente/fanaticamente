@@ -2,6 +2,10 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const ROUTE_STORAGE_KEY = "fanatica_last_route";
+const ROUTE_TIMESTAMP_KEY = "fanatica_last_route_ts";
+
+// Tempo máximo de inatividade (em ms) antes de resetar para a home
+const INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutos
 
 // Evita disparar restauração múltiplas vezes na mesma execução do app.
 // Importante: isso precisa ser em memória (não sessionStorage), porque em iOS/PWA
@@ -49,6 +53,10 @@ export const useRouteRestoration = () => {
     try {
       localStorage.setItem(ROUTE_STORAGE_KEY, currentPath);
       sessionStorage.setItem(ROUTE_STORAGE_KEY, currentPath);
+      // Atualiza o timestamp a cada mudança de rota
+      const now = Date.now().toString();
+      localStorage.setItem(ROUTE_TIMESTAMP_KEY, now);
+      sessionStorage.setItem(ROUTE_TIMESTAMP_KEY, now);
     } catch {
       // Se storage estiver indisponível (modo privado, etc.), apenas ignora.
     }
@@ -68,8 +76,32 @@ export const useRouteRestoration = () => {
       sessionStorage.getItem(ROUTE_STORAGE_KEY) ||
       localStorage.getItem(ROUTE_STORAGE_KEY);
 
+    const savedTimestamp =
+      sessionStorage.getItem(ROUTE_TIMESTAMP_KEY) ||
+      localStorage.getItem(ROUTE_TIMESTAMP_KEY);
+
     if (!savedRoute) return;
     if (isPublicRoute(savedRoute)) return;
+
+    // Verifica se passou mais de 10 minutos desde a última atividade
+    if (savedTimestamp) {
+      const lastActivity = parseInt(savedTimestamp, 10);
+      const now = Date.now();
+      const elapsed = now - lastActivity;
+
+      if (elapsed > INACTIVITY_TIMEOUT_MS) {
+        // Limpa a rota salva e não restaura (fica na home)
+        try {
+          localStorage.removeItem(ROUTE_STORAGE_KEY);
+          sessionStorage.removeItem(ROUTE_STORAGE_KEY);
+          localStorage.removeItem(ROUTE_TIMESTAMP_KEY);
+          sessionStorage.removeItem(ROUTE_TIMESTAMP_KEY);
+        } catch {
+          // ignore
+        }
+        return;
+      }
+    }
 
     // Só restaura quando o app nasce na raiz (comportamento padrão do PWA/browser)
     if (currentPath === "/" && savedRoute !== "/") {
