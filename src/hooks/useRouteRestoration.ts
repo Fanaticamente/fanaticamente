@@ -22,10 +22,29 @@ export const useRouteRestoration = () => {
   // 1) Persistir a rota atual.
   //    Usamos localStorage (sobrevive a fechar o app/OS matar o processo)
   //    e sessionStorage (rápido e isolado por aba).
+  //
+  // IMPORTANTE: em alguns cenários de PWA/iOS, o app pode “renascer” na rota "/".
+  // Se persistirmos "/" imediatamente, apagamos a última rota útil salva e a
+  // restauração não acontece. Por isso, quando estivermos em "/" e ainda não
+  // tivermos feito a restauração nesta execução, evitamos gravar "/" se existir
+  // uma rota salva diferente de "/".
   useEffect(() => {
     const currentPath = location.pathname + location.search;
 
     if (isPublicRoute(location.pathname)) return;
+
+    // Evita sobrescrever a última rota com "/" antes de restaurar.
+    if (location.pathname === "/" && !restoredThisRuntime) {
+      try {
+        const savedRoute =
+          sessionStorage.getItem(ROUTE_STORAGE_KEY) ||
+          localStorage.getItem(ROUTE_STORAGE_KEY);
+
+        if (savedRoute && savedRoute !== "/") return;
+      } catch {
+        // ignore
+      }
+    }
 
     try {
       localStorage.setItem(ROUTE_STORAGE_KEY, currentPath);
