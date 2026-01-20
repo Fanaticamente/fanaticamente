@@ -3,43 +3,35 @@ import { Button } from "@/components/ui/button";
 import logoHeader from "@/assets/logo-header.png";
 
 const navLinks = [
-  { label: "Funcionalidades", path: "#funcionalidades" },
-  { label: "Curiosidades", path: "#curiosidades" },
-  { label: "Sobre nós", path: "#sobre" },
-  { label: "Profissionais", path: "#profissionais" },
+  { label: "Especialistas", path: "/terapeutas" },
+  { label: "FanatiClass", path: "/cursos" },
+  { label: "Comunidade", path: "/quiz" },
+  { label: "Rádio", path: "/radio" },
+  { label: "Loja", path: "/loja" },
 ];
 
 const DesktopHeader = () => {
-  const scrollToSection = (id: string) => {
-    if (id.startsWith('#')) {
-      const element = document.getElementById(id.substring(1));
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
-
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-gray-800">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[hsl(var(--desktop-header))] border-b border-[hsl(var(--desktop-border))] shadow-sm">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">
           <img src={logoHeader} alt="Logo" className="h-10 w-auto" />
-          <span className="font-display text-2xl text-white tracking-wide">
-            Fanaticamente
+          <span className="font-display text-2xl text-[hsl(var(--desktop-fg))] tracking-wide">
+            Fanática
           </span>
         </Link>
 
         {/* Navigation Links */}
         <nav className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
-            <button
+            <Link
               key={link.path}
-              onClick={() => scrollToSection(link.path)}
-              className="text-gray-400 hover:text-white font-medium transition-colors"
+              to={link.path}
+              className="text-[hsl(var(--desktop-muted-fg))] hover:text-[hsl(var(--desktop-fg))] font-medium transition-colors"
             >
               {link.label}
-            </button>
+            </Link>
           ))}
         </nav>
 
@@ -48,16 +40,16 @@ const DesktopHeader = () => {
           <Link to="/auth">
             <Button 
               variant="ghost" 
-              className="text-white hover:bg-white/10"
+              className="text-[hsl(var(--desktop-fg))] hover:bg-[hsl(var(--desktop-muted))]"
             >
               Entrar
             </Button>
           </Link>
           <Link to="/auth">
             <Button 
-              className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6"
+              className="bg-[hsl(var(--desktop-primary))] hover:bg-[hsl(var(--desktop-primary))]/90 text-[hsl(var(--desktop-primary-foreground))] rounded-full px-6"
             >
-              Baixar App
+              Cadastre-se
             </Button>
           </Link>
         </div>

@@ -8,14 +8,14 @@ import QuizCard from "@/components/home/QuizCard";
 import FanatiClassCard from "@/components/home/FanatiClassCard";
 import RadioCard from "@/components/home/RadioCard";
 
-// Desktop Components (Fanaticamente.com style)
+// Desktop Components
 import DesktopHeader from "@/components/desktop/DesktopHeader";
 import DesktopHero from "@/components/desktop/DesktopHero";
-import DesktopFeatures from "@/components/desktop/DesktopFeatures";
-import DesktopCuriosities from "@/components/desktop/DesktopCuriosities";
-import DesktopAbout from "@/components/desktop/DesktopAbout";
+import DesktopPartners from "@/components/desktop/DesktopPartners";
+import DesktopServices from "@/components/desktop/DesktopServices";
+import DesktopSpecialists from "@/components/desktop/DesktopSpecialists";
 import DesktopTestimonials from "@/components/desktop/DesktopTestimonials";
-import DesktopProfessionalForm from "@/components/desktop/DesktopProfessionalForm";
+import DesktopCTA from "@/components/desktop/DesktopCTA";
 import DesktopFooter from "@/components/desktop/DesktopFooter";
 
 const Index = () => {
@@ -37,24 +37,16 @@ const Index = () => {
         <BottomNav />
       </div>
 
-      {/* Desktop Layout - Fanaticamente.com style */}
-      <div data-layout="desktop" className="hidden min-h-screen bg-[#0a0a0a] md:block">
+      {/* Desktop Layout */}
+      <div data-layout="desktop" className="hidden min-h-screen bg-[hsl(var(--desktop-bg))] md:block">
         <DesktopHeader />
         <main className="pt-[72px]">
           <DesktopHero />
-          <div id="funcionalidades">
-            <DesktopFeatures />
-          </div>
-          <div id="curiosidades">
-            <DesktopCuriosities />
-          </div>
-          <div id="sobre">
-            <DesktopAbout />
-          </div>
+          <DesktopPartners />
+          <DesktopServices />
+          <DesktopSpecialists />
           <DesktopTestimonials />
-          <div id="profissionais">
-            <DesktopProfessionalForm />
-          </div>
+          <DesktopCTA />
         </main>
         <DesktopFooter />
       </div>
@@ -63,3 +55,4 @@ const Index = () => {
 };
 
 export default Index;
+
