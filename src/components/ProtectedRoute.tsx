@@ -11,6 +11,7 @@ const PROFESSIONAL_ROUTES = [
   "/psi-house",
   "/fanatica-lab",
   "/fanatica-lab/",
+  "/conecta",
 ];
 
 const isProfessionalRoute = (pathname: string): boolean => {
