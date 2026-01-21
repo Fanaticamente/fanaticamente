@@ -1,18 +1,22 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import logoHeader from "@/assets/logo-header.png";
 
 const navLinks = [
-  { label: "Funcionalidades", path: "#funcionalidades" },
-  { label: "Curiosidades", path: "#curiosidades" },
-  { label: "Sobre nós", path: "#sobre" },
-  { label: "Profissionais", path: "#profissionais" },
+  { label: "Início", path: "/", isRoute: true },
+  { label: "Especialistas", path: "/terapeutas", isRoute: true },
+  { label: "OSMF", path: "/psi-house", isRoute: true },
+  { label: "Junte-se a nós", path: "#profissionais", isRoute: false },
 ];
 
 const DesktopHeader = () => {
-  const scrollToSection = (id: string) => {
-    if (id.startsWith('#')) {
-      const element = document.getElementById(id.substring(1));
+  const navigate = useNavigate();
+
+  const handleNavClick = (link: typeof navLinks[0]) => {
+    if (link.isRoute) {
+      navigate(link.path);
+    } else if (link.path.startsWith('#')) {
+      const element = document.getElementById(link.path.substring(1));
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
@@ -23,11 +27,8 @@ const DesktopHeader = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-gray-800">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3">
-          <img src={logoHeader} alt="Logo" className="h-10 w-auto" />
-          <span className="font-display text-2xl text-white tracking-wide">
-            Fanaticamente
-          </span>
+        <Link to="/" className="flex items-center">
+          <img src={logoHeader} alt="Fanaticamente" className="h-10 w-auto" />
         </Link>
 
         {/* Navigation Links */}
@@ -35,7 +36,7 @@ const DesktopHeader = () => {
           {navLinks.map((link) => (
             <button
               key={link.path}
-              onClick={() => scrollToSection(link.path)}
+              onClick={() => handleNavClick(link)}
               className="text-gray-400 hover:text-white font-medium transition-colors"
             >
               {link.label}
