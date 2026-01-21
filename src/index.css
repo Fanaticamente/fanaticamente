@@ -189,31 +189,40 @@
     }
   }
 
-  /* Show scrollbar on desktop for admin/developer dashboards */
+  /* Desktop: use only browser native scrollbar */
   @media (min-width: 769px) {
-    html,
-    body {
+    html {
+      overflow-y: scroll;
       scrollbar-width: auto;
       -ms-overflow-style: auto;
     }
     
+    body {
+      overflow-y: visible;
+    }
+
+    /* Remove custom scrollbars from internal elements - use only browser scrollbar */
     *::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      display: none;
     }
     
-    *::-webkit-scrollbar-track {
-      background: hsl(var(--muted));
-      border-radius: 4px;
+    /* Only show browser scrollbar on html */
+    html::-webkit-scrollbar {
+      display: block;
+      width: 12px;
     }
     
-    *::-webkit-scrollbar-thumb {
-      background: hsl(var(--muted-foreground) / 0.5);
-      border-radius: 4px;
+    html::-webkit-scrollbar-track {
+      background: #1a1a1a;
     }
     
-    *::-webkit-scrollbar-thumb:hover {
-      background: hsl(var(--muted-foreground) / 0.7);
+    html::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 6px;
+    }
+    
+    html::-webkit-scrollbar-thumb:hover {
+      background: #555;
     }
   }
 
