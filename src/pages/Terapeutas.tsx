@@ -7,6 +7,8 @@ import { getClubsByLeague, BrazilianClub } from "@/data/brazilianClubs";
 import { supabase } from "@/integrations/supabase/client";
 import { addDays } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import DesktopTerapeutasPage from "@/components/desktop/DesktopTerapeutasPage";
 
 interface Professional {
   id: string;
@@ -70,6 +72,7 @@ const leagueLabels: Record<League, string> = {
 };
 
 const Terapeutas = () => {
+  const isMobile = useIsMobile();
   const [step, setStep] = useState<Step>("club");
   const [selectedLeague, setSelectedLeague] = useState<League>("serie_a");
   const [selectedClub, setSelectedClub] = useState<BrazilianClub | null>(null);
@@ -77,6 +80,11 @@ const Terapeutas = () => {
   const [loading, setLoading] = useState(false);
 
   const clubs = getClubsByLeague(selectedLeague);
+
+  // Render desktop version
+  if (!isMobile) {
+    return <DesktopTerapeutasPage />;
+  }
 
   const fetchTherapistsForClub = async (clubId: string) => {
     setLoading(true);

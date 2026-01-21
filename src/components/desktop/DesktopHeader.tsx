@@ -32,12 +32,12 @@ const DesktopHeader = () => {
         </Link>
 
         {/* Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-12">
           {navLinks.map((link) => (
             <button
               key={link.path}
               onClick={() => handleNavClick(link)}
-              className="text-gray-400 hover:text-white font-medium transition-colors"
+              className="text-gray-400 hover:text-white font-medium transition-colors px-2"
             >
               {link.label}
             </button>
