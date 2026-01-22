@@ -112,7 +112,8 @@ const DesktopTerapeutasPage = () => {
   };
 
   const handleTherapistClick = (therapistId: string) => {
-    navigate(`/profissional/${therapistId}`);
+    // Perfil público do especialista (rota pública)
+    navigate(`/terapeuta/${therapistId}`);
   };
 
   const filteredTherapists = therapists.filter(t => 
