@@ -478,6 +478,54 @@ export type Database = {
         }
         Relationships: []
       }
+      osmf_reports: {
+        Row: {
+          attachment_paths: string[]
+          club_id: string | null
+          contact_email: string | null
+          contact_name: string | null
+          content: string
+          created_at: string
+          emotions: string[]
+          id: string
+          is_anonymous: boolean
+          location_text: string | null
+          status: string
+          submit_type: string
+          updated_at: string
+        }
+        Insert: {
+          attachment_paths?: string[]
+          club_id?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          content: string
+          created_at?: string
+          emotions?: string[]
+          id?: string
+          is_anonymous?: boolean
+          location_text?: string | null
+          status?: string
+          submit_type: string
+          updated_at?: string
+        }
+        Update: {
+          attachment_paths?: string[]
+          club_id?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          content?: string
+          created_at?: string
+          emotions?: string[]
+          id?: string
+          is_anonymous?: boolean
+          location_text?: string | null
+          status?: string
+          submit_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       professional_availability: {
         Row: {
           created_at: string
