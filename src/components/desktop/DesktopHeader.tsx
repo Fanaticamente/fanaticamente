@@ -5,7 +5,7 @@ import logoHeader from "@/assets/logo-header.png";
 const navLinks = [
   { label: "Início", path: "/", isRoute: true },
   { label: "Especialistas", path: "/terapeutas", isRoute: true },
-  { label: "OSMF", path: "/psi-house", isRoute: true },
+  { label: "OSMF", path: "/osmf", isRoute: true },
   { label: "Junte-se a nós", path: "#profissionais", isRoute: false },
 ];
 

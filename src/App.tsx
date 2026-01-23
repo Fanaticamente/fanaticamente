@@ -41,6 +41,7 @@ import CaseReview from "./pages/fanatica-lab/CaseReview";
 import ReferenceLibrary from "./pages/fanatica-lab/ReferenceLibrary";
 import PsiHouse from "./pages/PsiHouse";
 import Conecta from "./pages/Conecta";
+import OSMF from "./pages/OSMF";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +95,7 @@ const App = () => (
               <Route path="/futebol" element={<Futebol />} />
               <Route path="/loja" element={<FanaticaShop />} />
               <Route path="/loja/produto/:id" element={<ProductDetail />} />
+              <Route path="/osmf" element={<OSMF />} />
 
               {/* Protected routes - require login */}
               <Route path="/pagamento/:id" element={<ProtectedRoute><SessionPayment /></ProtectedRoute>} />
