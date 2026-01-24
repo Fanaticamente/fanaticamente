@@ -191,15 +191,33 @@
 
   /* Desktop: use browser native scrollbar */
   @media (min-width: 769px) {
-    html {
+    /*
+      IMPORTANT:
+      The base styles set html/body to height: 100% for mobile/PWA.
+      On desktop, that can interfere with native document scrolling and scrollbar visibility.
+      Here we restore standard web-page scrolling on the document.
+    */
+    html,
+    body {
+      height: auto !important;
+      min-height: 100% !important;
       overflow-y: scroll !important;
       scrollbar-width: auto !important;
       -ms-overflow-style: scrollbar !important;
+      /* Reserve gutter so the scrollbar is consistently visible */
+      scrollbar-gutter: stable;
     }
-    
-    body {
-      overflow-y: visible !important;
-      height: auto !important;
+
+    /* Ensure no element inherits the mobile scrollbar-hiding settings */
+    * {
+      scrollbar-width: auto !important;
+      -ms-overflow-style: auto !important;
+    }
+
+    *::-webkit-scrollbar {
+      display: initial !important;
+      width: initial !important;
+      height: initial !important;
     }
     
     /* Style the browser scrollbar on html */
