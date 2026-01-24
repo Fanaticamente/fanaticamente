@@ -189,40 +189,36 @@
     }
   }
 
-  /* Desktop: use only browser native scrollbar */
+  /* Desktop: use browser native scrollbar */
   @media (min-width: 769px) {
     html {
-      overflow-y: scroll;
-      scrollbar-width: auto;
-      -ms-overflow-style: auto;
+      overflow-y: scroll !important;
+      scrollbar-width: auto !important;
+      -ms-overflow-style: scrollbar !important;
     }
     
     body {
-      overflow-y: visible;
-    }
-
-    /* Remove custom scrollbars from internal elements - use only browser scrollbar */
-    *::-webkit-scrollbar {
-      display: none;
+      overflow-y: visible !important;
+      height: auto !important;
     }
     
-    /* Only show browser scrollbar on html */
+    /* Style the browser scrollbar on html */
     html::-webkit-scrollbar {
-      display: block;
-      width: 12px;
+      display: block !important;
+      width: 12px !important;
     }
     
     html::-webkit-scrollbar-track {
-      background: #1a1a1a;
+      background: hsl(0 0% 10%);
     }
     
     html::-webkit-scrollbar-thumb {
-      background: #444;
+      background: hsl(0 0% 30%);
       border-radius: 6px;
     }
     
     html::-webkit-scrollbar-thumb:hover {
-      background: #555;
+      background: hsl(0 0% 40%);
     }
   }
 
