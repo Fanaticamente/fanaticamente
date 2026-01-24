@@ -13,16 +13,19 @@
         [data-layout="desktop"] { display: none !important; }
       }
 
-      /* iOS PWA standalone mode fixes */
+      /* Base: avoid locking document height on desktop (keeps native scrollbar working) */
       html, body {
-        height: 100%;
         overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;
         overscroll-behavior: auto;
       }
 
-      /* Hide scrollbars only on mobile (keeps desktop dashboards scrollable) */
+      /* Mobile/PWA: lock to viewport + hide scrollbars */
       @media (max-width: 768px) {
+        html, body {
+          height: 100%;
+          -webkit-overflow-scrolling: touch;
+        }
+
         html::-webkit-scrollbar,
         body::-webkit-scrollbar,
         *::-webkit-scrollbar {
@@ -36,7 +39,10 @@
       /* Force show scrollbar on desktop */
       @media (min-width: 769px) {
         html, body {
+          height: auto !important;
+          min-height: 100% !important;
           overflow-y: scroll !important;
+          scrollbar-gutter: stable;
         }
       }
 
