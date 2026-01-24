@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import logoHeader from "@/assets/logo-header.png";
 
@@ -11,14 +11,28 @@ const navLinks = [
 
 const DesktopHeader = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleNavClick = (link: typeof navLinks[0]) => {
+    // Always navigate to route pages
     if (link.isRoute) {
       navigate(link.path);
-    } else if (link.path.startsWith('#')) {
-      const element = document.getElementById(link.path.substring(1));
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+
+    // For anchor links (e.g., #profissionais), only scroll if we're on the home page
+    if (link.path.startsWith('#')) {
+      const sectionId = link.path.substring(1);
+
+      if (location.pathname === "/") {
+        // We're on the home page, scroll to section
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        // Navigate to home page with hash, then scroll after navigation
+        navigate("/" + link.path);
       }
     }
   };
