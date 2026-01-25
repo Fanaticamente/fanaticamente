@@ -14,6 +14,14 @@ const DesktopHeader = () => {
   const location = useLocation();
 
   const handleNavClick = (link: typeof navLinks[0]) => {
+    // Limpa as rotas salvas para evitar conflito com route restoration
+    try {
+      sessionStorage.removeItem("fanatica_last_route");
+      localStorage.removeItem("fanatica_last_route");
+    } catch {
+      // ignore
+    }
+    
     // Always navigate to route pages
     if (link.isRoute) {
       navigate(link.path);
