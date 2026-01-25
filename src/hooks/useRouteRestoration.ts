@@ -17,8 +17,14 @@ let restoredThisRuntime = false;
 // Rotas públicas que não devem participar da restauração
 const PUBLIC_ROUTES = ["/auth", "/admin-access", "/setup-test"];
 
+// Rotas que devem ser excluídas da restauração automática (navegação explícita)
+const EXCLUDED_FROM_RESTORE = ["/osmf", "/terapeutas", "/cursos", "/loja", "/radio", "/futebol", "/quiz"];
+
 const isPublicRoute = (path: string) =>
   PUBLIC_ROUTES.some((route) => path.startsWith(route));
+
+const isExcludedFromRestore = (path: string) =>
+  EXCLUDED_FROM_RESTORE.includes(path);
 
 // Salva o campo focado no localStorage
 const saveFocusedField = () => {
@@ -201,6 +207,9 @@ export const useRouteRestoration = () => {
 
     if (!savedRoute) return;
     if (isPublicRoute(savedRoute)) return;
+    
+    // Não restaura rotas de navegação explícita do menu principal
+    if (isExcludedFromRestore(savedRoute)) return;
 
     // Verifica se passou mais de 10 minutos desde a última atividade
     if (savedTimestamp) {
