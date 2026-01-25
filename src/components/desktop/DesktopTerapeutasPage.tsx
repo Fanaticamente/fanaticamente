@@ -126,38 +126,50 @@ const DesktopTerapeutasPage = () => {
       {/* Custom Header for Light Theme */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center">
+          <button onClick={() => navigate("/")} className="flex items-center">
             <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-lg">F</span>
             </div>
-          </a>
+          </button>
 
           <nav className="hidden lg:flex items-center gap-12">
-            <a href="/" className="text-gray-600 hover:text-emerald-600 font-medium transition-colors">
+            <button 
+              onClick={() => navigate("/")} 
+              className="text-gray-600 hover:text-emerald-600 font-medium transition-colors"
+            >
               Início
-            </a>
-            <a href="/terapeutas" className="text-emerald-600 font-semibold border-b-2 border-emerald-600 pb-1">
+            </button>
+            <span className="text-emerald-600 font-semibold border-b-2 border-emerald-600 pb-1">
               Especialistas
-            </a>
-            <a href="/osmf" className="text-gray-600 hover:text-emerald-600 font-medium transition-colors">
+            </span>
+            <button 
+              onClick={() => navigate("/osmf")} 
+              className="text-gray-600 hover:text-emerald-600 font-medium transition-colors"
+            >
               OSMF
-            </a>
-            <a href="/#profissionais" className="text-gray-600 hover:text-emerald-600 font-medium transition-colors">
+            </button>
+            <button 
+              onClick={() => navigate("/#profissionais")} 
+              className="text-gray-600 hover:text-emerald-600 font-medium transition-colors"
+            >
               Junte-se a nós
-            </a>
+            </button>
           </nav>
 
           <div className="flex items-center gap-4">
-            <a href="/auth">
-              <Button variant="ghost" className="text-gray-700 hover:bg-gray-100">
-                Entrar
-              </Button>
-            </a>
-            <a href="/auth">
-              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6">
-                Baixar App
-              </Button>
-            </a>
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/auth")} 
+              className="text-gray-700 hover:bg-gray-100"
+            >
+              Entrar
+            </Button>
+            <Button 
+              onClick={() => navigate("/auth")} 
+              className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6"
+            >
+              Baixar App
+            </Button>
           </div>
         </div>
       </header>
