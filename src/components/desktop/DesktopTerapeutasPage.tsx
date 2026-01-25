@@ -139,7 +139,7 @@ const DesktopTerapeutasPage = () => {
             <a href="/terapeutas" className="text-emerald-600 font-semibold border-b-2 border-emerald-600 pb-1">
               Especialistas
             </a>
-            <a href="/psi-house" className="text-gray-600 hover:text-emerald-600 font-medium transition-colors">
+            <a href="/osmf" className="text-gray-600 hover:text-emerald-600 font-medium transition-colors">
               OSMF
             </a>
             <a href="/#profissionais" className="text-gray-600 hover:text-emerald-600 font-medium transition-colors">
