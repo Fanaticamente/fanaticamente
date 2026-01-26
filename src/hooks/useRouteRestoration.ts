@@ -18,7 +18,21 @@ let restoredThisRuntime = false;
 const PUBLIC_ROUTES = ["/auth", "/admin-access", "/setup-test"];
 
 // Rotas que devem ser excluídas da restauração automática (navegação explícita)
-const EXCLUDED_FROM_RESTORE = ["/osmf", "/terapeutas", "/cursos", "/loja", "/radio", "/futebol", "/quiz"];
+const EXCLUDED_FROM_RESTORE = [
+  "/osmf", 
+  "/terapeutas", 
+  "/cursos", 
+  "/loja", 
+  "/radio", 
+  "/futebol", 
+  "/quiz",
+  "/psi-house",
+  "/conecta",
+  "/fanatica-lab",
+  "/profissional",
+  "/admin",
+  "/desenvolvedor"
+];
 
 const isPublicRoute = (path: string) =>
   PUBLIC_ROUTES.some((route) => path.startsWith(route));
