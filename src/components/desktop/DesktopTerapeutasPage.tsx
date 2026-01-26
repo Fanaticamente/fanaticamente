@@ -111,6 +111,17 @@ const DesktopTerapeutasPage = () => {
     fetchTherapistsForClub(club);
   };
 
+  // Função de navegação que limpa rotas salvas para evitar conflitos
+  const handleNavClick = (path: string) => {
+    try {
+      sessionStorage.removeItem("fanatica_last_route");
+      localStorage.removeItem("fanatica_last_route");
+    } catch {
+      // ignore
+    }
+    navigate(path);
+  };
+
   const handleTherapistClick = (therapistId: string) => {
     // Perfil público do especialista (rota pública)
     navigate(`/terapeuta/${therapistId}`);
@@ -126,7 +137,7 @@ const DesktopTerapeutasPage = () => {
       {/* Custom Header for Light Theme */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button onClick={() => navigate("/")} className="flex items-center">
+          <button onClick={() => handleNavClick("/")} className="flex items-center">
             <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-lg">F</span>
             </div>
@@ -134,7 +145,7 @@ const DesktopTerapeutasPage = () => {
 
           <nav className="hidden lg:flex items-center gap-12">
             <button 
-              onClick={() => navigate("/")} 
+              onClick={() => handleNavClick("/")} 
               className="text-gray-600 hover:text-emerald-600 font-medium transition-colors"
             >
               Início
@@ -143,13 +154,13 @@ const DesktopTerapeutasPage = () => {
               Especialistas
             </span>
             <button 
-              onClick={() => navigate("/osmf")} 
+              onClick={() => handleNavClick("/osmf")} 
               className="text-gray-600 hover:text-emerald-600 font-medium transition-colors"
             >
               OSMF
             </button>
             <button 
-              onClick={() => navigate("/#profissionais")} 
+              onClick={() => handleNavClick("/#profissionais")} 
               className="text-gray-600 hover:text-emerald-600 font-medium transition-colors"
             >
               Junte-se a nós
@@ -159,13 +170,13 @@ const DesktopTerapeutasPage = () => {
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
-              onClick={() => navigate("/auth")} 
+              onClick={() => handleNavClick("/auth")} 
               className="text-gray-700 hover:bg-gray-100"
             >
               Entrar
             </Button>
             <Button 
-              onClick={() => navigate("/auth")} 
+              onClick={() => handleNavClick("/auth")} 
               className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6"
             >
               Baixar App
