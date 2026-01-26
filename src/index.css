@@ -223,20 +223,20 @@
     /* Style the browser scrollbar on html */
     html::-webkit-scrollbar {
       display: block !important;
-      width: 12px !important;
+      width: 6px !important;
     }
     
     html::-webkit-scrollbar-track {
-      background: hsl(0 0% 10%);
+      background: transparent;
     }
     
     html::-webkit-scrollbar-thumb {
-      background: hsl(0 0% 30%);
-      border-radius: 6px;
+      background: hsl(0 0% 20%);
+      border-radius: 3px;
     }
     
     html::-webkit-scrollbar-thumb:hover {
-      background: hsl(0 0% 40%);
+      background: hsl(0 0% 30%);
     }
   }
 
