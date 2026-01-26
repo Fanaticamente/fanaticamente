@@ -134,59 +134,10 @@ const DesktopTerapeutasPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Custom Header for Light Theme */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <button onClick={() => handleNavClick("/")} className="flex items-center">
-            <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">F</span>
-            </div>
-          </button>
-
-          <nav className="hidden lg:flex items-center gap-12">
-            <button 
-              onClick={() => handleNavClick("/")} 
-              className="text-gray-600 hover:text-emerald-600 font-medium transition-colors"
-            >
-              Início
-            </button>
-            <span className="text-emerald-600 font-semibold border-b-2 border-emerald-600 pb-1">
-              Especialistas
-            </span>
-            <button 
-              onClick={() => handleNavClick("/osmf")} 
-              className="text-gray-600 hover:text-emerald-600 font-medium transition-colors"
-            >
-              OSMF
-            </button>
-            <button 
-              onClick={() => handleNavClick("/#profissionais")} 
-              className="text-gray-600 hover:text-emerald-600 font-medium transition-colors"
-            >
-              Junte-se a nós
-            </button>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              onClick={() => handleNavClick("/auth")} 
-              className="text-gray-700 hover:bg-gray-100"
-            >
-              Entrar
-            </Button>
-            <Button 
-              onClick={() => handleNavClick("/auth")} 
-              className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6"
-            >
-              Baixar App
-            </Button>
-          </div>
-        </div>
-      </header>
+      <DesktopHeader />
 
       {/* Hero Section */}
-      <section className="pt-24 pb-12 bg-gradient-to-b from-emerald-50 to-white">
+      <section className="pt-32 pb-12 bg-gradient-to-b from-emerald-50 to-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
