@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
+import ProfessionalDesktopLayout from "@/components/layout/ProfessionalDesktopLayout";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const modules = [
   {
@@ -58,6 +60,7 @@ const modules = [
 
 const FanaticaLab = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   // Force light theme for professional environment
   useLayoutEffect(() => {
@@ -74,6 +77,72 @@ const FanaticaLab = () => {
     };
   }, []);
 
+  const modulesContent = (
+    <>
+      {/* Info Card */}
+      <Card className="bg-primary/5 border-primary/20 mb-6">
+        <CardContent className="p-4">
+          <div className="flex gap-3">
+            <Shield className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                O FanaticaLab é um espaço privado de apoio ao raciocínio clínico, 
+                organização profissional e reflexão do psicólogo. Todo conteúdo é de 
+                uso exclusivo seu e não é compartilhado com pacientes.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Modules Grid */}
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Módulos</h2>
+      <div className={`${isMobile ? "space-y-3" : "grid grid-cols-2 gap-4"}`}>
+        {modules.map((module) => {
+          const IconComponent = module.icon;
+          return (
+            <Card 
+              key={module.id}
+              className="bg-white border-gray-200 hover:border-primary/30 transition-all cursor-pointer active:scale-[0.98]"
+              onClick={() => navigate(module.path)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 ${module.color} rounded-xl flex items-center justify-center`}>
+                    <IconComponent className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900">{module.title}</h3>
+                    <p className="text-sm text-gray-500 mt-0.5">{module.description}</p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Ethical Notice */}
+      <div className="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-xl">
+        <p className="text-xs text-primary text-center">
+          ⚠️ Este espaço não substitui prontuário clínico. Não realiza diagnósticos 
+          ou atendimento psicológico. Uso pessoal e sigiloso.
+        </p>
+      </div>
+    </>
+  );
+
+  // Desktop Layout
+  if (!isMobile) {
+    return (
+      <ProfessionalDesktopLayout title="FanaticaLab" subtitle="Espaço privado de reflexão">
+        {modulesContent}
+      </ProfessionalDesktopLayout>
+    );
+  }
+
+  // Mobile Layout
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -87,60 +156,11 @@ const FanaticaLab = () => {
             <p className="text-sm text-gray-500">Espaço privado de reflexão</p>
           </div>
         </div>
-        
-        {/* Info Card */}
-        <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="p-4">
-            <div className="flex gap-3">
-              <Shield className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  O FanaticaLab é um espaço privado de apoio ao raciocínio clínico, 
-                  organização profissional e reflexão do psicólogo. Todo conteúdo é de 
-                  uso exclusivo seu e não é compartilhado com pacientes.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Modules Grid */}
+      {/* Content */}
       <div className="p-4 pb-32">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Módulos</h2>
-        <div className="space-y-3">
-          {modules.map((module) => {
-            const IconComponent = module.icon;
-            return (
-              <Card 
-                key={module.id}
-                className="bg-white border-gray-200 hover:border-primary/30 transition-all cursor-pointer active:scale-[0.98]"
-                onClick={() => navigate(module.path)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 ${module.color} rounded-xl flex items-center justify-center`}>
-                      <IconComponent className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900">{module.title}</h3>
-                      <p className="text-sm text-gray-500 mt-0.5">{module.description}</p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Ethical Notice */}
-        <div className="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-xl">
-          <p className="text-xs text-primary text-center">
-            ⚠️ Este espaço não substitui prontuário clínico. Não realiza diagnósticos 
-            ou atendimento psicológico. Uso pessoal e sigiloso.
-          </p>
-        </div>
+        {modulesContent}
       </div>
 
       <ProfessionalBottomNav />

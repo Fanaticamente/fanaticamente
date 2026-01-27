@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
+import ProfessionalDesktopLayout from "@/components/layout/ProfessionalDesktopLayout";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ReferenceData {
   id: string;
@@ -27,6 +29,7 @@ interface ReferenceData {
 
 const ReferenceLibrary = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { user } = useAuth();
   const [references, setReferences] = useState<ReferenceData[]>([]);
   const [loading, setLoading] = useState(true);

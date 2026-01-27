@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
+import ProfessionalDesktopLayout from "@/components/layout/ProfessionalDesktopLayout";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Post {
   id: string;
@@ -93,6 +95,7 @@ const communities = [
 ];
 
 const Conecta = () => {
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("feed");
   const [searchQuery, setSearchQuery] = useState("");
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
@@ -207,6 +210,132 @@ const Conecta = () => {
     );
   };
 
+  const mainContent = (
+    <>
+      {/* Search */}
+      <div className="relative mb-6">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Input
+          placeholder="Buscar discussões, profissionais..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
+        />
+      </div>
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-6">
+        <TabsList className="w-full justify-start gap-0 h-auto p-0 bg-transparent border-b border-gray-200">
+          <TabsTrigger 
+            value="feed" 
+            className="flex-1 max-w-[150px] rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-4 py-3"
+          >
+            <Flame className="w-4 h-4 mr-2" />
+            Feed
+          </TabsTrigger>
+          <TabsTrigger 
+            value="trending"
+            className="flex-1 max-w-[150px] rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-4 py-3"
+          >
+            <TrendingUp className="w-4 h-4 mr-2" />
+            Em Alta
+          </TabsTrigger>
+          <TabsTrigger 
+            value="communities"
+            className="flex-1 max-w-[150px] rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-4 py-3"
+          >
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Grupos
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {/* Create Post Button */}
+      <Card className="bg-white border-gray-200 mb-4">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <Avatar className="w-10 h-10">
+              <AvatarFallback className="bg-primary/10 text-primary">Eu</AvatarFallback>
+            </Avatar>
+            <Button 
+              variant="outline" 
+              className="flex-1 justify-start text-gray-400 font-normal border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+            >
+              Compartilhe algo com a comunidade...
+            </Button>
+            <Button size="icon" className="bg-primary hover:bg-primary/90 text-white shrink-0">
+              <Plus className="w-5 h-5" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Filter Pills */}
+      <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+        <Button variant="outline" size="sm" className="shrink-0 bg-primary text-white border-primary hover:bg-primary/90 hover:text-white">
+          <Sparkles className="w-3 h-3 mr-1" />
+          Para Você
+        </Button>
+        <Button variant="outline" size="sm" className="shrink-0 border-gray-200 text-gray-600 hover:border-gray-300">
+          Supervisão
+        </Button>
+        <Button variant="outline" size="sm" className="shrink-0 border-gray-200 text-gray-600 hover:border-gray-300">
+          Casos Clínicos
+        </Button>
+        <Button variant="outline" size="sm" className="shrink-0 border-gray-200 text-gray-600 hover:border-gray-300">
+          Teoria
+        </Button>
+        <Button variant="outline" size="sm" className="shrink-0 border-gray-200 text-gray-600 hover:border-gray-300">
+          <Filter className="w-3 h-3 mr-1" />
+          Filtros
+        </Button>
+      </div>
+
+      {activeTab === "communities" ? (
+        // Communities List
+        <div className={`${isMobile ? "space-y-3" : "grid grid-cols-2 gap-4"}`}>
+          <h2 className={`font-semibold text-gray-900 px-1 ${isMobile ? "" : "col-span-2"}`}>Grupos Populares</h2>
+          {communities.map((community, idx) => (
+            <Card key={idx} className="bg-white border-gray-200 hover:border-gray-300 transition-colors cursor-pointer">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <MessageSquare className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-gray-900">{community.name}</h3>
+                    <p className="text-sm text-gray-500 truncate">{community.description}</p>
+                    <p className="text-xs text-gray-400 mt-1">{community.members} membros</p>
+                  </div>
+                  <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+                    Participar
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        // Posts Feed
+        <div className={`${isMobile ? "space-y-4" : "grid grid-cols-2 gap-4"}`}>
+          {mockPosts.map(post => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </div>
+      )}
+    </>
+  );
+
+  // Desktop Layout
+  if (!isMobile) {
+    return (
+      <ProfessionalDesktopLayout title="Conecta" subtitle="Comunidade de profissionais">
+        {mainContent}
+      </ProfessionalDesktopLayout>
+    );
+  }
+
+  // Mobile Layout
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -221,122 +350,12 @@ const Conecta = () => {
               <p className="text-sm text-gray-500">Comunidade de profissionais</p>
             </div>
           </div>
-
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Buscar discussões, profissionais..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
-            />
-          </div>
         </div>
-
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full justify-start gap-0 h-auto p-0 bg-transparent border-b border-gray-200">
-            <TabsTrigger 
-              value="feed" 
-              className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-4 py-3"
-            >
-              <Flame className="w-4 h-4 mr-2" />
-              Feed
-            </TabsTrigger>
-            <TabsTrigger 
-              value="trending"
-              className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-4 py-3"
-            >
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Em Alta
-            </TabsTrigger>
-            <TabsTrigger 
-              value="communities"
-              className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary px-4 py-3"
-            >
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Grupos
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
       </div>
 
       {/* Content */}
-      <div className="p-4 pb-32 space-y-4">
-        {/* Create Post Button */}
-        <Card className="bg-white border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="w-10 h-10">
-                <AvatarFallback className="bg-primary/10 text-primary">Eu</AvatarFallback>
-              </Avatar>
-              <Button 
-                variant="outline" 
-                className="flex-1 justify-start text-gray-400 font-normal border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-              >
-                Compartilhe algo com a comunidade...
-              </Button>
-              <Button size="icon" className="bg-primary hover:bg-primary/90 text-white shrink-0">
-                <Plus className="w-5 h-5" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Filter Pills */}
-        <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-          <Button variant="outline" size="sm" className="shrink-0 bg-primary text-white border-primary hover:bg-primary/90 hover:text-white">
-            <Sparkles className="w-3 h-3 mr-1" />
-            Para Você
-          </Button>
-          <Button variant="outline" size="sm" className="shrink-0 border-gray-200 text-gray-600 hover:border-gray-300">
-            Supervisão
-          </Button>
-          <Button variant="outline" size="sm" className="shrink-0 border-gray-200 text-gray-600 hover:border-gray-300">
-            Casos Clínicos
-          </Button>
-          <Button variant="outline" size="sm" className="shrink-0 border-gray-200 text-gray-600 hover:border-gray-300">
-            Teoria
-          </Button>
-          <Button variant="outline" size="sm" className="shrink-0 border-gray-200 text-gray-600 hover:border-gray-300">
-            <Filter className="w-3 h-3 mr-1" />
-            Filtros
-          </Button>
-        </div>
-
-        {activeTab === "communities" ? (
-          // Communities List
-          <div className="space-y-3">
-            <h2 className="font-semibold text-gray-900 px-1">Grupos Populares</h2>
-            {communities.map((community, idx) => (
-              <Card key={idx} className="bg-white border-gray-200 hover:border-gray-300 transition-colors cursor-pointer">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <MessageSquare className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900">{community.name}</h3>
-                      <p className="text-sm text-gray-500 truncate">{community.description}</p>
-                      <p className="text-xs text-gray-400 mt-1">{community.members} membros</p>
-                    </div>
-                    <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-                      Participar
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          // Posts Feed
-          <div className="space-y-4">
-            {mockPosts.map(post => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
-        )}
+      <div className="p-4 pb-32">
+        {mainContent}
       </div>
 
       <ProfessionalBottomNav />
