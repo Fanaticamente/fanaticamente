@@ -21,6 +21,8 @@ import ProfessionalMetricsTab from "@/components/professional/ProfessionalMetric
 import RejectAppointmentDialog from "@/components/professional/RejectAppointmentDialog";
 import RefundPendingCard from "@/components/professional/RefundPendingCard";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
+import ProfessionalDesktopLayout from "@/components/layout/ProfessionalDesktopLayout";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Professional {
   id: string;
@@ -65,6 +67,7 @@ type DashboardTab = "agenda" | "disponibilidade" | "metricas" | "perfil" | "assi
 type AppointmentFilter = "proximos" | "realizados" | "cancelados" | "todos";
 
 const ProfessionalDashboard = () => {
+  const isMobile = useIsMobile();
   const { user, signOut, hasRole } = useAuth();
 
   // Force light theme for professional dashboard
@@ -606,57 +609,92 @@ const ProfessionalDashboard = () => {
     return null;
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-3">
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <button
-              onClick={() => navigate("/")}
-              className="p-1.5 hover:bg-muted rounded-lg transition-colors flex-shrink-0"
-            >
-              <ChevronLeft className="w-5 h-5 text-muted-foreground" />
-            </button>
-            {profile?.avatar_url ? (
-              <div className="w-9 h-9 rounded-full overflow-hidden shadow-md flex-shrink-0">
-                <img
-                  src={profile.avatar_url}
-                  alt="Avatar"
-                  className="w-full h-full object-cover object-top"
-                />
-              </div>
-            ) : (
-              <div className="w-9 h-9 rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0">
-                <Upload className="w-4 h-4 text-muted-foreground" />
-              </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <h1 className="font-display text-lg sm:text-xl text-therapy whitespace-nowrap">
-                Painel Profissional
-              </h1>
-              <p className="text-muted-foreground text-xs sm:text-sm truncate">
-                {profile?.full_name || user?.email} {club && `• ${club.name}`}
-              </p>
-            </div>
+  // Desktop wrapper component
+  const DesktopWrapper = ({ children }: { children: React.ReactNode }) => (
+    <ProfessionalDesktopLayout>
+      <div className="flex items-center gap-3 mb-6">
+        {profile?.avatar_url ? (
+          <div className="w-12 h-12 rounded-full overflow-hidden shadow-md flex-shrink-0">
+            <img
+              src={profile.avatar_url}
+              alt="Avatar"
+              className="w-full h-full object-cover object-top"
+            />
           </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <AccountSettingsDialog isProfessional={true} />
-            <button
-              onClick={handleLogout}
-              className="p-1.5 hover:bg-muted rounded-lg transition-colors"
-            >
-              <LogOut className="w-5 h-5 text-muted-foreground" />
-            </button>
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0">
+            <Upload className="w-5 h-5 text-muted-foreground" />
+          </div>
+        )}
+        <div>
+          <h1 className="font-display text-2xl text-therapy">
+            Painel Profissional
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            {profile?.full_name || user?.email} {club && `• ${club.name}`}
+          </p>
+        </div>
+        <div className="ml-auto">
+          <AccountSettingsDialog isProfessional={true} />
+        </div>
+      </div>
+      {children}
+    </ProfessionalDesktopLayout>
+  );
+
+  // Mobile header component
+  const MobileHeader = () => (
+    <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-3">
+      <div className="flex items-center justify-between max-w-6xl mx-auto">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <button
+            onClick={() => navigate("/")}
+            className="p-1.5 hover:bg-muted rounded-lg transition-colors flex-shrink-0"
+          >
+            <ChevronLeft className="w-5 h-5 text-muted-foreground" />
+          </button>
+          {profile?.avatar_url ? (
+            <div className="w-9 h-9 rounded-full overflow-hidden shadow-md flex-shrink-0">
+              <img
+                src={profile.avatar_url}
+                alt="Avatar"
+                className="w-full h-full object-cover object-top"
+              />
+            </div>
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0">
+              <Upload className="w-4 h-4 text-muted-foreground" />
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <h1 className="font-display text-lg sm:text-xl text-therapy whitespace-nowrap">
+              Painel Profissional
+            </h1>
+            <p className="text-muted-foreground text-xs sm:text-sm truncate">
+              {profile?.full_name || user?.email} {club && `• ${club.name}`}
+            </p>
           </div>
         </div>
-      </header>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <AccountSettingsDialog isProfessional={true} />
+          <button
+            onClick={handleLogout}
+            className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+          >
+            <LogOut className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+    </header>
+  );
 
-      <main className="pt-20 pb-8 px-4 max-w-6xl mx-auto">
-        {/* Admin Messages Alert */}
-        {professional && (
-          <AdminMessagesAlert professionalId={professional.id} />
-        )}
+  // Main dashboard content (shared between mobile and desktop)
+  const dashboardContent = (
+    <>
+      {/* Admin Messages Alert */}
+      {professional && (
+        <AdminMessagesAlert professionalId={professional.id} />
+      )}
 
         {/* Approval Status Banner */}
         {professional && (
@@ -1227,12 +1265,23 @@ const ProfessionalDashboard = () => {
 
           </>
         )}
+      </>
+    );
 
+  // Render desktop layout
+  if (!isMobile) {
+    return <DesktopWrapper>{dashboardContent}</DesktopWrapper>;
+  }
+
+  // Render mobile layout
+  return (
+    <div className="min-h-screen bg-background">
+      <MobileHeader />
+      <main className="pt-20 pb-8 px-4 max-w-6xl mx-auto">
+        {dashboardContent}
         {/* Bottom spacer for nav */}
         <div className="h-28" />
       </main>
-
-      {/* Professional Bottom Navigation */}
       <ProfessionalBottomNav />
     </div>
   );

@@ -2,8 +2,12 @@ import { useLayoutEffect } from "react";
 import { Building2, Construction } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
+import ProfessionalDesktopLayout from "@/components/layout/ProfessionalDesktopLayout";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const PsiHouse = () => {
+  const isMobile = useIsMobile();
+
   // Force light theme for professional environment
   useLayoutEffect(() => {
     document.documentElement.classList.remove('dark');
@@ -19,6 +23,29 @@ const PsiHouse = () => {
     };
   }, []);
 
+  const content = (
+    <Card className="bg-white border-gray-200">
+      <CardContent className="p-8 text-center">
+        <Construction className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Em breve</h2>
+        <p className="text-gray-500">
+          Estamos preparando este espaço especial para você. 
+          Aguarde novidades!
+        </p>
+      </CardContent>
+    </Card>
+  );
+
+  // Desktop Layout
+  if (!isMobile) {
+    return (
+      <ProfessionalDesktopLayout title="Psi House" subtitle="Espaço do profissional">
+        {content}
+      </ProfessionalDesktopLayout>
+    );
+  }
+
+  // Mobile Layout
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -36,16 +63,7 @@ const PsiHouse = () => {
 
       {/* Content */}
       <div className="p-4 pb-32">
-        <Card className="bg-white border-gray-200">
-          <CardContent className="p-8 text-center">
-            <Construction className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Em breve</h2>
-            <p className="text-gray-500">
-              Estamos preparando este espaço especial para você. 
-              Aguarde novidades!
-            </p>
-          </CardContent>
-        </Card>
+        {content}
       </div>
 
       <ProfessionalBottomNav />

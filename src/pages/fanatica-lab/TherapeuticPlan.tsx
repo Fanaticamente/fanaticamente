@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
+import ProfessionalDesktopLayout from "@/components/layout/ProfessionalDesktopLayout";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TherapeuticPlanData {
   id: string;
@@ -26,6 +28,7 @@ interface TherapeuticPlanData {
 
 const TherapeuticPlan = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { user } = useAuth();
   const [plans, setPlans] = useState<TherapeuticPlanData[]>([]);
   const [loading, setLoading] = useState(true);

@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
+import ProfessionalDesktopLayout from "@/components/layout/ProfessionalDesktopLayout";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Observation {
   id: string;
@@ -29,6 +31,7 @@ interface Observation {
 
 const ObservationMap = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { user } = useAuth();
   const [observations, setObservations] = useState<Observation[]>([]);
   const [loading, setLoading] = useState(true);

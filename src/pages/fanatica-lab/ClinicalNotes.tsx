@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
+import ProfessionalDesktopLayout from "@/components/layout/ProfessionalDesktopLayout";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ClinicalNote {
   id: string;
@@ -25,6 +27,7 @@ interface ClinicalNote {
 
 const ClinicalNotes = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { user } = useAuth();
   const [notes, setNotes] = useState<ClinicalNote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,9 +138,140 @@ const ClinicalNotes = () => {
     note.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const notesContent = (
+    <>
+      {/* Search */}
+      <div className="mb-6 relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Input
+          placeholder="Buscar por paciente ou conteúdo..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
+      {/* Add Button */}
+      <div className="flex justify-end mb-4">
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <Plus className="w-4 h-4" />
+              Nova Nota
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Nova Nota Clínica</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div>
+                <Label htmlFor="patient_code">Código/Pseudônimo do Paciente</Label>
+                <Input
+                  id="patient_code"
+                  placeholder="Ex: PAC001 ou iniciais"
+                  value={newNote.patient_code}
+                  onChange={(e) => setNewNote({ ...newNote, patient_code: e.target.value })}
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label htmlFor="content">Conteúdo da Nota</Label>
+                <Textarea
+                  id="content"
+                  placeholder="Suas observações pessoais..."
+                  value={newNote.content}
+                  onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
+                  className="mt-1.5 min-h-[150px]"
+                />
+              </div>
+              <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg">
+                <AlertCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                <p className="text-xs text-primary">Uso pessoal. Não substitui prontuário clínico.</p>
+              </div>
+              <Button 
+                onClick={handleSaveNote} 
+                disabled={saving}
+                className="w-full"
+              >
+                {saving ? "Salvando..." : "Salvar Nota"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Notes List */}
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+        </div>
+      ) : filteredNotes.length === 0 ? (
+        <div className="text-center py-12">
+          <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500">Nenhuma nota encontrada</p>
+          <p className="text-sm text-gray-400 mt-1">Clique em "Nova Nota" para adicionar sua primeira nota</p>
+        </div>
+      ) : (
+        <div className={`${isMobile ? "space-y-3" : "grid grid-cols-2 gap-4"}`}>
+          {filteredNotes.map((note) => (
+            <Card key={note.id} className="bg-white border-gray-200">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                        {note.patient_code}
+                      </span>
+                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                        <Clock className="w-3 h-3" />
+                        {format(new Date(note.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </div>
+                    </div>
+                    <p className="text-gray-700 text-sm line-clamp-3">{note.content}</p>
+                  </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="text-gray-400 hover:text-red-500">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir nota?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta ação não pode ser desfeita. A nota será permanentemente excluída.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeleteNote(note.id)}>
+                          Excluir
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </>
+  );
+
+  // Desktop Layout
+  if (!isMobile) {
+    return (
+      <ProfessionalDesktopLayout title="Notas Clínicas Pessoais" subtitle="Registros após as sessões">
+        {notesContent}
+      </ProfessionalDesktopLayout>
+    );
+  }
+
+  // Mobile Layout
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-4">
         <div className="flex items-center gap-3">
           <Button 
@@ -152,124 +286,11 @@ const ClinicalNotes = () => {
             <h1 className="text-xl font-bold text-gray-900">Notas Clínicas Pessoais</h1>
             <p className="text-sm text-gray-500">Registros após as sessões</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button size="icon" className="rounded-full">
-                <Plus className="w-5 h-5" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="mx-4">
-              <DialogHeader>
-                <DialogTitle>Nova Nota Clínica</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 mt-4">
-                <div>
-                  <Label htmlFor="patient_code">Código/Pseudônimo do Paciente</Label>
-                  <Input
-                    id="patient_code"
-                    placeholder="Ex: PAC001 ou iniciais"
-                    value={newNote.patient_code}
-                    onChange={(e) => setNewNote({ ...newNote, patient_code: e.target.value })}
-                    className="mt-1.5"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="content">Conteúdo da Nota</Label>
-                  <Textarea
-                    id="content"
-                    placeholder="Suas observações pessoais..."
-                    value={newNote.content}
-                    onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
-                    className="mt-1.5 min-h-[150px]"
-                  />
-                </div>
-                <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg">
-                  <AlertCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                  <p className="text-xs text-primary">Uso pessoal. Não substitui prontuário clínico.</p>
-                </div>
-                <Button 
-                  onClick={handleSaveNote} 
-                  disabled={saving}
-                  className="w-full"
-                >
-                  {saving ? "Salvando..." : "Salvar Nota"}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {/* Search */}
-        <div className="mt-4 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            placeholder="Buscar por paciente ou conteúdo..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
         </div>
       </div>
-
-      {/* Notes List */}
       <div className="p-4 pb-32">
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
-          </div>
-        ) : filteredNotes.length === 0 ? (
-          <div className="text-center py-12">
-            <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">Nenhuma nota encontrada</p>
-            <p className="text-sm text-gray-400 mt-1">Clique no + para adicionar sua primeira nota</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredNotes.map((note) => (
-              <Card key={note.id} className="bg-white border-gray-200">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-                          {note.patient_code}
-                        </span>
-                        <div className="flex items-center gap-1 text-xs text-gray-400">
-                          <Clock className="w-3 h-3" />
-                          {format(new Date(note.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                        </div>
-                      </div>
-                      <p className="text-gray-700 text-sm line-clamp-3">{note.content}</p>
-                    </div>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-gray-400 hover:text-red-500">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Excluir nota?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Esta ação não pode ser desfeita. A nota será permanentemente excluída.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDeleteNote(note.id)}>
-                            Excluir
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+        {notesContent}
       </div>
-
       <ProfessionalBottomNav />
     </div>
   );
