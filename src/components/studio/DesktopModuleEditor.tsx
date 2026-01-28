@@ -477,7 +477,12 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
             <div className="mt-1">
               {slide.image ? (
                 <div className="relative w-full h-32 rounded-lg overflow-hidden group">
-                  <img src={slide.image} alt={`Slide ${index + 1}`} className="w-full h-full object-cover" />
+                  <img 
+                    key={slide.image} 
+                    src={`${slide.image}${slide.image.includes('?') ? '&' : '?'}t=${Date.now()}`} 
+                    alt={`Slide ${index + 1}`} 
+                    className="w-full h-full object-cover" 
+                  />
                   <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
                     <label className="p-2 bg-white/20 rounded-lg cursor-pointer hover:bg-white/30 transition-colors">
                       <Upload className="w-5 h-5 text-white" />
