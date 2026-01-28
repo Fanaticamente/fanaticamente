@@ -4,7 +4,6 @@ import { useModuleConfig } from "@/hooks/useModuleConfig";
 import heroSlide1 from "@/assets/hero-slide-1.jpg";
 import heroSlide2 from "@/assets/hero-slide-2.jpg";
 import heroSlide3 from "@/assets/hero-slide-3.jpg";
-import logoHeader from "@/assets/logo-header.png";
 
 interface Slide {
   image: string;
@@ -77,32 +76,25 @@ const DesktopHeroCarousel = () => {
             index === currentSlide ? "opacity-100" : "opacity-0"
           }`}
         >
-          {/* Background Image with Bottom Gradient Overlay */}
+          {/* Background Image - No overlay */}
           <div className="absolute inset-0">
             <img
               src={slide.image}
               alt={slide.title}
               className="w-full h-full object-cover"
             />
-            {/* Degradê de baixo para cima para destacar o texto */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent" />
           </div>
 
-          {/* Content */}
-          <div className="relative z-10 h-full max-w-7xl mx-auto px-6 flex items-center">
+          {/* Content - Title and Subtitle only */}
+          <div className="relative z-10 h-full max-w-7xl mx-auto px-6 flex items-end pb-24">
             <div className="max-w-2xl">
-              {/* Logo */}
-              <div className="mb-8">
-                <img src={logoHeader} alt="Fanaticamente" className="h-16 w-auto" />
-              </div>
-
               {/* Title */}
-              <h1 className="font-display text-5xl lg:text-6xl xl:text-7xl text-white leading-tight mb-6 tracking-tight">
+              <h1 className="font-display text-5xl lg:text-6xl xl:text-7xl text-white leading-tight mb-6 tracking-tight drop-shadow-lg">
                 {slide.title}
               </h1>
 
               {/* Subtitle */}
-              <p className="text-gray-300 text-xl lg:text-2xl leading-relaxed max-w-xl">
+              <p className="text-gray-300 text-xl lg:text-2xl leading-relaxed max-w-xl drop-shadow-md">
                 {slide.subtitle}
               </p>
             </div>
