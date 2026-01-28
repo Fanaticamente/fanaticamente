@@ -5,11 +5,28 @@ import { supabase } from "@/integrations/supabase/client";
 /**
  * Hook that sets up realtime subscriptions for app content and menus.
  * Should be called once at the app level to ensure realtime updates work everywhere.
+ * 
+ * IMPORTANT: Disabled on Content Manager routes (/developer*, /desenvolvedor*)
+ * to prevent auto-refresh loops in the preview iframes.
  */
 export const useRealtimeSubscriptions = () => {
   const queryClient = useQueryClient();
 
+  // Content managers must be 100% stable - no realtime invalidations
+  const isManagerRoute = (() => {
+    try {
+      const path = window.location.pathname;
+      return path.startsWith("/developer") || path.startsWith("/desenvolvedor");
+    } catch {
+      return false;
+    }
+  })();
+
   useEffect(() => {
+    // Skip ALL realtime subscriptions on manager routes
+    if (isManagerRoute) {
+      return;
+    }
     // Subscribe to app_content changes
     const contentChannel = supabase
       .channel('global_app_content_changes')
@@ -94,5 +111,5 @@ export const useRealtimeSubscriptions = () => {
       supabase.removeChannel(professionalsChannel);
       supabase.removeChannel(appointmentsChannel);
     };
-  }, [queryClient]);
+  }, [queryClient, isManagerRoute]);
 };

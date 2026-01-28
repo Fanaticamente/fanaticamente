@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAppModules, AppModule } from "@/hooks/useAppModules";
 import ModuleCatalog from "./ModuleCatalog";
 import MobilePreview from "./MobilePreview";
@@ -9,19 +9,9 @@ import { Loader2 } from "lucide-react";
 const StudioEditor = () => {
   const [selectedModule, setSelectedModule] = useState<AppModule | null>(null);
   const [currentPage, setCurrentPage] = useState("home");
-  const [previewRefreshTrigger, setPreviewRefreshTrigger] = useState(0);
-  const { data: modules, isLoading, dataUpdatedAt } = useAppModules();
+  const { data: modules, isLoading } = useAppModules();
 
-  // Trigger preview refresh when modules data changes (after save)
-  useEffect(() => {
-    if (dataUpdatedAt > 0) {
-      // Debounce: wait 500ms after data update to refresh preview
-      const timer = setTimeout(() => {
-        setPreviewRefreshTrigger(prev => prev + 1);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [dataUpdatedAt]);
+  // Preview is now 100% static - only refreshes via manual button inside MobilePreview
 
   if (isLoading) {
     return (
@@ -38,12 +28,9 @@ const StudioEditor = () => {
         <ModuleCatalog />
       </div>
       
-      {/* Center - Mobile Preview (sandboxed iframe) */}
+      {/* Center - Mobile Preview (static, manual refresh only) */}
       <div className="flex-1 min-w-0 flex items-center justify-center bg-muted/30">
-        <MobilePreview 
-          currentPage="/" 
-          refreshTrigger={previewRefreshTrigger}
-        />
+        <MobilePreview currentPage="/" />
       </div>
       
       {/* Right Panel - Module List or Editor */}
