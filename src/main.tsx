@@ -23,10 +23,18 @@ const isManagerRoute = () => {
   }
 };
 
+const isServiceWorkerDisabledByManager = () => {
+  try {
+    return sessionStorage.getItem("fanatica_disable_sw") === "1";
+  } catch {
+    return false;
+  }
+};
+
 // IMPORTANT: no modo embed (usado pelo iframe do Gerenciador de Conteúdo)
 // E também nas rotas do gerenciador (/developer*), desativamos o service worker.
 // Motivo: o ciclo updateSW(true) pode causar loops de reload/remount, quebrando o preview.
-if (isEmbedMode() || isManagerRoute()) {
+if (isEmbedMode() || isManagerRoute() || isServiceWorkerDisabledByManager()) {
   // If a service worker was registered previously, it may still be controlling this page.
   // Unregister it in embed mode to prevent any auto-update/reload behavior.
   if ("serviceWorker" in navigator) {
@@ -46,6 +54,8 @@ if (isEmbedMode() || isManagerRoute()) {
     // Força verificação imediata de atualizações ao abrir o app
     immediate: true,
     onNeedRefresh() {
+      // If the manager stability flag is set, never force-refresh.
+      if (isServiceWorkerDisabledByManager()) return;
       if (alreadyRefreshing) return;
       alreadyRefreshing = true;
       console.log("[PWA] Nova versão disponível, atualizando automaticamente...");
@@ -58,6 +68,7 @@ if (isEmbedMode() || isManagerRoute()) {
       // Verifica atualizações periodicamente (a cada 1 hora)
       if (registration) {
         setInterval(() => {
+          if (isServiceWorkerDisabledByManager()) return;
           registration.update();
         }, 60 * 60 * 1000);
       }
