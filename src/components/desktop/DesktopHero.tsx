@@ -1,4 +1,4 @@
-import { Brain } from "lucide-react";
+import { BrainCircuit } from "lucide-react";
 import DesktopHeroCarousel from "./DesktopHeroCarousel";
 
 const DesktopHero = () => {
@@ -18,7 +18,7 @@ const DesktopHero = () => {
                 style={{ fontFamily: "'Work Sans', sans-serif" }}
               >
                 Transformando a forma que os <span className="font-bold">torcedores</span> se conectam com sua <span className="font-bold">saúde mental</span>
-                <Brain className="w-8 h-8 lg:w-10 lg:h-10 xl:w-11 xl:h-11 text-emerald-600 inline-block ml-2 align-middle" />
+                <BrainCircuit className="w-8 h-8 lg:w-10 lg:h-10 xl:w-11 xl:h-11 text-emerald-600 inline-block ml-2 align-middle" />
               </h2>
             </div>
 
