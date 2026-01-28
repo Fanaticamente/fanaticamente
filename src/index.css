@@ -189,13 +189,16 @@
     }
   }
 
-  /* Desktop: use browser native scrollbar */
+  /* Desktop: use browser native scrollbar for regular pages */
   @media (min-width: 769px) {
     /*
       IMPORTANT:
       The base styles set html/body to height: 100% for mobile/PWA.
       On desktop, that can interfere with native document scrolling and scrollbar visibility.
       Here we restore standard web-page scrolling on the document.
+      
+      EXCEPTION: Content Manager pages (/developer/*) need fixed viewport height.
+      They add .manager-layout to body to override these styles.
     */
     html,
     body {
@@ -205,7 +208,13 @@
       overflow-y: auto !important;
     }
 
-    /* Remove all desktop scrollbar forcing/styling so it remains truly native */
+    /* Content Manager pages: fixed viewport, no document scroll */
+    body.manager-layout,
+    body.manager-layout html {
+      height: 100vh !important;
+      max-height: 100vh !important;
+      overflow: hidden !important;
+    }
   }
 
   /* Normalize iOS date input height so it matches other inputs (48px / h-12) */
