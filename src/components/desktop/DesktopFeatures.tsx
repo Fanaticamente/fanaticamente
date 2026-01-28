@@ -14,7 +14,7 @@ const DesktopFeatures = () => {
           >
             Funcionalidades
           </h2>
-          <p className="text-gray-400 text-base">
+          <p className="text-white text-base">
             Saiba mais sobre como funciona o app
           </p>
         </div>
