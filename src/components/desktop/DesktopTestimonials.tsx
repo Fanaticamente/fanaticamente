@@ -39,14 +39,12 @@ const DesktopTestimonials = () => {
               key={index}
               className="bg-gray-50 rounded-2xl p-8 border border-gray-200 relative flex flex-col justify-between min-h-[320px]"
             >
-              {/* Quote Icon */}
-              <Quote className="absolute top-6 right-6 w-8 h-8 text-emerald-500/30" />
+              {/* Quote Icon - positioned top right */}
+              <Quote className="absolute top-6 right-6 w-10 h-10 text-emerald-500/40 rotate-180" />
 
               {/* Text */}
-              <p className="text-gray-700 mb-8 leading-relaxed">
-                <span className="text-emerald-600 font-serif text-xl">"</span>
+              <p className="text-gray-700 mb-8 leading-relaxed pr-8">
                 {testimonial.text}
-                <span className="text-emerald-600 font-serif text-xl">"</span>
               </p>
 
               {/* Author */}
