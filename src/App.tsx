@@ -45,6 +45,15 @@ import OSMF from "./pages/OSMF";
 
 const queryClient = new QueryClient();
 
+const isEmbedMode = () => {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("embed") === "1";
+  } catch {
+    return false;
+  }
+};
+
 // Component that handles realtime subscriptions, route restoration, and global session completion
 const AppProviders = ({ children }: { children: React.ReactNode }) => {
   useRealtimeSubscriptions();
@@ -72,55 +81,80 @@ const AppProviders = ({ children }: { children: React.ReactNode }) => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
+      {/*
+        Embed mode: used by the Developer "preview" iframe.
+        We intentionally avoid mounting AuthProvider/ProtectedRoute and other global side-effects
+        to prevent cross-tab auth broadcasts and route-restoration loops.
+      */}
+      {isEmbedMode() ? (
         <BrowserRouter>
-          <AppProviders>
-            <Toaster />
-            <Sonner />
-            <Routes>
-              {/* Public routes - accessible without login */}
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/admin-access" element={<AdminAccess />} />
-              <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
-              <Route path="/setup-test" element={<SetupTestUsers />} />
-              
-              {/* Public content routes - viewable without login (desktop navigation) */}
-              <Route path="/" element={<Index />} />
-              <Route path="/terapeutas" element={<Terapeutas />} />
-              <Route path="/terapeuta/:id" element={<ProfessionalProfile />} />
-              <Route path="/cursos" element={<Cursos />} />
-              <Route path="/curso/:id" element={<CursoDetalhe />} />
-              <Route path="/quiz" element={<Quiz />} />
-              <Route path="/radio" element={<Radio />} />
-              <Route path="/futebol" element={<Futebol />} />
-              <Route path="/loja" element={<FanaticaShop />} />
-              <Route path="/loja/produto/:id" element={<ProductDetail />} />
-              <Route path="/osmf" element={<OSMF />} />
-
-              {/* Protected routes - require login */}
-              <Route path="/pagamento/:id" element={<ProtectedRoute><SessionPayment /></ProtectedRoute>} />
-              <Route path="/pagamento/confirmacao/:id" element={<ProtectedRoute><PaymentConfirmation /></ProtectedRoute>} />
-              <Route path="/diario" element={<ProtectedRoute><Diario /></ProtectedRoute>} />
-              <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
-              <Route path="/perfil/agendamentos" element={<ProtectedRoute><MeusAgendamentos /></ProtectedRoute>} />
-              <Route path="/loja/produto/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
-              <Route path="/profissional" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />
-              <Route path="/fanatica-lab" element={<ProtectedRoute><FanaticaLab /></ProtectedRoute>} />
-              <Route path="/fanatica-lab/notas-clinicas" element={<ProtectedRoute><ClinicalNotes /></ProtectedRoute>} />
-              <Route path="/fanatica-lab/mapa-observacao" element={<ProtectedRoute><ObservationMap /></ProtectedRoute>} />
-              <Route path="/fanatica-lab/plano-terapeutico" element={<ProtectedRoute><TherapeuticPlan /></ProtectedRoute>} />
-              <Route path="/fanatica-lab/revisao-caso" element={<ProtectedRoute><CaseReview /></ProtectedRoute>} />
-              <Route path="/fanatica-lab/biblioteca" element={<ProtectedRoute><ReferenceLibrary /></ProtectedRoute>} />
-              <Route path="/psi-house" element={<ProtectedRoute><PsiHouse /></ProtectedRoute>} />
-              <Route path="/conecta" element={<ProtectedRoute><Conecta /></ProtectedRoute>} />
-              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/desenvolvedor" element={<ProtectedRoute><DeveloperDashboard /></ProtectedRoute>} />
-
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AppProviders>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/terapeutas" element={<Terapeutas />} />
+            <Route path="/terapeuta/:id" element={<ProfessionalProfile />} />
+            <Route path="/cursos" element={<Cursos />} />
+            <Route path="/curso/:id" element={<CursoDetalhe />} />
+            <Route path="/quiz" element={<Quiz />} />
+            <Route path="/radio" element={<Radio />} />
+            <Route path="/futebol" element={<Futebol />} />
+            <Route path="/loja" element={<FanaticaShop />} />
+            <Route path="/loja/produto/:id" element={<ProductDetail />} />
+            <Route path="/osmf" element={<OSMF />} />
+            <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </BrowserRouter>
-      </AuthProvider>
+      ) : (
+        <AuthProvider>
+          <BrowserRouter>
+            <AppProviders>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                {/* Public routes - accessible without login */}
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/admin-access" element={<AdminAccess />} />
+                <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
+                <Route path="/setup-test" element={<SetupTestUsers />} />
+                
+                {/* Public content routes - viewable without login (desktop navigation) */}
+                <Route path="/" element={<Index />} />
+                <Route path="/terapeutas" element={<Terapeutas />} />
+                <Route path="/terapeuta/:id" element={<ProfessionalProfile />} />
+                <Route path="/cursos" element={<Cursos />} />
+                <Route path="/curso/:id" element={<CursoDetalhe />} />
+                <Route path="/quiz" element={<Quiz />} />
+                <Route path="/radio" element={<Radio />} />
+                <Route path="/futebol" element={<Futebol />} />
+                <Route path="/loja" element={<FanaticaShop />} />
+                <Route path="/loja/produto/:id" element={<ProductDetail />} />
+                <Route path="/osmf" element={<OSMF />} />
+
+                {/* Protected routes - require login */}
+                <Route path="/pagamento/:id" element={<ProtectedRoute><SessionPayment /></ProtectedRoute>} />
+                <Route path="/pagamento/confirmacao/:id" element={<ProtectedRoute><PaymentConfirmation /></ProtectedRoute>} />
+                <Route path="/diario" element={<ProtectedRoute><Diario /></ProtectedRoute>} />
+                <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+                <Route path="/perfil/agendamentos" element={<ProtectedRoute><MeusAgendamentos /></ProtectedRoute>} />
+                <Route path="/loja/produto/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
+                <Route path="/profissional" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />
+                <Route path="/fanatica-lab" element={<ProtectedRoute><FanaticaLab /></ProtectedRoute>} />
+                <Route path="/fanatica-lab/notas-clinicas" element={<ProtectedRoute><ClinicalNotes /></ProtectedRoute>} />
+                <Route path="/fanatica-lab/mapa-observacao" element={<ProtectedRoute><ObservationMap /></ProtectedRoute>} />
+                <Route path="/fanatica-lab/plano-terapeutico" element={<ProtectedRoute><TherapeuticPlan /></ProtectedRoute>} />
+                <Route path="/fanatica-lab/revisao-caso" element={<ProtectedRoute><CaseReview /></ProtectedRoute>} />
+                <Route path="/fanatica-lab/biblioteca" element={<ProtectedRoute><ReferenceLibrary /></ProtectedRoute>} />
+                <Route path="/psi-house" element={<ProtectedRoute><PsiHouse /></ProtectedRoute>} />
+                <Route path="/conecta" element={<ProtectedRoute><Conecta /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/desenvolvedor" element={<ProtectedRoute><DeveloperDashboard /></ProtectedRoute>} />
+
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AppProviders>
+          </BrowserRouter>
+        </AuthProvider>
+      )}
     </TooltipProvider>
   </QueryClientProvider>
 );
