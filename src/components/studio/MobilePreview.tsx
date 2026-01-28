@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Smartphone, Tablet, Monitor, RotateCcw, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface MobilePreviewProps {
   children?: React.ReactNode;
@@ -12,7 +11,7 @@ const MobilePreview = ({ children, currentPage = "/" }: MobilePreviewProps) => {
   const [device, setDevice] = useState<"mobile" | "tablet" | "desktop">("mobile");
   const [scale, setScale] = useState(100);
   const [iframeKey, setIframeKey] = useState(0);
-  const queryClient = useQueryClient();
+  const lastRefreshRef = useRef<number>(0);
   
   const deviceWidths = {
     mobile: 375,
@@ -20,21 +19,14 @@ const MobilePreview = ({ children, currentPage = "/" }: MobilePreviewProps) => {
     desktop: 1024,
   };
 
-  // Listen for any data changes and refresh iframe
-  useEffect(() => {
-    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
-      if (event?.type === 'updated' && 
-          (event.query.queryKey[0] === 'app-content' || 
-           event.query.queryKey[0] === 'app-menus' || 
-           event.query.queryKey[0] === 'app-menu' ||
-           event.query.queryKey[0] === 'app-modules')) {
-        // Refresh iframe when content/menu changes
-        setIframeKey(prev => prev + 1);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [queryClient]);
+  // Debounced refresh function - only refresh if at least 2 seconds have passed
+  const debouncedRefresh = useCallback(() => {
+    const now = Date.now();
+    if (now - lastRefreshRef.current > 2000) {
+      lastRefreshRef.current = now;
+      setIframeKey(prev => prev + 1);
+    }
+  }, []);
 
   const handleRefresh = () => {
     setIframeKey(prev => prev + 1);
