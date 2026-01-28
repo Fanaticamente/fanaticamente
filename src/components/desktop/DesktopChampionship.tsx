@@ -6,11 +6,11 @@ const DesktopChampionship = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left Column - Phone Mockup */}
-          <div className="flex justify-center lg:justify-start">
+          <div className="flex justify-center lg:justify-start lg:-ml-20 xl:-ml-32">
             <img 
               src={phoneMockup} 
               alt="Brasileirão da Saúde Mental" 
-              className="w-[450px] lg:w-[550px] xl:w-[650px] max-w-none object-contain"
+              className="w-[650px] lg:w-[800px] xl:w-[950px] max-w-none object-contain"
             />
           </div>
 
