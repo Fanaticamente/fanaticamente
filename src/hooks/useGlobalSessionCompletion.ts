@@ -21,9 +21,23 @@ export const useGlobalSessionCompletion = () => {
   const { user, roles, loading } = useAuth();
   const [completedAppointment, setCompletedAppointment] = useState<CompletedAppointment | null>(null);
 
+  // Content managers must be stable: no global realtime dialogs/listeners.
+  // We read from window here (not a hook), so it won't violate Rules of Hooks.
+  const isManagerRoute = (() => {
+    try {
+      const path = window.location.pathname;
+      return path.startsWith("/developer") || path.startsWith("/desenvolvedor");
+    } catch {
+      return false;
+    }
+  })();
+
+  // Avoid effect churn when `roles` identity changes frequently.
+  const isProfessional = !!roles?.includes("professional");
+
   useEffect(() => {
     // Only listen for regular users, not professionals viewing their own dashboard
-    const isProfessional = roles?.includes("professional");
+    if (isManagerRoute) return;
     if (loading || !user || isProfessional) return;
 
     console.log("[GlobalSessionCompletion] Setting up realtime listener for user:", user.id);
@@ -111,7 +125,7 @@ export const useGlobalSessionCompletion = () => {
       console.log("[GlobalSessionCompletion] Cleaning up realtime listener");
       supabase.removeChannel(channel);
     };
-  }, [user?.id, loading, roles]);
+  }, [user?.id, loading, isProfessional, isManagerRoute]);
 
   const clearCompletedAppointment = () => {
     setCompletedAppointment(null);
