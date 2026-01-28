@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Smartphone, Monitor, ArrowRight, Loader2, Settings } from "lucide-react";
+import { Smartphone, Monitor, ArrowRight, Loader2, Settings, LogOut, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const ContentManagers = () => {
-  const { user, hasRole, loading } = useAuth();
+  const { user, hasRole, loading, signOut } = useAuth();
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
   
   // Desktop-only check: viewport >= 1024px
   const [isDesktop, setIsDesktop] = useState(() => 
@@ -79,9 +84,16 @@ const ContentManagers = () => {
           </div>
         </div>
         
-        <Button variant="outline" onClick={() => navigate("/")}>
-          Voltar ao Início
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={() => navigate("/")}>
+            <ExternalLink className="w-4 h-4 mr-2" />
+            Visualizar o site
+          </Button>
+          <Button variant="destructive" onClick={handleLogout}>
+            <LogOut className="w-4 h-4 mr-2" />
+            Sair
+          </Button>
+        </div>
       </header>
 
       {/* Main Content */}
