@@ -3,7 +3,7 @@ const DesktopAbout = () => {
     <section className="bg-[#0a0a0a] py-24 lg:py-32">
       <div className="max-w-6xl mx-auto px-6 lg:px-12">
         {/* Title */}
-        <h2 className="font-display text-4xl lg:text-5xl xl:text-6xl text-white mb-16 lg:mb-20">
+        <h2 className="font-['Work_Sans'] font-bold text-4xl lg:text-5xl xl:text-6xl text-white mb-16 lg:mb-20">
           Nossa história
         </h2>
 
