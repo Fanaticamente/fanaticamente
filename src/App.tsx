@@ -161,6 +161,8 @@ const App = () => (
                 <Route path="/developer/mobile" element={<ProtectedRoute><DeveloperDashboard /></ProtectedRoute>} />
                 <Route path="/developer/desktop" element={<ProtectedRoute><DesktopContentManager /></ProtectedRoute>} />
                 <Route path="/desenvolvedor" element={<ProtectedRoute><ContentManagers /></ProtectedRoute>} />
+                <Route path="/desenvolvedor/mobile" element={<ProtectedRoute><DeveloperDashboard /></ProtectedRoute>} />
+                <Route path="/desenvolvedor/desktop" element={<ProtectedRoute><DesktopContentManager /></ProtectedRoute>} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>

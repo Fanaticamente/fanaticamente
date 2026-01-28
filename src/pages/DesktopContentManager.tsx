@@ -3,18 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import DesktopPreview from "@/components/studio/DesktopPreview";
 import DesktopModuleList from "@/components/studio/DesktopModuleList";
+import DesktopModuleEditor from "@/components/studio/DesktopModuleEditor";
 import ModuleCatalog from "@/components/studio/ModuleCatalog";
 import { Monitor, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface DesktopModule {
-  id: string;
-  name: string;
-  section: string;
-  icon: string;
-  is_visible: boolean;
-  order_index: number;
-}
+import { AppModule } from "@/hooks/useAppModules";
 
 const DesktopContentManager = () => {
   const { user, hasRole, loading } = useAuth();
@@ -23,7 +16,8 @@ const DesktopContentManager = () => {
   const [isDesktop, setIsDesktop] = useState(() => 
     typeof window !== "undefined" ? window.innerWidth >= 1024 : true
   );
-  const [selectedModule, setSelectedModule] = useState<DesktopModule | null>(null);
+  const [selectedModule, setSelectedModule] = useState<AppModule | null>(null);
+  const [previewKey, setPreviewKey] = useState(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -40,7 +34,10 @@ const DesktopContentManager = () => {
     }
   }, [user, hasRole, loading, navigate]);
 
-  // IMPORTANT: Preview refresh is manual-only (button inside the preview).
+  const handleModuleSaved = () => {
+    // Refresh preview when module is saved
+    setPreviewKey(prev => prev + 1);
+  };
 
   if (loading) {
     return (
@@ -115,22 +112,32 @@ const DesktopContentManager = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex min-h-0">
-        {/* Left Panel - Module Catalog */}
-        <aside className="w-64 bg-card border-r border-border flex-shrink-0 overflow-y-auto">
-          <ModuleCatalog />
-        </aside>
+        {/* Left Panel - Module Catalog (hidden when editor is open) */}
+        {!selectedModule && (
+          <aside className="w-64 bg-card border-r border-border flex-shrink-0 overflow-y-auto">
+            <ModuleCatalog />
+          </aside>
+        )}
         
         {/* Center - Desktop Preview */}
         <main className="flex-1 min-w-0 bg-muted/30 overflow-hidden">
-          <DesktopPreview />
+          <DesktopPreview key={previewKey} />
         </main>
         
-        {/* Right Panel - Module List */}
-        <aside className="w-96 bg-card border-l border-border flex-shrink-0 overflow-y-auto">
-          <DesktopModuleList
-            selectedModuleId={selectedModule?.id}
-            onSelectModule={setSelectedModule}
-          />
+        {/* Right Panel - Module List or Editor */}
+        <aside className="w-96 bg-card border-l border-border flex-shrink-0 overflow-hidden">
+          {selectedModule ? (
+            <DesktopModuleEditor
+              module={selectedModule}
+              onClose={() => setSelectedModule(null)}
+              onSaved={handleModuleSaved}
+            />
+          ) : (
+            <DesktopModuleList
+              selectedModuleId={selectedModule?.id}
+              onSelectModule={setSelectedModule}
+            />
+          )}
         </aside>
       </div>
     </div>
