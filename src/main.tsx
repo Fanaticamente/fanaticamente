@@ -29,11 +29,15 @@ if (isEmbedMode()) {
         // ignore
       });
   }
-} else {
+} else if (import.meta.env.PROD) {
+  // In dev/preview the PWA update flow can cause refresh loops. Keep SW only in production.
+  let alreadyRefreshing = false;
   const updateSW = registerSW({
     // Força verificação imediata de atualizações ao abrir o app
     immediate: true,
     onNeedRefresh() {
+      if (alreadyRefreshing) return;
+      alreadyRefreshing = true;
       console.log("[PWA] Nova versão disponível, atualizando automaticamente...");
       updateSW(true);
     },
