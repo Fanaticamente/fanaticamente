@@ -9,7 +9,8 @@ import {
   Type, 
   Image, 
   Settings,
-  GripVertical
+  GripVertical,
+  Maximize2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,7 @@ const BLOCK_TYPE_LABELS: Record<string, { label: string; icon: typeof Type }> = 
   text: { label: "Texto", icon: Type },
   image: { label: "Imagem", icon: Image },
   button: { label: "Botão", icon: Move },
-  spacer: { label: "Espaçador", icon: Move },
+  spacer: { label: "Espaçador", icon: Maximize2 },
   card: { label: "Card", icon: Move },
 };
 
@@ -58,6 +59,8 @@ const EditableBlock = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editableContent, setEditableContent] = useState(blockData.content as string || "");
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isMoving, setIsMoving] = useState(false);
 
   const elementKey = `${moduleId}:${blockId}`;
   const isSelected = selectedElement?.moduleId === moduleId && selectedElement?.blockId === blockId;
@@ -66,12 +69,18 @@ const EditableBlock = ({
   const blockInfo = BLOCK_TYPE_LABELS[blockType] || { label: blockType, icon: Move };
   const BlockIcon = blockInfo.icon;
 
+  // Get custom dimensions from blockData
+  const customWidth = blockData.customWidth as number | undefined;
+  const customHeight = blockData.customHeight as number | undefined;
+  const customX = blockData.customX as number | undefined;
+  const customY = blockData.customY as number | undefined;
+
   useEffect(() => {
     setEditableContent(blockData.content as string || "");
   }, [blockData.content]);
 
   const handleClick = (e: React.MouseEvent) => {
-    if (!editMode) return;
+    if (!editMode || isResizing || isMoving) return;
     e.stopPropagation();
 
     setSelectedElement({
@@ -80,10 +89,6 @@ const EditableBlock = ({
       blockType,
       blockData,
     });
-
-    if (isText && !isEditing) {
-      setIsEditing(true);
-    }
   };
 
   const handleDoubleClick = (e: React.MouseEvent) => {
@@ -103,13 +108,13 @@ const EditableBlock = ({
   };
 
   const handleMouseEnter = () => {
-    if (editMode && !isDragging) {
+    if (editMode && !isDragging && !isResizing && !isMoving) {
       setHoveredElement(elementKey);
     }
   };
 
   const handleMouseLeave = () => {
-    if (editMode && !isDragging) {
+    if (editMode && !isDragging && !isResizing && !isMoving) {
       setHoveredElement(null);
     }
   };
@@ -135,7 +140,7 @@ const EditableBlock = ({
     moveBlock(moduleId, blockId, "down");
   };
 
-  // Drag handlers
+  // Drag handlers for reordering
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData("block-id", blockId);
     e.dataTransfer.setData("module-id", moduleId);
@@ -147,18 +152,142 @@ const EditableBlock = ({
     setIsDragging(false);
   };
 
+  // Resize handler
+  const handleResizeStart = (e: React.MouseEvent, direction: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    if (!elementRef.current) return;
+    
+    setIsResizing(true);
+    
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startWidth = elementRef.current.offsetWidth;
+    const startHeight = elementRef.current.offsetHeight;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+      
+      let newWidth = startWidth;
+      let newHeight = startHeight;
+
+      if (direction.includes("e")) newWidth = startWidth + deltaX;
+      if (direction.includes("w")) newWidth = startWidth - deltaX;
+      if (direction.includes("s")) newHeight = startHeight + deltaY;
+      if (direction.includes("n")) newHeight = startHeight - deltaY;
+
+      // Apply minimum constraints
+      newWidth = Math.max(80, newWidth);
+      newHeight = Math.max(24, newHeight);
+
+      // Apply to element immediately for visual feedback
+      if (elementRef.current) {
+        elementRef.current.style.width = `${newWidth}px`;
+        if (blockType !== "text" && blockType !== "heading") {
+          elementRef.current.style.height = `${newHeight}px`;
+        }
+      }
+
+      // Update block data
+      updateBlockData(moduleId, blockId, { 
+        customWidth: newWidth,
+        ...(blockType !== "text" && blockType !== "heading" ? { customHeight: newHeight } : {})
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+
+    document.body.style.cursor = direction.includes("e") || direction.includes("w") ? "ew-resize" : "ns-resize";
+    document.body.style.userSelect = "none";
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  // Move/drag handler for repositioning
+  const handleMoveStart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    if (!elementRef.current) return;
+    
+    setIsMoving(true);
+    
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startLeft = customX || 0;
+    const startTop = customY || 0;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+      
+      const newX = startLeft + deltaX;
+      const newY = startTop + deltaY;
+
+      // Apply to element immediately for visual feedback
+      if (elementRef.current) {
+        elementRef.current.style.transform = `translate(${newX}px, ${newY}px)`;
+      }
+
+      // Update block data
+      updateBlockData(moduleId, blockId, { 
+        customX: newX,
+        customY: newY 
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsMoving(false);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+
+    document.body.style.cursor = "move";
+    document.body.style.userSelect = "none";
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
   if (!editMode) {
-    return <>{children}</>;
+    // Apply custom styles even when not in edit mode
+    const customStyles: React.CSSProperties = {};
+    if (customWidth) customStyles.width = `${customWidth}px`;
+    if (customHeight && blockType !== "text" && blockType !== "heading") customStyles.height = `${customHeight}px`;
+    if (customX || customY) customStyles.transform = `translate(${customX || 0}px, ${customY || 0}px)`;
+
+    return (
+      <div style={customStyles} className={className}>
+        {children}
+      </div>
+    );
   }
+
+  // Apply custom styles in edit mode
+  const editStyles: React.CSSProperties = {};
+  if (customWidth) editStyles.width = `${customWidth}px`;
+  if (customHeight && blockType !== "text" && blockType !== "heading") editStyles.height = `${customHeight}px`;
+  if (customX || customY) editStyles.transform = `translate(${customX || 0}px, ${customY || 0}px)`;
 
   return (
     <div
       ref={elementRef}
+      style={editStyles}
       className={cn(
-        "relative group transition-all duration-150",
+        "relative group transition-colors duration-150",
         isHovered && !isSelected && "outline outline-2 outline-dashed outline-primary/60",
         isSelected && "outline outline-2 outline-primary outline-offset-1",
         isDragging && "opacity-50",
+        (isResizing || isMoving) && "z-50",
         editMode && "cursor-pointer",
         className
       )}
@@ -166,7 +295,7 @@ const EditableBlock = ({
       onDoubleClick={handleDoubleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      draggable={editMode && !isEditing}
+      draggable={editMode && !isEditing && !isResizing && !isMoving}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
@@ -179,12 +308,21 @@ const EditableBlock = ({
       )}
 
       {/* Floating Toolbar - appears when selected */}
-      {isSelected && (
+      {isSelected && !isResizing && !isMoving && (
         <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 bg-card rounded-lg shadow-xl border border-border px-2 py-1">
-          {/* Drag Handle */}
+          {/* Move Handle - for repositioning */}
+          <div 
+            className="cursor-move p-1.5 hover:bg-muted rounded"
+            title="Mover elemento"
+            onMouseDown={handleMoveStart}
+          >
+            <Move className="w-4 h-4 text-muted-foreground" />
+          </div>
+
+          {/* Drag Handle - for reordering */}
           <div 
             className="cursor-grab active:cursor-grabbing p-1.5 hover:bg-muted rounded"
-            title="Arrastar"
+            title="Reordenar"
           >
             <GripVertical className="w-4 h-4 text-muted-foreground" />
           </div>
@@ -278,20 +416,44 @@ const EditableBlock = ({
         </div>
       )}
 
-      {/* Resize Handles - only for images and cards */}
-      {isSelected && (blockType === "image" || blockType === "card") && (
+      {/* Resize Handles - for ALL block types when selected */}
+      {isSelected && (
         <>
           {/* Corner handles */}
-          <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-primary rounded-full cursor-nw-resize border-2 border-background shadow-sm" />
-          <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-primary rounded-full cursor-ne-resize border-2 border-background shadow-sm" />
-          <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-primary rounded-full cursor-sw-resize border-2 border-background shadow-sm" />
-          <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-primary rounded-full cursor-se-resize border-2 border-background shadow-sm" />
+          <div 
+            className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-primary rounded-full cursor-nw-resize border-2 border-background shadow-sm z-50"
+            onMouseDown={(e) => handleResizeStart(e, "nw")}
+          />
+          <div 
+            className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-primary rounded-full cursor-ne-resize border-2 border-background shadow-sm z-50"
+            onMouseDown={(e) => handleResizeStart(e, "ne")}
+          />
+          <div 
+            className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-primary rounded-full cursor-sw-resize border-2 border-background shadow-sm z-50"
+            onMouseDown={(e) => handleResizeStart(e, "sw")}
+          />
+          <div 
+            className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-primary rounded-full cursor-se-resize border-2 border-background shadow-sm z-50"
+            onMouseDown={(e) => handleResizeStart(e, "se")}
+          />
           
           {/* Edge handles */}
-          <div className="absolute top-1/2 -left-1.5 w-2 h-6 -translate-y-1/2 bg-primary rounded cursor-w-resize border border-background shadow-sm" />
-          <div className="absolute top-1/2 -right-1.5 w-2 h-6 -translate-y-1/2 bg-primary rounded cursor-e-resize border border-background shadow-sm" />
-          <div className="absolute -top-1.5 left-1/2 w-6 h-2 -translate-x-1/2 bg-primary rounded cursor-n-resize border border-background shadow-sm" />
-          <div className="absolute -bottom-1.5 left-1/2 w-6 h-2 -translate-x-1/2 bg-primary rounded cursor-s-resize border border-background shadow-sm" />
+          <div 
+            className="absolute top-1/2 -left-1.5 w-2 h-6 -translate-y-1/2 bg-primary rounded cursor-w-resize border border-background shadow-sm z-50"
+            onMouseDown={(e) => handleResizeStart(e, "w")}
+          />
+          <div 
+            className="absolute top-1/2 -right-1.5 w-2 h-6 -translate-y-1/2 bg-primary rounded cursor-e-resize border border-background shadow-sm z-50"
+            onMouseDown={(e) => handleResizeStart(e, "e")}
+          />
+          <div 
+            className="absolute -top-1.5 left-1/2 w-6 h-2 -translate-x-1/2 bg-primary rounded cursor-n-resize border border-background shadow-sm z-50"
+            onMouseDown={(e) => handleResizeStart(e, "n")}
+          />
+          <div 
+            className="absolute -bottom-1.5 left-1/2 w-6 h-2 -translate-x-1/2 bg-primary rounded cursor-s-resize border border-background shadow-sm z-50"
+            onMouseDown={(e) => handleResizeStart(e, "s")}
+          />
         </>
       )}
 
