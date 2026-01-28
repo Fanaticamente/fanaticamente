@@ -29,17 +29,17 @@ const DesktopCuriosities = () => {
               <img 
                 src={iconJersey} 
                 alt="Apito" 
-                className="w-24 h-24 lg:w-28 lg:h-28 object-contain flex-shrink-0"
+                className="w-32 h-32 lg:w-40 lg:h-40 object-contain flex-shrink-0"
               />
             </div>
           </div>
 
           {/* Right Column - MacBook Image */}
-          <div className="flex justify-center lg:justify-end">
+          <div className="flex justify-center lg:justify-end -mr-12 lg:-mr-24">
             <img 
               src={macVideocall} 
               alt="Videochamada de terapia" 
-              className="w-full max-w-lg lg:max-w-xl object-contain"
+              className="w-full max-w-2xl lg:max-w-3xl object-contain"
             />
           </div>
         </div>
