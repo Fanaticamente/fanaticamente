@@ -129,6 +129,15 @@ export const useRouteRestoration = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Never run restoration logic inside the content managers.
+  // These screens must be fully stable and never auto-navigate.
+  if (
+    location.pathname.startsWith("/developer") ||
+    location.pathname.startsWith("/desenvolvedor")
+  ) {
+    return;
+  }
+
   // Monitora quando o usuário sai do app (visibility change)
   useEffect(() => {
     const handleVisibilityChange = () => {
