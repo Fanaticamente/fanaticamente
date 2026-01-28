@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Save, Upload, Plus, Trash2, Type, Palette, Image as ImageIcon, Link, GripVertical, Sparkles, RefreshCw, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import AdvancedSectionEditor from "./AdvancedSectionEditor";
 import { AppModule, useUpdateModule, useUpdateModuleConfig } from "@/hooks/useAppModules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -104,6 +105,11 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
         </div>
       </div>
     );
+  }
+
+  // Use advanced editor for dynamic_section type
+  if (module.module_type === "dynamic_section") {
+    return <AdvancedSectionEditor module={module} onClose={onClose} onSaved={onSaved} />;
   }
 
   const handleSave = async () => {
