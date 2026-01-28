@@ -37,7 +37,16 @@ serve(async (req) => {
           messages: [
             {
               role: "user",
-              content: `Generate a high-quality hero banner image for a website carousel. The image should be 1920x1080 aspect ratio, cinematic, professional quality. ${prompt}`,
+              content: `Generate a high-quality hero banner image for a website carousel. 
+
+CRITICAL REQUIREMENTS:
+- Image dimensions: EXACTLY 1920 pixels wide by 1080 pixels tall (16:9 aspect ratio)
+- Full HD resolution (1920x1080)
+- Landscape orientation, widescreen format
+- Cinematic, professional quality
+- Suitable for a website hero banner
+
+${prompt}`,
             },
           ],
           modalities: ["image", "text"],
