@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -11,22 +12,20 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export const useRealtimeSubscriptions = () => {
   const queryClient = useQueryClient();
+  const location = useLocation();
 
   // Content managers must be 100% stable - no realtime invalidations
-  const isManagerRoute = (() => {
-    try {
-      const path = window.location.pathname;
-      return path.startsWith("/developer") || path.startsWith("/desenvolvedor");
-    } catch {
-      return false;
-    }
-  })();
+  // Use reactive location.pathname instead of window.location
+  const isManagerRoute = 
+    location.pathname.startsWith("/developer") || 
+    location.pathname.startsWith("/desenvolvedor");
 
   useEffect(() => {
     // Skip ALL realtime subscriptions on manager routes
     if (isManagerRoute) {
       return;
     }
+
     // Subscribe to app_content changes
     const contentChannel = supabase
       .channel('global_app_content_changes')

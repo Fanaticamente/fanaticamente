@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -19,18 +20,14 @@ interface CompletedAppointment {
 
 export const useGlobalSessionCompletion = () => {
   const { user, roles, loading } = useAuth();
+  const location = useLocation();
   const [completedAppointment, setCompletedAppointment] = useState<CompletedAppointment | null>(null);
 
   // Content managers must be stable: no global realtime dialogs/listeners.
-  // We read from window here (not a hook), so it won't violate Rules of Hooks.
-  const isManagerRoute = (() => {
-    try {
-      const path = window.location.pathname;
-      return path.startsWith("/developer") || path.startsWith("/desenvolvedor");
-    } catch {
-      return false;
-    }
-  })();
+  // IMPORTANT: Use reactive location.pathname instead of window.location
+  const isManagerRoute = 
+    location.pathname.startsWith("/developer") || 
+    location.pathname.startsWith("/desenvolvedor");
 
   // Avoid effect churn when `roles` identity changes frequently.
   const isProfessional = !!roles?.includes("professional");

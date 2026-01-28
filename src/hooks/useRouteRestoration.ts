@@ -130,6 +130,7 @@ export const useRouteRestoration = () => {
   const navigate = useNavigate();
 
   // Check if we're in developer/content manager routes - skip ALL logic
+  // IMPORTANT: Use location.pathname (reactive) instead of checking only once
   const isManagerRoute =
     location.pathname.startsWith("/developer") ||
     location.pathname.startsWith("/desenvolvedor");

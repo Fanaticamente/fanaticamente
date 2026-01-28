@@ -57,7 +57,9 @@ const isEmbedMode = () => {
 };
 
 // Component that handles realtime subscriptions, route restoration, and global session completion
+// IMPORTANT: This component checks the current route and disables auto-refresh behavior on manager routes
 const AppProviders = ({ children }: { children: React.ReactNode }) => {
+  // These hooks now internally check if we're on manager routes and skip their behavior
   useRealtimeSubscriptions();
   useRouteRestoration();
   const { completedAppointment, clearCompletedAppointment } = useGlobalSessionCompletion();
