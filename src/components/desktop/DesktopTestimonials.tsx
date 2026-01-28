@@ -27,7 +27,7 @@ const DesktopTestimonials = () => {
       <div className="max-w-6xl mx-auto px-6">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="font-['Work_Sans'] font-bold text-4xl lg:text-5xl text-black mb-4">
+          <h2 className="font-['Work_Sans'] font-bold text-4xl lg:text-5xl text-emerald-600 mb-4">
             Opinião de Profissionais
           </h2>
         </div>
@@ -37,19 +37,21 @@ const DesktopTestimonials = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-gray-50 rounded-2xl p-8 border border-gray-200 relative"
+              className="bg-gray-50 rounded-2xl p-8 border border-gray-200 relative flex flex-col justify-between min-h-[320px]"
             >
               {/* Quote Icon */}
               <Quote className="absolute top-6 right-6 w-8 h-8 text-emerald-500/30" />
 
               {/* Text */}
               <p className="text-gray-700 mb-8 leading-relaxed">
-                "{testimonial.text}"
+                <span className="text-emerald-600 font-serif text-xl">"</span>
+                {testimonial.text}
+                <span className="text-emerald-600 font-serif text-xl">"</span>
               </p>
 
               {/* Author */}
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold">
+              <div className="flex items-center gap-4 mt-auto">
+                <div className="w-12 h-12 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold flex-shrink-0">
                   {testimonial.avatar}
                 </div>
                 <div>
