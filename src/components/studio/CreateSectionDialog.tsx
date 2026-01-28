@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreateModule } from "@/hooks/useAppModules";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 interface CreateSectionDialogProps {
@@ -47,6 +48,7 @@ const CreateSectionDialog = ({
   const [page, setPage] = useState(currentPage);
   const [position, setPosition] = useState<string>((existingModulesCount).toString());
 
+  const queryClient = useQueryClient();
   const createModule = useCreateModule();
 
   const handleCreate = async () => {
@@ -76,6 +78,10 @@ const CreateSectionDialog = ({
         page,
         config: defaultConfig,
       });
+      
+      // Invalidate queries to refresh preview
+      await queryClient.invalidateQueries({ queryKey: ["app-modules"] });
+      await queryClient.invalidateQueries({ queryKey: ["desktop-modules-preview"] });
       
       // Reset form
       setName("");

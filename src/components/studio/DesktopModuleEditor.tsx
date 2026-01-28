@@ -127,6 +127,7 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
       await queryClient.invalidateQueries({ queryKey: ["module-config", module.module_id] });
       await queryClient.invalidateQueries({ queryKey: ["desktop-module-config", module.module_id] });
       await queryClient.invalidateQueries({ queryKey: ["app-modules"] });
+      await queryClient.invalidateQueries({ queryKey: ["desktop-modules-preview"] });
       
       toast.success("Alterações salvas!");
       onSaved?.();

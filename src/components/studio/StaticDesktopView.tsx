@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import logoHeader from "@/assets/logo-header.png";
 import DesktopHeroCarousel from "@/components/desktop/DesktopHeroCarousel";
@@ -8,6 +7,20 @@ import DesktopAbout from "@/components/desktop/DesktopAbout";
 import DesktopTestimonials from "@/components/desktop/DesktopTestimonials";
 import DesktopProfessionalForm from "@/components/desktop/DesktopProfessionalForm";
 import DesktopFooter from "@/components/desktop/DesktopFooter";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
+import FlexibleSectionRenderer from "./FlexibleSectionRenderer";
+
+interface ModuleConfig {
+  id: string;
+  module_id: string;
+  module_type: string;
+  name: string;
+  is_visible: boolean;
+  order_index: number;
+  config: Record<string, unknown>;
+}
 
 /**
  * Preview-only header that uses sticky positioning instead of fixed.
@@ -61,37 +74,82 @@ const PreviewHeader = () => {
 };
 
 /**
- * Static desktop view for the Content Manager.
- * Renders the actual desktop home components with a preview-compatible header.
+ * Renders a module based on its module_id
+ */
+const ModuleRenderer = ({ module }: { module: ModuleConfig }) => {
+  if (!module.is_visible) return null;
+
+  switch (module.module_id) {
+    case "desktop_hero_carousel":
+      return <DesktopHeroCarousel />;
+    case "desktop_features_section":
+      return <DesktopFeatures />;
+    case "desktop_curiosities_section":
+      return <DesktopCuriosities />;
+    case "desktop_about_section":
+      return <DesktopAbout />;
+    case "desktop_testimonials_section":
+      return <DesktopTestimonials />;
+    case "desktop_professional_form":
+      return (
+        <div id="profissionais">
+          <DesktopProfessionalForm />
+        </div>
+      );
+    case "desktop_footer":
+      return <DesktopFooter />;
+    default:
+      // For flexible/custom sections created via the editor
+      if (module.module_type === "text_section" || module.module_type === "flexible") {
+        return <FlexibleSectionRenderer config={module.config} />;
+      }
+      return null;
+  }
+};
+
+/**
+ * Dynamic desktop view for the Content Manager.
+ * Reads modules from database and renders them in order.
  */
 const StaticDesktopView = () => {
+  const { data: modules, isLoading } = useQuery({
+    queryKey: ["desktop-modules-preview"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_modules")
+        .select("*")
+        .eq("page", "desktop")
+        .eq("is_visible", true)
+        .order("order_index");
+
+      if (error) throw error;
+      return data as unknown as ModuleConfig[];
+    },
+    staleTime: 0,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="bg-[#0a0a0a] min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+      </div>
+    );
+  }
+
   return (
     <div className="bg-[#0a0a0a]">
       {/* Preview Header - sticky within container */}
       <PreviewHeader />
       
-      {/* Hero Carousel */}
-      <DesktopHeroCarousel />
+      {/* Dynamic Modules */}
+      {modules?.map((module) => (
+        <ModuleRenderer key={module.id} module={module} />
+      ))}
       
-      {/* Features Section */}
-      <DesktopFeatures />
-      
-      {/* Curiosities Section */}
-      <DesktopCuriosities />
-      
-      {/* About Section */}
-      <DesktopAbout />
-      
-      {/* Testimonials Section */}
-      <DesktopTestimonials />
-      
-      {/* Professional Form Section */}
-      <div id="profissionais">
-        <DesktopProfessionalForm />
-      </div>
-      
-      {/* Footer */}
-      <DesktopFooter />
+      {/* Footer always at the end if not in modules */}
+      {!modules?.some(m => m.module_id === "desktop_footer") && (
+        <DesktopFooter />
+      )}
     </div>
   );
 };
