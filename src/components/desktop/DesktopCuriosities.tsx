@@ -35,7 +35,7 @@ const DesktopCuriosities = () => {
           </div>
 
           {/* Right Column - MacBook Image */}
-          <div className="flex justify-center lg:justify-end lg:pl-8 xl:pl-12">
+          <div className="flex justify-end lg:-mr-20 xl:-mr-32">
             <img 
               src={macVideocall} 
               alt="Videochamada de terapia" 
