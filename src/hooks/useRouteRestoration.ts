@@ -129,17 +129,16 @@ export const useRouteRestoration = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Never run restoration logic inside the content managers.
-  // These screens must be fully stable and never auto-navigate.
-  if (
+  // Check if we're in developer/content manager routes - skip ALL logic
+  const isManagerRoute =
     location.pathname.startsWith("/developer") ||
-    location.pathname.startsWith("/desenvolvedor")
-  ) {
-    return;
-  }
+    location.pathname.startsWith("/desenvolvedor");
 
   // Monitora quando o usuário sai do app (visibility change)
   useEffect(() => {
+    // Skip for manager routes
+    if (isManagerRoute) return;
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
         // Salva o campo focado quando o app perde visibilidade
@@ -172,7 +171,7 @@ export const useRouteRestoration = () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
       window.removeEventListener("pagehide", handleBeforeUnload);
     };
-  }, []);
+  }, [isManagerRoute]);
 
   // 1) Persistir a rota atual.
   //    Usamos localStorage (sobrevive a fechar o app/OS matar o processo)
@@ -184,6 +183,9 @@ export const useRouteRestoration = () => {
   // tivermos feito a restauração nesta execução, evitamos gravar "/" se existir
   // uma rota salva diferente de "/".
   useEffect(() => {
+    // Skip for manager routes
+    if (isManagerRoute) return;
+
     const currentPath = location.pathname + location.search;
 
     if (isPublicRoute(location.pathname)) return;
@@ -211,12 +213,15 @@ export const useRouteRestoration = () => {
     } catch {
       // Se storage estiver indisponível (modo privado, etc.), apenas ignora.
     }
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, isManagerRoute]);
 
   // 2) Ao montar o app, voltar para a última rota salva.
   //    Para evitar "piscadas/recarregamentos" ao alternar de app/aba,
   //    fazemos a restauração no máximo 1x por sessão.
   useEffect(() => {
+    // Skip for manager routes
+    if (isManagerRoute) return;
+
     const currentPath = location.pathname;
     if (isPublicRoute(currentPath)) return;
 
@@ -272,5 +277,5 @@ export const useRouteRestoration = () => {
       // Se já está na rota correta, apenas restaura o foco
       setTimeout(restoreFocusedField, 300);
     }
-  }, []); // executar apenas uma vez ao montar
+  }, [isManagerRoute]); // executar apenas uma vez ao montar
 };
