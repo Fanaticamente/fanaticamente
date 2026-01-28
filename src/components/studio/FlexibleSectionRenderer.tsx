@@ -1,3 +1,6 @@
+import EditableBlock from "./EditableBlock";
+import { useVisualEditor } from "./VisualEditorContext";
+
 interface ContentBlock {
   id: string;
   type: "heading" | "text" | "image" | "button" | "spacer" | "card";
@@ -68,109 +71,107 @@ interface FlexibleSectionRendererProps {
   config: Record<string, unknown>;
   name?: string;
   moduleType?: string;
+  moduleId?: string;
 }
 
-const FlexibleSectionRenderer = ({ config, name, moduleType }: FlexibleSectionRendererProps) => {
+// Try to use the visual editor context, but provide fallback if not available
+const useVisualEditorSafe = () => {
+  try {
+    return useVisualEditor();
+  } catch {
+    return { editMode: false };
+  }
+};
+
+const FlexibleSectionRenderer = ({ config, name, moduleType, moduleId }: FlexibleSectionRendererProps) => {
   const sectionConfig = config as FlexibleSectionConfig;
   const blocks = sectionConfig.blocks || [];
   const layout = sectionConfig.layout || { type: "single", backgroundColor: "#0a0a0a", verticalPadding: "medium" };
   const alignment = sectionConfig.alignment || "center";
+  const { editMode } = useVisualEditorSafe();
 
   const getTextColorClass = (color?: string) => {
     switch (color) {
-      case "white":
-        return "text-white";
-      case "gray":
-        return "text-gray-300";
-      case "muted":
-        return "text-gray-500";
-      case "accent":
-        return "text-emerald-400";
-      default:
-        return "text-white";
+      case "white": return "text-white";
+      case "gray": return "text-gray-300";
+      case "muted": return "text-gray-500";
+      case "accent": return "text-emerald-400";
+      default: return "text-white";
     }
   };
 
   const getFontWeightClass = (weight?: string) => {
     switch (weight) {
-      case "normal":
-        return "font-normal";
-      case "medium":
-        return "font-medium";
-      case "semibold":
-        return "font-semibold";
-      case "bold":
-        return "font-bold";
-      default:
-        return "font-normal";
+      case "normal": return "font-normal";
+      case "medium": return "font-medium";
+      case "semibold": return "font-semibold";
+      case "bold": return "font-bold";
+      default: return "font-normal";
     }
   };
 
   const getAlignmentClass = (blockAlignment?: string) => {
     const align = blockAlignment || alignment;
     switch (align) {
-      case "left":
-        return "text-left";
-      case "right":
-        return "text-right";
-      default:
-        return "text-center";
+      case "left": return "text-left";
+      case "right": return "text-right";
+      default: return "text-center";
     }
   };
 
   const getJustifyClass = (blockAlignment?: string) => {
     const align = blockAlignment || alignment;
     switch (align) {
-      case "left":
-        return "justify-start";
-      case "right":
-        return "justify-end";
-      default:
-        return "justify-center";
+      case "left": return "justify-start";
+      case "right": return "justify-end";
+      default: return "justify-center";
     }
   };
 
   const getWidthClass = (width?: string) => {
     switch (width) {
-      case "full":
-        return "w-full";
-      case "2/3":
-        return "w-2/3";
-      case "1/2":
-        return "w-1/2";
-      case "1/3":
-        return "w-1/3";
-      default:
-        return "w-full";
+      case "full": return "w-full";
+      case "2/3": return "w-2/3";
+      case "1/2": return "w-1/2";
+      case "1/3": return "w-1/3";
+      default: return "w-full";
     }
   };
 
   const getPaddingClass = (padding?: string) => {
     switch (padding) {
-      case "none":
-        return "";
-      case "small":
-        return "p-4";
-      case "medium":
-        return "p-6 md:p-8";
-      case "large":
-        return "p-8 md:p-12";
-      default:
-        return "p-6";
+      case "none": return "";
+      case "small": return "p-4";
+      case "medium": return "p-6 md:p-8";
+      case "large": return "p-8 md:p-12";
+      default: return "p-6";
     }
   };
 
   const getVerticalPadding = (vp?: string) => {
     switch (vp) {
-      case "small":
-        return "py-10";
-      case "medium":
-        return "py-16 md:py-20";
-      case "large":
-        return "py-24 md:py-32";
-      default:
-        return "py-16";
+      case "small": return "py-10";
+      case "medium": return "py-16 md:py-20";
+      case "large": return "py-24 md:py-32";
+      default: return "py-16";
     }
+  };
+
+  const wrapWithEditable = (block: ContentBlock, content: React.ReactNode, isText = false) => {
+    if (!editMode || !moduleId) return content;
+    
+    return (
+      <EditableBlock
+        key={block.id}
+        moduleId={moduleId}
+        blockId={block.id}
+        blockType={block.type}
+        blockData={block as unknown as Record<string, unknown>}
+        isText={isText}
+      >
+        {content}
+      </EditableBlock>
+    );
   };
 
   const renderBlock = (block: ContentBlock) => {
@@ -187,39 +188,37 @@ const FlexibleSectionRenderer = ({ config, name, moduleType }: FlexibleSectionRe
           3: "text-2xl md:text-3xl",
         };
         const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
-        return (
+        const headingContent = (
           <HeadingTag
-            key={block.id}
             className={`${headingSizes[level]} ${getFontWeightClass(block.fontWeight)} ${getTextColorClass(block.textColor)} ${getAlignmentClass(block.alignment)} leading-tight`}
           >
             {block.content}
           </HeadingTag>
         );
+        return wrapWithEditable(block, headingContent, true);
       }
 
-      case "text":
-        return (
+      case "text": {
+        const textContent = (
           <p
-            key={block.id}
             className={`text-lg md:text-xl leading-relaxed ${getFontWeightClass(block.fontWeight)} ${getTextColorClass(block.textColor)} ${getAlignmentClass(block.alignment)}`}
           >
             {block.content}
           </p>
         );
+        return wrapWithEditable(block, textContent, true);
+      }
 
-      case "card":
-        // Determine text color based on background
+      case "card": {
         const isLightBg = block.backgroundColor === "#f5f5f5" || block.backgroundColor === "transparent";
         const cardTextColor = isLightBg ? "text-gray-800" : "text-white";
-        return (
+        const cardContent = (
           <div 
-            key={block.id} 
             className={`rounded-xl ${getPaddingClass(block.padding)} ${getAlignmentClass(block.alignment)}`}
             style={{ backgroundColor: block.backgroundColor || "#f5f5f5" }}
           >
             <div className={`space-y-3 ${cardTextColor}`}>
               {block.content?.split('\n').map((line, i) => {
-                // Check if line starts with ## or **text** for special formatting
                 if (line.startsWith('## ')) {
                   return (
                     <h3 key={i} className="text-xl md:text-2xl font-bold">
@@ -227,7 +226,6 @@ const FlexibleSectionRenderer = ({ config, name, moduleType }: FlexibleSectionRe
                     </h3>
                   );
                 }
-                // Parse **bold** text
                 const parts = line.split(/(\*\*[^*]+\*\*)/g);
                 return (
                   <p key={i} className={`text-base md:text-lg leading-relaxed ${isLightBg ? 'text-gray-600' : 'text-gray-300'}`}>
@@ -243,17 +241,15 @@ const FlexibleSectionRenderer = ({ config, name, moduleType }: FlexibleSectionRe
             </div>
           </div>
         );
+        return wrapWithEditable(block, cardContent, false);
+      }
 
-      case "image":
-        return (
-          <div key={block.id} className={`flex ${getJustifyClass(block.alignment)}`}>
+      case "image": {
+        const imageContent = (
+          <div className={`flex ${getJustifyClass(block.alignment)}`}>
             <div className={getWidthClass(block.width)}>
               {imgSrc ? (
-                <img
-                  src={imgSrc}
-                  alt={imgAlt}
-                  className="w-full h-auto rounded-lg"
-                />
+                <img src={imgSrc} alt={imgAlt} className="w-full h-auto rounded-lg" />
               ) : (
                 <div className="w-full h-48 bg-gray-800 rounded-lg flex items-center justify-center">
                   <span className="text-gray-500">Imagem não definida</span>
@@ -262,26 +258,30 @@ const FlexibleSectionRenderer = ({ config, name, moduleType }: FlexibleSectionRe
             </div>
           </div>
         );
+        return wrapWithEditable(block, imageContent, false);
+      }
 
-      case "button":
-        return (
-          <div key={block.id} className={`flex ${getJustifyClass(block.alignment)}`}>
+      case "button": {
+        const buttonContent = (
+          <div className={`flex ${getJustifyClass(block.alignment)}`}>
             <a
               href={block.link || "#"}
               className="inline-flex items-center justify-center px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-full transition-colors"
+              onClick={editMode ? (e) => e.preventDefault() : undefined}
             >
               {buttonLabel}
             </a>
           </div>
         );
+        return wrapWithEditable(block, buttonContent, false);
+      }
 
-      case "spacer":
-        return (
-          <div
-            key={block.id}
-            style={{ height: `${block.height || 32}px` }}
-          />
+      case "spacer": {
+        const spacerContent = (
+          <div style={{ height: `${block.height || 32}px` }} />
         );
+        return wrapWithEditable(block, spacerContent, false);
+      }
 
       default:
         return null;
@@ -491,95 +491,51 @@ const FlexibleSectionRenderer = ({ config, name, moduleType }: FlexibleSectionRe
   const rightBlocks = blocks.filter(b => b.column === "right");
   const fullBlocks = blocks.filter(b => b.column === "full");
 
-  // For single column, all blocks go into fullBlocks
   const singleColumnBlocks = layout.type === "single" ? blocks : [];
 
   const getGridClass = () => {
     switch (layout.type) {
-      case "two-column":
-        return "grid-cols-1 md:grid-cols-2";
-      case "left-wide":
-        return "grid-cols-1 md:grid-cols-[2fr_1fr]";
-      case "right-wide":
-        return "grid-cols-1 md:grid-cols-[1fr_2fr]";
-      default:
-        return "";
+      case "two-column": return "grid-cols-1 md:grid-cols-2";
+      case "left-wide": return "grid-cols-1 md:grid-cols-[2fr_1fr]";
+      case "right-wide": return "grid-cols-1 md:grid-cols-[1fr_2fr]";
+      default: return "";
+    }
+  };
+
+  const getContainerWidth = () => {
+    switch (layout.containerWidth) {
+      case "narrow": return "max-w-4xl";
+      case "full": return "max-w-full px-0";
+      default: return "max-w-6xl";
     }
   };
 
   return (
-    <section 
-      className={`px-6 ${getVerticalPadding(layout.verticalPadding)}`}
-      style={{ backgroundColor: layout.backgroundColor || "#0a0a0a" }}
+    <section
+      className={`${getVerticalPadding(layout.verticalPadding)} px-6`}
+      style={{ backgroundColor: layout.backgroundColor || "transparent" }}
     >
-      <div className="max-w-6xl mx-auto">
-        {/* Title from config */}
-        {sectionConfig.title && (
-          <h2 className={`text-3xl md:text-4xl font-bold text-white mb-8 ${getAlignmentClass()}`}>
-            {sectionConfig.title}
-          </h2>
-        )}
-        {sectionConfig.subtitle && (
-          <p className={`text-gray-400 text-lg mb-8 ${getAlignmentClass()}`}>
-            {sectionConfig.subtitle}
-          </p>
-        )}
-        
-        {/* Legacy content support */}
-        {sectionConfig.content && !blocks.length && (
-          <p className={`text-gray-300 text-lg leading-relaxed ${getAlignmentClass()}`}>
-            {sectionConfig.content}
-          </p>
-        )}
-
-        {/* Single column layout */}
-        {layout.type === "single" && (
+      <div className={`${getContainerWidth()} mx-auto`}>
+        {layout.type === "single" ? (
           <div className="space-y-6">
-            {singleColumnBlocks.map((block) => renderBlock(block))}
+            {singleColumnBlocks.map(renderBlock)}
           </div>
-        )}
-
-        {/* Multi-column layout */}
-        {layout.type !== "single" && (
+        ) : (
           <>
-            {/* Full width blocks at top */}
             {fullBlocks.length > 0 && (
               <div className="space-y-6 mb-8">
-                {fullBlocks.map((block) => renderBlock(block))}
+                {fullBlocks.map(renderBlock)}
               </div>
             )}
-            
-            {/* Grid columns */}
-            {(leftBlocks.length > 0 || rightBlocks.length > 0) && (
-              <div className={`grid ${getGridClass()} gap-8 md:gap-12 items-start`}>
-                <div className="space-y-6">
-                  {leftBlocks.map((block) => renderBlock(block))}
-                </div>
-                <div className="space-y-6">
-                  {rightBlocks.map((block) => renderBlock(block))}
-                </div>
+            <div className={`grid ${getGridClass()} gap-8`}>
+              <div className="space-y-6">
+                {leftBlocks.map(renderBlock)}
               </div>
-            )}
+              <div className="space-y-6">
+                {rightBlocks.map(renderBlock)}
+              </div>
+            </div>
           </>
-        )}
-
-        {/* Description for about-type sections */}
-        {sectionConfig.description && (
-          <p className={`text-gray-300 text-lg leading-relaxed mt-6 ${getAlignmentClass()}`}>
-            {sectionConfig.description}
-          </p>
-        )}
-
-        {/* CTA button if present */}
-        {(sectionConfig.buttonText || sectionConfig.cta) && (
-          <div className={`flex ${getJustifyClass()} pt-8`}>
-            <a
-              href={sectionConfig.buttonLink || sectionConfig.ctaLink || "#"}
-              className="inline-flex items-center justify-center px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-full transition-colors"
-            >
-              {sectionConfig.buttonText || sectionConfig.cta}
-            </a>
-          </div>
         )}
       </div>
     </section>
