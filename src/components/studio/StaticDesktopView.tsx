@@ -1,4 +1,3 @@
-import DesktopHeader from "@/components/desktop/DesktopHeader";
 import DesktopHeroCarousel from "@/components/desktop/DesktopHeroCarousel";
 import DesktopFeatures from "@/components/desktop/DesktopFeatures";
 import DesktopCuriosities from "@/components/desktop/DesktopCuriosities";
@@ -9,14 +8,11 @@ import DesktopFooter from "@/components/desktop/DesktopFooter";
 
 /**
  * Static desktop view for the Content Manager.
- * Renders the actual desktop home components without navigation side effects.
+ * Renders the actual desktop home components without header (managed separately).
  */
 const StaticDesktopView = () => {
   return (
-    <div className="h-full overflow-y-auto bg-[#0a0a0a]">
-      {/* Desktop Header */}
-      <DesktopHeader />
-      
+    <div className="bg-[#0a0a0a]">
       {/* Hero Carousel */}
       <DesktopHeroCarousel />
       
