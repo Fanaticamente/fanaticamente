@@ -17,7 +17,7 @@ const DesktopChampionship = () => {
           {/* Right Column - Text Content */}
           <div className="lg:pl-24 xl:pl-40">
             <h2 
-              className="text-4xl lg:text-5xl text-black font-bold mb-6"
+              className="text-4xl lg:text-5xl text-emerald-400 font-bold mb-6"
               style={{ fontFamily: "'Work Sans', sans-serif" }}
             >
               G-4 ou Z-4?
