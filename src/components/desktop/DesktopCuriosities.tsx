@@ -16,7 +16,7 @@ const DesktopCuriosities = () => {
             </h2>
             
             <h3 
-              className="text-xl lg:text-2xl text-black font-bold mb-2"
+              className="text-xl lg:text-2xl text-black font-bold mb-3"
               style={{ fontFamily: "'Work Sans', sans-serif" }}
             >
               Experiência inédita
