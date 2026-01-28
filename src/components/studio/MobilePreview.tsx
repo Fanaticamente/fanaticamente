@@ -1,36 +1,33 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Smartphone, Tablet, Monitor, RotateCcw, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface MobilePreviewProps {
-  children?: React.ReactNode;
   currentPage?: string;
+  refreshTrigger?: number; // increment this to trigger a refresh
 }
 
-const MobilePreview = ({ children, currentPage = "/" }: MobilePreviewProps) => {
+const MobilePreview = ({ currentPage = "/", refreshTrigger = 0 }: MobilePreviewProps) => {
   const [device, setDevice] = useState<"mobile" | "tablet" | "desktop">("mobile");
   const [scale, setScale] = useState(100);
   const [iframeKey, setIframeKey] = useState(0);
-  const lastRefreshRef = useRef<number>(0);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   
-  const deviceWidths = {
-    mobile: 375,
-    tablet: 768,
-    desktop: 1024,
-  };
-
-  // Debounced refresh function - only refresh if at least 2 seconds have passed
-  const debouncedRefresh = useCallback(() => {
-    const now = Date.now();
-    if (now - lastRefreshRef.current > 2000) {
-      lastRefreshRef.current = now;
+  // Refresh when refreshTrigger changes (debounced from parent)
+  useEffect(() => {
+    if (refreshTrigger > 0) {
       setIframeKey(prev => prev + 1);
     }
-  }, []);
+  }, [refreshTrigger]);
 
   const handleRefresh = () => {
     setIframeKey(prev => prev + 1);
   };
+
+  // Build the preview URL - always use embed mode to avoid auth/PWA issues
+  const previewUrl = currentPage.includes("?") 
+    ? `${currentPage}&embed=1`
+    : `${currentPage}?embed=1`;
 
   return (
     <div className="h-full flex flex-col bg-muted/30">
@@ -99,14 +96,14 @@ const MobilePreview = ({ children, currentPage = "/" }: MobilePreviewProps) => {
       {/* Device Frame */}
       <div className="flex-1 flex items-start justify-center overflow-auto p-6">
         <div
-          className="relative bg-gray-900 rounded-[3rem] p-3 shadow-2xl transition-all duration-300"
+          className="relative bg-card border-4 border-muted rounded-[3rem] p-3 shadow-2xl transition-all duration-300"
           style={{
             transform: `scale(${scale / 100})`,
             transformOrigin: "top center",
           }}
         >
           {/* Status Bar */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-gray-900 rounded-b-2xl z-10" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-card rounded-b-2xl z-10" />
           
           {/* Screen */}
           <div
@@ -117,24 +114,29 @@ const MobilePreview = ({ children, currentPage = "/" }: MobilePreviewProps) => {
             }}
           >
             {/* Notch */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-gray-900 rounded-b-3xl z-20 flex items-center justify-center">
-              <div className="w-20 h-5 bg-gray-800 rounded-full" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-card rounded-b-3xl z-20 flex items-center justify-center">
+              <div className="w-20 h-5 bg-muted rounded-full" />
             </div>
             
-            {/* Content */}
-            <div className="h-full overflow-y-auto">
-              {children || (
-                <iframe
-                  key={iframeKey}
-                  src={currentPage}
-                  className="w-full h-full border-0"
-                  title="App Preview"
-                />
-              )}
+            {/* Content - Sandboxed iframe */}
+            <div className="h-full overflow-hidden pt-8">
+              <iframe
+                ref={iframeRef}
+                key={iframeKey}
+                src={previewUrl}
+                className="w-full h-full border-0"
+                title="App Preview"
+                // Sandbox restricts the iframe to prevent it from causing loops:
+                // - allow-scripts: needed for React to run
+                // - allow-same-origin: needed to load resources
+                // - NO allow-top-navigation: prevents redirects affecting parent
+                // - NO allow-forms: preview-only, no form submissions
+                sandbox="allow-scripts allow-same-origin"
+              />
             </div>
             
             {/* Home Indicator */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-gray-400 rounded-full" />
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-muted-foreground/30 rounded-full" />
           </div>
         </div>
       </div>
