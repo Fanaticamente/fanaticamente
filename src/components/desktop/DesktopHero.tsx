@@ -1,3 +1,4 @@
+import { Brain } from "lucide-react";
 import DesktopHeroCarousel from "./DesktopHeroCarousel";
 
 const DesktopHero = () => {
@@ -13,10 +14,16 @@ const DesktopHero = () => {
             {/* Left Column - Main Title */}
             <div>
               <h2 
-                className="text-3xl lg:text-4xl xl:text-[44px] text-emerald-600 font-bold leading-[1.15]"
+                className="text-3xl lg:text-4xl xl:text-[44px] text-emerald-600 leading-[1.15] flex flex-wrap items-baseline gap-x-2"
                 style={{ fontFamily: "'Work Sans', sans-serif" }}
               >
-                Transformando a forma que os torcedores se conectam com sua saúde mental
+                <span className="font-normal">Transformando a forma que os</span>
+                <span className="font-bold">torcedores</span>
+                <span className="font-normal">se conectam com sua</span>
+                <span className="font-bold inline-flex items-center gap-2">
+                  saúde mental
+                  <Brain className="w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 text-emerald-600 inline-block" />
+                </span>
               </h2>
             </div>
 
