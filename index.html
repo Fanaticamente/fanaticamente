@@ -36,13 +36,12 @@
         }
       }
 
-      /* Force show scrollbar on desktop */
+      /* Desktop: native scrollbar only, no gutter reservation */
       @media (min-width: 769px) {
         html, body {
           height: auto !important;
           min-height: 100% !important;
-          overflow-y: scroll !important;
-          scrollbar-gutter: stable;
+          overflow-y: auto !important;
         }
       }
 
