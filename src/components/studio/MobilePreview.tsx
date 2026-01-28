@@ -1,55 +1,16 @@
-import { useState, useEffect, useRef } from "react";
-import { Smartphone, Tablet, Monitor, RotateCcw, RefreshCw, ExternalLink, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Smartphone, Tablet, Monitor, RotateCcw, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import StaticMobileView from "./StaticMobileView";
 
-interface MobilePreviewProps {
-  currentPage?: string;
-  refreshTrigger?: number;
-}
-
-const MobilePreview = ({ currentPage = "/", refreshTrigger = 0 }: MobilePreviewProps) => {
+const MobilePreview = () => {
   const [device, setDevice] = useState<"mobile" | "tablet" | "desktop">("mobile");
   const [scale, setScale] = useState(100);
-  const [iframeKey, setIframeKey] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [lastError, setLastError] = useState<string | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  
-  // Refresh when refreshTrigger changes
-  useEffect(() => {
-    if (refreshTrigger > 0) {
-      setIsLoading(true);
-      setLastError(null);
-      setIframeKey(prev => prev + 1);
-    }
-  }, [refreshTrigger]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleRefresh = () => {
-    setIsLoading(true);
-    setLastError(null);
-    setIframeKey(prev => prev + 1);
+    setRefreshKey(prev => prev + 1);
   };
-
-  const handleLoad = () => {
-    setIsLoading(false);
-  };
-
-  const handleError = () => {
-    setIsLoading(false);
-    setLastError("Falha ao carregar o preview (iframe). Verifique se a rota existe e se não há redirecionamento/reload em loop.");
-  };
-
-  const handleOpenInNewTab = () => {
-    window.open(currentPage, "_blank");
-  };
-
-  // Build the preview URL with embed and forceMobile flags
-  const previewUrl = (() => {
-    const url = new URL(currentPage, window.location.origin);
-    url.searchParams.set("embed", "1");
-    url.searchParams.set("forceMobile", "1");
-    return url.toString();
-  })();
 
   return (
     <div className="h-full flex flex-col bg-muted/30">
@@ -88,16 +49,7 @@ const MobilePreview = ({ currentPage = "/", refreshTrigger = 0 }: MobilePreviewP
             className="h-8 w-8 p-0"
             title="Atualizar preview"
           >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleOpenInNewTab}
-            className="h-8 w-8 p-0"
-            title="Abrir em nova aba"
-          >
-            <ExternalLink className="w-4 h-4" />
+            <RefreshCw className="w-4 h-4" />
           </Button>
         </div>
         
@@ -149,43 +101,10 @@ const MobilePreview = ({ currentPage = "/", refreshTrigger = 0 }: MobilePreviewP
               <div className="w-20 h-5 bg-muted rounded-full" />
             </div>
             
-            {/* Loading overlay */}
-            {isLoading && (
-              <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-30">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              </div>
-            )}
-            
-            {/* Content - Sandboxed iframe with same-origin for Supabase */}
+            {/* Content - Static Mobile View */}
             <div className="h-full overflow-hidden pt-8">
-              <iframe
-                ref={iframeRef}
-                key={iframeKey}
-                src={previewUrl}
-                className="w-full h-full border-0"
-                title="App Preview"
-                onLoad={handleLoad}
-                onError={handleError}
-                // allow-same-origin is needed for Supabase API calls
-                // allow-scripts is needed for React to run
-                // NO allow-top-navigation prevents redirect loops
-                sandbox="allow-scripts allow-same-origin"
-              />
+              <StaticMobileView key={refreshKey} />
             </div>
-
-            {lastError && (
-              <div className="absolute inset-0 bg-background/95 z-40 p-6 flex flex-col justify-center">
-                <p className="text-sm font-medium text-card-foreground mb-2">Preview indisponível</p>
-                <p className="text-sm text-muted-foreground mb-4">{lastError}</p>
-                <div className="text-xs text-muted-foreground bg-muted p-3 rounded-lg break-all">
-                  URL: {previewUrl}
-                </div>
-                <div className="mt-4 flex gap-2">
-                  <Button size="sm" variant="outline" onClick={handleRefresh}>Tentar novamente</Button>
-                  <Button size="sm" variant="outline" onClick={() => window.open(previewUrl, "_blank")}>Abrir URL do preview</Button>
-                </div>
-              </div>
-            )}
             
             {/* Home Indicator */}
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-muted-foreground/30 rounded-full" />

@@ -132,11 +132,9 @@ const DeveloperDashboard = () => {
           <ModuleCatalog />
         </aside>
         
-        {/* Center - Mobile Preview (sandboxed iframe) */}
+        {/* Center - Mobile Preview (static view) */}
         <main className="flex-1 min-w-0 bg-muted/30 overflow-hidden">
-          <MobilePreview 
-            currentPage="/" 
-          />
+          <MobilePreview />
         </main>
         
         {/* Right Panel - Module List or Editor */}
