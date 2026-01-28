@@ -2,19 +2,19 @@ import { Quote } from "lucide-react";
 
 const testimonials = [
   {
-    name: "Dr. Rodrigo Machado",
-    role: "Psicólogo - CRP 05/12345",
+    name: "Rodrigo Machado",
+    role: "Psicólogo",
     text: "O Fanaticamente traz uma proposta inovadora ao unir a paixão pelo futebol com o cuidado da saúde mental. A ideia de conectar torcedores com profissionais que compartilham a mesma paixão cria um vínculo único na terapia.",
     avatar: "R",
   },
   {
-    name: "Dra. Carolina Mendes",
-    role: "Psicóloga - CRP 06/54321",
+    name: "Carolina Mendes",
+    role: "Psicóloga",
     text: "A plataforma facilita muito o acesso de torcedores a um atendimento especializado. A interface é intuitiva e o ambiente acolhedor permite que os pacientes se sintam à vontade para falar sobre suas emoções.",
     avatar: "C",
   },
   {
-    name: "Prof. Fernando Alves",
+    name: "Fernando Alves",
     role: "Sociólogo especialista em comportamento de torcidas",
     text: "O Fanaticamente aborda um tema pouco discutido mas extremamente relevante. A saúde mental dos torcedores precisa de atenção, e essa iniciativa é pioneira no Brasil.",
     avatar: "F",
@@ -23,14 +23,11 @@ const testimonials = [
 
 const DesktopTestimonials = () => {
   return (
-    <section className="bg-[#111111] py-20">
+    <section className="bg-white py-20">
       <div className="max-w-6xl mx-auto px-6">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <p className="text-emerald-500 uppercase tracking-widest text-sm mb-4">
-            Avaliações
-          </p>
-          <h2 className="font-display text-4xl lg:text-5xl text-white mb-4">
+          <h2 className="font-['Work_Sans'] font-bold text-4xl lg:text-5xl text-black mb-4">
             Opinião de Profissionais
           </h2>
         </div>
@@ -40,13 +37,13 @@ const DesktopTestimonials = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-[#1a1a1a] rounded-2xl p-8 border border-gray-800 relative"
+              className="bg-gray-50 rounded-2xl p-8 border border-gray-200 relative"
             >
               {/* Quote Icon */}
-              <Quote className="absolute top-6 right-6 w-8 h-8 text-emerald-500/20" />
+              <Quote className="absolute top-6 right-6 w-8 h-8 text-emerald-500/30" />
 
               {/* Text */}
-              <p className="text-gray-300 mb-8 leading-relaxed">
+              <p className="text-gray-700 mb-8 leading-relaxed">
                 "{testimonial.text}"
               </p>
 
@@ -56,7 +53,7 @@ const DesktopTestimonials = () => {
                   {testimonial.avatar}
                 </div>
                 <div>
-                  <p className="font-semibold text-white">
+                  <p className="font-semibold text-black">
                     {testimonial.name}
                   </p>
                   <p className="text-sm text-gray-500">
