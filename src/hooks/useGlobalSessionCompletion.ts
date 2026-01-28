@@ -18,12 +18,13 @@ interface CompletedAppointment {
 }
 
 export const useGlobalSessionCompletion = () => {
-  const { user, hasRole, loading } = useAuth();
+  const { user, roles, loading } = useAuth();
   const [completedAppointment, setCompletedAppointment] = useState<CompletedAppointment | null>(null);
 
   useEffect(() => {
     // Only listen for regular users, not professionals viewing their own dashboard
-    if (loading || !user || hasRole("professional")) return;
+    const isProfessional = roles?.includes("professional");
+    if (loading || !user || isProfessional) return;
 
     console.log("[GlobalSessionCompletion] Setting up realtime listener for user:", user.id);
 
@@ -110,7 +111,7 @@ export const useGlobalSessionCompletion = () => {
       console.log("[GlobalSessionCompletion] Cleaning up realtime listener");
       supabase.removeChannel(channel);
     };
-  }, [user, hasRole, loading]);
+  }, [user?.id, loading, roles]);
 
   const clearCompletedAppointment = () => {
     setCompletedAppointment(null);
