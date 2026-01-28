@@ -1,3 +1,4 @@
+import DesktopHeader from "@/components/desktop/DesktopHeader";
 import DesktopHeroCarousel from "@/components/desktop/DesktopHeroCarousel";
 import DesktopFeatures from "@/components/desktop/DesktopFeatures";
 import DesktopCuriosities from "@/components/desktop/DesktopCuriosities";
@@ -8,11 +9,14 @@ import DesktopFooter from "@/components/desktop/DesktopFooter";
 
 /**
  * Static desktop view for the Content Manager.
- * Renders the actual desktop home components without header (managed separately).
+ * Renders the actual desktop home components including header.
  */
 const StaticDesktopView = () => {
   return (
     <div className="bg-[#0a0a0a]">
+      {/* Header */}
+      <DesktopHeader />
+      
       {/* Hero Carousel */}
       <DesktopHeroCarousel />
       
