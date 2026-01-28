@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { RefreshCw, Edit3, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
@@ -6,40 +6,105 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import StaticDesktopView from "./StaticDesktopView";
 import VisualEditorPanel from "./VisualEditorPanel";
-import { VisualEditorProvider, useVisualEditor } from "./VisualEditorContext";
+import { VisualEditorProvider, useVisualEditor, BlockOperation } from "./VisualEditorContext";
 import type { Json } from "@/integrations/supabase/types";
+
+interface ContentBlock {
+  id: string;
+  type: string;
+  [key: string]: unknown;
+}
 
 const DesktopPreviewContent = () => {
   const [refreshKey, setRefreshKey] = useState(0);
-  const { editMode, setEditMode, selectedElement, pendingChanges, discardChanges } = useVisualEditor();
+  const { 
+    editMode, 
+    setEditMode, 
+    selectedElement, 
+    pendingChanges, 
+    pendingOperations,
+    discardChanges,
+    hasChanges 
+  } = useVisualEditor();
   const queryClient = useQueryClient();
 
   const handleRefresh = () => {
     setRefreshKey(prev => prev + 1);
   };
 
+  const applyOperations = (blocks: ContentBlock[], operations: BlockOperation[], moduleId: string): ContentBlock[] => {
+    let result = [...blocks];
+
+    for (const op of operations) {
+      if (op.moduleId !== moduleId) continue;
+
+      switch (op.type) {
+        case "delete":
+          result = result.filter(b => b.id !== op.blockId);
+          break;
+
+        case "duplicate": {
+          const sourceIndex = result.findIndex(b => b.id === op.blockId);
+          if (sourceIndex !== -1) {
+            const source = result[sourceIndex];
+            const duplicate = { ...source, id: op.newBlockId || `dup-${Date.now()}` };
+            result.splice(sourceIndex + 1, 0, duplicate);
+          }
+          break;
+        }
+
+        case "move": {
+          const index = result.findIndex(b => b.id === op.blockId);
+          if (index !== -1) {
+            const newIndex = op.direction === "up" ? index - 1 : index + 1;
+            if (newIndex >= 0 && newIndex < result.length) {
+              const [moved] = result.splice(index, 1);
+              result.splice(newIndex, 0, moved);
+            }
+          }
+          break;
+        }
+
+        case "add": {
+          const newBlock = op.data as ContentBlock;
+          if (op.blockId) {
+            const afterIndex = result.findIndex(b => b.id === op.blockId);
+            if (afterIndex !== -1) {
+              result.splice(afterIndex + 1, 0, newBlock);
+            } else {
+              result.push(newBlock);
+            }
+          } else {
+            result.push(newBlock);
+          }
+          break;
+        }
+      }
+    }
+
+    return result;
+  };
+
   const handleSaveChanges = async () => {
-    if (pendingChanges.size === 0) {
+    if (!hasChanges) {
       toast.info("Nenhuma alteração para salvar");
       return;
     }
 
     try {
-      // Group changes by module
-      const moduleChanges = new Map<string, { moduleId: string; blocks: Map<string, Record<string, unknown>> }>();
+      // Collect all affected modules
+      const affectedModules = new Set<string>();
       
       pendingChanges.forEach((change) => {
-        const moduleId = change.moduleId as string;
-        const blockId = change.blockId as string;
-        
-        if (!moduleChanges.has(moduleId)) {
-          moduleChanges.set(moduleId, { moduleId, blocks: new Map() });
-        }
-        moduleChanges.get(moduleId)!.blocks.set(blockId, change);
+        affectedModules.add(change.moduleId as string);
+      });
+      
+      pendingOperations.forEach((op) => {
+        affectedModules.add(op.moduleId);
       });
 
-      // Apply changes to each module
-      for (const [moduleId, { blocks }] of moduleChanges) {
+      // Process each module
+      for (const moduleId of affectedModules) {
         // Fetch current module config
         const { data: moduleData } = await supabase
           .from("app_modules")
@@ -50,12 +115,15 @@ const DesktopPreviewContent = () => {
         if (!moduleData) continue;
 
         const currentConfig = moduleData.config as Record<string, unknown>;
-        const currentBlocks = (currentConfig.blocks || []) as Array<Record<string, unknown>>;
+        let currentBlocks = (currentConfig.blocks || []) as ContentBlock[];
 
-        // Update blocks with changes
+        // Apply operations (delete, duplicate, move, add)
+        currentBlocks = applyOperations(currentBlocks, pendingOperations, moduleId);
+
+        // Apply data updates
         const updatedBlocks = currentBlocks.map(block => {
-          const blockId = block.id as string;
-          const blockChanges = blocks.get(blockId);
+          const key = `${moduleId}:${block.id}`;
+          const blockChanges = pendingChanges.get(key);
           if (blockChanges) {
             const { moduleId: _, blockId: __, ...updates } = blockChanges;
             return { ...block, ...updates };
@@ -83,14 +151,15 @@ const DesktopPreviewContent = () => {
   };
 
   const handleToggleEditMode = () => {
-    if (editMode && pendingChanges.size > 0) {
-      // Prompt to save or discard
+    if (editMode && hasChanges) {
       const confirmed = window.confirm("Você tem alterações não salvas. Deseja descartá-las?");
       if (!confirmed) return;
       discardChanges();
     }
     setEditMode(!editMode);
   };
+
+  const totalChanges = pendingChanges.size + pendingOperations.length;
 
   return (
     <div className="h-full flex flex-col bg-muted/30">
@@ -106,7 +175,7 @@ const DesktopPreviewContent = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          {editMode && pendingChanges.size > 0 && (
+          {editMode && hasChanges && (
             <>
               <Button
                 size="sm"
@@ -123,7 +192,7 @@ const DesktopPreviewContent = () => {
                 className="h-8 gap-2"
               >
                 <Save className="w-4 h-4" />
-                Salvar ({pendingChanges.size})
+                Salvar ({totalChanges})
               </Button>
             </>
           )}
