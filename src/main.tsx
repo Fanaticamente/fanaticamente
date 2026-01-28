@@ -16,7 +16,20 @@ const isEmbedMode = () => {
 
 // IMPORTANT: no modo embed (usado pelo iframe do Gerenciador de Conteúdo),
 // desativamos o registro/auto-update do service worker para evitar reloads em loop.
-if (!isEmbedMode()) {
+if (isEmbedMode()) {
+  // If a service worker was registered previously, it may still be controlling this page.
+  // Unregister it in embed mode to prevent any auto-update/reload behavior.
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((registrations) => {
+        registrations.forEach((r) => r.unregister());
+      })
+      .catch(() => {
+        // ignore
+      });
+  }
+} else {
   const updateSW = registerSW({
     // Força verificação imediata de atualizações ao abrir o app
     immediate: true,
