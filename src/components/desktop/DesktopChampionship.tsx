@@ -2,15 +2,15 @@ import phoneMockup from "@/assets/desktop/brasileirao-saude-mental-phone.png";
 
 const DesktopChampionship = () => {
   return (
-    <section className="bg-white py-20 lg:py-24 overflow-hidden">
+    <section className="bg-white pt-8 pb-16 lg:pt-10 lg:pb-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left Column - Phone Mockup */}
-          <div className="flex justify-center lg:justify-start lg:-ml-20 xl:-ml-32">
+          <div className="flex justify-center lg:justify-start">
             <img 
               src={phoneMockup} 
               alt="Brasileirão da Saúde Mental" 
-              className="w-[500px] lg:w-[600px] xl:w-[700px] max-w-none object-contain"
+              className="w-[450px] lg:w-[550px] xl:w-[650px] max-w-none object-contain"
             />
           </div>
 
