@@ -258,20 +258,33 @@ const EditableBlock = ({
 
   if (!editMode) {
     // Apply custom styles even when not in edit mode
-    const customStyles: React.CSSProperties = {};
+    const customStyles: React.CSSProperties = {
+      overflow: 'hidden',
+    };
     if (customWidth) customStyles.width = `${customWidth}px`;
     if (customHeight) customStyles.height = `${customHeight}px`;
     if (customX || customY) customStyles.transform = `translate(${customX || 0}px, ${customY || 0}px)`;
 
+    // Content wrapper styles for text/image adaptation
+    const contentWrapperClass = cn(
+      "w-full h-full",
+      isText && "overflow-hidden [&>*]:w-full [&>*]:h-full [&>*]:overflow-hidden [&>*]:text-ellipsis",
+      blockType === "image" && "[&_img]:w-full [&_img]:h-full [&_img]:object-cover"
+    );
+
     return (
       <div style={customStyles} className={className}>
-        {children}
+        <div className={contentWrapperClass}>
+          {children}
+        </div>
       </div>
     );
   }
 
   // Apply custom styles in edit mode
-  const editStyles: React.CSSProperties = {};
+  const editStyles: React.CSSProperties = {
+    overflow: 'hidden',
+  };
   if (customWidth) editStyles.width = `${customWidth}px`;
   if (customHeight) editStyles.height = `${customHeight}px`;
   if (customX || customY) editStyles.transform = `translate(${customX || 0}px, ${customY || 0}px)`;
@@ -455,23 +468,30 @@ const EditableBlock = ({
         </>
       )}
 
-      {/* Editable text content */}
-      {isText && isEditing ? (
-        <div
-          contentEditable
-          suppressContentEditableWarning
-          className="outline-none bg-primary/10 min-h-[1em] p-1 -m-1 rounded"
-          onBlur={handleBlur}
-          onInput={(e) => setEditableContent(e.currentTarget.textContent || "")}
-          dangerouslySetInnerHTML={{ __html: editableContent }}
-          style={{
-            whiteSpace: "pre-wrap",
-          }}
-          onClick={(e) => e.stopPropagation()}
-        />
-      ) : (
-        children
-      )}
+      {/* Content wrapper for proper sizing adaptation */}
+      <div className={cn(
+        "w-full h-full",
+        isText && "overflow-hidden [&>*]:w-full [&>*]:h-full [&>*]:overflow-hidden",
+        blockType === "image" && "[&_img]:w-full [&_img]:h-full [&_img]:object-cover"
+      )}>
+        {/* Editable text content */}
+        {isText && isEditing ? (
+          <div
+            contentEditable
+            suppressContentEditableWarning
+            className="outline-none bg-primary/10 min-h-[1em] p-1 -m-1 rounded w-full h-full overflow-auto"
+            onBlur={handleBlur}
+            onInput={(e) => setEditableContent(e.currentTarget.textContent || "")}
+            dangerouslySetInnerHTML={{ __html: editableContent }}
+            style={{
+              whiteSpace: "pre-wrap",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          children
+        )}
+      </div>
     </div>
   );
 };
