@@ -3,7 +3,7 @@ import macVideocall from "@/assets/desktop/mac-videocall.png";
 
 const DesktopCuriosities = () => {
   return (
-    <section className="bg-white pt-16 pb-8 lg:pt-20 lg:pb-10 overflow-hidden">
+    <section className="bg-white pt-16 pb-4 lg:pt-20 lg:pb-6 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left Column - Text Content */}

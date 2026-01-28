@@ -2,7 +2,7 @@ import phoneMockup from "@/assets/desktop/brasileirao-saude-mental-phone.png";
 
 const DesktopChampionship = () => {
   return (
-    <section className="bg-white pt-8 pb-16 lg:pt-10 lg:pb-20 overflow-hidden">
+    <section className="bg-white pt-4 pb-16 lg:pt-6 lg:pb-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left Column - Phone Mockup */}
