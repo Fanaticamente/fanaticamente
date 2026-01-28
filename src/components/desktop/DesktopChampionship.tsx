@@ -15,7 +15,7 @@ const DesktopChampionship = () => {
           </div>
 
           {/* Right Column - Text Content */}
-          <div className="lg:pl-8">
+          <div className="lg:pl-16 xl:pl-24">
             <h2 
               className="text-4xl lg:text-5xl text-black font-bold mb-6"
               style={{ fontFamily: "'Work Sans', sans-serif" }}
