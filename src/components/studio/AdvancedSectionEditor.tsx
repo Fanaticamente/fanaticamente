@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { X, Save, Plus, Trash2, GripVertical, ChevronDown, ChevronUp, Image as ImageIcon, Type, Upload, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppModule, useUpdateModule, useUpdateModuleConfig } from "@/hooks/useAppModules";
@@ -30,15 +30,58 @@ const AdvancedSectionEditor = ({ module, onClose, onSaved }: AdvancedSectionEdit
   const [uploading, setUploading] = useState(false);
   const [activeColumn, setActiveColumn] = useState<"left" | "right" | "single">("single");
 
+  const draftKey = useMemo(() => `fanatica_desktop_module_draft_${module.id}`, [module.id]);
+
   const queryClient = useQueryClient();
   const updateModule = useUpdateModule();
   const updateConfig = useUpdateModuleConfig();
 
   useEffect(() => {
+    // Restore draft first (if any)
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (raw) {
+        const parsed = JSON.parse(raw) as {
+          name?: string;
+          isVisible?: boolean;
+          config?: DynamicSectionConfig;
+          activeColumn?: "left" | "right" | "single";
+        };
+        setName(typeof parsed.name === "string" ? parsed.name : module.name);
+        setIsVisible(typeof parsed.isVisible === "boolean" ? parsed.isVisible : module.is_visible);
+        setConfig((parsed.config as any) || (module.config as unknown as DynamicSectionConfig) || getDefaultConfig());
+        setActiveColumn(parsed.activeColumn || "single");
+        return;
+      }
+    } catch {
+      // ignore
+    }
+
     setName(module.name);
     setIsVisible(module.is_visible);
-    setConfig(module.config as unknown as DynamicSectionConfig || getDefaultConfig());
+    setConfig((module.config as unknown as DynamicSectionConfig) || getDefaultConfig());
   }, [module]);
+
+  // Persist draft (debounced)
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      try {
+        localStorage.setItem(
+          draftKey,
+          JSON.stringify({
+            name,
+            isVisible,
+            config,
+            activeColumn,
+          })
+        );
+      } catch {
+        // ignore
+      }
+    }, 250);
+
+    return () => window.clearTimeout(handle);
+  }, [draftKey, name, isVisible, config, activeColumn]);
 
   function getDefaultConfig(): DynamicSectionConfig {
     return {
@@ -74,6 +117,14 @@ const AdvancedSectionEditor = ({ module, onClose, onSaved }: AdvancedSectionEdit
       await queryClient.invalidateQueries({ queryKey: ["desktop-modules-preview"] });
 
       toast.success("Seção salva com sucesso!");
+
+      // Clear draft on successful save
+      try {
+        localStorage.removeItem(draftKey);
+      } catch {
+        // ignore
+      }
+
       onSaved?.();
     } catch {
       toast.error("Erro ao salvar seção");
