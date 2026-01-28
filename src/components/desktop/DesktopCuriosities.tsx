@@ -16,13 +16,12 @@ const DesktopCuriosities = () => {
             </h2>
             
             <h3 
-              className="text-xl lg:text-2xl text-black font-bold -mb-1"
+              className="text-xl lg:text-2xl text-black font-bold mb-0"
               style={{ fontFamily: "'Work Sans', sans-serif" }}
             >
               Experiência inédita
             </h3>
-            
-            <div className="flex items-center gap-0 mt-1">
+            <div className="flex items-center gap-0">
               <p className="text-gray-700 text-base lg:text-lg leading-relaxed max-w-xs">
                 Nas sessões de terapia realizadas através da conexão entre terapeuta e paciente pelo Fanaticamente, a tradição do jogo é que ambos vistam os seus <span className="font-bold">mantos sagrados</span> durante a sessão!
               </p>
