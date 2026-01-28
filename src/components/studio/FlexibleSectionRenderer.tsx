@@ -1,14 +1,29 @@
 interface ContentBlock {
   id: string;
-  type: "heading" | "text" | "image" | "button" | "spacer";
+  type: "heading" | "text" | "image" | "button" | "spacer" | "card";
   content?: string;
-  level?: "h1" | "h2" | "h3";
+  level?: number;
   alignment?: "left" | "center" | "right";
+  src?: string;
   imageUrl?: string;
+  alt?: string;
   altText?: string;
   label?: string;
   link?: string;
   height?: number;
+  width?: "full" | "2/3" | "1/2" | "1/3";
+  fontWeight?: "normal" | "medium" | "semibold" | "bold";
+  textColor?: "white" | "gray" | "muted" | "accent";
+  backgroundColor?: string;
+  column?: "left" | "right" | "full";
+  padding?: "none" | "small" | "medium" | "large";
+}
+
+interface SectionLayout {
+  type: "single" | "two-column" | "left-wide" | "right-wide";
+  backgroundColor?: string;
+  containerWidth?: "full" | "narrow" | "wide";
+  verticalPadding?: "small" | "medium" | "large";
 }
 
 interface FeatureItem {
@@ -25,16 +40,12 @@ interface TestimonialItem {
   avatar?: string;
 }
 
-interface FAQItem {
-  question: string;
-  answer: string;
-}
-
 interface FlexibleSectionConfig {
   title?: string;
   subtitle?: string;
   content?: string;
   blocks?: ContentBlock[];
+  layout?: SectionLayout;
   items?: FeatureItem[];
   testimonials?: TestimonialItem[];
   alignment?: string;
@@ -62,7 +73,38 @@ interface FlexibleSectionRendererProps {
 const FlexibleSectionRenderer = ({ config, name, moduleType }: FlexibleSectionRendererProps) => {
   const sectionConfig = config as FlexibleSectionConfig;
   const blocks = sectionConfig.blocks || [];
+  const layout = sectionConfig.layout || { type: "single", backgroundColor: "#0a0a0a", verticalPadding: "medium" };
   const alignment = sectionConfig.alignment || "center";
+
+  const getTextColorClass = (color?: string) => {
+    switch (color) {
+      case "white":
+        return "text-white";
+      case "gray":
+        return "text-gray-300";
+      case "muted":
+        return "text-gray-500";
+      case "accent":
+        return "text-emerald-400";
+      default:
+        return "text-white";
+    }
+  };
+
+  const getFontWeightClass = (weight?: string) => {
+    switch (weight) {
+      case "normal":
+        return "font-normal";
+      case "medium":
+        return "font-medium";
+      case "semibold":
+        return "font-semibold";
+      case "bold":
+        return "font-bold";
+      default:
+        return "font-normal";
+    }
+  };
 
   const getAlignmentClass = (blockAlignment?: string) => {
     const align = blockAlignment || alignment;
@@ -88,48 +130,136 @@ const FlexibleSectionRenderer = ({ config, name, moduleType }: FlexibleSectionRe
     }
   };
 
+  const getWidthClass = (width?: string) => {
+    switch (width) {
+      case "full":
+        return "w-full";
+      case "2/3":
+        return "w-2/3";
+      case "1/2":
+        return "w-1/2";
+      case "1/3":
+        return "w-1/3";
+      default:
+        return "w-full";
+    }
+  };
+
+  const getPaddingClass = (padding?: string) => {
+    switch (padding) {
+      case "none":
+        return "";
+      case "small":
+        return "p-4";
+      case "medium":
+        return "p-6 md:p-8";
+      case "large":
+        return "p-8 md:p-12";
+      default:
+        return "p-6";
+    }
+  };
+
+  const getVerticalPadding = (vp?: string) => {
+    switch (vp) {
+      case "small":
+        return "py-10";
+      case "medium":
+        return "py-16 md:py-20";
+      case "large":
+        return "py-24 md:py-32";
+      default:
+        return "py-16";
+    }
+  };
+
   const renderBlock = (block: ContentBlock) => {
+    const imgSrc = block.src || block.imageUrl;
+    const imgAlt = block.alt || block.altText || "";
+    const buttonLabel = block.content || block.label || "Clique aqui";
+
     switch (block.type) {
-      case "heading":
-        const HeadingTag = block.level || "h2";
-        const headingSizes = {
-          h1: "text-4xl md:text-5xl font-bold",
-          h2: "text-3xl md:text-4xl font-bold",
-          h3: "text-2xl md:text-3xl font-semibold",
+      case "heading": {
+        const level = block.level || 2;
+        const headingSizes: Record<number, string> = {
+          1: "text-4xl md:text-5xl lg:text-6xl",
+          2: "text-3xl md:text-4xl lg:text-5xl",
+          3: "text-2xl md:text-3xl",
         };
+        const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
         return (
           <HeadingTag
             key={block.id}
-            className={`text-white ${headingSizes[HeadingTag]} ${getAlignmentClass(block.alignment)}`}
+            className={`${headingSizes[level]} ${getFontWeightClass(block.fontWeight)} ${getTextColorClass(block.textColor)} ${getAlignmentClass(block.alignment)} leading-tight`}
           >
             {block.content}
           </HeadingTag>
         );
+      }
 
       case "text":
         return (
           <p
             key={block.id}
-            className={`text-gray-300 text-lg leading-relaxed ${getAlignmentClass(block.alignment)}`}
+            className={`text-lg md:text-xl leading-relaxed ${getFontWeightClass(block.fontWeight)} ${getTextColorClass(block.textColor)} ${getAlignmentClass(block.alignment)}`}
           >
             {block.content}
           </p>
         );
 
+      case "card":
+        // Determine text color based on background
+        const isLightBg = block.backgroundColor === "#f5f5f5" || block.backgroundColor === "transparent";
+        const cardTextColor = isLightBg ? "text-gray-800" : "text-white";
+        return (
+          <div 
+            key={block.id} 
+            className={`rounded-xl ${getPaddingClass(block.padding)} ${getAlignmentClass(block.alignment)}`}
+            style={{ backgroundColor: block.backgroundColor || "#f5f5f5" }}
+          >
+            <div className={`space-y-3 ${cardTextColor}`}>
+              {block.content?.split('\n').map((line, i) => {
+                // Check if line starts with ## or **text** for special formatting
+                if (line.startsWith('## ')) {
+                  return (
+                    <h3 key={i} className="text-xl md:text-2xl font-bold">
+                      {line.replace('## ', '')}
+                    </h3>
+                  );
+                }
+                // Parse **bold** text
+                const parts = line.split(/(\*\*[^*]+\*\*)/g);
+                return (
+                  <p key={i} className={`text-base md:text-lg leading-relaxed ${isLightBg ? 'text-gray-600' : 'text-gray-300'}`}>
+                    {parts.map((part, j) => {
+                      if (part.startsWith('**') && part.endsWith('**')) {
+                        return <strong key={j} className={isLightBg ? 'text-gray-900' : 'text-white'}>{part.slice(2, -2)}</strong>;
+                      }
+                      return part;
+                    })}
+                  </p>
+                );
+              })}
+            </div>
+          </div>
+        );
+
       case "image":
         return (
           <div key={block.id} className={`flex ${getJustifyClass(block.alignment)}`}>
-            {block.imageUrl ? (
-              <img
-                src={block.imageUrl}
-                alt={block.altText || ""}
-                className="max-w-full h-auto rounded-lg"
-              />
-            ) : (
-              <div className="w-full h-48 bg-gray-800 rounded-lg flex items-center justify-center">
-                <span className="text-gray-500">Imagem não definida</span>
-              </div>
-            )}
+            <div className={getWidthClass(block.width)}>
+              {imgSrc ? (
+                <img
+                  src={imgSrc}
+                  alt={imgAlt}
+                  className="w-full h-auto rounded-lg"
+                />
+              ) : (
+                <div className="w-full h-48 bg-gray-800 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-500">Imagem não definida</span>
+                </div>
+              )}
+            </div>
           </div>
         );
 
@@ -140,7 +270,7 @@ const FlexibleSectionRenderer = ({ config, name, moduleType }: FlexibleSectionRe
               href={block.link || "#"}
               className="inline-flex items-center justify-center px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-full transition-colors"
             >
-              {block.label || "Clique aqui"}
+              {buttonLabel}
             </a>
           </div>
         );
@@ -356,18 +486,41 @@ const FlexibleSectionRenderer = ({ config, name, moduleType }: FlexibleSectionRe
     );
   }
 
-  // Default: render text section with blocks
+  // Default: render section with layout support
+  const leftBlocks = blocks.filter(b => b.column === "left" || (!b.column && layout.type === "single"));
+  const rightBlocks = blocks.filter(b => b.column === "right");
+  const fullBlocks = blocks.filter(b => b.column === "full");
+
+  // For single column, all blocks go into fullBlocks
+  const singleColumnBlocks = layout.type === "single" ? blocks : [];
+
+  const getGridClass = () => {
+    switch (layout.type) {
+      case "two-column":
+        return "grid-cols-1 md:grid-cols-2";
+      case "left-wide":
+        return "grid-cols-1 md:grid-cols-[2fr_1fr]";
+      case "right-wide":
+        return "grid-cols-1 md:grid-cols-[1fr_2fr]";
+      default:
+        return "";
+    }
+  };
+
   return (
-    <section className="py-16 px-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <section 
+      className={`px-6 ${getVerticalPadding(layout.verticalPadding)}`}
+      style={{ backgroundColor: layout.backgroundColor || "#0a0a0a" }}
+    >
+      <div className="max-w-6xl mx-auto">
         {/* Title from config */}
         {sectionConfig.title && (
-          <h2 className={`text-3xl md:text-4xl font-bold text-white ${getAlignmentClass()}`}>
+          <h2 className={`text-3xl md:text-4xl font-bold text-white mb-8 ${getAlignmentClass()}`}>
             {sectionConfig.title}
           </h2>
         )}
         {sectionConfig.subtitle && (
-          <p className={`text-gray-400 text-lg ${getAlignmentClass()}`}>
+          <p className={`text-gray-400 text-lg mb-8 ${getAlignmentClass()}`}>
             {sectionConfig.subtitle}
           </p>
         )}
@@ -379,19 +532,47 @@ const FlexibleSectionRenderer = ({ config, name, moduleType }: FlexibleSectionRe
           </p>
         )}
 
+        {/* Single column layout */}
+        {layout.type === "single" && (
+          <div className="space-y-6">
+            {singleColumnBlocks.map((block) => renderBlock(block))}
+          </div>
+        )}
+
+        {/* Multi-column layout */}
+        {layout.type !== "single" && (
+          <>
+            {/* Full width blocks at top */}
+            {fullBlocks.length > 0 && (
+              <div className="space-y-6 mb-8">
+                {fullBlocks.map((block) => renderBlock(block))}
+              </div>
+            )}
+            
+            {/* Grid columns */}
+            {(leftBlocks.length > 0 || rightBlocks.length > 0) && (
+              <div className={`grid ${getGridClass()} gap-8 md:gap-12 items-start`}>
+                <div className="space-y-6">
+                  {leftBlocks.map((block) => renderBlock(block))}
+                </div>
+                <div className="space-y-6">
+                  {rightBlocks.map((block) => renderBlock(block))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
         {/* Description for about-type sections */}
         {sectionConfig.description && (
-          <p className={`text-gray-300 text-lg leading-relaxed ${getAlignmentClass()}`}>
+          <p className={`text-gray-300 text-lg leading-relaxed mt-6 ${getAlignmentClass()}`}>
             {sectionConfig.description}
           </p>
         )}
 
-        {/* Render blocks */}
-        {blocks.map((block) => renderBlock(block))}
-
         {/* CTA button if present */}
         {(sectionConfig.buttonText || sectionConfig.cta) && (
-          <div className={`flex ${getJustifyClass()} pt-4`}>
+          <div className={`flex ${getJustifyClass()} pt-8`}>
             <a
               href={sectionConfig.buttonLink || sectionConfig.ctaLink || "#"}
               className="inline-flex items-center justify-center px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-full transition-colors"
