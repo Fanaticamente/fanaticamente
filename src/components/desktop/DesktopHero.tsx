@@ -14,16 +14,11 @@ const DesktopHero = () => {
             {/* Left Column - Main Title */}
             <div>
               <h2 
-                className="text-3xl lg:text-4xl xl:text-[44px] text-emerald-600 leading-[1.15] flex flex-wrap items-baseline gap-x-2"
+                className="text-3xl lg:text-4xl xl:text-[44px] text-emerald-600 leading-[1.15]"
                 style={{ fontFamily: "'Work Sans', sans-serif" }}
               >
-                <span className="font-normal">Transformando a forma que os</span>
-                <span className="font-bold">torcedores</span>
-                <span className="font-normal">se conectam com sua</span>
-                <span className="font-bold inline-flex items-center gap-2">
-                  saúde mental
-                  <Brain className="w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 text-emerald-600 inline-block" />
-                </span>
+                Transformando a forma que os <span className="font-bold">torcedores</span> se conectam com sua <span className="font-bold">saúde mental</span>
+                <Brain className="w-8 h-8 lg:w-10 lg:h-10 xl:w-11 xl:h-11 text-emerald-600 inline-block ml-2 align-middle" />
               </h2>
             </div>
 
