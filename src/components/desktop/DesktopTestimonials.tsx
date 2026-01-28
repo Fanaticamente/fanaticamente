@@ -23,7 +23,7 @@ const testimonials = [
 
 const DesktopTestimonials = () => {
   return (
-    <section className="bg-white py-20">
+    <section className="bg-white py-28 lg:py-32">
       <div className="max-w-6xl mx-auto px-6">
         {/* Section Header */}
         <div className="text-center mb-16">

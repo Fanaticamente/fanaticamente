@@ -7,7 +7,7 @@ const DesktopHero = () => {
       <DesktopHeroCarousel />
 
       {/* Intro Section */}
-      <div className="bg-white py-24">
+      <div className="bg-white py-28 lg:py-36">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
             {/* Left Column - Main Title */}
