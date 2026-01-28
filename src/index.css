@@ -201,43 +201,11 @@
     body {
       height: auto !important;
       min-height: 100% !important;
-      overflow-y: scroll !important;
-      scrollbar-width: auto !important;
-      -ms-overflow-style: scrollbar !important;
-      /* Reserve gutter so the scrollbar is consistently visible */
-      scrollbar-gutter: stable;
+      /* Let the browser decide the default scrollbar behavior */
+      overflow-y: auto !important;
     }
 
-    /* Ensure no element inherits the mobile scrollbar-hiding settings */
-    * {
-      scrollbar-width: auto !important;
-      -ms-overflow-style: auto !important;
-    }
-
-    *::-webkit-scrollbar {
-      display: initial !important;
-      width: initial !important;
-      height: initial !important;
-    }
-    
-    /* Style the browser scrollbar on html */
-    html::-webkit-scrollbar {
-      display: block !important;
-      width: 6px !important;
-    }
-    
-    html::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    
-    html::-webkit-scrollbar-thumb {
-      background: hsl(0 0% 20%);
-      border-radius: 3px;
-    }
-    
-    html::-webkit-scrollbar-thumb:hover {
-      background: hsl(0 0% 30%);
-    }
+    /* Remove all desktop scrollbar forcing/styling so it remains truly native */
   }
 
   /* Normalize iOS date input height so it matches other inputs (48px / h-12) */
