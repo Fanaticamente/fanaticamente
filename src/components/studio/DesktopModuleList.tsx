@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { 
   GripVertical, Eye, EyeOff, ChevronRight, ChevronDown, 
-  MoreVertical, Trash2, Copy, Home, Layout, Image, 
-  Users, MessageSquare, FileText, LucideIcon
+  MoreVertical, Trash2, Copy, Loader2,
+  Home, Layout, Image, Users, MessageSquare, FileText, BarChart, LucideIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,20 +11,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-// Placeholder types for desktop modules (will be connected to DB later)
-interface DesktopModule {
-  id: string;
-  name: string;
-  section: string;
-  icon: string;
-  is_visible: boolean;
-  order_index: number;
-}
+import { useAppModules, useToggleModuleVisibility, useDeleteModule, AppModule } from "@/hooks/useAppModules";
 
 interface DesktopModuleListProps {
   selectedModuleId?: string;
-  onSelectModule: (module: DesktopModule) => void;
+  onSelectModule: (module: AppModule) => void;
 }
 
 const iconMap: Record<string, LucideIcon> = {
@@ -33,81 +24,99 @@ const iconMap: Record<string, LucideIcon> = {
   users: Users,
   "message-square": MessageSquare,
   "file-text": FileText,
+  "bar-chart": BarChart,
   home: Home,
 };
 
-const getIconComponent = (iconName: string): LucideIcon => {
-  return iconMap[iconName] || Layout;
+const getIconComponent = (iconName: string | null): LucideIcon => {
+  return iconMap[iconName || "layout"] || Layout;
 };
 
-// Placeholder desktop sections and modules
+// Desktop sections to group modules
 const DESKTOP_SECTIONS = [
-  { id: "hero", name: "Hero / Banner Principal", icon: Home },
-  { id: "features", name: "Seção Diferenciais", icon: Layout },
-  { id: "about", name: "Seção Sobre", icon: FileText },
-  { id: "testimonials", name: "Depoimentos", icon: MessageSquare },
-  { id: "professionals", name: "Formulário Profissionais", icon: Users },
-  { id: "footer", name: "Rodapé", icon: Layout },
-];
-
-const PLACEHOLDER_MODULES: DesktopModule[] = [
-  { id: "hero-carousel", name: "Carrossel Hero", section: "hero", icon: "image", is_visible: true, order_index: 0 },
-  { id: "hero-cta", name: "Botão CTA Principal", section: "hero", icon: "layout", is_visible: true, order_index: 1 },
-  { id: "feature-1", name: "Card Terapeutas", section: "features", icon: "users", is_visible: true, order_index: 0 },
-  { id: "feature-2", name: "Card Entretenimento", section: "features", icon: "layout", is_visible: true, order_index: 1 },
-  { id: "feature-3", name: "Card Conhecimento", section: "features", icon: "file-text", is_visible: true, order_index: 2 },
-  { id: "feature-4", name: "Card Camisas", section: "features", icon: "layout", is_visible: true, order_index: 3 },
-  { id: "about-text", name: "Texto Sobre", section: "about", icon: "file-text", is_visible: true, order_index: 0 },
-  { id: "about-image", name: "Imagem Mac Mockup", section: "about", icon: "image", is_visible: true, order_index: 1 },
-  { id: "testimonial-1", name: "Depoimento 1", section: "testimonials", icon: "message-square", is_visible: true, order_index: 0 },
-  { id: "testimonial-2", name: "Depoimento 2", section: "testimonials", icon: "message-square", is_visible: true, order_index: 1 },
-  { id: "testimonial-3", name: "Depoimento 3", section: "testimonials", icon: "message-square", is_visible: true, order_index: 2 },
-  { id: "pro-form", name: "Formulário de Cadastro", section: "professionals", icon: "users", is_visible: true, order_index: 0 },
-  { id: "footer-links", name: "Links do Rodapé", section: "footer", icon: "layout", is_visible: true, order_index: 0 },
-  { id: "footer-social", name: "Redes Sociais", section: "footer", icon: "layout", is_visible: true, order_index: 1 },
+  { id: "desktop_hero_carousel", name: "Hero / Banner Principal", icon: Home },
+  { id: "desktop_features_section", name: "Seção Diferenciais", icon: Layout },
+  { id: "desktop_curiosities_section", name: "Seção Curiosidades", icon: BarChart },
+  { id: "desktop_about_section", name: "Seção Sobre", icon: FileText },
+  { id: "desktop_testimonials_section", name: "Depoimentos", icon: MessageSquare },
+  { id: "desktop_professional_form", name: "Formulário Profissionais", icon: Users },
+  { id: "desktop_footer", name: "Rodapé", icon: Layout },
 ];
 
 const DesktopModuleList = ({ 
   selectedModuleId, 
   onSelectModule
 }: DesktopModuleListProps) => {
-  const [expandedSections, setExpandedSections] = useState<string[]>(["hero", "features"]);
-  const [modules] = useState<DesktopModule[]>(PLACEHOLDER_MODULES);
+  const [expandedModules, setExpandedModules] = useState<string[]>(["desktop_hero_carousel", "desktop_features_section"]);
+  
+  const { data: modules, isLoading } = useAppModules("desktop");
+  const toggleVisibility = useToggleModuleVisibility();
+  const deleteModule = useDeleteModule();
 
-  const toggleExpand = (sectionId: string) => {
-    setExpandedSections(prev => 
-      prev.includes(sectionId) 
-        ? prev.filter(s => s !== sectionId) 
-        : [...prev, sectionId]
+  const toggleExpand = (moduleId: string) => {
+    setExpandedModules(prev => 
+      prev.includes(moduleId) 
+        ? prev.filter(s => s !== moduleId) 
+        : [...prev, moduleId]
     );
   };
+
+  const handleToggleVisibility = (module: AppModule) => {
+    toggleVisibility.mutate({ id: module.id, is_visible: !module.is_visible });
+  };
+
+  const handleDuplicate = (module: AppModule) => {
+    // TODO: Implement duplication
+    console.log("Duplicate", module);
+  };
+
+  const handleDelete = (module: AppModule) => {
+    if (confirm(`Tem certeza que deseja excluir "${module.name}"?`)) {
+      deleteModule.mutate(module.id);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 border-b border-border">
         <h3 className="font-display text-lg text-card-foreground">Seções do Site</h3>
-        <p className="text-xs text-muted-foreground mt-1">Organize o conteúdo desktop</p>
+        <p className="text-xs text-muted-foreground mt-1">Clique para editar conteúdo</p>
       </div>
       
       <div className="flex-1 overflow-y-auto">
         {DESKTOP_SECTIONS.map((section) => {
-          const sectionModules = modules.filter(m => m.section === section.id);
-          const isExpanded = expandedSections.includes(section.id);
+          const module = modules?.find(m => m.module_id === section.id);
+          const isExpanded = expandedModules.includes(section.id);
           const SectionIcon = section.icon;
+          const isSelected = selectedModuleId === module?.id;
+          
+          if (!module) return null;
           
           return (
             <div key={section.id} className="border-b border-border last:border-b-0">
               <button
                 onClick={() => toggleExpand(section.id)}
-                className="w-full flex items-center gap-2 p-3 hover:bg-muted/50 transition-colors"
+                className={`w-full flex items-center gap-2 p-3 hover:bg-muted/50 transition-colors ${
+                  isSelected ? "bg-secondary/20" : ""
+                }`}
               >
                 <SectionIcon className="w-4 h-4 text-muted-foreground" />
                 <span className="flex-1 text-left text-sm font-medium text-card-foreground">
                   {section.name}
                 </span>
-                <span className="text-xs text-muted-foreground mr-2">
-                  {sectionModules.length}
-                </span>
+                {!module.is_visible && (
+                  <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                    oculto
+                  </span>
+                )}
                 {isExpanded ? (
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
@@ -116,100 +125,89 @@ const DesktopModuleList = ({
               </button>
               
               {isExpanded && (
-                <div className="pb-2">
-                  {sectionModules.map((module) => {
-                    const ModuleIcon = getIconComponent(module.icon);
-                    const isSelected = selectedModuleId === module.id;
+                <div className="pb-2 px-2">
+                  <div
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                      isSelected 
+                        ? "bg-secondary/20 border border-secondary/30" 
+                        : "hover:bg-muted/50"
+                    }`}
+                    onClick={() => onSelectModule(module)}
+                  >
+                    <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
                     
-                    return (
-                      <div
-                        key={module.id}
-                        className={`flex items-center gap-2 px-3 py-2 mx-2 rounded-lg cursor-pointer transition-colors ${
-                          isSelected 
-                            ? "bg-secondary/20 border border-secondary/30" 
-                            : "hover:bg-muted/50"
-                        }`}
-                        onClick={() => onSelectModule(module)}
-                      >
-                        <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
-                        
-                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
-                          <ModuleIcon className="w-4 h-4 text-muted-foreground" />
-                        </div>
-                        
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            {!module.is_visible && (
-                              <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                                oculto
-                              </span>
-                            )}
-                            <span className={`text-sm truncate ${
-                              module.is_visible ? "text-card-foreground" : "text-muted-foreground"
-                            }`}>
-                              {module.name}
-                            </span>
-                          </div>
-                        </div>
-                        
+                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                      {(() => {
+                        const ModuleIcon = getIconComponent(module.icon);
+                        return <ModuleIcon className="w-4 h-4 text-muted-foreground" />;
+                      })()}
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <span className={`text-sm truncate block ${
+                        module.is_visible ? "text-card-foreground" : "text-muted-foreground"
+                      }`}>
+                        {module.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {module.module_type}
+                      </span>
+                    </div>
+                    
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleVisibility(module);
+                      }}
+                    >
+                      {module.is_visible ? (
+                        <Eye className="w-4 h-4 text-muted-foreground" />
+                      ) : (
+                        <EyeOff className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
                         <Button
                           size="sm"
                           variant="ghost"
                           className="h-7 w-7 p-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Toggle visibility - will be connected to DB later
-                          }}
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          {module.is_visible ? (
-                            <Eye className="w-4 h-4 text-muted-foreground" />
-                          ) : (
-                            <EyeOff className="w-4 h-4 text-muted-foreground" />
-                          )}
+                          <MoreVertical className="w-4 h-4 text-muted-foreground" />
                         </Button>
-                        
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <MoreVertical className="w-4 h-4 text-muted-foreground" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              Mover para cima
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              Mover para baixo
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Copy className="w-4 h-4 mr-2" />
-                              Duplicar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    );
-                  })}
-                  
-                  {sectionModules.length === 0 && (
-                    <p className="text-xs text-muted-foreground text-center py-4">
-                      Nenhum módulo nesta seção
-                    </p>
-                  )}
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleDuplicate(module)}>
+                          <Copy className="w-4 h-4 mr-2" />
+                          Duplicar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => handleDelete(module)}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               )}
             </div>
           );
         })}
+        
+        {(!modules || modules.length === 0) && (
+          <div className="p-4 text-center text-muted-foreground">
+            <p className="text-sm">Nenhum módulo desktop encontrado</p>
+            <p className="text-xs mt-1">Os módulos serão criados automaticamente</p>
+          </div>
+        )}
       </div>
     </div>
   );
