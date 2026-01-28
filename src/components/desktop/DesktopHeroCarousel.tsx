@@ -77,14 +77,15 @@ const DesktopHeroCarousel = () => {
             index === currentSlide ? "opacity-100" : "opacity-0"
           }`}
         >
-          {/* Background Image with Overlay */}
+          {/* Background Image with Bottom Gradient Overlay */}
           <div className="absolute inset-0">
             <img
               src={slide.image}
               alt={slide.title}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/70 to-transparent" />
+            {/* Degradê de baixo para cima para destacar o texto */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent" />
           </div>
 
           {/* Content */}
