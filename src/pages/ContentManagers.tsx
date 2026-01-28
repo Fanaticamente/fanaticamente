@@ -10,7 +10,7 @@ const ContentManagers = () => {
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/");
+    navigate("/admin-access");
   };
   
   // Desktop-only check: viewport >= 1024px
