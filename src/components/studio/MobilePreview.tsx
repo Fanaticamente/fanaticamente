@@ -13,9 +13,9 @@ const MobilePreview = () => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-muted/30">
+    <div className="h-full flex flex-col bg-muted/30 overflow-hidden">
       {/* Device Controls */}
-      <div className="flex items-center justify-between p-3 border-b border-border bg-background">
+      <div className="flex items-center justify-between p-3 border-b border-border bg-background flex-shrink-0">
         <div className="flex items-center gap-2">
           <Button
             size="sm"
@@ -76,38 +76,41 @@ const MobilePreview = () => {
         </div>
       </div>
       
-      {/* Device Frame */}
+      {/* Device Frame Container - scrollable */}
       <div className="flex-1 flex items-start justify-center overflow-auto p-6">
         <div
-          className="relative bg-card border-4 border-muted rounded-[3rem] p-3 shadow-2xl transition-all duration-300"
+          className="relative transition-all duration-300 flex-shrink-0"
           style={{
             transform: `scale(${scale / 100})`,
             transformOrigin: "top center",
           }}
         >
-          {/* Status Bar */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-card rounded-b-2xl z-10" />
-          
-          {/* Screen */}
-          <div
-            className="bg-background rounded-[2.5rem] overflow-hidden relative"
-            style={{
-              width: device === "mobile" ? 375 : device === "tablet" ? 500 : 800,
-              height: device === "mobile" ? 812 : device === "tablet" ? 700 : 600,
-            }}
-          >
-            {/* Notch */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-8 bg-card rounded-b-3xl z-20 flex items-center justify-center">
-              <div className="w-20 h-5 bg-muted rounded-full" />
-            </div>
+          {/* Phone Frame - black bezel */}
+          <div className="bg-zinc-900 rounded-[3rem] p-3 shadow-2xl border border-zinc-700">
+            {/* Status Bar / Dynamic Island */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-zinc-900 rounded-b-2xl z-10" />
             
-            {/* Content - Static Mobile View */}
-            <div className="h-full overflow-hidden pt-8">
-              <StaticMobileView key={refreshKey} />
+            {/* Screen */}
+            <div
+              className="bg-background rounded-[2.5rem] overflow-hidden relative border border-zinc-800"
+              style={{
+                width: device === "mobile" ? 375 : device === "tablet" ? 500 : 800,
+                height: device === "mobile" ? 812 : device === "tablet" ? 700 : 600,
+              }}
+            >
+              {/* Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-7 bg-zinc-900 rounded-b-3xl z-20 flex items-center justify-center">
+                <div className="w-16 h-4 bg-zinc-800 rounded-full" />
+              </div>
+              
+              {/* Content - Static Mobile View */}
+              <div className="h-full overflow-y-auto pt-7">
+                <StaticMobileView key={refreshKey} />
+              </div>
+              
+              {/* Home Indicator */}
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/30 rounded-full z-20" />
             </div>
-            
-            {/* Home Indicator */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-muted-foreground/30 rounded-full" />
           </div>
         </div>
       </div>
