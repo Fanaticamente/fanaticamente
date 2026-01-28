@@ -215,6 +215,31 @@
       max-height: 100vh !important;
       overflow: hidden !important;
     }
+
+    /* Ensure native scrollbars are visible inside manager panels */
+    body.manager-layout * {
+      scrollbar-width: auto !important;
+      -ms-overflow-style: auto !important;
+    }
+
+    body.manager-layout *::-webkit-scrollbar {
+      display: block !important;
+      width: 8px !important;
+      height: 8px !important;
+    }
+
+    body.manager-layout *::-webkit-scrollbar-track {
+      background: hsl(var(--muted)) !important;
+    }
+
+    body.manager-layout *::-webkit-scrollbar-thumb {
+      background: hsl(var(--border)) !important;
+      border-radius: 4px !important;
+    }
+
+    body.manager-layout *::-webkit-scrollbar-thumb:hover {
+      background: hsl(var(--muted-foreground) / 0.5) !important;
+    }
   }
 
   /* Normalize iOS date input height so it matches other inputs (48px / h-12) */
