@@ -152,10 +152,7 @@ const EditableBlock = ({
     setIsDragging(false);
   };
 
-  // Get custom font size from blockData
-  const customFontSize = blockData.customFontSize as number | undefined;
-
-  // Resize handler - changes font size for text, dimensions for images
+  // Resize handler - changes dimensions for all elements
   const handleResizeStart = (e: React.MouseEvent, direction: string) => {
     e.stopPropagation();
     e.preventDefault();
@@ -168,57 +165,34 @@ const EditableBlock = ({
     const startY = e.clientY;
     const startWidth = elementRef.current.offsetWidth;
     const startHeight = elementRef.current.offsetHeight;
-    
-    // For text elements, get initial font size
-    const isTextBlock = blockType === "text" || blockType === "heading";
-    const computedStyle = window.getComputedStyle(elementRef.current);
-    const startFontSize = customFontSize || parseFloat(computedStyle.fontSize) || 16;
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
       const deltaX = moveEvent.clientX - startX;
       const deltaY = moveEvent.clientY - startY;
       
-      if (isTextBlock) {
-        // For text: resize changes font size based on diagonal movement
-        const delta = (deltaX + deltaY) / 8; // Scale factor for smoother resizing
-        let newFontSize = startFontSize + delta;
-        
-        // Clamp font size between 10px and 120px
-        newFontSize = Math.max(10, Math.min(120, newFontSize));
-        
-        // Apply to element immediately for visual feedback
-        if (elementRef.current) {
-          elementRef.current.style.fontSize = `${newFontSize}px`;
-        }
-        
-        // Update block data with new font size
-        updateBlockData(moduleId, blockId, { customFontSize: Math.round(newFontSize) });
-      } else {
-        // For images/cards/buttons: resize changes dimensions
-        let newWidth = startWidth;
-        let newHeight = startHeight;
+      let newWidth = startWidth;
+      let newHeight = startHeight;
 
-        if (direction.includes("e")) newWidth = startWidth + deltaX;
-        if (direction.includes("w")) newWidth = startWidth - deltaX;
-        if (direction.includes("s")) newHeight = startHeight + deltaY;
-        if (direction.includes("n")) newHeight = startHeight - deltaY;
+      if (direction.includes("e")) newWidth = startWidth + deltaX;
+      if (direction.includes("w")) newWidth = startWidth - deltaX;
+      if (direction.includes("s")) newHeight = startHeight + deltaY;
+      if (direction.includes("n")) newHeight = startHeight - deltaY;
 
-        // Apply minimum constraints
-        newWidth = Math.max(40, newWidth);
-        newHeight = Math.max(40, newHeight);
+      // Apply minimum constraints
+      newWidth = Math.max(40, newWidth);
+      newHeight = Math.max(40, newHeight);
 
-        // Apply to element immediately for visual feedback
-        if (elementRef.current) {
-          elementRef.current.style.width = `${newWidth}px`;
-          elementRef.current.style.height = `${newHeight}px`;
-        }
-
-        // Update block data with new dimensions
-        updateBlockData(moduleId, blockId, { 
-          customWidth: Math.round(newWidth),
-          customHeight: Math.round(newHeight)
-        });
+      // Apply to element immediately for visual feedback
+      if (elementRef.current) {
+        elementRef.current.style.width = `${newWidth}px`;
+        elementRef.current.style.height = `${newHeight}px`;
       }
+
+      // Update block data with new dimensions
+      updateBlockData(moduleId, blockId, { 
+        customWidth: Math.round(newWidth),
+        customHeight: Math.round(newHeight)
+      });
     };
 
     const handleMouseUp = () => {
@@ -229,8 +203,7 @@ const EditableBlock = ({
       document.body.style.userSelect = "";
     };
 
-    document.body.style.cursor = isTextBlock ? "nwse-resize" : 
-      (direction.includes("e") || direction.includes("w") ? "ew-resize" : "ns-resize");
+    document.body.style.cursor = direction.includes("e") || direction.includes("w") ? "ew-resize" : "ns-resize";
     document.body.style.userSelect = "none";
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
@@ -286,14 +259,8 @@ const EditableBlock = ({
   if (!editMode) {
     // Apply custom styles even when not in edit mode
     const customStyles: React.CSSProperties = {};
-    const isTextBlock = blockType === "text" || blockType === "heading";
-    
-    if (isTextBlock && customFontSize) {
-      customStyles.fontSize = `${customFontSize}px`;
-    } else {
-      if (customWidth) customStyles.width = `${customWidth}px`;
-      if (customHeight) customStyles.height = `${customHeight}px`;
-    }
+    if (customWidth) customStyles.width = `${customWidth}px`;
+    if (customHeight) customStyles.height = `${customHeight}px`;
     if (customX || customY) customStyles.transform = `translate(${customX || 0}px, ${customY || 0}px)`;
 
     return (
@@ -304,15 +271,9 @@ const EditableBlock = ({
   }
 
   // Apply custom styles in edit mode
-  const isTextBlock = blockType === "text" || blockType === "heading";
   const editStyles: React.CSSProperties = {};
-  
-  if (isTextBlock && customFontSize) {
-    editStyles.fontSize = `${customFontSize}px`;
-  } else {
-    if (customWidth) editStyles.width = `${customWidth}px`;
-    if (customHeight) editStyles.height = `${customHeight}px`;
-  }
+  if (customWidth) editStyles.width = `${customWidth}px`;
+  if (customHeight) editStyles.height = `${customHeight}px`;
   if (customX || customY) editStyles.transform = `translate(${customX || 0}px, ${customY || 0}px)`;
 
   return (
