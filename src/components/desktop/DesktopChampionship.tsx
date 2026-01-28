@@ -15,7 +15,7 @@ const DesktopChampionship = () => {
           </div>
 
           {/* Right Column - Text Content */}
-          <div className="lg:pl-16 xl:pl-24">
+          <div className="lg:pl-24 xl:pl-40">
             <h2 
               className="text-4xl lg:text-5xl text-black font-bold mb-6"
               style={{ fontFamily: "'Work Sans', sans-serif" }}
@@ -24,7 +24,7 @@ const DesktopChampionship = () => {
             </h2>
             
             <p className="text-gray-700 text-base lg:text-lg leading-relaxed max-w-md">
-              O Fanaticamente <span className="font-bold">irá monitorar</span> o número de torcedores de cada time que estão cuidando da sua saúde e <span className="font-bold">irá atualizar mensalmente</span> a tabela do <span className="font-bold">Brasileirão da Saúde Mental</span> entregando ao fim do campeonato um troféu simbólico para os clubes que ficarem no G-4!
+              O Fanaticamente irá monitorar o número de torcedores de cada time que estão cuidando da sua saúde e irá atualizar mensalmente a tabela do <span className="font-bold">Brasileirão da Saúde Mental</span> entregando ao fim do campeonato um troféu simbólico para os clubes que ficarem no G-4!
             </p>
           </div>
         </div>
