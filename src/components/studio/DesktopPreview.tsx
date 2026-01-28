@@ -10,18 +10,21 @@ interface DesktopPreviewProps {
 const DesktopPreview = ({ currentPage = "/", refreshTrigger = 0 }: DesktopPreviewProps) => {
   const [iframeKey, setIframeKey] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [lastError, setLastError] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   
   // Refresh when refreshTrigger changes
   useEffect(() => {
     if (refreshTrigger > 0) {
       setIsLoading(true);
+      setLastError(null);
       setIframeKey(prev => prev + 1);
     }
   }, [refreshTrigger]);
 
   const handleRefresh = () => {
     setIsLoading(true);
+    setLastError(null);
     setIframeKey(prev => prev + 1);
   };
 
@@ -31,6 +34,11 @@ const DesktopPreview = ({ currentPage = "/", refreshTrigger = 0 }: DesktopPrevie
 
   const handleLoad = () => {
     setIsLoading(false);
+  };
+
+  const handleError = () => {
+    setIsLoading(false);
+    setLastError("Falha ao carregar o preview (iframe). Pode haver redirecionamento/reload em loop.");
   };
 
   // Build preview URL with embed flag and force desktop view
@@ -98,6 +106,20 @@ const DesktopPreview = ({ currentPage = "/", refreshTrigger = 0 }: DesktopPrevie
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             )}
+
+            {lastError && (
+              <div className="absolute inset-0 bg-background/95 z-20 p-6 flex flex-col justify-center">
+                <p className="text-sm font-medium text-card-foreground mb-2">Preview indisponível</p>
+                <p className="text-sm text-muted-foreground mb-4">{lastError}</p>
+                <div className="text-xs text-muted-foreground bg-muted p-3 rounded-lg break-all">
+                  URL: {previewUrl}
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <Button size="sm" variant="outline" onClick={handleRefresh}>Tentar novamente</Button>
+                  <Button size="sm" variant="outline" onClick={() => window.open(previewUrl, "_blank")}>Abrir URL do preview</Button>
+                </div>
+              </div>
+            )}
             
             <iframe
               ref={iframeRef}
@@ -106,6 +128,7 @@ const DesktopPreview = ({ currentPage = "/", refreshTrigger = 0 }: DesktopPrevie
               className="w-full h-full border-0"
               title="Desktop Preview"
               onLoad={handleLoad}
+              onError={handleError}
               sandbox="allow-scripts allow-same-origin"
             />
           </div>
