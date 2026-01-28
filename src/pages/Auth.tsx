@@ -9,6 +9,8 @@ import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { supabase } from "@/integrations/supabase/client";
 import { Checkbox } from "@/components/ui/checkbox";
 import logoAuth from "@/assets/logo-auth.png";
+import { useIsMobile } from "@/hooks/use-mobile";
+import heroCover from "@/assets/desktop/hero-cover.png";
 
 
 // Mask functions
@@ -408,6 +410,473 @@ const Auth = () => {
   const selectClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors appearance-none cursor-pointer";
   const dateInputClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors appearance-none text-base leading-none";
 
+  const isMobile = useIsMobile();
+
+  // Desktop Layout
+  if (!isMobile) {
+    return (
+      <div className="min-h-screen flex">
+        {/* Left Side - Visual/Image */}
+        <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/80" />
+          <div className="relative z-10 p-12 text-center">
+            <img 
+              src={heroCover} 
+              alt="Torcedor" 
+              className="w-full max-w-lg mx-auto rounded-2xl shadow-2xl"
+            />
+            <div className="mt-8 space-y-4">
+              <h2 className="text-3xl font-bold text-white">
+                Cuide da sua saúde mental
+              </h2>
+              <p className="text-white/80 text-lg max-w-md mx-auto">
+                Conecte-se com profissionais especializados que entendem a paixão pelo futebol.
+              </p>
+            </div>
+          </div>
+          {/* Decorative elements */}
+          <div className="absolute top-10 right-10 w-20 h-20 bg-white/10 rounded-full blur-xl" />
+          <div className="absolute bottom-20 left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+        </div>
+
+        {/* Right Side - Form */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 bg-background overflow-y-auto">
+          <div className="w-full max-w-md">
+            <div className="text-center mb-8">
+              <img src={logoAuth} alt="Logo" className="h-32 w-auto mx-auto mb-6" />
+              <p className={`text-muted-foreground ${authMode === "professional" ? "text-lg font-medium" : ""}`}>
+                {authMode === "professional" 
+                  ? "Área do Profissional" 
+                  : isLogin ? "Entre na sua conta" : "Crie sua conta"}
+              </p>
+            </div>
+
+            {/* Mode Selector */}
+            <div className="flex gap-2 mb-6">
+              <button
+                type="button"
+                onClick={() => setAuthMode("user")}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
+                  authMode === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card border border-border text-muted-foreground hover:border-primary"
+                }`}
+              >
+                <User className="w-5 h-5" />
+                Torcedor
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuthMode("professional")}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
+                  authMode === "professional"
+                    ? "bg-therapy text-therapy-foreground"
+                    : "bg-card border border-border text-muted-foreground hover:border-therapy"
+                }`}
+              >
+                <Briefcase className="w-5 h-5" />
+                Profissional
+              </button>
+            </div>
+
+            <div className={`bg-card border rounded-2xl p-6 transition-colors ${
+              authMode === "professional" ? "border-therapy" : "border-border"
+            }`}>
+              {authMode === "professional" && (
+                <div className="mb-6 p-4 bg-therapy/10 border border-therapy/30 rounded-xl">
+                  <p className="text-therapy text-sm font-medium flex items-center gap-2">
+                    <Brain className="w-5 h-5 text-therapy" />
+                    Área exclusiva para profissionais de saúde mental parceiros.
+                  </p>
+                  <p className="text-muted-foreground text-xs mt-1">
+                    {isLogin 
+                      ? "Acesse seu painel para gerenciar consultas e disponibilidade."
+                      : "Cadastre-se para integrar o time de profissionais parceiros do Fanticamente."}
+                  </p>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {isLogin ? (
+                  <>
+                    <div>
+                      <label className="block text-card-foreground text-sm mb-2">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className={inputClassName}
+                        placeholder="seu@email.com"
+                      />
+                      {errors.email && (
+                        <p className="text-destructive text-sm mt-1">{errors.email}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-card-foreground text-sm mb-2">
+                        Senha
+                      </label>
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className={inputClassName}
+                        placeholder="••••••••"
+                      />
+                      {errors.password && (
+                        <p className="text-destructive text-sm mt-1">{errors.password}</p>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Full Name */}
+                    <div>
+                      <label className="block text-card-foreground text-sm mb-2">
+                        Nome Completo *
+                      </label>
+                      <input
+                        type="text"
+                        value={signUpData.fullName}
+                        onChange={(e) => handleSignUpDataChange('fullName', e.target.value)}
+                        className={inputClassName}
+                        placeholder="Seu nome completo"
+                      />
+                      {errors.fullName && (
+                        <p className="text-destructive text-sm mt-1">{errors.fullName}</p>
+                      )}
+                    </div>
+
+                    {/* CRP and Birth Date - Side by Side for Professionals */}
+                    {authMode === "professional" ? (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-card-foreground text-sm mb-2">
+                            CRP *
+                          </label>
+                          <input
+                            type="text"
+                            value={signUpData.crp}
+                            onChange={(e) => handleSignUpDataChange('crp', formatCRP(e.target.value))}
+                            className={inputClassName}
+                            placeholder="06/12345"
+                            maxLength={8}
+                          />
+                          {errors.crp && (
+                            <p className="text-destructive text-xs mt-1">{errors.crp}</p>
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-card-foreground text-sm mb-2">
+                            Nascimento *
+                          </label>
+                          <input
+                            type="date"
+                            value={signUpData.birthDate}
+                            onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
+                            className={dateInputClassName}
+                            max={new Date().toISOString().split('T')[0]}
+                          />
+                          {errors.birthDate && (
+                            <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-card-foreground text-sm mb-2">
+                            Nascimento *
+                          </label>
+                          <input
+                            type="date"
+                            value={signUpData.birthDate}
+                            onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
+                            className={dateInputClassName}
+                            max={new Date().toISOString().split('T')[0]}
+                          />
+                          {errors.birthDate && (
+                            <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-card-foreground text-sm mb-2">
+                            Telefone *
+                          </label>
+                          <input
+                            type="tel"
+                            value={signUpData.phone}
+                            onChange={(e) => handleSignUpDataChange('phone', formatPhone(e.target.value))}
+                            className={inputClassName}
+                            placeholder="(11) 99999-9999"
+                            maxLength={15}
+                          />
+                          {errors.phone && (
+                            <p className="text-destructive text-xs mt-1">{errors.phone}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Phone for Professionals */}
+                    {authMode === "professional" && (
+                      <div>
+                        <label className="block text-card-foreground text-sm mb-2">
+                          Telefone com DDD *
+                        </label>
+                        <input
+                          type="tel"
+                          value={signUpData.phone}
+                          onChange={(e) => handleSignUpDataChange('phone', formatPhone(e.target.value))}
+                          className={inputClassName}
+                          placeholder="(11) 99999-9999"
+                          maxLength={15}
+                        />
+                        {errors.phone && (
+                          <p className="text-destructive text-sm mt-1">{errors.phone}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Document Type Selection for Professionals */}
+                    {authMode === "professional" && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-card-foreground text-sm mb-2">
+                            Tipo de Documento *
+                          </label>
+                          <div className="relative">
+                            <select
+                              value={signUpData.documentType}
+                              onChange={(e) => handleSignUpDataChange('documentType', e.target.value as 'cpf' | 'cnpj')}
+                              className={selectClassName}
+                            >
+                              <option value="">Selecione</option>
+                              <option value="cpf">CPF</option>
+                              <option value="cnpj">CNPJ</option>
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                          </div>
+                          {errors.documentType && (
+                            <p className="text-destructive text-xs mt-1">{errors.documentType}</p>
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-card-foreground text-sm mb-2">
+                            {signUpData.documentType === 'cnpj' ? 'CNPJ *' : 'CPF *'}
+                          </label>
+                          <input
+                            type="text"
+                            value={signUpData.documentNumber}
+                            onChange={(e) => {
+                              const formatted = signUpData.documentType === 'cnpj' 
+                                ? formatCNPJ(e.target.value) 
+                                : formatCPF(e.target.value);
+                              handleSignUpDataChange('documentNumber', formatted);
+                            }}
+                            className={inputClassName}
+                            placeholder={signUpData.documentType === 'cnpj' ? '00.000.000/0001-00' : '000.000.000-00'}
+                            maxLength={signUpData.documentType === 'cnpj' ? 18 : 14}
+                            disabled={!signUpData.documentType}
+                          />
+                          {errors.documentNumber && (
+                            <p className="text-destructive text-xs mt-1">{errors.documentNumber}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Favorite Club */}
+                    <div>
+                      <label className="block text-card-foreground text-sm mb-2">
+                        Time do Coração *
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={signUpData.favoriteClub}
+                          onChange={(e) => handleSignUpDataChange('favoriteClub', e.target.value)}
+                          className={selectClassName}
+                        >
+                          <option value="">Selecione seu time</option>
+                          {sortedClubs.map(club => (
+                            <option key={club.id} value={club.id}>
+                              {club.name}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+                      </div>
+                      {errors.favoriteClub && (
+                        <p className="text-destructive text-sm mt-1">{errors.favoriteClub}</p>
+                      )}
+                    </div>
+
+                    {/* State and City */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-card-foreground text-sm mb-2">
+                          Estado *
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={signUpData.state}
+                            onChange={(e) => handleSignUpDataChange('state', e.target.value)}
+                            className={selectClassName}
+                          >
+                            <option value="">Estado</option>
+                            {brazilianStates.map(state => (
+                              <option key={state.sigla} value={state.sigla}>
+                                {state.sigla}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                        </div>
+                        {errors.state && (
+                          <p className="text-destructive text-xs mt-1">{errors.state}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-card-foreground text-sm mb-2">
+                          Cidade *
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={signUpData.city}
+                            onChange={(e) => handleSignUpDataChange('city', e.target.value)}
+                            className={selectClassName}
+                            disabled={!signUpData.state}
+                          >
+                            <option value="">
+                              {signUpData.state ? "Cidade" : "—"}
+                            </option>
+                            {availableCities.map(city => (
+                              <option key={city} value={city}>
+                                {city}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                        </div>
+                        {errors.city && (
+                          <p className="text-destructive text-xs mt-1">{errors.city}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Email */}
+                    <div>
+                      <label className="block text-card-foreground text-sm mb-2">
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        value={signUpData.email}
+                        onChange={(e) => handleSignUpDataChange('email', e.target.value)}
+                        className={inputClassName}
+                        placeholder="seu@email.com"
+                      />
+                      {errors.email && (
+                        <p className="text-destructive text-sm mt-1">{errors.email}</p>
+                      )}
+                    </div>
+
+                    {/* Password */}
+                    <div>
+                      <label className="block text-card-foreground text-sm mb-2">
+                        Senha *
+                      </label>
+                      <input
+                        type="password"
+                        value={signUpData.password}
+                        onChange={(e) => handleSignUpDataChange('password', e.target.value)}
+                        className={inputClassName}
+                        placeholder="Mínimo 6 caracteres"
+                      />
+                      {errors.password && (
+                        <p className="text-destructive text-sm mt-1">{errors.password}</p>
+                      )}
+                    </div>
+
+                    {/* Terms Acceptance */}
+                    <div className="mt-4 p-4 bg-muted/50 rounded-xl">
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="accept-terms-desktop"
+                          checked={acceptedTerms}
+                          onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                          className="mt-0.5"
+                        />
+                        <label htmlFor="accept-terms-desktop" className="text-sm text-foreground cursor-pointer leading-relaxed">
+                          Li e aceito a{" "}
+                          <Link 
+                            to="/politica-privacidade" 
+                            target="_blank"
+                            className={`underline font-medium ${
+                              authMode === "professional" ? "text-therapy" : "text-primary"
+                            }`}
+                          >
+                            Política de Privacidade
+                          </Link>
+                          {" "}e os{" "}
+                          <span className={`font-medium ${
+                            authMode === "professional" ? "text-therapy" : "text-primary"
+                          }`}>
+                            Termos de Uso
+                          </span>
+                          {" "}da plataforma Fanaticamente.
+                        </label>
+                      </div>
+                      {errors.terms && (
+                        <p className="text-destructive text-sm mt-2 ml-7">{errors.terms}</p>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`w-full py-4 rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed ${
+                    authMode === "professional"
+                      ? "bg-therapy text-therapy-foreground"
+                      : "bg-primary text-primary-foreground"
+                  }`}
+                >
+                  {isLoading
+                    ? "Carregando..."
+                    : isLogin
+                    ? "Entrar"
+                    : "Criar conta"}
+                </button>
+              </form>
+
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => {
+                    setIsLogin(!isLogin);
+                    setErrors({});
+                  }}
+                  className={`hover:underline ${
+                    authMode === "professional" ? "text-therapy" : "text-primary"
+                  }`}
+                >
+                  {isLogin
+                    ? "Não tem conta? Cadastre-se"
+                    : "Já tem conta? Entre"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile Layout (existing)
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
