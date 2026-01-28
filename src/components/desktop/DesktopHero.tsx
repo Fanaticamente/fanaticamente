@@ -21,14 +21,14 @@ const DesktopHero = () => {
             </div>
 
             {/* Right Column - Card */}
-            <div className="bg-[#f5f5f5] rounded-lg p-8 lg:p-10">
+            <div className="bg-emerald-600 rounded-lg p-8 lg:p-10">
               <h3 
-                className="text-xl lg:text-2xl font-bold text-black mb-4"
+                className="text-xl lg:text-2xl font-bold text-white mb-4"
                 style={{ fontFamily: "'Work Sans', sans-serif" }}
               >
                 Juntos somos muitos
               </h3>
-              <p className="text-base lg:text-lg text-black leading-relaxed">
+              <p className="text-base lg:text-lg text-white leading-relaxed">
                 No aplicativo <span className="font-bold" style={{ fontFamily: "'Work Sans', sans-serif" }}>Fanaticamente</span>, cada um tem seu clube do coração, mas quando o assunto é saúde mental, todos jogam no <span className="font-bold" style={{ fontFamily: "'Work Sans', sans-serif" }}>mesmo time</span>!
               </p>
             </div>
