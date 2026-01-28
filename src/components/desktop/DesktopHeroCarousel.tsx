@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
 import heroSlide1 from "@/assets/hero-slide-1.jpg";
 import heroSlide2 from "@/assets/hero-slide-2.jpg";
 import heroSlide3 from "@/assets/hero-slide-3.jpg";
@@ -11,7 +12,7 @@ interface Slide {
   subtitle: string;
 }
 
-const slides: Slide[] = [
+const defaultSlides: Slide[] = [
   {
     image: heroSlide1,
     title: "CRIADO POR QUEM SENTE.",
@@ -30,8 +31,13 @@ const slides: Slide[] = [
 ];
 
 const DesktopHeroCarousel = () => {
+  const { data: moduleConfig } = useModuleConfig("desktop_hero_carousel");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  // Get slides from database config or use defaults
+  const config = moduleConfig?.config as { slides?: Slide[] } | undefined;
+  const slides: Slide[] = config?.slides?.length ? config.slides : defaultSlides;
 
   useEffect(() => {
     if (!isAutoPlaying) return;
@@ -41,7 +47,7 @@ const DesktopHeroCarousel = () => {
     }, 6000);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, slides.length]);
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
