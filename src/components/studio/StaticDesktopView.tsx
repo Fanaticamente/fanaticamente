@@ -74,11 +74,12 @@ const PreviewHeader = () => {
 };
 
 /**
- * Renders a module based on its module_id
+ * Renders a module based on its module_id or module_type
  */
 const ModuleRenderer = ({ module }: { module: ModuleConfig }) => {
   if (!module.is_visible) return null;
 
+  // First check for known static module IDs
   switch (module.module_id) {
     case "desktop_hero_carousel":
       return <DesktopHeroCarousel />;
@@ -98,13 +99,29 @@ const ModuleRenderer = ({ module }: { module: ModuleConfig }) => {
       );
     case "desktop_footer":
       return <DesktopFooter />;
-    default:
-      // For flexible/custom sections created via the editor
-      if (module.module_type === "text_section" || module.module_type === "flexible") {
-        return <FlexibleSectionRenderer config={module.config} />;
-      }
-      return null;
   }
+
+  // For dynamic sections created via the editor, render based on module_type
+  const flexibleTypes = [
+    "text_section",
+    "flexible",
+    "custom",
+    "hero",
+    "image_section",
+    "features",
+    "testimonials",
+    "team",
+    "gallery",
+    "cta",
+    "faq",
+    "contact",
+  ];
+
+  if (flexibleTypes.includes(module.module_type)) {
+    return <FlexibleSectionRenderer config={module.config} name={module.name} moduleType={module.module_type} />;
+  }
+
+  return null;
 };
 
 /**
