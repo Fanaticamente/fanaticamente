@@ -16,7 +16,7 @@ const DesktopCuriosities = () => {
             </h2>
             
             <h3 
-              className="text-xl lg:text-2xl text-black font-bold mb-6"
+              className="text-xl lg:text-2xl text-black font-bold mb-3"
               style={{ fontFamily: "'Work Sans', sans-serif" }}
             >
               Experiência inédita
@@ -39,7 +39,7 @@ const DesktopCuriosities = () => {
             <img 
               src={macVideocall} 
               alt="Videochamada de terapia" 
-              className="w-[600px] lg:w-[700px] xl:w-[800px] object-contain"
+              className="w-[800px] lg:w-[1000px] xl:w-[1200px] object-contain"
             />
           </div>
         </div>
