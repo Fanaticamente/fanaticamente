@@ -80,7 +80,7 @@ const DeveloperDashboard = () => {
         
         {/* Center - Mobile Preview */}
         <main className="flex-1 min-w-0 bg-muted/30 overflow-hidden">
-          <MobilePreview currentPage="/" />
+          <MobilePreview currentPage="/?embed=1" />
         </main>
         
         {/* Right Panel - Module List or Editor */}

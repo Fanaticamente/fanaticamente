@@ -28,7 +28,7 @@ const StudioEditor = () => {
       
       {/* Center - Mobile Preview */}
       <div className="flex-1 min-w-0 flex items-center justify-center bg-muted/30">
-        <MobilePreview currentPage="/" />
+         <MobilePreview currentPage="/?embed=1" />
       </div>
       
       {/* Right Panel - Module List or Editor */}
