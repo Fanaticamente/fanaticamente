@@ -9,7 +9,7 @@ const DesktopCuriosities = () => {
           {/* Left Column - Text Content */}
           <div>
             <h2 
-              className="text-4xl lg:text-5xl text-emerald-400 font-bold mb-8"
+              className="text-4xl lg:text-5xl text-emerald-600 font-bold mb-8"
               style={{ fontFamily: "'Work Sans', sans-serif" }}
             >
               Curiosidades
