@@ -30,7 +30,7 @@ const StudioEditor = () => {
       
       {/* Center - Mobile Preview (static, manual refresh only) */}
       <div className="flex-1 min-w-0 flex items-center justify-center bg-muted/30">
-        <MobilePreview currentPage="/" />
+        <MobilePreview />
       </div>
       
       {/* Right Panel - Module List or Editor */}

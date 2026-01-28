@@ -121,9 +121,7 @@ const DesktopContentManager = () => {
         
         {/* Center - Desktop Preview */}
         <main className="flex-1 min-w-0 bg-muted/30 overflow-hidden">
-          <DesktopPreview 
-            currentPage="/" 
-          />
+          <DesktopPreview />
         </main>
         
         {/* Right Panel - Module List */}
