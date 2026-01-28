@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Shield, Code, Lock } from "lucide-react";
+import { Shield, Code, Lock, ArrowLeft } from "lucide-react";
 
 const AdminAccess = () => {
   const [email, setEmail] = useState("");
@@ -113,6 +113,15 @@ const AdminAccess = () => {
           <p className="text-muted-foreground text-xs text-center mt-6">
             Tentativas de acesso não autorizado serão registradas.
           </p>
+
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="w-full mt-4 py-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm">Voltar ao site</span>
+          </button>
         </div>
       </div>
     </div>
