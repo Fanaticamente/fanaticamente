@@ -39,7 +39,7 @@ const DesktopCuriosities = () => {
             <img 
               src={macVideocall} 
               alt="Videochamada de terapia" 
-              className="w-[550px] lg:w-[650px] xl:w-[750px] max-w-none object-contain"
+              className="w-[650px] lg:w-[800px] xl:w-[950px] max-w-none object-contain"
             />
           </div>
         </div>
