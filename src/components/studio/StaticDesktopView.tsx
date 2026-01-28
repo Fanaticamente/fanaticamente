@@ -13,16 +13,12 @@ import DesktopFooter from "@/components/desktop/DesktopFooter";
  */
 const StaticDesktopView = () => {
   return (
-    <div className="bg-[#0a0a0a] relative">
-      {/* Header - Fixed at top like the real site */}
-      <div className="sticky top-0 z-50">
-        <DesktopHeader />
-      </div>
+    <div className="bg-[#0a0a0a]">
+      {/* Header */}
+      <DesktopHeader />
       
-      {/* Hero Carousel - with padding top to account for header */}
-      <div className="pt-[72px] -mt-[72px]">
-        <DesktopHeroCarousel />
-      </div>
+      {/* Hero Carousel */}
+      <DesktopHeroCarousel />
       
       {/* Features Section */}
       <DesktopFeatures />
