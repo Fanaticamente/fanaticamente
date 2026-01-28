@@ -13,6 +13,7 @@ import DesktopHeader from "@/components/desktop/DesktopHeader";
 import DesktopHero from "@/components/desktop/DesktopHero";
 import DesktopFeatures from "@/components/desktop/DesktopFeatures";
 import DesktopCuriosities from "@/components/desktop/DesktopCuriosities";
+import DesktopChampionship from "@/components/desktop/DesktopChampionship";
 import DesktopAbout from "@/components/desktop/DesktopAbout";
 import DesktopTestimonials from "@/components/desktop/DesktopTestimonials";
 import DesktopProfessionalForm from "@/components/desktop/DesktopProfessionalForm";
@@ -48,6 +49,7 @@ const Index = () => {
           <div id="curiosidades">
             <DesktopCuriosities />
           </div>
+          <DesktopChampionship />
           <div id="sobre">
             <DesktopAbout />
           </div>
