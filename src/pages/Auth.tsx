@@ -417,8 +417,8 @@ const Auth = () => {
     return (
       <div className="min-h-screen flex">
         {/* Left Side - Visual/Image */}
-        <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden items-center justify-center">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/80" />
+        <div className="hidden lg:flex lg:w-1/2 bg-secondary relative overflow-hidden items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary via-secondary to-secondary/80" />
           <div className="relative z-10 p-12 text-center">
             <img 
               src={heroCover} 
