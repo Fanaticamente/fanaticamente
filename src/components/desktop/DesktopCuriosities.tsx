@@ -3,9 +3,9 @@ import macVideocall from "@/assets/desktop/mac-videocall.png";
 
 const DesktopCuriosities = () => {
   return (
-    <section className="bg-white py-20 lg:py-24">
+    <section className="bg-white py-20 lg:py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Column - Text Content */}
           <div>
             <h2 
@@ -16,7 +16,7 @@ const DesktopCuriosities = () => {
             </h2>
             
             <h3 
-              className="text-xl lg:text-2xl text-black font-bold mb-3"
+              className="text-xl lg:text-2xl text-black font-bold mb-1"
               style={{ fontFamily: "'Work Sans', sans-serif" }}
             >
               Experiência inédita
@@ -35,11 +35,11 @@ const DesktopCuriosities = () => {
           </div>
 
           {/* Right Column - MacBook Image */}
-          <div className="flex justify-center lg:justify-end">
+          <div className="flex justify-center lg:justify-end lg:-mr-32 xl:-mr-48">
             <img 
               src={macVideocall} 
               alt="Videochamada de terapia" 
-              className="w-[800px] lg:w-[1000px] xl:w-[1200px] object-contain"
+              className="w-[700px] lg:w-[900px] xl:w-[1100px] max-w-none object-contain"
             />
           </div>
         </div>
