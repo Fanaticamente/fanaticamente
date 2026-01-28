@@ -67,7 +67,7 @@ const AdminDashboard = () => {
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/auth");
+    navigate("/admin-access");
   };
 
   const toggleTheme = () => {
