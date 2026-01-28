@@ -2,69 +2,89 @@ import iconTherapist from "@/assets/desktop/icon-therapist.png";
 import iconEntertainment from "@/assets/desktop/icon-entertainment.png";
 import iconKnowledge from "@/assets/desktop/icon-knowledge.png";
 
-const features = [
-  {
-    icon: iconTherapist,
-    title: "Terapeuta também torce, tá?",
-    description: "O aplicativo respira futebol. Dentro do app, os usuários encontram equipes de psicoterapeutas que torcem para o mesmo time, ali, prontinhos com suas agendas disponíveis para atender. As terapias não se resumem ao futebol, infinitas questões podem ser tratadas, mas tudo começará pelo assunto que nos conecta, ou seja, a resenha É GARANTIDA!",
-  },
-  {
-    icon: iconEntertainment,
-    title: "Entretenimento",
-    description: "Além de conectar os usuários/pacientes aos profissionais parceiros da plataforma, ela proporciona também + ambientes de muita descontração como por exemplo o Alambrado FM (podcast oficial da Fanaticamente) e o YouTube @fanaticamente (Principal canal de comunicação da plataforma) ambos canais com muito conteúdo sobre saúde mental e Futebol!",
-  },
-  {
-    icon: iconKnowledge,
-    title: "Conhecimento nunca é demais",
-    subtitle: "Ainda mais quando o assunto é algo que a gente ama!",
-    description: "No Fanaticamente App você irá encontrar o FanatiClass, um portal onde você encontra video-aulas com dicas, mentorias e muitos conteúdos especiais que farão com que o futebol se torne uma experiência cada vez mais sadia na sua vida!",
-  },
-];
-
 const DesktopFeatures = () => {
   return (
-    <section className="bg-[#0a0a0a] py-20">
-      <div className="max-w-6xl mx-auto px-6">
+    <section className="bg-[#1a1a1a] py-20">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="font-display text-4xl lg:text-5xl text-white mb-4">
+        <div className="mb-16">
+          <h2 
+            className="text-4xl lg:text-5xl text-white font-bold mb-3"
+            style={{ fontFamily: "'Work Sans', sans-serif" }}
+          >
             Funcionalidades
           </h2>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-400 text-base">
             Saiba mais sobre como funciona o app
           </p>
         </div>
 
-        {/* Features List */}
-        <div className="space-y-16">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className={`flex flex-col ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-8 md:gap-16`}
-            >
-              {/* Icon */}
-              <div className="flex-shrink-0">
-                <img 
-                  src={feature.icon} 
-                  alt={feature.title} 
-                  className="w-20 h-20 md:w-24 md:h-24 object-contain"
-                />
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 text-center md:text-left">
-                <h3 className="font-display text-2xl md:text-3xl text-white mb-3">
-                  {feature.title}
-                </h3>
-                {feature.subtitle && (
-                  <p className="text-emerald-400 text-lg mb-3">{feature.subtitle}</p>
-                )}
-                <p className="text-gray-400 leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
+        {/* Features Grid - 3 columns */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
+          {/* Feature 1 - Terapeuta também torce */}
+          <div className="flex flex-col">
+            <div className="mb-6">
+              <img 
+                src={iconTherapist} 
+                alt="Terapeuta também torce" 
+                className="w-16 h-16 object-contain"
+              />
             </div>
-          ))}
+            <h3 
+              className="text-xl lg:text-2xl text-white font-bold mb-4"
+              style={{ fontFamily: "'Work Sans', sans-serif" }}
+            >
+              Terapeuta também torce, tá?
+            </h3>
+            <p className="text-gray-400 text-base leading-relaxed">
+              O aplicativo respira futebol. Dentro do app, os usuários encontram equipes de psicoterapeutas que torcem para o mesmo time, ali, prontinhos com suas agendas disponíveis para atender. <span className="font-bold text-white">As terapias não se resumem ao futebol</span>, infinitas questões podem ser tratadas, mas tudo começará pelo assunto que nos conecta, ou seja, a resenha <span className="font-bold text-white">É GARANTIDA!</span>
+            </p>
+          </div>
+
+          {/* Feature 2 - Entretenimento */}
+          <div className="flex flex-col">
+            <div className="mb-6">
+              <img 
+                src={iconEntertainment} 
+                alt="Entretenimento" 
+                className="w-16 h-16 object-contain"
+              />
+            </div>
+            <h3 
+              className="text-xl lg:text-2xl text-white font-bold mb-4"
+              style={{ fontFamily: "'Work Sans', sans-serif" }}
+            >
+              Entretenimento
+            </h3>
+            <p className="text-gray-400 text-base leading-relaxed">
+              Além de conectar os usuários/pacientes aos profissionais parceiros da plataforma, ela proporciona também <span className="text-white font-bold">+</span> ambientes de muita descontração como por exemplo o{" "}
+              <span className="underline text-white">Alambrado FM</span> (podcast oficial da Fanaticamente) e o{" "}
+              <span className="underline text-white">YouTube @fanaticamente</span> (Principal canal de comunicação da plataforma) ambos canais com muito conteúdo sobre saúde mental e Futebol!
+            </p>
+          </div>
+
+          {/* Feature 3 - Conhecimento nunca é demais */}
+          <div className="flex flex-col">
+            <div className="mb-6">
+              <img 
+                src={iconKnowledge} 
+                alt="Conhecimento nunca é demais" 
+                className="w-16 h-16 object-contain"
+              />
+            </div>
+            <h3 
+              className="text-xl lg:text-2xl text-white font-bold mb-4"
+              style={{ fontFamily: "'Work Sans', sans-serif" }}
+            >
+              Conhecimento nunca é demais
+            </h3>
+            <p className="text-gray-400 text-base leading-relaxed mb-4">
+              Ainda mais quando o assunto é algo que a gente ama!
+            </p>
+            <p className="text-gray-400 text-base leading-relaxed">
+              No Fanaticamente App você irá encontrar o <span className="font-bold text-white">FanatiClass</span>, um portal onde você encontra video-aulas com dicas, mentorias e muitos conteúdos especiais que farão com que o futebol se torne uma experiência cada vez mais sadia na sua vida!
+            </p>
+          </div>
         </div>
       </div>
     </section>
