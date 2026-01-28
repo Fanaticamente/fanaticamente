@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppModules, AppModule } from "@/hooks/useAppModules";
@@ -32,7 +32,19 @@ const DeveloperDashboard = () => {
   
   const [selectedModule, setSelectedModule] = useState<AppModule | null>(null);
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const { data: modules, isLoading } = useAppModules();
+  const [previewRefreshTrigger, setPreviewRefreshTrigger] = useState(0);
+  const { data: modules, isLoading, dataUpdatedAt } = useAppModules();
+
+  // Trigger preview refresh when modules data changes (after save)
+  useEffect(() => {
+    if (dataUpdatedAt > 0) {
+      // Debounce: wait 500ms after data update to refresh preview
+      const timer = setTimeout(() => {
+        setPreviewRefreshTrigger(prev => prev + 1);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [dataUpdatedAt]);
 
   // Sync page changes to URL
   useEffect(() => {
@@ -48,6 +60,10 @@ const DeveloperDashboard = () => {
       navigate("/");
     }
   }, [user, hasRole, loading, navigate]);
+
+  const handleManualRefresh = useCallback(() => {
+    setPreviewRefreshTrigger(prev => prev + 1);
+  }, []);
 
   if (loading || isLoading) {
     return (
@@ -117,31 +133,12 @@ const DeveloperDashboard = () => {
           <ModuleCatalog />
         </aside>
         
-        {/* Center - Preview (disabled inline to avoid reload loops) */}
-        <main className="flex-1 min-w-0 bg-muted/30 overflow-hidden flex items-center justify-center p-6">
-          <div className="w-full max-w-lg bg-card border border-border rounded-2xl p-6">
-            <h2 className="font-display text-xl text-card-foreground mb-2">Preview</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              O preview embutido foi desativado para eliminar o looping de atualização no Gerenciador.
-              Abra o preview em uma nova aba quando precisar visualizar o app.
-            </p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => window.open("/?embed=1", "_blank", "noopener,noreferrer")}
-                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium"
-              >
-                Abrir preview em nova aba
-              </button>
-              <button
-                type="button"
-                onClick={() => window.open("/", "_blank", "noopener,noreferrer")}
-                className="px-4 py-2 rounded-xl bg-secondary text-secondary-foreground font-medium"
-              >
-                Abrir app normal
-              </button>
-            </div>
-          </div>
+        {/* Center - Mobile Preview (sandboxed iframe) */}
+        <main className="flex-1 min-w-0 bg-muted/30 overflow-hidden">
+          <MobilePreview 
+            currentPage="/" 
+            refreshTrigger={previewRefreshTrigger}
+          />
         </main>
         
         {/* Right Panel - Module List or Editor */}
