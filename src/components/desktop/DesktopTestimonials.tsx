@@ -45,7 +45,6 @@ const DesktopTestimonials = () => {
               {/* Text */}
               <p className="text-gray-700 mb-8 leading-relaxed pr-10">
                 {testimonial.text}
-                <span className="text-emerald-500 font-serif text-4xl align-middle ml-1">"</span>
               </p>
 
               {/* Author */}
