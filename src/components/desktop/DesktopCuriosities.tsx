@@ -22,14 +22,14 @@ const DesktopCuriosities = () => {
               Experiência inédita
             </h3>
             
-            <div className="flex items-start gap-4">
-              <p className="text-gray-700 text-base lg:text-lg leading-relaxed max-w-sm">
+            <div className="flex items-center gap-2">
+              <p className="text-gray-700 text-base lg:text-lg leading-relaxed max-w-xs">
                 Nas sessões de terapia realizadas através da conexão entre terapeuta e paciente pelo Fanaticamente, a tradição do jogo é que ambos vistam os seus <span className="font-bold">mantos sagrados</span> durante a sessão!
               </p>
               <img 
                 src={iconJersey} 
                 alt="Apito" 
-                className="w-40 h-40 lg:w-48 lg:h-48 object-contain flex-shrink-0"
+                className="w-44 h-44 lg:w-52 lg:h-52 object-contain flex-shrink-0"
               />
             </div>
           </div>
