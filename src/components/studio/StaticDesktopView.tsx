@@ -118,7 +118,14 @@ const ModuleRenderer = ({ module }: { module: ModuleConfig }) => {
   ];
 
   if (flexibleTypes.includes(module.module_type)) {
-    return <FlexibleSectionRenderer config={module.config} name={module.name} moduleType={module.module_type} />;
+    return (
+      <FlexibleSectionRenderer 
+        config={module.config} 
+        name={module.name} 
+        moduleType={module.module_type}
+        moduleId={module.id}
+      />
+    );
   }
 
   return null;
