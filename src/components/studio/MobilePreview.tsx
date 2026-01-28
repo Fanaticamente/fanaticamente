@@ -128,10 +128,10 @@ const MobilePreview = ({ currentPage = "/", refreshTrigger = 0 }: MobilePreviewP
                 title="App Preview"
                 // Sandbox restricts the iframe to prevent it from causing loops:
                 // - allow-scripts: needed for React to run
-                // - allow-same-origin: needed to load resources
+                // - allow-same-origin: DISABLED to isolate storage/cookies and prevent parent/iframe route loops
                 // - NO allow-top-navigation: prevents redirects affecting parent
                 // - NO allow-forms: preview-only, no form submissions
-                sandbox="allow-scripts allow-same-origin"
+                sandbox="allow-scripts"
               />
             </div>
             
