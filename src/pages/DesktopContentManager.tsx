@@ -75,7 +75,7 @@ const DesktopContentManager = () => {
   }
 
   return (
-    <div className="h-screen w-screen bg-background flex flex-col overflow-hidden">
+    <div className="min-h-screen w-full bg-background flex flex-col">
       {/* Header */}
       <header className="h-14 bg-card border-b border-border flex items-center justify-between px-4 flex-shrink-0 sticky top-0 z-10">
         <div className="flex items-center gap-3">
@@ -114,7 +114,7 @@ const DesktopContentManager = () => {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex min-h-0">
         {/* Left Panel - Module Catalog */}
         <aside className="w-64 bg-card border-r border-border flex-shrink-0 overflow-y-auto">
           <ModuleCatalog />
