@@ -6,12 +6,25 @@ import ModuleCatalog from "@/components/studio/ModuleCatalog";
 import MobilePreview from "@/components/studio/MobilePreview";
 import ModuleList from "@/components/studio/ModuleList";
 import ModuleEditor from "@/components/studio/ModuleEditor";
-import { Code, Loader2 } from "lucide-react";
+import { Code, Loader2, Monitor } from "lucide-react";
 
 const DeveloperDashboard = () => {
   const { user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Desktop-only check: viewport >= 1024px
+  const [isDesktop, setIsDesktop] = useState(() => 
+    typeof window !== "undefined" ? window.innerWidth >= 1024 : true
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   
   // Read initial page from URL or default to "home"
   const urlPage = searchParams.get("page");
@@ -44,6 +57,32 @@ const DeveloperDashboard = () => {
     );
   }
 
+  // Block mobile/tablet access - desktop only
+  if (!isDesktop) {
+    return (
+      <div className="h-screen w-screen bg-background flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 rounded-2xl bg-secondary/20 flex items-center justify-center mx-auto mb-6">
+            <Monitor className="w-8 h-8 text-secondary" />
+          </div>
+          <h1 className="font-display text-2xl text-card-foreground mb-3">
+            Acesso apenas pelo Desktop
+          </h1>
+          <p className="text-muted-foreground mb-6">
+            O Gerenciador de Conteúdo está disponível apenas em computadores. 
+            Por favor, acesse pelo navegador do seu computador.
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium"
+          >
+            Voltar ao Início
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-screen bg-background flex flex-col">
       {/* Header */}
@@ -66,8 +105,8 @@ const DeveloperDashboard = () => {
           <span className="text-xs text-muted-foreground">
             {modules?.length || 0} módulos
           </span>
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs text-green-500">Conectado</span>
+          <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+          <span className="text-xs text-secondary">Conectado</span>
         </div>
       </header>
 
