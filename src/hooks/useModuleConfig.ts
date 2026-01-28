@@ -56,7 +56,7 @@ export const useModuleConfig = (moduleId: string) => {
     },
     initialData: cached?.data,
     initialDataUpdatedAt: cached?.updatedAt,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0, // Always fetch fresh data for editing
     gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
@@ -84,5 +84,23 @@ export const useAllHomeModules = () => {
       return data as unknown as ModuleConfig[];
     },
     staleTime: 0,
+  });
+};
+
+export const useDesktopModuleConfig = (moduleId: string) => {
+  return useQuery({
+    queryKey: ["desktop-module-config", moduleId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_modules")
+        .select("*")
+        .eq("module_id", moduleId)
+        .eq("page", "desktop")
+        .single();
+
+      if (error) throw error;
+      return data as unknown as ModuleConfig;
+    },
+    staleTime: 0, // Always fresh data for editing
   });
 };

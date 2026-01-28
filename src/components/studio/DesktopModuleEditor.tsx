@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, Save, Upload, Plus, Trash2, Type, Palette, Image as ImageIcon, Link, GripVertical, Sparkles, RefreshCw, Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AppModule, useUpdateModule, useUpdateModuleConfig } from "@/hooks/useAppModules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -79,6 +80,7 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
   const [aiGeneratedImage, setAiGeneratedImage] = useState<string | null>(null);
   const [aiTargetSlideIndex, setAiTargetSlideIndex] = useState<number | null>(null);
   
+  const queryClient = useQueryClient();
   const updateModule = useUpdateModule();
   const updateConfig = useUpdateModuleConfig();
 
@@ -120,6 +122,13 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
           config: config as Json,
         }),
       ]);
+      
+      // Invalidate all related queries to refresh the preview
+      await queryClient.invalidateQueries({ queryKey: ["module-config", module.module_id] });
+      await queryClient.invalidateQueries({ queryKey: ["desktop-module-config", module.module_id] });
+      await queryClient.invalidateQueries({ queryKey: ["app-modules"] });
+      
+      toast.success("Alterações salvas!");
       onSaved?.();
     } catch {
       // Errors handled by mutations
