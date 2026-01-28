@@ -15,6 +15,7 @@ import type { Json } from "@/integrations/supabase/types";
 interface ModuleEditorProps {
   module: AppModule | null;
   onClose: () => void;
+  onSaved?: () => void;
 }
 
 interface SlideConfig {
@@ -53,7 +54,7 @@ const COLOR_PRESETS = [
   { value: "#45B7D1", label: "Azul" },
 ];
 
-const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
+const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isVisible, setIsVisible] = useState(true);
@@ -87,19 +88,28 @@ const ModuleEditor = ({ module, onClose }: ModuleEditorProps) => {
     );
   }
 
-  const handleSave = () => {
-    updateModule.mutate({
-      id: module.id,
-      updates: {
-        name,
-        description: description || null,
-        is_visible: isVisible,
-      },
-    });
-    updateConfig.mutate({
-      id: module.id,
-      config: config as Json,
-    });
+  const handleSave = async () => {
+    try {
+      // Use mutateAsync to know when the save actually finished.
+      await Promise.all([
+        updateModule.mutateAsync({
+          id: module.id,
+          updates: {
+            name,
+            description: description || null,
+            is_visible: isVisible,
+          },
+        }),
+        updateConfig.mutateAsync({
+          id: module.id,
+          config: config as Json,
+        }),
+      ]);
+
+      onSaved?.();
+    } catch {
+      // Errors are already toasted by the mutations.
+    }
   };
 
   const handleImageUpload = async (file: File, configKey: string, index?: number) => {

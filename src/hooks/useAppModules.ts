@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useEffect } from "react";
 import type { Json } from "@/integrations/supabase/types";
 
 export interface AppModule {
@@ -36,29 +35,10 @@ export interface ModuleConfig {
 }
 
 export const useAppModules = (page?: string) => {
-  const queryClient = useQueryClient();
-  
-  useEffect(() => {
-    const channel = supabase
-      .channel('app-modules-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'app_modules'
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ["app-modules"] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
-
+  // IMPORTANT:
+  // Realtime invalidation is handled globally in useRealtimeSubscriptions() (App.tsx).
+  // Keeping an additional subscription here causes duplicated invalidations and can
+  // lead to excessive refetching in the Content Manager.
   return useQuery({
     queryKey: ["app-modules", page],
     queryFn: async () => {
