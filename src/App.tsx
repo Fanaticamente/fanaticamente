@@ -89,23 +89,31 @@ const App = () => (
         to prevent cross-tab auth broadcasts and route-restoration loops.
       */}
       {isEmbedMode() ? (
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/terapeutas" element={<Terapeutas />} />
-            <Route path="/terapeuta/:id" element={<ProfessionalProfile />} />
-            <Route path="/cursos" element={<Cursos />} />
-            <Route path="/curso/:id" element={<CursoDetalhe />} />
-            <Route path="/quiz" element={<Quiz />} />
-            <Route path="/radio" element={<Radio />} />
-            <Route path="/futebol" element={<Futebol />} />
-            <Route path="/loja" element={<FanaticaShop />} />
-            <Route path="/loja/produto/:id" element={<ProductDetail />} />
-            <Route path="/osmf" element={<OSMF />} />
-            <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        // Embed mode is rendered inside an iframe preview.
+        // We still need AuthProvider because many public components use useAuth().
+        // But we avoid AppProviders (realtime + route restoration + global session dialog)
+        // to prevent any cross-context loops.
+        <AuthProvider>
+          <BrowserRouter>
+            <Toaster />
+            <Sonner />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/terapeutas" element={<Terapeutas />} />
+              <Route path="/terapeuta/:id" element={<ProfessionalProfile />} />
+              <Route path="/cursos" element={<Cursos />} />
+              <Route path="/curso/:id" element={<CursoDetalhe />} />
+              <Route path="/quiz" element={<Quiz />} />
+              <Route path="/radio" element={<Radio />} />
+              <Route path="/futebol" element={<Futebol />} />
+              <Route path="/loja" element={<FanaticaShop />} />
+              <Route path="/loja/produto/:id" element={<ProductDetail />} />
+              <Route path="/osmf" element={<OSMF />} />
+              <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
       ) : (
         <AuthProvider>
           <BrowserRouter>
