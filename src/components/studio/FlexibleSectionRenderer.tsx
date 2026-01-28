@@ -487,7 +487,8 @@ const FlexibleSectionRenderer = ({ config, name, moduleType, moduleId }: Flexibl
   }
 
   // Default: render section with layout support
-  const leftBlocks = blocks.filter(b => b.column === "left" || (!b.column && layout.type === "single"));
+  // For multi-column layouts, blocks without explicit column default to "left"
+  const leftBlocks = blocks.filter(b => b.column === "left" || (!b.column && layout.type !== "single"));
   const rightBlocks = blocks.filter(b => b.column === "right");
   const fullBlocks = blocks.filter(b => b.column === "full");
 
