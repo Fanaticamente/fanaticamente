@@ -24,7 +24,6 @@ const DesktopContentManager = () => {
     typeof window !== "undefined" ? window.innerWidth >= 1024 : true
   );
   const [selectedModule, setSelectedModule] = useState<DesktopModule | null>(null);
-  const [previewRefreshTrigger, setPreviewRefreshTrigger] = useState(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -40,9 +39,7 @@ const DesktopContentManager = () => {
     }
   }, [user, hasRole, loading, navigate]);
 
-  const handleManualRefresh = useCallback(() => {
-    setPreviewRefreshTrigger(prev => prev + 1);
-  }, []);
+  // IMPORTANT: Preview refresh is manual-only (button inside the preview).
 
   if (loading) {
     return (
@@ -126,7 +123,6 @@ const DesktopContentManager = () => {
         <main className="flex-1 min-w-0 bg-muted/30 overflow-hidden">
           <DesktopPreview 
             currentPage="/" 
-            refreshTrigger={previewRefreshTrigger}
           />
         </main>
         

@@ -33,17 +33,7 @@ const DeveloperDashboard = () => {
   
   const [selectedModule, setSelectedModule] = useState<AppModule | null>(null);
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [previewRefreshTrigger, setPreviewRefreshTrigger] = useState(0);
   const { data: modules, isLoading } = useAppModules();
-
-  // IMPORTANT: do NOT refresh the preview on every refetch/realtime update.
-  // Refresh only on explicit "save" actions (mutations) to avoid reload loops.
-  const handleAutoRefreshAfterSave = useCallback(() => {
-    // Small debounce to let DB + cache settle
-    window.setTimeout(() => {
-      setPreviewRefreshTrigger((prev) => prev + 1);
-    }, 300);
-  }, []);
 
   // Sync page changes to URL
   useEffect(() => {
@@ -60,9 +50,7 @@ const DeveloperDashboard = () => {
     }
   }, [user, hasRole, loading, navigate]);
 
-  const handleManualRefresh = useCallback(() => {
-    setPreviewRefreshTrigger(prev => prev + 1);
-  }, []);
+  // IMPORTANT: Preview refresh is manual-only (button inside the preview).
 
   if (loading || isLoading) {
     return (
@@ -148,7 +136,6 @@ const DeveloperDashboard = () => {
         <main className="flex-1 min-w-0 bg-muted/30 overflow-hidden">
           <MobilePreview 
             currentPage="/" 
-            refreshTrigger={previewRefreshTrigger}
           />
         </main>
         
@@ -158,7 +145,6 @@ const DeveloperDashboard = () => {
             <ModuleEditor 
               module={selectedModule} 
               onClose={() => setSelectedModule(null)}
-              onSaved={handleAutoRefreshAfterSave}
             />
           ) : (
             <ModuleList
@@ -167,7 +153,6 @@ const DeveloperDashboard = () => {
               onSelectModule={setSelectedModule}
               currentPage={currentPage}
               onPageChange={setCurrentPage}
-              onChanged={handleAutoRefreshAfterSave}
             />
           )}
         </aside>
