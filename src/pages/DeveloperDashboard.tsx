@@ -23,8 +23,12 @@ const DeveloperDashboard = () => {
 
   // Sync page changes to URL
   useEffect(() => {
-    setSearchParams({ page: currentPage }, { replace: true });
-  }, [currentPage, setSearchParams]);
+    // Avoid navigation loops: only update the URL if it actually changed.
+    const pageInUrl = searchParams.get("page") || "home";
+    if (pageInUrl !== currentPage) {
+      setSearchParams({ page: currentPage }, { replace: true });
+    }
+  }, [currentPage, searchParams, setSearchParams]);
 
   useEffect(() => {
     if (!loading && (!user || !hasRole("developer"))) {
