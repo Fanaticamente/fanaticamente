@@ -30,6 +30,8 @@ import ProfessionalDashboard from "./pages/ProfessionalDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminAccess from "./pages/AdminAccess";
 import DeveloperDashboard from "./pages/DeveloperDashboard";
+import ContentManagers from "./pages/ContentManagers";
+import DesktopContentManager from "./pages/DesktopContentManager";
 import SetupTestUsers from "./pages/SetupTestUsers";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
@@ -147,7 +149,10 @@ const App = () => (
                 <Route path="/psi-house" element={<ProtectedRoute><PsiHouse /></ProtectedRoute>} />
                 <Route path="/conecta" element={<ProtectedRoute><Conecta /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-                <Route path="/desenvolvedor" element={<ProtectedRoute><DeveloperDashboard /></ProtectedRoute>} />
+                <Route path="/developer" element={<ProtectedRoute><ContentManagers /></ProtectedRoute>} />
+                <Route path="/developer/mobile" element={<ProtectedRoute><DeveloperDashboard /></ProtectedRoute>} />
+                <Route path="/developer/desktop" element={<ProtectedRoute><DesktopContentManager /></ProtectedRoute>} />
+                <Route path="/desenvolvedor" element={<ProtectedRoute><ContentManagers /></ProtectedRoute>} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>

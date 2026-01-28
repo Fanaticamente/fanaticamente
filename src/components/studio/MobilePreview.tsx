@@ -1,33 +1,47 @@
 import { useState, useEffect, useRef } from "react";
-import { Smartphone, Tablet, Monitor, RotateCcw, RefreshCw } from "lucide-react";
+import { Smartphone, Tablet, Monitor, RotateCcw, RefreshCw, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface MobilePreviewProps {
   currentPage?: string;
-  refreshTrigger?: number; // increment this to trigger a refresh
+  refreshTrigger?: number;
 }
 
 const MobilePreview = ({ currentPage = "/", refreshTrigger = 0 }: MobilePreviewProps) => {
   const [device, setDevice] = useState<"mobile" | "tablet" | "desktop">("mobile");
   const [scale, setScale] = useState(100);
   const [iframeKey, setIframeKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   
-  // Refresh when refreshTrigger changes (debounced from parent)
+  // Refresh when refreshTrigger changes
   useEffect(() => {
     if (refreshTrigger > 0) {
+      setIsLoading(true);
       setIframeKey(prev => prev + 1);
     }
   }, [refreshTrigger]);
 
   const handleRefresh = () => {
+    setIsLoading(true);
     setIframeKey(prev => prev + 1);
   };
 
-  // Build the preview URL - always use embed mode to avoid auth/PWA issues
-  const previewUrl = currentPage.includes("?") 
-    ? `${currentPage}&embed=1`
-    : `${currentPage}?embed=1`;
+  const handleLoad = () => {
+    setIsLoading(false);
+  };
+
+  const handleOpenInNewTab = () => {
+    window.open(currentPage, "_blank");
+  };
+
+  // Build the preview URL with embed and forceMobile flags
+  const previewUrl = (() => {
+    const url = new URL(currentPage, window.location.origin);
+    url.searchParams.set("embed", "1");
+    url.searchParams.set("forceMobile", "1");
+    return url.toString();
+  })();
 
   return (
     <div className="h-full flex flex-col bg-muted/30">
@@ -66,7 +80,16 @@ const MobilePreview = ({ currentPage = "/", refreshTrigger = 0 }: MobilePreviewP
             className="h-8 w-8 p-0"
             title="Atualizar preview"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleOpenInNewTab}
+            className="h-8 w-8 p-0"
+            title="Abrir em nova aba"
+          >
+            <ExternalLink className="w-4 h-4" />
           </Button>
         </div>
         
@@ -118,7 +141,14 @@ const MobilePreview = ({ currentPage = "/", refreshTrigger = 0 }: MobilePreviewP
               <div className="w-20 h-5 bg-muted rounded-full" />
             </div>
             
-            {/* Content - Sandboxed iframe */}
+            {/* Loading overlay */}
+            {isLoading && (
+              <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-30">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            )}
+            
+            {/* Content - Sandboxed iframe with same-origin for Supabase */}
             <div className="h-full overflow-hidden pt-8">
               <iframe
                 ref={iframeRef}
@@ -126,12 +156,11 @@ const MobilePreview = ({ currentPage = "/", refreshTrigger = 0 }: MobilePreviewP
                 src={previewUrl}
                 className="w-full h-full border-0"
                 title="App Preview"
-                // Sandbox restricts the iframe to prevent it from causing loops:
-                // - allow-scripts: needed for React to run
-                // - allow-same-origin: DISABLED to isolate storage/cookies and prevent parent/iframe route loops
-                // - NO allow-top-navigation: prevents redirects affecting parent
-                // - NO allow-forms: preview-only, no form submissions
-                sandbox="allow-scripts"
+                onLoad={handleLoad}
+                // allow-same-origin is needed for Supabase API calls
+                // allow-scripts is needed for React to run
+                // NO allow-top-navigation prevents redirect loops
+                sandbox="allow-scripts allow-same-origin"
               />
             </div>
             

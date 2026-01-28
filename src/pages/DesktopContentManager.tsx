@@ -1,23 +1,30 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAppModules, AppModule } from "@/hooks/useAppModules";
+import DesktopPreview from "@/components/studio/DesktopPreview";
+import DesktopModuleList from "@/components/studio/DesktopModuleList";
 import ModuleCatalog from "@/components/studio/ModuleCatalog";
-import MobilePreview from "@/components/studio/MobilePreview";
-import ModuleList from "@/components/studio/ModuleList";
-import ModuleEditor from "@/components/studio/ModuleEditor";
-import { Smartphone, Loader2, Monitor, ArrowLeft } from "lucide-react";
+import { Monitor, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const DeveloperDashboard = () => {
+interface DesktopModule {
+  id: string;
+  name: string;
+  section: string;
+  icon: string;
+  is_visible: boolean;
+  order_index: number;
+}
+
+const DesktopContentManager = () => {
   const { user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   
-  // Desktop-only check: viewport >= 1024px
   const [isDesktop, setIsDesktop] = useState(() => 
     typeof window !== "undefined" ? window.innerWidth >= 1024 : true
   );
+  const [selectedModule, setSelectedModule] = useState<DesktopModule | null>(null);
+  const [previewRefreshTrigger, setPreviewRefreshTrigger] = useState(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -26,35 +33,6 @@ const DeveloperDashboard = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
-  // Read initial page from URL or default to "home"
-  const urlPage = searchParams.get("page");
-  const initialPage = urlPage || "home";
-  
-  const [selectedModule, setSelectedModule] = useState<AppModule | null>(null);
-  const [currentPage, setCurrentPage] = useState(initialPage);
-  const [previewRefreshTrigger, setPreviewRefreshTrigger] = useState(0);
-  const { data: modules, isLoading, dataUpdatedAt } = useAppModules();
-
-  // Trigger preview refresh when modules data changes (after save)
-  useEffect(() => {
-    if (dataUpdatedAt > 0) {
-      // Debounce: wait 500ms after data update to refresh preview
-      const timer = setTimeout(() => {
-        setPreviewRefreshTrigger(prev => prev + 1);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [dataUpdatedAt]);
-
-  // Sync page changes to URL
-  useEffect(() => {
-    // Avoid navigation loops: only update the URL if it actually changed.
-    const pageInUrl = searchParams.get("page") || "home";
-    if (pageInUrl !== currentPage) {
-      setSearchParams({ page: currentPage }, { replace: true });
-    }
-  }, [currentPage, searchParams, setSearchParams]);
 
   useEffect(() => {
     if (!loading && (!user || !hasRole("developer"))) {
@@ -66,7 +44,7 @@ const DeveloperDashboard = () => {
     setPreviewRefreshTrigger(prev => prev + 1);
   }, []);
 
-  if (loading || isLoading) {
+  if (loading) {
     return (
       <div className="h-screen w-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -74,7 +52,6 @@ const DeveloperDashboard = () => {
     );
   }
 
-  // Block mobile/tablet access - desktop only
   if (!isDesktop) {
     return (
       <div className="h-screen w-screen bg-background flex items-center justify-center p-6">
@@ -86,8 +63,7 @@ const DeveloperDashboard = () => {
             Acesso apenas pelo Desktop
           </h1>
           <p className="text-muted-foreground mb-6">
-            O Gerenciador de Conteúdo está disponível apenas em computadores. 
-            Por favor, acesse pelo navegador do seu computador.
+            O Gerenciador de Conteúdo está disponível apenas em computadores.
           </p>
           <button
             onClick={() => navigate("/")}
@@ -117,63 +93,53 @@ const DeveloperDashboard = () => {
           
           <div className="w-px h-8 bg-border" />
           
-          <div className="w-10 h-10 rounded-xl bg-primary/30 flex items-center justify-center">
-            <Smartphone className="w-5 h-5 text-primary" />
+          <div className="w-10 h-10 rounded-xl bg-secondary/30 flex items-center justify-center">
+            <Monitor className="w-5 h-5 text-secondary" />
           </div>
           <div>
             <h1 className="font-display text-lg text-card-foreground">
-              Gerenciador Mobile
+              Gerenciador Desktop/Web
             </h1>
             <p className="text-xs text-muted-foreground">
-              Edite o conteúdo do app
+              Edite o site institucional
             </p>
           </div>
         </div>
         
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">
-            {modules?.length || 0} módulos
+            Site Desktop
           </span>
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-xs text-primary">Conectado</span>
+          <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+          <span className="text-xs text-secondary">Conectado</span>
         </div>
       </header>
 
-      {/* Main Content - Fixed Height for Manager */}
+      {/* Main Content */}
       <div className="h-[calc(100vh-56px)] flex">
         {/* Left Panel - Module Catalog */}
         <aside className="w-64 bg-card border-r border-border flex-shrink-0 overflow-y-auto">
           <ModuleCatalog />
         </aside>
         
-        {/* Center - Mobile Preview (sandboxed iframe) */}
+        {/* Center - Desktop Preview */}
         <main className="flex-1 min-w-0 bg-muted/30 overflow-hidden">
-          <MobilePreview 
+          <DesktopPreview 
             currentPage="/" 
             refreshTrigger={previewRefreshTrigger}
           />
         </main>
         
-        {/* Right Panel - Module List or Editor */}
+        {/* Right Panel - Module List */}
         <aside className="w-96 bg-card border-l border-border flex-shrink-0 overflow-y-auto">
-          {selectedModule ? (
-            <ModuleEditor 
-              module={selectedModule} 
-              onClose={() => setSelectedModule(null)} 
-            />
-          ) : (
-            <ModuleList
-              modules={modules || []}
-              selectedModuleId={selectedModule?.id}
-              onSelectModule={setSelectedModule}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-            />
-          )}
+          <DesktopModuleList
+            selectedModuleId={selectedModule?.id}
+            onSelectModule={setSelectedModule}
+          />
         </aside>
       </div>
     </div>
   );
 };
 
-export default DeveloperDashboard;
+export default DesktopContentManager;
