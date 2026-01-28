@@ -31,7 +31,10 @@ const EXCLUDED_FROM_RESTORE = [
   "/fanatica-lab",
   "/profissional",
   "/admin",
-  "/desenvolvedor"
+  "/desenvolvedor",
+  "/developer",
+  "/developer/mobile",
+  "/developer/desktop"
 ];
 
 const isPublicRoute = (path: string) =>

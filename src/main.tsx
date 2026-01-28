@@ -14,9 +14,19 @@ const isEmbedMode = () => {
   }
 };
 
-// IMPORTANT: no modo embed (usado pelo iframe do Gerenciador de Conteúdo),
-// desativamos o registro/auto-update do service worker para evitar reloads em loop.
-if (isEmbedMode()) {
+const isManagerRoute = () => {
+  try {
+    const path = window.location.pathname;
+    return path.startsWith("/developer") || path.startsWith("/desenvolvedor");
+  } catch {
+    return false;
+  }
+};
+
+// IMPORTANT: no modo embed (usado pelo iframe do Gerenciador de Conteúdo)
+// E também nas rotas do gerenciador (/developer*), desativamos o service worker.
+// Motivo: o ciclo updateSW(true) pode causar loops de reload/remount, quebrando o preview.
+if (isEmbedMode() || isManagerRoute()) {
   // If a service worker was registered previously, it may still be controlling this page.
   // Unregister it in embed mode to prevent any auto-update/reload behavior.
   if ("serviceWorker" in navigator) {
