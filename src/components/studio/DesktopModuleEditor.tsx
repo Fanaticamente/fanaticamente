@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Save, Upload, Plus, Trash2, Type, Palette, Image as ImageIcon, Link, GripVertical } from "lucide-react";
+import { X, Save, Upload, Plus, Trash2, Type, Palette, Image as ImageIcon, Link, GripVertical, Sparkles, RefreshCw, Loader2 } from "lucide-react";
 import { AppModule, useUpdateModule, useUpdateModuleConfig } from "@/hooks/useAppModules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
@@ -70,6 +71,13 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
   const [isVisible, setIsVisible] = useState(true);
   const [config, setConfig] = useState<Record<string, unknown>>({});
   const [uploading, setUploading] = useState(false);
+  
+  // AI Image Generation State
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiGeneratedImage, setAiGeneratedImage] = useState<string | null>(null);
+  const [aiTargetSlideIndex, setAiTargetSlideIndex] = useState<number | null>(null);
   
   const updateModule = useUpdateModule();
   const updateConfig = useUpdateModuleConfig();
@@ -151,6 +159,94 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
       toast.error("Erro ao enviar imagem");
     } finally {
       setUploading(false);
+    }
+  };
+
+  // AI Image Generation
+  const openAiDialog = (slideIndex: number) => {
+    setAiTargetSlideIndex(slideIndex);
+    setAiPrompt("");
+    setAiGeneratedImage(null);
+    setAiDialogOpen(true);
+  };
+
+  const handleAiGenerate = async () => {
+    if (!aiPrompt.trim()) {
+      toast.error("Digite uma descrição para a imagem");
+      return;
+    }
+    
+    setAiGenerating(true);
+    setAiGeneratedImage(null);
+    
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-carousel-image`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ prompt: aiPrompt }),
+        }
+      );
+
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || "Erro ao gerar imagem");
+      }
+      
+      setAiGeneratedImage(data.imageUrl);
+      toast.success("Imagem gerada com sucesso!");
+    } catch (error) {
+      console.error("AI generation error:", error);
+      toast.error(error instanceof Error ? error.message : "Erro ao gerar imagem");
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
+  const handleApplyAiImage = async () => {
+    if (!aiGeneratedImage || aiTargetSlideIndex === null) return;
+    
+    try {
+      // Convert base64 to blob and upload to storage
+      const base64Data = aiGeneratedImage.replace(/^data:image\/\w+;base64,/, "");
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "image/png" });
+      
+      const fileName = `desktop-ai-${module?.module_id}-${Date.now()}.png`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("module-images")
+        .upload(fileName, blob);
+      
+      if (uploadError) throw uploadError;
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from("module-images")
+        .getPublicUrl(fileName);
+      
+      // Update the slide with the new image
+      const slides = (config.slides || []) as SlideConfig[];
+      slides[aiTargetSlideIndex] = { ...slides[aiTargetSlideIndex], image: publicUrl };
+      setConfig({ ...config, slides: [...slides] });
+      
+      toast.success("Imagem aplicada ao slide!");
+      setAiDialogOpen(false);
+      setAiGeneratedImage(null);
+      setAiPrompt("");
+    } catch (error) {
+      console.error("Error applying AI image:", error);
+      toast.error("Erro ao aplicar imagem");
     }
   };
 
@@ -295,25 +391,42 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
             </Label>
             <div className="mt-1">
               {slide.image ? (
-                <div className="relative w-full h-32 rounded-lg overflow-hidden">
+                <div className="relative w-full h-32 rounded-lg overflow-hidden group">
                   <img src={slide.image} alt={`Slide ${index + 1}`} className="w-full h-full object-cover" />
-                  <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
-                    <Upload className="w-6 h-6 text-white" />
+                  <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <label className="p-2 bg-white/20 rounded-lg cursor-pointer hover:bg-white/30 transition-colors">
+                      <Upload className="w-5 h-5 text-white" />
+                      <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleImageUpload(file, "slides", index);
+                      }} />
+                    </label>
+                    <button 
+                      onClick={() => openAiDialog(index)}
+                      className="p-2 bg-primary/80 rounded-lg cursor-pointer hover:bg-primary transition-colors"
+                    >
+                      <Sparkles className="w-5 h-5 text-primary-foreground" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <label className="flex-1 h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                    <Upload className="w-6 h-6 text-muted-foreground mb-1" />
+                    <span className="text-xs text-muted-foreground">Upload</span>
                     <input type="file" className="hidden" accept="image/*" onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) handleImageUpload(file, "slides", index);
                     }} />
                   </label>
+                  <button 
+                    onClick={() => openAiDialog(index)}
+                    className="flex-1 h-32 border-2 border-dashed border-primary/50 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                  >
+                    <Sparkles className="w-6 h-6 text-primary mb-1" />
+                    <span className="text-xs text-primary">Gerar com IA</span>
+                  </button>
                 </div>
-              ) : (
-                <label className="w-full h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
-                  <Upload className="w-6 h-6 text-muted-foreground mb-1" />
-                  <span className="text-xs text-muted-foreground">Clique para enviar</span>
-                  <input type="file" className="hidden" accept="image/*" onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleImageUpload(file, "slides", index);
-                  }} />
-                </label>
               )}
             </div>
           </div>
@@ -732,6 +845,92 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
           Salvar alterações
         </Button>
       </div>
+      
+      {/* AI Image Generation Dialog */}
+      <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              Gerar imagem com IA
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="ai-prompt">Descreva a imagem desejada</Label>
+              <Textarea
+                id="ai-prompt"
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder="Ex: Torcedores vibrando em um estádio de futebol ao pôr do sol, atmosfera épica..."
+                className="mt-1"
+                rows={3}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Seja descritivo para melhores resultados. A IA gerará uma imagem 1920x1080.
+              </p>
+            </div>
+            
+            {aiGenerating && (
+              <div className="flex items-center justify-center p-8 bg-muted rounded-lg">
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                <span className="ml-3 text-muted-foreground">Gerando imagem...</span>
+              </div>
+            )}
+            
+            {aiGeneratedImage && !aiGenerating && (
+              <div className="space-y-2">
+                <Label>Imagem gerada</Label>
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border">
+                  <img 
+                    src={aiGeneratedImage} 
+                    alt="AI Generated" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            {!aiGeneratedImage ? (
+              <Button 
+                onClick={handleAiGenerate} 
+                disabled={aiGenerating || !aiPrompt.trim()}
+                className="w-full sm:w-auto"
+              >
+                {aiGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Gerando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Gerar imagem
+                  </>
+                )}
+              </Button>
+            ) : (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={handleAiGenerate}
+                  disabled={aiGenerating}
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refazer
+                </Button>
+                <Button onClick={handleApplyAiImage}>
+                  <ImageIcon className="w-4 h-4 mr-2" />
+                  Usar esta imagem
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
