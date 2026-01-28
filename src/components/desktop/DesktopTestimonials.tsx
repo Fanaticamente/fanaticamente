@@ -43,7 +43,7 @@ const DesktopTestimonials = () => {
               <Quote className="absolute top-6 right-6 w-8 h-8 text-emerald-500/30" />
 
               {/* Text */}
-              <p className="text-gray-700 mb-8 leading-relaxed">
+              <p className="text-gray-700 mb-8 leading-relaxed pr-10">
                 {testimonial.text}
                 <span className="text-emerald-500 font-serif text-4xl align-middle ml-1">"</span>
               </p>
