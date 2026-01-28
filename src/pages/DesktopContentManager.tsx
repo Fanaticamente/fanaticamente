@@ -33,13 +33,6 @@ const DesktopContentManager = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Add manager-layout class to body to override desktop scroll styles
-  useEffect(() => {
-    document.body.classList.add("manager-layout");
-    return () => {
-      document.body.classList.remove("manager-layout");
-    };
-  }, []);
 
   useEffect(() => {
     if (!loading && (!user || !hasRole("developer"))) {
