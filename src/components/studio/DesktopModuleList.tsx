@@ -46,6 +46,7 @@ const moduleTypeIcons: Record<string, LucideIcon> = {
   contact: FileText,
   custom: Layout,
   section: Layout,
+  dynamic_section: Layout,
 };
 
 const getIconComponent = (module: AppModule): LucideIcon => {

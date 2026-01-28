@@ -17,6 +17,7 @@ interface CreateSectionDialogProps {
 }
 
 const SECTION_TYPES = [
+  { id: "dynamic_section", name: "Seção Avançada", icon: Layout, description: "Seção editável com layout flexível" },
   { id: "hero", name: "Hero/Banner", icon: Image, description: "Banner principal com imagem de fundo" },
   { id: "text_section", name: "Seção de Texto", icon: Type, description: "Título, subtítulo e texto" },
   { id: "image_section", name: "Seção de Imagem", icon: Image, description: "Imagem com legenda" },
@@ -95,6 +96,27 @@ const CreateSectionDialog = ({
 
   const getDefaultConfig = (type: string) => {
     switch (type) {
+      case "dynamic_section":
+        return {
+          layoutType: "single",
+          backgroundColor: "#ffffff",
+          paddingTop: 80,
+          paddingBottom: 80,
+          marginTop: 0,
+          marginBottom: 0,
+          maxWidth: "7xl",
+          overflow: "hidden",
+          columnGap: 64,
+          singleColumn: { 
+            blocks: [
+              { id: `block_${Date.now()}_1`, type: "heading", content: "Título da Seção", level: 2, fontWeight: "bold", color: "#000000", alignment: "center", marginBottom: 24 },
+              { id: `block_${Date.now()}_2`, type: "text", content: "Adicione seu conteúdo aqui...", fontSize: "lg", fontWeight: "normal", color: "#374151", alignment: "center" }
+            ], 
+            alignment: "center" 
+          },
+          leftColumn: { blocks: [], alignment: "start" },
+          rightColumn: { blocks: [], alignment: "start" },
+        };
       case "hero":
         return {
           title: "Título do Hero",

@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import logoHeader from "@/assets/logo-header.png";
 import DesktopHeroCarousel from "@/components/desktop/DesktopHeroCarousel";
+import DesktopHero from "@/components/desktop/DesktopHero";
 import DesktopFeatures from "@/components/desktop/DesktopFeatures";
 import DesktopCuriosities from "@/components/desktop/DesktopCuriosities";
+import DesktopChampionship from "@/components/desktop/DesktopChampionship";
 import DesktopAbout from "@/components/desktop/DesktopAbout";
 import DesktopTestimonials from "@/components/desktop/DesktopTestimonials";
 import DesktopProfessionalForm from "@/components/desktop/DesktopProfessionalForm";
@@ -11,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import FlexibleSectionRenderer from "./FlexibleSectionRenderer";
+import DynamicSectionRenderer, { DynamicSectionConfig } from "./DynamicSectionRenderer";
 
 interface ModuleConfig {
   id: string;
@@ -83,10 +86,14 @@ const ModuleRenderer = ({ module }: { module: ModuleConfig }) => {
   switch (module.module_id) {
     case "desktop_hero_carousel":
       return <DesktopHeroCarousel />;
+    case "desktop_hero_section":
+      return <DesktopHero />;
     case "desktop_features_section":
       return <DesktopFeatures />;
     case "desktop_curiosities_section":
       return <DesktopCuriosities />;
+    case "desktop_championship_section":
+      return <DesktopChampionship />;
     case "desktop_about_section":
       return <DesktopAbout />;
     case "desktop_testimonials_section":
@@ -99,6 +106,16 @@ const ModuleRenderer = ({ module }: { module: ModuleConfig }) => {
       );
     case "desktop_footer":
       return <DesktopFooter />;
+  }
+
+  // Check for dynamic section type
+  if (module.module_type === "dynamic_section") {
+    return (
+      <DynamicSectionRenderer 
+        config={module.config as unknown as DynamicSectionConfig} 
+        moduleId={module.id}
+      />
+    );
   }
 
   // For dynamic sections created via the editor, render based on module_type
