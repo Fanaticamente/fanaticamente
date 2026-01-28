@@ -26,6 +26,14 @@ const DeveloperDashboard = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Add manager-layout class to body to override desktop scroll styles
+  useEffect(() => {
+    document.body.classList.add("manager-layout");
+    return () => {
+      document.body.classList.remove("manager-layout");
+    };
+  }, []);
   
   // Read initial page from URL or default to "home"
   const urlPage = searchParams.get("page");
