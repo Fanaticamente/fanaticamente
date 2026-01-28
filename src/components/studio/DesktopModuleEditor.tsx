@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { X, Save, Upload, Plus, Trash2, Type, Palette, Image as ImageIcon, Link, GripVertical, Sparkles, RefreshCw, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import AdvancedSectionEditor from "./AdvancedSectionEditor";
@@ -85,14 +85,73 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
   const updateModule = useUpdateModule();
   const updateConfig = useUpdateModuleConfig();
 
+  const draftKey = useMemo(() => {
+    if (!module?.id) return null;
+    return `fanatica_desktop_module_draft_${module.id}`;
+  }, [module?.id]);
+
   useEffect(() => {
     if (module) {
       setName(module.name);
       setDescription(module.description || "");
       setIsVisible(module.is_visible);
-      setConfig(typeof module.config === 'object' && module.config !== null ? module.config as Record<string, unknown> : {});
+
+      const baseConfig =
+        typeof module.config === "object" && module.config !== null
+          ? (module.config as Record<string, unknown>)
+          : {};
+
+      // Restore draft (if any) so user can resume where they left off.
+      if (draftKey) {
+        try {
+          const raw = localStorage.getItem(draftKey);
+          if (raw) {
+            const parsed = JSON.parse(raw) as {
+              name?: string;
+              description?: string;
+              isVisible?: boolean;
+              config?: Record<string, unknown>;
+            };
+            setName(typeof parsed.name === "string" ? parsed.name : module.name);
+            setDescription(typeof parsed.description === "string" ? parsed.description : (module.description || ""));
+            setIsVisible(typeof parsed.isVisible === "boolean" ? parsed.isVisible : module.is_visible);
+            setConfig(parsed.config && typeof parsed.config === "object" ? parsed.config : baseConfig);
+            return;
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      setConfig(baseConfig);
     }
-  }, [module]);
+  }, [module, draftKey]);
+
+  // Persist a lightweight draft while editing (debounced)
+  useEffect(() => {
+    if (!module?.id || !draftKey) return;
+
+    // Don't store large base64 images in drafts.
+    if (aiGeneratedImage) return;
+
+    const handle = window.setTimeout(() => {
+      try {
+        localStorage.setItem(
+          draftKey,
+          JSON.stringify({
+            name,
+            description,
+            isVisible,
+            config,
+          })
+        );
+      } catch {
+        // ignore
+      }
+    }, 250);
+
+    return () => window.clearTimeout(handle);
+  }, [module?.id, draftKey, name, description, isVisible, config, aiGeneratedImage]);
 
   if (!module) {
     return (
@@ -136,6 +195,16 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
       await queryClient.invalidateQueries({ queryKey: ["desktop-modules-preview"] });
       
       toast.success("Alterações salvas!");
+
+      // Clear draft on successful save
+      if (draftKey) {
+        try {
+          localStorage.removeItem(draftKey);
+        } catch {
+          // ignore
+        }
+      }
+
       onSaved?.();
     } catch {
       // Errors handled by mutations

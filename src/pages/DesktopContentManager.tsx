@@ -9,6 +9,17 @@ import { Monitor, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppModule } from "@/hooks/useAppModules";
 
+const DESKTOP_MANAGER_SELECTED_MODULE_KEY = "fanatica_desktop_manager_selected_module";
+
+const safeJsonParse = <T,>(value: string | null): T | null => {
+  if (!value) return null;
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return null;
+  }
+};
+
 const DesktopContentManager = () => {
   const { user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
@@ -33,6 +44,34 @@ const DesktopContentManager = () => {
       navigate("/");
     }
   }, [user, hasRole, loading, navigate]);
+
+  // Restore last selected module when returning to this page.
+  useEffect(() => {
+    try {
+      const saved = safeJsonParse<AppModule>(localStorage.getItem(DESKTOP_MANAGER_SELECTED_MODULE_KEY));
+      if (saved?.id) setSelectedModule(saved);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const handleSelectModule = (module: AppModule) => {
+    setSelectedModule(module);
+    try {
+      localStorage.setItem(DESKTOP_MANAGER_SELECTED_MODULE_KEY, JSON.stringify(module));
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleCloseEditor = () => {
+    setSelectedModule(null);
+    try {
+      localStorage.removeItem(DESKTOP_MANAGER_SELECTED_MODULE_KEY);
+    } catch {
+      // ignore
+    }
+  };
 
   const handleModuleSaved = () => {
     // Refresh preview when module is saved
@@ -129,13 +168,13 @@ const DesktopContentManager = () => {
           {selectedModule ? (
             <DesktopModuleEditor
               module={selectedModule}
-              onClose={() => setSelectedModule(null)}
+              onClose={handleCloseEditor}
               onSaved={handleModuleSaved}
             />
           ) : (
             <DesktopModuleList
               selectedModuleId={selectedModule?.id}
-              onSelectModule={setSelectedModule}
+              onSelectModule={handleSelectModule}
             />
           )}
         </aside>
