@@ -13,7 +13,7 @@ const DesktopHero = () => {
             {/* Left Column - Main Title */}
             <div>
               <h2 
-                className="text-4xl lg:text-5xl xl:text-[56px] text-black font-bold leading-[1.1]"
+                className="text-3xl lg:text-4xl xl:text-[44px] text-emerald-600 font-bold leading-[1.15]"
                 style={{ fontFamily: "'Work Sans', sans-serif" }}
               >
                 Transformando a forma que os torcedores se conectam com sua saúde mental
