@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Briefcase, User, ChevronDown, Brain } from "lucide-react";
+import { Briefcase, User, ChevronDown, Brain, ArrowLeft } from "lucide-react";
 import { allBrazilianClubs } from "@/data/allBrazilianClubs";
 import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { supabase } from "@/integrations/supabase/client";
@@ -869,6 +869,15 @@ const Auth = () => {
                     : "Já tem conta? Entre"}
                 </button>
               </div>
+
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="w-full mt-4 py-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-sm">Voltar ao site</span>
+              </button>
             </div>
           </div>
         </div>
@@ -1318,6 +1327,15 @@ const Auth = () => {
                 : "Já tem conta? Entre"}
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="w-full mt-4 py-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm">Voltar ao site</span>
+          </button>
         </div>
       </div>
     </div>
