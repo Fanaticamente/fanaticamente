@@ -772,6 +772,17 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
   );
 
   const renderModuleSpecificEditor = () => {
+    // Known desktop modules
+    const knownModules = [
+      "desktop_hero_carousel",
+      "desktop_features_section",
+      "desktop_curiosities_section",
+      "desktop_about_section",
+      "desktop_testimonials_section",
+      "desktop_professional_form",
+      "desktop_footer",
+    ];
+
     switch (module.module_id) {
       case "desktop_hero_carousel":
         return renderCarouselEditor();
@@ -788,12 +799,287 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
       case "desktop_footer":
         return renderFooterEditor();
       default:
-        return (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>Editor para este tipo de módulo em desenvolvimento</p>
-          </div>
-        );
+        // For custom/new sections, use flexible block-based editor
+        return renderFlexibleEditor();
     }
+  };
+
+  const renderFlexibleEditor = () => {
+    const blocks = (config.blocks || []) as Array<{
+      id: string;
+      type: string;
+      content?: string;
+      src?: string;
+      alt?: string;
+      level?: number;
+      alignment?: string;
+      link?: string;
+      height?: number;
+    }>;
+
+    const addBlock = (type: string) => {
+      const newBlock: any = {
+        id: crypto.randomUUID(),
+        type,
+        alignment: "center",
+      };
+
+      switch (type) {
+        case "heading":
+          newBlock.content = "Novo Título";
+          newBlock.level = 2;
+          break;
+        case "text":
+          newBlock.content = "Novo texto...";
+          break;
+        case "image":
+          newBlock.src = "";
+          newBlock.alt = "";
+          break;
+        case "button":
+          newBlock.content = "Clique aqui";
+          newBlock.link = "#";
+          break;
+        case "spacer":
+          newBlock.height = 40;
+          break;
+      }
+
+      setConfig({ ...config, blocks: [...blocks, newBlock] });
+    };
+
+    const removeBlock = (id: string) => {
+      setConfig({ ...config, blocks: blocks.filter(b => b.id !== id) });
+    };
+
+    const updateBlock = (id: string, field: string, value: any) => {
+      setConfig({
+        ...config,
+        blocks: blocks.map(b => b.id === id ? { ...b, [field]: value } : b),
+      });
+    };
+
+    const moveBlock = (index: number, direction: "up" | "down") => {
+      const newBlocks = [...blocks];
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= blocks.length) return;
+      [newBlocks[index], newBlocks[targetIndex]] = [newBlocks[targetIndex], newBlocks[index]];
+      setConfig({ ...config, blocks: newBlocks });
+    };
+
+    const handleBlockImageUpload = async (file: File, blockId: string) => {
+      setUploading(true);
+      try {
+        const fileExt = file.name.split(".").pop();
+        const fileName = `section-${module?.id}-${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("module-images")
+          .upload(fileName, file);
+        
+        if (uploadError) throw uploadError;
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from("module-images")
+          .getPublicUrl(fileName);
+        
+        updateBlock(blockId, "src", publicUrl);
+        toast.success("Imagem enviada!");
+      } catch {
+        toast.error("Erro ao enviar imagem");
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    return (
+      <div className="space-y-4">
+        {/* Section title/subtitle */}
+        <div>
+          <Label>Título da Seção</Label>
+          <Input 
+            value={(config.title as string) || ""} 
+            onChange={(e) => setConfig({ ...config, title: e.target.value })} 
+            className="mt-1" 
+          />
+        </div>
+        <div>
+          <Label>Subtítulo (opcional)</Label>
+          <Textarea 
+            value={(config.subtitle as string) || ""} 
+            onChange={(e) => setConfig({ ...config, subtitle: e.target.value })} 
+            className="mt-1" 
+            rows={2}
+          />
+        </div>
+
+        {/* Content Blocks */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium">Blocos de Conteúdo</Label>
+          </div>
+
+          {blocks.map((block, index) => (
+            <div key={block.id} className="p-3 bg-muted rounded-lg space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
+                  <span className="text-sm font-medium capitalize">{block.type}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 w-6 p-0"
+                    onClick={() => moveBlock(index, "up")}
+                    disabled={index === 0}
+                  >
+                    <Type className="w-3 h-3 rotate-180" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 w-6 p-0"
+                    onClick={() => moveBlock(index, "down")}
+                    disabled={index === blocks.length - 1}
+                  >
+                    <Type className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 w-6 p-0 text-destructive"
+                    onClick={() => removeBlock(block.id)}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Block-specific editors */}
+              {block.type === "heading" && (
+                <Input
+                  value={block.content || ""}
+                  onChange={(e) => updateBlock(block.id, "content", e.target.value)}
+                  placeholder="Título"
+                  className="font-semibold"
+                />
+              )}
+              
+              {block.type === "text" && (
+                <Textarea
+                  value={block.content || ""}
+                  onChange={(e) => updateBlock(block.id, "content", e.target.value)}
+                  placeholder="Texto..."
+                  rows={3}
+                />
+              )}
+              
+              {block.type === "button" && (
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    value={block.content || ""}
+                    onChange={(e) => updateBlock(block.id, "content", e.target.value)}
+                    placeholder="Texto do botão"
+                  />
+                  <Input
+                    value={block.link || ""}
+                    onChange={(e) => updateBlock(block.id, "link", e.target.value)}
+                    placeholder="Link (URL)"
+                  />
+                </div>
+              )}
+
+              {block.type === "image" && (
+                <div className="space-y-2">
+                  {block.src ? (
+                    <div className="relative rounded-lg overflow-hidden group">
+                      <img src={block.src} alt={block.alt || ""} className="w-full h-24 object-cover" />
+                      <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                        <Upload className="w-5 h-5 text-white" />
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleBlockImageUpload(file, block.id);
+                          }}
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <label className="flex items-center justify-center h-20 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                      <div className="text-center">
+                        <Upload className="w-5 h-5 mx-auto text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Upload</span>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleBlockImageUpload(file, block.id);
+                        }}
+                      />
+                    </label>
+                  )}
+                  <Input
+                    value={block.alt || ""}
+                    onChange={(e) => updateBlock(block.id, "alt", e.target.value)}
+                    placeholder="Texto alternativo"
+                    className="text-sm"
+                  />
+                </div>
+              )}
+
+              {block.type === "spacer" && (
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs">Altura:</Label>
+                  <Input
+                    type="number"
+                    value={block.height || 40}
+                    onChange={(e) => updateBlock(block.id, "height", parseInt(e.target.value))}
+                    className="w-20 h-7"
+                    min={10}
+                    max={200}
+                  />
+                  <span className="text-xs text-muted-foreground">px</span>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Add Block Buttons */}
+          <div className="flex flex-wrap gap-2 pt-2">
+            <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => addBlock("heading")}>
+              <Plus className="w-3 h-3" />
+              <Type className="w-3 h-3" />
+              Título
+            </Button>
+            <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => addBlock("text")}>
+              <Plus className="w-3 h-3" />
+              Texto
+            </Button>
+            <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => addBlock("image")}>
+              <Plus className="w-3 h-3" />
+              <ImageIcon className="w-3 h-3" />
+              Imagem
+            </Button>
+            <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => addBlock("button")}>
+              <Plus className="w-3 h-3" />
+              <Link className="w-3 h-3" />
+              Botão
+            </Button>
+            <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => addBlock("spacer")}>
+              <Plus className="w-3 h-3" />
+              Espaço
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
