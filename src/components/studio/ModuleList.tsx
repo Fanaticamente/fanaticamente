@@ -20,6 +20,7 @@ interface ModuleListProps {
   onSelectModule: (module: AppModule) => void;
   currentPage: string;
   onPageChange: (page: string) => void;
+  onChanged?: () => void;
 }
 
 const iconMap: Record<string, LucideIcon> = {
@@ -45,7 +46,8 @@ const ModuleList = ({
   selectedModuleId, 
   onSelectModule, 
   currentPage,
-  onPageChange 
+  onPageChange,
+  onChanged,
 }: ModuleListProps) => {
   const [expandedPages, setExpandedPages] = useState<string[]>(["home", "navigation", "pages"]);
   const toggleVisibility = useToggleModuleVisibility();
@@ -73,6 +75,7 @@ const ModuleList = ({
         order_index: i === currentIndex ? currentIndex - 1 : i === currentIndex - 1 ? currentIndex : i,
       }));
       reorderModules.mutate(newOrder);
+      onChanged?.();
     }
   };
 
@@ -84,6 +87,7 @@ const ModuleList = ({
         order_index: i === currentIndex ? currentIndex + 1 : i === currentIndex + 1 ? currentIndex : i,
       }));
       reorderModules.mutate(newOrder);
+      onChanged?.();
     }
   };
 
@@ -164,6 +168,7 @@ const ModuleList = ({
                               id: module.id, 
                               is_visible: !module.is_visible 
                             });
+                            onChanged?.();
                           }}
                         >
                           {module.is_visible ? (
