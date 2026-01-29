@@ -15,6 +15,7 @@ export interface FootballNewsItem {
   category: string;
   published_at: string;
   created_at: string;
+  is_original: boolean;
 }
 
 export const useFootballNews = () => {

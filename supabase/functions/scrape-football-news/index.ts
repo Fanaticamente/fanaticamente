@@ -747,13 +747,38 @@ serve(async (req) => {
           continue;
         }
 
-        // Rewrite with AI
-        const rewritten = await rewriteWithAI(article.title, details.content);
-
-        // Skip interactive/task-based articles
-        if (rewritten.shouldSkip) {
-          console.log(`Skipping interactive article: ${article.title}`);
-          continue;
+        // Try to rewrite with AI, but fallback to original if it fails
+        let rewrittenTitle = article.title;
+        let rewrittenContent = sanitizeRewrittenContent(details.content);
+        let isOriginal = false;
+        
+        try {
+          const rewritten = await rewriteWithAI(article.title, details.content);
+          
+          // Skip interactive/task-based articles
+          if (rewritten.shouldSkip) {
+            console.log(`Skipping interactive article: ${article.title}`);
+            continue;
+          }
+          
+          rewrittenTitle = rewritten.rewrittenTitle;
+          rewrittenContent = rewritten.rewrittenContent;
+        } catch (aiError) {
+          // AI failed (e.g., no credits) - use original content with credits
+          console.log(`AI rewrite failed, using original content for: ${article.title}`);
+          console.error('AI Error:', aiError);
+          isOriginal = true;
+          
+          // Capitalize title properly for display
+          rewrittenTitle = article.title
+            .split(' ')
+            .map((word, index) => {
+              if (index === 0 || word.length > 3) {
+                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+              }
+              return word.toLowerCase();
+            })
+            .join(' ');
         }
 
         // Insert into database
@@ -763,20 +788,21 @@ serve(async (req) => {
             original_url: article.url,
             source_site: article.sourceSite,
             original_title: article.title,
-            rewritten_title: rewritten.rewrittenTitle,
+            rewritten_title: rewrittenTitle,
             original_content: details.content,
-            rewritten_content: rewritten.rewrittenContent,
+            rewritten_content: rewrittenContent,
             image_url: details.imageUrl,
             image_caption: details.imageCaption,
             image_credits: details.imageCredits,
             category: 'Futebol',
+            is_original: isOriginal,
           });
 
         if (insertError) {
           console.error('Insert error:', insertError);
         } else {
           processedNews.push(article.title);
-          console.log(`Successfully processed: ${article.title}`);
+          console.log(`Successfully processed: ${article.title}${isOriginal ? ' (original content)' : ''}`);
         }
       } catch (error) {
         console.error(`Error processing article ${article.url}:`, error);
