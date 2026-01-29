@@ -135,7 +135,7 @@ const BookingTermsDialog = ({ accepted, onAcceptChange, clubColor = "#10b981" }:
             </DialogContent>
           </Dialog>
           . Declaro estar ciente de que os pagamentos são realizados diretamente ao profissional 
-          e que a Fanaticamente atua apenas como plataforma de conexão.
+          e que a Fanaticamente atua apenas como uma plataforma de conexão.
         </label>
       </div>
     </div>
