@@ -39,7 +39,29 @@ async function scrapeArticleMainContent(url: string): Promise<string> {
 }
 
 function cleanOriginalArticleText(input: string): string {
-  const blocked = [
+  // Aggressively remove boilerplate, navigation, metadata from scraped content
+  
+  // First, remove common markdown headers that are navigation/menu items
+  let text = input
+    .replace(/\r\n/g, '\n')
+    // Remove navigation menu items (single words/short phrases as headings)
+    .replace(/^#+\s*(TIMES|Série [AB]|Europa|Internacional|Brasileirão|Campeonatos?|Futebol|Notícias|Vídeos|Ao Vivo|Tabela|Classificação)\s*$/gim, '')
+    // Remove "Por [Author] — [City]" lines
+    .replace(/^Por\s+[A-ZÀ-Ú][a-zà-ú]+\s+[A-ZÀ-Ú][a-zà-ú]+.*?—.*$/gim, '')
+    // Remove timestamps like "29/01/2026 18h09 Atualizado há X minutos"
+    .replace(/^\d{2}\/\d{2}\/\d{4}\s+\d{1,2}h\d{2}.*$/gim, '')
+    .replace(/^Atualizado há \d+.*$/gim, '')
+    // Remove asterisk separators
+    .replace(/^\*\s*\*\s*\*\s*$/gm, '')
+    // Remove hashtag headers that are just menu items
+    .replace(/^##+\s*[A-ZÀ-Ú][a-zà-ú]+\s+[a-zà-ú]+\s+[a-zà-ú]+\s*$/gim, '')
+    // Remove empty lines with just whitespace
+    .replace(/^\s+$/gm, '')
+    // Remove multiple consecutive newlines
+    .replace(/\n{3,}/g, '\n\n');
+  
+  // Block patterns for entire paragraphs
+  const blockedPatterns = [
     /navegue pelo conteúdo/i,
     /conta globo/i,
     /seja pro/i,
@@ -47,22 +69,49 @@ function cleanOriginalArticleText(input: string): string {
     /cartola/i,
     /gshow/i,
     /globocom/i,
-    /g1\b/i,
+    /\bg1\b/i,
     /assine|assinante|assinatura/i,
     /login unificad/i,
     /receber recomendações/i,
     /ofertas exclusivas/i,
     /clique para/i,
+    /compartilhe no/i,
+    /facebook|twitter|whatsapp|telegram/i,
+    /saiba mais\s*$/i,
+    /veja também/i,
+    /leia mais/i,
+    /PUBLICIDADE/i,
+    /baixe o app/i,
+    /^TIMES$/i,
+    /^Série [AB]$/i,
+    /^Europa$/i,
+    /^#\s/,
+    /^##\s/,
   ];
 
-  const paragraphs = input
-    .replace(/\r\n/g, '\n')
+  const paragraphs = text
     .split(/\n\s*\n/g)
     .map((p) => p.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter((p) => {
+      // Skip very short paragraphs that are likely menu items (less than 20 chars)
+      if (p.length < 20 && !p.includes('.')) return false;
+      // Skip if matches blocked patterns
+      if (blockedPatterns.some((re) => re.test(p))) return false;
+      return true;
+    });
 
-  const cleaned = paragraphs.filter((p) => !blocked.some((re) => re.test(p)));
-  return cleaned.join('\n\n').trim();
+  // Find where the actual article content starts (skip headers/navigation)
+  let startIndex = 0;
+  for (let i = 0; i < paragraphs.length; i++) {
+    // Actual article paragraphs are usually longer than 50 chars
+    if (paragraphs[i].length > 50 && !paragraphs[i].startsWith('#')) {
+      startIndex = i;
+      break;
+    }
+  }
+
+  return paragraphs.slice(startIndex).join('\n\n').trim();
 }
 
 function sanitizeRewrittenContent(text: string): string {
