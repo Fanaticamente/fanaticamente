@@ -229,10 +229,10 @@ serve(async (req) => {
 
     console.log('Starting news scrape...');
 
-    // Scrape both sources
+    // Scrape sources (El Gráfico temporarily disabled)
     const sources = [
       { url: 'https://ge.globo.com/futebol/', extractor: extractNewsFromGE },
-      { url: 'https://www.elgrafico.com.ar/seccion/4/futbol', extractor: extractNewsFromElGrafico },
+      // { url: 'https://www.elgrafico.com.ar/seccion/4/futbol', extractor: extractNewsFromElGrafico },
     ];
 
     const allNews: NewsItem[] = [];
