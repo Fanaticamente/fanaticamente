@@ -18,7 +18,6 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
     if (isForceRefreshing) return;
     
     setIsForceRefreshing(true);
-    toast.info("Buscando novas notícias...");
     
     try {
       const result = await forceScrape();
@@ -114,7 +113,7 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
                 size="sm"
                 onClick={handleForceRefresh}
                 disabled={isForceRefreshing}
-                className="text-primary hover:text-primary/80"
+                className="text-primary hover:text-primary/80 hover:bg-transparent"
               >
                 <RefreshCw className={`w-4 h-4 ${isForceRefreshing ? 'animate-spin' : ''}`} />
               </Button>
