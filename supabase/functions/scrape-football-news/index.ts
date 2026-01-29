@@ -155,13 +155,16 @@ async function rewriteWithAI(title: string, content: string): Promise<{ rewritte
 
   const prompt = `Você é um jornalista esportivo da Fanaticamente. Reescreva a seguinte notícia de futebol com suas próprias palavras, mantendo as informações principais mas com um estilo único e envolvente. 
 
-REGRAS:
+REGRAS IMPORTANTES:
 1. Reescreva o título de forma criativa mas informativa
-2. Reescreva o conteúdo mantendo os fatos principais
-3. Use linguagem acessível e empolgante para fãs de futebol
-4. O texto deve ser original e não uma cópia
-5. Mantenha o texto conciso (máximo 300 palavras)
-6. Responda APENAS no formato JSON especificado
+2. CAPITALIZAÇÃO DO TÍTULO: Use apenas a primeira letra da primeira palavra em maiúscula (sentence case). Apenas nomes próprios (pessoas, times, cidades, países) devem ter inicial maiúscula. NUNCA use Title Case com várias palavras começando em maiúscula.
+   - ERRADO: "Flamengo Vence Palmeiras Em Jogo Emocionante"
+   - CORRETO: "Flamengo vence Palmeiras em jogo emocionante"
+3. Reescreva o conteúdo mantendo os fatos principais
+4. Use linguagem acessível e empolgante para fãs de futebol
+5. O texto deve ser original e não uma cópia
+6. Mantenha o texto conciso (máximo 300 palavras)
+7. Responda APENAS no formato JSON especificado
 
 TÍTULO ORIGINAL:
 ${title}
