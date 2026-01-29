@@ -685,11 +685,16 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
           ) : (
             /* Payment Step */
             <div className="p-4 space-y-4">
-              {/* Session Summary - Ticket Style */}
-              <div className="relative bg-white rounded-2xl shadow-sm">
-                {/* Circular cutouts that show the grass background behind */}
-                <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#2d5a3d]"></div>
-                <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#2d5a3d]"></div>
+              {/* Session Summary - Ticket Style with transparent cutouts */}
+              <div 
+                className="relative bg-white rounded-2xl shadow-sm"
+                style={{
+                  maskImage: 'radial-gradient(circle at 0% 50%, transparent 12px, black 12px), radial-gradient(circle at 100% 50%, transparent 12px, black 12px)',
+                  WebkitMaskImage: 'radial-gradient(circle at 0% 50%, transparent 12px, black 12px), radial-gradient(circle at 100% 50%, transparent 12px, black 12px)',
+                  maskComposite: 'intersect',
+                  WebkitMaskComposite: 'source-in'
+                }}
+              >
                 <div className="p-4 flex items-center gap-3">
                   <div
                     className="w-14 h-14 rounded-xl overflow-hidden border-2"
