@@ -9,7 +9,7 @@ const Futebol = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
 
   return (
-    <div className="min-h-screen bg-[#FDF8F0]">
+    <div className="min-h-screen bg-white">
       <Header />
 
       <main className="pt-20">
