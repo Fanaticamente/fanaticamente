@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.generate-carousel-image]
 verify_jwt = false
+
+[functions.fix-existing-news]
+verify_jwt = false
