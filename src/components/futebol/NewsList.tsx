@@ -14,7 +14,7 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="text-muted-foreground text-sm">Carregando notícias...</p>
+        <p className="text-gray-500 text-sm">Carregando notícias...</p>
       </div>
     );
   }
@@ -33,8 +33,8 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
   if (!news || news.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground mb-2">Nenhuma notícia encontrada</p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-gray-500 mb-2">Nenhuma notícia encontrada</p>
+        <p className="text-sm text-gray-400">
           As notícias são atualizadas automaticamente a cada 2 minutos
         </p>
         <Button 
@@ -76,7 +76,7 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
       {otherNews.length > 0 && (
         <div className="px-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display text-xl text-card-foreground">
+            <h3 className="font-display text-xl text-black">
               Últimas Notícias
             </h3>
             {isFetching && (
@@ -94,7 +94,7 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
 
       {/* Auto-update indicator */}
       <div className="px-4 py-2 text-center">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-gray-500">
           ⚡ Atualização automática a cada 2 minutos
         </p>
       </div>

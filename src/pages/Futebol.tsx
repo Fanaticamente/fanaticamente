@@ -9,16 +9,16 @@ const Futebol = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f5f5f5]">
       <Header />
 
       <main className="pt-20">
         {/* Header */}
         <div className="px-4 mb-6">
-          <h1 className="font-display text-4xl text-primary mb-2">
+          <h1 className="font-display text-4xl text-black mb-2">
             Notícias
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-gray-600">
             Tudo sobre futebol brasileiro e sul-americano
           </p>
         </div>
@@ -33,7 +33,7 @@ const Futebol = () => {
                 className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
                   selectedCategory === cat
                     ? "bg-primary text-primary-foreground"
-                    : "bg-card border border-border text-card-foreground hover:border-primary"
+                    : "bg-white border border-gray-200 text-gray-800 hover:border-primary"
                 }`}
               >
                 {cat}
