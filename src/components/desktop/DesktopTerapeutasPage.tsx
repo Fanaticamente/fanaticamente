@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
-import { Search, Filter, MapPin, Star, ChevronDown, Users, Clock, Shield } from "lucide-react";
+import { Search, Filter, MapPin, Users, Clock, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getClubsByLeague, BrazilianClub } from "@/data/brazilianClubs";
 import { supabase } from "@/integrations/supabase/client";
-import { addDays, format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import DesktopHeader from "./DesktopHeader";
-
+import BookingDrawer from "@/components/terapeutas/BookingDrawer";
 interface TherapistData {
   id: string;
   name: string;
@@ -44,7 +42,10 @@ const DesktopTerapeutasPage = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-
+  
+  // Booking drawer state
+  const [selectedTherapist, setSelectedTherapist] = useState<TherapistData | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const clubs = getClubsByLeague(selectedLeague);
 
   const fetchTherapistsForClub = async (club: BrazilianClub) => {
@@ -122,9 +123,9 @@ const DesktopTerapeutasPage = () => {
     navigate(path);
   };
 
-  const handleTherapistClick = (therapistId: string) => {
-    // Perfil público do especialista (rota pública)
-    navigate(`/terapeuta/${therapistId}`);
+  const handleTherapistClick = (therapist: TherapistData) => {
+    setSelectedTherapist(therapist);
+    setDrawerOpen(true);
   };
 
   const filteredTherapists = therapists.filter(t => 
@@ -324,7 +325,7 @@ const DesktopTerapeutasPage = () => {
                   {filteredTherapists.map((therapist) => (
                     <div
                       key={therapist.id}
-                      onClick={() => handleTherapistClick(therapist.id)}
+                      onClick={() => handleTherapistClick(therapist)}
                       className="bg-white rounded-2xl p-6 border border-gray-100 hover:border-emerald-200 hover:shadow-lg transition-all cursor-pointer group"
                     >
                       <div className="flex gap-4">
@@ -415,6 +416,14 @@ const DesktopTerapeutasPage = () => {
           </p>
         </div>
       </footer>
+
+      {/* Booking Drawer */}
+      <BookingDrawer
+        therapist={selectedTherapist}
+        clubColor={selectedClub?.primaryColor || "#10b981"}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+      />
     </div>
   );
 };
