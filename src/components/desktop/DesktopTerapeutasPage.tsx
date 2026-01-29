@@ -212,13 +212,13 @@ const DesktopTerapeutasPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar - Club Selection */}
           <aside className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 font-display uppercase tracking-wide">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sticky top-24">
+              <h2 className="text-2xl font-bold text-gray-800 mb-5 font-display uppercase tracking-wide">
                 Selecione seu time
               </h2>
 
               {/* League Tabs */}
-              <div className="flex gap-1 mb-4 bg-gray-100 p-1 rounded-lg">
+              <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-lg">
                 {(Object.keys(leagueLabels) as League[]).map((league) => (
                   <button
                     key={league}
@@ -227,7 +227,7 @@ const DesktopTerapeutasPage = () => {
                       setSelectedClub(null);
                       setTherapists([]);
                     }}
-                    className={`flex-1 py-2 px-2 rounded-md text-xs font-medium transition-all ${
+                    className={`flex-1 py-2 px-2 rounded-md text-sm font-medium transition-all ${
                       selectedLeague === league
                         ? "bg-white text-emerald-600 shadow-sm"
                         : "text-gray-500 hover:text-gray-700"
@@ -239,7 +239,7 @@ const DesktopTerapeutasPage = () => {
               </div>
 
               {/* Clubs Grid */}
-              <div className="grid grid-cols-3 gap-4 max-h-[600px] overflow-y-auto pr-2">
+              <div className="grid grid-cols-3 gap-3 max-h-[600px] overflow-y-auto overflow-x-hidden p-1">
                 {clubs.map((club) => (
                   <button
                     key={club.id}
