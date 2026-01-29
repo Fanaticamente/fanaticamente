@@ -133,9 +133,13 @@ function cleanOriginalArticleText(input: string): string {
 }
 
 function sanitizeRewrittenContent(text: string): string {
-  // Hard-remove any accidental attribution/citation lines.
+  // Hard-remove any accidental attribution/citation lines and photo credits.
   return text
     .replace(/\r\n/g, '\n')
+    // Remove photo credit patterns like "— Foto: Getty Images" or "Foto: Reprodução"
+    .replace(/—?\s*Foto:\s*[^\n]+/gi, '')
+    // Remove patterns like "Nome — Foto: ..."
+    .replace(/[A-Za-zÀ-ú\s]+—\s*Foto:\s*[^\n]+/gi, '')
     .split('\n')
     .filter((line) => {
       const l = line.trim();
@@ -143,9 +147,17 @@ function sanitizeRewrittenContent(text: string): string {
       if (/^fonte\s*:/i.test(l)) return false;
       if (/https?:\/\//i.test(l)) return false;
       if (/ge\.globo\.com|\bglobo\.com\b|\bg1\b|globoplay/i.test(l)) return false;
+      // Remove standalone photo credit lines
+      if (/^\s*Foto:\s*/i.test(l)) return false;
       return true;
     })
     .join('\n')
+    // Remove duplicate consecutive lines
+    .split('\n')
+    .filter((line, index, arr) => index === 0 || line.trim().toLowerCase() !== arr[index - 1].trim().toLowerCase())
+    .join('\n')
+    // Clean up extra whitespace
+    .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
 
