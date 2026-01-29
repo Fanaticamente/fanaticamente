@@ -1,6 +1,8 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import logoHeader from "@/assets/logo-header.png";
+import { useAuth } from "@/contexts/AuthContext";
+import UserDropdownMenu from "./UserDropdownMenu";
 
 const navLinks = [
   { label: "Início", path: "/", isRoute: true },
@@ -13,6 +15,7 @@ const navLinks = [
 const DesktopHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, loading } = useAuth();
 
   const handleNavClick = (link: typeof navLinks[0]) => {
     // Limpa as rotas salvas para evitar conflito com route restoration
@@ -67,23 +70,31 @@ const DesktopHeader = () => {
           ))}
         </nav>
 
-        {/* Auth Buttons */}
+        {/* Auth Section */}
         <div className="flex items-center gap-4">
-          <Link to="/auth">
-            <Button 
-              variant="ghost" 
-              className="text-white hover:bg-white/10"
-            >
-              Entrar
-            </Button>
-          </Link>
-          <Link to="/auth">
-            <Button 
-              className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6"
-            >
-              Baixar App
-            </Button>
-          </Link>
+          {loading ? (
+            <div className="w-9 h-9 rounded-full bg-gray-700 animate-pulse" />
+          ) : user ? (
+            <UserDropdownMenu />
+          ) : (
+            <>
+              <Link to="/auth">
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:bg-white/10"
+                >
+                  Entrar
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button 
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6"
+                >
+                  Baixar App
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>
