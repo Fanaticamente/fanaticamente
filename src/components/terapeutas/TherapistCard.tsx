@@ -72,10 +72,10 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h3 
-                className="font-display text-xl font-bold"
+                className="font-sans text-xl font-bold capitalize"
                 style={{ color: clubColor }}
               >
-                {therapist.name}
+                {therapist.name.toLowerCase()}
               </h3>
               {therapist.verified && (
                 <CheckCircle 
