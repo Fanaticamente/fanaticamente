@@ -223,67 +223,12 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
     return true;
   };
   
-  // Process URLs from the Map API first (most reliable for discovering new content)
-  if (mappedUrls && Array.isArray(mappedUrls)) {
-    console.log(`Processing ${mappedUrls.length} mapped URLs...`);
-    for (const url of mappedUrls) {
-      if (news.length >= 20) break;
-      if (!url.includes('ge.globo.com/futebol/') || !url.endsWith('.ghtml')) continue;
-      
-      const cleanUrl = url.split('?')[0];
-      if (seenUrls.has(cleanUrl)) continue;
-      if (!isValidArticle(cleanUrl)) continue;
-      seenUrls.add(cleanUrl);
-      
-      // Extract title from URL path
-      const pathMatch = cleanUrl.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
-      if (pathMatch) {
-        const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
-        news.push({ url: cleanUrl, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com' });
-      }
-    }
-    console.log(`Got ${news.length} articles from mapped URLs`);
-  }
-  
-  // Pattern 1: Extract from markdown links
-  const articlePattern = /\[([^\]]+)\]\((https:\/\/ge\.globo\.com\/futebol\/[^\s\)]+\.ghtml)\)/g;
-  let match;
-  
-  while ((match = articlePattern.exec(markdown)) !== null && news.length < 20) {
-    const title = match[1].trim();
-    const url = match[2].split('?')[0]; // Remove query params
-    
-    if (seenUrls.has(url)) continue;
-    if (!isValidArticle(url)) continue;
-    if (title.length < 15 || title.includes('Veja mais') || title.includes('Saiba mais')) continue;
-    
-    seenUrls.add(url);
-    news.push({ url, title, content: '', sourceSite: 'ge.globo.com' });
-  }
-  
-  // Pattern 2: Extract URLs from links array provided by Firecrawl scrape
-  if (links && Array.isArray(links)) {
-    for (const link of links) {
-      if (news.length >= 20) break;
-      if (!link.includes('ge.globo.com/futebol/') || !link.endsWith('.ghtml')) continue;
-      
-      const cleanUrl = link.split('?')[0];
-      if (seenUrls.has(cleanUrl)) continue;
-      if (!isValidArticle(cleanUrl)) continue;
-      seenUrls.add(cleanUrl);
-      
-      // Extract title from URL path
-      const pathMatch = cleanUrl.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
-      if (pathMatch) {
-        const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
-        news.push({ url: cleanUrl, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com' });
-      }
-    }
-  }
-  
-  // Pattern 3: Extract from HTML href attributes
+  // PRIORITY 1: Extract from HTML href attributes (main page has freshest content)
+  // This gets articles visible on the homepage RIGHT NOW
+  console.log('Extracting from HTML hrefs (priority - freshest content)...');
   const hrefPattern = /href="(https:\/\/ge\.globo\.com\/futebol\/[^"]+\.ghtml)"/g;
-  while ((match = hrefPattern.exec(html)) !== null && news.length < 20) {
+  let match;
+  while ((match = hrefPattern.exec(html)) !== null && news.length < 25) {
     const url = match[1].split('?')[0];
     if (seenUrls.has(url)) continue;
     if (!isValidArticle(url)) continue;
@@ -295,8 +240,67 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
       news.push({ url, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com' });
     }
   }
+  console.log(`Got ${news.length} articles from HTML hrefs`);
   
-  console.log(`Extracted ${news.length} unique articles`);
+  // PRIORITY 2: Extract from markdown links (also from main page)
+  console.log('Extracting from markdown links...');
+  const articlePattern = /\[([^\]]+)\]\((https:\/\/ge\.globo\.com\/futebol\/[^\s\)]+\.ghtml)\)/g;
+  while ((match = articlePattern.exec(markdown)) !== null && news.length < 25) {
+    const title = match[1].trim();
+    const url = match[2].split('?')[0];
+    
+    if (seenUrls.has(url)) continue;
+    if (!isValidArticle(url)) continue;
+    if (title.length < 15 || title.includes('Veja mais') || title.includes('Saiba mais')) continue;
+    
+    seenUrls.add(url);
+    news.push({ url, title, content: '', sourceSite: 'ge.globo.com' });
+  }
+  console.log(`Total after markdown: ${news.length} articles`);
+  
+  // PRIORITY 3: Extract URLs from links array provided by Firecrawl scrape
+  if (links && Array.isArray(links)) {
+    console.log(`Processing ${links.length} direct links from scrape...`);
+    for (const link of links) {
+      if (news.length >= 25) break;
+      if (!link.includes('ge.globo.com/futebol/') || !link.endsWith('.ghtml')) continue;
+      
+      const cleanUrl = link.split('?')[0];
+      if (seenUrls.has(cleanUrl)) continue;
+      if (!isValidArticle(cleanUrl)) continue;
+      seenUrls.add(cleanUrl);
+      
+      const pathMatch = cleanUrl.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
+      if (pathMatch) {
+        const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
+        news.push({ url: cleanUrl, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com' });
+      }
+    }
+    console.log(`Total after direct links: ${news.length} articles`);
+  }
+  
+  // PRIORITY 4 (LAST): Process URLs from the Map API (sitemap - may have older content)
+  if (mappedUrls && Array.isArray(mappedUrls) && news.length < 25) {
+    console.log(`Processing ${mappedUrls.length} mapped URLs (lower priority)...`);
+    for (const url of mappedUrls) {
+      if (news.length >= 25) break;
+      if (!url.includes('ge.globo.com/futebol/') || !url.endsWith('.ghtml')) continue;
+      
+      const cleanUrl = url.split('?')[0];
+      if (seenUrls.has(cleanUrl)) continue;
+      if (!isValidArticle(cleanUrl)) continue;
+      seenUrls.add(cleanUrl);
+      
+      const pathMatch = cleanUrl.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
+      if (pathMatch) {
+        const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
+        news.push({ url: cleanUrl, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com' });
+      }
+    }
+    console.log(`Total after mapped URLs: ${news.length} articles`);
+  }
+  
+  console.log(`Extracted ${news.length} unique articles total`);
   return news;
 }
 
@@ -681,24 +685,31 @@ serve(async (req) => {
     const allMappedUrls = [...new Set(mappedUrlsArrays.flat())];
     console.log(`Total mapped URLs from all sections: ${allMappedUrls.length}`);
     
-    // Also scrape the main page for additional context
-    console.log('Scraping main page for additional links...');
+    // PRIORITY: Scrape the main page FIRST to get the newest articles
+    // The homepage shows the most recent news that may not yet be in the sitemap/map
+    console.log('Scraping main page for recent news (priority)...');
     let mainPageLinks: string[] = [];
     let mainPageMarkdown = '';
     let mainPageHtml = '';
     
     try {
-      const result = await scrapeWithFirecrawl('https://ge.globo.com/futebol/', { onlyMainContent: false, formats: ['markdown', 'html', 'links'] });
+      // Add aggressive cache-busting
+      const mainPageUrl = `https://ge.globo.com/futebol/?_nocache=${Date.now()}&r=${Math.random()}`;
+      const result = await scrapeWithFirecrawl(mainPageUrl, { onlyMainContent: false, formats: ['markdown', 'html', 'links'] });
       const data = result.data || result;
       mainPageMarkdown = data.markdown || '';
       mainPageHtml = data.html || '';
       mainPageLinks = data.links || [];
       console.log(`Got ${mainPageLinks.length} links from main page scrape`);
+      
+      // Log first few links to debug
+      console.log('Sample of main page links:', mainPageLinks.slice(0, 10));
     } catch (error) {
       console.error('Error scraping main page:', error);
     }
 
-    // Extract news using all available sources
+    // Extract news - PRIORITIZE main page links over mapped URLs
+    // Main page has the freshest content that may not be in the sitemap yet
     const allNews = extractNewsFromGE(mainPageHtml, mainPageMarkdown, mainPageLinks, allMappedUrls);
     console.log(`Total articles found: ${allNews.length}`);
 
