@@ -20,7 +20,7 @@ const Futebol = () => {
               Notícias
             </h1>
           </div>
-          <p className="text-gray-600 text-sm tracking-wide uppercase font-sans">
+          <p className="text-gray-600 text-sm tracking-wide font-sans">
             Tudo sobre futebol brasileiro e sul-americano
           </p>
         </div>

@@ -405,7 +405,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                   }}
                 />
                 {(displayCaption || cleanedCredits) && (
-                  <figcaption className="bg-gray-50 px-3 py-2 text-xs text-gray-700 border-t border-gray-300 font-sans line-clamp-1">
+                  <figcaption className="bg-gray-50 px-3 py-2 text-xs text-gray-700 border-t border-gray-300 font-sans line-clamp-2">
                     {displayCaption && cleanedCredits ? (
                       <span>{displayCaption} — <span className="text-gray-500">{cleanedCredits}</span></span>
                     ) : displayCaption ? (
