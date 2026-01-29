@@ -69,6 +69,45 @@ const cleanImageCaption = (caption: string | null): string | null => {
   return cleanedCaption;
 };
 
+// Clean content to remove photo credits and metadata mixed in text
+const cleanNewsContent = (content: string): string => {
+  let cleaned = content;
+  
+  // Remove photo credit patterns like "— Foto: Getty Images" or "Foto: Reprodução"
+  cleaned = cleaned.replace(/—?\s*Foto:\s*[^\n]+/gi, '');
+  
+  // Remove patterns like "Nome — Foto: ..."
+  cleaned = cleaned.replace(/[A-Za-zÀ-ú\s]+—\s*Foto:\s*[^\n]+/gi, '');
+  
+  // Remove duplicate lines (caption repeated)
+  const lines = cleaned.split('\n');
+  const uniqueLines: string[] = [];
+  const seen = new Set<string>();
+  
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed && !seen.has(trimmed.toLowerCase())) {
+      seen.add(trimmed.toLowerCase());
+      uniqueLines.push(line);
+    }
+  }
+  
+  cleaned = uniqueLines.join('\n');
+  
+  // Clean up extra whitespace
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trim();
+  
+  return cleaned;
+};
+
+// Format source site for display (e.g., "ge.globo.com" -> "globoesporte.com")
+const formatSourceSite = (source: string): string => {
+  if (source.includes('ge.globo') || source.includes('globoesporte')) {
+    return 'globoesporte.com';
+  }
+  return source;
+};
+
 const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -77,11 +116,15 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
     locale: ptBR,
   }).replace(/^cerca de /, '');
 
-  // Get a short preview of the content (first 150 chars)
-  const contentPreview = news.rewritten_content.slice(0, 150) + (news.rewritten_content.length > 150 ? "..." : "");
+  // Clean and get a short preview of the content (first 150 chars)
+  const cleanedContent = cleanNewsContent(news.rewritten_content);
+  const contentPreview = cleanedContent.slice(0, 150) + (cleanedContent.length > 150 ? "..." : "");
 
   // Clean the caption for display
   const displayCaption = cleanImageCaption(news.image_caption);
+  
+  // Format source for display
+  const formattedSource = formatSourceSite(news.source_site);
 
   if (isFeatured) {
     return (
@@ -116,7 +159,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-gray-500 text-sm">
                   <span className="font-medium text-primary">
-                    {news.is_original ? news.source_site : 'Fanaticamente'}
+                    {news.is_original ? formattedSource : 'Fanaticamente'}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
@@ -168,7 +211,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
           </h4>
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <span className="px-2 py-0.5 bg-gray-100 rounded">{news.category}</span>
-            <span className="font-medium text-primary">{news.is_original ? news.source_site : 'Fanaticamente'}</span>
+            <span className="font-medium text-primary">{news.is_original ? formattedSource : 'Fanaticamente'}</span>
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {timeAgo}
@@ -339,6 +382,10 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
 
   const cleanedCredits = cleanCredits(news.image_credits);
   const displayCaption = cleanImageCaption(news.image_caption);
+  
+  // Clean the content and format source
+  const cleanedContent = cleanNewsContent(news.rewritten_content);
+  const formattedSource = formatSourceSite(news.source_site);
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -352,7 +399,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                   className="text-xs tracking-[0.3em] uppercase text-gray-600"
                   style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
                 >
-                  {news.category} • {news.is_original ? news.source_site : 'Fanaticamente'}
+                  {news.category} • {news.is_original ? formattedSource : 'Fanaticamente'}
                 </span>
                 <div className="flex items-center gap-3">
                   <span 
@@ -427,7 +474,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
             >
               {/* Drop cap for first paragraph */}
               <p className="first-letter:float-left first-letter:text-[3.5rem] first-letter:font-bold first-letter:mr-2 first-letter:mt-1 first-letter:leading-[0.8] first-letter:text-black">
-                {news.rewritten_content}
+                {cleanedContent}
               </p>
             </article>
 
@@ -439,7 +486,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                 <div className="w-8 h-px bg-gray-400"></div>
               </div>
               <p className="text-xs text-gray-500 text-center mt-3 tracking-wide font-sans">
-                por <span className="font-semibold text-gray-700">{news.is_original ? news.source_site : 'Fanaticamente'}</span>
+                por <span className="font-semibold text-gray-700">{news.is_original ? formattedSource : 'Fanaticamente'}</span>
               </p>
             </div>
           </div>
