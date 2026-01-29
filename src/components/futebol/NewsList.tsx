@@ -25,9 +25,10 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
       if (result?.processed > 0) {
         toast.success(`${result.processed} nova(s) notícia(s) encontrada(s)!`);
       }
-      // Silent if no new news - no notification needed
+      // Silent if no new news or error - no notification needed
     } catch (err) {
-      toast.error("Erro ao buscar notícias");
+      // Silent error - don't show notification to user
+      console.error("[NewsList] Force refresh error:", err);
     } finally {
       setIsForceRefreshing(false);
     }
