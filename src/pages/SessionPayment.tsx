@@ -392,7 +392,7 @@ const SessionPayment = () => {
             <ChevronLeft className="w-5 h-5 text-white" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-white">Confirmar Sessão</h1>
+            <h1 className="text-xl font-bold text-white">Confirmar Agendamento</h1>
             <p className="text-white/70 text-sm">Complete o pagamento</p>
           </div>
         </div>
@@ -425,7 +425,7 @@ const SessionPayment = () => {
               </div>
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-gray-900 text-lg">{profile.full_name}</h3>
+              <h3 className="font-sans font-bold text-gray-800 text-xl">{profile.full_name}</h3>
               <p className="text-gray-500 text-sm">{professional.degree || 'Psicólogo(a)'}</p>
               <p className="text-gray-400 text-xs">CRP: {professional.crp}</p>
             </div>
