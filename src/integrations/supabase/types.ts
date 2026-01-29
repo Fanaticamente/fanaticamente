@@ -486,6 +486,7 @@ export type Database = {
           image_caption: string | null
           image_credits: string | null
           image_url: string | null
+          is_original: boolean | null
           original_content: string | null
           original_title: string
           original_url: string
@@ -502,6 +503,7 @@ export type Database = {
           image_caption?: string | null
           image_credits?: string | null
           image_url?: string | null
+          is_original?: boolean | null
           original_content?: string | null
           original_title: string
           original_url: string
@@ -518,6 +520,7 @@ export type Database = {
           image_caption?: string | null
           image_credits?: string | null
           image_url?: string | null
+          is_original?: boolean | null
           original_content?: string | null
           original_title?: string
           original_url?: string
