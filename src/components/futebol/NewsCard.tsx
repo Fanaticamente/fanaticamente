@@ -375,33 +375,10 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                 </div>
               </div>
               
-              {/* Newspaper headline with audio button */}
-              <div className="flex items-start gap-3">
-                {/* Audio/TTS button */}
-                <button 
-                  onClick={toggleSpeech}
-                  disabled={isLoading}
-                  className={`flex-shrink-0 mt-1 p-2 rounded-full transition-colors ${
-                    isLoading 
-                      ? 'bg-gray-200 text-gray-400 cursor-wait'
-                      : isPlaying 
-                        ? 'bg-primary text-white' 
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                  title={isLoading ? "Carregando áudio..." : isPlaying ? (isPaused ? "Continuar leitura" : "Pausar leitura") : "Ouvir matéria"}
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : isPlaying ? (
-                    isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />
-                  ) : (
-                    <Volume2 className="w-4 h-4" />
-                  )}
-                </button>
-                <DrawerTitle className="text-2xl sm:text-3xl font-sans font-bold text-black leading-tight tracking-tight text-left">
-                  {news.rewritten_title}
-                </DrawerTitle>
-              </div>
+              {/* Newspaper headline */}
+              <DrawerTitle className="text-2xl sm:text-3xl font-sans font-bold text-black leading-tight tracking-tight text-left">
+                {news.rewritten_title}
+              </DrawerTitle>
             </div>
             
             {/* Close button */}
