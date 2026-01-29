@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Clock, ChevronRight, X } from "lucide-react";
+import { Clock, ChevronRight, X, Newspaper } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -67,7 +67,8 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
                     {timeAgo}
                   </span>
                 </div>
-                <span className="text-primary text-sm font-medium">
+                <span className="text-primary text-sm font-medium flex items-center gap-1">
+                  <Newspaper className="w-4 h-4" />
                   Ler mais
                 </span>
               </div>
