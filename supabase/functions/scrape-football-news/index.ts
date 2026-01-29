@@ -224,6 +224,8 @@ async function scrapeArticleDetails(url: string): Promise<{
   imageUrl?: string;
   imageCaption?: string;
   imageCredits?: string;
+  publishedAt?: Date;
+  isRecent: boolean;
 }> {
   try {
     const result = await scrapeWithFirecrawl(url);
@@ -233,6 +235,50 @@ async function scrapeArticleDetails(url: string): Promise<{
     
     // Extract full article content - increased limit to capture complete articles
     const content = markdown.slice(0, 8000);
+    
+    // Extract publication date/time from article metadata
+    let publishedAt: Date | undefined;
+    let isRecent = false;
+    
+    // Pattern 1: Look for datePublished in JSON-LD
+    const jsonLdMatch = html.match(/"datePublished"\s*:\s*"([^"]+)"/i);
+    if (jsonLdMatch) {
+      publishedAt = new Date(jsonLdMatch[1]);
+      console.log(`Found datePublished from JSON-LD: ${publishedAt.toISOString()}`);
+    }
+    
+    // Pattern 2: Look for article:published_time meta tag
+    if (!publishedAt) {
+      const metaMatch = html.match(/<meta[^>]+property=["']article:published_time["'][^>]+content=["']([^"']+)["']/i) ||
+                        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']article:published_time["']/i);
+      if (metaMatch) {
+        publishedAt = new Date(metaMatch[1]);
+        console.log(`Found datePublished from meta tag: ${publishedAt.toISOString()}`);
+      }
+    }
+    
+    // Pattern 3: Look for time element with datetime attribute
+    if (!publishedAt) {
+      const timeMatch = html.match(/<time[^>]+datetime=["']([^"']+)["']/i);
+      if (timeMatch) {
+        publishedAt = new Date(timeMatch[1]);
+        console.log(`Found datePublished from time element: ${publishedAt.toISOString()}`);
+      }
+    }
+    
+    // Check if article is recent (published within last 6 hours)
+    if (publishedAt && !isNaN(publishedAt.getTime())) {
+      const now = new Date();
+      const hoursSincePublished = (now.getTime() - publishedAt.getTime()) / (1000 * 60 * 60);
+      isRecent = hoursSincePublished <= 6;
+      console.log(`Article age: ${hoursSincePublished.toFixed(1)} hours, isRecent: ${isRecent}`);
+    } else {
+      // If we can't determine the date, check URL date as fallback
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
+      isRecent = url.includes(`/noticia/${todayStr}/`);
+      console.log(`Could not extract date, using URL date check. isRecent: ${isRecent}`);
+    }
     
     // Try to extract image from HTML - multiple patterns
     let imageUrl: string | undefined;
@@ -380,11 +426,11 @@ async function scrapeArticleDetails(url: string): Promise<{
       }
     }
     
-    console.log(`Article ${url} - Image: ${imageUrl ? 'found' : 'NOT FOUND'}`);
-    return { content, imageUrl, imageCaption, imageCredits };
+    console.log(`Article ${url} - Image: ${imageUrl ? 'found' : 'NOT FOUND'}, isRecent: ${isRecent}`);
+    return { content, imageUrl, imageCaption, imageCredits, publishedAt, isRecent };
   } catch (error) {
     console.error('Error scraping article:', url, error);
-    return { content: '' };
+    return { content: '', isRecent: false };
   }
 }
 
@@ -535,8 +581,14 @@ serve(async (req) => {
       try {
         console.log(`Processing: ${article.title}`);
         
-        // Get full article details
+        // Get full article details including publication time
         const details = await scrapeArticleDetails(article.url);
+        
+        // Skip if article is not recent (older than 6 hours)
+        if (!details.isRecent) {
+          console.log(`Skipping old article: ${article.title} - not published within last 6 hours`);
+          continue;
+        }
         
         if (!details.content || details.content.length < 100) {
           console.log(`Skipping ${article.url} - insufficient content`);
