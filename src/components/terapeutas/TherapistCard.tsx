@@ -1,5 +1,4 @@
 import { CheckCircle, MapPin, Star } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 import therapist1 from "@/assets/therapist-1.jpg";
 import therapist2 from "@/assets/therapist-2.jpg";
@@ -30,17 +29,18 @@ interface TherapistCardProps {
   therapist: Therapist;
   clubColor: string;
   clubSecondaryColor?: string;
+  onSelect?: (therapist: Therapist) => void;
 }
 
 const therapistImages = [therapist1, therapist2, therapist3, therapist4];
 
-const TherapistCard = ({ therapist, clubColor }: TherapistCardProps) => {
-  const navigate = useNavigate();
-
+const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) => {
   const imageUrl = therapist.imageUrl || therapistImages[(typeof therapist.id === 'number' ? therapist.id - 1 : 0) % 4];
 
   const handleClick = () => {
-    navigate(`/terapeuta/${therapist.id}`);
+    if (onSelect) {
+      onSelect(therapist);
+    }
   };
 
   return (

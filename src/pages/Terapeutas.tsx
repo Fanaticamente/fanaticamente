@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import TherapistCard from "@/components/terapeutas/TherapistCard";
+import BookingDrawer from "@/components/terapeutas/BookingDrawer";
 import { getClubsByLeague, BrazilianClub } from "@/data/brazilianClubs";
 import { supabase } from "@/integrations/supabase/client";
 import { addDays } from "date-fns";
@@ -78,6 +79,10 @@ const Terapeutas = () => {
   const [selectedClub, setSelectedClub] = useState<BrazilianClub | null>(null);
   const [therapists, setTherapists] = useState<TherapistData[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  // Booking drawer state
+  const [selectedTherapist, setSelectedTherapist] = useState<TherapistData | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const clubs = getClubsByLeague(selectedLeague);
 
@@ -160,6 +165,11 @@ const Terapeutas = () => {
     setStep("club");
     setSelectedClub(null);
     setTherapists([]);
+  };
+
+  const handleTherapistSelect = (therapist: TherapistData) => {
+    setSelectedTherapist(therapist);
+    setDrawerOpen(true);
   };
 
   return (
@@ -303,6 +313,7 @@ const Terapeutas = () => {
                   therapist={therapist}
                   clubColor={selectedClub.primaryColor}
                   clubSecondaryColor={selectedClub.secondaryColor}
+                  onSelect={handleTherapistSelect}
                 />
               ))
             )}
@@ -313,6 +324,14 @@ const Terapeutas = () => {
       </main>
 
       <BottomNav />
+
+      {/* Booking Drawer */}
+      <BookingDrawer
+        therapist={selectedTherapist}
+        clubColor={selectedClub?.primaryColor || "#10b981"}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+      />
     </div>
   );
 };
