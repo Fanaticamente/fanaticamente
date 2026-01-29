@@ -58,7 +58,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
               <span className="inline-block px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full uppercase mb-3">
                 Destaque
               </span>
-              <h2 className="font-display text-2xl text-secondary-foreground mb-2 group-hover:text-primary transition-colors">
+              <h2 className="font-sans font-bold text-2xl text-secondary-foreground mb-2 group-hover:text-primary transition-colors">
                 {news.rewritten_title}
               </h2>
               <p className="text-secondary-foreground/70 text-sm line-clamp-2 mb-3">
@@ -111,7 +111,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-card-foreground text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors">
+          <h4 className="font-sans font-bold text-card-foreground text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors">
             {news.rewritten_title}
           </h4>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -158,7 +158,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                   {timeAgo}
                 </span>
               </div>
-              <DrawerTitle className="text-xl font-display text-left leading-tight">
+              <DrawerTitle className="text-xl font-sans font-bold text-left leading-tight">
                 {news.rewritten_title}
               </DrawerTitle>
             </div>
@@ -170,7 +170,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
           </div>
         </DrawerHeader>
 
-        <ScrollArea className="flex-1 max-h-[60vh]">
+        <ScrollArea className="flex-1 h-[calc(90vh-120px)]">
           <div className="p-4 space-y-4">
             {/* Image */}
             {news.image_url && (
