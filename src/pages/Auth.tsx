@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import logoAuth from "@/assets/logo-auth.png";
 import { useIsMobile } from "@/hooks/use-mobile";
 import heroCover from "@/assets/desktop/hero-cover.png";
+import authBgGramado from "@/assets/auth-bg-gramado.jpg";
 
 
 // Mask functions
@@ -417,8 +418,15 @@ const Auth = () => {
     return (
       <div className="min-h-screen flex">
         {/* Left Side - Visual/Image */}
-        <div className="hidden lg:flex lg:w-1/2 bg-secondary relative overflow-hidden items-center justify-center">
-          <div className="absolute inset-0 bg-gradient-to-br from-secondary via-secondary to-secondary/80" />
+        <div 
+          className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center"
+          style={{
+            backgroundImage: `url(${authBgGramado})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
+          <div className="absolute inset-0 bg-black/40" />
           <div className="relative z-10 p-12 text-center">
             <img 
               src={heroCover} 
