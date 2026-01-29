@@ -450,8 +450,8 @@ const Auth = () => {
         {/* Right Side - Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-6 bg-background overflow-y-auto">
           <div className="w-full max-w-md">
-            <div className="text-center mb-4">
-              <img src={logoAuth} alt="Logo" className="h-44 w-auto mx-auto mb-4" />
+            <div className="text-center mb-2">
+              <img src={logoAuth} alt="Logo" className="h-44 w-auto mx-auto mb-2" />
               <p className={`text-muted-foreground ${authMode === "professional" ? "text-lg font-medium" : ""}`}>
                 {authMode === "professional" 
                   ? "Área do Profissional" 
@@ -460,7 +460,7 @@ const Auth = () => {
             </div>
 
             {/* Mode Selector */}
-            <div className="flex gap-2 mb-6">
+            <div className="flex gap-2 mb-4">
               <button
                 type="button"
                 onClick={() => setAuthMode("user")}
