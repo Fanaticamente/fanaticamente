@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Clock, ChevronRight, X, Newspaper, Type } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Clock, ChevronRight, X, Newspaper, Volume2, VolumeX, Pause, Play } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -189,6 +189,9 @@ interface NewsDrawerProps {
 
 const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   const [fontSizeLevel, setFontSizeLevel] = useState(0); // 0 = normal, 1 = medium, 2 = large
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
@@ -215,6 +218,91 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   const toggleFontSize = () => {
     setFontSizeLevel((prev) => (prev + 1) % 3);
   };
+
+  // Text-to-Speech functions using Web Speech API
+  const startSpeaking = () => {
+    if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      const textToRead = `${news.rewritten_title}. ${news.rewritten_content}`;
+      const utterance = new SpeechSynthesisUtterance(textToRead);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.95;
+      utterance.pitch = 1;
+      
+      // Find Brazilian Portuguese voice
+      const voices = window.speechSynthesis.getVoices();
+      const ptBRVoice = voices.find(voice => voice.lang === 'pt-BR') || 
+                        voices.find(voice => voice.lang.startsWith('pt'));
+      if (ptBRVoice) {
+        utterance.voice = ptBRVoice;
+      }
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        setIsPaused(false);
+      };
+      
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        setIsPaused(false);
+      };
+      
+      utteranceRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+      setIsSpeaking(true);
+      setIsPaused(false);
+    }
+  };
+
+  const pauseSpeaking = () => {
+    if ('speechSynthesis' in window && isSpeaking) {
+      window.speechSynthesis.pause();
+      setIsPaused(true);
+    }
+  };
+
+  const resumeSpeaking = () => {
+    if ('speechSynthesis' in window && isPaused) {
+      window.speechSynthesis.resume();
+      setIsPaused(false);
+    }
+  };
+
+  const stopSpeaking = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setIsPaused(false);
+    }
+  };
+
+  const toggleSpeech = () => {
+    if (isSpeaking) {
+      if (isPaused) {
+        resumeSpeaking();
+      } else {
+        pauseSpeaking();
+      }
+    } else {
+      startSpeaking();
+    }
+  };
+
+  // Cleanup speech when drawer closes
+  useEffect(() => {
+    if (!isOpen) {
+      stopSpeaking();
+    }
+  }, [isOpen]);
+
+  // Load voices (needed for some browsers)
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+    }
+  }, []);
 
   // Clean image credits - remove "1 de 2" patterns
   const cleanCredits = (credits: string | null) => {
@@ -263,10 +351,28 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                 </div>
               </div>
               
-              {/* Newspaper headline - larger without divider below */}
-              <DrawerTitle className="text-2xl sm:text-3xl font-sans font-bold text-black leading-tight tracking-tight text-left">
-                {news.rewritten_title}
-              </DrawerTitle>
+              {/* Newspaper headline with audio button */}
+              <div className="flex items-start gap-3">
+                {/* Audio/TTS button */}
+                <button 
+                  onClick={toggleSpeech}
+                  className={`flex-shrink-0 mt-1 p-2 rounded-full transition-colors ${
+                    isSpeaking 
+                      ? 'bg-primary text-white' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                  title={isSpeaking ? (isPaused ? "Continuar leitura" : "Pausar leitura") : "Ouvir matéria"}
+                >
+                  {isSpeaking ? (
+                    isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />
+                  ) : (
+                    <Volume2 className="w-4 h-4" />
+                  )}
+                </button>
+                <DrawerTitle className="text-2xl sm:text-3xl font-sans font-bold text-black leading-tight tracking-tight text-left">
+                  {news.rewritten_title}
+                </DrawerTitle>
+              </div>
             </div>
             
             {/* Close button */}
