@@ -101,13 +101,6 @@ const cleanNewsContent = (content: string): string => {
   return cleaned;
 };
 
-// Format source site for display
-const formatSourceSite = (source: string): string => {
-  if (source.includes('ge.globo') || source.includes('globoesporte')) {
-    return 'globoesporte.com';
-  }
-  return source;
-};
 
 const FeaturedSlide = ({ news, onOpen }: FeaturedSlideProps) => {
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
@@ -117,7 +110,6 @@ const FeaturedSlide = ({ news, onOpen }: FeaturedSlideProps) => {
 
   const cleanedContent = cleanNewsContent(news.rewritten_content);
   const contentPreview = cleanedContent.slice(0, 120) + (cleanedContent.length > 120 ? "..." : "");
-  const formattedSource = formatSourceSite(news.source_site);
 
   return (
     <button
@@ -153,9 +145,7 @@ const FeaturedSlide = ({ news, onOpen }: FeaturedSlideProps) => {
           </p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-gray-500 text-xs">
-              <span className="font-medium text-primary">
-                {news.is_original ? formattedSource : 'Fanaticamente'}
-              </span>
+              <span className="font-medium text-primary">Fanaticamente</span>
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 {timeAgo}
@@ -192,7 +182,6 @@ const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) =>
   const [fontSizeLevel, setFontSizeLevel] = useState(0);
   
   const cleanedContent = cleanNewsContent(news.rewritten_content);
-  const formattedSource = formatSourceSite(news.source_site);
   
   const publishDate = new Date(news.published_at);
   const formattedDate = publishDate.toLocaleDateString('pt-BR', {
@@ -230,7 +219,7 @@ const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) =>
                   className="text-xs tracking-[0.3em] uppercase text-gray-600"
                   style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
                 >
-                  {news.category} • {news.is_original ? formattedSource : 'Fanaticamente'}
+                  {news.category} • Fanaticamente
                 </span>
                 <div className="flex items-center gap-3">
                   <span 
@@ -303,7 +292,7 @@ const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) =>
                 <div className="w-8 h-px bg-gray-400"></div>
               </div>
               <p className="text-xs text-gray-500 text-center mt-3 tracking-wide font-sans">
-                por <span className="font-semibold text-gray-700">{news.is_original ? formattedSource : 'Fanaticamente'}</span>
+                por <span className="font-semibold text-gray-700">Fanaticamente</span>
               </p>
             </div>
           </div>

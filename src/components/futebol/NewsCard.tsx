@@ -100,13 +100,6 @@ const cleanNewsContent = (content: string): string => {
   return cleaned;
 };
 
-// Format source site for display (e.g., "ge.globo.com" -> "globoesporte.com")
-const formatSourceSite = (source: string): string => {
-  if (source.includes('ge.globo') || source.includes('globoesporte')) {
-    return 'globoesporte.com';
-  }
-  return source;
-};
 
 const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -122,9 +115,6 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
 
   // Clean the caption for display
   const displayCaption = cleanImageCaption(news.image_caption);
-  
-  // Format source for display
-  const formattedSource = formatSourceSite(news.source_site);
 
   if (isFeatured) {
     return (
@@ -158,9 +148,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
               </p>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-gray-500 text-sm">
-                  <span className="font-medium text-primary">
-                    {news.is_original ? formattedSource : 'Fanaticamente'}
-                  </span>
+                  <span className="font-medium text-primary">Fanaticamente</span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {timeAgo}
@@ -211,7 +199,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
           </h4>
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <span className="px-2 py-0.5 bg-gray-100 rounded">{news.category}</span>
-            <span className="font-medium text-primary">{news.is_original ? formattedSource : 'Fanaticamente'}</span>
+            <span className="font-medium text-primary">Fanaticamente</span>
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {timeAgo}
@@ -383,9 +371,8 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   const cleanedCredits = cleanCredits(news.image_credits);
   const displayCaption = cleanImageCaption(news.image_caption);
   
-  // Clean the content and format source
+  // Clean the content
   const cleanedContent = cleanNewsContent(news.rewritten_content);
-  const formattedSource = formatSourceSite(news.source_site);
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -399,7 +386,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                   className="text-xs tracking-[0.3em] uppercase text-gray-600"
                   style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
                 >
-                  {news.category} • {news.is_original ? formattedSource : 'Fanaticamente'}
+                  {news.category} • Fanaticamente
                 </span>
                 <div className="flex items-center gap-3">
                   <span 
@@ -486,7 +473,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                 <div className="w-8 h-px bg-gray-400"></div>
               </div>
               <p className="text-xs text-gray-500 text-center mt-3 tracking-wide font-sans">
-                por <span className="font-semibold text-gray-700">{news.is_original ? formattedSource : 'Fanaticamente'}</span>
+                por <span className="font-semibold text-gray-700">Fanaticamente</span>
               </p>
             </div>
           </div>
