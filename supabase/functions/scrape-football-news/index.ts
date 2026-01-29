@@ -248,6 +248,9 @@ async function scrapeArticleDetails(url: string): Promise<{
             descriptionPart.length > 3) {
           // If contains "durante", "em", "no", "na" - extract only the name before
           const actionPatterns = [
+            / vive .*/i,
+            / está .*/i,
+            / faz .*/i,
             / durante .*/i,
             / em partida .*/i,
             / em treino .*/i,
@@ -261,6 +264,10 @@ async function scrapeArticleDetails(url: string): Promise<{
             / disputa .*/i,
             / treina .*/i,
             / participa .*/i,
+            / momento .*/i,
+            / concede .*/i,
+            / fala .*/i,
+            / conversa .*/i,
           ];
           
           let cleanedCaption = descriptionPart;

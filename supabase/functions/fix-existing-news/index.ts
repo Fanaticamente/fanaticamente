@@ -116,6 +116,9 @@ function fixCaption(caption: string | null): string | null {
   
   // Remove action descriptions - keep only the person's name
   const actionPatterns = [
+    / vive .*/i,
+    / está .*/i,
+    / faz .*/i,
     / durante .*/i,
     / em partida .*/i,
     / em treino .*/i,
@@ -130,6 +133,10 @@ function fixCaption(caption: string | null): string | null {
     / treina .*/i,
     / participa .*/i,
     / para o ge.*/i,
+    / momento .*/i,
+    / concede .*/i,
+    / fala .*/i,
+    / conversa .*/i,
   ];
   
   let cleanedCaption = caption;
