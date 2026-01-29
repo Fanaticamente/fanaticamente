@@ -440,21 +440,18 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        {/* Custom Overlay with Grass Background */}
+        {/* Standard dark overlay */}
         <DialogPrimitive.Overlay 
-          className="fixed inset-0 z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+          className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+        />
+        
+        <DialogPrimitive.Content 
+          className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-2xl shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
           style={{
             backgroundImage: `url(${bookingGrassBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
-        >
-          {/* Dark overlay for better contrast */}
-          <div className="absolute inset-0 bg-black/40" />
-        </DialogPrimitive.Overlay>
-        
-        <DialogPrimitive.Content 
-          className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-2xl bg-background shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
         >
           {/* Header */}
           <div
