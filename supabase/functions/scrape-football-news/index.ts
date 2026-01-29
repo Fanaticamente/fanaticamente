@@ -89,7 +89,15 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
   const news: NewsItem[] = [];
   const seenUrls = new Set<string>();
   
-  // Helper to check if URL is a valid news article (not a game/match page)
+  // Get today's date for filtering recent news
+  const now = new Date();
+  const today = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const yesterdayStr = `${yesterday.getFullYear()}/${String(yesterday.getMonth() + 1).padStart(2, '0')}/${String(yesterday.getDate()).padStart(2, '0')}`;
+  
+  console.log(`Filtering for news from: ${today} or ${yesterdayStr}`);
+  
+  // Helper to check if URL is a valid recent news article
   const isValidArticle = (url: string): boolean => {
     // Skip game/match pages - they don't have images
     if (url.includes('/jogo/')) return false;
@@ -99,8 +107,14 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
     if (url.includes('/video/')) return false;
     // Must be a news article with /noticia/ in URL
     if (!url.includes('/noticia/')) return false;
-    // Must be from 2026 (current year) to ensure freshness
-    if (!url.includes('/2026/')) return false;
+    
+    // Only allow articles from today or yesterday
+    const hasToday = url.includes(`/noticia/${today}/`);
+    const hasYesterday = url.includes(`/noticia/${yesterdayStr}/`);
+    if (!hasToday && !hasYesterday) {
+      return false;
+    }
+    
     return true;
   };
   
