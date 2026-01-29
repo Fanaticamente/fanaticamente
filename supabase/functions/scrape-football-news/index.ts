@@ -266,24 +266,44 @@ async function scrapeArticleDetails(url: string): Promise<{
   }
 }
 
-async function rewriteWithAI(title: string, content: string): Promise<{ rewrittenTitle: string; rewrittenContent: string }> {
+async function rewriteWithAI(title: string, content: string): Promise<{ rewrittenTitle: string; rewrittenContent: string; shouldSkip: boolean }> {
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   if (!LOVABLE_API_KEY) {
     throw new Error('LOVABLE_API_KEY not configured');
   }
 
-  const prompt = `Você é um jornalista esportivo da Fanaticamente. Reescreva a seguinte notícia de futebol com suas próprias palavras, mantendo as informações principais mas com um estilo único e envolvente. 
+  const prompt = `Você é um jornalista esportivo experiente da Fanaticamente. Analise e reescreva a seguinte notícia de futebol.
 
-REGRAS IMPORTANTES:
-1. Reescreva o título de forma criativa mas informativa
-2. CAPITALIZAÇÃO DO TÍTULO: Use apenas a primeira letra da primeira palavra em maiúscula (sentence case). Apenas nomes próprios (pessoas, times, cidades, países) devem ter inicial maiúscula. NUNCA use Title Case com várias palavras começando em maiúscula.
-   - ERRADO: "Flamengo Vence Palmeiras Em Jogo Emocionante"
-   - CORRETO: "Flamengo vence Palmeiras em jogo emocionante"
-3. Reescreva o conteúdo mantendo os fatos principais
-4. Use linguagem acessível e empolgante para fãs de futebol
-5. O texto deve ser original e não uma cópia
-6. Mantenha o texto conciso (máximo 300 palavras)
-7. Responda APENAS no formato JSON especificado
+PRIMEIRO, ANALISE SE A NOTÍCIA DEVE SER IGNORADA:
+- Se a notícia pedir ao leitor para votar, participar de enquete, responder quiz, clicar em algo, ou realizar qualquer tarefa/ação, responda com "shouldSkip": true
+- Exemplos de notícias a ignorar: "Vote no melhor gol", "Participe da enquete", "Escolha o craque", "Clique para ver"
+
+SE A NOTÍCIA FOR VÁLIDA, REESCREVA SEGUINDO ESTAS REGRAS:
+
+REGRAS DO TÍTULO:
+1. Use "sentence case" - APENAS a primeira letra da primeira palavra em maiúscula
+2. Nomes próprios DEVEM ter inicial maiúscula:
+   - Nomes de pessoas (Neymar, Gabigol, Abel Ferreira)
+   - Nomes de clubes por extenso (Flamengo, Palmeiras, Barcelona)
+   - Abreviações de clubes (CAM, Flu, São Paulo FC)
+   - Cidades e países (São Paulo, Argentina, Londres)
+   - Competições (Brasileirão, Champions League, Libertadores)
+3. Use linguagem formal e jornalística profissional
+4. Remova sensacionalismo e pontuação excessiva (!!!, ???)
+
+EXEMPLOS DE TÍTULOS CORRETOS:
+- "Flamengo vence o Corinthians por 2 a 0 no Maracanã"
+- "Neymar retorna ao Santos após passagem pelo Al-Hilal"
+- "CAM confirma contratação de novo técnico argentino"
+
+REGRAS DO CONTEÚDO:
+1. Use linguagem jornalística formal e profissional
+2. Evite gírias, expressões coloquiais ou sensacionalistas
+3. Mantenha tom objetivo e informativo
+4. Use voz ativa e frases bem estruturadas
+5. Mantenha os fatos, datas, placares e nomes corretos
+6. Texto conciso (máximo 300 palavras)
+7. Estrutura: lide informativo no primeiro parágrafo, desenvolvimento nos demais
 
 TÍTULO ORIGINAL:
 ${title}
@@ -293,8 +313,9 @@ ${content}
 
 Responda EXATAMENTE neste formato JSON:
 {
-  "rewrittenTitle": "seu título reescrito aqui",
-  "rewrittenContent": "seu conteúdo reescrito aqui"
+  "shouldSkip": false,
+  "rewrittenTitle": "título reescrito aqui",
+  "rewrittenContent": "conteúdo reescrito aqui"
 }`;
 
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -306,7 +327,7 @@ Responda EXATAMENTE neste formato JSON:
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
       messages: [
-        { role: 'system', content: 'Você é um jornalista esportivo. Sempre responda em JSON válido.' },
+        { role: 'system', content: 'Você é um jornalista esportivo experiente. Sempre responda em JSON válido.' },
         { role: 'user', content: prompt }
       ],
     }),
@@ -323,11 +344,11 @@ Responda EXATAMENTE neste formato JSON:
   
   // Parse JSON from response
   try {
-    // Try to extract JSON from the response
     const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
       return {
+        shouldSkip: parsed.shouldSkip === true,
         rewrittenTitle: parsed.rewrittenTitle || title,
         rewrittenContent: parsed.rewrittenContent || content,
       };
@@ -336,7 +357,7 @@ Responda EXATAMENTE neste formato JSON:
     console.error('Failed to parse AI response:', aiContent);
   }
   
-  return { rewrittenTitle: title, rewrittenContent: content };
+  return { shouldSkip: false, rewrittenTitle: title, rewrittenContent: content };
 }
 
 serve(async (req) => {
@@ -406,6 +427,12 @@ serve(async (req) => {
 
         // Rewrite with AI
         const rewritten = await rewriteWithAI(article.title, details.content);
+
+        // Skip interactive/task-based articles
+        if (rewritten.shouldSkip) {
+          console.log(`Skipping interactive article: ${article.title}`);
+          continue;
+        }
 
         // Insert into database
         const { error: insertError } = await supabase

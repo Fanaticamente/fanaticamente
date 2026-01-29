@@ -12,27 +12,38 @@ async function fixTitleAndContent(title: string, content: string): Promise<{ fix
     throw new Error('LOVABLE_API_KEY not configured');
   }
 
-  const prompt = `Você é um editor de notícias. Corrija o título e o conteúdo seguindo as regras:
+  const prompt = `Você é um editor de notícias experiente. Corrija o título e o conteúdo seguindo rigorosamente as regras:
 
 REGRAS DO TÍTULO:
 1. Use "sentence case" - APENAS a primeira letra da primeira palavra em maiúscula
-2. Nomes próprios (pessoas, times, cidades, países) mantêm inicial maiúscula
-3. NUNCA use Title Case com múltiplas palavras começando em maiúscula
+2. Nomes próprios DEVEM ter inicial maiúscula:
+   - Nomes de pessoas (Neymar, Gabigol, Abel Ferreira, Messi)
+   - Nomes de clubes por extenso (Flamengo, Palmeiras, Barcelona, Real Madrid)
+   - Abreviações de clubes (CAM, Flu, São Paulo FC, PSG)
+   - Cidades e países (São Paulo, Argentina, Londres, Brasil)
+   - Competições (Brasileirão, Champions League, Libertadores, Copa do Brasil)
+3. NUNCA use Title Case com múltiplas palavras comuns começando em maiúscula
 4. Mantenha o tom jornalístico profissional
-5. Remova pontuação excessiva (!!!, etc.)
+5. Remova pontuação excessiva (!!!, ???)
 
-EXEMPLOS DE CORREÇÃO:
-- ERRADO: "Barcelona Despacha Copenhague e Carimba Vaga Direta nas Oitavas da Champions!"
+EXEMPLOS DE CORREÇÃO DE TÍTULOS:
+- ERRADO: "Barcelona Despacha Copenhague e Carimba Vaga Direta nas Oitavas da Champions"
 - CORRETO: "Barcelona despacha Copenhague e carimba vaga direta nas oitavas da Champions"
 
-- ERRADO: "Hulk de Ferro: Cinco Anos de Glória e Artilharia Inesgotável no Atlético-MG!"
+- ERRADO: "Hulk de Ferro: Cinco Anos de Glória e Artilharia Inesgotável no Atlético-MG"
 - CORRETO: "Hulk de ferro: cinco anos de glória e artilharia inesgotável no Atlético-MG"
 
+- ERRADO: "neymar volta ao santos depois de anos na europa"
+- CORRETO: "Neymar volta ao Santos depois de anos na Europa"
+
 REGRAS DO CONTEÚDO:
-1. Reescreva mantendo tom jornalístico profissional
+1. Use linguagem jornalística FORMAL e profissional
 2. Remova expressões sensacionalistas como "O 'Special One'", "Show de bola", "O filho pródigo"
-3. Mantenha os fatos, datas e nomes corretos
-4. Texto objetivo e informativo
+3. Evite gírias e coloquialismos
+4. Use voz ativa e frases bem estruturadas
+5. Mantenha os fatos, datas, placares e nomes corretos
+6. Texto objetivo e informativo
+7. Estrutura clara: lide no primeiro parágrafo, desenvolvimento nos demais
 
 TÍTULO ATUAL:
 ${title}
@@ -55,7 +66,7 @@ Responda EXATAMENTE neste formato JSON:
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
       messages: [
-        { role: 'system', content: 'Você é um editor de notícias. Sempre responda em JSON válido.' },
+        { role: 'system', content: 'Você é um editor de notícias experiente. Sempre responda em JSON válido.' },
         { role: 'user', content: prompt }
       ],
     }),
