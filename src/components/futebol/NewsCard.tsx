@@ -75,7 +75,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
     locale: ptBR,
-  });
+  }).replace(/^cerca de /, '');
 
   // Get a short preview of the content (first 150 chars)
   const contentPreview = news.rewritten_content.slice(0, 150) + (news.rewritten_content.length > 150 ? "..." : "");
@@ -197,7 +197,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
     locale: ptBR,
-  });
+  }).replace(/^cerca de /, '');
 
   // Get date formatted like newspaper
   const publishDate = new Date(news.published_at);
