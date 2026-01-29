@@ -189,9 +189,10 @@ interface NewsDrawerProps {
 
 const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   const [fontSizeLevel, setFontSizeLevel] = useState(0); // 0 = normal, 1 = medium, 2 = large
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
@@ -219,67 +220,92 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     setFontSizeLevel((prev) => (prev + 1) % 3);
   };
 
-  // Text-to-Speech functions using Web Speech API
-  const startSpeaking = () => {
-    if ('speechSynthesis' in window) {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
-      
-      const textToRead = `${news.rewritten_title}. ${news.rewritten_content}`;
-      const utterance = new SpeechSynthesisUtterance(textToRead);
-      utterance.lang = 'pt-BR';
-      utterance.rate = 0.95;
-      utterance.pitch = 1;
-      
-      // Find Brazilian Portuguese voice
-      const voices = window.speechSynthesis.getVoices();
-      const ptBRVoice = voices.find(voice => voice.lang === 'pt-BR') || 
-                        voices.find(voice => voice.lang.startsWith('pt'));
-      if (ptBRVoice) {
-        utterance.voice = ptBRVoice;
-      }
-      
-      utterance.onend = () => {
-        setIsSpeaking(false);
-        setIsPaused(false);
-      };
-      
-      utterance.onerror = () => {
-        setIsSpeaking(false);
-        setIsPaused(false);
-      };
-      
-      utteranceRef.current = utterance;
-      window.speechSynthesis.speak(utterance);
-      setIsSpeaking(true);
+  // ElevenLabs TTS - High quality Brazilian Portuguese voice
+  const startSpeaking = async () => {
+    if (isLoading) return;
+    
+    // If already have audio, just play it
+    if (audioRef.current) {
+      audioRef.current.play();
+      setIsPlaying(true);
       setIsPaused(false);
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const textToRead = `${news.rewritten_title}. ${news.rewritten_content}`;
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ text: textToRead }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`TTS request failed: ${response.status}`);
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      
+      audio.onended = () => {
+        setIsPlaying(false);
+        setIsPaused(false);
+      };
+      
+      audio.onerror = () => {
+        setIsPlaying(false);
+        setIsPaused(false);
+        setIsLoading(false);
+      };
+      
+      await audio.play();
+      setIsPlaying(true);
+      setIsPaused(false);
+    } catch (error) {
+      console.error("TTS error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const pauseSpeaking = () => {
-    if ('speechSynthesis' in window && isSpeaking) {
-      window.speechSynthesis.pause();
+    if (audioRef.current && isPlaying) {
+      audioRef.current.pause();
       setIsPaused(true);
     }
   };
 
   const resumeSpeaking = () => {
-    if ('speechSynthesis' in window && isPaused) {
-      window.speechSynthesis.resume();
+    if (audioRef.current && isPaused) {
+      audioRef.current.play();
       setIsPaused(false);
     }
   };
 
   const stopSpeaking = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
       setIsPaused(false);
     }
   };
 
   const toggleSpeech = () => {
-    if (isSpeaking) {
+    if (isPlaying) {
       if (isPaused) {
         resumeSpeaking();
       } else {
@@ -290,14 +316,17 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     }
   };
 
-  // Cleanup speech when drawer closes
+  // Cleanup audio when drawer closes
   useEffect(() => {
     if (!isOpen) {
       stopSpeaking();
+      // Clean up audio URL
+      if (audioRef.current) {
+        URL.revokeObjectURL(audioRef.current.src);
+        audioRef.current = null;
+      }
     }
   }, [isOpen]);
-
-  // Load voices (needed for some browsers)
   useEffect(() => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.getVoices();
@@ -356,14 +385,19 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                 {/* Audio/TTS button */}
                 <button 
                   onClick={toggleSpeech}
+                  disabled={isLoading}
                   className={`flex-shrink-0 mt-1 p-2 rounded-full transition-colors ${
-                    isSpeaking 
-                      ? 'bg-primary text-white' 
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    isLoading 
+                      ? 'bg-gray-200 text-gray-400 cursor-wait'
+                      : isPlaying 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
-                  title={isSpeaking ? (isPaused ? "Continuar leitura" : "Pausar leitura") : "Ouvir matéria"}
+                  title={isLoading ? "Carregando áudio..." : isPlaying ? (isPaused ? "Continuar leitura" : "Pausar leitura") : "Ouvir matéria"}
                 >
-                  {isSpeaking ? (
+                  {isLoading ? (
+                    <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                  ) : isPlaying ? (
                     isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />
                   ) : (
                     <Volume2 className="w-4 h-4" />
