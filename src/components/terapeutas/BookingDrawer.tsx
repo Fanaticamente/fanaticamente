@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { DialogTitle } from "@/components/ui/dialog";
+import bookingGrassBg from "@/assets/booking-grass-bg.png";
 import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, parseISO } from "date-fns";
@@ -436,23 +438,39 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] p-0 overflow-hidden rounded-2xl">
-        {/* Header */}
-        <div
-          className="sticky top-0 z-10 px-4 py-4 flex items-center gap-3"
-          style={{ backgroundColor: clubColor }}
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <DialogPrimitive.Portal>
+        {/* Custom Overlay with Grass Background */}
+        <DialogPrimitive.Overlay 
+          className="fixed inset-0 z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+          style={{
+            backgroundImage: `url(${bookingGrassBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
         >
-          <button
-            onClick={() => step === "payment" ? setStep("profile") : onOpenChange(false)}
-            className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
+          {/* Dark overlay for better contrast */}
+          <div className="absolute inset-0 bg-black/40" />
+        </DialogPrimitive.Overlay>
+        
+        <DialogPrimitive.Content 
+          className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-2xl bg-background shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+        >
+          {/* Header */}
+          <div
+            className="sticky top-0 z-10 px-4 py-4 flex items-center gap-3"
+            style={{ backgroundColor: clubColor }}
           >
-            <ChevronLeft className="w-5 h-5 text-white" />
-          </button>
-          <DialogTitle className="text-white font-bold text-lg">
-            {step === "profile" ? "Agendar Sessão" : "Confirmar Pagamento"}
-          </DialogTitle>
-        </div>
+            <button
+              onClick={() => step === "payment" ? setStep("profile") : onOpenChange(false)}
+              className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
+            >
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+            <DialogTitle className="text-white font-bold text-lg">
+              {step === "profile" ? "Agendar Sessão" : "Confirmar Pagamento"}
+            </DialogTitle>
+          </div>
 
         <div className="overflow-y-auto max-h-[calc(90vh-64px)] pb-8">
           {step === "profile" ? (
@@ -948,8 +966,9 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 };
 
