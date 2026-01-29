@@ -57,7 +57,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
       />
       
       <div className="p-4 sm:p-6">
-        <div className="flex gap-3 sm:gap-4 mb-4">
+        <div className="flex gap-3 sm:gap-4 mb-3">
           {/* Photo - Vertical Rectangle */}
           <div 
             className="w-20 h-28 sm:w-28 sm:h-36 rounded-xl overflow-hidden flex-shrink-0 border-2"
@@ -71,9 +71,9 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
           </div>
           
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1 sm:gap-2 mb-1">
+            <div className="flex items-center gap-1 sm:gap-2 mb-0.5">
               <h3
-                className="font-sans text-base sm:text-xl font-bold capitalize truncate"
+                className="font-sans text-lg sm:text-xl font-bold capitalize truncate"
                 style={{ color: clubColor }}
               >
                 {getFirstAndLastName(therapist.name).toLowerCase()}
@@ -85,16 +85,16 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
                 />
               )}
             </div>
-            <p className="text-gray-600 text-xs sm:text-sm">CRP {therapist.crp}</p>
-            <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3">{therapist.degree}</p>
+            <p className="text-gray-600 text-sm">CRP {therapist.crp}</p>
+            <p className="text-gray-600 text-sm mb-2 sm:mb-3">{therapist.degree}</p>
 
-            <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
+            <div className="flex items-center gap-3 sm:gap-4 text-sm text-gray-600">
               <span className="flex items-center gap-1">
-                <Star className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: clubColor }} />
+                <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: clubColor }} />
                 {therapist.experience} anos
               </span>
               <span className="flex items-center gap-1">
-                <MapPin className="w-3 h-3 sm:w-4 sm:h-4" style={{ color: clubColor }} />
+                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: clubColor }} />
                 {therapist.location}
               </span>
             </div>
@@ -102,7 +102,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
             {/* Hourly Rate */}
             {therapist.hourlyRate && (
               <div 
-                className="mt-2 sm:mt-3 inline-block px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-bold"
+                className="mt-2 sm:mt-3 inline-block px-3 py-1 rounded-full text-sm font-bold"
                 style={{ 
                   backgroundColor: clubColor + "20", 
                   color: clubColor 
