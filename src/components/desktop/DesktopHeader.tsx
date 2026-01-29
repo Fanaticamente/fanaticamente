@@ -5,6 +5,7 @@ import logoHeader from "@/assets/logo-header.png";
 const navLinks = [
   { label: "Início", path: "/", isRoute: true },
   { label: "Especialistas", path: "/terapeutas", isRoute: true },
+  { label: "Zona Mista", path: "/zona-mista", isRoute: true },
   { label: "OSMF", path: "/osmf", isRoute: true },
   { label: "Junte-se a nós", path: "#profissionais", isRoute: false },
 ];

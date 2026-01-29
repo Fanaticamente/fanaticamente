@@ -45,6 +45,7 @@ import ReferenceLibrary from "./pages/fanatica-lab/ReferenceLibrary";
 import PsiHouse from "./pages/PsiHouse";
 import Conecta from "./pages/Conecta";
 import OSMF from "./pages/OSMF";
+import ZonaMista from "./pages/ZonaMista";
 
 const queryClient = new QueryClient();
 
@@ -113,6 +114,7 @@ const App = () => (
               <Route path="/loja" element={<FanaticaShop />} />
               <Route path="/loja/produto/:id" element={<ProductDetail />} />
               <Route path="/osmf" element={<OSMF />} />
+              <Route path="/zona-mista" element={<ZonaMista />} />
               <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
@@ -143,6 +145,7 @@ const App = () => (
                 <Route path="/loja" element={<FanaticaShop />} />
                 <Route path="/loja/produto/:id" element={<ProductDetail />} />
                 <Route path="/osmf" element={<OSMF />} />
+                <Route path="/zona-mista" element={<ZonaMista />} />
 
                 {/* Protected routes - require login */}
                 <Route path="/pagamento/:id" element={<ProtectedRoute><SessionPayment /></ProtectedRoute>} />
