@@ -448,14 +448,14 @@ const Auth = () => {
         </div>
 
         {/* Right Side - Form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 bg-background overflow-y-auto">
+        <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-6 bg-background overflow-y-auto">
           <div className="w-full max-w-md">
-            <div className="text-center mb-8">
-              <img src={logoAuth} alt="Logo" className="h-32 w-auto mx-auto mb-6" />
+            <div className="text-center mb-4">
+              <img src={logoAuth} alt="Logo" className="h-44 w-auto mx-auto mb-4" />
               <p className={`text-muted-foreground ${authMode === "professional" ? "text-lg font-medium" : ""}`}>
                 {authMode === "professional" 
                   ? "Área do Profissional" 
-                  : isLogin ? "Entre na sua conta" : "Crie sua conta"}
+                  : isLogin ? "Entre em campo" : "Crie sua conta"}
               </p>
             </div>
 
