@@ -478,6 +478,57 @@ export type Database = {
         }
         Relationships: []
       }
+      football_news: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          image_caption: string | null
+          image_credits: string | null
+          image_url: string | null
+          original_content: string | null
+          original_title: string
+          original_url: string
+          published_at: string
+          rewritten_content: string
+          rewritten_title: string
+          source_site: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          image_caption?: string | null
+          image_credits?: string | null
+          image_url?: string | null
+          original_content?: string | null
+          original_title: string
+          original_url: string
+          published_at?: string
+          rewritten_content: string
+          rewritten_title: string
+          source_site: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          image_caption?: string | null
+          image_credits?: string | null
+          image_url?: string | null
+          original_content?: string | null
+          original_title?: string
+          original_url?: string
+          published_at?: string
+          rewritten_content?: string
+          rewritten_title?: string
+          source_site?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       osmf_reports: {
         Row: {
           attachment_paths: string[]
