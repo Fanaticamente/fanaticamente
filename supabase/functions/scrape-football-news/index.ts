@@ -51,7 +51,41 @@ async function scrapeWithFirecrawl(url: string): Promise<any> {
   return response.json();
 }
 
-function extractNewsFromGE(html: string, markdown: string, links?: string[]): NewsItem[] {
+// Use Firecrawl Map to discover more URLs quickly
+async function mapWebsiteUrls(baseUrl: string): Promise<string[]> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) {
+    throw new Error('FIRECRAWL_API_KEY not configured');
+  }
+
+  console.log(`Mapping URLs from ${baseUrl}...`);
+  
+  const response = await fetch('https://api.firecrawl.dev/v1/map', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      url: baseUrl,
+      limit: 100, // Get up to 100 URLs
+      includeSubdomains: false,
+    }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    console.error('Firecrawl map error:', text);
+    return [];
+  }
+
+  const data = await response.json();
+  const links = data.links || [];
+  console.log(`Map found ${links.length} URLs`);
+  return links;
+}
+
+function extractNewsFromGE(html: string, markdown: string, links?: string[], mappedUrls?: string[]): NewsItem[] {
   const news: NewsItem[] = [];
   const seenUrls = new Set<string>();
   
@@ -61,15 +95,42 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[]): Ne
     if (url.includes('/jogo/')) return false;
     // Skip live/ao-vivo pages
     if (url.includes('/ao-vivo/')) return false;
-    // Must be a news article
-    return url.includes('/noticia/') || url.includes('/times/');
+    // Skip video pages
+    if (url.includes('/video/')) return false;
+    // Must be a news article with /noticia/ in URL
+    if (!url.includes('/noticia/')) return false;
+    // Must be from 2026 (current year) to ensure freshness
+    if (!url.includes('/2026/')) return false;
+    return true;
   };
+  
+  // Process URLs from the Map API first (most reliable for discovering new content)
+  if (mappedUrls && Array.isArray(mappedUrls)) {
+    console.log(`Processing ${mappedUrls.length} mapped URLs...`);
+    for (const url of mappedUrls) {
+      if (news.length >= 20) break;
+      if (!url.includes('ge.globo.com/futebol/') || !url.endsWith('.ghtml')) continue;
+      
+      const cleanUrl = url.split('?')[0];
+      if (seenUrls.has(cleanUrl)) continue;
+      if (!isValidArticle(cleanUrl)) continue;
+      seenUrls.add(cleanUrl);
+      
+      // Extract title from URL path
+      const pathMatch = cleanUrl.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
+      if (pathMatch) {
+        const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
+        news.push({ url: cleanUrl, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com' });
+      }
+    }
+    console.log(`Got ${news.length} articles from mapped URLs`);
+  }
   
   // Pattern 1: Extract from markdown links
   const articlePattern = /\[([^\]]+)\]\((https:\/\/ge\.globo\.com\/futebol\/[^\s\)]+\.ghtml)\)/g;
   let match;
   
-  while ((match = articlePattern.exec(markdown)) !== null && news.length < 15) {
+  while ((match = articlePattern.exec(markdown)) !== null && news.length < 20) {
     const title = match[1].trim();
     const url = match[2].split('?')[0]; // Remove query params
     
@@ -81,10 +142,10 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[]): Ne
     news.push({ url, title, content: '', sourceSite: 'ge.globo.com' });
   }
   
-  // Pattern 2: Extract URLs from links array provided by Firecrawl
+  // Pattern 2: Extract URLs from links array provided by Firecrawl scrape
   if (links && Array.isArray(links)) {
     for (const link of links) {
-      if (news.length >= 15) break;
+      if (news.length >= 20) break;
       if (!link.includes('ge.globo.com/futebol/') || !link.endsWith('.ghtml')) continue;
       
       const cleanUrl = link.split('?')[0];
@@ -103,7 +164,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[]): Ne
   
   // Pattern 3: Extract from HTML href attributes
   const hrefPattern = /href="(https:\/\/ge\.globo\.com\/futebol\/[^"]+\.ghtml)"/g;
-  while ((match = hrefPattern.exec(html)) !== null && news.length < 15) {
+  while ((match = hrefPattern.exec(html)) !== null && news.length < 20) {
     const url = match[1].split('?')[0];
     if (seenUrls.has(url)) continue;
     if (!isValidArticle(url)) continue;
@@ -116,7 +177,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[]): Ne
     }
   }
   
-  console.log(`Extracted ${news.length} unique articles, URLs:`, news.map(n => n.url));
+  console.log(`Extracted ${news.length} unique articles`);
   return news;
 }
 
@@ -434,45 +495,44 @@ serve(async (req) => {
 
     console.log('Starting news scrape...');
 
-    // Scrape sources (El Gráfico temporarily disabled)
-    const sources = [
-      { url: 'https://ge.globo.com/futebol/', extractor: extractNewsFromGE },
-      // { url: 'https://www.elgrafico.com.ar/seccion/4/futbol', extractor: extractNewsFromElGrafico },
-    ];
-
-    const allNews: NewsItem[] = [];
-
-    for (const source of sources) {
-      try {
-        console.log(`Scraping ${source.url}...`);
-        const result = await scrapeWithFirecrawl(source.url);
-        const data = result.data || result;
-        const markdown = data.markdown || '';
-        const html = data.html || '';
-        const links = data.links || [];
-        
-        console.log(`Got ${links.length} links from Firecrawl`);
-        const news = source.extractor(html, markdown, links);
-        console.log(`Found ${news.length} articles from ${source.url}`);
-        allNews.push(...news);
-      } catch (error) {
-        console.error(`Error scraping ${source.url}:`, error);
-      }
+    // Use Map API to discover URLs quickly
+    const mappedUrls = await mapWebsiteUrls('https://ge.globo.com/futebol/');
+    
+    // Also scrape the main page for additional context
+    console.log('Scraping main page for additional links...');
+    let mainPageLinks: string[] = [];
+    let mainPageMarkdown = '';
+    let mainPageHtml = '';
+    
+    try {
+      const result = await scrapeWithFirecrawl('https://ge.globo.com/futebol/');
+      const data = result.data || result;
+      mainPageMarkdown = data.markdown || '';
+      mainPageHtml = data.html || '';
+      mainPageLinks = data.links || [];
+      console.log(`Got ${mainPageLinks.length} links from main page scrape`);
+    } catch (error) {
+      console.error('Error scraping main page:', error);
     }
 
-    // Check which URLs already exist
+    // Extract news using all available sources
+    const allNews = extractNewsFromGE(mainPageHtml, mainPageMarkdown, mainPageLinks, mappedUrls);
+    console.log(`Total articles found: ${allNews.length}`);
+
+    // Check which URLs already exist - fetch ALL existing URLs to avoid duplicates
     const { data: existingNews } = await supabase
       .from('football_news')
       .select('original_url')
-      .in('original_url', allNews.map(n => n.url));
+      .order('created_at', { ascending: false })
+      .limit(500);
 
     const existingUrls = new Set(existingNews?.map(n => n.original_url) || []);
     const newArticles = allNews.filter(n => !existingUrls.has(n.url));
 
     console.log(`${newArticles.length} new articles to process`);
 
-    // Process up to 3 new articles at a time to avoid rate limits
-    const articlesToProcess = newArticles.slice(0, 3);
+    // Process up to 5 new articles at a time
+    const articlesToProcess = newArticles.slice(0, 5);
     const processedNews = [];
 
     for (const article of articlesToProcess) {
