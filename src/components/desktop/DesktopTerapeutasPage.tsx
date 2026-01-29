@@ -239,24 +239,24 @@ const DesktopTerapeutasPage = () => {
               </div>
 
               {/* Clubs Grid */}
-              <div className="grid grid-cols-3 gap-3 max-h-[600px] overflow-y-auto overflow-x-hidden p-1">
+              <div className="grid grid-cols-3 gap-4 max-h-[600px] overflow-y-auto overflow-x-hidden p-2">
                 {clubs.map((club) => (
                   <button
                     key={club.id}
                     onClick={() => handleClubSelect(club)}
-                    className={`p-4 rounded-xl transition-all flex flex-col items-center ${
+                    className={`p-3 rounded-xl transition-all flex flex-col items-center ${
                       selectedClub?.id === club.id
                         ? "bg-emerald-50 ring-2 ring-emerald-500"
                         : "bg-gray-50 hover:bg-gray-100"
                     }`}
                   >
-                    <div className="w-16 h-16 rounded-full bg-white p-2 shadow-sm flex items-center justify-center mb-2">
+                    <div className="w-12 h-12 rounded-full bg-white p-1.5 shadow-sm flex items-center justify-center mb-2">
                       <img
                         src={club.badgeUrl}
                         alt={club.name}
-                        className="w-12 h-12 object-contain"
+                        className="w-9 h-9 object-contain"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://via.placeholder.com/48?text=${club.shortName}`;
+                          (e.target as HTMLImageElement).src = `https://via.placeholder.com/36?text=${club.shortName}`;
                         }}
                       />
                     </div>
