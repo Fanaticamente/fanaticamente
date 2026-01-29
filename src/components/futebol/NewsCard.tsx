@@ -240,12 +240,27 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                 >
                   {news.category} • Fanaticamente
                 </span>
-                <span 
-                  className="text-xs text-gray-500 capitalize"
-                  style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
-                >
-                  {formattedDate}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span 
+                    className="text-xs text-gray-500 capitalize"
+                    style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+                  >
+                    {formattedDate}
+                  </span>
+                  {/* Font size toggle button - AA icon */}
+                  <button 
+                    onClick={toggleFontSize}
+                    className={`flex items-baseline px-2.5 py-1.5 rounded-md transition-colors ${
+                      fontSizeLevel > 0 
+                        ? 'bg-gray-200 text-gray-900' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                    title="Alterar tamanho da fonte"
+                  >
+                    <span className="text-[11px] font-bold">A</span>
+                    <span className="text-[15px] font-bold">A</span>
+                  </button>
+                </div>
               </div>
               
               {/* Newspaper headline - larger without divider below */}
@@ -254,28 +269,12 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               </DrawerTitle>
             </div>
             
-            {/* Font size toggle and close button */}
-            <div className="flex items-center gap-1 flex-shrink-0 -mt-1">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={toggleFontSize}
-                className="text-gray-600 hover:text-black hover:bg-gray-100"
-                title="Alterar tamanho da fonte"
-              >
-                <span className="text-sm font-bold tracking-tight">
-                  aA
-                  {fontSizeLevel > 0 && (
-                    <span className="text-[10px] ml-0.5 text-primary">+{fontSizeLevel}</span>
-                  )}
-                </span>
+            {/* Close button */}
+            <DrawerClose asChild>
+              <Button variant="ghost" size="icon" className="flex-shrink-0 text-gray-600 hover:text-black hover:bg-transparent -mt-1">
+                <X className="w-5 h-5" />
               </Button>
-              <DrawerClose asChild>
-                <Button variant="ghost" size="icon" className="text-gray-600 hover:text-black hover:bg-transparent">
-                  <X className="w-5 h-5" />
-                </Button>
-              </DrawerClose>
-            </div>
+            </DrawerClose>
           </div>
         </DrawerHeader>
 
