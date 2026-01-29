@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 
 export interface FootballNewsItem {
   id: string;
@@ -19,8 +19,10 @@ export interface FootballNewsItem {
 
 export const useFootballNews = () => {
   const queryClient = useQueryClient();
+  const lastScrapeRef = useRef<number>(0);
 
   const fetchNews = async (): Promise<FootballNewsItem[]> => {
+    console.log("[useFootballNews] Fetching news from database...");
     const { data, error } = await supabase
       .from("football_news")
       .select("*")
@@ -28,71 +30,95 @@ export const useFootballNews = () => {
       .limit(20);
 
     if (error) {
-      console.error("Error fetching news:", error);
+      console.error("[useFootballNews] Error fetching news:", error);
       throw error;
     }
 
+    console.log(`[useFootballNews] Fetched ${data?.length || 0} articles`);
     return data || [];
   };
 
   const triggerScrape = useCallback(async () => {
+    // Debounce: don't scrape if we scraped in the last 60 seconds
+    const now = Date.now();
+    if (now - lastScrapeRef.current < 60000) {
+      console.log("[useFootballNews] Skipping scrape (debounce)");
+      return;
+    }
+    lastScrapeRef.current = now;
+
     try {
-      console.log("Triggering news scrape...");
+      console.log("[useFootballNews] Triggering news scrape...");
       const { data, error } = await supabase.functions.invoke("scrape-football-news");
       
       if (error) {
-        console.error("Scrape error:", error);
+        console.error("[useFootballNews] Scrape error:", error);
         return;
       }
       
-      console.log("Scrape result:", data);
+      console.log("[useFootballNews] Scrape result:", data);
       
-      // Refresh the news list
-      if (data?.processed > 0) {
-        queryClient.invalidateQueries({ queryKey: ["football-news"] });
-      }
+      // Always refresh after scrape to ensure UI is up to date
+      queryClient.invalidateQueries({ queryKey: ["football-news"] });
     } catch (err) {
-      console.error("Failed to trigger scrape:", err);
+      console.error("[useFootballNews] Failed to trigger scrape:", err);
     }
   }, [queryClient]);
 
-  // Set up realtime subscription
+  // Set up realtime subscription for new articles
   useEffect(() => {
+    console.log("[useFootballNews] Setting up realtime subscription...");
+    
     const channel = supabase
-      .channel("football-news-changes")
+      .channel("football-news-realtime")
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*", // Listen to all events (INSERT, UPDATE, DELETE)
           schema: "public",
           table: "football_news",
         },
-        () => {
+        (payload) => {
+          console.log("[useFootballNews] Realtime event received:", payload.eventType);
+          // Invalidate and refetch immediately
           queryClient.invalidateQueries({ queryKey: ["football-news"] });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("[useFootballNews] Realtime subscription status:", status);
+      });
 
     return () => {
+      console.log("[useFootballNews] Cleaning up realtime subscription");
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
 
   // Auto-scrape every 2 minutes
   useEffect(() => {
-    // Initial scrape on mount
-    triggerScrape();
+    console.log("[useFootballNews] Setting up auto-scrape interval (2 min)");
+    
+    // Initial scrape on mount (with small delay to not block UI)
+    const initialTimeout = setTimeout(triggerScrape, 1000);
 
     // Set up interval for every 2 minutes
-    const interval = setInterval(triggerScrape, 2 * 60 * 1000);
+    const interval = setInterval(() => {
+      console.log("[useFootballNews] Auto-scrape interval triggered");
+      triggerScrape();
+    }, 2 * 60 * 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(interval);
+    };
   }, [triggerScrape]);
 
   return useQuery({
     queryKey: ["football-news"],
     queryFn: fetchNews,
-    staleTime: 60 * 1000, // 1 minute
-    refetchInterval: 2 * 60 * 1000, // Refetch every 2 minutes
+    staleTime: 30 * 1000, // 30 seconds - more aggressive refresh
+    refetchInterval: 2 * 60 * 1000, // Refetch every 2 minutes as backup
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    refetchOnReconnect: true, // Refetch when network reconnects
   });
 };
