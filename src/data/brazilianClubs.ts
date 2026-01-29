@@ -135,7 +135,7 @@ export const brazilianClubs: BrazilianClub[] = [
   },
   {
     id: "gremio",
-    name: "Imortal Tricolor",
+    name: "Grêmio",
     shortName: "GRE",
     primaryColor: "#0A5EB6",
     secondaryColor: "#000000",
