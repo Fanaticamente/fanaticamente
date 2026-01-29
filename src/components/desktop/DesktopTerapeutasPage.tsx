@@ -239,28 +239,28 @@ const DesktopTerapeutasPage = () => {
               </div>
 
               {/* Clubs Grid */}
-              <div className="grid grid-cols-3 gap-2 max-h-[400px] overflow-y-auto pr-2">
+              <div className="grid grid-cols-3 gap-3 max-h-[500px] overflow-y-auto pr-2">
                 {clubs.map((club) => (
                   <button
                     key={club.id}
                     onClick={() => handleClubSelect(club)}
-                    className={`p-2 rounded-xl transition-all flex flex-col items-center ${
+                    className={`p-3 rounded-xl transition-all flex flex-col items-center ${
                       selectedClub?.id === club.id
                         ? "bg-emerald-50 ring-2 ring-emerald-500"
                         : "bg-gray-50 hover:bg-gray-100"
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-full bg-white p-1 shadow-sm flex items-center justify-center mb-1">
+                    <div className="w-14 h-14 rounded-full bg-white p-1.5 shadow-sm flex items-center justify-center mb-2">
                       <img
                         src={club.badgeUrl}
                         alt={club.name}
-                        className="w-7 h-7 object-contain"
+                        className="w-10 h-10 object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = `https://via.placeholder.com/40?text=${club.shortName}`;
                         }}
                       />
                     </div>
-                    <span className="text-[10px] text-gray-600 text-center leading-tight line-clamp-2">
+                    <span className="text-xs text-gray-600 text-center leading-tight line-clamp-2 font-medium">
                       {club.shortName}
                     </span>
                   </button>
