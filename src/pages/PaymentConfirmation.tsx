@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { CheckCircle, Calendar, Clock, User, Home, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getFirstAndLastName } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -152,7 +153,7 @@ const PaymentConfirmation = () => {
               )}
             </div>
             <div>
-              <h3 className="font-bold text-gray-800">{profile.full_name}</h3>
+              <h3 className="font-bold text-gray-800 text-xl font-sans capitalize">{getFirstAndLastName(profile.full_name || "").toLowerCase()}</h3>
               <p className="text-sm text-gray-500">CRP {professional.crp}</p>
             </div>
           </div>
