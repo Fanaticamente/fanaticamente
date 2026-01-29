@@ -65,6 +65,31 @@ export const useFootballNews = () => {
     }
   }, [queryClient]);
 
+  // Force scrape without debounce - for manual refresh button
+  const forceScrape = useCallback(async () => {
+    try {
+      console.log("[useFootballNews] Force triggering news scrape...");
+      lastScrapeRef.current = Date.now();
+      
+      const { data, error } = await supabase.functions.invoke("scrape-football-news");
+      
+      if (error) {
+        console.error("[useFootballNews] Scrape error:", error);
+        throw error;
+      }
+      
+      console.log("[useFootballNews] Force scrape result:", data);
+      
+      // Refresh after scrape
+      await queryClient.invalidateQueries({ queryKey: ["football-news"] });
+      
+      return data;
+    } catch (err) {
+      console.error("[useFootballNews] Failed to force scrape:", err);
+      throw err;
+    }
+  }, [queryClient]);
+
   // Set up realtime subscription for new articles
   useEffect(() => {
     console.log("[useFootballNews] Setting up realtime subscription...");
@@ -113,7 +138,7 @@ export const useFootballNews = () => {
     };
   }, [triggerScrape]);
 
-  return useQuery({
+  const queryResult = useQuery({
     queryKey: ["football-news"],
     queryFn: fetchNews,
     staleTime: 30 * 1000, // 30 seconds - more aggressive refresh
@@ -121,4 +146,9 @@ export const useFootballNews = () => {
     refetchOnWindowFocus: true, // Refetch when user returns to tab
     refetchOnReconnect: true, // Refetch when network reconnects
   });
+
+  return {
+    ...queryResult,
+    forceScrape,
+  };
 };

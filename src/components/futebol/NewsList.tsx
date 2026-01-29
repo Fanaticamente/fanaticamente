@@ -1,15 +1,38 @@
+import { useState } from "react";
 import { useFootballNews } from "@/hooks/useFootballNews";
 import NewsCard from "./NewsCard";
 import FeaturedNewsCarousel from "./FeaturedNewsCarousel";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface NewsListProps {
   selectedCategory: string;
 }
 
 const NewsList = ({ selectedCategory }: NewsListProps) => {
-  const { data: news, isLoading, error, refetch, isFetching } = useFootballNews();
+  const { data: news, isLoading, error, refetch, isFetching, forceScrape } = useFootballNews();
+  const [isForceRefreshing, setIsForceRefreshing] = useState(false);
+
+  const handleForceRefresh = async () => {
+    if (isForceRefreshing) return;
+    
+    setIsForceRefreshing(true);
+    toast.info("Buscando novas notícias...");
+    
+    try {
+      const result = await forceScrape();
+      if (result?.processed > 0) {
+        toast.success(`${result.processed} nova(s) notícia(s) encontrada(s)!`);
+      } else {
+        toast.info("Nenhuma notícia nova no momento");
+      }
+    } catch (err) {
+      toast.error("Erro ao buscar notícias");
+    } finally {
+      setIsForceRefreshing(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -40,11 +63,11 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
         </p>
         <Button 
           variant="outline" 
-          onClick={() => refetch()} 
+          onClick={handleForceRefresh} 
           className="mt-4"
-          disabled={isFetching}
+          disabled={isForceRefreshing}
         >
-          {isFetching ? (
+          {isForceRefreshing ? (
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
           ) : (
             <RefreshCw className="w-4 h-4 mr-2" />
@@ -82,9 +105,20 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
             <h3 className="font-display text-xl text-black">
               Últimas Notícias
             </h3>
-            {isFetching && (
-              <Loader2 className="w-4 h-4 animate-spin text-primary" />
-            )}
+            <div className="flex items-center gap-2">
+              {(isFetching || isForceRefreshing) && (
+                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleForceRefresh}
+                disabled={isForceRefreshing}
+                className="text-primary hover:text-primary/80"
+              >
+                <RefreshCw className={`w-4 h-4 ${isForceRefreshing ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-3">
