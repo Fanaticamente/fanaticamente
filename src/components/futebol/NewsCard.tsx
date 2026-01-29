@@ -156,10 +156,19 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   const firstLetter = news.rewritten_content.charAt(0).toUpperCase();
   const restOfContent = news.rewritten_content.slice(1);
 
+  // Clean image credits - remove "1 de 2" patterns
+  const cleanCredits = (credits: string | null) => {
+    if (!credits) return null;
+    // Remove "1 de 2 " prefix patterns
+    return credits.replace(/^\d+ de \d+\s*/i, '').trim();
+  };
+
+  const cleanedCredits = cleanCredits(news.image_credits);
+
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DrawerContent className="max-h-[92vh] bg-[#FDF8F0]">
-        <DrawerHeader className="border-b-2 border-black pb-4 bg-[#FDF8F0] px-5">
+        <DrawerHeader className="border-b border-gray-300 pb-4 bg-[#FDF8F0] px-5">
           <div className="flex items-start justify-between">
             <div className="flex-1 pr-4">
               {/* Newspaper masthead style */}
@@ -178,17 +187,10 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                 </span>
               </div>
               
-              {/* Newspaper headline */}
+              {/* Newspaper headline - larger without divider below */}
               <DrawerTitle className="text-2xl sm:text-3xl font-sans font-bold text-black leading-tight tracking-tight text-left">
                 {news.rewritten_title}
               </DrawerTitle>
-              
-              {/* Thin decorative rule */}
-              <div className="mt-3 flex items-center gap-2">
-                <div className="flex-1 h-px bg-black"></div>
-                <span className="text-xs text-gray-500">◆</span>
-                <div className="flex-1 h-px bg-black"></div>
-              </div>
             </div>
             <DrawerClose asChild>
               <Button variant="ghost" size="icon" className="flex-shrink-0 text-gray-600 hover:text-black hover:bg-transparent -mt-1">
@@ -198,8 +200,9 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
           </div>
         </DrawerHeader>
 
-        <ScrollArea className="flex-1 h-[calc(92vh-140px)] bg-[#FDF8F0]">
-          <div className="px-5 py-6 space-y-5">
+        {/* Scrollable content with hidden scrollbar */}
+        <div className="flex-1 overflow-y-auto bg-[#FDF8F0] max-h-[calc(92vh-100px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="px-5 py-6 space-y-5 pb-20">
             {/* Image with newspaper caption style */}
             {news.image_url && (
               <figure className="border border-gray-300">
@@ -211,14 +214,14 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                     (e.target as HTMLImageElement).style.display = "none";
                   }}
                 />
-                {(news.image_caption || news.image_credits) && (
-                  <figcaption className="bg-[#F5F0E6] px-3 py-2 text-xs text-gray-700 border-t border-gray-300">
-                    {news.image_caption && !news.image_caption.match(/^\d+ de \d+/) && (
-                      <span>{news.image_caption.replace(/^\d+ de \d+\s*[-–—]?\s*/i, '')}</span>
+                {(news.image_caption || cleanedCredits) && (
+                  <figcaption className="bg-[#F5F0E6] px-3 py-2 text-xs text-gray-700 border-t border-gray-300 font-sans">
+                    {news.image_caption && (
+                      <span className="font-semibold">{news.image_caption}</span>
                     )}
-                    {news.image_credits && (
+                    {cleanedCredits && (
                       <span className="block text-gray-500 mt-0.5 text-[10px] uppercase tracking-wider">
-                        {news.image_credits}
+                        {cleanedCredits}
                       </span>
                     )}
                   </figcaption>
@@ -249,7 +252,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               </p>
             </div>
           </div>
-        </ScrollArea>
+        </div>
       </DrawerContent>
     </Drawer>
   );
