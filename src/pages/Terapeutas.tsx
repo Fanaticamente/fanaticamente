@@ -177,7 +177,7 @@ const Terapeutas = () => {
       className="min-h-screen transition-colors duration-500"
       style={{ 
         backgroundColor: selectedClub 
-          ? `color-mix(in srgb, ${selectedClub.primaryColor} 5%, hsl(var(--background)))` 
+          ? "#f5f5f5"
           : "hsl(var(--background))" 
       }}
     >
@@ -287,7 +287,7 @@ const Terapeutas = () => {
             </div>
 
             <h2 
-              className="font-sans font-bold text-xl mb-4 text-white"
+              className="font-sans font-bold text-xl mb-4 text-gray-800"
             >
               Terapeutas Disponíveis
             </h2>
