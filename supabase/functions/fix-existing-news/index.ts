@@ -6,13 +6,21 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-async function fixTitleAndContent(title: string, content: string): Promise<{ fixedTitle: string; fixedContent: string }> {
+async function rewriteFromOriginal(originalTitle: string, originalContent: string): Promise<{ fixedTitle: string; fixedContent: string }> {
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   if (!LOVABLE_API_KEY) {
     throw new Error('LOVABLE_API_KEY not configured');
   }
 
-  const prompt = `Você é um editor de notícias experiente. Corrija o título e o conteúdo seguindo rigorosamente as regras:
+  const prompt = `Você é um jornalista esportivo sênior. Sua tarefa é reescrever esta notícia de futebol.
+
+⚠️ REGRA FUNDAMENTAL - PROIBIÇÃO ABSOLUTA:
+- Você DEVE usar EXCLUSIVAMENTE as informações contidas no texto original fornecido
+- É PROIBIDO inventar, deduzir, inferir ou adicionar QUALQUER informação que NÃO esteja explicitamente escrita no texto original
+- NÃO mencione competições, torneios, datas ou fatos que NÃO estejam no texto original
+- Se algo não está no texto original, NÃO pode estar na reescrita
+- NÃO INVENTE contexto histórico, estatísticas ou informações sobre competições que o time irá disputar
+- Exemplo ERRADO: Se o texto fala de um reforço mas NÃO menciona Libertadores, você NÃO pode afirmar que o time disputará a Libertadores
 
 REGRAS DO TÍTULO:
 1. Use "sentence case" - APENAS a primeira letra da primeira palavra em maiúscula
@@ -24,7 +32,6 @@ REGRAS DO TÍTULO:
    - Competições (Brasileirão, Champions League, Libertadores, Copa do Brasil)
 3. NUNCA use Title Case com múltiplas palavras comuns começando em maiúscula
 4. Mantenha o tom jornalístico profissional
-5. Remova pontuação excessiva (!!!, ???)
 
 EXEMPLOS DE CORREÇÃO DE TÍTULOS:
 - ERRADO: "Barcelona Despacha Copenhague e Carimba Vaga Direta nas Oitavas da Champions"
@@ -33,28 +40,25 @@ EXEMPLOS DE CORREÇÃO DE TÍTULOS:
 - ERRADO: "Hulk de Ferro: Cinco Anos de Glória e Artilharia Inesgotável no Atlético-MG"
 - CORRETO: "Hulk de ferro: cinco anos de glória e artilharia inesgotável no Atlético-MG"
 
-- ERRADO: "neymar volta ao santos depois de anos na europa"
-- CORRETO: "Neymar volta ao Santos depois de anos na Europa"
-
 REGRAS DO CONTEÚDO:
-1. Use linguagem jornalística FORMAL e profissional
-2. Remova expressões sensacionalistas como "O 'Special One'", "Show de bola", "O filho pródigo"
-3. Evite gírias e coloquialismos
-4. Use voz ativa e frases bem estruturadas
-5. Mantenha os fatos, datas, placares e nomes corretos
-6. Texto objetivo e informativo
-7. Estrutura clara: lide no primeiro parágrafo, desenvolvimento nos demais
+1. USE APENAS informações que estão EXPLICITAMENTE no texto original
+2. REESCREVA mantendo TODOS os fatos mencionados no original
+3. NÃO adicione informações externas, contexto histórico inventado, ou suposições
+4. Se o texto original mencionar competições específicas, use exatamente essas - NÃO invente outras
+5. Use linguagem jornalística FORMAL e profissional
+6. Evite gírias e coloquialismos
+7. Mantenha tom objetivo e informativo
 
-TÍTULO ATUAL:
-${title}
+TÍTULO ORIGINAL:
+${originalTitle}
 
-CONTEÚDO ATUAL:
-${content}
+CONTEÚDO ORIGINAL (USE APENAS ESTAS INFORMAÇÕES):
+${originalContent}
 
 Responda EXATAMENTE neste formato JSON:
 {
-  "fixedTitle": "título corrigido aqui",
-  "fixedContent": "conteúdo corrigido aqui"
+  "fixedTitle": "título reescrito em sentence case",
+  "fixedContent": "conteúdo baseado EXCLUSIVAMENTE no texto original"
 }`;
 
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -66,7 +70,7 @@ Responda EXATAMENTE neste formato JSON:
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
       messages: [
-        { role: 'system', content: 'Você é um editor de notícias experiente. Sempre responda em JSON válido.' },
+        { role: 'system', content: 'Você é um jornalista esportivo experiente. Use APENAS informações do texto fornecido. Sempre responda em JSON válido.' },
         { role: 'user', content: prompt }
       ],
     }),
@@ -84,15 +88,15 @@ Responda EXATAMENTE neste formato JSON:
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
       return {
-        fixedTitle: parsed.fixedTitle || title,
-        fixedContent: parsed.fixedContent || content,
+        fixedTitle: parsed.fixedTitle || originalTitle,
+        fixedContent: parsed.fixedContent || originalContent,
       };
     }
   } catch (e) {
     console.error('Failed to parse AI response:', aiContent);
   }
   
-  return { fixedTitle: title, fixedContent: content };
+  return { fixedTitle: originalTitle, fixedContent: originalContent };
 }
 
 function fixCaption(caption: string | null): string | null {
@@ -183,8 +187,8 @@ serve(async (req) => {
       try {
         console.log(`Fixing: ${article.rewritten_title}`);
         
-        // Fix title and content with AI
-        const { fixedTitle, fixedContent } = await fixTitleAndContent(
+        // Fix title and content with AI - use original_content if available
+        const { fixedTitle, fixedContent } = await rewriteFromOriginal(
           article.rewritten_title,
           article.rewritten_content
         );

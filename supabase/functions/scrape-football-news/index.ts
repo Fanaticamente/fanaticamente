@@ -319,7 +319,15 @@ async function rewriteWithAI(title: string, content: string): Promise<{ rewritte
     throw new Error('LOVABLE_API_KEY not configured');
   }
 
-  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é reescrever notícias de futebol com qualidade profissional.
+  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é reescrever notícias de futebol.
+
+⚠️ REGRA FUNDAMENTAL - PROIBIÇÃO ABSOLUTA:
+- Você DEVE usar EXCLUSIVAMENTE as informações contidas no texto original fornecido abaixo
+- É PROIBIDO inventar, deduzir, inferir ou adicionar QUALQUER informação que NÃO esteja explicitamente escrita no texto original
+- NÃO mencione competições, torneios, datas ou fatos que NÃO estejam no texto original
+- Se algo não está no texto original, NÃO pode estar na reescrita
+- NÃO INVENTE contexto histórico, estatísticas ou informações sobre competições que o time irá disputar
+- Exemplo ERRADO: Se o texto fala de um reforço mas NÃO menciona Libertadores, você NÃO pode afirmar que o time disputará a Libertadores
 
 PRIMEIRO, ANALISE SE A NOTÍCIA DEVE SER IGNORADA:
 - Se a notícia pedir ao leitor para votar, participar de enquete, responder quiz, clicar em algo, ou realizar qualquer tarefa/ação, responda com "shouldSkip": true
@@ -343,31 +351,33 @@ EXEMPLOS DE TÍTULOS CORRETOS:
 - "Neymar retorna ao Santos após passagem pelo Al-Hilal"
 - "CAM confirma contratação de novo técnico argentino"
 
-REGRAS DO CONTEÚDO - MUITO IMPORTANTE:
-1. REESCREVA A NOTÍCIA COMPLETA com todos os detalhes importantes do original
-2. INCLUA TODOS OS FATOS: nomes, datas, placares, declarações, estatísticas, contexto
-3. NÃO RESUMA - escreva uma matéria jornalística COMPLETA (400-600 palavras)
-4. Use linguagem jornalística formal e profissional (como Folha de S.Paulo ou O Globo)
-5. Estrutura obrigatória:
-   - Lide: primeiro parágrafo com as informações essenciais (quem, o quê, quando, onde)
-   - Desenvolvimento: detalhes, contexto histórico, estatísticas relevantes
-   - Declarações: cite falas de jogadores, técnicos ou dirigentes se houver
-   - Fechamento: perspectivas futuras ou consequências do fato
-6. Evite gírias, expressões coloquiais ou sensacionalistas
-7. Mantenha tom objetivo e informativo
-8. Use voz ativa e frases bem estruturadas
+REGRAS DO CONTEÚDO:
+1. USE APENAS informações que estão EXPLICITAMENTE no texto original abaixo
+2. REESCREVA a notícia mantendo TODOS os fatos mencionados no original
+3. NÃO adicione informações externas, contexto histórico inventado, ou suposições
+4. Se o texto original mencionar competições específicas, use exatamente essas - NÃO invente outras
+5. NÃO RESUMA - escreva uma matéria jornalística COMPLETA (400-600 palavras) baseada APENAS no original
+6. Use linguagem jornalística formal e profissional (como Folha de S.Paulo ou O Globo)
+7. Estrutura obrigatória:
+   - Lide: primeiro parágrafo com as informações essenciais do texto original
+   - Desenvolvimento: expandir os detalhes QUE ESTÃO no texto original
+   - Declarações: cite APENAS falas que ESTÃO no texto original
+   - Fechamento: baseado APENAS em informações do texto original
+8. Evite gírias, expressões coloquiais ou sensacionalistas
+9. Mantenha tom objetivo e informativo
+10. Use voz ativa e frases bem estruturadas
 
 TÍTULO ORIGINAL:
 ${title}
 
-CONTEÚDO ORIGINAL:
+CONTEÚDO ORIGINAL (USE APENAS ESTAS INFORMAÇÕES):
 ${content}
 
 Responda EXATAMENTE neste formato JSON:
 {
   "shouldSkip": false,
   "rewrittenTitle": "título reescrito aqui",
-  "rewrittenContent": "conteúdo completo reescrito aqui com 400-600 palavras"
+  "rewrittenContent": "conteúdo baseado EXCLUSIVAMENTE no texto original acima"
 }`;
 
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -379,7 +389,7 @@ Responda EXATAMENTE neste formato JSON:
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
       messages: [
-        { role: 'system', content: 'Você é um jornalista esportivo experiente. Sempre responda em JSON válido.' },
+        { role: 'system', content: 'Você é um jornalista esportivo experiente. Use APENAS informações do texto fornecido. NÃO invente fatos. Sempre responda em JSON válido.' },
         { role: 'user', content: prompt }
       ],
     }),
