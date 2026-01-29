@@ -272,7 +272,7 @@ async function rewriteWithAI(title: string, content: string): Promise<{ rewritte
     throw new Error('LOVABLE_API_KEY not configured');
   }
 
-  const prompt = `Você é um jornalista esportivo experiente da Fanaticamente. Analise e reescreva a seguinte notícia de futebol.
+  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é reescrever notícias de futebol com qualidade profissional.
 
 PRIMEIRO, ANALISE SE A NOTÍCIA DEVE SER IGNORADA:
 - Se a notícia pedir ao leitor para votar, participar de enquete, responder quiz, clicar em algo, ou realizar qualquer tarefa/ação, responda com "shouldSkip": true
@@ -289,21 +289,26 @@ REGRAS DO TÍTULO:
    - Cidades e países (São Paulo, Argentina, Londres)
    - Competições (Brasileirão, Champions League, Libertadores)
 3. Use linguagem formal e jornalística profissional
-4. Remova sensacionalismo e pontuação excessiva (!!!, ???)
+4. Remova sensacionalismo e pontuação excessiva
 
 EXEMPLOS DE TÍTULOS CORRETOS:
 - "Flamengo vence o Corinthians por 2 a 0 no Maracanã"
 - "Neymar retorna ao Santos após passagem pelo Al-Hilal"
 - "CAM confirma contratação de novo técnico argentino"
 
-REGRAS DO CONTEÚDO:
-1. Use linguagem jornalística formal e profissional
-2. Evite gírias, expressões coloquiais ou sensacionalistas
-3. Mantenha tom objetivo e informativo
-4. Use voz ativa e frases bem estruturadas
-5. Mantenha os fatos, datas, placares e nomes corretos
-6. Texto conciso (máximo 300 palavras)
-7. Estrutura: lide informativo no primeiro parágrafo, desenvolvimento nos demais
+REGRAS DO CONTEÚDO - MUITO IMPORTANTE:
+1. REESCREVA A NOTÍCIA COMPLETA com todos os detalhes importantes do original
+2. INCLUA TODOS OS FATOS: nomes, datas, placares, declarações, estatísticas, contexto
+3. NÃO RESUMA - escreva uma matéria jornalística COMPLETA (400-600 palavras)
+4. Use linguagem jornalística formal e profissional (como Folha de S.Paulo ou O Globo)
+5. Estrutura obrigatória:
+   - Lide: primeiro parágrafo com as informações essenciais (quem, o quê, quando, onde)
+   - Desenvolvimento: detalhes, contexto histórico, estatísticas relevantes
+   - Declarações: cite falas de jogadores, técnicos ou dirigentes se houver
+   - Fechamento: perspectivas futuras ou consequências do fato
+6. Evite gírias, expressões coloquiais ou sensacionalistas
+7. Mantenha tom objetivo e informativo
+8. Use voz ativa e frases bem estruturadas
 
 TÍTULO ORIGINAL:
 ${title}
@@ -315,7 +320,7 @@ Responda EXATAMENTE neste formato JSON:
 {
   "shouldSkip": false,
   "rewrittenTitle": "título reescrito aqui",
-  "rewrittenContent": "conteúdo reescrito aqui"
+  "rewrittenContent": "conteúdo completo reescrito aqui com 400-600 palavras"
 }`;
 
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {

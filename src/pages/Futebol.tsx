@@ -9,33 +9,18 @@ const Futebol = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
 
   return (
-    <div 
-      className="min-h-screen"
-      style={{
-        backgroundColor: '#FDF8F0',
-        backgroundImage: `
-          url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")
-        `,
-        backgroundBlendMode: 'soft-light',
-      }}
-    >
+    <div className="min-h-screen bg-[#FDF8F0]">
       <Header />
 
       <main className="pt-20">
-        {/* Header with newspaper masthead style */}
+        {/* Header */}
         <div className="px-4 mb-6">
           <div className="border-b-2 border-gray-800 pb-3 mb-3">
-            <h1 
-              className="text-4xl font-bold text-gray-900 tracking-tight"
-              style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
-            >
+            <h1 className="text-4xl font-display font-bold text-gray-900 tracking-tight">
               Notícias
             </h1>
           </div>
-          <p 
-            className="text-gray-600 text-sm tracking-wide uppercase"
-            style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
-          >
+          <p className="text-gray-600 text-sm tracking-wide uppercase font-sans">
             Tudo sobre futebol brasileiro e sul-americano
           </p>
         </div>
