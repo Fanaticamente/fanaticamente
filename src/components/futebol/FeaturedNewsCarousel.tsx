@@ -81,13 +81,43 @@ interface FeaturedSlideProps {
   onOpen: () => void;
 }
 
+// Clean content to remove photo credits and metadata mixed in text
+const cleanNewsContent = (content: string): string => {
+  let cleaned = content;
+  cleaned = cleaned.replace(/—?\s*Foto:\s*[^\n]+/gi, '');
+  cleaned = cleaned.replace(/[A-Za-zÀ-ú\s]+—\s*Foto:\s*[^\n]+/gi, '');
+  const lines = cleaned.split('\n');
+  const uniqueLines: string[] = [];
+  const seen = new Set<string>();
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed && !seen.has(trimmed.toLowerCase())) {
+      seen.add(trimmed.toLowerCase());
+      uniqueLines.push(line);
+    }
+  }
+  cleaned = uniqueLines.join('\n');
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trim();
+  return cleaned;
+};
+
+// Format source site for display
+const formatSourceSite = (source: string): string => {
+  if (source.includes('ge.globo') || source.includes('globoesporte')) {
+    return 'globoesporte.com';
+  }
+  return source;
+};
+
 const FeaturedSlide = ({ news, onOpen }: FeaturedSlideProps) => {
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
     locale: ptBR,
   });
 
-  const contentPreview = news.rewritten_content.slice(0, 120) + (news.rewritten_content.length > 120 ? "..." : "");
+  const cleanedContent = cleanNewsContent(news.rewritten_content);
+  const contentPreview = cleanedContent.slice(0, 120) + (cleanedContent.length > 120 ? "..." : "");
+  const formattedSource = formatSourceSite(news.source_site);
 
   return (
     <button
@@ -123,7 +153,9 @@ const FeaturedSlide = ({ news, onOpen }: FeaturedSlideProps) => {
           </p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-gray-500 text-xs">
-              <span className="font-medium text-primary">Fanaticamente</span>
+              <span className="font-medium text-primary">
+                {news.is_original ? formattedSource : 'Fanaticamente'}
+              </span>
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 {timeAgo}
@@ -158,6 +190,9 @@ interface NewsCardDrawerWrapperProps {
 
 const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) => {
   const [fontSizeLevel, setFontSizeLevel] = useState(0);
+  
+  const cleanedContent = cleanNewsContent(news.rewritten_content);
+  const formattedSource = formatSourceSite(news.source_site);
   
   const publishDate = new Date(news.published_at);
   const formattedDate = publishDate.toLocaleDateString('pt-BR', {
@@ -195,7 +230,7 @@ const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) =>
                   className="text-xs tracking-[0.3em] uppercase text-gray-600"
                   style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
                 >
-                  {news.category} • Fanaticamente
+                  {news.category} • {news.is_original ? formattedSource : 'Fanaticamente'}
                 </span>
                 <div className="flex items-center gap-3">
                   <span 
@@ -257,7 +292,7 @@ const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) =>
               style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
             >
               <p className="first-letter:float-left first-letter:text-[3.5rem] first-letter:font-bold first-letter:mr-2 first-letter:mt-1 first-letter:leading-[0.8] first-letter:text-black">
-                {news.rewritten_content}
+                {cleanedContent}
               </p>
             </article>
 
@@ -268,7 +303,7 @@ const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) =>
                 <div className="w-8 h-px bg-gray-400"></div>
               </div>
               <p className="text-xs text-gray-500 text-center mt-3 tracking-wide font-sans">
-                por <span className="font-semibold text-gray-700">Fanaticamente</span>
+                por <span className="font-semibold text-gray-700">{news.is_original ? formattedSource : 'Fanaticamente'}</span>
               </p>
             </div>
           </div>
