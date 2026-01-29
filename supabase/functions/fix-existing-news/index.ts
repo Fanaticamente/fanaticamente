@@ -6,6 +6,81 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+async function scrapeArticleMainContent(url: string): Promise<string> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) throw new Error('FIRECRAWL_API_KEY not configured');
+
+  const urlWithTimestamp = url.includes('?') ? `${url}&_t=${Date.now()}` : `${url}?_t=${Date.now()}`;
+
+  const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      url: urlWithTimestamp,
+      formats: ['markdown'],
+      onlyMainContent: true,
+      timeout: 30000,
+      skipTlsVerification: false,
+    }),
+  });
+
+  if (!response.ok) {
+    const t = await response.text();
+    console.error('Firecrawl scrape error:', response.status, t);
+    throw new Error(`Firecrawl request failed: ${response.status}`);
+  }
+
+  const result = await response.json();
+  const data = result.data || result;
+  return String(data.markdown || '');
+}
+
+function cleanOriginalArticleText(input: string): string {
+  const blocked = [
+    /navegue pelo conteúdo/i,
+    /conta globo/i,
+    /seja pro/i,
+    /globoplay/i,
+    /cartola/i,
+    /gshow/i,
+    /globocom/i,
+    /g1\b/i,
+    /assine|assinante|assinatura/i,
+    /login unificad/i,
+    /receber recomendações/i,
+    /ofertas exclusivas/i,
+    /clique para/i,
+  ];
+
+  const paragraphs = input
+    .replace(/\r\n/g, '\n')
+    .split(/\n\s*\n/g)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  const cleaned = paragraphs.filter((p) => !blocked.some((re) => re.test(p)));
+  return cleaned.join('\n\n').trim();
+}
+
+function sanitizeRewrittenContent(text: string): string {
+  return text
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .filter((line) => {
+      const l = line.trim();
+      if (!l) return true;
+      if (/^fonte\s*:/i.test(l)) return false;
+      if (/https?:\/\//i.test(l)) return false;
+      if (/ge\.globo\.com|\bglobo\.com\b|\bg1\b|globoplay/i.test(l)) return false;
+      return true;
+    })
+    .join('\n')
+    .trim();
+}
+
 async function rewriteFromOriginal(originalTitle: string, originalContent: string): Promise<{ fixedTitle: string; fixedContent: string }> {
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   if (!LOVABLE_API_KEY) {
@@ -19,6 +94,7 @@ async function rewriteFromOriginal(originalTitle: string, originalContent: strin
 2. NÃO RESUMA - sua reescrita deve ter o MESMO tamanho ou MAIOR que o original
 3. Mantenha TODOS os fatos, declarações, números e detalhes do original
 4. Apenas REFORMULE as frases com palavras diferentes para evitar plágio
+5. PROIBIDO incluir: "Fonte:", URLs, citações de site (Globo, ge.globo.com, g1, Globoplay) ou instruções de navegação/assinatura
 
 REGRAS DO TÍTULO:
 - Use "sentence case" (só primeira letra maiúscula)
@@ -78,14 +154,14 @@ Responda em JSON:
       const parsed = JSON.parse(jsonMatch[0]);
       return {
         fixedTitle: parsed.fixedTitle || originalTitle,
-        fixedContent: parsed.fixedContent || originalContent,
+        fixedContent: sanitizeRewrittenContent(parsed.fixedContent || originalContent),
       };
     }
   } catch (e) {
     console.error('Failed to parse AI response:', aiContent);
   }
   
-  return { fixedTitle: originalTitle, fixedContent: originalContent };
+  return { fixedTitle: originalTitle, fixedContent: sanitizeRewrittenContent(originalContent) };
 }
 
 function fixCaption(caption: string | null): string | null {
@@ -158,10 +234,12 @@ serve(async (req) => {
 
     console.log('Fetching existing news to fix...');
 
-    // Get all news
+    const { limit } = await req.json().catch(() => ({ limit: 50 }));
+
+    // Get recent news rows to fix (default 50)
     const { data: news, error: fetchError } = await supabase
       .from('football_news')
-      .select('id, rewritten_title, rewritten_content, image_caption')
+      .select('id, original_url, original_title, original_content, rewritten_title, rewritten_content, image_caption')
       .order('created_at', { ascending: false });
 
     if (fetchError) {
@@ -172,14 +250,24 @@ serve(async (req) => {
 
     const fixed: string[] = [];
 
-    for (const article of news || []) {
+    for (const article of (news || []).slice(0, Math.max(1, Math.min(200, Number(limit) || 50)))) {
       try {
-        console.log(`Fixing: ${article.rewritten_title}`);
-        
-        // Fix title and content with AI - use original_content if available
+        console.log(`Fixing: ${article.original_title || article.rewritten_title}`);
+
+        // Always re-scrape the source URL to avoid propagating previously-bad content.
+        let scraped = '';
+        try {
+          scraped = await scrapeArticleMainContent(article.original_url);
+        } catch (e) {
+          console.error('Failed to re-scrape, falling back to stored original_content:', article.original_url, e);
+          scraped = article.original_content || '';
+        }
+
+        const cleanedOriginal = cleanOriginalArticleText(scraped).slice(0, 16000);
+
         const { fixedTitle, fixedContent } = await rewriteFromOriginal(
-          article.rewritten_title,
-          article.rewritten_content
+          article.original_title || article.rewritten_title,
+          cleanedOriginal
         );
         
         // Fix caption
@@ -191,6 +279,7 @@ serve(async (req) => {
           .update({
             rewritten_title: fixedTitle,
             rewritten_content: fixedContent,
+            original_content: cleanedOriginal || article.original_content,
             image_caption: fixedCaption,
           })
           .eq('id', article.id);
@@ -203,7 +292,7 @@ serve(async (req) => {
         }
         
         // Small delay to avoid rate limits
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 650));
       } catch (error) {
         console.error(`Error fixing article ${article.id}:`, error);
       }
