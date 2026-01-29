@@ -437,7 +437,7 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl p-0 overflow-hidden">
+      <SheetContent side="right" className="w-full sm:w-[50%] sm:max-w-[600px] p-0 overflow-hidden">
         {/* Header */}
         <div
           className="sticky top-0 z-10 px-4 py-4 flex items-center gap-3"
@@ -454,7 +454,7 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
           </SheetTitle>
         </div>
 
-        <div className="overflow-y-auto h-[calc(92vh-64px)] pb-8">
+        <div className="overflow-y-auto h-[calc(100vh-64px)] pb-8">
           {step === "profile" ? (
             <div className="p-4 space-y-4">
               {/* Profile Card */}
