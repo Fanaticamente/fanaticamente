@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Clock, ChevronRight, X, Newspaper } from "lucide-react";
+import { Clock, ChevronRight, X, Newspaper, Type } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -18,6 +18,57 @@ interface NewsCardProps {
   isFeatured?: boolean;
 }
 
+// Clean caption to show only subject name, removing action descriptions
+const cleanImageCaption = (caption: string | null): string | null => {
+  if (!caption) return null;
+  
+  // Remove video metadata patterns
+  if (caption.includes('|')) return null;
+  
+  // Remove slide indicators
+  if (caption.match(/^\d+ de \d+/)) return null;
+  
+  // Remove interaction instructions
+  if (caption.toLowerCase().includes('arraste')) return null;
+  
+  // Remove action descriptions - these patterns describe what the person is DOING
+  // We only want the person's NAME
+  const actionPatterns = [
+    / vive .*/i,
+    / está .*/i,
+    / faz .*/i,
+    / durante .*/i,
+    / em partida .*/i,
+    / em treino .*/i,
+    / em entrevista .*/i,
+    / no jogo .*/i,
+    / na partida .*/i,
+    / após .*/i,
+    / antes .*/i,
+    / comemora .*/i,
+    / celebra .*/i,
+    / disputa .*/i,
+    / treina .*/i,
+    / participa .*/i,
+    / para o ge.*/i,
+    / momento .*/i,
+    / concede .*/i,
+    / fala .*/i,
+    / conversa .*/i,
+  ];
+  
+  let cleanedCaption = caption;
+  for (const pattern of actionPatterns) {
+    cleanedCaption = cleanedCaption.replace(pattern, '');
+  }
+  cleanedCaption = cleanedCaption.trim();
+  
+  // If it's too short after cleaning, it's probably just a team name
+  if (cleanedCaption.length < 5) return null;
+  
+  return cleanedCaption;
+};
+
 const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -28,6 +79,9 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
 
   // Get a short preview of the content (first 150 chars)
   const contentPreview = news.rewritten_content.slice(0, 150) + (news.rewritten_content.length > 150 ? "..." : "");
+
+  // Clean the caption for display
+  const displayCaption = cleanImageCaption(news.image_caption);
 
   if (isFeatured) {
     return (
@@ -41,7 +95,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
               <div className="relative h-48 overflow-hidden">
                 <img
                   src={news.image_url}
-                  alt={news.image_caption || news.rewritten_title}
+                  alt={displayCaption || news.rewritten_title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
@@ -91,7 +145,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
           <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
             <img
               src={news.image_url}
-              alt={news.image_caption || news.rewritten_title}
+              alt={displayCaption || news.rewritten_title}
               className="w-full h-full object-cover"
               onError={(e) => {
                 const parent = (e.target as HTMLImageElement).parentElement;
@@ -134,6 +188,8 @@ interface NewsDrawerProps {
 }
 
 const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
+  const [fontSizeLevel, setFontSizeLevel] = useState(0); // 0 = normal, 1 = medium, 2 = large
+  
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
     locale: ptBR,
@@ -148,9 +204,17 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     year: 'numeric'
   });
 
-  // Get first letter for drop cap
-  const firstLetter = news.rewritten_content.charAt(0).toUpperCase();
-  const restOfContent = news.rewritten_content.slice(1);
+  // Font size classes based on level
+  const fontSizeClasses = [
+    'text-[15px] leading-[1.8]', // Normal
+    'text-[18px] leading-[1.85]', // Medium
+    'text-[21px] leading-[1.9]', // Large
+  ];
+
+  // Toggle through font sizes
+  const toggleFontSize = () => {
+    setFontSizeLevel((prev) => (prev + 1) % 3);
+  };
 
   // Clean image credits - remove "1 de 2" patterns
   const cleanCredits = (credits: string | null) => {
@@ -160,13 +224,14 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   };
 
   const cleanedCredits = cleanCredits(news.image_credits);
+  const displayCaption = cleanImageCaption(news.image_caption);
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DrawerContent className="max-h-[92vh] bg-[#FDF8F0]">
         <DrawerHeader className="border-b border-gray-300 pb-4 bg-[#FDF8F0] px-5">
           <div className="flex items-start justify-between">
-            <div className="flex-1 pr-4">
+            <div className="flex-1 pr-2">
               {/* Newspaper masthead style */}
               <div className="flex items-center justify-between mb-3 pt-1">
                 <span 
@@ -188,11 +253,29 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                 {news.rewritten_title}
               </DrawerTitle>
             </div>
-            <DrawerClose asChild>
-              <Button variant="ghost" size="icon" className="flex-shrink-0 text-gray-600 hover:text-black hover:bg-transparent -mt-1">
-                <X className="w-5 h-5" />
+            
+            {/* Font size toggle and close button */}
+            <div className="flex items-center gap-1 flex-shrink-0 -mt-1">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleFontSize}
+                className="text-gray-600 hover:text-black hover:bg-gray-100"
+                title="Alterar tamanho da fonte"
+              >
+                <span className="text-sm font-bold tracking-tight">
+                  aA
+                  {fontSizeLevel > 0 && (
+                    <span className="text-[10px] ml-0.5 text-primary">+{fontSizeLevel}</span>
+                  )}
+                </span>
               </Button>
-            </DrawerClose>
+              <DrawerClose asChild>
+                <Button variant="ghost" size="icon" className="text-gray-600 hover:text-black hover:bg-transparent">
+                  <X className="w-5 h-5" />
+                </Button>
+              </DrawerClose>
+            </div>
           </div>
         </DrawerHeader>
 
@@ -204,18 +287,18 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               <figure className="border border-gray-300">
                 <img
                   src={news.image_url}
-                  alt={news.image_caption || news.rewritten_title}
+                  alt={displayCaption || news.rewritten_title}
                   className="w-full h-auto object-cover grayscale-[20%] contrast-[1.05]"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
                   }}
                 />
-                {(news.image_caption || cleanedCredits) && (
+                {(displayCaption || cleanedCredits) && (
                   <figcaption className="bg-[#F5F0E6] px-3 py-2 text-xs text-gray-700 border-t border-gray-300 font-sans line-clamp-1">
-                    {news.image_caption && cleanedCredits ? (
-                      <span>{news.image_caption} — <span className="text-gray-500">{cleanedCredits}</span></span>
-                    ) : news.image_caption ? (
-                      <span>{news.image_caption}</span>
+                    {displayCaption && cleanedCredits ? (
+                      <span>{displayCaption} — <span className="text-gray-500">{cleanedCredits}</span></span>
+                    ) : displayCaption ? (
+                      <span>{displayCaption}</span>
                     ) : cleanedCredits ? (
                       <span className="text-gray-500">{cleanedCredits}</span>
                     ) : null}
@@ -224,9 +307,9 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               </figure>
             )}
 
-            {/* Article content with drop cap */}
+            {/* Article content with drop cap - font size controlled by state */}
             <article 
-              className="text-gray-900 leading-[1.8] text-[15px] text-justify hyphens-auto"
+              className={`text-gray-900 text-justify hyphens-auto transition-all duration-200 ${fontSizeClasses[fontSizeLevel]}`}
               style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
             >
               {/* Drop cap for first paragraph */}
