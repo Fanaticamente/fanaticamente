@@ -107,16 +107,23 @@ async function mapWebsiteUrls(baseUrl: string): Promise<string[]> {
     throw new Error('FIRECRAWL_API_KEY not configured');
   }
 
-  console.log(`Mapping URLs from ${baseUrl}...`);
+  // Add cache-busting timestamp to force fresh content discovery
+  const urlWithTimestamp = baseUrl.includes('?') 
+    ? `${baseUrl}&_t=${Date.now()}` 
+    : `${baseUrl}?_t=${Date.now()}`;
+
+  console.log(`Mapping URLs from ${urlWithTimestamp} (cache-busted)...`);
   
   const response = await fetch('https://api.firecrawl.dev/v1/map', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
     },
     body: JSON.stringify({
-      url: baseUrl,
+      url: urlWithTimestamp,
       limit: 100, // Get up to 100 URLs
       includeSubdomains: false,
     }),
@@ -130,7 +137,7 @@ async function mapWebsiteUrls(baseUrl: string): Promise<string[]> {
 
   const data = await response.json();
   const links = data.links || [];
-  console.log(`Map found ${links.length} URLs`);
+  console.log(`Map found ${links.length} URLs (fresh fetch)`);
   return links;
 }
 
