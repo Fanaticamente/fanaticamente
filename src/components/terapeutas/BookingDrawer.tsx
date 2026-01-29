@@ -466,7 +466,7 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <DialogTitle className="text-white font-bold text-xl font-sans capitalize">
-              {step === "profile" ? "Agendar Sessão" : "Confirmar Pagamento"}
+              {step === "profile" ? "Agendar Sessão" : "Confirmar Agendamento"}
             </DialogTitle>
           </div>
 
@@ -701,7 +701,7 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
                     )}
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-gray-900">{therapist.name}</h3>
+                    <h3 className="font-sans font-bold text-gray-800 text-xl">{therapist.name}</h3>
                     <p className="text-gray-500 text-xs">{therapist.degree} • CRP: {therapist.crp}</p>
                   </div>
                 </div>
