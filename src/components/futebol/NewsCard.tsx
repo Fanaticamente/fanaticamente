@@ -179,10 +179,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               </div>
               
               {/* Newspaper headline */}
-              <DrawerTitle 
-                className="text-2xl sm:text-3xl font-bold text-black leading-tight tracking-tight"
-                style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
-              >
+              <DrawerTitle className="text-2xl sm:text-3xl font-sans font-bold text-black leading-tight tracking-tight">
                 {news.rewritten_title}
               </DrawerTitle>
               
@@ -215,15 +212,12 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                   }}
                 />
                 {(news.image_caption || news.image_credits) && (
-                  <figcaption 
-                    className="bg-[#F5F0E6] px-3 py-2 text-xs text-gray-700 border-t border-gray-300"
-                    style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
-                  >
+                  <figcaption className="bg-[#F5F0E6] px-3 py-2 text-xs text-gray-700 border-t border-gray-300">
                     {news.image_caption && (
-                      <span className="italic">{news.image_caption}</span>
+                      <span>{news.image_caption}</span>
                     )}
                     {news.image_credits && (
-                      <span className="block text-gray-500 mt-0.5 not-italic text-[10px] uppercase tracking-wider">
+                      <span className="block text-gray-500 mt-0.5 text-[10px] uppercase tracking-wider">
                         {news.image_credits}
                       </span>
                     )}
