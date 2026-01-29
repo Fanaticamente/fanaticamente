@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, parseISO } from "date-fns";
@@ -436,8 +436,8 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:w-[50%] sm:max-w-[600px] p-0 overflow-hidden">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg max-h-[90vh] p-0 overflow-hidden rounded-2xl">
         {/* Header */}
         <div
           className="sticky top-0 z-10 px-4 py-4 flex items-center gap-3"
@@ -449,12 +449,12 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
           >
             <ChevronLeft className="w-5 h-5 text-white" />
           </button>
-          <SheetTitle className="text-white font-bold text-lg">
+          <DialogTitle className="text-white font-bold text-lg">
             {step === "profile" ? "Agendar Sessão" : "Confirmar Pagamento"}
-          </SheetTitle>
+          </DialogTitle>
         </div>
 
-        <div className="overflow-y-auto h-[calc(100vh-64px)] pb-8">
+        <div className="overflow-y-auto max-h-[calc(90vh-64px)] pb-8">
           {step === "profile" ? (
             <div className="p-4 space-y-4">
               {/* Profile Card */}
@@ -606,6 +606,20 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
                               </button>
                             ))}
                           </div>
+
+                          {/* Schedule Button - appears after selecting time */}
+                          {selectedTime && (
+                            <button
+                              onClick={handleSchedule}
+                              className="w-full mt-4 py-3 rounded-xl font-bold text-white uppercase tracking-wide shadow-lg animate-in fade-in slide-in-from-bottom-2"
+                              style={{
+                                backgroundColor: clubColor,
+                                boxShadow: `0 8px 24px ${clubColor}40`
+                              }}
+                            >
+                              Agendar Sessão
+                            </button>
+                          )}
                         </div>
                       )}
 
@@ -650,20 +664,6 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
                     ))}
                   </div>
                 </div>
-              )}
-
-              {/* Schedule Button */}
-              {selectedTime && (
-                <button
-                  onClick={handleSchedule}
-                  className="w-full py-4 rounded-xl font-bold text-white uppercase tracking-wide shadow-lg"
-                  style={{
-                    backgroundColor: clubColor,
-                    boxShadow: `0 10px 30px ${clubColor}40`
-                  }}
-                >
-                  Continuar para Pagamento
-                </button>
               )}
             </div>
           ) : (
@@ -948,8 +948,8 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
             </div>
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 };
 
