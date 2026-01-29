@@ -21,11 +21,11 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
     
     try {
       const result = await forceScrape();
+      // Only show toast if new news was found
       if (result?.processed > 0) {
         toast.success(`${result.processed} nova(s) notícia(s) encontrada(s)!`);
-      } else {
-        toast.info("Nenhuma notícia nova no momento");
       }
+      // Silent if no new news - no notification needed
     } catch (err) {
       toast.error("Erro ao buscar notícias");
     } finally {
