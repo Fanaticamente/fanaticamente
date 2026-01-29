@@ -1,4 +1,5 @@
 import { CheckCircle, MapPin, Star } from "lucide-react";
+import { getFirstAndLastName } from "@/lib/utils";
 
 import therapist1 from "@/assets/therapist-1.jpg";
 import therapist2 from "@/assets/therapist-2.jpg";
@@ -75,7 +76,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
                 className="font-sans text-xl font-bold capitalize"
                 style={{ color: clubColor }}
               >
-                {therapist.name.toLowerCase()}
+                {getFirstAndLastName(therapist.name).toLowerCase()}
               </h3>
               {therapist.verified && (
                 <CheckCircle 
