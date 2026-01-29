@@ -146,22 +146,80 @@ async function scrapeArticleDetails(url: string): Promise<{
     // Extract main content (first 2000 chars of markdown for processing)
     const content = markdown.slice(0, 2000);
     
-    // Try to extract image from HTML
+    // Try to extract image from HTML - multiple patterns
     let imageUrl: string | undefined;
     let imageCaption: string | undefined;
     let imageCredits: string | undefined;
     
-    // Look for main article image - prioritize larger images
-    const imgMatch = html.match(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp))[^>]*>/i);
-    if (imgMatch) {
-      imageUrl = imgMatch[1];
+    // Pattern 1: Look for og:image meta tag (most reliable for main article image)
+    const ogImageMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+                         html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+    if (ogImageMatch) {
+      imageUrl = ogImageMatch[1];
+      console.log('Found og:image:', imageUrl);
+    }
+    
+    // Pattern 2: Look for main article image in figure tags
+    if (!imageUrl) {
+      const figureImgMatch = html.match(/<figure[^>]*>[\s\S]*?<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i);
+      if (figureImgMatch) {
+        imageUrl = figureImgMatch[1].split('?')[0]; // Remove query params
+        console.log('Found figure image:', imageUrl);
+      }
+    }
+    
+    // Pattern 3: Look for data-src (lazy loaded images)
+    if (!imageUrl) {
+      const dataSrcMatch = html.match(/<img[^>]+data-src=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i);
+      if (dataSrcMatch) {
+        imageUrl = dataSrcMatch[1].split('?')[0];
+        console.log('Found data-src image:', imageUrl);
+      }
+    }
+    
+    // Pattern 4: Regular img src
+    if (!imageUrl) {
+      const imgMatch = html.match(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["'][^>]*>/i);
+      if (imgMatch) {
+        const src = imgMatch[1];
+        // Skip small icons and logos
+        if (!src.includes('logo') && !src.includes('icon') && !src.includes('avatar')) {
+          imageUrl = src.split('?')[0];
+          console.log('Found img src:', imageUrl);
+        }
+      }
+    }
+    
+    // Pattern 5: Extract from markdown image syntax
+    if (!imageUrl) {
+      const mdImageMatch = markdown.match(/!\[[^\]]*\]\(([^)]+\.(?:jpg|jpeg|png|webp)[^)]*)\)/i);
+      if (mdImageMatch) {
+        imageUrl = mdImageMatch[1].split('?')[0];
+        console.log('Found markdown image:', imageUrl);
+      }
+    }
+    
+    // Clean up image URL
+    if (imageUrl) {
+      // Ensure it's a full URL
+      if (imageUrl.startsWith('//')) {
+        imageUrl = 'https:' + imageUrl;
+      } else if (imageUrl.startsWith('/')) {
+        // Relative URL - try to construct full URL from the article URL
+        const urlObj = new URL(url);
+        imageUrl = urlObj.origin + imageUrl;
+      }
+      // Remove size parameters that might make image too small
+      imageUrl = imageUrl.replace(/\/\d+x\d+\//, '/');
     }
     
     // Look for figure with figcaption - this is where GE stores the caption
-    // Format: "Caption text — Foto: Credit"
     const figcaptionMatch = html.match(/<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i);
     if (figcaptionMatch) {
       let fullCaption = figcaptionMatch[1].replace(/<[^>]+>/g, '').trim();
+      
+      // Clean up the caption - remove pagination like "1 de 2"
+      fullCaption = fullCaption.replace(/^\d+ de \d+\s*/i, '').trim();
       
       // Parse caption format: "Description — Foto: Credit" or just "Foto: Credit"
       if (fullCaption.includes('—')) {
@@ -172,23 +230,22 @@ async function scrapeArticleDetails(url: string): Promise<{
         // Only set caption if it's not empty and doesn't look like video metadata
         if (descriptionPart && 
             !descriptionPart.includes('|') && 
-            !descriptionPart.match(/^\d+ de \d+/) &&
             descriptionPart.length > 5) {
           imageCaption = descriptionPart;
         }
         
         if (creditPart) {
-          imageCredits = creditPart;
+          // Clean credits from pagination
+          imageCredits = creditPart.replace(/^\d+ de \d+\s*/i, '').trim();
         }
       } else if (fullCaption.startsWith('Foto:') || fullCaption.startsWith('Crédito:')) {
-        // Just credit, no description
         imageCredits = fullCaption;
-      } else if (!fullCaption.includes('|') && !fullCaption.match(/^\d+ de \d+/)) {
-        // Plain caption without credit separator
+      } else if (!fullCaption.includes('|') && fullCaption.length > 5) {
         imageCaption = fullCaption;
       }
     }
     
+    console.log(`Article ${url} - Image: ${imageUrl ? 'found' : 'NOT FOUND'}`);
     return { content, imageUrl, imageCaption, imageCredits };
   } catch (error) {
     console.error('Error scraping article:', url, error);
