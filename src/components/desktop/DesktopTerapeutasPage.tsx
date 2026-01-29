@@ -370,7 +370,7 @@ const DesktopTerapeutasPage = () => {
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-xl font-bold text-gray-800 font-sans group-hover:text-emerald-600 transition-colors truncate capitalize">
+                          <h3 className="text-xl font-bold text-gray-800 font-sans group-hover:text-emerald-600 transition-colors whitespace-nowrap overflow-hidden text-ellipsis capitalize">
                             {getFirstAndLastName(therapist.name).toLowerCase()}
                           </h3>
                           <p className="text-sm text-gray-500 mb-2">{therapist.degree}</p>

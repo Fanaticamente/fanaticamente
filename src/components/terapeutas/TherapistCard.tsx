@@ -72,8 +72,8 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
           
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h3 
-                className="font-sans text-xl font-bold capitalize"
+              <h3
+                className="font-sans text-xl font-bold capitalize whitespace-nowrap overflow-hidden text-ellipsis"
                 style={{ color: clubColor }}
               >
                 {getFirstAndLastName(therapist.name).toLowerCase()}
