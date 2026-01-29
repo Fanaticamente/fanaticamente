@@ -29,11 +29,12 @@ const BookingTermsDialog = ({ accepted, onAcceptChange, clubColor = "#10b981" }:
           }}
         />
         <label htmlFor="booking-terms" className="text-sm cursor-pointer" style={{ color: clubColor, lineHeight: '1.4' }}>
-          Li e aceito os <Dialog open={open} onOpenChange={setOpen}>
+          Li e aceito os{" "}
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <button 
                 type="button"
-                className="font-bold underline underline-offset-2 hover:opacity-80 transition-opacity"
+                className="inline font-bold underline underline-offset-2 hover:opacity-80 transition-opacity"
                 style={{ color: clubColor }}
                 onClick={(e) => {
                   e.stopPropagation();
