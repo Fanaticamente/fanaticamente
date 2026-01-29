@@ -179,7 +179,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               </div>
               
               {/* Newspaper headline */}
-              <DrawerTitle className="text-2xl sm:text-3xl font-sans font-bold text-black leading-tight tracking-tight">
+              <DrawerTitle className="text-2xl sm:text-3xl font-sans font-bold text-black leading-tight tracking-tight text-left">
                 {news.rewritten_title}
               </DrawerTitle>
               
@@ -213,8 +213,8 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                 />
                 {(news.image_caption || news.image_credits) && (
                   <figcaption className="bg-[#F5F0E6] px-3 py-2 text-xs text-gray-700 border-t border-gray-300">
-                    {news.image_caption && (
-                      <span>{news.image_caption}</span>
+                    {news.image_caption && !news.image_caption.match(/^\d+ de \d+/) && (
+                      <span>{news.image_caption.replace(/^\d+ de \d+\s*[-–—]?\s*/i, '')}</span>
                     )}
                     {news.image_credits && (
                       <span className="block text-gray-500 mt-0.5 text-[10px] uppercase tracking-wider">
@@ -244,11 +244,8 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                 <span className="text-gray-400 text-sm">◆ ◆ ◆</span>
                 <div className="w-8 h-px bg-gray-400"></div>
               </div>
-              <p 
-                className="text-xs text-gray-500 text-center mt-3 tracking-wide"
-                style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
-              >
-                Conteúdo produzido por <span className="font-semibold text-gray-700">Fanaticamente</span>
+              <p className="text-xs text-gray-500 text-center mt-3 tracking-wide font-sans">
+                por <span className="font-semibold text-gray-700">Fanaticamente</span>
               </p>
             </div>
           </div>
