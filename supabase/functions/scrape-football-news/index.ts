@@ -134,12 +134,22 @@ function cleanOriginalArticleText(input: string): string {
 
 function sanitizeRewrittenContent(text: string): string {
   // Hard-remove any accidental attribution/citation lines and photo credits.
-  return text
+  let result = text
     .replace(/\r\n/g, '\n')
     // Remove photo credit patterns like "— Foto: Getty Images" or "Foto: Reprodução"
     .replace(/—?\s*Foto:\s*[^\n]+/gi, '')
     // Remove patterns like "Nome — Foto: ..."
     .replace(/[A-Za-zÀ-ú\s]+—\s*Foto:\s*[^\n]+/gi, '')
+    // Remove markdown image syntax ![...](...) including multi-line
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    // Remove timestamp patterns like "Há 10 minutos" or "Há 1 hora"
+    .replace(/^Há\s+\d+\s+(minuto|hora|segundo|dia)s?\s*[a-záàâãéèêíïóôõöúç\s]*$/gim, '')
+    // Remove timestamps with team names like "Há 6 horas gato mestre" or "Há 5 horas corinthians"
+    .replace(/Há\s+\d+\s+(minuto|hora|segundo|dia)s?\s+[a-záàâãéèêíïóôõöúç\s]+/gi, '')
+    // Remove "Acompanhe a cobertura" patterns
+    .replace(/^Acompanhe a cobertura.*$/gim, '')
+    // Remove lines that are just club/section names (single words/short phrases)
+    .replace(/^(flamengo|corinthians|palmeiras|são paulo|santos|vasco|botafogo|fluminense|grêmio|internacional|atlético-mg|cruzeiro|bahia|fortaleza|sport|coritiba|futebol internacional|gato mestre|brasileirão)\s*$/gim, '')
     .split('\n')
     .filter((line) => {
       const l = line.trim();
@@ -149,6 +159,8 @@ function sanitizeRewrittenContent(text: string): string {
       if (/ge\.globo\.com|\bglobo\.com\b|\bg1\b|globoplay/i.test(l)) return false;
       // Remove standalone photo credit lines
       if (/^\s*Foto:\s*/i.test(l)) return false;
+      // Remove lines that are just navigation/metadata
+      if (/^(TIMES|Série [AB]|Europa|Internacional|Brasileirão)$/i.test(l)) return false;
       return true;
     })
     .join('\n')
@@ -159,6 +171,100 @@ function sanitizeRewrittenContent(text: string): string {
     // Clean up extra whitespace
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+  
+  return result;
+}
+
+// Validate text quality - returns true if text is clean and readable
+function validateTextQuality(text: string): { isValid: boolean; issues: string[] } {
+  const issues: string[] = [];
+  
+  // Check for orphan timestamps
+  if (/Há\s+\d+\s+(minuto|hora|segundo|dia)s?/i.test(text)) {
+    issues.push('Contém timestamps órfãos');
+  }
+  
+  // Check for markdown image syntax
+  if (/!\[[^\]]*\]\([^)]*\)/.test(text)) {
+    issues.push('Contém sintaxe de imagem markdown');
+  }
+  
+  // Check for photo credits
+  if (/—?\s*Foto:\s*/i.test(text)) {
+    issues.push('Contém créditos de foto');
+  }
+  
+  // Check for URLs
+  if (/https?:\/\//i.test(text)) {
+    issues.push('Contém URLs');
+  }
+  
+  // Check for disconnected words (lines with less than 3 words that don't end with punctuation)
+  const lines = text.split('\n').filter(l => l.trim());
+  for (const line of lines) {
+    const words = line.trim().split(/\s+/);
+    if (words.length <= 2 && words.length > 0 && !/[.!?:,]$/.test(line.trim())) {
+      // Skip if it's a proper name or title capitalized
+      if (!/^[A-ZÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇ][a-záàâãéèêíïóôõöúç]+(\s+[A-ZÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇ][a-záàâãéèêíïóôõöúç]+)*$/.test(line.trim())) {
+        issues.push(`Linha desconectada: "${line.trim().substring(0, 30)}..."`);
+        break; // Only report first issue
+      }
+    }
+  }
+  
+  // Check for repeated content (same paragraph appearing twice)
+  const paragraphs = text.split(/\n\s*\n/).map(p => p.trim().toLowerCase()).filter(p => p.length > 50);
+  const seen = new Set<string>();
+  for (const p of paragraphs) {
+    if (seen.has(p)) {
+      issues.push('Contém parágrafos duplicados');
+      break;
+    }
+    seen.add(p);
+  }
+  
+  // Check for source references
+  if (/\bge\.globo\.com\b|\bglobo\b|\bg1\b/i.test(text)) {
+    issues.push('Contém referência a fonte original');
+  }
+  
+  return { isValid: issues.length === 0, issues };
+}
+
+// Deep clean text - aggressively remove all problematic content
+function deepCleanText(text: string): string {
+  let cleaned = sanitizeRewrittenContent(text);
+  
+  // Additional aggressive cleaning
+  cleaned = cleaned
+    // Remove any remaining markdown syntax
+    .replace(/\*\*([^*]+)\*\*/g, '$1') // Bold
+    .replace(/\*([^*]+)\*/g, '$1') // Italic
+    .replace(/#{1,6}\s+/g, '') // Headers
+    // Remove lines that are navigation items
+    .split('\n')
+    .filter(line => {
+      const l = line.trim().toLowerCase();
+      // Skip very short lines that look like menu items
+      if (l.length < 15 && !l.includes('.') && !l.includes('!') && !l.includes('?')) {
+        // Allow if it's clearly part of article (e.g., quotes, names)
+        if (!/^["']/.test(l) && !/[a-z],$/.test(l)) {
+          return false;
+        }
+      }
+      return true;
+    })
+    .join('\n')
+    // Remove duplicate paragraphs
+    .split(/\n\s*\n/)
+    .filter((para, index, arr) => {
+      const normalized = para.trim().toLowerCase();
+      return arr.findIndex(p => p.trim().toLowerCase() === normalized) === index;
+    })
+    .join('\n\n')
+    .trim();
+  
+  return cleaned;
 }
 
 // Use Firecrawl Map to discover more URLs quickly
@@ -562,36 +668,44 @@ async function rewriteWithAI(title: string, content: string): Promise<{ rewritte
     throw new Error('LOVABLE_API_KEY not configured');
   }
 
-  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é REESCREVER notícias de futebol de forma COMPLETA.
+  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é REESCREVER notícias de futebol de forma COMPLETA e LIMPA.
 
-⚠️ REGRAS ABSOLUTAS:
+⚠️ REGRAS ABSOLUTAS DE QUALIDADE:
+1. O texto deve ser 100% LEGÍVEL - sem palavras soltas, timestamps, ou linhas desconexas
+2. NUNCA inclua: timestamps ("Há X minutos/horas"), nomes de seções ("flamengo", "corinthians"), créditos de foto
+3. NUNCA inclua: URLs, markdown de imagem (![...]()), referências a ge.globo.com ou Globo
+4. Cada parágrafo deve ser completo e fazer sentido isoladamente
+5. Use pontuação correta em todas as frases
+6. O texto deve fluir naturalmente de parágrafo em parágrafo
+
+⚠️ REGRAS DE CONTEÚDO:
 1. Use EXCLUSIVAMENTE informações do texto original - NÃO invente NADA
 2. NÃO RESUMA - sua reescrita deve ter o MESMO tamanho ou MAIOR que o original
 3. Mantenha TODOS os fatos, declarações, números e detalhes do original
 4. Apenas REFORMULE as frases com palavras diferentes para evitar plágio
-5. PROIBIDO incluir: "Fonte:", URLs, citações de site (Globo, ge.globo.com, g1, Globoplay) ou instruções de navegação/assinatura
+5. PROIBIDO: "Fonte:", URLs, citações de site, instruções de navegação/assinatura
 
 PRIMEIRO, ANALISE SE DEVE IGNORAR:
 - Se pedir para votar, participar de enquete, quiz, ou realizar ação, responda: {"shouldSkip": true}
 
 REGRAS DO TÍTULO:
-- Use "sentence case" (só primeira letra maiúscula)
+- Use "sentence case" (só primeira letra maiúscula, exceto nomes próprios)
 - Nomes próprios em maiúscula: Neymar, Flamengo, Brasileirão, São Paulo
 - Tom formal sem sensacionalismo
+- Máximo 80 caracteres
 
-REGRAS DO CONTEÚDO:
-1. REESCREVA cada parágrafo do original com palavras diferentes
-2. MANTENHA todas as declarações entre aspas (reformule a introdução, não a fala)
-3. PRESERVE todos os números, datas, valores e estatísticas exatamente como estão
-4. INCLUA todos os nomes de pessoas, clubes e competições mencionados
-5. NÃO ADICIONE contexto, história ou informações que não estejam no original
-6. O texto final deve ter entre 400-800 palavras
-7. Use linguagem jornalística formal (estilo Folha de S.Paulo)
-8. Estrutura: Lide → Desenvolvimento → Declarações → Fechamento
+ESTRUTURA DO CONTEÚDO:
+1. LIDE (primeiro parágrafo): Resumo do fato principal em 2-3 frases
+2. DESENVOLVIMENTO: Detalhes e contexto do acontecimento
+3. DECLARAÇÕES: Mantenha aspas originais, reformule apenas a introdução
+4. FECHAMENTO: Conclusão ou próximos passos
 
-EXEMPLO DE REESCRITA CORRETA:
-Original: "O Flamengo anunciou a contratação de João Silva por R$ 10 milhões. 'Estou muito feliz', disse o jogador."
-Reescrito: "O Rubro-Negro carioca oficializou a chegada do atleta João Silva em negociação avaliada em R$ 10 milhões. 'Estou muito feliz', declarou o reforço."
+REGRAS DE FORMATAÇÃO:
+1. Parágrafos com 3-5 frases cada
+2. Frases completas com sujeito, verbo e predicado
+3. Pontuação correta (ponto final, vírgulas, dois-pontos)
+4. SEM linhas em branco desnecessárias dentro de parágrafos
+5. O texto final deve ter entre 400-800 palavras
 
 TÍTULO ORIGINAL:
 ${title}
@@ -599,11 +713,11 @@ ${title}
 CONTEÚDO ORIGINAL COMPLETO (REESCREVA TUDO, NÃO RESUMA):
 ${content}
 
-Responda em JSON:
+Responda APENAS em JSON válido:
 {
   "shouldSkip": false,
   "rewrittenTitle": "título reformulado",
-  "rewrittenContent": "texto COMPLETO reformulado com todas as informações do original"
+  "rewrittenContent": "texto COMPLETO reformulado, limpo e legível"
 }`;
 
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -615,7 +729,7 @@ Responda em JSON:
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
       messages: [
-        { role: 'system', content: 'Você é um jornalista esportivo experiente. Use APENAS informações do texto fornecido. NÃO invente fatos. Sempre responda em JSON válido.' },
+        { role: 'system', content: 'Você é um jornalista esportivo experiente. Produza APENAS texto jornalístico limpo e legível. Use APENAS informações do texto fornecido. NÃO invente fatos. Sempre responda em JSON válido.' },
         { role: 'user', content: prompt }
       ],
     }),
@@ -635,17 +749,32 @@ Responda em JSON:
     const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
+      
+      if (parsed.shouldSkip === true) {
+        return { shouldSkip: true, rewrittenTitle: title, rewrittenContent: '' };
+      }
+      
+      // Apply deep cleaning and validation
+      let cleanedContent = deepCleanText(parsed.rewrittenContent || content);
+      const validation = validateTextQuality(cleanedContent);
+      
+      if (!validation.isValid) {
+        console.log(`Quality issues found: ${validation.issues.join(', ')}`);
+        // Apply additional cleaning
+        cleanedContent = deepCleanText(cleanedContent);
+      }
+      
       return {
-        shouldSkip: parsed.shouldSkip === true,
+        shouldSkip: false,
         rewrittenTitle: parsed.rewrittenTitle || title,
-        rewrittenContent: sanitizeRewrittenContent(parsed.rewrittenContent || content),
+        rewrittenContent: cleanedContent,
       };
     }
   } catch (e) {
     console.error('Failed to parse AI response:', aiContent);
   }
   
-  return { shouldSkip: false, rewrittenTitle: title, rewrittenContent: sanitizeRewrittenContent(content) };
+  return { shouldSkip: false, rewrittenTitle: title, rewrittenContent: deepCleanText(content) };
 }
 
 serve(async (req) => {
