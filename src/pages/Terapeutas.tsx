@@ -275,7 +275,7 @@ const Terapeutas = () => {
               </div>
               <div>
                 <h1 
-                  className="font-display text-3xl italic uppercase"
+                  className="font-sans text-3xl font-bold"
                   style={{ color: selectedClub.primaryColor }}
                 >
                   {selectedClub.name}
