@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import DesktopHeader from "./DesktopHeader";
 import BookingDrawer from "@/components/terapeutas/BookingDrawer";
 import terapeutasHeroGrass from "@/assets/terapeutas-hero-grass.png";
+import { getFirstAndLastName } from "@/lib/utils";
 interface TherapistData {
   id: string;
   name: string;
@@ -370,7 +371,7 @@ const DesktopTerapeutasPage = () => {
                         {/* Info */}
                         <div className="flex-1 min-w-0">
                           <h3 className="text-xl font-bold text-gray-800 font-sans group-hover:text-emerald-600 transition-colors truncate capitalize">
-                            {therapist.name.toLowerCase()}
+                            {getFirstAndLastName(therapist.name).toLowerCase()}
                           </h3>
                           <p className="text-sm text-gray-500 mb-2">{therapist.degree}</p>
                           <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">

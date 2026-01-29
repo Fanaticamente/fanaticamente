@@ -4,6 +4,7 @@ import { DialogTitle } from "@/components/ui/dialog";
 import bookingGrassBg from "@/assets/booking-grass-bg.png";
 import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getFirstAndLastName } from "@/lib/utils";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -493,7 +494,7 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h2 className="font-bold text-gray-800 text-xl font-sans capitalize">{therapist.name.toLowerCase()}</h2>
+                      <h2 className="font-bold text-gray-800 text-xl font-sans capitalize">{getFirstAndLastName(therapist.name).toLowerCase()}</h2>
                       {therapist.verified && (
                         <CheckCircle className="w-5 h-5" style={{ color: clubColor }} />
                       )}
