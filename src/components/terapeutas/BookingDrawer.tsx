@@ -484,7 +484,7 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
                       <img
                         src={therapist.imageUrl}
                         alt={therapist.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover object-top"
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -685,15 +685,15 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
           ) : (
             /* Payment Step */
             <div className="p-4 space-y-4">
-              {/* Session Summary */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              {/* Session Summary - Ticket Style */}
+              <div className="card-ticket bg-ticket shadow-sm overflow-hidden">
                 <div className="p-4 flex items-center gap-3">
                   <div
                     className="w-14 h-14 rounded-xl overflow-hidden border-2"
                     style={{ borderColor: clubColor + '40' }}
                   >
                     {therapist.imageUrl ? (
-                      <img src={therapist.imageUrl} alt={therapist.name} className="w-full h-full object-cover" />
+                      <img src={therapist.imageUrl} alt={therapist.name} className="w-full h-full object-cover object-top" />
                     ) : (
                       <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                         <User className="w-6 h-6" style={{ color: clubColor }} />
@@ -701,7 +701,7 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
                     )}
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-sans font-bold text-gray-800 text-xl">{therapist.name}</h3>
+                    <h3 className="font-sans font-bold text-gray-800 text-xl">{getFirstAndLastName(therapist.name)}</h3>
                     <p className="text-gray-500 text-xs">{therapist.degree} • CRP: {therapist.crp}</p>
                   </div>
                 </div>
