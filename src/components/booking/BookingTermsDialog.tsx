@@ -121,7 +121,7 @@ const BookingTermsDialog = ({ accepted, onAcceptChange, clubColor = "#10b981" }:
   );
 
   return (
-    <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
+    <div className="bg-white rounded-2xl p-4 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
       <label 
         htmlFor="booking-terms" 
         className="flex items-start gap-3 cursor-pointer"
@@ -130,7 +130,7 @@ const BookingTermsDialog = ({ accepted, onAcceptChange, clubColor = "#10b981" }:
           id="booking-terms"
           checked={accepted}
           onCheckedChange={(checked) => onAcceptChange(checked === true)}
-          className="mt-0.5 border-2 flex-shrink-0 h-5 w-5"
+          className="mt-0.5 border-2 flex-shrink-0 h-5 w-5 data-[state=checked]:text-white"
           style={{ 
             borderColor: accepted ? clubColor : clubColor + "60",
             backgroundColor: accepted ? clubColor : undefined 
