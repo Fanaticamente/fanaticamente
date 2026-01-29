@@ -177,7 +177,7 @@ const Terapeutas = () => {
       className="min-h-screen transition-colors duration-500"
       style={{ 
         backgroundColor: selectedClub 
-          ? "#f5f5f5"
+          ? "#e8e8e8"
           : "hsl(var(--background))" 
       }}
     >
