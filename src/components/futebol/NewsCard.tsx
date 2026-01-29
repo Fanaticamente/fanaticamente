@@ -36,7 +36,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
           onClick={() => setIsOpen(true)}
           className="block w-full text-left"
         >
-          <div className="bg-secondary rounded-2xl overflow-hidden relative group">
+          <div className="bg-white rounded-2xl overflow-hidden relative group shadow-sm">
             {news.image_url && (
               <div className="relative h-48 overflow-hidden">
                 <img
@@ -58,14 +58,14 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
               <span className="inline-block px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full uppercase mb-3">
                 Destaque
               </span>
-              <h2 className="font-sans font-bold text-2xl text-secondary-foreground mb-2 group-hover:text-primary transition-colors">
+              <h2 className="font-sans font-bold text-2xl text-gray-900 mb-2 group-hover:text-primary transition-colors">
                 {news.rewritten_title}
               </h2>
-              <p className="text-secondary-foreground/70 text-sm line-clamp-2 mb-3">
+              <p className="text-gray-600 text-sm line-clamp-2 mb-3">
                 {contentPreview}
               </p>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-secondary-foreground/70 text-sm">
+                <div className="flex items-center gap-3 text-gray-500 text-sm">
                   <span className="font-medium text-primary">Fanaticamente</span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
@@ -89,7 +89,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full text-left bg-card border border-border rounded-xl p-4 flex items-center gap-4 hover:border-primary transition-colors group"
+        className="w-full text-left bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-4 hover:border-primary transition-colors group shadow-sm"
       >
         {news.image_url ? (
           <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
@@ -106,16 +106,16 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
             />
           </div>
         ) : (
-          <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center text-2xl flex-shrink-0">
+          <div className="w-14 h-14 rounded-xl bg-gray-100 flex items-center justify-center text-2xl flex-shrink-0">
             ⚽
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h4 className="font-sans font-bold text-card-foreground text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors">
+          <h4 className="font-sans font-bold text-gray-900 text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors">
             {news.rewritten_title}
           </h4>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="px-2 py-0.5 bg-muted rounded">{news.category}</span>
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <span className="px-2 py-0.5 bg-gray-100 rounded">{news.category}</span>
             <span className="font-medium text-primary">Fanaticamente</span>
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
