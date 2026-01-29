@@ -275,10 +275,10 @@ const Terapeutas = () => {
               </div>
               <div>
                 <h1 
-                  className="font-sans font-bold text-2xl capitalize"
+                  className="font-display text-2xl italic uppercase"
                   style={{ color: selectedClub.primaryColor }}
                 >
-                  {selectedClub.name.toLowerCase()}
+                  {selectedClub.name}
                 </h1>
                 <p className="text-muted-foreground">
                   Especialistas para a nossa torcida
