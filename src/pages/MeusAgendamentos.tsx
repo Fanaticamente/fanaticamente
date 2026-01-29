@@ -10,6 +10,8 @@ import SessionCompletedDialog from "@/components/user/SessionCompletedDialog";
 import RescheduleDialog from "@/components/user/RescheduleDialog";
 import RefundInfoCard from "@/components/user/RefundInfoCard";
 import RefundPixForm from "@/components/user/RefundPixForm";
+import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Appointment {
   id: string;
@@ -42,6 +44,7 @@ interface Appointment {
 const MeusAgendamentos = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"proximos" | "realizados" | "cancelados" | "todos">("proximos");
@@ -299,31 +302,11 @@ const MeusAgendamentos = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate("/perfil")}
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5 text-muted-foreground" />
-          </button>
-          <div>
-            <h1 className="font-display text-xl text-card-foreground">
-              Meus Agendamentos
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              {appointments.length} consulta{appointments.length !== 1 ? "s" : ""}
-            </p>
-          </div>
-        </div>
-      </header>
-
-      <main className="pt-24 pb-8 px-4">
-        {/* Filter Tabs */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+  // Appointments content component (shared between layouts)
+  const AppointmentsContent = () => (
+    <>
+      {/* Filter Tabs */}
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           <button
             onClick={() => setFilter("proximos")}
             className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
@@ -636,8 +619,48 @@ const MeusAgendamentos = () => {
             }}
           />
         )}
-      </main>
-    </div>
+    </>
+  );
+
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate("/perfil")}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <div>
+              <h1 className="font-display text-xl text-card-foreground">
+                Meus Agendamentos
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                {appointments.length} consulta{appointments.length !== 1 ? "s" : ""}
+              </p>
+            </div>
+          </div>
+        </header>
+
+        <main className="pt-24 pb-8 px-4">
+          <AppointmentsContent />
+        </main>
+      </div>
+    );
+  }
+
+  // Desktop Layout
+  return (
+    <UserDesktopLayout 
+      title="Meus Agendamentos" 
+      subtitle={`${appointments.length} consulta${appointments.length !== 1 ? "s" : ""} agendada${appointments.length !== 1 ? "s" : ""}`}
+    >
+      <AppointmentsContent />
+    </UserDesktopLayout>
   );
 };
 
