@@ -213,7 +213,7 @@ const DesktopTerapeutasPage = () => {
           {/* Sidebar - Club Selection */}
           <aside className="lg:col-span-1">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 font-display uppercase tracking-wide">
+              <h2 className="text-xl font-bold text-gray-700 mb-4 font-display uppercase tracking-wide">
                 Selecione seu time
               </h2>
 
@@ -325,7 +325,7 @@ const DesktopTerapeutasPage = () => {
                     />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 font-display uppercase tracking-wide">{selectedClub.name}</h2>
+                    <h2 className="text-2xl font-bold text-gray-700 font-display uppercase tracking-wide">{selectedClub.name}</h2>
                     <p className="text-gray-500">{filteredTherapists.length} especialista(s) disponível(is)</p>
                   </div>
                 </div>
