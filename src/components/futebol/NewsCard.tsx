@@ -143,68 +143,118 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     locale: ptBR,
   });
 
+  // Get date formatted like newspaper
+  const publishDate = new Date(news.published_at);
+  const formattedDate = publishDate.toLocaleDateString('pt-BR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  // Get first letter for drop cap
+  const firstLetter = news.rewritten_content.charAt(0).toUpperCase();
+  const restOfContent = news.rewritten_content.slice(1);
+
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DrawerContent className="max-h-[90vh] bg-white">
-        <DrawerHeader className="border-b border-gray-200 pb-4 bg-white">
+      <DrawerContent className="max-h-[92vh] bg-[#FDF8F0]">
+        <DrawerHeader className="border-b-2 border-black pb-4 bg-[#FDF8F0] px-5">
           <div className="flex items-start justify-between">
             <div className="flex-1 pr-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs font-bold rounded">
-                  {news.category}
+              {/* Newspaper masthead style */}
+              <div className="flex items-center justify-between mb-3 pt-1">
+                <span 
+                  className="text-xs tracking-[0.3em] uppercase text-gray-600"
+                  style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+                >
+                  {news.category} • Fanaticamente
                 </span>
-                <span className="text-xs text-gray-500 flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {timeAgo}
+                <span 
+                  className="text-xs text-gray-500 capitalize"
+                  style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+                >
+                  {formattedDate}
                 </span>
               </div>
-              <DrawerTitle className="text-xl font-sans font-bold text-left leading-tight text-gray-900">
+              
+              {/* Newspaper headline */}
+              <DrawerTitle 
+                className="text-2xl sm:text-3xl font-bold text-black leading-tight tracking-tight"
+                style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+              >
                 {news.rewritten_title}
               </DrawerTitle>
+              
+              {/* Thin decorative rule */}
+              <div className="mt-3 flex items-center gap-2">
+                <div className="flex-1 h-px bg-black"></div>
+                <span className="text-xs text-gray-500">◆</span>
+                <div className="flex-1 h-px bg-black"></div>
+              </div>
             </div>
             <DrawerClose asChild>
-              <Button variant="ghost" size="icon" className="flex-shrink-0 text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+              <Button variant="ghost" size="icon" className="flex-shrink-0 text-gray-600 hover:text-black hover:bg-transparent -mt-1">
                 <X className="w-5 h-5" />
               </Button>
             </DrawerClose>
           </div>
         </DrawerHeader>
 
-        <ScrollArea className="flex-1 h-[calc(90vh-120px)] bg-white">
-          <div className="p-4 space-y-4">
-            {/* Image */}
+        <ScrollArea className="flex-1 h-[calc(92vh-140px)] bg-[#FDF8F0]">
+          <div className="px-5 py-6 space-y-5">
+            {/* Image with newspaper caption style */}
             {news.image_url && (
-              <div className="rounded-xl overflow-hidden">
+              <figure className="border border-gray-300">
                 <img
                   src={news.image_url}
                   alt={news.image_caption || news.rewritten_title}
-                  className="w-full h-auto object-cover"
+                  className="w-full h-auto object-cover grayscale-[20%] contrast-[1.05]"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
                   }}
                 />
                 {(news.image_caption || news.image_credits) && (
-                  <div className="bg-gray-100 p-2 text-xs text-gray-600">
-                    {news.image_caption && <p>{news.image_caption}</p>}
-                    {news.image_credits && (
-                      <p className="italic">{news.image_credits}</p>
+                  <figcaption 
+                    className="bg-[#F5F0E6] px-3 py-2 text-xs text-gray-700 border-t border-gray-300"
+                    style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+                  >
+                    {news.image_caption && (
+                      <span className="italic">{news.image_caption}</span>
                     )}
-                  </div>
+                    {news.image_credits && (
+                      <span className="block text-gray-500 mt-0.5 not-italic text-[10px] uppercase tracking-wider">
+                        {news.image_credits}
+                      </span>
+                    )}
+                  </figcaption>
                 )}
-              </div>
+              </figure>
             )}
 
-            {/* Content */}
-            <div className="prose prose-sm max-w-none">
-              <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+            {/* Article content with drop cap */}
+            <article 
+              className="text-gray-900 leading-[1.8] text-[15px] text-justify hyphens-auto"
+              style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+            >
+              {/* Drop cap for first paragraph */}
+              <p className="first-letter:float-left first-letter:text-[3.5rem] first-letter:font-bold first-letter:mr-2 first-letter:mt-1 first-letter:leading-[0.8] first-letter:text-black">
                 {news.rewritten_content}
               </p>
-            </div>
+            </article>
 
-            {/* Source attribution */}
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500 text-center">
-                Conteúdo produzido por <span className="font-bold text-primary">Fanaticamente</span>
+            {/* Footer decoration */}
+            <div className="pt-4 border-t border-gray-300">
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-8 h-px bg-gray-400"></div>
+                <span className="text-gray-400 text-sm">◆ ◆ ◆</span>
+                <div className="w-8 h-px bg-gray-400"></div>
+              </div>
+              <p 
+                className="text-xs text-gray-500 text-center mt-3 tracking-wide"
+                style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+              >
+                Conteúdo produzido por <span className="font-semibold text-gray-700">Fanaticamente</span>
               </p>
             </div>
           </div>
