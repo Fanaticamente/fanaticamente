@@ -22,6 +22,11 @@ async function scrapeWithFirecrawl(url: string): Promise<any> {
     throw new Error('FIRECRAWL_API_KEY not configured');
   }
 
+  // Add cache-busting timestamp to force fresh content
+  const urlWithTimestamp = url.includes('?') 
+    ? `${url}&_t=${Date.now()}` 
+    : `${url}?_t=${Date.now()}`;
+
   const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
     method: 'POST',
     headers: {
@@ -29,9 +34,11 @@ async function scrapeWithFirecrawl(url: string): Promise<any> {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      url,
+      url: urlWithTimestamp,
       formats: ['markdown', 'html', 'links'],
-      onlyMainContent: true,
+      onlyMainContent: false, // Get full page to find more articles
+      skipTlsVerification: false,
+      timeout: 30000,
     }),
   });
 
@@ -44,34 +51,63 @@ async function scrapeWithFirecrawl(url: string): Promise<any> {
   return response.json();
 }
 
-function extractNewsFromGE(html: string, markdown: string): NewsItem[] {
+function extractNewsFromGE(html: string, markdown: string, links?: string[]): NewsItem[] {
   const news: NewsItem[] = [];
+  const seenUrls = new Set<string>();
   
-  // Extract article links and titles from the markdown/html
-  const articlePattern = /\[([^\]]+)\]\((https:\/\/ge\.globo\.com\/futebol\/[^\s\)]+)\)/g;
+  // Pattern 1: Extract from markdown links
+  const articlePattern = /\[([^\]]+)\]\((https:\/\/ge\.globo\.com\/futebol\/[^\s\)]+\.ghtml)\)/g;
   let match;
   
-  while ((match = articlePattern.exec(markdown)) !== null && news.length < 10) {
+  while ((match = articlePattern.exec(markdown)) !== null && news.length < 15) {
     const title = match[1].trim();
-    const url = match[2];
+    const url = match[2].split('?')[0]; // Remove query params
     
-    // Skip if title is too short or is navigation
-    if (title.length < 20 || title.includes('Veja mais') || title.includes('Saiba mais')) {
-      continue;
-    }
+    if (seenUrls.has(url)) continue;
+    if (title.length < 15 || title.includes('Veja mais') || title.includes('Saiba mais')) continue;
     
-    news.push({
-      url,
-      title,
-      content: '',
-      sourceSite: 'ge.globo.com',
-    });
+    seenUrls.add(url);
+    news.push({ url, title, content: '', sourceSite: 'ge.globo.com' });
   }
   
+  // Pattern 2: Extract URLs from links array provided by Firecrawl
+  if (links && Array.isArray(links)) {
+    for (const link of links) {
+      if (news.length >= 15) break;
+      if (!link.includes('ge.globo.com/futebol/') || !link.endsWith('.ghtml')) continue;
+      
+      const cleanUrl = link.split('?')[0];
+      if (seenUrls.has(cleanUrl)) continue;
+      seenUrls.add(cleanUrl);
+      
+      // Extract title from URL path
+      const pathMatch = cleanUrl.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
+      if (pathMatch) {
+        const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
+        news.push({ url: cleanUrl, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com' });
+      }
+    }
+  }
+  
+  // Pattern 3: Extract from HTML href attributes
+  const hrefPattern = /href="(https:\/\/ge\.globo\.com\/futebol\/[^"]+\.ghtml)"/g;
+  while ((match = hrefPattern.exec(html)) !== null && news.length < 15) {
+    const url = match[1].split('?')[0];
+    if (seenUrls.has(url)) continue;
+    seenUrls.add(url);
+    
+    const pathMatch = url.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
+    if (pathMatch) {
+      const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
+      news.push({ url, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com' });
+    }
+  }
+  
+  console.log(`Extracted ${news.length} unique articles, URLs:`, news.map(n => n.url));
   return news;
 }
 
-function extractNewsFromElGrafico(html: string, markdown: string): NewsItem[] {
+function extractNewsFromElGrafico(html: string, markdown: string, links?: string[]): NewsItem[] {
   const news: NewsItem[] = [];
   
   // Extract article links from El Grafico
@@ -260,8 +296,10 @@ serve(async (req) => {
         const data = result.data || result;
         const markdown = data.markdown || '';
         const html = data.html || '';
+        const links = data.links || [];
         
-        const news = source.extractor(html, markdown);
+        console.log(`Got ${links.length} links from Firecrawl`);
+        const news = source.extractor(html, markdown, links);
         console.log(`Found ${news.length} articles from ${source.url}`);
         allNews.push(...news);
       } catch (error) {
