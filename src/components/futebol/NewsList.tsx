@@ -1,5 +1,6 @@
 import { useFootballNews } from "@/hooks/useFootballNews";
 import NewsCard from "./NewsCard";
+import FeaturedNewsCarousel from "./FeaturedNewsCarousel";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -60,19 +61,21 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
       ? news
       : news.filter((item) => item.category === selectedCategory);
 
-  const featuredNews = filteredNews[0];
-  const otherNews = filteredNews.slice(1);
+  // First 3 articles go to the carousel (featured)
+  const featuredNews = filteredNews.slice(0, 3);
+  // Rest goes to the list
+  const otherNews = filteredNews.slice(3);
 
   return (
     <div className="space-y-6">
-      {/* Featured News */}
-      {featuredNews && (
+      {/* Featured News Carousel - always shows the 3 most recent */}
+      {featuredNews.length > 0 && (
         <div className="px-4">
-          <NewsCard news={featuredNews} isFeatured />
+          <FeaturedNewsCarousel news={featuredNews} />
         </div>
       )}
 
-      {/* News List */}
+      {/* News List - older articles */}
       {otherNews.length > 0 && (
         <div className="px-4">
           <div className="flex items-center justify-between mb-4">

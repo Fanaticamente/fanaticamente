@@ -340,8 +340,8 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DrawerContent className="max-h-[92vh] bg-[#FDF8F0]">
-        <DrawerHeader className="border-b border-gray-300 pb-4 bg-[#FDF8F0] px-5">
+      <DrawerContent className="max-h-[92vh] bg-white">
+        <DrawerHeader className="border-b border-gray-300 pb-4 bg-white px-5">
           <div className="flex items-start justify-between">
             <div className="flex-1 pr-2">
               {/* Newspaper masthead style */}
@@ -391,7 +391,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
         </DrawerHeader>
 
         {/* Scrollable content with hidden scrollbar */}
-        <div className="flex-1 overflow-y-auto bg-[#FDF8F0] max-h-[calc(92vh-100px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex-1 overflow-y-auto bg-white max-h-[calc(92vh-100px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="px-5 py-6 space-y-5 pb-20">
             {/* Image with newspaper caption style */}
             {news.image_url && (
@@ -405,7 +405,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                   }}
                 />
                 {(displayCaption || cleanedCredits) && (
-                  <figcaption className="bg-[#F5F0E6] px-3 py-2 text-xs text-gray-700 border-t border-gray-300 font-sans line-clamp-1">
+                  <figcaption className="bg-gray-50 px-3 py-2 text-xs text-gray-700 border-t border-gray-300 font-sans line-clamp-1">
                     {displayCaption && cleanedCredits ? (
                       <span>{displayCaption} — <span className="text-gray-500">{cleanedCredits}</span></span>
                     ) : displayCaption ? (
