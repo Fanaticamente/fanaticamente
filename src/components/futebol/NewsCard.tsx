@@ -67,8 +67,8 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
                     {timeAgo}
                   </span>
                 </div>
-                <span className="text-primary text-sm font-medium group-hover:underline">
-                  Ler mais →
+                <span className="text-primary text-sm font-medium">
+                  Ler mais
                 </span>
               </div>
             </div>

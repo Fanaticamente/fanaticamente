@@ -240,11 +240,38 @@ async function scrapeArticleDetails(url: string): Promise<{
         const descriptionPart = parts[0].trim();
         const creditPart = parts.slice(1).join('—').trim();
         
-        // Only set caption if it's not empty and doesn't look like video metadata
+        // Extract ONLY the person's name from the description
+        // Remove action descriptions like "durante entrevista para o ge" 
+        // Keep only "Name" or "Name, do Clube"
         if (descriptionPart && 
             !descriptionPart.includes('|') && 
-            descriptionPart.length > 5) {
-          imageCaption = descriptionPart;
+            descriptionPart.length > 3) {
+          // If contains "durante", "em", "no", "na" - extract only the name before
+          const actionPatterns = [
+            / durante .*/i,
+            / em partida .*/i,
+            / em treino .*/i,
+            / em entrevista .*/i,
+            / no jogo .*/i,
+            / na partida .*/i,
+            / após .*/i,
+            / antes .*/i,
+            / comemora .*/i,
+            / celebra .*/i,
+            / disputa .*/i,
+            / treina .*/i,
+            / participa .*/i,
+          ];
+          
+          let cleanedCaption = descriptionPart;
+          for (const pattern of actionPatterns) {
+            cleanedCaption = cleanedCaption.replace(pattern, '');
+          }
+          cleanedCaption = cleanedCaption.trim();
+          
+          if (cleanedCaption.length > 3) {
+            imageCaption = cleanedCaption;
+          }
         }
         
         if (creditPart) {
@@ -253,8 +280,21 @@ async function scrapeArticleDetails(url: string): Promise<{
         }
       } else if (fullCaption.startsWith('Foto:') || fullCaption.startsWith('Crédito:')) {
         imageCredits = fullCaption;
-      } else if (!fullCaption.includes('|') && fullCaption.length > 5) {
-        imageCaption = fullCaption;
+      } else if (!fullCaption.includes('|') && fullCaption.length > 3) {
+        // For simple captions, also try to clean action descriptions
+        let cleanedCaption = fullCaption;
+        const actionPatterns = [
+          / durante .*/i,
+          / em partida .*/i,
+          / em treino .*/i,
+          / em entrevista .*/i,
+        ];
+        for (const pattern of actionPatterns) {
+          cleanedCaption = cleanedCaption.replace(pattern, '');
+        }
+        if (cleanedCaption.length > 3) {
+          imageCaption = cleanedCaption.trim();
+        }
       }
     }
     
