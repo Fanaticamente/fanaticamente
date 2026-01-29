@@ -145,32 +145,32 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DrawerContent className="max-h-[90vh]">
-        <DrawerHeader className="border-b pb-4">
+      <DrawerContent className="max-h-[90vh] bg-white">
+        <DrawerHeader className="border-b border-gray-200 pb-4 bg-white">
           <div className="flex items-start justify-between">
             <div className="flex-1 pr-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs font-bold rounded">
                   {news.category}
                 </span>
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <span className="text-xs text-gray-500 flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   {timeAgo}
                 </span>
               </div>
-              <DrawerTitle className="text-xl font-sans font-bold text-left leading-tight">
+              <DrawerTitle className="text-xl font-sans font-bold text-left leading-tight text-gray-900">
                 {news.rewritten_title}
               </DrawerTitle>
             </div>
             <DrawerClose asChild>
-              <Button variant="ghost" size="icon" className="flex-shrink-0">
+              <Button variant="ghost" size="icon" className="flex-shrink-0 text-gray-600 hover:text-gray-900 hover:bg-gray-100">
                 <X className="w-5 h-5" />
               </Button>
             </DrawerClose>
           </div>
         </DrawerHeader>
 
-        <ScrollArea className="flex-1 h-[calc(90vh-120px)]">
+        <ScrollArea className="flex-1 h-[calc(90vh-120px)] bg-white">
           <div className="p-4 space-y-4">
             {/* Image */}
             {news.image_url && (
@@ -184,7 +184,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                   }}
                 />
                 {(news.image_caption || news.image_credits) && (
-                  <div className="bg-muted p-2 text-xs text-muted-foreground">
+                  <div className="bg-gray-100 p-2 text-xs text-gray-600">
                     {news.image_caption && <p>{news.image_caption}</p>}
                     {news.image_credits && (
                       <p className="italic">{news.image_credits}</p>
@@ -196,14 +196,14 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
 
             {/* Content */}
             <div className="prose prose-sm max-w-none">
-              <p className="text-foreground leading-relaxed whitespace-pre-wrap">
+              <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
                 {news.rewritten_content}
               </p>
             </div>
 
             {/* Source attribution */}
-            <div className="pt-4 border-t">
-              <p className="text-xs text-muted-foreground text-center">
+            <div className="pt-4 border-t border-gray-200">
+              <p className="text-xs text-gray-500 text-center">
                 Conteúdo produzido por <span className="font-bold text-primary">Fanaticamente</span>
               </p>
             </div>
