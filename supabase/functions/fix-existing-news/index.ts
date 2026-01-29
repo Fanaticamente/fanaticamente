@@ -114,12 +114,36 @@ function fixCaption(caption: string | null): string | null {
     return null;
   }
   
+  // Remove action descriptions - keep only the person's name
+  const actionPatterns = [
+    / durante .*/i,
+    / em partida .*/i,
+    / em treino .*/i,
+    / em entrevista .*/i,
+    / no jogo .*/i,
+    / na partida .*/i,
+    / após .*/i,
+    / antes .*/i,
+    / comemora .*/i,
+    / celebra .*/i,
+    / disputa .*/i,
+    / treina .*/i,
+    / participa .*/i,
+    / para o ge.*/i,
+  ];
+  
+  let cleanedCaption = caption;
+  for (const pattern of actionPatterns) {
+    cleanedCaption = cleanedCaption.replace(pattern, '');
+  }
+  cleanedCaption = cleanedCaption.trim();
+  
   // If it's just a team name like "Arsenal", remove it
-  if (caption.length < 20 && !caption.includes('—') && !caption.includes(':')) {
+  if (cleanedCaption.length < 5) {
     return null;
   }
   
-  return caption;
+  return cleanedCaption;
 }
 
 serve(async (req) => {
