@@ -55,6 +55,16 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[]): Ne
   const news: NewsItem[] = [];
   const seenUrls = new Set<string>();
   
+  // Helper to check if URL is a valid news article (not a game/match page)
+  const isValidArticle = (url: string): boolean => {
+    // Skip game/match pages - they don't have images
+    if (url.includes('/jogo/')) return false;
+    // Skip live/ao-vivo pages
+    if (url.includes('/ao-vivo/')) return false;
+    // Must be a news article
+    return url.includes('/noticia/') || url.includes('/times/');
+  };
+  
   // Pattern 1: Extract from markdown links
   const articlePattern = /\[([^\]]+)\]\((https:\/\/ge\.globo\.com\/futebol\/[^\s\)]+\.ghtml)\)/g;
   let match;
@@ -64,6 +74,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[]): Ne
     const url = match[2].split('?')[0]; // Remove query params
     
     if (seenUrls.has(url)) continue;
+    if (!isValidArticle(url)) continue;
     if (title.length < 15 || title.includes('Veja mais') || title.includes('Saiba mais')) continue;
     
     seenUrls.add(url);
@@ -78,6 +89,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[]): Ne
       
       const cleanUrl = link.split('?')[0];
       if (seenUrls.has(cleanUrl)) continue;
+      if (!isValidArticle(cleanUrl)) continue;
       seenUrls.add(cleanUrl);
       
       // Extract title from URL path
@@ -94,6 +106,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[]): Ne
   while ((match = hrefPattern.exec(html)) !== null && news.length < 15) {
     const url = match[1].split('?')[0];
     if (seenUrls.has(url)) continue;
+    if (!isValidArticle(url)) continue;
     seenUrls.add(url);
     
     const pathMatch = url.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
