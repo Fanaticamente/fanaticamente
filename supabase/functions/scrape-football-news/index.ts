@@ -16,7 +16,10 @@ interface NewsItem {
   sourceSite: string;
 }
 
-async function scrapeWithFirecrawl(url: string): Promise<any> {
+async function scrapeWithFirecrawl(
+  url: string,
+  options?: { onlyMainContent?: boolean; formats?: string[] }
+): Promise<any> {
   const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
   if (!apiKey) {
     throw new Error('FIRECRAWL_API_KEY not configured');
@@ -35,8 +38,9 @@ async function scrapeWithFirecrawl(url: string): Promise<any> {
     },
     body: JSON.stringify({
       url: urlWithTimestamp,
-      formats: ['markdown', 'html', 'links'],
-      onlyMainContent: false, // Get full page to find more articles
+      formats: options?.formats || ['markdown', 'html', 'links'],
+      // For article pages we want only main content; for home pages we may want full.
+      onlyMainContent: options?.onlyMainContent ?? false,
       skipTlsVerification: false,
       timeout: 30000,
     }),
@@ -49,6 +53,51 @@ async function scrapeWithFirecrawl(url: string): Promise<any> {
   }
 
   return response.json();
+}
+
+function cleanOriginalArticleText(input: string): string {
+  // Remove boilerplate / navigation / subscription promos that sometimes leak into the scraped markdown.
+  const blocked = [
+    /navegue pelo conteúdo/i,
+    /conta globo/i,
+    /seja pro/i,
+    /globoplay/i,
+    /cartola/i,
+    /gshow/i,
+    /globocom/i,
+    /g1\b/i,
+    /assine|assinante|assinatura/i,
+    /login unificad/i,
+    /receber recomendações/i,
+    /ofertas exclusivas/i,
+    /clique para/i,
+  ];
+
+  const paragraphs = input
+    .replace(/\r\n/g, '\n')
+    .split(/\n\s*\n/g)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  const cleaned = paragraphs.filter((p) => !blocked.some((re) => re.test(p)));
+  return cleaned.join('\n\n').trim();
+}
+
+function sanitizeRewrittenContent(text: string): string {
+  // Hard-remove any accidental attribution/citation lines.
+  return text
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .filter((line) => {
+      const l = line.trim();
+      if (!l) return true;
+      if (/^fonte\s*:/i.test(l)) return false;
+      if (/https?:\/\//i.test(l)) return false;
+      if (/ge\.globo\.com|\bglobo\.com\b|\bg1\b|globoplay/i.test(l)) return false;
+      return true;
+    })
+    .join('\n')
+    .trim();
 }
 
 // Use Firecrawl Map to discover more URLs quickly
@@ -228,13 +277,14 @@ async function scrapeArticleDetails(url: string): Promise<{
   isRecent: boolean;
 }> {
   try {
-    const result = await scrapeWithFirecrawl(url);
+    // For article pages, request only main content to avoid boilerplate.
+    const result = await scrapeWithFirecrawl(url, { onlyMainContent: true, formats: ['markdown', 'html'] });
     const data = result.data || result;
     const markdown = data.markdown || '';
     const html = data.html || '';
     
     // Extract full article content - increased limit to capture complete articles
-    const content = markdown.slice(0, 8000);
+    const content = cleanOriginalArticleText(markdown).slice(0, 16000);
     
     // Extract publication date/time from article metadata
     let publishedAt: Date | undefined;
@@ -447,6 +497,7 @@ async function rewriteWithAI(title: string, content: string): Promise<{ rewritte
 2. NÃO RESUMA - sua reescrita deve ter o MESMO tamanho ou MAIOR que o original
 3. Mantenha TODOS os fatos, declarações, números e detalhes do original
 4. Apenas REFORMULE as frases com palavras diferentes para evitar plágio
+5. PROIBIDO incluir: "Fonte:", URLs, citações de site (Globo, ge.globo.com, g1, Globoplay) ou instruções de navegação/assinatura
 
 PRIMEIRO, ANALISE SE DEVE IGNORAR:
 - Se pedir para votar, participar de enquete, quiz, ou realizar ação, responda: {"shouldSkip": true}
@@ -515,14 +566,14 @@ Responda em JSON:
       return {
         shouldSkip: parsed.shouldSkip === true,
         rewrittenTitle: parsed.rewrittenTitle || title,
-        rewrittenContent: parsed.rewrittenContent || content,
+        rewrittenContent: sanitizeRewrittenContent(parsed.rewrittenContent || content),
       };
     }
   } catch (e) {
     console.error('Failed to parse AI response:', aiContent);
   }
   
-  return { shouldSkip: false, rewrittenTitle: title, rewrittenContent: content };
+  return { shouldSkip: false, rewrittenTitle: title, rewrittenContent: sanitizeRewrittenContent(content) };
 }
 
 serve(async (req) => {
@@ -547,7 +598,7 @@ serve(async (req) => {
     let mainPageHtml = '';
     
     try {
-      const result = await scrapeWithFirecrawl('https://ge.globo.com/futebol/');
+      const result = await scrapeWithFirecrawl('https://ge.globo.com/futebol/', { onlyMainContent: false, formats: ['markdown', 'html', 'links'] });
       const data = result.data || result;
       mainPageMarkdown = data.markdown || '';
       mainPageHtml = data.html || '';
