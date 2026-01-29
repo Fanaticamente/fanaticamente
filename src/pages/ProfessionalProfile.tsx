@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ChevronLeft, Star, MapPin, CheckCircle, Award, Clock, User } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { format, addDays, startOfWeek, isSameDay } from "date-fns";
+import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Professional {
   id: string;
@@ -50,6 +50,7 @@ const ProfessionalProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const [professional, setProfessional] = useState<Professional | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -64,7 +65,6 @@ const ProfessionalProfile = () => {
   );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [showBioExpanded, setShowBioExpanded] = useState(false);
 
   // Get current user
   useEffect(() => {
@@ -194,14 +194,12 @@ const ProfessionalProfile = () => {
           } else if (payload.eventType === 'UPDATE') {
             const updatedAppointment = payload.new as Appointment & { professional_id: string };
             setBookedAppointments(prev => {
-              // If status changed to cancelled, remove from booked
               if (['cancelled'].includes(updatedAppointment.status)) {
                 return prev.filter(apt => 
                   !(apt.scheduled_date === updatedAppointment.scheduled_date && 
                     apt.scheduled_time === updatedAppointment.scheduled_time)
                 );
               }
-              // Otherwise update the existing appointment
               return prev.map(apt => 
                 apt.scheduled_date === updatedAppointment.scheduled_date && 
                 apt.scheduled_time === updatedAppointment.scheduled_time
@@ -231,31 +229,27 @@ const ProfessionalProfile = () => {
     addDays(currentWeekStart, i)
   );
 
-  // Get available times for a specific date based on weekly availability (filtering booked slots and past times)
+  // Get available times for a specific date based on weekly availability
   const getAvailableTimesForDate = (date: Date) => {
     const now = new Date();
     const todayStr = format(now, "yyyy-MM-dd");
     const dateStr = format(date, "yyyy-MM-dd");
     
-    // If the date is in the past, return no slots
     if (dateStr < todayStr) {
       return [];
     }
     
-    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const dayOfWeek = date.getDay();
     const availability = weeklyAvailability.find(a => a.day_of_week === dayOfWeek);
     const allSlots = availability?.time_slots || [];
     
-    // Filter out booked slots
     const bookedTimes = bookedAppointments
       .filter(apt => apt.scheduled_date === dateStr)
       .map(apt => apt.scheduled_time);
     
-    // Filter out slots that are booked or (if today) less than 1 hour from now
     return allSlots.filter(slot => {
       if (bookedTimes.includes(slot)) return false;
       
-      // If it's today, check if the slot is at least 1 hour in the future
       if (dateStr === todayStr) {
         const [hours, minutes] = slot.split(':').map(Number);
         const slotTime = new Date(date);
@@ -269,7 +263,6 @@ const ProfessionalProfile = () => {
     });
   };
 
-  // Day name abbreviations in Portuguese
   const getDayAbbreviation = (date: Date): string => {
     const dayOfWeek = date.getDay();
     const abbreviations = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
@@ -277,19 +270,18 @@ const ProfessionalProfile = () => {
   };
 
   const handlePreviousWeek = () => {
-    setCurrentWeekStart(addDays(currentWeekStart, -7));
+    setCurrentWeekStart(subWeeks(currentWeekStart, 1));
     setSelectedDate(null);
     setSelectedTime(null);
   };
 
   const handleNextWeek = () => {
-    setCurrentWeekStart(addDays(currentWeekStart, 7));
+    setCurrentWeekStart(addWeeks(currentWeekStart, 1));
     setSelectedDate(null);
     setSelectedTime(null);
   };
 
   const handleSchedule = () => {
-    // Check if user is trying to book with themselves
     if (professional && currentUserId && professional.user_id === currentUserId) {
       toast({
         title: "Ação não permitida",
@@ -305,12 +297,15 @@ const ProfessionalProfile = () => {
     }
   };
 
-  const clubColor = club?.primary_color || "hsl(var(--primary))";
+  const clubColor = club?.primary_color || "#10b981";
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <div 
+          className="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" 
+          style={{ borderColor: clubColor, borderTopColor: 'transparent' }}
+        />
       </div>
     );
   }
@@ -324,238 +319,278 @@ const ProfessionalProfile = () => {
   }
 
   return (
-    <div 
-      className="min-h-screen transition-colors duration-500"
-      style={{ 
-        backgroundColor: club 
-          ? `color-mix(in srgb, ${club.primary_color} 5%, hsl(var(--background)))` 
-          : "hsl(var(--background))" 
-      }}
-    >
-      {/* Header */}
-      <header 
-        className="fixed top-0 left-0 right-0 z-50 px-4 py-4"
-        style={{ backgroundColor: clubColor }}
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Header with Gradient */}
+      <div 
+        className="relative pt-4 pb-20"
+        style={{ 
+          background: `linear-gradient(135deg, ${clubColor} 0%, ${clubColor}dd 50%, ${clubColor}bb 100%)`
+        }}
       >
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
+        {/* Navigation */}
+        <div className="px-4 mb-6">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors"
           >
-            <ChevronLeft className="w-6 h-6 text-white" />
+            <ChevronLeft className="w-5 h-5 text-white" />
           </button>
-          <h1 className="text-white font-display text-xl">Perfil Profissional</h1>
-          <div className="w-10" />
         </div>
-      </header>
 
-      <main className="pt-20 px-4">
-        {/* Profile Card */}
-        <div className="bg-white border-2 rounded-2xl overflow-hidden mb-6" style={{ borderColor: clubColor + "30" }}>
-          <div className="p-6">
-            <div className="flex gap-4">
-              {/* Photo */}
-              <div 
-                className="w-28 h-36 rounded-xl overflow-hidden flex-shrink-0 border-2"
-                style={{ borderColor: clubColor + "60" }}
-              >
-                {profile.avatar_url ? (
-                  <img 
-                    src={profile.avatar_url} 
-                    alt={profile.full_name || 'Profissional'}
-                    className="w-full h-full object-cover object-top"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                    <User className="w-12 h-12" style={{ color: clubColor }} />
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h2 
-                    className="font-display text-2xl font-bold"
-                    style={{ color: clubColor }}
-                  >
-                    {profile.full_name}
-                  </h2>
-                  {professional.is_verified && (
-                    <CheckCircle className="w-5 h-5" style={{ color: clubColor }} />
-                  )}
+        {/* Profile Hero */}
+        <div className="px-4 flex flex-col items-center text-center">
+          {/* Avatar with glow effect */}
+          <div className="relative mb-4">
+            <div 
+              className="absolute inset-0 rounded-full blur-xl opacity-60"
+              style={{ backgroundColor: clubColor }}
+            />
+            <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-2xl">
+              {profile.avatar_url ? (
+                <img 
+                  src={profile.avatar_url} 
+                  alt={profile.full_name || 'Profissional'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-white flex items-center justify-center">
+                  <User className="w-12 h-12" style={{ color: clubColor }} />
                 </div>
-                <p className="text-gray-600 text-sm">{professional.degree || 'Psicólogo(a)'}</p>
-                <p className="text-gray-600 text-sm mb-3">CRP: {professional.crp}</p>
-
-                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-                  <span className="flex items-center gap-1">
-                    <Star className="w-4 h-4" style={{ color: clubColor }} />
-                    {professional.experience_years || 0} anos
-                  </span>
-                  {professional.location && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" style={{ color: clubColor }} />
-                      {professional.location}
-                    </span>
-                  )}
-                </div>
-              </div>
+              )}
             </div>
-
-            {/* Hourly Rate */}
-            {professional.hourly_rate && (
+            {professional.is_verified && (
               <div 
-                className="mt-4 inline-block px-4 py-2 rounded-full border-2"
-                style={{ borderColor: clubColor, color: clubColor }}
+                className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-lg"
               >
-                <span className="font-bold text-lg">
-                  R$ {professional.hourly_rate.toFixed(2).replace('.', ',')}
-                </span>
-                <span className="text-sm"> / sessão</span>
+                <CheckCircle className="w-5 h-5" style={{ color: clubColor }} />
+              </div>
+            )}
+          </div>
+
+          {/* Name and Title */}
+          <h1 className="text-2xl font-bold text-white mb-1">
+            {profile.full_name}
+          </h1>
+          <p className="text-white/80 text-sm mb-1">
+            {professional.degree || 'Psicólogo(a)'}
+          </p>
+          <p className="text-white/60 text-xs mb-4">
+            CRP: {professional.crp}
+          </p>
+
+          {/* Stats Row */}
+          <div className="flex items-center gap-6 text-white/90">
+            <div className="flex items-center gap-1.5">
+              <Star className="w-4 h-4" />
+              <span className="text-sm font-medium">{professional.experience_years || 0} anos</span>
+            </div>
+            {professional.location && (
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4" />
+                <span className="text-sm font-medium">{professional.location}</span>
               </div>
             )}
           </div>
         </div>
+      </div>
+
+      {/* Main Content - Overlapping Cards */}
+      <main className="px-4 -mt-12 pb-28 space-y-4">
+        {/* Price Card */}
+        {professional.hourly_rate && (
+          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 text-sm mb-1">Valor da Sessão</p>
+                <p className="text-3xl font-bold" style={{ color: clubColor }}>
+                  R$ {professional.hourly_rate.toFixed(2).replace('.', ',')}
+                </p>
+              </div>
+              <div 
+                className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                style={{ backgroundColor: clubColor + '15' }}
+              >
+                <Sparkles className="w-7 h-7" style={{ color: clubColor }} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Scheduling Section */}
-        <div className="bg-white border-2 rounded-2xl p-6 mb-6" style={{ borderColor: clubColor + "30" }}>
-          <div className="flex items-center gap-2 mb-4">
-            <Clock className="w-5 h-5" style={{ color: clubColor }} />
-            <h3 className="font-display text-lg font-bold" style={{ color: clubColor }}>Escolha um horário</h3>
-          </div>
-
-          {/* Week Navigation */}
-          <div className="flex items-center justify-between mb-4">
-            <button
-              onClick={handlePreviousWeek}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          {/* Section Header */}
+          <div 
+            className="px-5 py-4 flex items-center gap-3"
+            style={{ backgroundColor: clubColor + '08' }}
+          >
+            <div 
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: clubColor + '15' }}
             >
-              <ChevronLeft className="w-5 h-5" style={{ color: clubColor }} />
-            </button>
-            <span className="text-gray-700 font-medium capitalize">
-              {format(currentWeekStart, "MMMM yyyy", { locale: ptBR })}
-            </span>
-            <button
-              onClick={handleNextWeek}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors rotate-180"
-            >
-              <ChevronLeft className="w-5 h-5" style={{ color: clubColor }} />
-            </button>
-          </div>
-
-          {/* Week Days */}
-          <div className="grid grid-cols-7 gap-2 mb-4">
-            {weekDays.map((day) => {
-              const times = getAvailableTimesForDate(day);
-              const isAvailable = times.length > 0;
-              const isSelected = selectedDate && isSameDay(day, selectedDate);
-
-              return (
-                <button
-                  key={day.toString()}
-                  onClick={() => isAvailable && setSelectedDate(day)}
-                  disabled={!isAvailable}
-                  className="flex flex-col items-center p-2 rounded-lg transition-all"
-                  style={{
-                    backgroundColor: isSelected ? clubColor : isAvailable ? "#f3f4f6" : "#f9fafb",
-                    color: isSelected ? "#fff" : isAvailable ? "#374151" : "#9ca3af",
-                    opacity: isAvailable ? 1 : 0.5,
-                    cursor: isAvailable ? "pointer" : "not-allowed"
-                  }}
-                >
-                  <span className="text-xs uppercase">
-                    {getDayAbbreviation(day)}
-                  </span>
-                  <span className="text-lg font-bold">
-                    {format(day, "d")}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Time Slots */}
-          {selectedDate && (
+              <Calendar className="w-5 h-5" style={{ color: clubColor }} />
+            </div>
             <div>
-              <p className="text-gray-600 text-sm mb-3">
-                Horários disponíveis para {format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
-              </p>
-              <div className="grid grid-cols-4 gap-2">
-                {getAvailableTimesForDate(selectedDate).map((time) => (
+              <h2 className="font-bold text-gray-900">Agendar Sessão</h2>
+              <p className="text-sm text-gray-500">Escolha o melhor horário</p>
+            </div>
+          </div>
+
+          <div className="p-5">
+            {/* Week Navigation */}
+            <div className="flex items-center justify-between mb-5">
+              <button
+                onClick={handlePreviousWeek}
+                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <span className="text-gray-900 font-semibold capitalize">
+                {format(currentWeekStart, "MMMM yyyy", { locale: ptBR })}
+              </span>
+              <button
+                onClick={handleNextWeek}
+                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Week Days Grid */}
+            <div className="grid grid-cols-7 gap-2 mb-5">
+              {weekDays.map((day) => {
+                const times = getAvailableTimesForDate(day);
+                const isAvailable = times.length > 0;
+                const isSelected = selectedDate && isSameDay(day, selectedDate);
+                const isToday = isSameDay(day, new Date());
+
+                return (
                   <button
-                    key={time}
-                    onClick={() => setSelectedTime(time)}
-                    className="py-2 px-3 rounded-lg text-sm font-medium transition-all"
+                    key={day.toString()}
+                    onClick={() => isAvailable && setSelectedDate(day)}
+                    disabled={!isAvailable}
+                    className={`
+                      relative flex flex-col items-center py-3 rounded-xl transition-all
+                      ${isSelected 
+                        ? 'text-white shadow-lg transform scale-105' 
+                        : isAvailable 
+                          ? 'bg-gray-50 hover:bg-gray-100 text-gray-700' 
+                          : 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                      }
+                    `}
                     style={{
-                      backgroundColor: selectedTime === time ? clubColor : "#f3f4f6",
-                      color: selectedTime === time ? "#fff" : "#374151"
+                      backgroundColor: isSelected ? clubColor : undefined,
                     }}
                   >
-                    {time}
+                    <span className="text-[10px] uppercase font-medium tracking-wide mb-1">
+                      {getDayAbbreviation(day)}
+                    </span>
+                    <span className="text-lg font-bold">
+                      {format(day, "d")}
+                    </span>
+                    {isToday && !isSelected && (
+                      <div 
+                        className="absolute bottom-1 w-1.5 h-1.5 rounded-full"
+                        style={{ backgroundColor: clubColor }}
+                      />
+                    )}
+                    {isAvailable && !isSelected && (
+                      <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400" />
+                    )}
                   </button>
-                ))}
-              </div>
-
-              {/* Schedule Button - Inside scheduling section */}
-              {selectedTime && (
-                <button
-                  onClick={handleSchedule}
-                  className="w-full mt-4 py-4 rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-all shadow-lg"
-                  style={{ 
-                    backgroundColor: clubColor, 
-                    color: "#fff" 
-                  }}
-                >
-                  Agendar Sessão
-                </button>
-              )}
+                );
+              })}
             </div>
-          )}
 
-          {/* Not available message */}
-          {selectedDate && getAvailableTimesForDate(selectedDate).length === 0 && (
-            <p className="text-gray-500 text-center py-4">
-              Dia selecionado indisponível
-            </p>
-          )}
+            {/* Time Slots */}
+            {selectedDate && (
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <p className="text-gray-600 text-sm mb-3 font-medium">
+                  {format(selectedDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}
+                </p>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-4">
+                  {getAvailableTimesForDate(selectedDate).map((time) => (
+                    <button
+                      key={time}
+                      onClick={() => setSelectedTime(time)}
+                      className={`
+                        py-3 px-2 rounded-xl text-sm font-semibold transition-all
+                        ${selectedTime === time 
+                          ? 'text-white shadow-md' 
+                          : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
+                        }
+                      `}
+                      style={{
+                        backgroundColor: selectedTime === time ? clubColor : undefined,
+                      }}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Schedule Button */}
+                {selectedTime && (
+                  <button
+                    onClick={handleSchedule}
+                    className="w-full py-4 rounded-xl font-bold text-white uppercase tracking-wide hover:opacity-90 transition-all shadow-lg"
+                    style={{ 
+                      backgroundColor: clubColor,
+                      boxShadow: `0 10px 30px ${clubColor}40`
+                    }}
+                  >
+                    Agendar Sessão
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* No slots message */}
+            {selectedDate && getAvailableTimesForDate(selectedDate).length === 0 && (
+              <div className="text-center py-6">
+                <Clock className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                <p className="text-gray-500">Sem horários disponíveis neste dia</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Bio Section */}
         {professional.bio && (
-          <div className="bg-white border-2 rounded-2xl p-6 mb-6" style={{ borderColor: clubColor + "30" }}>
-            <div className="flex items-center gap-2 mb-3">
-              <User className="w-5 h-5" style={{ color: clubColor }} />
-              <h3 className="font-display text-lg font-bold" style={{ color: clubColor }}>Sobre mim</h3>
+          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div 
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: clubColor + '15' }}
+              >
+                <User className="w-5 h-5" style={{ color: clubColor }} />
+              </div>
+              <h2 className="font-bold text-gray-900">Sobre Mim</h2>
             </div>
-            <p className={`text-gray-600 ${!showBioExpanded ? 'line-clamp-3' : ''}`}>
+            <p className="text-gray-600 leading-relaxed">
               {professional.bio}
             </p>
-            {professional.bio.length > 150 && (
-              <button 
-                onClick={() => setShowBioExpanded(!showBioExpanded)}
-                className="mt-2 text-sm font-medium"
-                style={{ color: clubColor }}
-              >
-                {showBioExpanded ? 'Mostrar menos' : 'Mostrar mais'}
-              </button>
-            )}
           </div>
         )}
 
-        {/* Specialties */}
+        {/* Specialties Section */}
         {professional.specialties && professional.specialties.length > 0 && (
-          <div className="bg-white border-2 rounded-2xl p-6 mb-6" style={{ borderColor: clubColor + "30" }}>
-            <div className="flex items-center gap-2 mb-3">
-              <Award className="w-5 h-5" style={{ color: clubColor }} />
-              <h3 className="font-display text-lg font-bold" style={{ color: clubColor }}>Atendo principalmente demandas relacionadas a:</h3>
+          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div 
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: clubColor + '15' }}
+              >
+                <Award className="w-5 h-5" style={{ color: clubColor }} />
+              </div>
+              <h2 className="font-bold text-gray-900">Especialidades</h2>
             </div>
             <div className="flex flex-wrap gap-2">
               {professional.specialties.map((specialty) => (
                 <span
                   key={specialty}
-                  className="px-3 py-2 text-sm rounded-full"
+                  className="px-4 py-2 text-sm font-medium rounded-full"
                   style={{ 
-                    backgroundColor: clubColor + "20", 
+                    backgroundColor: clubColor + '12', 
                     color: clubColor 
                   }}
                 >
@@ -565,12 +600,9 @@ const ProfessionalProfile = () => {
             </div>
           </div>
         )}
-
-        {/* Spacer para manter distância do BottomNav */}
-        <div aria-hidden className="h-28" />
       </main>
 
-      <BottomNav />
+      {isMobile && <BottomNav />}
     </div>
   );
 };
