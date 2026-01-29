@@ -4,9 +4,8 @@ import {
   User, 
   Calendar, 
   BookOpen, 
-  Thermometer, 
-  Newspaper, 
-  ShoppingBag, 
+  CreditCard,
+  Settings,
   LogOut,
   ChevronRight
 } from "lucide-react";
@@ -26,11 +25,10 @@ interface UserDesktopLayoutProps {
 const navItems = [
   { icon: Home, label: "Início", path: "/" },
   { icon: User, label: "Meu Perfil", path: "/perfil" },
-  { icon: Calendar, label: "Agendamentos", path: "/meus-agendamentos" },
-  { icon: BookOpen, label: "FanatiClass", path: "/cursos" },
-  { icon: Thermometer, label: "Termômetro", path: "/diario" },
-  { icon: Newspaper, label: "Zona Mista", path: "/zona-mista" },
-  { icon: ShoppingBag, label: "FanaticaShop", path: "/loja" },
+  { icon: Calendar, label: "Meus Agendamentos", path: "/meus-agendamentos" },
+  { icon: BookOpen, label: "Meus Cursos", path: "/cursos" },
+  { icon: CreditCard, label: "Pagamentos", path: "/pagamentos" },
+  { icon: Settings, label: "Configurações", path: "/configuracoes" },
 ];
 
 const UserDesktopLayout = ({ children, title, subtitle }: UserDesktopLayoutProps) => {

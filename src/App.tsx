@@ -24,6 +24,8 @@ import Radio from "./pages/Radio";
 import Futebol from "./pages/Futebol";
 import Perfil from "./pages/Perfil";
 import MeusAgendamentos from "./pages/MeusAgendamentos";
+import Pagamentos from "./pages/Pagamentos";
+import Configuracoes from "./pages/Configuracoes";
 import FanaticaShop from "./pages/FanaticaShop";
 import ProductDetail from "./pages/ProductDetail";
 import Auth from "./pages/Auth";
@@ -152,7 +154,11 @@ const App = () => (
                 <Route path="/pagamento/confirmacao/:id" element={<ProtectedRoute><PaymentConfirmation /></ProtectedRoute>} />
                 <Route path="/diario" element={<ProtectedRoute><Diario /></ProtectedRoute>} />
                 <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+                <Route path="/meus-agendamentos" element={<ProtectedRoute><MeusAgendamentos /></ProtectedRoute>} />
                 <Route path="/perfil/agendamentos" element={<ProtectedRoute><MeusAgendamentos /></ProtectedRoute>} />
+                <Route path="/pagamentos" element={<ProtectedRoute><Pagamentos /></ProtectedRoute>} />
+                <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+                <Route path="/loja/produto/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
                 <Route path="/loja/produto/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
                 <Route path="/profissional" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />
                 <Route path="/fanatica-lab" element={<ProtectedRoute><FanaticaLab /></ProtectedRoute>} />
