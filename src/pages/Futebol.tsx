@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import NewsList from "@/components/futebol/NewsList";
+import grassBg from "@/assets/booking-grass-bg.png";
 
 const categories = ["Todos", "Futebol", "Brasileiro", "Libertadores", "Sul-Americana", "Seleção"];
 
@@ -9,7 +10,10 @@ const Futebol = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
 
   return (
-    <div className="min-h-screen bg-[#FDF8F0]">
+    <div 
+      className="min-h-screen bg-cover bg-center bg-fixed"
+      style={{ backgroundImage: `url(${grassBg})` }}
+    >
       <Header />
 
       <main className="pt-20">
