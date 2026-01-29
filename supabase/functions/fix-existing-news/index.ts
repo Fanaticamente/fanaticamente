@@ -12,53 +12,42 @@ async function rewriteFromOriginal(originalTitle: string, originalContent: strin
     throw new Error('LOVABLE_API_KEY not configured');
   }
 
-  const prompt = `Você é um jornalista esportivo sênior. Sua tarefa é reescrever esta notícia de futebol.
+  const prompt = `Você é um jornalista esportivo sênior. Sua tarefa é REESCREVER esta notícia de forma COMPLETA.
 
-⚠️ REGRA FUNDAMENTAL - PROIBIÇÃO ABSOLUTA:
-- Você DEVE usar EXCLUSIVAMENTE as informações contidas no texto original fornecido
-- É PROIBIDO inventar, deduzir, inferir ou adicionar QUALQUER informação que NÃO esteja explicitamente escrita no texto original
-- NÃO mencione competições, torneios, datas ou fatos que NÃO estejam no texto original
-- Se algo não está no texto original, NÃO pode estar na reescrita
-- NÃO INVENTE contexto histórico, estatísticas ou informações sobre competições que o time irá disputar
-- Exemplo ERRADO: Se o texto fala de um reforço mas NÃO menciona Libertadores, você NÃO pode afirmar que o time disputará a Libertadores
+⚠️ REGRAS ABSOLUTAS:
+1. Use EXCLUSIVAMENTE informações do texto original - NÃO invente NADA
+2. NÃO RESUMA - sua reescrita deve ter o MESMO tamanho ou MAIOR que o original
+3. Mantenha TODOS os fatos, declarações, números e detalhes do original
+4. Apenas REFORMULE as frases com palavras diferentes para evitar plágio
 
 REGRAS DO TÍTULO:
-1. Use "sentence case" - APENAS a primeira letra da primeira palavra em maiúscula
-2. Nomes próprios DEVEM ter inicial maiúscula:
-   - Nomes de pessoas (Neymar, Gabigol, Abel Ferreira, Messi)
-   - Nomes de clubes por extenso (Flamengo, Palmeiras, Barcelona, Real Madrid)
-   - Abreviações de clubes (CAM, Flu, São Paulo FC, PSG)
-   - Cidades e países (São Paulo, Argentina, Londres, Brasil)
-   - Competições (Brasileirão, Champions League, Libertadores, Copa do Brasil)
-3. NUNCA use Title Case com múltiplas palavras comuns começando em maiúscula
-4. Mantenha o tom jornalístico profissional
-
-EXEMPLOS DE CORREÇÃO DE TÍTULOS:
-- ERRADO: "Barcelona Despacha Copenhague e Carimba Vaga Direta nas Oitavas da Champions"
-- CORRETO: "Barcelona despacha Copenhague e carimba vaga direta nas oitavas da Champions"
-
-- ERRADO: "Hulk de Ferro: Cinco Anos de Glória e Artilharia Inesgotável no Atlético-MG"
-- CORRETO: "Hulk de ferro: cinco anos de glória e artilharia inesgotável no Atlético-MG"
+- Use "sentence case" (só primeira letra maiúscula)
+- Nomes próprios em maiúscula: Neymar, Flamengo, Brasileirão, São Paulo
+- Tom formal sem sensacionalismo
 
 REGRAS DO CONTEÚDO:
-1. USE APENAS informações que estão EXPLICITAMENTE no texto original
-2. REESCREVA mantendo TODOS os fatos mencionados no original
-3. NÃO adicione informações externas, contexto histórico inventado, ou suposições
-4. Se o texto original mencionar competições específicas, use exatamente essas - NÃO invente outras
-5. Use linguagem jornalística FORMAL e profissional
-6. Evite gírias e coloquialismos
-7. Mantenha tom objetivo e informativo
+1. REESCREVA cada parágrafo do original com palavras diferentes
+2. MANTENHA todas as declarações entre aspas (reformule a introdução, não a fala)
+3. PRESERVE todos os números, datas, valores e estatísticas exatamente como estão
+4. INCLUA todos os nomes de pessoas, clubes e competições mencionados
+5. NÃO ADICIONE contexto, história ou informações que não estejam no original
+6. O texto final deve ter entre 400-800 palavras
+7. Use linguagem jornalística formal (estilo Folha de S.Paulo)
+
+EXEMPLO DE REESCRITA CORRETA:
+Original: "O Flamengo anunciou a contratação de João Silva por R$ 10 milhões. 'Estou muito feliz', disse o jogador."
+Reescrito: "O Rubro-Negro carioca oficializou a chegada do atleta João Silva em negociação avaliada em R$ 10 milhões. 'Estou muito feliz', declarou o reforço."
 
 TÍTULO ORIGINAL:
 ${originalTitle}
 
-CONTEÚDO ORIGINAL (USE APENAS ESTAS INFORMAÇÕES):
+CONTEÚDO ORIGINAL COMPLETO (REESCREVA TUDO, NÃO RESUMA):
 ${originalContent}
 
-Responda EXATAMENTE neste formato JSON:
+Responda em JSON:
 {
-  "fixedTitle": "título reescrito em sentence case",
-  "fixedContent": "conteúdo baseado EXCLUSIVAMENTE no texto original"
+  "fixedTitle": "título reformulado em sentence case",
+  "fixedContent": "texto COMPLETO reformulado com todas as informações do original"
 }`;
 
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {

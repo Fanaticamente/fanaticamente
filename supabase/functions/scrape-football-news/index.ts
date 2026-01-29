@@ -217,8 +217,8 @@ async function scrapeArticleDetails(url: string): Promise<{
     const markdown = data.markdown || '';
     const html = data.html || '';
     
-    // Extract main content (first 2000 chars of markdown for processing)
-    const content = markdown.slice(0, 2000);
+    // Extract full article content - increased limit to capture complete articles
+    const content = markdown.slice(0, 8000);
     
     // Try to extract image from HTML - multiple patterns
     let imageUrl: string | undefined;
@@ -380,65 +380,47 @@ async function rewriteWithAI(title: string, content: string): Promise<{ rewritte
     throw new Error('LOVABLE_API_KEY not configured');
   }
 
-  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é reescrever notícias de futebol.
+  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é REESCREVER notícias de futebol de forma COMPLETA.
 
-⚠️ REGRA FUNDAMENTAL - PROIBIÇÃO ABSOLUTA:
-- Você DEVE usar EXCLUSIVAMENTE as informações contidas no texto original fornecido abaixo
-- É PROIBIDO inventar, deduzir, inferir ou adicionar QUALQUER informação que NÃO esteja explicitamente escrita no texto original
-- NÃO mencione competições, torneios, datas ou fatos que NÃO estejam no texto original
-- Se algo não está no texto original, NÃO pode estar na reescrita
-- NÃO INVENTE contexto histórico, estatísticas ou informações sobre competições que o time irá disputar
-- Exemplo ERRADO: Se o texto fala de um reforço mas NÃO menciona Libertadores, você NÃO pode afirmar que o time disputará a Libertadores
+⚠️ REGRAS ABSOLUTAS:
+1. Use EXCLUSIVAMENTE informações do texto original - NÃO invente NADA
+2. NÃO RESUMA - sua reescrita deve ter o MESMO tamanho ou MAIOR que o original
+3. Mantenha TODOS os fatos, declarações, números e detalhes do original
+4. Apenas REFORMULE as frases com palavras diferentes para evitar plágio
 
-PRIMEIRO, ANALISE SE A NOTÍCIA DEVE SER IGNORADA:
-- Se a notícia pedir ao leitor para votar, participar de enquete, responder quiz, clicar em algo, ou realizar qualquer tarefa/ação, responda com "shouldSkip": true
-- Exemplos de notícias a ignorar: "Vote no melhor gol", "Participe da enquete", "Escolha o craque", "Clique para ver"
-
-SE A NOTÍCIA FOR VÁLIDA, REESCREVA SEGUINDO ESTAS REGRAS:
+PRIMEIRO, ANALISE SE DEVE IGNORAR:
+- Se pedir para votar, participar de enquete, quiz, ou realizar ação, responda: {"shouldSkip": true}
 
 REGRAS DO TÍTULO:
-1. Use "sentence case" - APENAS a primeira letra da primeira palavra em maiúscula
-2. Nomes próprios DEVEM ter inicial maiúscula:
-   - Nomes de pessoas (Neymar, Gabigol, Abel Ferreira)
-   - Nomes de clubes por extenso (Flamengo, Palmeiras, Barcelona)
-   - Abreviações de clubes (CAM, Flu, São Paulo FC)
-   - Cidades e países (São Paulo, Argentina, Londres)
-   - Competições (Brasileirão, Champions League, Libertadores)
-3. Use linguagem formal e jornalística profissional
-4. Remova sensacionalismo e pontuação excessiva
-
-EXEMPLOS DE TÍTULOS CORRETOS:
-- "Flamengo vence o Corinthians por 2 a 0 no Maracanã"
-- "Neymar retorna ao Santos após passagem pelo Al-Hilal"
-- "CAM confirma contratação de novo técnico argentino"
+- Use "sentence case" (só primeira letra maiúscula)
+- Nomes próprios em maiúscula: Neymar, Flamengo, Brasileirão, São Paulo
+- Tom formal sem sensacionalismo
 
 REGRAS DO CONTEÚDO:
-1. USE APENAS informações que estão EXPLICITAMENTE no texto original abaixo
-2. REESCREVA a notícia mantendo TODOS os fatos mencionados no original
-3. NÃO adicione informações externas, contexto histórico inventado, ou suposições
-4. Se o texto original mencionar competições específicas, use exatamente essas - NÃO invente outras
-5. NÃO RESUMA - escreva uma matéria jornalística COMPLETA (400-600 palavras) baseada APENAS no original
-6. Use linguagem jornalística formal e profissional (como Folha de S.Paulo ou O Globo)
-7. Estrutura obrigatória:
-   - Lide: primeiro parágrafo com as informações essenciais do texto original
-   - Desenvolvimento: expandir os detalhes QUE ESTÃO no texto original
-   - Declarações: cite APENAS falas que ESTÃO no texto original
-   - Fechamento: baseado APENAS em informações do texto original
-8. Evite gírias, expressões coloquiais ou sensacionalistas
-9. Mantenha tom objetivo e informativo
-10. Use voz ativa e frases bem estruturadas
+1. REESCREVA cada parágrafo do original com palavras diferentes
+2. MANTENHA todas as declarações entre aspas (reformule a introdução, não a fala)
+3. PRESERVE todos os números, datas, valores e estatísticas exatamente como estão
+4. INCLUA todos os nomes de pessoas, clubes e competições mencionados
+5. NÃO ADICIONE contexto, história ou informações que não estejam no original
+6. O texto final deve ter entre 400-800 palavras
+7. Use linguagem jornalística formal (estilo Folha de S.Paulo)
+8. Estrutura: Lide → Desenvolvimento → Declarações → Fechamento
+
+EXEMPLO DE REESCRITA CORRETA:
+Original: "O Flamengo anunciou a contratação de João Silva por R$ 10 milhões. 'Estou muito feliz', disse o jogador."
+Reescrito: "O Rubro-Negro carioca oficializou a chegada do atleta João Silva em negociação avaliada em R$ 10 milhões. 'Estou muito feliz', declarou o reforço."
 
 TÍTULO ORIGINAL:
 ${title}
 
-CONTEÚDO ORIGINAL (USE APENAS ESTAS INFORMAÇÕES):
+CONTEÚDO ORIGINAL COMPLETO (REESCREVA TUDO, NÃO RESUMA):
 ${content}
 
-Responda EXATAMENTE neste formato JSON:
+Responda em JSON:
 {
   "shouldSkip": false,
-  "rewrittenTitle": "título reescrito aqui",
-  "rewrittenContent": "conteúdo baseado EXCLUSIVAMENTE no texto original acima"
+  "rewrittenTitle": "título reformulado",
+  "rewrittenContent": "texto COMPLETO reformulado com todas as informações do original"
 }`;
 
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
