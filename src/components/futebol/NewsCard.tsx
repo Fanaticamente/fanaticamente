@@ -47,18 +47,13 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
                     (e.target as HTMLImageElement).style.display = "none";
                   }}
                 />
-                {news.image_credits && (
-                  <span className="absolute bottom-2 right-2 text-xs bg-black/60 text-white px-2 py-1 rounded">
-                    {news.image_credits}
-                  </span>
-                )}
               </div>
             )}
-            <div className="p-6">
-              <span className="inline-block px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full uppercase mb-3">
+            <div className="p-4">
+              <span className="inline-block px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full uppercase mb-2">
                 Destaque
               </span>
-              <h2 className="font-sans font-bold text-2xl text-gray-900 mb-2 group-hover:text-primary transition-colors">
+              <h2 className="font-sans font-bold text-xl leading-tight text-gray-900 mb-2 group-hover:text-primary transition-colors">
                 {news.rewritten_title}
               </h2>
               <p className="text-gray-600 text-sm line-clamp-2 mb-3">
@@ -111,7 +106,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h4 className="font-sans font-bold text-gray-900 text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors">
+          <h4 className="font-sans font-bold text-gray-900 text-sm leading-tight line-clamp-2 mb-1 group-hover:text-primary transition-colors">
             {news.rewritten_title}
           </h4>
           <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -215,15 +210,14 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                   }}
                 />
                 {(news.image_caption || cleanedCredits) && (
-                  <figcaption className="bg-[#F5F0E6] px-3 py-2 text-xs text-gray-700 border-t border-gray-300 font-sans">
-                    {news.image_caption && (
-                      <span className="font-semibold">{news.image_caption}</span>
-                    )}
-                    {cleanedCredits && (
-                      <span className="block text-gray-500 mt-0.5 text-[10px] uppercase tracking-wider">
-                        {cleanedCredits}
-                      </span>
-                    )}
+                  <figcaption className="bg-[#F5F0E6] px-3 py-2 text-xs text-gray-700 border-t border-gray-300 font-sans line-clamp-1">
+                    {news.image_caption && cleanedCredits ? (
+                      <span>{news.image_caption} — <span className="text-gray-500">{cleanedCredits}</span></span>
+                    ) : news.image_caption ? (
+                      <span>{news.image_caption}</span>
+                    ) : cleanedCredits ? (
+                      <span className="text-gray-500">{cleanedCredits}</span>
+                    ) : null}
                   </figcaption>
                 )}
               </figure>
