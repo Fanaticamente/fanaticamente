@@ -192,6 +192,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [useWebSpeech, setUseWebSpeech] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
@@ -220,12 +221,47 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     setFontSizeLevel((prev) => (prev + 1) % 3);
   };
 
-  // ElevenLabs TTS - High quality Brazilian Portuguese voice
+  // Web Speech API fallback
+  const startWebSpeech = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      
+      const textToRead = `${news.rewritten_title}. ${news.rewritten_content}`;
+      const utterance = new SpeechSynthesisUtterance(textToRead);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.95;
+      utterance.pitch = 1;
+      
+      const voices = window.speechSynthesis.getVoices();
+      const ptBRVoice = voices.find(voice => voice.lang === 'pt-BR') || 
+                        voices.find(voice => voice.lang.startsWith('pt'));
+      if (ptBRVoice) {
+        utterance.voice = ptBRVoice;
+      }
+      
+      utterance.onend = () => {
+        setIsPlaying(false);
+        setIsPaused(false);
+      };
+      
+      utterance.onerror = () => {
+        setIsPlaying(false);
+        setIsPaused(false);
+      };
+      
+      window.speechSynthesis.speak(utterance);
+      setIsPlaying(true);
+      setIsPaused(false);
+      setUseWebSpeech(true);
+    }
+  };
+
+  // ElevenLabs TTS with Web Speech fallback
   const startSpeaking = async () => {
-    if (isLoading) return;
+    if (isLoading || isPlaying) return;
     
-    // If already have audio, just play it
-    if (audioRef.current) {
+    // If already have audio cached, just play it
+    if (audioRef.current && !useWebSpeech) {
       audioRef.current.play();
       setIsPlaying(true);
       setIsPaused(false);
@@ -251,7 +287,10 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
       );
 
       if (!response.ok) {
-        throw new Error(`TTS request failed: ${response.status}`);
+        console.warn("ElevenLabs failed, falling back to Web Speech API");
+        setIsLoading(false);
+        startWebSpeech();
+        return;
       }
 
       const audioBlob = await response.blob();
@@ -268,40 +307,50 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
       audio.onerror = () => {
         setIsPlaying(false);
         setIsPaused(false);
-        setIsLoading(false);
       };
       
       await audio.play();
       setIsPlaying(true);
       setIsPaused(false);
+      setUseWebSpeech(false);
     } catch (error) {
-      console.error("TTS error:", error);
+      console.error("TTS error, falling back to Web Speech:", error);
+      startWebSpeech();
     } finally {
       setIsLoading(false);
     }
   };
 
   const pauseSpeaking = () => {
-    if (audioRef.current && isPlaying) {
+    if (useWebSpeech) {
+      window.speechSynthesis.pause();
+      setIsPaused(true);
+    } else if (audioRef.current && isPlaying) {
       audioRef.current.pause();
       setIsPaused(true);
     }
   };
 
   const resumeSpeaking = () => {
-    if (audioRef.current && isPaused) {
+    if (useWebSpeech) {
+      window.speechSynthesis.resume();
+      setIsPaused(false);
+    } else if (audioRef.current && isPaused) {
       audioRef.current.play();
       setIsPaused(false);
     }
   };
 
   const stopSpeaking = () => {
+    if (useWebSpeech) {
+      window.speechSynthesis.cancel();
+    }
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      setIsPlaying(false);
-      setIsPaused(false);
     }
+    setIsPlaying(false);
+    setIsPaused(false);
   };
 
   const toggleSpeech = () => {
@@ -320,13 +369,20 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   useEffect(() => {
     if (!isOpen) {
       stopSpeaking();
-      // Clean up audio URL
       if (audioRef.current) {
         URL.revokeObjectURL(audioRef.current.src);
         audioRef.current = null;
       }
+      setUseWebSpeech(false);
     }
   }, [isOpen]);
+
+  // Load voices for Web Speech API
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+    }
+  }, []);
   useEffect(() => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.getVoices();
