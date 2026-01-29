@@ -198,11 +198,11 @@ const Terapeutas = () => {
         {step === "club" && (
           <div className="animate-fade-in">
             <div className="text-center mb-6">
-              <h1 className="font-display text-4xl text-primary mb-2">
-                Túnel de Acesso
+              <h1 className="font-sans font-bold text-3xl text-gray-800 mb-2 uppercase tracking-wide">
+                Selecione seu time
               </h1>
               <p className="text-muted-foreground">
-                Selecione seu time do coração
+                Escolha seu time do coração
               </p>
             </div>
 
@@ -275,10 +275,10 @@ const Terapeutas = () => {
               </div>
               <div>
                 <h1 
-                  className="font-display text-3xl"
+                  className="font-sans font-bold text-2xl capitalize"
                   style={{ color: selectedClub.primaryColor }}
                 >
-                  {selectedClub.name}
+                  {selectedClub.name.toLowerCase()}
                 </h1>
                 <p className="text-muted-foreground">
                   Especialistas para a nossa torcida
@@ -287,8 +287,7 @@ const Terapeutas = () => {
             </div>
 
             <h2 
-              className="font-display text-xl mb-4"
-              style={{ color: selectedClub.primaryColor }}
+              className="font-sans font-bold text-xl mb-4 text-gray-800"
             >
               Terapeutas Disponíveis
             </h2>
