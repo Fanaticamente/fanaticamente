@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -32,19 +32,18 @@ const BookingTermsDialog = ({ accepted, onAcceptChange, clubColor = "#10b981" }:
         <p className="text-sm leading-relaxed" style={{ color: clubColor }}>
           Li e aceito os{" "}
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <button 
-                type="button"
-                className="font-bold underline underline-offset-2 hover:opacity-80 transition-opacity"
-                style={{ color: clubColor }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpen(true);
-                }}
-              >
-                Termos e Política de Agendamento
-              </button>
-            </DialogTrigger>
+            <a
+              href="#"
+              className="font-bold underline underline-offset-2 hover:opacity-80 transition-opacity whitespace-normal break-words"
+              style={{ color: clubColor }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setOpen(true);
+              }}
+            >
+              Termos e Política de Agendamento
+            </a>
             <DialogContent 
               className="max-w-lg max-h-[85vh]"
               style={{ 
