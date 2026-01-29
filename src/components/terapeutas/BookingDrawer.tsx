@@ -464,7 +464,7 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
             >
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
-            <DialogTitle className="text-white font-bold text-lg">
+            <DialogTitle className="text-white font-bold text-xl font-sans capitalize">
               {step === "profile" ? "Agendar Sessão" : "Confirmar Pagamento"}
             </DialogTitle>
           </div>
@@ -493,7 +493,7 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h2 className="font-bold text-gray-900 text-lg">{therapist.name}</h2>
+                      <h2 className="font-bold text-gray-800 text-xl font-sans capitalize">{therapist.name.toLowerCase()}</h2>
                       {therapist.verified && (
                         <CheckCircle className="w-5 h-5" style={{ color: clubColor }} />
                       )}
