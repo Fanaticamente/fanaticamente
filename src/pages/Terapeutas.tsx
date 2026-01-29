@@ -287,7 +287,7 @@ const Terapeutas = () => {
             </div>
 
             <h2 
-              className="font-sans font-bold text-xl mb-4 text-foreground"
+              className="font-sans font-bold text-xl mb-4 text-white"
             >
               Terapeutas Disponíveis
             </h2>
