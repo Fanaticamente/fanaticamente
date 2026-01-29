@@ -198,7 +198,7 @@ const Terapeutas = () => {
         {step === "club" && (
           <div className="animate-fade-in">
             <div className="text-center mb-6">
-              <h1 className="font-display text-3xl text-primary italic">
+              <h1 className="font-display text-3xl text-primary italic mx-auto">
                 SELECIONE SEU TIME
               </h1>
               <p className="text-muted-foreground">
