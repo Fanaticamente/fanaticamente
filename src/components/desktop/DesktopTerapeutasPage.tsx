@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import DesktopHeader from "./DesktopHeader";
 import BookingDrawer from "@/components/terapeutas/BookingDrawer";
+import terapeutasHeroGrass from "@/assets/terapeutas-hero-grass.png";
 interface TherapistData {
   id: string;
   name: string;
@@ -138,8 +139,17 @@ const DesktopTerapeutasPage = () => {
       <DesktopHeader />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-12 bg-gradient-to-b from-emerald-50 to-white">
-        <div className="max-w-7xl mx-auto px-6">
+      <section 
+        className="pt-32 pb-12 relative"
+        style={{
+          backgroundImage: `url(${terapeutasHeroGrass})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Overlay for text readability */}
+        <div className="absolute inset-0 bg-white/85" />
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
               Encontre seu <span className="text-emerald-600">Especialista</span>
