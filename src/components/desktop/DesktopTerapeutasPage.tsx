@@ -369,8 +369,8 @@ const DesktopTerapeutasPage = () => {
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors truncate">
-                            {therapist.name}
+                          <h3 className="text-xl font-bold text-gray-800 font-display group-hover:text-emerald-600 transition-colors truncate capitalize">
+                            {therapist.name.toLowerCase()}
                           </h3>
                           <p className="text-sm text-gray-500 mb-2">{therapist.degree}</p>
                           <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
