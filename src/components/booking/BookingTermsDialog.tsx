@@ -17,18 +17,18 @@ const BookingTermsDialog = ({ accepted, onAcceptChange, clubColor = "#10b981" }:
   return (
     <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
       {/* Acceptance Checkbox with embedded terms link */}
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 justify-center">
         <Checkbox
           id="booking-terms"
           checked={accepted}
           onCheckedChange={(checked) => onAcceptChange(checked === true)}
-          className="mt-1 border-2"
+          className="mt-1 border-2 flex-shrink-0"
           style={{ 
             borderColor: accepted ? clubColor : clubColor + "60",
             backgroundColor: accepted ? clubColor : undefined 
           }}
         />
-        <label htmlFor="booking-terms" className="text-sm cursor-pointer leading-relaxed" style={{ color: clubColor }}>
+        <label htmlFor="booking-terms" className="text-sm cursor-pointer leading-relaxed text-center" style={{ color: clubColor }}>
           Li e aceito os{" "}
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
