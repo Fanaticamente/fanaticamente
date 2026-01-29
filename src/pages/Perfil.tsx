@@ -3,14 +3,17 @@ import { User, Settings, LogOut, CreditCard, Calendar, BookOpen, ChevronRight, B
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
+import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
 import { getClubById, BrazilianClub } from "@/data/brazilianClubs";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Perfil = () => {
   const { user, roles, signOut, hasRole, loading } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null; favorite_club_id: string | null } | null>(null);
   const [favoriteClub, setFavoriteClub] = useState<BrazilianClub | null>(null);
   const [appointmentsCount, setAppointmentsCount] = useState(0);
@@ -76,14 +79,14 @@ const Perfil = () => {
       icon: Calendar,
       label: "Meus Agendamentos",
       description: "Ver consultas marcadas",
-      path: "/perfil/agendamentos",
+      path: "/meus-agendamentos",
       badge: appointmentsCount > 0 ? appointmentsCount.toString() : null,
     },
     {
       icon: BookOpen,
       label: "Meus Cursos",
       description: "Acessar cursos comprados",
-      path: "/perfil/cursos",
+      path: "/cursos",
       badge: null,
     },
     {
@@ -148,142 +151,141 @@ const Perfil = () => {
     });
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-
-      <main className="pt-20 px-4">
-        {/* Profile Header */}
-        <div className="bg-card border border-border rounded-2xl p-6 mb-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover object-top" />
-              ) : (
-                <User className="w-10 h-10 text-primary" />
-              )}
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <h1 className="font-display text-2xl text-card-foreground">
-                  {profile?.full_name || "Torcedor Fanático"}
-                </h1>
-                <AccountSettingsDialog 
-                  trigger={
-                    <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-                      <Settings className="w-5 h-5 text-muted-foreground" />
-                    </button>
-                  }
-                />
-              </div>
-              <p className="text-muted-foreground text-sm">
-                {user?.email}
-              </p>
-              <div className="flex items-center gap-2 mt-2 flex-wrap">
-                {roles.map((role) => (
-                  <span
-                    key={role}
-                    className={`px-3 py-1 text-xs font-bold rounded-full ${
-                      role === "admin"
-                        ? "bg-destructive/20 text-destructive"
-                        : role === "developer"
-                        ? "bg-secondary/20 text-secondary"
-                        : role === "professional"
-                        ? "bg-therapy/20 text-therapy"
-                        : "bg-primary/20 text-primary"
-                    }`}
-                  >
-                    {role === "admin" ? "Admin" : 
-                     role === "developer" ? "Dev" : 
-                     role === "professional" ? "Profissional" : 
-                     "Usuário"}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <button className="w-full py-3 border border-border rounded-xl text-card-foreground font-medium hover:border-primary transition-colors">
-            Editar Perfil
-          </button>
-        </div>
-
-        {/* Role-specific Menu Items */}
-        {roleMenuItems.length > 0 && (
-          <div className="space-y-2 mb-6">
-            <p className="text-muted-foreground text-sm font-medium px-2 mb-3">Seus Painéis</p>
-            {roleMenuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-4 ${item.bgColor} border border-border rounded-xl p-4 hover:border-current transition-colors group`}
-              >
-                <div className={`w-12 h-12 rounded-xl ${item.bgColor} flex items-center justify-center`}>
-                  <item.icon className={`w-5 h-5 ${item.color}`} />
-                </div>
-                <div className="flex-1">
-                  <p className={`font-medium ${item.color}`}>{item.label}</p>
-                  <p className="text-muted-foreground text-sm">{item.description}</p>
-                </div>
-                <ChevronRight className={`w-5 h-5 ${item.color} group-hover:translate-x-1 transition-transform`} />
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {/* My Team */}
-        <div className="bg-card border border-border rounded-2xl p-6 mb-6">
-          <h2 className="font-display text-xl text-card-foreground mb-4">
-            Meu Time do Coração
-          </h2>
-          <div className="flex items-center gap-4">
-            {favoriteClub ? (
-              <>
-                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden p-2">
-                  <img 
-                    src={favoriteClub.badgeUrl} 
-                    alt={`Escudo ${favoriteClub.name}`}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div>
-                  <p className="text-card-foreground font-bold text-lg">{favoriteClub.name}</p>
-                  <p className="text-muted-foreground text-sm">
-                    {favoriteClub.league === "serie_a" ? "Série A" : "Série B"} - Brasileiro
-                  </p>
-                </div>
-              </>
+  // Profile Content Component (shared between layouts)
+  const ProfileContent = () => (
+    <>
+      {/* Profile Header */}
+      <div className="bg-card border border-border rounded-2xl p-6 mb-6">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover object-top" />
             ) : (
-              <>
-                <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
-                  <span className="text-3xl">⚽</span>
-                </div>
-                <div>
-                  <p className="text-card-foreground font-bold text-lg">Nenhum time selecionado</p>
-                  <p className="text-muted-foreground text-sm">Configure nas preferências</p>
-                </div>
-              </>
+              <User className="w-10 h-10 text-primary" />
             )}
           </div>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <h1 className="font-display text-2xl text-card-foreground">
+                {profile?.full_name || "Torcedor Fanático"}
+              </h1>
+              <AccountSettingsDialog 
+                trigger={
+                  <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+                    <Settings className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                }
+              />
+            </div>
+            <p className="text-muted-foreground text-sm">
+              {user?.email}
+            </p>
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              {roles.map((role) => (
+                <span
+                  key={role}
+                  className={`px-3 py-1 text-xs font-bold rounded-full ${
+                    role === "admin"
+                      ? "bg-destructive/20 text-destructive"
+                      : role === "developer"
+                      ? "bg-secondary/20 text-secondary"
+                      : role === "professional"
+                      ? "bg-therapy/20 text-therapy"
+                      : "bg-primary/20 text-primary"
+                  }`}
+                >
+                  {role === "admin" ? "Admin" : 
+                   role === "developer" ? "Dev" : 
+                   role === "professional" ? "Profissional" : 
+                   "Usuário"}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="bg-card border border-border rounded-xl p-4 text-center">
-            <p className="font-display text-3xl text-primary">15</p>
-            <p className="text-muted-foreground text-xs">Dias no diário</p>
-          </div>
-          <div className="bg-card border border-border rounded-xl p-4 text-center">
-            <p className="font-display text-3xl text-secondary">3</p>
-            <p className="text-muted-foreground text-xs">Cursos feitos</p>
-          </div>
-          <div className="bg-card border border-border rounded-xl p-4 text-center">
-            <p className="font-display text-3xl text-therapy">{appointmentsCount}</p>
-            <p className="text-muted-foreground text-xs">Consultas</p>
-          </div>
-        </div>
+        <button className="w-full py-3 border border-border rounded-xl text-card-foreground font-medium hover:border-primary transition-colors">
+          Editar Perfil
+        </button>
+      </div>
 
-        {/* Menu Items */}
+      {/* Role-specific Menu Items */}
+      {roleMenuItems.length > 0 && (
+        <div className="space-y-2 mb-6">
+          <p className="text-muted-foreground text-sm font-medium px-2 mb-3">Seus Painéis</p>
+          {roleMenuItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center gap-4 ${item.bgColor} border border-border rounded-xl p-4 hover:border-current transition-colors group`}
+            >
+              <div className={`w-12 h-12 rounded-xl ${item.bgColor} flex items-center justify-center`}>
+                <item.icon className={`w-5 h-5 ${item.color}`} />
+              </div>
+              <div className="flex-1">
+                <p className={`font-medium ${item.color}`}>{item.label}</p>
+                <p className="text-muted-foreground text-sm">{item.description}</p>
+              </div>
+              <ChevronRight className={`w-5 h-5 ${item.color} group-hover:translate-x-1 transition-transform`} />
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* My Team */}
+      <div className="bg-card border border-border rounded-2xl p-6 mb-6">
+        <h2 className="font-display text-xl text-card-foreground mb-4">
+          Meu Time do Coração
+        </h2>
+        <div className="flex items-center gap-4">
+          {favoriteClub ? (
+            <>
+              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden p-2">
+                <img 
+                  src={favoriteClub.badgeUrl} 
+                  alt={`Escudo ${favoriteClub.name}`}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div>
+                <p className="text-card-foreground font-bold text-lg">{favoriteClub.name}</p>
+                <p className="text-muted-foreground text-sm">
+                  {favoriteClub.league === "serie_a" ? "Série A" : "Série B"} - Brasileiro
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
+                <span className="text-3xl">⚽</span>
+              </div>
+              <div>
+                <p className="text-card-foreground font-bold text-lg">Nenhum time selecionado</p>
+                <p className="text-muted-foreground text-sm">Configure nas preferências</p>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="bg-card border border-border rounded-xl p-4 text-center">
+          <p className="font-display text-3xl text-primary">15</p>
+          <p className="text-muted-foreground text-xs">Dias no diário</p>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-4 text-center">
+          <p className="font-display text-3xl text-secondary">3</p>
+          <p className="text-muted-foreground text-xs">Cursos feitos</p>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-4 text-center">
+          <p className="font-display text-3xl text-therapy">{appointmentsCount}</p>
+          <p className="text-muted-foreground text-xs">Consultas</p>
+        </div>
+      </div>
+
+      {/* Menu Items - Only show on mobile, desktop has sidebar */}
+      {isMobile && (
         <div className="space-y-2 mb-6">
           {baseMenuItems.map((item) => (
             <Link
@@ -307,8 +309,10 @@ const Perfil = () => {
             </Link>
           ))}
         </div>
+      )}
 
-        {/* Logout */}
+      {/* Logout - Only show on mobile, desktop has sidebar */}
+      {isMobile && (
         <button 
           onClick={handleSignOut}
           className="w-full flex items-center justify-center gap-2 py-4 bg-destructive/10 text-destructive rounded-xl font-medium hover:bg-destructive/20 transition-colors"
@@ -316,13 +320,30 @@ const Perfil = () => {
           <LogOut className="w-5 h-5" />
           Sair da Conta
         </button>
+      )}
+    </>
+  );
 
-        {/* Spacer para manter distância do BottomNav */}
-        <div aria-hidden className="h-28" />
-      </main>
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-20 px-4">
+          <ProfileContent />
+          {/* Spacer para manter distância do BottomNav */}
+          <div aria-hidden className="h-28" />
+        </main>
+        <BottomNav />
+      </div>
+    );
+  }
 
-      <BottomNav />
-    </div>
+  // Desktop Layout
+  return (
+    <UserDesktopLayout title="Meu Perfil" subtitle="Gerencie suas informações e preferências">
+      <ProfileContent />
+    </UserDesktopLayout>
   );
 };
 
