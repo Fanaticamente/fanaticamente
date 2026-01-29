@@ -115,28 +115,41 @@ async function scrapeArticleDetails(url: string): Promise<{
     let imageCaption: string | undefined;
     let imageCredits: string | undefined;
     
-    // Look for main article image
+    // Look for main article image - prioritize larger images
     const imgMatch = html.match(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp))[^>]*>/i);
     if (imgMatch) {
       imageUrl = imgMatch[1];
-      
-      // Try to get alt text as caption
-      const altMatch = imgMatch[0].match(/alt=["']([^"']+)["']/i);
-      if (altMatch) {
-        imageCaption = altMatch[1];
-      }
     }
     
-    // Look for figure with figcaption for credits
-    const figureMatch = html.match(/<figure[^>]*>[\s\S]*?<img[^>]+src=["']([^"']+)[^>]*>[\s\S]*?<figcaption[^>]*>([^<]+)<\/figcaption>/i);
-    if (figureMatch) {
-      imageUrl = figureMatch[1];
-      const captionText = figureMatch[2].trim();
-      // Check if it contains credits (usually has "Foto:" or "Crédito:")
-      if (captionText.includes('Foto:') || captionText.includes('Crédito:') || captionText.includes('Reprodução')) {
-        imageCredits = captionText;
-      } else {
-        imageCaption = captionText;
+    // Look for figure with figcaption - this is where GE stores the caption
+    // Format: "Caption text — Foto: Credit"
+    const figcaptionMatch = html.match(/<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i);
+    if (figcaptionMatch) {
+      let fullCaption = figcaptionMatch[1].replace(/<[^>]+>/g, '').trim();
+      
+      // Parse caption format: "Description — Foto: Credit" or just "Foto: Credit"
+      if (fullCaption.includes('—')) {
+        const parts = fullCaption.split('—');
+        const descriptionPart = parts[0].trim();
+        const creditPart = parts.slice(1).join('—').trim();
+        
+        // Only set caption if it's not empty and doesn't look like video metadata
+        if (descriptionPart && 
+            !descriptionPart.includes('|') && 
+            !descriptionPart.match(/^\d+ de \d+/) &&
+            descriptionPart.length > 5) {
+          imageCaption = descriptionPart;
+        }
+        
+        if (creditPart) {
+          imageCredits = creditPart;
+        }
+      } else if (fullCaption.startsWith('Foto:') || fullCaption.startsWith('Crédito:')) {
+        // Just credit, no description
+        imageCredits = fullCaption;
+      } else if (!fullCaption.includes('|') && !fullCaption.match(/^\d+ de \d+/)) {
+        // Plain caption without credit separator
+        imageCaption = fullCaption;
       }
     }
     
