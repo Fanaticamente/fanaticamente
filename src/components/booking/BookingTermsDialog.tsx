@@ -15,7 +15,7 @@ const BookingTermsDialog = ({ accepted, onAcceptChange, clubColor = "#10b981" }:
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="bg-white rounded-2xl p-5 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
+    <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm border" style={{ borderColor: clubColor + "30" }}>
       {/* Acceptance Checkbox with embedded terms link */}
       <div className="flex items-start gap-3">
         <Checkbox
@@ -28,9 +28,8 @@ const BookingTermsDialog = ({ accepted, onAcceptChange, clubColor = "#10b981" }:
             backgroundColor: accepted ? clubColor : undefined 
           }}
         />
-        <label htmlFor="booking-terms" className="text-sm cursor-pointer leading-relaxed" style={{ color: clubColor }}>
-          Li e aceito os{" "}
-          <Dialog open={open} onOpenChange={setOpen}>
+        <label htmlFor="booking-terms" className="text-sm cursor-pointer" style={{ color: clubColor, lineHeight: '1.4' }}>
+          Li e aceito os <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <button 
                 type="button"
