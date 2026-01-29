@@ -595,8 +595,42 @@ serve(async (req) => {
 
     console.log('Starting news scrape...');
 
-    // Use Map API to discover URLs quickly
-    const mappedUrls = await mapWebsiteUrls('https://ge.globo.com/futebol/');
+    // Map multiple sections to catch all news including team-specific pages
+    // Include main sections AND popular team pages for comprehensive coverage
+    const sectionsToScrape = [
+      'https://ge.globo.com/futebol/',
+      'https://ge.globo.com/futebol/futebol-internacional/',
+      'https://ge.globo.com/futebol/brasileirao-serie-a/',
+      'https://ge.globo.com/futebol/brasileirao-serie-b/',
+      // Popular teams - most active news sources
+      'https://ge.globo.com/futebol/times/flamengo/',
+      'https://ge.globo.com/futebol/times/corinthians/',
+      'https://ge.globo.com/futebol/times/palmeiras/',
+      'https://ge.globo.com/futebol/times/sao-paulo/',
+      'https://ge.globo.com/futebol/times/fluminense/',
+      'https://ge.globo.com/futebol/times/vasco/',
+      'https://ge.globo.com/futebol/times/botafogo/',
+      'https://ge.globo.com/futebol/times/santos/',
+      'https://ge.globo.com/futebol/times/gremio/',
+      'https://ge.globo.com/futebol/times/internacional/',
+      'https://ge.globo.com/futebol/times/atletico-mg/',
+      'https://ge.globo.com/futebol/times/cruzeiro/',
+      'https://ge.globo.com/futebol/times/chapecoense/',
+      'https://ge.globo.com/futebol/times/sport/',
+      'https://ge.globo.com/futebol/times/coritiba/',
+      'https://ge.globo.com/futebol/times/bahia/',
+      'https://ge.globo.com/futebol/times/fortaleza/',
+    ];
+    
+    // Collect URLs from all sections in parallel with error handling
+    console.log(`Mapping ${sectionsToScrape.length} sections...`);
+    const mappedUrlsArrays = await Promise.all(
+      sectionsToScrape.map(section => mapWebsiteUrls(section).catch(() => []))
+    );
+    
+    // Combine and dedupe all mapped URLs
+    const allMappedUrls = [...new Set(mappedUrlsArrays.flat())];
+    console.log(`Total mapped URLs from all sections: ${allMappedUrls.length}`);
     
     // Also scrape the main page for additional context
     console.log('Scraping main page for additional links...');
@@ -616,7 +650,7 @@ serve(async (req) => {
     }
 
     // Extract news using all available sources
-    const allNews = extractNewsFromGE(mainPageHtml, mainPageMarkdown, mainPageLinks, mappedUrls);
+    const allNews = extractNewsFromGE(mainPageHtml, mainPageMarkdown, mainPageLinks, allMappedUrls);
     console.log(`Total articles found: ${allNews.length}`);
 
     // Check which URLs already exist - fetch ALL existing URLs to avoid duplicates
