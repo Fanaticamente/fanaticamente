@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Check, Star, Crown, Zap, AlertTriangle, ChevronUp, RefreshCw } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Check, Star, Crown, Zap, AlertTriangle, ChevronUp, RefreshCw, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
+import { format, formatDistanceToNow, differenceInDays, differenceInHours, differenceInMinutes, isPast } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   Dialog,
@@ -67,11 +67,44 @@ const SubscriptionManager = ({
   const [isProcessing, setIsProcessing] = useState(false);
 
   const isCancelled = approvalStatus === 'cancelled';
+  const isPendingCancellation = approvalStatus === 'pending_cancellation';
   const isPendingApproval = approvalStatus === 'pending_approval';
   const currentPlanData = currentPlan ? plans.find(p => p.id === currentPlan) : null;
   const currentPlanIndex = currentPlan ? planOrder.indexOf(currentPlan) : -1;
   const availableUpgrades = plans.filter((_, index) => index > currentPlanIndex);
   const expirationDate = expiresAt ? new Date(expiresAt) : null;
+
+  // Countdown state for pending cancellation
+  const [timeRemaining, setTimeRemaining] = useState<string>("");
+  
+  useEffect(() => {
+    if (!isPendingCancellation || !expirationDate) return;
+    
+    const updateCountdown = () => {
+      const now = new Date();
+      if (isPast(expirationDate)) {
+        setTimeRemaining("Expirado");
+        return;
+      }
+      
+      const days = differenceInDays(expirationDate, now);
+      const hours = differenceInHours(expirationDate, now) % 24;
+      const minutes = differenceInMinutes(expirationDate, now) % 60;
+      
+      if (days > 0) {
+        setTimeRemaining(`${days}d ${hours}h ${minutes}m`);
+      } else if (hours > 0) {
+        setTimeRemaining(`${hours}h ${minutes}m`);
+      } else {
+        setTimeRemaining(`${minutes}m`);
+      }
+    };
+    
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 60000); // Update every minute
+    
+    return () => clearInterval(interval);
+  }, [isPendingCancellation, expirationDate]);
 
   const handleManageSubscription = async () => {
     setIsProcessing(true);
@@ -102,7 +135,7 @@ const SubscriptionManager = ({
       if (error) throw error;
 
       if (data?.success) {
-        toast.success("Assinatura cancelada com sucesso. Seu perfil foi removido do marketplace.", {
+        toast.success("Assinatura cancelada. Você continuará com acesso até o fim do período pago.", {
           duration: 6000,
         });
         setShowCancelDialog(false);
@@ -144,6 +177,78 @@ const SubscriptionManager = ({
             </div>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // If subscription is pending cancellation, show countdown card
+  if (isPendingCancellation && currentPlanData) {
+    const PlanIcon = currentPlanData.icon;
+    
+    return (
+      <div className="bg-card border border-border rounded-2xl p-6">
+        <h3 className="font-display text-xl text-card-foreground mb-4">
+          Minha Assinatura
+        </h3>
+
+        {/* Current Plan Info */}
+        <div className="flex items-center gap-4 mb-4">
+          <div className="p-3 rounded-xl bg-therapy/20">
+            <PlanIcon className="w-6 h-6 text-therapy" />
+          </div>
+          <div>
+            <p className="font-bold text-card-foreground text-lg">
+              Plano {currentPlanData.name}
+            </p>
+            <p className="text-muted-foreground text-sm">
+              R$ {currentPlanData.price.toFixed(2).replace('.', ',')} / {currentPlanData.period}
+            </p>
+          </div>
+        </div>
+
+        {/* Cancellation Warning Card */}
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-4">
+          <div className="flex items-start gap-3">
+            <Clock className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-bold text-amber-600 dark:text-amber-400">
+                Cancelamento Agendado
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Sua assinatura foi cancelada, mas você ainda tem acesso aos benefícios até o fim do período pago.
+              </p>
+              
+              {/* Countdown Timer */}
+              <div className="mt-3 p-3 bg-background/50 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Tempo restante:</span>
+                  <span className="font-mono font-bold text-lg text-amber-600 dark:text-amber-400">
+                    {timeRemaining}
+                  </span>
+                </div>
+                {expirationDate && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Expira em {format(expirationDate, "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Reactivate Button */}
+        <button
+          onClick={handleManageSubscription}
+          disabled={isProcessing}
+          className="w-full flex items-center justify-center gap-2 py-4 bg-therapy text-therapy-foreground rounded-xl font-bold hover:scale-[1.02] transition-transform disabled:opacity-50"
+        >
+          <RefreshCw className="w-5 h-5" />
+          {isProcessing ? "Processando..." : "Reativar Assinatura"}
+        </button>
+        
+        <p className="text-xs text-center text-muted-foreground mt-3">
+          Você será redirecionado ao portal de pagamento para reativar
+        </p>
       </div>
     );
   }
