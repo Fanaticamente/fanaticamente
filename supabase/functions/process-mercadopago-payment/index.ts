@@ -10,7 +10,7 @@ const corsHeaders = {
 const PLANS = {
   monthly: {
     name: "Plano Mensal",
-    amount: 5.00,
+    amount: 0.50, // R$ 0,50/mês (TEMPORÁRIO PARA TESTES)
     frequency: 1,
     frequency_type: "months",
   },
