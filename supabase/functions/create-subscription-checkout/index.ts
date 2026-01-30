@@ -8,10 +8,11 @@ const corsHeaders = {
 };
 
 // Stripe price IDs for professional subscription plans
+// Monthly is set to R$0.01 for testing purposes
 const PRICE_IDS = {
-  monthly: "price_1Sm5JaFTvMjF2L2nymNT0Huz",
-  semiannual: "price_1Sm5JoFTvMjF2L2nEsTMj81S",
-  annual: "price_1Sm5JyFTvMjF2L2n6AOTYusI",
+  monthly: "price_1Sv5W1FTvMjF2L2n2sPaXH3J", // R$0.01 test price
+  semiannual: "price_1Sm5JoFTvMjF2L2nEsTMj81S", // R$1.079,90 (needs update to 6-month single charge)
+  annual: "price_1Sm5JyFTvMjF2L2n6AOTYusI", // R$2.038,90/year
 };
 
 const logStep = (step: string, details?: any) => {
