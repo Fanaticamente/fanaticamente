@@ -8,9 +8,8 @@ const corsHeaders = {
 };
 
 // Stripe LIVE price IDs for professional subscription plans
-// Monthly is set to R$0.01 for testing real payments
 const PRICE_IDS = {
-  monthly: "price_1Sv68I2XnCsYujuDth6T4xW1", // R$0.01 (teste real)
+  monthly: "price_1SvHfK2XnCsYujuDotgG4Rye", // R$5,00/mês
   semiannual: "price_1Sv6AR2XnCsYujuDTd5MHbSY", // R$1.079,90 (6 meses)
   annual: "price_1Sv6Dp2XnCsYujuD7ejv5RBi", // R$2.038,90/ano
 };
