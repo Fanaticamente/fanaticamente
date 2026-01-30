@@ -246,6 +246,8 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
         return { label: "Correção", className: "bg-orange-500/20 text-orange-500", icon: AlertTriangle };
       case "pending_payment":
         return { label: "Aguardando Pgto", className: "bg-blue-500/20 text-blue-500", icon: CreditCard };
+      case "cancelled":
+        return { label: "Cancelado", className: "bg-red-500/20 text-red-500", icon: XCircle };
       default:
         return { label: "Inativo", className: "bg-gray-500/20 text-gray-500", icon: XCircle };
     }
@@ -339,6 +341,7 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
                 { value: "pending_approval", label: "Aguardando Aprovação" },
                 { value: "pending_payment", label: "Aguardando Pagamento" },
                 { value: "needs_correction", label: "Correção Necessária" },
+                { value: "cancelled", label: "Cancelados" },
               ].map((option) => (
                 <button
                   key={option.value}
