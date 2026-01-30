@@ -696,8 +696,8 @@ const ProfessionalDashboard = () => {
         <AdminMessagesAlert professionalId={professional.id} />
       )}
 
-        {/* Approval Status Banner */}
-        {professional && (
+        {/* Approval Status Banner - hide on assinatura tab when pending_approval (shown inside SubscriptionManager) */}
+        {professional && !(activeTab === 'assinatura' && professional.approval_status === 'pending_approval') && (
           <ApprovalPendingBanner
             approvalStatus={professional.approval_status}
             rejectionReason={professional.rejection_reason}
