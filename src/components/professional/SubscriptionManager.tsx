@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Check, Star, Crown, Zap, AlertTriangle, ChevronUp, RefreshCw, Clock, Settings, X } from "lucide-react";
+import { Check, Star, Crown, Zap, AlertTriangle, ChevronUp, RefreshCw, Clock, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { format, formatDistanceToNow, differenceInDays, differenceInHours, differenceInMinutes, isPast } from "date-fns";
+import { format, differenceInDays, differenceInHours, differenceInMinutes, isPast } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   Dialog,
@@ -12,12 +12,6 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import SubscriptionPlans from "./SubscriptionPlans";
 interface SubscriptionManagerProps {
   professionalId: string;
@@ -68,6 +62,7 @@ const SubscriptionManager = ({
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showResubscribeDialog, setShowResubscribeDialog] = useState(false);
+  const [showManageDialog, setShowManageDialog] = useState(false);
   const [selectedUpgrade, setSelectedUpgrade] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -310,34 +305,63 @@ const SubscriptionManager = ({
           </div>
         </div>
 
-        {/* Manage Subscription Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+        {/* Manage Subscription Button */}
+        <Dialog open={showManageDialog} onOpenChange={setShowManageDialog}>
+          <DialogTrigger asChild>
             <button
               disabled={isProcessing}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors disabled:opacity-50"
+              className="w-full py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors disabled:opacity-50"
             >
-              <Settings className="w-4 h-4" />
               {isProcessing ? "Processando..." : "Gerenciar Assinatura"}
             </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="w-56">
-            <DropdownMenuItem 
-              onClick={handleManageSubscription}
-              className="cursor-pointer"
-            >
-              <ChevronUp className="w-4 h-4 mr-2 text-therapy" />
-              <span>Fazer Upgrade</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => setShowCancelDialog(true)}
-              className="cursor-pointer text-destructive focus:text-destructive"
-            >
-              <X className="w-4 h-4 mr-2" />
-              <span>Cancelar Assinatura</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </DialogTrigger>
+          <DialogContent className="bg-card border-border rounded-2xl w-[calc(100%-2rem)] max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-display text-xl text-card-foreground">
+                Gerenciar Assinatura
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Escolha uma opção abaixo
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-3 mt-4">
+              {/* Upgrade Option */}
+              <button
+                onClick={() => {
+                  setShowManageDialog(false);
+                  handleManageSubscription();
+                }}
+                className="w-full flex items-center gap-3 p-4 rounded-xl border border-border hover:border-therapy hover:bg-therapy/5 transition-all text-left"
+              >
+                <div className="p-2 rounded-lg bg-therapy/20">
+                  <ChevronUp className="w-5 h-5 text-therapy" />
+                </div>
+                <div>
+                  <p className="font-bold text-card-foreground">Fazer Upgrade</p>
+                  <p className="text-sm text-muted-foreground">Mude para um plano superior</p>
+                </div>
+              </button>
+
+              {/* Cancel Option */}
+              <button
+                onClick={() => {
+                  setShowManageDialog(false);
+                  setShowCancelDialog(true);
+                }}
+                className="w-full flex items-center gap-3 p-4 rounded-xl border border-border hover:border-destructive hover:bg-destructive/5 transition-all text-left"
+              >
+                <div className="p-2 rounded-lg bg-destructive/20">
+                  <X className="w-5 h-5 text-destructive" />
+                </div>
+                <div>
+                  <p className="font-bold text-destructive">Cancelar Assinatura</p>
+                  <p className="text-sm text-muted-foreground">Encerre sua assinatura</p>
+                </div>
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Cancel Dialog */}
         <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
@@ -417,36 +441,65 @@ const SubscriptionManager = ({
         </div>
       </div>
 
-      {/* Manage Subscription Dropdown */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+      {/* Manage Subscription Button */}
+      <Dialog open={showManageDialog} onOpenChange={setShowManageDialog}>
+        <DialogTrigger asChild>
           <button
             disabled={isProcessing}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors disabled:opacity-50"
+            className="w-full py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors disabled:opacity-50"
           >
-            <Settings className="w-4 h-4" />
             {isProcessing ? "Processando..." : "Gerenciar Assinatura"}
           </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="center" className="w-56">
-          {availableUpgrades.length > 0 && (
-            <DropdownMenuItem 
-              onClick={() => setShowUpgradeDialog(true)}
-              className="cursor-pointer"
+        </DialogTrigger>
+        <DialogContent className="bg-card border-border rounded-2xl w-[calc(100%-2rem)] max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl text-card-foreground">
+              Gerenciar Assinatura
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Escolha uma opção abaixo
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3 mt-4">
+            {/* Upgrade Option */}
+            {availableUpgrades.length > 0 && (
+              <button
+                onClick={() => {
+                  setShowManageDialog(false);
+                  setShowUpgradeDialog(true);
+                }}
+                className="w-full flex items-center gap-3 p-4 rounded-xl border border-border hover:border-therapy hover:bg-therapy/5 transition-all text-left"
+              >
+                <div className="p-2 rounded-lg bg-therapy/20">
+                  <ChevronUp className="w-5 h-5 text-therapy" />
+                </div>
+                <div>
+                  <p className="font-bold text-card-foreground">Fazer Upgrade</p>
+                  <p className="text-sm text-muted-foreground">Mude para um plano superior</p>
+                </div>
+              </button>
+            )}
+
+            {/* Cancel Option */}
+            <button
+              onClick={() => {
+                setShowManageDialog(false);
+                setShowCancelDialog(true);
+              }}
+              className="w-full flex items-center gap-3 p-4 rounded-xl border border-border hover:border-destructive hover:bg-destructive/5 transition-all text-left"
             >
-              <ChevronUp className="w-4 h-4 mr-2 text-therapy" />
-              <span>Fazer Upgrade</span>
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem 
-            onClick={() => setShowCancelDialog(true)}
-            className="cursor-pointer text-destructive focus:text-destructive"
-          >
-            <X className="w-4 h-4 mr-2" />
-            <span>Cancelar Assinatura</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+              <div className="p-2 rounded-lg bg-destructive/20">
+                <X className="w-5 h-5 text-destructive" />
+              </div>
+              <div>
+                <p className="font-bold text-destructive">Cancelar Assinatura</p>
+                <p className="text-sm text-muted-foreground">Encerre sua assinatura</p>
+              </div>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Upgrade Dialog */}
       {availableUpgrades.length > 0 && (
