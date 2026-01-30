@@ -65,22 +65,25 @@ serve(async (req) => {
       throw new Error("No active subscription found to cancel");
     }
 
-    // Cancel the subscription immediately
+    // Cancel the subscription at period end (not immediately)
     const subscription = activeSubscriptions[0];
-    logStep("Cancelling subscription", { subscriptionId: subscription.id });
+    logStep("Cancelling subscription at period end", { subscriptionId: subscription.id });
 
-    await stripe.subscriptions.cancel(subscription.id);
-    logStep("Subscription cancelled in Stripe");
+    // Use cancel with prorate=false to cancel at end of billing period
+    const cancelledSubscription = await stripe.subscriptions.update(subscription.id, {
+      cancel_at_period_end: true
+    });
+    
+    const periodEnd = new Date(cancelledSubscription.current_period_end * 1000).toISOString();
+    logStep("Subscription will cancel at period end", { periodEnd });
 
-    // Update professional record in database
+    // Update professional record - mark as pending_cancellation but keep active
     const { error: updateError } = await supabaseClient
       .from('professionals')
       .update({
-        subscription_type: null,
-        subscription_expires_at: null,
-        is_active: false,
-        is_verified: false,
-        approval_status: 'cancelled'
+        approval_status: 'pending_cancellation',
+        subscription_expires_at: periodEnd
+        // Keep is_active: true, is_verified: true, subscription_type as-is
       })
       .eq('user_id', user.id);
 
@@ -89,11 +92,12 @@ serve(async (req) => {
       throw new Error(`Database update failed: ${updateError.message}`);
     }
 
-    logStep("Professional record updated - subscription cancelled, profile deactivated");
+    logStep("Professional record updated - subscription marked for cancellation at period end");
 
     return new Response(JSON.stringify({
       success: true,
-      message: "Subscription cancelled successfully"
+      message: "Subscription will be cancelled at period end",
+      expires_at: periodEnd
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
