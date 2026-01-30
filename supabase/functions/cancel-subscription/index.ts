@@ -74,8 +74,18 @@ serve(async (req) => {
       cancel_at_period_end: true
     });
     
-    const periodEnd = new Date(cancelledSubscription.current_period_end * 1000).toISOString();
-    logStep("Subscription will cancel at period end", { periodEnd });
+    // Handle the period end timestamp properly
+    const periodEndTimestamp = cancelledSubscription.current_period_end;
+    let periodEnd: string;
+    
+    if (typeof periodEndTimestamp === 'number') {
+      periodEnd = new Date(periodEndTimestamp * 1000).toISOString();
+    } else {
+      // Fallback: set expiration to 30 days from now
+      periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    }
+    
+    logStep("Subscription will cancel at period end", { periodEnd, rawTimestamp: periodEndTimestamp });
 
     // Update professional record - mark as pending_cancellation but keep active
     const { error: updateError } = await supabaseClient
