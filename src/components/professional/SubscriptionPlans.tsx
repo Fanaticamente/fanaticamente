@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Check, Star, Crown, Zap, Shield } from "lucide-react";
-import MercadoPagoCheckout from "./MercadoPagoCheckout";
+import MercadoPagoCardForm from "./MercadoPagoCardForm";
 
 interface SubscriptionPlansProps {
   professionalId: string;
@@ -75,14 +75,21 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
     setShowCheckout(false);
   };
 
+  const handlePaymentSuccess = () => {
+    setShowCheckout(false);
+    onSubscribe();
+  };
+
   const selectedPlanData = plans.find(p => p.id === selectedPlan);
 
   if (showCheckout && selectedPlan && selectedPlanData) {
     return (
-      <MercadoPagoCheckout
+      <MercadoPagoCardForm
         planId={selectedPlan}
         planName={selectedPlanData.name}
+        planPrice={selectedPlanData.price}
         onBack={handleBackToPlans}
+        onSuccess={handlePaymentSuccess}
       />
     );
   }
