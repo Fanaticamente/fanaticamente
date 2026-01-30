@@ -142,7 +142,17 @@ const MercadoPagoCardForm = ({ planId, planName, planPrice, onBack, onSuccess }:
 
       const paymentMethodId = paymentMethodsResponse.results[0].id;
 
-      // Process payment
+      // Get device ID for anti-fraud (if available from SDK)
+      let deviceId = null;
+      try {
+        if (mp.getDeviceId) {
+          deviceId = await mp.getDeviceId();
+        }
+      } catch (deviceErr) {
+        console.log("Could not get device ID:", deviceErr);
+      }
+
+      // Process payment with enhanced anti-fraud data
       const { data, error: paymentError } = await supabase.functions.invoke("process-mercadopago-payment", {
         body: {
           planId,
@@ -152,6 +162,7 @@ const MercadoPagoCardForm = ({ planId, planName, planPrice, onBack, onSuccess }:
           identificationType,
           identificationNumber: identificationNumber.replace(/\D/g, ""),
           installments: 1,
+          deviceId, // For anti-fraud
         },
       });
 
