@@ -219,18 +219,38 @@ const SubscriptionManager = ({
           </div>
         </div>
 
-        {/* Reactivate Button */}
-        <button
-          onClick={handleManageSubscription}
-          disabled={isProcessing}
-          className="w-full flex items-center justify-center gap-2 py-4 bg-therapy text-therapy-foreground rounded-xl font-bold hover:scale-[1.02] transition-transform disabled:opacity-50"
-        >
-          <RefreshCw className="w-5 h-5" />
-          {isProcessing ? "Processando..." : "Reativar Assinatura"}
-        </button>
+        {/* Reactivate Button - Opens plan selection dialog */}
+        <Dialog open={showResubscribeDialog} onOpenChange={setShowResubscribeDialog}>
+          <DialogTrigger asChild>
+            <button
+              className="w-full flex items-center justify-center gap-2 py-4 bg-therapy text-therapy-foreground rounded-xl font-bold hover:scale-[1.02] transition-transform"
+            >
+              <RefreshCw className="w-5 h-5" />
+              Reativar Assinatura
+            </button>
+          </DialogTrigger>
+          <DialogContent className="bg-card border-border rounded-2xl w-[calc(100%-2rem)] max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="font-display text-xl text-card-foreground">
+                Escolha seu Plano
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Selecione um plano para reativar seu perfil no marketplace
+              </DialogDescription>
+            </DialogHeader>
+            
+            <SubscriptionPlans 
+              professionalId={professionalId} 
+              onSubscribe={() => {
+                setShowResubscribeDialog(false);
+                onUpdate();
+              }} 
+            />
+          </DialogContent>
+        </Dialog>
         
         <p className="text-xs text-center text-muted-foreground mt-3">
-          Você será redirecionado ao portal de pagamento para reativar
+          Escolha um plano para continuar com sua assinatura
         </p>
       </div>
     );
