@@ -7,12 +7,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Stripe price IDs for professional subscription plans
-// Monthly is set to R$0.01 for testing purposes
+// Stripe LIVE price IDs for professional subscription plans
+// Monthly is set to R$0.01 for testing real payments
 const PRICE_IDS = {
-  monthly: "price_1Sv5W1FTvMjF2L2n2sPaXH3J", // R$0.01 test price
-  semiannual: "price_1Sm5JoFTvMjF2L2nEsTMj81S", // R$1.079,90 (needs update to 6-month single charge)
-  annual: "price_1Sm5JyFTvMjF2L2n6AOTYusI", // R$2.038,90/year
+  monthly: "price_1Sv68I2XnCsYujuDth6T4xW1", // R$0.01 (teste real)
+  semiannual: "price_1Sv6AR2XnCsYujuDTd5MHbSY", // R$1.079,90 (6 meses)
+  annual: "price_1Sv6Dp2XnCsYujuD7ejv5RBi", // R$2.038,90/ano
 };
 
 const logStep = (step: string, details?: any) => {
