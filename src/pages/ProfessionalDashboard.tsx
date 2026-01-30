@@ -958,9 +958,6 @@ const ProfessionalDashboard = () => {
         {/* Assinatura Tab */}
         {activeTab === "assinatura" && professional && (
           <div className="space-y-6">
-            <h2 className="font-display text-2xl text-card-foreground">
-              {hasSubscription ? "Minha Assinatura" : "Escolha seu Plano"}
-            </h2>
             {hasSubscription || professional.approval_status === 'cancelled' || professional.approval_status === 'pending_approval' || professional.approval_status === 'approved' || professional.approval_status === 'pending_cancellation' ? (
               <SubscriptionManager 
                 professionalId={professional.id}
