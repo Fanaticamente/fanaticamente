@@ -239,6 +239,16 @@ const MercadoPagoCardForm = ({ planId, planName, planPrice, onBack, onSuccess }:
         </div>
       </div>
 
+      {/* Accepted Card Brands */}
+      <div className="flex items-center justify-center gap-2 flex-wrap">
+        <span className="text-xs text-muted-foreground mr-1">Aceitamos:</span>
+        <img src="https://imgmp.mlstatic.com/org-img/banners/br/medios/visa_80.png" alt="Visa" className="h-6" />
+        <img src="https://imgmp.mlstatic.com/org-img/banners/br/medios/master_80.png" alt="Mastercard" className="h-6" />
+        <img src="https://imgmp.mlstatic.com/org-img/banners/br/medios/amex_80.png" alt="American Express" className="h-6" />
+        <img src="https://imgmp.mlstatic.com/org-img/banners/br/medios/elo_80.png" alt="Elo" className="h-6" />
+        <img src="https://imgmp.mlstatic.com/org-img/banners/br/medios/hipercard_80.png" alt="Hipercard" className="h-6" />
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Card Number */}
         <div className="space-y-2">
