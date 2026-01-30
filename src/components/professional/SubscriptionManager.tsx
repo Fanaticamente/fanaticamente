@@ -66,7 +66,8 @@ const SubscriptionManager = ({
   const [selectedUpgrade, setSelectedUpgrade] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const isCancelled = approvalStatus === 'cancelled' || !currentPlan;
+  const isCancelled = approvalStatus === 'cancelled';
+  const isPendingApproval = approvalStatus === 'pending_approval';
   const currentPlanData = currentPlan ? plans.find(p => p.id === currentPlan) : null;
   const currentPlanIndex = currentPlan ? planOrder.indexOf(currentPlan) : -1;
   const availableUpgrades = plans.filter((_, index) => index > currentPlanIndex);
@@ -123,6 +124,29 @@ const SubscriptionManager = ({
     setShowUpgradeDialog(false);
     setSelectedUpgrade(null);
   };
+
+  // If approval is pending, show analysis message
+  if (isPendingApproval) {
+    return (
+      <div className="bg-card border border-border rounded-2xl p-6">
+        <h3 className="font-display text-xl text-card-foreground mb-4">
+          Minha Assinatura
+        </h3>
+
+        <div className="bg-therapy/10 border border-therapy/30 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-therapy flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-therapy">Dados e Documentos em Análise</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Seu pagamento foi confirmado! Agora nossa equipe está verificando seus dados, documentos e número do CRP. Este processo pode levar até 48 horas úteis.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // If subscription is cancelled, show resubscribe option
   if (isCancelled) {
