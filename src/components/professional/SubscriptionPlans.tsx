@@ -89,15 +89,6 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="font-display text-2xl text-card-foreground mb-2">
-          Escolha seu Plano
-        </h2>
-        <p className="text-muted-foreground">
-          Assine para ativar seu perfil no marketplace
-        </p>
-      </div>
-
       <div className="grid gap-4">
         {plans.map((plan) => {
           const PlanIcon = plan.icon;
