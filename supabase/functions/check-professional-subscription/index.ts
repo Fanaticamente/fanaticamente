@@ -7,11 +7,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Product IDs from Stripe
+// LIVE Product IDs from Stripe
 const PRODUCT_IDS = {
-  monthly: "prod_TjYQWUCgglUJXx",
-  semiannual: "prod_TjYQNtTYS9R29f",
-  annual: "prod_TjYQAt5VRT8fb6",
+  monthly: "prod_TsrrDbGYX3QJPx",    // Plano Mensal (R$0.01 teste)
+  semiannual: "prod_Tsrucht4BNRyVS", // Plano Semestral
+  annual: "prod_TsrxrBqyT1Fx3i",     // Plano Anual
 };
 
 const logStep = (step: string, details?: any) => {
