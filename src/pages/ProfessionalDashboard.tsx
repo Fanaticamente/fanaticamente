@@ -953,11 +953,12 @@ const ProfessionalDashboard = () => {
             <h2 className="font-display text-2xl text-card-foreground">
               {hasSubscription ? "Minha Assinatura" : "Escolha seu Plano"}
             </h2>
-            {hasSubscription && professional.subscription_type && professional.subscription_expires_at ? (
+            {hasSubscription || professional.approval_status === 'cancelled' ? (
               <SubscriptionManager 
                 professionalId={professional.id}
                 currentPlan={professional.subscription_type}
                 expiresAt={professional.subscription_expires_at}
+                approvalStatus={professional.approval_status}
                 onUpdate={fetchProfessionalData}
               />
             ) : (
