@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Check, Star, Crown, Zap, Shield } from "lucide-react";
-import EmbeddedCheckout from "./EmbeddedCheckout";
+import MercadoPagoCheckout from "./MercadoPagoCheckout";
 
 interface SubscriptionPlansProps {
   professionalId: string;
@@ -79,7 +79,7 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
 
   if (showCheckout && selectedPlan && selectedPlanData) {
     return (
-      <EmbeddedCheckout
+      <MercadoPagoCheckout
         planId={selectedPlan}
         planName={selectedPlanData.name}
         onBack={handleBackToPlans}
@@ -179,7 +179,7 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
       <div className="bg-muted/30 rounded-xl p-4 border border-border">
         <p className="text-muted-foreground text-sm text-center flex items-center justify-center gap-2">
           <Shield className="w-4 h-4" />
-          Pagamento seguro via Stripe
+          Pagamento seguro via Mercado Pago
         </p>
       </div>
     </div>

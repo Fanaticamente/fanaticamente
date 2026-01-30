@@ -38,3 +38,9 @@ verify_jwt = false
 
 [functions.elevenlabs-tts]
 verify_jwt = false
+
+[functions.create-mercadopago-subscription]
+verify_jwt = false
+
+[functions.cancel-subscription]
+verify_jwt = false
