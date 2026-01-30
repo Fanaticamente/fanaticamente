@@ -69,7 +69,7 @@ serve(async (req) => {
 
     // Create checkout session for embedded checkout
     // Note: PIX is not supported for recurring subscriptions, only card payments
-    // Trial period temporarily disabled for testing
+    // 180-day free trial for all plans
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -82,6 +82,9 @@ serve(async (req) => {
       mode: "subscription",
       ui_mode: "embedded",
       return_url: `${origin}/profissional?checkout=success&plan=${planId}&session_id={CHECKOUT_SESSION_ID}`,
+      subscription_data: {
+        trial_period_days: 180, // 6 months free trial
+      },
       metadata: {
         user_id: user.id,
         plan_id: planId,
