@@ -330,7 +330,7 @@ const SubscriptionManager = ({
               <button
                 onClick={() => {
                   setShowManageDialog(false);
-                  handleManageSubscription();
+                  setShowUpgradeDialog(true);
                 }}
                 className="w-full flex items-center gap-3 p-4 rounded-xl border border-border hover:border-therapy hover:bg-therapy/5 transition-all text-left"
               >
@@ -360,6 +360,65 @@ const SubscriptionManager = ({
                 </div>
               </button>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Upgrade Dialog */}
+        <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
+          <DialogContent className="bg-card border-border rounded-2xl w-[calc(100%-2rem)] max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="font-display text-xl text-card-foreground">
+                Upgrade de Plano
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Escolha um plano superior. O upgrade passará a valer após o término do período atual.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-3 mt-4">
+              {plans.map((plan) => {
+                const UpgradeIcon = plan.icon;
+                const isSelected = selectedUpgrade === plan.id;
+                
+                return (
+                  <button
+                    key={plan.id}
+                    onClick={() => setSelectedUpgrade(plan.id)}
+                    className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                      isSelected 
+                        ? "border-therapy bg-therapy/10" 
+                        : "border-border hover:border-muted-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <UpgradeIcon className={`w-5 h-5 ${isSelected ? "text-therapy" : "text-muted-foreground"}`} />
+                      <div className="flex-1">
+                        <p className="font-bold text-card-foreground">{plan.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          R$ {plan.price.toFixed(2).replace('.', ',')} / {plan.period}
+                          {plan.discount && (
+                            <span className="ml-2 text-green-500">-{plan.discount}%</span>
+                          )}
+                        </p>
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        isSelected ? "border-therapy bg-therapy" : "border-muted-foreground"
+                      }`}>
+                        {isSelected && <Check className="w-3 h-3 text-therapy-foreground" />}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={handleUpgrade}
+              disabled={!selectedUpgrade || isProcessing}
+              className="w-full mt-4 py-3 bg-therapy text-therapy-foreground rounded-xl font-bold hover:scale-[1.02] transition-transform disabled:opacity-50"
+            >
+              {isProcessing ? "Processando..." : "Confirmar Upgrade"}
+            </button>
           </DialogContent>
         </Dialog>
 
