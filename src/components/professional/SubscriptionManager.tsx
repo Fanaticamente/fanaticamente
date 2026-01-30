@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, Star, Crown, Zap, AlertTriangle, ChevronUp, RefreshCw, Clock } from "lucide-react";
+import { Check, Star, Crown, Zap, AlertTriangle, ChevronUp, RefreshCw, Clock, Settings, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { format, formatDistanceToNow, differenceInDays, differenceInHours, differenceInMinutes, isPast } from "date-fns";
@@ -12,8 +12,13 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import SubscriptionPlans from "./SubscriptionPlans";
-
 interface SubscriptionManagerProps {
   professionalId: string;
   currentPlan: string | null;
@@ -162,9 +167,9 @@ const SubscriptionManager = ({
   if (isPendingApproval) {
     return (
       <div className="bg-card border border-border rounded-2xl p-6">
-        <h3 className="font-display text-xl text-card-foreground mb-4">
+        <h2 className="font-display text-2xl text-card-foreground mb-4">
           Minha Assinatura
-        </h3>
+        </h2>
 
         <div className="bg-therapy/10 border border-therapy/30 rounded-xl p-4">
           <div className="flex items-start gap-3">
@@ -182,29 +187,12 @@ const SubscriptionManager = ({
   }
 
   // If subscription is pending cancellation, show countdown card
-  if (isPendingCancellation && currentPlanData) {
-    const PlanIcon = currentPlanData.icon;
-    
+  if (isPendingCancellation) {
     return (
       <div className="bg-card border border-border rounded-2xl p-6">
-        <h3 className="font-display text-xl text-card-foreground mb-4">
+        <h2 className="font-display text-2xl text-card-foreground mb-4">
           Minha Assinatura
-        </h3>
-
-        {/* Current Plan Info */}
-        <div className="flex items-center gap-4 mb-4">
-          <div className="p-3 rounded-xl bg-therapy/20">
-            <PlanIcon className="w-6 h-6 text-therapy" />
-          </div>
-          <div>
-            <p className="font-bold text-card-foreground text-lg">
-              Plano {currentPlanData.name}
-            </p>
-            <p className="text-muted-foreground text-sm">
-              R$ {currentPlanData.price.toFixed(2).replace('.', ',')} / {currentPlanData.period}
-            </p>
-          </div>
-        </div>
+        </h2>
 
         {/* Cancellation Warning Card */}
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-4">
@@ -257,9 +245,9 @@ const SubscriptionManager = ({
   if (isCancelled) {
     return (
       <div className="bg-card border border-border rounded-2xl p-6">
-        <h3 className="font-display text-xl text-card-foreground mb-4">
-          Minha Assinatura
-        </h3>
+        <h2 className="font-display text-2xl text-card-foreground mb-4">
+          Escolha seu Plano
+        </h2>
 
         <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mb-4">
           <div className="flex items-center gap-3 mb-2">
@@ -278,7 +266,7 @@ const SubscriptionManager = ({
               Reativar Assinatura
             </button>
           </DialogTrigger>
-          <DialogContent className="bg-card border-border max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-card border-border rounded-2xl w-[calc(100%-2rem)] max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-display text-xl text-card-foreground">
                 Escolha seu Plano
@@ -306,9 +294,9 @@ const SubscriptionManager = ({
   if (isApproved && !currentPlanData && expirationDate) {
     return (
       <div className="bg-card border border-border rounded-2xl p-6">
-        <h3 className="font-display text-xl text-card-foreground mb-4">
+        <h2 className="font-display text-2xl text-card-foreground mb-4">
           Minha Assinatura
-        </h3>
+        </h2>
 
         <div className="bg-therapy/10 border border-therapy/30 rounded-xl p-4 mb-4">
           <div className="flex items-start gap-3">
@@ -322,131 +310,38 @@ const SubscriptionManager = ({
           </div>
         </div>
 
-        <div className="bg-muted/30 rounded-xl p-4 mb-4">
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-card-foreground">Válido até: </span>
-            {format(expirationDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-          </p>
-        </div>
-
-        <button
-          onClick={handleManageSubscription}
-          disabled={isProcessing}
-          className="w-full py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors disabled:opacity-50"
-        >
-          {isProcessing ? "Abrindo..." : "Gerenciar Assinatura"}
-        </button>
-      </div>
-    );
-  }
-
-  if (!currentPlanData) return null;
-
-  const PlanIcon = currentPlanData.icon;
-
-  return (
-    <div className="bg-card border border-border rounded-2xl p-6">
-      <h3 className="font-display text-xl text-card-foreground mb-4">
-        Minha Assinatura
-      </h3>
-
-      <div className="flex items-center gap-4 mb-4">
-        <div className="p-3 rounded-xl bg-therapy/20">
-          <PlanIcon className="w-6 h-6 text-therapy" />
-        </div>
-        <div>
-          <p className="font-bold text-card-foreground text-lg">
-            Plano {currentPlanData.name}
-          </p>
-          <p className="text-muted-foreground text-sm">
-            R$ {currentPlanData.price.toFixed(2).replace('.', ',')} / {currentPlanData.period}
-          </p>
-        </div>
-      </div>
-
-      {expirationDate && (
-        <div className="bg-muted/30 rounded-xl p-4 mb-4">
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-card-foreground">Válido até: </span>
-            {format(expirationDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-          </p>
-        </div>
-      )}
-
-      <div className="flex gap-3">
-        {availableUpgrades.length > 0 && (
-          <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
-            <DialogTrigger asChild>
-              <button className="flex-1 flex items-center justify-center gap-2 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:scale-[1.02] transition-transform">
-                <ChevronUp className="w-4 h-4" />
-                Fazer Upgrade
-              </button>
-            </DialogTrigger>
-            <DialogContent className="bg-card border-border">
-              <DialogHeader>
-                <DialogTitle className="font-display text-xl text-card-foreground">
-                  Upgrade de Plano
-                </DialogTitle>
-                <DialogDescription className="text-muted-foreground">
-                  Escolha um plano superior para obter mais benefícios
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="space-y-3 mt-4">
-                {availableUpgrades.map((plan) => {
-                  const UpgradeIcon = plan.icon;
-                  const isSelected = selectedUpgrade === plan.id;
-                  
-                  return (
-                    <button
-                      key={plan.id}
-                      onClick={() => setSelectedUpgrade(plan.id)}
-                      className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
-                        isSelected 
-                          ? "border-therapy bg-therapy/10" 
-                          : "border-border hover:border-muted-foreground"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <UpgradeIcon className={`w-5 h-5 ${isSelected ? "text-therapy" : "text-muted-foreground"}`} />
-                        <div className="flex-1">
-                          <p className="font-bold text-card-foreground">{plan.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            R$ {plan.price.toFixed(2).replace('.', ',')} / {plan.period}
-                            {plan.discount && (
-                              <span className="ml-2 text-green-500">-{plan.discount}%</span>
-                            )}
-                          </p>
-                        </div>
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          isSelected ? "border-therapy bg-therapy" : "border-muted-foreground"
-                        }`}>
-                          {isSelected && <Check className="w-3 h-3 text-therapy-foreground" />}
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                onClick={handleUpgrade}
-                disabled={!selectedUpgrade || isProcessing}
-                className="w-full mt-4 py-3 bg-therapy text-therapy-foreground rounded-xl font-bold hover:scale-[1.02] transition-transform disabled:opacity-50"
-              >
-                {isProcessing ? "Processando..." : "Confirmar Upgrade"}
-              </button>
-            </DialogContent>
-          </Dialog>
-        )}
-
-        <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-          <DialogTrigger asChild>
-            <button className="flex-1 py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-destructive/20 hover:text-destructive transition-colors">
-              Cancelar Assinatura
+        {/* Manage Subscription Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              disabled={isProcessing}
+              className="w-full flex items-center justify-center gap-2 py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors disabled:opacity-50"
+            >
+              <Settings className="w-4 h-4" />
+              {isProcessing ? "Processando..." : "Gerenciar Assinatura"}
             </button>
-          </DialogTrigger>
-          <DialogContent className="bg-card border-border">
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" className="w-56">
+            <DropdownMenuItem 
+              onClick={handleManageSubscription}
+              className="cursor-pointer"
+            >
+              <ChevronUp className="w-4 h-4 mr-2 text-therapy" />
+              <span>Fazer Upgrade</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => setShowCancelDialog(true)}
+              className="cursor-pointer text-destructive focus:text-destructive"
+            >
+              <X className="w-4 h-4 mr-2" />
+              <span>Cancelar Assinatura</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Cancel Dialog */}
+        <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+          <DialogContent className="bg-card border-border rounded-2xl w-[calc(100%-2rem)] max-w-lg">
             <DialogHeader>
               <DialogTitle className="font-display text-xl text-destructive flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5" />
@@ -459,7 +354,7 @@ const SubscriptionManager = ({
             
             <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mt-4">
               <p className="text-sm text-destructive">
-                <strong>Atenção:</strong> Ao cancelar, seu perfil será removido do marketplace e você não receberá novos agendamentos. Você poderá reativar sua assinatura a qualquer momento.
+                <strong>Atenção:</strong> Ao cancelar, você continuará com acesso até o fim do período pago. Após isso, seu perfil será removido do marketplace.
               </p>
             </div>
 
@@ -481,6 +376,175 @@ const SubscriptionManager = ({
           </DialogContent>
         </Dialog>
       </div>
+    );
+  }
+
+  if (!currentPlanData) return null;
+
+  const PlanIcon = currentPlanData.icon;
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-6">
+      <h2 className="font-display text-2xl text-card-foreground mb-4">
+        Minha Assinatura
+      </h2>
+
+      {/* Active subscription status */}
+      <div className="bg-therapy/10 border border-therapy/30 rounded-xl p-4 mb-4">
+        <div className="flex items-start gap-3">
+          <Check className="w-5 h-5 text-therapy flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-bold text-therapy">Assinatura Ativa</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Seu perfil está visível no marketplace e você pode receber agendamentos.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Plan info */}
+      <div className="flex items-center gap-4 mb-4">
+        <div className="p-3 rounded-xl bg-therapy/20">
+          <PlanIcon className="w-6 h-6 text-therapy" />
+        </div>
+        <div>
+          <p className="font-bold text-card-foreground text-lg">
+            Plano {currentPlanData.name}
+          </p>
+          <p className="text-muted-foreground text-sm">
+            R$ {currentPlanData.price.toFixed(2).replace('.', ',')} / {currentPlanData.period}
+          </p>
+        </div>
+      </div>
+
+      {/* Manage Subscription Dropdown */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            disabled={isProcessing}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors disabled:opacity-50"
+          >
+            <Settings className="w-4 h-4" />
+            {isProcessing ? "Processando..." : "Gerenciar Assinatura"}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center" className="w-56">
+          {availableUpgrades.length > 0 && (
+            <DropdownMenuItem 
+              onClick={() => setShowUpgradeDialog(true)}
+              className="cursor-pointer"
+            >
+              <ChevronUp className="w-4 h-4 mr-2 text-therapy" />
+              <span>Fazer Upgrade</span>
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem 
+            onClick={() => setShowCancelDialog(true)}
+            className="cursor-pointer text-destructive focus:text-destructive"
+          >
+            <X className="w-4 h-4 mr-2" />
+            <span>Cancelar Assinatura</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Upgrade Dialog */}
+      {availableUpgrades.length > 0 && (
+        <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
+          <DialogContent className="bg-card border-border rounded-2xl w-[calc(100%-2rem)] max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="font-display text-xl text-card-foreground">
+                Upgrade de Plano
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Escolha um plano superior. O upgrade passará a valer após o término do período atual.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-3 mt-4">
+              {availableUpgrades.map((plan) => {
+                const UpgradeIcon = plan.icon;
+                const isSelected = selectedUpgrade === plan.id;
+                
+                return (
+                  <button
+                    key={plan.id}
+                    onClick={() => setSelectedUpgrade(plan.id)}
+                    className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                      isSelected 
+                        ? "border-therapy bg-therapy/10" 
+                        : "border-border hover:border-muted-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <UpgradeIcon className={`w-5 h-5 ${isSelected ? "text-therapy" : "text-muted-foreground"}`} />
+                      <div className="flex-1">
+                        <p className="font-bold text-card-foreground">{plan.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          R$ {plan.price.toFixed(2).replace('.', ',')} / {plan.period}
+                          {plan.discount && (
+                            <span className="ml-2 text-green-500">-{plan.discount}%</span>
+                          )}
+                        </p>
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        isSelected ? "border-therapy bg-therapy" : "border-muted-foreground"
+                      }`}>
+                        {isSelected && <Check className="w-3 h-3 text-therapy-foreground" />}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={handleUpgrade}
+              disabled={!selectedUpgrade || isProcessing}
+              className="w-full mt-4 py-3 bg-therapy text-therapy-foreground rounded-xl font-bold hover:scale-[1.02] transition-transform disabled:opacity-50"
+            >
+              {isProcessing ? "Processando..." : "Confirmar Upgrade"}
+            </button>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Cancel Dialog */}
+      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <DialogContent className="bg-card border-border rounded-2xl w-[calc(100%-2rem)] max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl text-destructive flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Cancelar Assinatura
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Tem certeza que deseja cancelar sua assinatura?
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mt-4">
+            <p className="text-sm text-destructive">
+              <strong>Atenção:</strong> Ao cancelar, você continuará com acesso até o fim do período pago. Após isso, seu perfil será removido do marketplace.
+            </p>
+          </div>
+
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => setShowCancelDialog(false)}
+              className="flex-1 py-3 bg-muted text-muted-foreground rounded-xl font-medium"
+            >
+              Manter Assinatura
+            </button>
+            <button
+              onClick={handleCancelSubscription}
+              disabled={isProcessing}
+              className="flex-1 py-3 bg-destructive text-destructive-foreground rounded-xl font-medium disabled:opacity-50"
+            >
+              {isProcessing ? "Cancelando..." : "Confirmar Cancelamento"}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
