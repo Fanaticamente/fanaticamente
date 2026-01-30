@@ -210,7 +210,14 @@ serve(async (req) => {
     });
 
     const mpData = await mpResponse.json();
-    logStep("Mercado Pago response", { status: mpResponse.status, paymentStatus: mpData.status, paymentId: mpData.id });
+    logStep("Mercado Pago response", { 
+      status: mpResponse.status, 
+      paymentStatus: mpData.status, 
+      paymentId: mpData.id,
+      statusDetail: mpData.status_detail,
+      errorMessage: mpData.message,
+      errorCause: mpData.cause
+    });
 
     if (!mpResponse.ok) {
       throw new Error(`Mercado Pago error: ${JSON.stringify(mpData)}`);
