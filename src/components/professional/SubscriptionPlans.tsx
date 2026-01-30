@@ -11,7 +11,7 @@ const plans = [
   {
     id: "monthly",
     name: "Mensal",
-    price: 199.90,
+    price: 0.01, // R$0.01 para testes
     originalPrice: null,
     discount: null,
     period: "mês",
