@@ -301,6 +301,45 @@ const SubscriptionManager = ({
     );
   }
 
+  // If approved but no plan data (edge case: subscription active but subscription_type not set)
+  const isApproved = approvalStatus === 'approved';
+  if (isApproved && !currentPlanData && expirationDate) {
+    return (
+      <div className="bg-card border border-border rounded-2xl p-6">
+        <h3 className="font-display text-xl text-card-foreground mb-4">
+          Minha Assinatura
+        </h3>
+
+        <div className="bg-therapy/10 border border-therapy/30 rounded-xl p-4 mb-4">
+          <div className="flex items-start gap-3">
+            <Check className="w-5 h-5 text-therapy flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-therapy">Assinatura Ativa</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Seu perfil está visível no marketplace e você pode receber agendamentos.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-muted/30 rounded-xl p-4 mb-4">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-medium text-card-foreground">Válido até: </span>
+            {format(expirationDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+          </p>
+        </div>
+
+        <button
+          onClick={handleManageSubscription}
+          disabled={isProcessing}
+          className="w-full py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors disabled:opacity-50"
+        >
+          {isProcessing ? "Abrindo..." : "Gerenciar Assinatura"}
+        </button>
+      </div>
+    );
+  }
+
   if (!currentPlanData) return null;
 
   const PlanIcon = currentPlanData.icon;

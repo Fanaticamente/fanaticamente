@@ -274,7 +274,11 @@ const ProfessionalDashboard = () => {
 
         // Determine onboarding step
         const profileComplete = !!(profData.bio && profData.degree && profData.specialties?.length);
-        const hasSubscription = !!profData.subscription_type;
+        // Consider subscription active if has type OR valid expires_at OR approved status
+        const hasSubscription = !!profData.subscription_type || 
+          (profData.subscription_expires_at && new Date(profData.subscription_expires_at) > new Date()) ||
+          profData.approval_status === 'approved' ||
+          profData.approval_status === 'pending_cancellation';
 
         if (!profileComplete) {
           setOnboardingStep("profile");
@@ -292,7 +296,11 @@ const ProfessionalDashboard = () => {
   };
 
   const isProfileComplete = !!(professional?.bio && professional?.degree && professional?.specialties?.length);
-  const hasSubscription = !!professional?.subscription_type;
+  // Consider subscription active if has subscription_type OR has valid expires_at OR approved status
+  const hasSubscription = !!(professional?.subscription_type || 
+    (professional?.subscription_expires_at && new Date(professional.subscription_expires_at) > new Date()) ||
+    professional?.approval_status === 'approved' ||
+    professional?.approval_status === 'pending_cancellation');
   const isMarketplaceActive = !!professional?.is_active;
 
   // Load last seen timestamp from localStorage and restore dashboard UI state
@@ -953,7 +961,7 @@ const ProfessionalDashboard = () => {
             <h2 className="font-display text-2xl text-card-foreground">
               {hasSubscription ? "Minha Assinatura" : "Escolha seu Plano"}
             </h2>
-            {hasSubscription || professional.approval_status === 'cancelled' || professional.approval_status === 'pending_approval' ? (
+            {hasSubscription || professional.approval_status === 'cancelled' || professional.approval_status === 'pending_approval' || professional.approval_status === 'approved' || professional.approval_status === 'pending_cancellation' ? (
               <SubscriptionManager 
                 professionalId={professional.id}
                 currentPlan={professional.subscription_type}
