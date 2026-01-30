@@ -7,11 +7,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// LIVE Product IDs from Stripe
-const PRODUCT_IDS = {
-  monthly: "prod_TsrrDbGYX3QJPx",    // Plano Mensal (R$0.01 teste)
-  semiannual: "prod_Tsrucht4BNRyVS", // Plano Semestral
-  annual: "prod_TsrxrBqyT1Fx3i",     // Plano Anual
+// LIVE Product IDs from Stripe (updated)
+const PRODUCT_IDS: Record<string, string> = {
+  monthly: "prod_TsrsxOzEYyG0vZ",    // Plano Mensal (price_1Sv68I2XnCsYujuDth6T4xW1)
+  semiannual: "prod_Tsrucht4BNRyVS", // Plano Semestral (price_1Sv6AR2XnCsYujuDTd5MHbSY)
+  annual: "prod_TsrxrBqyT1Fx3i",     // Plano Anual (price_1Sv6Dp2XnCsYujuD7ejv5RBi)
 };
 
 const logStep = (step: string, details?: any) => {
@@ -111,11 +111,11 @@ serve(async (req) => {
       const currentStatus = currentProfessional?.approval_status;
       
       // Determine new approval status based on current status
-      // If pending_payment or no status, change to pending_approval
+      // If pending_payment, no status, or cancelled -> change to pending_approval
       // If already approved, keep approved
       // If needs_correction, keep needs_correction until admin approves
       let newApprovalStatus = currentStatus;
-      if (!currentStatus || currentStatus === 'pending_payment') {
+      if (!currentStatus || currentStatus === 'pending_payment' || currentStatus === 'cancelled') {
         newApprovalStatus = 'pending_approval';
       }
 
