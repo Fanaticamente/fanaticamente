@@ -28,10 +28,55 @@ const PLANS = {
   },
 };
 
+const PAYMENT_TIMEOUT = 90000; // 90 seconds for payment processing
+
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[PROCESS-MERCADOPAGO-PAYMENT] ${step}${detailsStr}`);
 };
+
+// Helper function to call Mercado Pago with retry logic
+async function callMercadoPagoWithRetry(
+  url: string,
+  options: RequestInit,
+  attempt = 1
+): Promise<Response> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), PAYMENT_TIMEOUT);
+
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    // Don't retry on 4xx errors (client errors)
+    if (response.status >= 400 && response.status < 500) {
+      return response;
+    }
+
+    // Retry on 5xx errors (server errors)
+    if (!response.ok && attempt < 3) {
+      logStep(`Mercado Pago server error, retrying (attempt ${attempt}/3)`, { status: response.status });
+      await new Promise(r => setTimeout(r, 2000 * Math.pow(2, attempt - 1)));
+      return callMercadoPagoWithRetry(url, options, attempt + 1);
+    }
+
+    return response;
+  } catch (error: unknown) {
+    const err = error as Error;
+    if (err.name === 'AbortError') {
+      throw new Error('Payment request timeout - please try again');
+    }
+
+    logStep(`Payment gateway error (attempt ${attempt}/3):`, err.message);
+
+    if (attempt >= 3) {
+      throw new Error(`Gateway unavailable after 3 attempts: ${err.message}`);
+    }
+
+    await new Promise(r => setTimeout(r, 2000 * Math.pow(2, attempt - 1)));
+    return callMercadoPagoWithRetry(url, options, attempt + 1);
+  }
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -50,10 +95,18 @@ serve(async (req) => {
     if (!accessToken) {
       throw new Error("MERCADOPAGO_ACCESS_TOKEN is not configured");
     }
-    logStep("Mercado Pago access token verified");
 
-    const { planId, token, paymentMethodId, email, identificationType, identificationNumber, installments } = await req.json();
-    logStep("Request body received", { planId, paymentMethodId, email, identificationType, hasToken: !!token });
+    // Validate access token format
+    if (accessToken.startsWith("TEST-") || accessToken.startsWith("APP_USR-")) {
+      logStep("Mercado Pago access token verified", { 
+        mode: accessToken.startsWith("TEST-") ? "test" : "production" 
+      });
+    } else {
+      logStep("Warning: Unexpected access token format");
+    }
+
+    const { planId, token, paymentMethodId, email, identificationType, identificationNumber, installments, deviceId, ipAddress } = await req.json();
+    logStep("Request body received", { planId, paymentMethodId, email, identificationType, hasToken: !!token, hasDeviceId: !!deviceId });
 
     if (!planId || !PLANS[planId as keyof typeof PLANS]) {
       throw new Error("Invalid plan ID");
@@ -76,8 +129,14 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Criar pagamento via API do Mercado Pago
-    const paymentBody = {
+    // Get client IP from headers (for anti-fraud)
+    const clientIp = ipAddress || 
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
+      req.headers.get("x-real-ip") ||
+      "unknown";
+
+    // Criar pagamento via API do Mercado Pago com campos adicionais de anti-fraude
+    const paymentBody: Record<string, unknown> = {
       transaction_amount: plan.amount,
       token: token,
       description: plan.name,
@@ -89,21 +148,63 @@ serve(async (req) => {
           type: identificationType || "CPF",
           number: identificationNumber,
         },
+        // Adicionar dados do pagador para melhorar aprovação
+        first_name: user.user_metadata?.full_name?.split(" ")[0] || "Usuario",
+        last_name: user.user_metadata?.full_name?.split(" ").slice(1).join(" ") || "Fanatica",
       },
+      // Campos adicionais para anti-fraude
+      additional_info: {
+        ip_address: clientIp,
+        items: [
+          {
+            id: planId,
+            title: plan.name,
+            description: `Assinatura ${plan.name} - Fanática`,
+            category_id: "services",
+            quantity: 1,
+            unit_price: plan.amount,
+          },
+        ],
+        payer: {
+          first_name: user.user_metadata?.full_name?.split(" ")[0] || "Usuario",
+          last_name: user.user_metadata?.full_name?.split(" ").slice(1).join(" ") || "Fanatica",
+          registration_date: user.created_at,
+        },
+      },
+      statement_descriptor: "FANATICA",
       metadata: {
         user_id: user.id,
         plan_id: planId,
+        source: "fanatica_app",
       },
+      // Capture imediato
+      capture: true,
+      // Forçar processamento em modo binário (aprovado/rejeitado, sem pending)
+      binary_mode: true,
     };
 
-    logStep("Creating Mercado Pago payment", { paymentBody: { ...paymentBody, token: "***" } });
+    // Adicionar device_id se disponível (melhora anti-fraude)
+    if (deviceId) {
+      (paymentBody.additional_info as Record<string, unknown>).payer = {
+        ...(paymentBody.additional_info as Record<string, unknown>).payer as Record<string, unknown>,
+        device_id: deviceId,
+      };
+    }
 
-    const mpResponse = await fetch("https://api.mercadopago.com/v1/payments", {
+    logStep("Creating Mercado Pago payment with enhanced anti-fraud data", { 
+      paymentBody: { ...paymentBody, token: "***" },
+      hasDeviceId: !!deviceId,
+      clientIp: clientIp.substring(0, 10) + "..."
+    });
+
+    const mpResponse = await callMercadoPagoWithRetry("https://api.mercadopago.com/v1/payments", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${accessToken}`,
         "Content-Type": "application/json",
         "X-Idempotency-Key": `${user.id}-${planId}-${Date.now()}`,
+        // Headers adicionais recomendados pelo Mercado Pago
+        "X-Product-Id": "fanatica-subscription",
       },
       body: JSON.stringify(paymentBody),
     });
