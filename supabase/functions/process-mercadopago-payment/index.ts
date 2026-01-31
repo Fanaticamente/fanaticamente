@@ -10,7 +10,7 @@ const corsHeaders = {
 const PLANS = {
   monthly: {
     name: "Plano Mensal",
-    amount: 0.50, // R$ 0,50/mês (TEMPORÁRIO PARA TESTES)
+    amount: 20.00, // R$ 20,00/mês
     frequency: 1,
     frequency_type: "months",
   },
@@ -133,8 +133,16 @@ serve(async (req) => {
     const plan = PLANS[planId as keyof typeof PLANS];
     logStep("Plan resolved", { plan });
 
-    const authHeader = req.headers.get("Authorization")!;
-    const authToken = authHeader.replace("Bearer ", "");
+    const authHeader = req.headers.get("Authorization");
+    const authToken = authHeader?.startsWith("Bearer ") ? authHeader.replace("Bearer ", "") : null;
+
+    if (!authToken) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
+
     const { data } = await supabaseClient.auth.getUser(authToken);
     const user = data.user;
 

@@ -111,6 +111,14 @@ const MercadoPagoCardForm = ({ planId, planName, planPrice, onBack, onSuccess }:
     setError(null);
 
     try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        throw new Error("Não foi possível validar sua sessão. Faça login novamente.");
+      }
+      if (!sessionData.session) {
+        throw new Error("Você precisa estar logado para realizar o pagamento.");
+      }
+
       if (!mp) {
         throw new Error("SDK não inicializado");
       }
