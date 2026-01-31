@@ -92,8 +92,22 @@ serve(async (req) => {
     logStep("Function started");
 
     const accessToken = Deno.env.get("MERCADOPAGO_ACCESS_TOKEN");
+    const clientId = Deno.env.get("MERCADOPAGO_CLIENT_ID");
+    const clientSecret = Deno.env.get("MERCADOPAGO_CLIENT_SECRET");
+
+    // Log credential availability (without exposing values)
+    logStep("Checking Mercado Pago credentials", {
+      hasAccessToken: !!accessToken,
+      hasClientId: !!clientId,
+      hasClientSecret: !!clientSecret,
+    });
+
     if (!accessToken) {
       throw new Error("MERCADOPAGO_ACCESS_TOKEN is not configured");
+    }
+
+    if (!clientId || !clientSecret) {
+      logStep("Warning: MERCADOPAGO_CLIENT_ID or MERCADOPAGO_CLIENT_SECRET not configured - this may cause payment rejections");
     }
 
     // Validate access token format
