@@ -10,7 +10,7 @@ const corsHeaders = {
 const PLANS = {
   monthly: {
     name: "Plano Mensal",
-    amount: 5.00, // R$ 5,00/mês
+    amount: 20.00, // R$ 20,00/mês
     frequency: 1,
     frequency_type: "months",
   },
