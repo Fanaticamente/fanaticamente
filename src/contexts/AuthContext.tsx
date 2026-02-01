@@ -63,33 +63,48 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Function to update pending profile data after signup
+  // Uses sessionStorage for sensitive data (shorter exposure window than localStorage)
   const updatePendingProfileData = async (userId: string) => {
-    const pendingData = localStorage.getItem("pendingProfileUpdate");
+    // Check both sessionStorage (new) and localStorage (legacy fallback)
+    let pendingData = sessionStorage.getItem("pendingProfileUpdate");
+    let storageType: 'session' | 'local' = 'session';
+    
+    if (!pendingData) {
+      pendingData = localStorage.getItem("pendingProfileUpdate");
+      storageType = 'local';
+    }
+    
     if (!pendingData) {
       console.log("[Auth] No pending profile data found");
       return;
     }
 
-    console.log("[Auth] Processing pending profile data:", pendingData);
+    console.log("[Auth] Processing pending profile data");
 
     try {
       const profileData = JSON.parse(pendingData);
       const { crp, document_type, document_number, ...profileFields } = profileData;
 
+      // Clear sensitive data from storage as soon as we've read it
+      const clearStorage = () => {
+        sessionStorage.removeItem("pendingProfileUpdate");
+        localStorage.removeItem("pendingProfileUpdate");
+      };
+
       if (crp) {
-        console.log("[Auth] Professional signup detected with CRP:", crp);
+        console.log("[Auth] Professional signup detected");
         
         const success = await completeProfessionalSignup(userId, crp, profileFields, document_type, document_number);
         
         if (success) {
-          localStorage.removeItem("pendingProfileUpdate");
+          clearStorage();
         }
         // Keep pending data on failure so we can retry
         return;
       }
 
       // Regular user: just update profile fields
-      console.log("[Auth] Regular user, updating profile fields:", profileFields);
+      console.log("[Auth] Regular user, updating profile fields");
       const { error: profileError } = await supabase
         .from("profiles")
         .update(profileFields)
@@ -97,12 +112,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (!profileError) {
         console.log("[Auth] Profile updated successfully");
-        localStorage.removeItem("pendingProfileUpdate");
+        clearStorage();
       } else {
         console.error("[Auth] Profile update failed:", profileError);
       }
     } catch (error) {
       console.error("[Auth] Error updating pending profile data:", error);
+      // Clear potentially corrupted data
+      sessionStorage.removeItem("pendingProfileUpdate");
+      localStorage.removeItem("pendingProfileUpdate");
     }
   };
 

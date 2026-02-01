@@ -518,9 +518,58 @@ const ReportSection = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) {
+    
+    // Content validation
+    const trimmedContent = content.trim();
+    if (!trimmedContent) {
       toast({ title: "Erro", description: "Por favor, escreva seu relato ou denúncia.", variant: "destructive" });
       return;
+    }
+    
+    // Content length validation (10KB limit to prevent abuse)
+    const MAX_CONTENT_LENGTH = 10000;
+    if (trimmedContent.length > MAX_CONTENT_LENGTH) {
+      toast({ 
+        title: "Erro", 
+        description: `O conteúdo excede o limite de ${MAX_CONTENT_LENGTH.toLocaleString()} caracteres. Por favor, resuma seu relato.`, 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    // File size validation (5MB per file, 25MB total)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    const MAX_TOTAL_SIZE = 25 * 1024 * 1024; // 25MB
+    let totalSize = 0;
+    
+    for (const file of files) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast({ 
+          title: "Erro", 
+          description: `O arquivo "${file.name}" excede o limite de 5MB.`, 
+          variant: "destructive" 
+        });
+        return;
+      }
+      totalSize += file.size;
+    }
+    
+    if (totalSize > MAX_TOTAL_SIZE) {
+      toast({ 
+        title: "Erro", 
+        description: "O tamanho total dos arquivos excede 25MB.", 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    // Email validation if not anonymous
+    if (!isAnonymous && contactEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(contactEmail)) {
+        toast({ title: "Erro", description: "Por favor, insira um email válido.", variant: "destructive" });
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -539,13 +588,13 @@ const ReportSection = () => {
       // Insert report - cast to any to bypass types not including osmf_reports yet
       const { error } = await (supabase as any).from("osmf_reports").insert({
         submit_type: submitType,
-        content,
-        emotions: selectedEmotions,
+        content: trimmedContent,
+        emotions: selectedEmotions.slice(0, 10), // Limit emotions array
         club_id: clubId || null,
-        location_text: location || null,
+        location_text: location ? location.slice(0, 500) : null, // Limit location length
         is_anonymous: isAnonymous,
-        contact_name: isAnonymous ? null : contactName,
-        contact_email: isAnonymous ? null : contactEmail,
+        contact_name: isAnonymous ? null : (contactName ? contactName.slice(0, 200) : null),
+        contact_email: isAnonymous ? null : (contactEmail ? contactEmail.slice(0, 255) : null),
         attachment_paths: uploadedPaths
       });
 

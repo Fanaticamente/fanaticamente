@@ -103,6 +103,7 @@ const cleanNewsContent = (content: string): string => {
 
 const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
@@ -174,22 +175,17 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
         onClick={() => setIsOpen(true)}
         className="w-full text-left bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-4 hover:border-primary transition-colors group shadow-sm"
       >
-        {news.image_url ? (
+        {!imageError && news.image_url ? (
           <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
             <img
               src={news.image_url}
               alt={displayCaption || news.rewritten_title}
               className="w-full h-full object-cover"
-              onError={(e) => {
-                const parent = (e.target as HTMLImageElement).parentElement;
-                if (parent) {
-                  parent.innerHTML = `<div class="w-full h-full bg-muted flex items-center justify-center text-2xl">⚽</div>`;
-                }
-              }}
+              onError={() => setImageError(true)}
             />
           </div>
         ) : (
-          <div className="w-14 h-14 rounded-xl bg-gray-100 flex items-center justify-center text-2xl flex-shrink-0">
+          <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center text-2xl flex-shrink-0">
             ⚽
           </div>
         )}
