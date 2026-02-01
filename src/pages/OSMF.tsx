@@ -585,20 +585,39 @@ const ReportSection = () => {
         }
       }
 
-      // Insert report - cast to any to bypass types not including osmf_reports yet
-      const { error } = await (supabase as any).from("osmf_reports").insert({
-        submit_type: submitType,
-        content: trimmedContent,
-        emotions: selectedEmotions.slice(0, 10), // Limit emotions array
-        club_id: clubId || null,
-        location_text: location ? location.slice(0, 500) : null, // Limit location length
-        is_anonymous: isAnonymous,
-        contact_name: isAnonymous ? null : (contactName ? contactName.slice(0, 200) : null),
-        contact_email: isAnonymous ? null : (contactEmail ? contactEmail.slice(0, 255) : null),
-        attachment_paths: uploadedPaths
+      // Submit through rate-limited edge function
+      const response = await supabase.functions.invoke("submit-osmf-report", {
+        body: {
+          submit_type: submitType,
+          content: trimmedContent,
+          emotions: selectedEmotions.slice(0, 10),
+          club_id: clubId || null,
+          location_text: location ? location.slice(0, 500) : null,
+          is_anonymous: isAnonymous,
+          contact_name: isAnonymous ? null : (contactName ? contactName.slice(0, 200) : null),
+          contact_email: isAnonymous ? null : (contactEmail ? contactEmail.slice(0, 255) : null),
+          attachment_paths: uploadedPaths
+        }
       });
 
-      if (error) throw error;
+      if (response.error) {
+        throw new Error(response.error.message || "Erro ao enviar relato");
+      }
+
+      // Check for rate limit error in response data
+      if (response.data?.error) {
+        if (response.data.retryAfter) {
+          const minutes = Math.ceil(response.data.retryAfter / 60);
+          toast({ 
+            title: "Limite de envios", 
+            description: `Por favor, aguarde ${minutes} minuto(s) antes de enviar outro relato.`, 
+            variant: "destructive" 
+          });
+        } else {
+          throw new Error(response.data.error);
+        }
+        return;
+      }
 
       setShowSuccess(true);
       // Reset form
@@ -611,7 +630,8 @@ const ReportSection = () => {
       setFiles([]);
     } catch (error) {
       console.error("Error submitting report:", error);
-      toast({ title: "Erro", description: "Não foi possível enviar. Tente novamente.", variant: "destructive" });
+      const errorMessage = error instanceof Error ? error.message : "Não foi possível enviar. Tente novamente.";
+      toast({ title: "Erro", description: errorMessage, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
