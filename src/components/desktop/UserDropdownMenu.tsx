@@ -98,7 +98,7 @@ const UserDropdownMenu = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-56 bg-gray-900 border-gray-700 text-white z-50"
+        className="w-56 bg-black border-neutral-800 text-white z-50"
         sideOffset={8}
       >
         <div className="px-3 py-2 border-b border-gray-700">
