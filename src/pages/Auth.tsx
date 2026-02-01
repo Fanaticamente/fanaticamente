@@ -370,7 +370,8 @@ const Auth = () => {
           profileData.document_number = signUpData.documentNumber.replace(/\D/g, '');
         }
 
-        localStorage.setItem("pendingProfileUpdate", JSON.stringify(profileData));
+        // Use sessionStorage instead of localStorage for sensitive data (shorter exposure window)
+        sessionStorage.setItem("pendingProfileUpdate", JSON.stringify(profileData));
 
         const { error } = await signUp(
           signUpData.email,
@@ -379,7 +380,8 @@ const Auth = () => {
         );
 
         if (error) {
-          localStorage.removeItem("pendingProfileUpdate");
+          // Clean up sensitive data on error
+          sessionStorage.removeItem("pendingProfileUpdate");
           if (error.message.includes("already registered")) {
             toast.error("Este email já está cadastrado");
           } else {
