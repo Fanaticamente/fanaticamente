@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import DOMPurify from "dompurify";
 
 interface EditableBlockProps {
   moduleId: string;
@@ -482,7 +483,12 @@ const EditableBlock = ({
             className="outline-none bg-primary/10 min-h-[1em] p-1 -m-1 rounded w-full h-full overflow-auto"
             onBlur={handleBlur}
             onInput={(e) => setEditableContent(e.currentTarget.textContent || "")}
-            dangerouslySetInnerHTML={{ __html: editableContent }}
+            dangerouslySetInnerHTML={{ 
+              __html: DOMPurify.sanitize(editableContent, {
+                ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'br', 'p', 'span', 'u', 's'],
+                ALLOWED_ATTR: ['class', 'style']
+              })
+            }}
             style={{
               whiteSpace: "pre-wrap",
             }}
