@@ -88,40 +88,41 @@ const HeroSection = () => (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className="flex flex-wrap justify-center gap-4"
+        className="flex flex-col items-center gap-8 pb-12"
       >
-        <Button
-          size="lg"
-          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-8"
-          onClick={() => document.getElementById("dashboard")?.scrollIntoView({ behavior: "smooth" })}
-        >
-          <BarChart3 className="w-5 h-5 mr-2" /> Explorar Dados
-        </Button>
-        <Button
-          size="lg"
-          variant="outline"
-          className="border-white/30 text-white hover:bg-white/10 rounded-full px-8"
-          onClick={() => document.getElementById("educativo")?.scrollIntoView({ behavior: "smooth" })}
-        >
-          <BookOpen className="w-5 h-5 mr-2" /> Entender o Impacto
-        </Button>
-        <Button
-          size="lg"
-          variant="outline"
-          className="border-emerald-500 text-emerald-400 hover:bg-emerald-500/10 rounded-full px-8"
-          onClick={() => document.getElementById("relatos")?.scrollIntoView({ behavior: "smooth" })}
-        >
-          <Send className="w-5 h-5 mr-2" /> Enviar Relato
-        </Button>
-      </motion.div>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Button
+            size="lg"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-8"
+            onClick={() => document.getElementById("dashboard")?.scrollIntoView({ behavior: "smooth" })}
+          >
+            <BarChart3 className="w-5 h-5 mr-2" /> Explorar Dados
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="border-white/30 text-white hover:bg-white/10 rounded-full px-8"
+            onClick={() => document.getElementById("educativo")?.scrollIntoView({ behavior: "smooth" })}
+          >
+            <BookOpen className="w-5 h-5 mr-2" /> Entender o Impacto
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="border-emerald-500 text-emerald-400 hover:bg-emerald-500/10 rounded-full px-8"
+            onClick={() => document.getElementById("relatos")?.scrollIntoView({ behavior: "smooth" })}
+          >
+            <Send className="w-5 h-5 mr-2" /> Enviar Relato
+          </Button>
+        </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity }}
-      >
-        <ChevronDown className="w-8 h-8 text-white/50" />
+        {/* Scroll indicator - now below buttons */}
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <ChevronDown className="w-8 h-8 text-white/50" />
+        </motion.div>
       </motion.div>
     </div>
   </section>
