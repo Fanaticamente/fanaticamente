@@ -26,16 +26,20 @@ interface SlideConfig {
   subtitleColor?: string;
   titleFont?: string;
   subtitleFont?: string;
+  showOverlay?: boolean;
+  titleSubtitleGap?: number;
+  titleLineHeight?: number;
+  subtitleLineHeight?: number;
 }
 
-// Dimensões reais dos módulos baseadas no layout do app
+// Dimensões reais dos módulos baseadas no layout do app (2x para retina)
 const MODULE_DIMENSIONS: Record<string, { width: number; height: number; label: string }> = {
-  hero_carousel: { width: 375, height: 480, label: "Carrossel Principal" },
-  tunnel_access: { width: 343, height: 160, label: "Túnel de Acesso" },
-  ticket_card: { width: 343, height: 200, label: "Ingresso Consciência" },
-  quiz_card: { width: 343, height: 96, label: "Quiz Emocional" },
-  fanaticlass_card: { width: 343, height: 96, label: "FanatiClass" },
-  radio_card: { width: 343, height: 96, label: "Rádio Fanática" },
+  hero_carousel: { width: 750, height: 960, label: "Carrossel Principal (2x)" },
+  tunnel_access: { width: 686, height: 320, label: "Túnel de Acesso (2x)" },
+  ticket_card: { width: 686, height: 400, label: "Ingresso Consciência (2x)" },
+  quiz_card: { width: 686, height: 192, label: "Quiz Emocional (2x)" },
+  fanaticlass_card: { width: 686, height: 192, label: "FanatiClass (2x)" },
+  radio_card: { width: 686, height: 192, label: "Rádio Fanática (2x)" },
 };
 
 const FONT_OPTIONS = [
@@ -43,6 +47,8 @@ const FONT_OPTIONS = [
   { value: "font-sans", label: "Sans-serif" },
   { value: "font-serif", label: "Serif" },
   { value: "font-mono", label: "Monospace" },
+  { value: "font-montserrat", label: "Montserrat Arabic" },
+  { value: "font-poppins", label: "Poppins" },
 ];
 
 const COLOR_PRESETS = [
@@ -155,7 +161,11 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
         titleColor: "#FFFFFF",
         subtitleColor: "#FFFFFF",
         titleFont: "inherit",
-        subtitleFont: "inherit"
+        subtitleFont: "inherit",
+        showOverlay: true,
+        titleSubtitleGap: 8,
+        titleLineHeight: 1.1,
+        subtitleLineHeight: 1.4
       }],
     });
   };
@@ -166,9 +176,16 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
     setConfig({ ...config, slides: [...slides] });
   };
 
-  const updateSlide = (index: number, field: string, value: string) => {
+  const updateSlide = (index: number, field: string, value: string | number | boolean) => {
     const slides = (config.slides || []) as SlideConfig[];
-    slides[index] = { ...slides[index], [field]: value };
+    // Parse numeric and boolean values
+    let parsedValue: string | number | boolean = value;
+    if (field === "showOverlay") {
+      parsedValue = value === "true" || value === true;
+    } else if (["titleSubtitleGap", "titleLineHeight", "subtitleLineHeight"].includes(field)) {
+      parsedValue = typeof value === "string" ? parseFloat(value) : value;
+    }
+    slides[index] = { ...slides[index], [field]: parsedValue };
     setConfig({ ...config, slides: [...slides] });
   };
 
@@ -445,6 +462,83 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
                               </SelectContent>
                             </Select>
                           </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Overlay Toggle */}
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                      <div>
+                        <Label className="text-sm">Overlay (degradê)</Label>
+                        <p className="text-xs text-muted-foreground">Escurece a imagem para melhor leitura</p>
+                      </div>
+                      <Switch
+                        checked={slide.showOverlay !== false}
+                        onCheckedChange={(checked) => updateSlide(index, "showOverlay", checked ? "true" : "false")}
+                      />
+                    </div>
+                    
+                    {/* Spacing Controls */}
+                    <div className="space-y-3 pt-2 border-t border-border/50">
+                      <Label className="text-sm font-medium">Espaçamento e Altura de Linha</Label>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Espaço Título/Subtítulo</Label>
+                          <Select 
+                            value={String(slide.titleSubtitleGap ?? 8)}
+                            onValueChange={(value) => updateSlide(index, "titleSubtitleGap", value)}
+                          >
+                            <SelectTrigger className="mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="0">Nenhum</SelectItem>
+                              <SelectItem value="4">Pequeno (4px)</SelectItem>
+                              <SelectItem value="8">Médio (8px)</SelectItem>
+                              <SelectItem value="12">Grande (12px)</SelectItem>
+                              <SelectItem value="16">Extra (16px)</SelectItem>
+                              <SelectItem value="24">Máximo (24px)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Altura Linha Título</Label>
+                          <Select 
+                            value={String(slide.titleLineHeight ?? 1.1)}
+                            onValueChange={(value) => updateSlide(index, "titleLineHeight", value)}
+                          >
+                            <SelectTrigger className="mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1">Compacto (1)</SelectItem>
+                              <SelectItem value="1.1">Normal (1.1)</SelectItem>
+                              <SelectItem value="1.25">Médio (1.25)</SelectItem>
+                              <SelectItem value="1.4">Espaçado (1.4)</SelectItem>
+                              <SelectItem value="1.6">Largo (1.6)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="col-span-2">
+                          <Label className="text-xs text-muted-foreground">Altura Linha Subtítulo</Label>
+                          <Select 
+                            value={String(slide.subtitleLineHeight ?? 1.4)}
+                            onValueChange={(value) => updateSlide(index, "subtitleLineHeight", value)}
+                          >
+                            <SelectTrigger className="mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1">Compacto (1)</SelectItem>
+                              <SelectItem value="1.2">Normal (1.2)</SelectItem>
+                              <SelectItem value="1.4">Médio (1.4)</SelectItem>
+                              <SelectItem value="1.6">Espaçado (1.6)</SelectItem>
+                              <SelectItem value="1.8">Largo (1.8)</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
                     </div>

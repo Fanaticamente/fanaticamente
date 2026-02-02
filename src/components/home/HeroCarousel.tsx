@@ -13,6 +13,10 @@ interface SlideConfig {
   subtitleColor?: string;
   titleFont?: string;
   subtitleFont?: string;
+  showOverlay?: boolean;
+  titleSubtitleGap?: number;
+  titleLineHeight?: number;
+  subtitleLineHeight?: number;
 }
 
 const HeroCarousel = () => {
@@ -82,6 +86,10 @@ const HeroCarousel = () => {
         return "font-serif";
       case "font-mono":
         return "font-mono";
+      case "font-montserrat":
+        return "font-montserrat";
+      case "font-poppins":
+        return "font-poppins";
       default:
         return "font-display";
     }
@@ -122,21 +130,31 @@ const HeroCarousel = () => {
               decoding="async"
               onLoad={() => handleImageLoad(index)}
             />
-            {/* Dark overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+            {/* Dark overlay gradient - conditionally rendered */}
+            {slide.showOverlay !== false && (
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+            )}
           </div>
 
           {/* Content */}
           <div className="relative h-full flex flex-col justify-end p-6 pb-16">
             <h2 
-              className={`${getFontClass(slide.titleFont)} text-4xl md:text-5xl font-bold mb-2 tracking-tight`}
-              style={{ color: slide.titleColor || "#FFFFFF" }}
+              className={`${getFontClass(slide.titleFont)} text-4xl md:text-5xl font-bold tracking-tight`}
+              style={{ 
+                color: slide.titleColor || "#FFFFFF",
+                lineHeight: slide.titleLineHeight ?? 1.1,
+                marginBottom: `${slide.titleSubtitleGap ?? 8}px`
+              }}
             >
               {slide.title}
             </h2>
             <p 
               className={`${getFontClass(slide.subtitleFont)} text-lg mb-6`}
-              style={{ color: slide.subtitleColor || "#FFFFFF", opacity: 0.8 }}
+              style={{ 
+                color: slide.subtitleColor || "#FFFFFF", 
+                opacity: 0.8,
+                lineHeight: slide.subtitleLineHeight ?? 1.4
+              }}
             >
               {slide.subtitle}
             </p>
