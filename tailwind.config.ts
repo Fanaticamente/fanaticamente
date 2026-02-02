@@ -16,6 +16,8 @@ export default {
       fontFamily: {
         sans: ['Roboto', 'sans-serif'],
         display: ['Bebas Neue', 'sans-serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
