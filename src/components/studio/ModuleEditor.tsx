@@ -1,3 +1,5 @@
+// ModuleEditor.tsx - v2.1.0 - 2026-02-02
+// Features: Overlay toggle, spacing controls, Montserrat Arabic & Poppins fonts
 import { useState, useEffect } from "react";
 import { X, Save, Upload, Plus, Trash2, Link, ImageIcon, Type, Palette } from "lucide-react";
 import { AppModule, useUpdateModule, useUpdateModuleConfig } from "@/hooks/useAppModules";
@@ -11,7 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
-
 interface ModuleEditorProps {
   module: AppModule | null;
   onClose: () => void;
