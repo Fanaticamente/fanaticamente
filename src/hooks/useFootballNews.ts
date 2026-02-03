@@ -16,6 +16,7 @@ export interface FootballNewsItem {
   published_at: string;
   created_at: string;
   is_original: boolean;
+  club_id: string | null; // ID of the club this news was scraped from
 }
 
 export const useFootballNews = () => {

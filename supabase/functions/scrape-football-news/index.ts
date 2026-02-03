@@ -14,7 +14,54 @@ interface NewsItem {
   imageCaption?: string;
   imageCredits?: string;
   sourceSite: string;
+  clubId?: string; // Club ID if scraped from a club-specific page
 }
+
+// Mapping of club IDs to ge.globo.com URLs for Série A and B
+const CLUB_GE_URLS: Record<string, string> = {
+  // Série A
+  "athletico-pr": "https://ge.globo.com/futebol/times/athletico-pr/",
+  "atletico-mg": "https://ge.globo.com/futebol/times/atletico-mg/",
+  "bahia": "https://ge.globo.com/futebol/times/bahia/",
+  "botafogo": "https://ge.globo.com/futebol/times/botafogo/",
+  "bragantino": "https://ge.globo.com/futebol/times/bragantino/",
+  "chapecoense": "https://ge.globo.com/futebol/times/chapecoense/",
+  "corinthians": "https://ge.globo.com/futebol/times/corinthians/",
+  "coritiba": "https://ge.globo.com/futebol/times/coritiba/",
+  "cruzeiro": "https://ge.globo.com/futebol/times/cruzeiro/",
+  "flamengo": "https://ge.globo.com/futebol/times/flamengo/",
+  "fluminense": "https://ge.globo.com/futebol/times/fluminense/",
+  "gremio": "https://ge.globo.com/futebol/times/gremio/",
+  "internacional": "https://ge.globo.com/futebol/times/internacional/",
+  "mirassol": "https://ge.globo.com/futebol/times/mirassol/",
+  "palmeiras": "https://ge.globo.com/futebol/times/palmeiras/",
+  "remo": "https://ge.globo.com/futebol/times/remo/",
+  "santos": "https://ge.globo.com/futebol/times/santos/",
+  "vasco": "https://ge.globo.com/futebol/times/vasco/",
+  "vitoria": "https://ge.globo.com/futebol/times/vitoria/",
+  "sao-paulo": "https://ge.globo.com/futebol/times/sao-paulo/",
+  // Série B
+  "america-mg": "https://ge.globo.com/futebol/times/america-mg/",
+  "athletic": "https://ge.globo.com/futebol/times/athletic/",
+  "atletico-go": "https://ge.globo.com/futebol/times/atletico-go/",
+  "avai": "https://ge.globo.com/futebol/times/avai/",
+  "botafogo-sp": "https://ge.globo.com/futebol/times/botafogo-sp/",
+  "ceara": "https://ge.globo.com/futebol/times/ceara/",
+  "crb": "https://ge.globo.com/futebol/times/crb/",
+  "criciuma": "https://ge.globo.com/futebol/times/criciuma/",
+  "cuiaba": "https://ge.globo.com/futebol/times/cuiaba/",
+  "fortaleza": "https://ge.globo.com/futebol/times/fortaleza/",
+  "goias": "https://ge.globo.com/futebol/times/goias/",
+  "juventude": "https://ge.globo.com/futebol/times/juventude/",
+  "londrina": "https://ge.globo.com/futebol/times/londrina/",
+  "nautico": "https://ge.globo.com/futebol/times/nautico/",
+  "novorizontino": "https://ge.globo.com/futebol/times/novorizontino/",
+  "operario-pr": "https://ge.globo.com/futebol/times/operario-pr/",
+  "ponte-preta": "https://ge.globo.com/futebol/times/ponte-preta/",
+  "sao-bernardo": "https://ge.globo.com/futebol/times/sao-bernardo/",
+  "sport": "https://ge.globo.com/futebol/times/sport/",
+  "vila-nova": "https://ge.globo.com/futebol/times/vila-nova/",
+};
 
 async function scrapeWithFirecrawl(
   url: string,
@@ -308,7 +355,7 @@ async function mapWebsiteUrls(baseUrl: string): Promise<string[]> {
   return links;
 }
 
-function extractNewsFromGE(html: string, markdown: string, links?: string[], mappedUrls?: string[]): NewsItem[] {
+function extractNewsFromGE(html: string, markdown: string, links?: string[], mappedUrls?: string[], clubId?: string): NewsItem[] {
   const news: NewsItem[] = [];
   const seenUrls = new Set<string>();
   
@@ -318,7 +365,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
   const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
   const yesterdayStr = `${yesterday.getFullYear()}/${String(yesterday.getMonth() + 1).padStart(2, '0')}/${String(yesterday.getDate()).padStart(2, '0')}`;
   
-  console.log(`Filtering for news from: ${today} or ${yesterdayStr}`);
+  console.log(`Filtering for news from: ${today} or ${yesterdayStr}${clubId ? ` (club: ${clubId})` : ''}`);
   
   // Helper to check if URL is a valid recent news article
   const isValidArticle = (url: string): boolean => {
@@ -355,7 +402,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
     const pathMatch = url.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
     if (pathMatch) {
       const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
-      news.push({ url, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com' });
+      news.push({ url, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com', clubId });
     }
   }
   console.log(`Got ${news.length} articles from HTML hrefs`);
@@ -372,7 +419,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
     if (title.length < 15 || title.includes('Veja mais') || title.includes('Saiba mais')) continue;
     
     seenUrls.add(url);
-    news.push({ url, title, content: '', sourceSite: 'ge.globo.com' });
+    news.push({ url, title, content: '', sourceSite: 'ge.globo.com', clubId });
   }
   console.log(`Total after markdown: ${news.length} articles`);
   
@@ -391,7 +438,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
       const pathMatch = cleanUrl.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
       if (pathMatch) {
         const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
-        news.push({ url: cleanUrl, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com' });
+        news.push({ url: cleanUrl, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com', clubId });
       }
     }
     console.log(`Total after direct links: ${news.length} articles`);
@@ -412,7 +459,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
       const pathMatch = cleanUrl.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
       if (pathMatch) {
         const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
-        news.push({ url: cleanUrl, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com' });
+        news.push({ url: cleanUrl, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com', clubId });
       }
     }
     console.log(`Total after mapped URLs: ${news.length} articles`);
@@ -790,51 +837,35 @@ serve(async (req) => {
     console.log('Starting news scrape...');
 
     // Map multiple sections to catch all news including team-specific pages
-    // Include main sections AND popular team pages for comprehensive coverage
-    const sectionsToScrape = [
+    // Include main sections AND ALL club pages from Série A and B for comprehensive coverage
+    const generalSections = [
       'https://ge.globo.com/futebol/',
       'https://ge.globo.com/futebol/futebol-internacional/',
       'https://ge.globo.com/futebol/brasileirao-serie-a/',
       'https://ge.globo.com/futebol/brasileirao-serie-b/',
-      // Popular teams - most active news sources
-      'https://ge.globo.com/futebol/times/flamengo/',
-      'https://ge.globo.com/futebol/times/corinthians/',
-      'https://ge.globo.com/futebol/times/palmeiras/',
-      'https://ge.globo.com/futebol/times/sao-paulo/',
-      'https://ge.globo.com/futebol/times/fluminense/',
-      'https://ge.globo.com/futebol/times/vasco/',
-      'https://ge.globo.com/futebol/times/botafogo/',
-      'https://ge.globo.com/futebol/times/santos/',
-      'https://ge.globo.com/futebol/times/gremio/',
-      'https://ge.globo.com/futebol/times/internacional/',
-      'https://ge.globo.com/futebol/times/atletico-mg/',
-      'https://ge.globo.com/futebol/times/cruzeiro/',
-      'https://ge.globo.com/futebol/times/chapecoense/',
-      'https://ge.globo.com/futebol/times/sport/',
-      'https://ge.globo.com/futebol/times/coritiba/',
-      'https://ge.globo.com/futebol/times/bahia/',
-      'https://ge.globo.com/futebol/times/fortaleza/',
     ];
     
-    // Collect URLs from all sections in parallel with error handling
-    console.log(`Mapping ${sectionsToScrape.length} sections...`);
-    const mappedUrlsArrays = await Promise.all(
-      sectionsToScrape.map(section => mapWebsiteUrls(section).catch(() => []))
+    // Get all club URLs from the mapping
+    const clubSections = Object.entries(CLUB_GE_URLS);
+    
+    console.log(`Mapping ${generalSections.length} general sections + ${clubSections.length} club pages...`);
+    
+    // Collect URLs from general sections in parallel
+    const generalMappedArrays = await Promise.all(
+      generalSections.map(section => mapWebsiteUrls(section).catch(() => []))
     );
     
-    // Combine and dedupe all mapped URLs
-    const allMappedUrls = [...new Set(mappedUrlsArrays.flat())];
-    console.log(`Total mapped URLs from all sections: ${allMappedUrls.length}`);
+    // Combine and dedupe general mapped URLs
+    const generalMappedUrls = [...new Set(generalMappedArrays.flat())];
+    console.log(`Total mapped URLs from general sections: ${generalMappedUrls.length}`);
     
-    // PRIORITY: Scrape the main page FIRST to get the newest articles
-    // The homepage shows the most recent news that may not yet be in the sitemap/map
+    // PRIORITY: Scrape the main page FIRST to get the newest articles (no club_id)
     console.log('Scraping main page for recent news (priority)...');
     let mainPageLinks: string[] = [];
     let mainPageMarkdown = '';
     let mainPageHtml = '';
     
     try {
-      // Add aggressive cache-busting
       const mainPageUrl = `https://ge.globo.com/futebol/?_nocache=${Date.now()}&r=${Math.random()}`;
       const result = await scrapeWithFirecrawl(mainPageUrl, { onlyMainContent: false, formats: ['markdown', 'html', 'links'] });
       const data = result.data || result;
@@ -842,17 +873,78 @@ serve(async (req) => {
       mainPageHtml = data.html || '';
       mainPageLinks = data.links || [];
       console.log(`Got ${mainPageLinks.length} links from main page scrape`);
-      
-      // Log first few links to debug
-      console.log('Sample of main page links:', mainPageLinks.slice(0, 10));
     } catch (error) {
       console.error('Error scraping main page:', error);
     }
 
-    // Extract news - PRIORITIZE main page links over mapped URLs
-    // Main page has the freshest content that may not be in the sitemap yet
-    const allNews = extractNewsFromGE(mainPageHtml, mainPageMarkdown, mainPageLinks, allMappedUrls);
-    console.log(`Total articles found: ${allNews.length}`);
+    // Extract news from main page (no club_id)
+    const mainPageNews = extractNewsFromGE(mainPageHtml, mainPageMarkdown, mainPageLinks, generalMappedUrls);
+    console.log(`Main page articles found: ${mainPageNews.length}`);
+    
+    // Now scrape each club page and tag with club_id
+    // Process clubs in batches of 5 to avoid overloading
+    const allClubNews: NewsItem[] = [];
+    const BATCH_SIZE = 5;
+    
+    for (let i = 0; i < clubSections.length; i += BATCH_SIZE) {
+      const batch = clubSections.slice(i, i + BATCH_SIZE);
+      console.log(`Processing club batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(clubSections.length / BATCH_SIZE)}...`);
+      
+      const batchResults = await Promise.all(
+        batch.map(async ([clubId, clubUrl]) => {
+          try {
+            const mappedUrls = await mapWebsiteUrls(clubUrl).catch(() => []);
+            const url = `${clubUrl}?_nocache=${Date.now()}&r=${Math.random()}`;
+            const result = await scrapeWithFirecrawl(url, { onlyMainContent: false, formats: ['markdown', 'html', 'links'] });
+            const data = result.data || result;
+            const news = extractNewsFromGE(
+              data.html || '', 
+              data.markdown || '', 
+              data.links || [], 
+              mappedUrls,
+              clubId // Tag with club_id
+            );
+            console.log(`Club ${clubId}: found ${news.length} articles`);
+            return news;
+          } catch (err) {
+            console.error(`Error scraping club ${clubId}:`, err);
+            return [];
+          }
+        })
+      );
+      
+      allClubNews.push(...batchResults.flat());
+    }
+    
+    console.log(`Total club-specific articles found: ${allClubNews.length}`);
+    
+    // Combine all news, prioritizing main page (fresher) but keeping club_id for club-specific
+    const seenUrls = new Set<string>();
+    const allNews: NewsItem[] = [];
+    
+    // Add main page news first (no club_id, but fresher)
+    for (const item of mainPageNews) {
+      if (!seenUrls.has(item.url)) {
+        seenUrls.add(item.url);
+        allNews.push(item);
+      }
+    }
+    
+    // Add club news (has club_id for filtering)
+    for (const item of allClubNews) {
+      if (!seenUrls.has(item.url)) {
+        seenUrls.add(item.url);
+        allNews.push(item);
+      } else {
+        // If article already exists from main page, update it with club_id
+        const existingIndex = allNews.findIndex(n => n.url === item.url);
+        if (existingIndex !== -1 && item.clubId && !allNews[existingIndex].clubId) {
+          allNews[existingIndex].clubId = item.clubId;
+        }
+      }
+    }
+    
+    console.log(`Total unique articles found: ${allNews.length}`);
 
     // Check which URLs already exist - fetch ALL existing URLs to avoid duplicates
     const { data: existingNews } = await supabase
@@ -922,7 +1014,7 @@ serve(async (req) => {
             .join(' ');
         }
 
-        // Insert into database
+        // Insert into database with club_id
         const { error: insertError } = await supabase
           .from('football_news')
           .insert({
@@ -937,6 +1029,7 @@ serve(async (req) => {
             image_credits: details.imageCredits,
             category: 'Futebol',
             is_original: isOriginal,
+            club_id: article.clubId || null, // Include club_id if available
           });
 
         if (insertError) {

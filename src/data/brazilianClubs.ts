@@ -19,7 +19,54 @@ export interface BrazilianClub {
   badgeUrl: string;
   league: "serie_a" | "serie_b" | "serie_c";
   storeUrl: string;
+  geUrl?: string; // URL da página do time no ge.globo.com
 }
+
+// Mapping of club IDs to ge.globo.com URLs
+export const clubGeUrls: Record<string, string> = {
+  // Série A
+  "athletico-pr": "https://ge.globo.com/futebol/times/athletico-pr/",
+  "atletico-mg": "https://ge.globo.com/futebol/times/atletico-mg/",
+  "bahia": "https://ge.globo.com/futebol/times/bahia/",
+  "botafogo": "https://ge.globo.com/futebol/times/botafogo/",
+  "bragantino": "https://ge.globo.com/futebol/times/bragantino/",
+  "chapecoense": "https://ge.globo.com/futebol/times/chapecoense/",
+  "corinthians": "https://ge.globo.com/futebol/times/corinthians/",
+  "coritiba": "https://ge.globo.com/futebol/times/coritiba/",
+  "cruzeiro": "https://ge.globo.com/futebol/times/cruzeiro/",
+  "flamengo": "https://ge.globo.com/futebol/times/flamengo/",
+  "fluminense": "https://ge.globo.com/futebol/times/fluminense/",
+  "gremio": "https://ge.globo.com/futebol/times/gremio/",
+  "internacional": "https://ge.globo.com/futebol/times/internacional/",
+  "mirassol": "https://ge.globo.com/futebol/times/mirassol/",
+  "palmeiras": "https://ge.globo.com/futebol/times/palmeiras/",
+  "remo": "https://ge.globo.com/futebol/times/remo/",
+  "santos": "https://ge.globo.com/futebol/times/santos/",
+  "sao-paulo": "https://ge.globo.com/futebol/times/sao-paulo/",
+  "vasco": "https://ge.globo.com/futebol/times/vasco/",
+  "vitoria": "https://ge.globo.com/futebol/times/vitoria/",
+  // Série B
+  "america-mg": "https://ge.globo.com/futebol/times/america-mg/",
+  "athletic": "https://ge.globo.com/futebol/times/athletic/",
+  "atletico-go": "https://ge.globo.com/futebol/times/atletico-go/",
+  "avai": "https://ge.globo.com/futebol/times/avai/",
+  "botafogo-sp": "https://ge.globo.com/futebol/times/botafogo-sp/",
+  "ceara": "https://ge.globo.com/futebol/times/ceara/",
+  "crb": "https://ge.globo.com/futebol/times/crb/",
+  "criciuma": "https://ge.globo.com/futebol/times/criciuma/",
+  "cuiaba": "https://ge.globo.com/futebol/times/cuiaba/",
+  "fortaleza": "https://ge.globo.com/futebol/times/fortaleza/",
+  "goias": "https://ge.globo.com/futebol/times/goias/",
+  "juventude": "https://ge.globo.com/futebol/times/juventude/",
+  "londrina": "https://ge.globo.com/futebol/times/londrina/",
+  "nautico": "https://ge.globo.com/futebol/times/nautico/",
+  "novorizontino": "https://ge.globo.com/futebol/times/novorizontino/",
+  "operario-pr": "https://ge.globo.com/futebol/times/operario-pr/",
+  "ponte-preta": "https://ge.globo.com/futebol/times/ponte-preta/",
+  "sao-bernardo": "https://ge.globo.com/futebol/times/sao-bernardo/",
+  "sport": "https://ge.globo.com/futebol/times/sport/",
+  "vila-nova": "https://ge.globo.com/futebol/times/vila-nova/",
+};
 
 export const brazilianClubs: BrazilianClub[] = [
   // Série A - 2026 (ordem alfabética)
@@ -192,6 +239,16 @@ export const brazilianClubs: BrazilianClub[] = [
     badgeUrl: "https://logodetimes.com/times/santos/logo-santos-256.png",
     league: "serie_a",
     storeUrl: "https://www.santosstore.com.br",
+  },
+  {
+    id: "sao-paulo",
+    name: "São Paulo",
+    shortName: "SAO",
+    primaryColor: "#FF0000",
+    secondaryColor: "#FFFFFF",
+    badgeUrl: "https://logodetimes.com/times/sao-paulo/logo-sao-paulo-256.png",
+    league: "serie_a",
+    storeUrl: "https://www.saostore.com.br",
   },
   {
     id: "vasco",
