@@ -2,11 +2,13 @@ import { useState } from "react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import NewsList from "@/components/futebol/NewsList";
+import ClubFilterDropdown from "@/components/futebol/ClubFilterDropdown";
 
 const categories = ["Todos", "Futebol", "Brasileiro", "Libertadores", "Sul-Americana", "Seleção"];
 
 const Futebol = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [selectedClub, setSelectedClub] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen bg-white">
@@ -15,10 +17,14 @@ const Futebol = () => {
       <main className="pt-20">
         {/* Header */}
         <div className="px-4 mb-6">
-          <div className="border-b-2 border-gray-800 pb-3 mb-3">
+          <div className="flex items-center justify-between border-b-2 border-gray-800 pb-3 mb-3">
             <h1 className="text-4xl font-display font-bold text-gray-900 tracking-tight">
               Notícias
             </h1>
+            <ClubFilterDropdown 
+              selectedClub={selectedClub} 
+              onSelectClub={setSelectedClub} 
+            />
           </div>
           <p className="text-gray-600 text-sm tracking-wide font-sans">
             Tudo sobre futebol brasileiro e sul-americano
@@ -45,7 +51,7 @@ const Futebol = () => {
         </div>
 
         {/* News List */}
-        <NewsList selectedCategory={selectedCategory} />
+        <NewsList selectedCategory={selectedCategory} selectedClub={selectedClub} />
 
         {/* Spacer para manter distância do BottomNav */}
         <div aria-hidden className="h-28" />

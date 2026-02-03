@@ -5,12 +5,14 @@ import FeaturedNewsCarousel from "./FeaturedNewsCarousel";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { brazilianClubs } from "@/data/brazilianClubs";
 
 interface NewsListProps {
   selectedCategory: string;
+  selectedClub?: string | null;
 }
 
-const NewsList = ({ selectedCategory }: NewsListProps) => {
+const NewsList = ({ selectedCategory, selectedClub }: NewsListProps) => {
   const { data: news, isLoading, error, refetch, isFetching, forceScrape } = useFootballNews();
   const [isForceRefreshing, setIsForceRefreshing] = useState(false);
 
@@ -78,16 +80,60 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
     );
   }
 
+  // Get club data for filtering
+  const selectedClubData = selectedClub 
+    ? brazilianClubs.find((c) => c.id === selectedClub) 
+    : null;
+
   // Filter by category if not "Todos"
-  const filteredNews =
+  let filteredNews =
     selectedCategory === "Todos"
       ? news
       : news.filter((item) => item.category === selectedCategory);
+
+  // Filter by club if selected - search in title and content
+  if (selectedClubData) {
+    const clubKeywords = [
+      selectedClubData.name.toLowerCase(),
+      selectedClubData.shortName.toLowerCase(),
+      selectedClubData.id.replace(/-/g, " ").toLowerCase(),
+    ];
+
+    filteredNews = filteredNews.filter((item) => {
+      const titleLower = item.rewritten_title.toLowerCase();
+      const contentLower = item.rewritten_content.toLowerCase();
+      
+      return clubKeywords.some(
+        (keyword) => titleLower.includes(keyword) || contentLower.includes(keyword)
+      );
+    });
+  }
 
   // First 3 articles go to the carousel (featured)
   const featuredNews = filteredNews.slice(0, 3);
   // Rest goes to the list
   const otherNews = filteredNews.slice(3);
+
+  // Show empty state if club filter returns no results
+  if (filteredNews.length === 0 && selectedClub) {
+    return (
+      <div className="text-center py-12">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+          <img 
+            src={selectedClubData?.badgeUrl} 
+            alt={selectedClubData?.name} 
+            className="w-10 h-10 object-contain"
+          />
+        </div>
+        <p className="text-gray-500 mb-2">
+          Nenhuma notícia sobre o {selectedClubData?.name}
+        </p>
+        <p className="text-sm text-gray-400">
+          Tente novamente mais tarde ou selecione outro clube
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -103,7 +149,7 @@ const NewsList = ({ selectedCategory }: NewsListProps) => {
         <div className="px-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display text-xl text-black">
-              Últimas Notícias
+              {selectedClubData ? `Notícias do ${selectedClubData.name}` : "Últimas Notícias"}
             </h3>
             <div className="flex items-center gap-2">
               {(isFetching || isForceRefreshing) && (
