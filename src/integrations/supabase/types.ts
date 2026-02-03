@@ -446,6 +446,7 @@ export type Database = {
       football_news: {
         Row: {
           category: string | null
+          club_id: string | null
           created_at: string
           id: string
           image_caption: string | null
@@ -463,6 +464,7 @@ export type Database = {
         }
         Insert: {
           category?: string | null
+          club_id?: string | null
           created_at?: string
           id?: string
           image_caption?: string | null
@@ -480,6 +482,7 @@ export type Database = {
         }
         Update: {
           category?: string | null
+          club_id?: string | null
           created_at?: string
           id?: string
           image_caption?: string | null
