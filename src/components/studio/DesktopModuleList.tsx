@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { 
   GripVertical, Eye, EyeOff, ChevronUp, ChevronDown, 
-  MoreVertical, Trash2, Copy, Loader2, Plus,
+  MoreVertical, Trash2, Copy, Loader2, Plus, ChevronRight,
   Home, Layout, Image, Users, MessageSquare, FileText, BarChart, Grid, Type, List, LucideIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAppModules, useToggleModuleVisibility, useDeleteModule, useReorderModules, AppModule } from "@/hooks/useAppModules";
 import CreateSectionDialog from "./CreateSectionDialog";
+import PagesList from "./PagesList";
 
 interface DesktopModuleListProps {
   selectedModuleId?: string;
@@ -63,6 +64,7 @@ const DesktopModuleList = ({
   onSelectModule
 }: DesktopModuleListProps) => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [showPages, setShowPages] = useState(false);
   
   const { data: modules, isLoading } = useAppModules("desktop");
   const toggleVisibility = useToggleModuleVisibility();
@@ -126,6 +128,28 @@ const DesktopModuleList = ({
           </Button>
         </div>
       </div>
+      
+      {/* Pages Section Toggle */}
+      <button
+        onClick={() => setShowPages(!showPages)}
+        className="w-full flex items-center gap-2 p-3 border-b border-border hover:bg-muted/50 transition-colors"
+      >
+        <FileText className="w-4 h-4 text-muted-foreground" />
+        <span className="flex-1 text-left text-sm font-medium text-card-foreground">
+          Páginas do Sistema
+        </span>
+        {showPages ? (
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+        ) : (
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        )}
+      </button>
+      
+      {showPages && (
+        <div className="border-b border-border">
+          <PagesList platform="desktop" />
+        </div>
+      )}
       
       <div className="flex-1 overflow-y-auto p-2">
         {sortedModules.map((module, index) => {

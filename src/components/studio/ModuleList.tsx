@@ -3,7 +3,7 @@ import {
   GripVertical, Eye, EyeOff, ChevronRight, ChevronDown, 
   MoreVertical, Trash2, Copy, Home, Navigation as NavIcon,
   Layout, Image, Users, Ticket, Brain, Radio, GraduationCap,
-  ShoppingBag, Trophy, LucideIcon
+  ShoppingBag, Trophy, LucideIcon, FileText
 } from "lucide-react";
 import { AppModule, useToggleModuleVisibility, useReorderModules } from "@/hooks/useAppModules";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import PagesList from "./PagesList";
 
 interface ModuleListProps {
   modules: AppModule[];
@@ -49,21 +50,22 @@ const ModuleList = ({
   onPageChange,
   onChanged,
 }: ModuleListProps) => {
-  const [expandedPages, setExpandedPages] = useState<string[]>(["home", "navigation", "pages"]);
+  const [expandedSections, setExpandedSections] = useState<string[]>(["home", "navigation", "pages", "system-pages"]);
   const toggleVisibility = useToggleModuleVisibility();
   const reorderModules = useReorderModules();
   
-  const pages = [
-    { id: "home", name: "Página Principal", icon: Home },
-    { id: "navigation", name: "Navegação", icon: NavIcon },
-    { id: "pages", name: "Páginas Internas", icon: ChevronRight },
+  const sections = [
+    { id: "home", name: "Página Principal", icon: Home, type: "modules" },
+    { id: "navigation", name: "Navegação", icon: NavIcon, type: "modules" },
+    { id: "pages", name: "Páginas Internas", icon: ChevronRight, type: "modules" },
+    { id: "system-pages", name: "Páginas do Sistema", icon: FileText, type: "pages" },
   ];
 
-  const toggleExpand = (pageId: string) => {
-    setExpandedPages(prev => 
-      prev.includes(pageId) 
-        ? prev.filter(p => p !== pageId) 
-        : [...prev, pageId]
+  const toggleExpand = (sectionId: string) => {
+    setExpandedSections(prev => 
+      prev.includes(sectionId) 
+        ? prev.filter(p => p !== sectionId) 
+        : [...prev, sectionId]
     );
   };
 
@@ -95,24 +97,24 @@ const ModuleList = ({
     <div className="h-full flex flex-col">
       <div className="p-4 border-b border-border">
         <h3 className="font-display text-lg text-card-foreground">Organização</h3>
-        <p className="text-xs text-muted-foreground mt-1">Arraste para reordenar</p>
+        <p className="text-xs text-muted-foreground mt-1">Gerencie módulos e páginas</p>
       </div>
       
       <div className="flex-1 overflow-y-auto">
-        {pages.map((page) => {
-          const pageModules = modules.filter(m => m.page === page.id);
-          const isExpanded = expandedPages.includes(page.id);
-          const PageIcon = page.icon;
+        {sections.map((section) => {
+          const pageModules = section.type === "modules" ? modules.filter(m => m.page === section.id) : [];
+          const isExpanded = expandedSections.includes(section.id);
+          const SectionIcon = section.icon;
           
           return (
-            <div key={page.id} className="border-b border-border last:border-b-0">
+            <div key={section.id} className="border-b border-border last:border-b-0">
               <button
-                onClick={() => toggleExpand(page.id)}
+                onClick={() => toggleExpand(section.id)}
                 className="w-full flex items-center gap-2 p-3 hover:bg-muted/50 transition-colors"
               >
-                <PageIcon className="w-4 h-4 text-muted-foreground" />
+                <SectionIcon className="w-4 h-4 text-muted-foreground" />
                 <span className="flex-1 text-left text-sm font-medium text-card-foreground">
-                  {page.name}
+                  {section.name}
                 </span>
                 {isExpanded ? (
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
@@ -121,7 +123,11 @@ const ModuleList = ({
                 )}
               </button>
               
-              {isExpanded && (
+              {isExpanded && section.type === "pages" && (
+                <PagesList platform="mobile" />
+              )}
+              
+              {isExpanded && section.type === "modules" && (
                 <div className="pb-2">
                   {pageModules.map((module) => {
                     const ModuleIcon = getIconComponent(module.icon);
