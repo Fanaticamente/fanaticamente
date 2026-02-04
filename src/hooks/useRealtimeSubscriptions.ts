@@ -102,6 +102,18 @@ export const useRealtimeSubscriptions = () => {
       )
       .subscribe();
 
+    // Subscribe to app_pages changes
+    const pagesChannel = supabase
+      .channel('global_app_pages_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'app_pages' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['app-pages'] });
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(contentChannel);
       supabase.removeChannel(menusChannel);
@@ -109,6 +121,7 @@ export const useRealtimeSubscriptions = () => {
       supabase.removeChannel(profilesChannel);
       supabase.removeChannel(professionalsChannel);
       supabase.removeChannel(appointmentsChannel);
+      supabase.removeChannel(pagesChannel);
     };
   }, [queryClient, isManagerRoute]);
 };

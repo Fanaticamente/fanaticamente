@@ -157,6 +157,51 @@ export type Database = {
         }
         Relationships: []
       }
+      app_pages: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_public: boolean | null
+          is_visible: boolean | null
+          name: string
+          order_index: number | null
+          page_id: string
+          path: string
+          platform: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_public?: boolean | null
+          is_visible?: boolean | null
+          name: string
+          order_index?: number | null
+          page_id: string
+          path: string
+          platform?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_public?: boolean | null
+          is_visible?: boolean | null
+          name?: string
+          order_index?: number | null
+          page_id?: string
+          path?: string
+          platform?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       appointment_disputes: {
         Row: {
           admin_notes: string | null
