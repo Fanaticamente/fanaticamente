@@ -3,19 +3,28 @@ import { Button } from "@/components/ui/button";
 import logoHeader from "@/assets/logo-header.png";
 import { useAuth } from "@/contexts/AuthContext";
 import UserDropdownMenu from "./UserDropdownMenu";
+import { useAppPages } from "@/hooks/useAppPages";
 
 const navLinks = [
-  { label: "Início", path: "/", isRoute: true },
-  { label: "Especialistas", path: "/terapeutas", isRoute: true },
-  { label: "Zona Mista", path: "/zona-mista", isRoute: true },
-  { label: "OSMF", path: "/osmf", isRoute: true },
-  { label: "Junte-se a nós", path: "#profissionais", isRoute: false },
+  { label: "Início", path: "/", pageId: "home", isRoute: true },
+  { label: "Especialistas", path: "/terapeutas", pageId: "terapeutas", isRoute: true },
+  { label: "Zona Mista", path: "/zona-mista", pageId: "zona-mista", isRoute: true },
+  { label: "OSMF", path: "/osmf", pageId: "osmf", isRoute: true },
+  { label: "Junte-se a nós", path: "#profissionais", pageId: null, isRoute: false },
 ];
 
 const DesktopHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading } = useAuth();
+  const { data: pages } = useAppPages("desktop");
+
+  // Filter nav links based on page visibility
+  const visibleNavLinks = navLinks.filter((link) => {
+    if (!link.pageId) return true; // Always show non-page links like "Junte-se a nós"
+    const page = pages?.find((p) => p.page_id === link.pageId);
+    return page?.is_visible !== false; // Show if page not found or is visible
+  });
 
   const handleNavClick = (link: typeof navLinks[0]) => {
     // Limpa as rotas salvas para evitar conflito com route restoration
@@ -59,7 +68,7 @@ const DesktopHeader = () => {
 
         {/* Navigation Links */}
         <nav className="hidden lg:flex items-center gap-12">
-          {navLinks.map((link) => (
+          {visibleNavLinks.map((link) => (
             <button
               key={link.path}
               onClick={() => handleNavClick(link)}
