@@ -86,23 +86,29 @@ const DesktopHeader = () => {
           ) : user ? (
             <UserDropdownMenu />
           ) : (
-            <>
-              <Link to="/auth">
-                <Button 
-                  variant="ghost" 
-                  className="text-white hover:bg-white/10"
-                >
-                  Entrar
-                </Button>
-              </Link>
-              <Link to="/auth">
-                <Button 
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6"
-                >
-                  Baixar App
-                </Button>
-              </Link>
-            </>
+            (() => {
+              const authPage = pages?.find((p) => p.page_id === "auth");
+              const isAuthVisible = authPage?.is_visible !== false;
+              return isAuthVisible ? (
+                <>
+                  <Link to="/auth">
+                    <Button 
+                      variant="ghost" 
+                      className="text-white hover:bg-white/10"
+                    >
+                      Entrar
+                    </Button>
+                  </Link>
+                  <Link to="/auth">
+                    <Button 
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6"
+                    >
+                      Baixar App
+                    </Button>
+                  </Link>
+                </>
+              ) : null;
+            })()
           )}
         </div>
       </div>
