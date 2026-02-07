@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { 
   Users, UserCheck, Calendar, Settings, LogOut, Search, Filter, 
-  Shield, Sun, Moon, LayoutDashboard, DollarSign, ClipboardList, Database 
+  Shield, Sun, Moon, LayoutDashboard, DollarSign, ClipboardList 
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import adminLogoLight from "@/assets/admin-logo-light.png";
@@ -13,9 +13,8 @@ import AdminUsersTable from "@/components/admin/AdminUsersTable";
 import AdminProfessionalsTable from "@/components/admin/AdminProfessionalsTable";
 import AdminProfessionalsManagement from "@/components/admin/AdminProfessionalsManagement";
 import AdminAppointmentsTable from "@/components/admin/AdminAppointmentsTable";
-import AdminDataExport from "@/components/admin/AdminDataExport";
 
-type TabType = "dashboard" | "financeiro" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "exportar" | "configuracoes";
+type TabType = "dashboard" | "financeiro" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "configuracoes";
 
 const AdminDashboard = () => {
   const { user, signOut, hasRole, loading } = useAuth();
@@ -23,7 +22,7 @@ const AdminDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Valid tabs
-  const validTabs: TabType[] = ["dashboard", "financeiro", "usuarios", "gestao", "profissionais", "agendamentos", "exportar", "configuracoes"];
+  const validTabs: TabType[] = ["dashboard", "financeiro", "usuarios", "gestao", "profissionais", "agendamentos", "configuracoes"];
   
   // Get tab from URL or default
   const getTabFromUrl = (): TabType => {
@@ -105,7 +104,6 @@ const AdminDashboard = () => {
     { id: "gestao", label: "Gestão", icon: ClipboardList },
     { id: "profissionais", label: "Profissionais", icon: UserCheck },
     { id: "agendamentos", label: "Agendamentos", icon: Calendar },
-    { id: "exportar", label: "Exportar Dados", icon: Database },
     { id: "configuracoes", label: "Configurações", icon: Settings },
   ];
 
@@ -222,11 +220,6 @@ const AdminDashboard = () => {
         {/* Agendamentos Tab */}
         {activeTab === "agendamentos" && (
           <AdminAppointmentsTable themeStyles={themeStyles} searchTerm={searchTerm} />
-        )}
-
-        {/* Exportar Tab */}
-        {activeTab === "exportar" && (
-          <AdminDataExport themeStyles={themeStyles} />
         )}
 
         {/* Configurações Tab */}
