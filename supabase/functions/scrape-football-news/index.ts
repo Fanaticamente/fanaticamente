@@ -20,47 +20,47 @@ interface NewsItem {
 // Mapping of club IDs to ge.globo.com URLs for Série A and B
 const CLUB_GE_URLS: Record<string, string> = {
   // Série A
-  "athletico-pr": "https://ge.globo.com/futebol/times/athletico-pr/",
+  "athletico-pr": "https://ge.globo.com/pr/futebol/times/athletico-pr/",
   "atletico-mg": "https://ge.globo.com/futebol/times/atletico-mg/",
-  "bahia": "https://ge.globo.com/futebol/times/bahia/",
+  "bahia": "https://ge.globo.com/ba/futebol/times/bahia/",
   "botafogo": "https://ge.globo.com/futebol/times/botafogo/",
-  "bragantino": "https://ge.globo.com/futebol/times/bragantino/",
-  "chapecoense": "https://ge.globo.com/futebol/times/chapecoense/",
+  "bragantino": "https://ge.globo.com/sp/vale-do-paraiba-regiao/futebol/times/bragantino/",
+  "chapecoense": "https://ge.globo.com/sc/futebol/times/chapecoense/",
   "corinthians": "https://ge.globo.com/futebol/times/corinthians/",
-  "coritiba": "https://ge.globo.com/futebol/times/coritiba/",
+  "coritiba": "https://ge.globo.com/pr/futebol/times/coritiba/",
   "cruzeiro": "https://ge.globo.com/futebol/times/cruzeiro/",
   "flamengo": "https://ge.globo.com/futebol/times/flamengo/",
   "fluminense": "https://ge.globo.com/futebol/times/fluminense/",
-  "gremio": "https://ge.globo.com/futebol/times/gremio/",
-  "internacional": "https://ge.globo.com/futebol/times/internacional/",
-  "mirassol": "https://ge.globo.com/futebol/times/mirassol/",
+  "gremio": "https://ge.globo.com/rs/futebol/times/gremio/",
+  "internacional": "https://ge.globo.com/rs/futebol/times/internacional/",
+  "mirassol": "https://ge.globo.com/sp/tem-esporte/futebol/times/mirassol/",
   "palmeiras": "https://ge.globo.com/futebol/times/palmeiras/",
-  "remo": "https://ge.globo.com/futebol/times/remo/",
-  "santos": "https://ge.globo.com/futebol/times/santos/",
-  "vasco": "https://ge.globo.com/futebol/times/vasco/",
-  "vitoria": "https://ge.globo.com/futebol/times/vitoria/",
+  "remo": "https://ge.globo.com/pa/futebol/times/remo/",
+  "santos": "https://ge.globo.com/pa/futebol/times/santos/",
   "sao-paulo": "https://ge.globo.com/futebol/times/sao-paulo/",
+  "vasco": "https://ge.globo.com/futebol/times/vasco/",
+  "vitoria": "https://ge.globo.com/ba/futebol/times/vitoria/",
   // Série B
   "america-mg": "https://ge.globo.com/futebol/times/america-mg/",
-  "athletic": "https://ge.globo.com/futebol/times/athletic/",
-  "atletico-go": "https://ge.globo.com/futebol/times/atletico-go/",
-  "avai": "https://ge.globo.com/futebol/times/avai/",
-  "botafogo-sp": "https://ge.globo.com/futebol/times/botafogo-sp/",
-  "ceara": "https://ge.globo.com/futebol/times/ceara/",
-  "crb": "https://ge.globo.com/futebol/times/crb/",
-  "criciuma": "https://ge.globo.com/futebol/times/criciuma/",
-  "cuiaba": "https://ge.globo.com/futebol/times/cuiaba/",
-  "fortaleza": "https://ge.globo.com/futebol/times/fortaleza/",
-  "goias": "https://ge.globo.com/futebol/times/goias/",
-  "juventude": "https://ge.globo.com/futebol/times/juventude/",
-  "londrina": "https://ge.globo.com/futebol/times/londrina/",
-  "nautico": "https://ge.globo.com/futebol/times/nautico/",
-  "novorizontino": "https://ge.globo.com/futebol/times/novorizontino/",
-  "operario-pr": "https://ge.globo.com/futebol/times/operario-pr/",
-  "ponte-preta": "https://ge.globo.com/futebol/times/ponte-preta/",
-  "sao-bernardo": "https://ge.globo.com/futebol/times/sao-bernardo/",
-  "sport": "https://ge.globo.com/futebol/times/sport/",
-  "vila-nova": "https://ge.globo.com/futebol/times/vila-nova/",
+  "athletic": "https://ge.globo.com/mg/zona-da-mata-centro-oeste/futebol/times/athletic-club/",
+  "atletico-go": "https://ge.globo.com/go/futebol/times/atletico-go/",
+  "avai": "https://ge.globo.com/go/futebol/times/avai/",
+  "botafogo-sp": "https://ge.globo.com/sp/ribeirao-preto-e-regiao/futebol/times/botafogo-sp/",
+  "ceara": "https://ge.globo.com/ce/futebol/times/ceara/",
+  "crb": "https://ge.globo.com/al/futebol/times/crb/",
+  "criciuma": "https://ge.globo.com/al/futebol/times/criciuma/",
+  "cuiaba": "https://ge.globo.com/al/futebol/times/cuiaba/",
+  "fortaleza": "https://ge.globo.com/al/futebol/times/fortaleza/",
+  "goias": "https://ge.globo.com/al/futebol/times/goias/",
+  "juventude": "https://ge.globo.com/al/futebol/times/juventude/",
+  "nautico": "https://ge.globo.com/al/futebol/times/nautico/",
+  "novorizontino": "https://ge.globo.com/sp/tem-esporte/futebol/times/novorizontino/",
+  "londrina": "https://ge.globo.com/sp/tem-esporte/futebol/times/londrina/",
+  "operario-pr": "https://ge.globo.com/pr/futebol/times/operario-pr/",
+  "ponte-preta": "https://ge.globo.com/sp/campinas-e-regiao/futebol/times/ponte-preta/",
+  "sao-bernardo": "https://ge.globo.com/sp/futebol/times/sao-bernardo/",
+  "sport": "https://ge.globo.com/pe/futebol/times/sport/",
+  "vila-nova": "https://ge.globo.com/go/futebol/times/vila-nova/",
 };
 
 async function scrapeWithFirecrawl(
@@ -391,7 +391,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
   // PRIORITY 1: Extract from HTML href attributes (main page has freshest content)
   // This gets articles visible on the homepage RIGHT NOW
   console.log('Extracting from HTML hrefs (priority - freshest content)...');
-  const hrefPattern = /href="(https:\/\/ge\.globo\.com\/futebol\/[^"]+\.ghtml)"/g;
+  const hrefPattern = /href="(https:\/\/ge\.globo\.com\/(?:[a-z]{2}\/(?:[a-z-]+\/)?)?futebol\/[^"]+\.ghtml)"/g;
   let match;
   while ((match = hrefPattern.exec(html)) !== null && news.length < 25) {
     const url = match[1].split('?')[0];
@@ -409,7 +409,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
   
   // PRIORITY 2: Extract from markdown links (also from main page)
   console.log('Extracting from markdown links...');
-  const articlePattern = /\[([^\]]+)\]\((https:\/\/ge\.globo\.com\/futebol\/[^\s\)]+\.ghtml)\)/g;
+  const articlePattern = /\[([^\]]+)\]\((https:\/\/ge\.globo\.com\/(?:[a-z]{2}\/(?:[a-z-]+\/)?)?futebol\/[^\s\)]+\.ghtml)\)/g;
   while ((match = articlePattern.exec(markdown)) !== null && news.length < 25) {
     const title = match[1].trim();
     const url = match[2].split('?')[0];
@@ -428,7 +428,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
     console.log(`Processing ${links.length} direct links from scrape...`);
     for (const link of links) {
       if (news.length >= 25) break;
-      if (!link.includes('ge.globo.com/futebol/') || !link.endsWith('.ghtml')) continue;
+      if (!link.includes('ge.globo.com/') || !link.endsWith('.ghtml') || !link.includes('/futebol/')) continue;
       
       const cleanUrl = link.split('?')[0];
       if (seenUrls.has(cleanUrl)) continue;
@@ -449,7 +449,7 @@ function extractNewsFromGE(html: string, markdown: string, links?: string[], map
     console.log(`Processing ${mappedUrls.length} mapped URLs (lower priority)...`);
     for (const url of mappedUrls) {
       if (news.length >= 25) break;
-      if (!url.includes('ge.globo.com/futebol/') || !url.endsWith('.ghtml')) continue;
+      if (!url.includes('ge.globo.com/') || !url.endsWith('.ghtml') || !url.includes('/futebol/')) continue;
       
       const cleanUrl = url.split('?')[0];
       if (seenUrls.has(cleanUrl)) continue;
