@@ -836,31 +836,23 @@ serve(async (req) => {
 
     console.log('Starting news scrape...');
 
-    // Map multiple sections to catch all news including team-specific pages
-    // Include main sections AND ALL club pages from Série A and B for comprehensive coverage
-    const generalSections = [
-      'https://ge.globo.com/futebol/',
-      'https://ge.globo.com/futebol/futebol-internacional/',
-      'https://ge.globo.com/futebol/brasileirao-serie-a/',
-      'https://ge.globo.com/futebol/brasileirao-serie-b/',
-    ];
+    // OPTIMIZED APPROACH: Rotate through clubs to avoid rate limits
+    // Each run processes the main page + a rotating subset of clubs
+    // With 40 clubs and 8 per run, full coverage every ~5 runs (10 minutes)
+    const CLUBS_PER_RUN = 8;
     
-    // Get all club URLs from the mapping
-    const clubSections = Object.entries(CLUB_GE_URLS);
+    // Get all club entries and determine which batch to process this run
+    const allClubEntries = Object.entries(CLUB_GE_URLS);
     
-    console.log(`Mapping ${generalSections.length} general sections + ${clubSections.length} club pages...`);
+    // Use a simple rotation based on the current minute (changes every 2 min with auto-scrape)
+    const rotationIndex = Math.floor(Date.now() / (2 * 60 * 1000)) % Math.ceil(allClubEntries.length / CLUBS_PER_RUN);
+    const clubBatchStart = rotationIndex * CLUBS_PER_RUN;
+    const clubsThisRun = allClubEntries.slice(clubBatchStart, clubBatchStart + CLUBS_PER_RUN);
     
-    // Collect URLs from general sections in parallel
-    const generalMappedArrays = await Promise.all(
-      generalSections.map(section => mapWebsiteUrls(section).catch(() => []))
-    );
+    console.log(`Club rotation: batch ${rotationIndex + 1}/${Math.ceil(allClubEntries.length / CLUBS_PER_RUN)}, clubs: ${clubsThisRun.map(c => c[0]).join(', ')}`);
     
-    // Combine and dedupe general mapped URLs
-    const generalMappedUrls = [...new Set(generalMappedArrays.flat())];
-    console.log(`Total mapped URLs from general sections: ${generalMappedUrls.length}`);
-    
-    // PRIORITY: Scrape the main page FIRST to get the newest articles (no club_id)
-    console.log('Scraping main page for recent news (priority)...');
+    // STEP 1: Scrape the main page (1 Firecrawl call)
+    console.log('Scraping main page for recent news...');
     let mainPageLinks: string[] = [];
     let mainPageMarkdown = '';
     let mainPageHtml = '';
@@ -878,44 +870,38 @@ serve(async (req) => {
     }
 
     // Extract news from main page (no club_id)
-    const mainPageNews = extractNewsFromGE(mainPageHtml, mainPageMarkdown, mainPageLinks, generalMappedUrls);
+    const mainPageNews = extractNewsFromGE(mainPageHtml, mainPageMarkdown, mainPageLinks, [], undefined);
     console.log(`Main page articles found: ${mainPageNews.length}`);
     
-    // Now scrape each club page and tag with club_id
-    // Process clubs in batches of 5 to avoid overloading
+    // STEP 2: Scrape club pages - only 1 Firecrawl call per club (no map, just scrape for links)
+    // This uses only 8 calls instead of 80+
     const allClubNews: NewsItem[] = [];
-    const BATCH_SIZE = 5;
     
-    for (let i = 0; i < clubSections.length; i += BATCH_SIZE) {
-      const batch = clubSections.slice(i, i + BATCH_SIZE);
-      console.log(`Processing club batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(clubSections.length / BATCH_SIZE)}...`);
-      
-      const batchResults = await Promise.all(
-        batch.map(async ([clubId, clubUrl]) => {
-          try {
-            const mappedUrls = await mapWebsiteUrls(clubUrl).catch(() => []);
-            const url = `${clubUrl}?_nocache=${Date.now()}&r=${Math.random()}`;
-            const result = await scrapeWithFirecrawl(url, { onlyMainContent: false, formats: ['markdown', 'html', 'links'] });
-            const data = result.data || result;
-            const news = extractNewsFromGE(
-              data.html || '', 
-              data.markdown || '', 
-              data.links || [], 
-              mappedUrls,
-              clubId // Tag with club_id
-            );
-            console.log(`Club ${clubId}: found ${news.length} articles`);
-            return news;
-          } catch (err) {
-            console.error(`Error scraping club ${clubId}:`, err);
-            return [];
-          }
-        })
-      );
-      
-      allClubNews.push(...batchResults.flat());
-    }
+    // Process clubs in parallel (only 8, so safe)
+    const clubResults = await Promise.all(
+      clubsThisRun.map(async ([clubId, clubUrl]) => {
+        try {
+          const url = `${clubUrl}?_nocache=${Date.now()}&r=${Math.random()}`;
+          // Only request html and links - skip markdown to be lighter
+          const result = await scrapeWithFirecrawl(url, { onlyMainContent: false, formats: ['html', 'links'] });
+          const data = result.data || result;
+          const news = extractNewsFromGE(
+            data.html || '', 
+            '', // no markdown needed for link discovery
+            data.links || [], 
+            [], // no mapped URLs - skip map call entirely
+            clubId
+          );
+          console.log(`Club ${clubId}: found ${news.length} articles`);
+          return news;
+        } catch (err) {
+          console.error(`Error scraping club ${clubId}:`, err);
+          return [];
+        }
+      })
+    );
     
+    allClubNews.push(...clubResults.flat());
     console.log(`Total club-specific articles found: ${allClubNews.length}`);
     
     // Combine all news, prioritizing main page (fresher) but keeping club_id for club-specific
