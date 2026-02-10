@@ -114,14 +114,14 @@ const Ranking = () => {
 
         {/* Ranking Table */}
         <div className="px-4 overflow-x-auto">
-          <div className="min-w-[480px]">
+          <div className="min-w-[560px]">
             {/* Table Header */}
             <div className="flex items-center py-2 px-3 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
               <span className="w-8 text-center">#</span>
               <span className="flex-1 ml-3">Clube</span>
-              <span className="w-16 text-center">Sessões</span>
-              <span className="w-20 text-center">Termômetro</span>
-              <span className="w-16 text-center">Cursos</span>
+              <span className="w-20 text-center">Sessões</span>
+              <span className="w-24 text-center">Termômetro</span>
+              <span className="w-20 text-center">Cursos</span>
             </div>
 
             {/* Table Rows */}
@@ -170,13 +170,13 @@ const Ranking = () => {
                       </span>
                     </div>
 
-                    <span className={`w-16 text-center text-sm font-bold ${sessions > 0 ? "text-emerald-600" : "text-gray-300"}`}>
+                    <span className={`w-20 text-center text-sm font-bold ${sessions > 0 ? "text-emerald-600" : "text-gray-300"}`}>
                       {sessions}
                     </span>
-                    <span className={`w-20 text-center text-sm font-bold ${thermometer > 0 ? "text-emerald-600" : "text-gray-300"}`}>
+                    <span className={`w-24 text-center text-sm font-bold ${thermometer > 0 ? "text-emerald-600" : "text-gray-300"}`}>
                       {thermometer}
                     </span>
-                    <span className={`w-16 text-center text-sm font-bold ${courses > 0 ? "text-emerald-600" : "text-gray-300"}`}>
+                    <span className={`w-20 text-center text-sm font-bold ${courses > 0 ? "text-emerald-600" : "text-gray-300"}`}>
                       {courses}
                     </span>
                   </div>
