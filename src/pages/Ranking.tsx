@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Trophy } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
+import RankingInfoCard from "@/components/ranking/RankingInfoCard";
 import { supabase } from "@/integrations/supabase/client";
 import { brazilianClubs, getClubsByLeague } from "@/data/brazilianClubs";
 
@@ -114,11 +115,12 @@ const Ranking = () => {
 
         {/* Ranking Table */}
         <div className="px-4 overflow-x-auto">
-          <div className="min-w-[560px]">
+          <div className="min-w-[620px]">
             {/* Table Header */}
             <div className="flex items-center py-2 px-3 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
               <span className="w-8 text-center">#</span>
               <span className="flex-1 ml-3">Clube</span>
+              <span className="w-16 text-center font-extrabold text-gray-700">Pts</span>
               <span className="w-20 text-center">Sessões</span>
               <span className="w-24 text-center">Termômetro</span>
               <span className="w-20 text-center">Cursos</span>
@@ -170,6 +172,9 @@ const Ranking = () => {
                       </span>
                     </div>
 
+                    <span className={`w-16 text-center text-sm font-extrabold ${total > 0 ? "text-gray-900" : "text-gray-300"}`}>
+                      {total}
+                    </span>
                     <span className={`w-20 text-center text-sm font-bold ${sessions > 0 ? "text-emerald-600" : "text-gray-300"}`}>
                       {sessions}
                     </span>
@@ -201,6 +206,7 @@ const Ranking = () => {
         <div aria-hidden className="h-28" />
       </main>
 
+      <RankingInfoCard />
       <BottomNav />
     </div>
   );
