@@ -61,58 +61,48 @@ const BookingTermsDialog = ({ accepted, onAcceptChange, clubColor = "#10b981" }:
                   <div>
                     <h3 className="font-semibold text-white mb-2">Sobre a Plataforma</h3>
                     <p>
-                      A Fanaticamente é uma plataforma que conecta você a profissionais de psicologia 
-                      que atuam de forma independente. Somos um serviço de tecnologia e suporte, não 
-                      um serviço de psicologia.
+                      A Fanaticamente é uma plataforma que conecta você a psicólogos(as) que atuam de forma independente. Somos um serviço de tecnologia e suporte, não um serviço de psicologia.
                     </p>
                   </div>
 
                   <div>
                     <h3 className="font-semibold text-white mb-2">Os Profissionais</h3>
                     <p>
-                      Cada profissional atua com total autonomia. Não existe vínculo de emprego com a 
-                      Fanaticamente. Eles utilizam nossa plataforma como ferramenta de divulgação e 
-                      gestão de agenda.
+                      Cada profissional atua com total autonomia. Não existe vínculo empregatício com a Fanaticamente. Eles utilizam nossa plataforma como ferramenta de divulgação e gestão de agenda.
                     </p>
                   </div>
 
                   <div>
                     <h3 className="font-semibold text-white mb-2">Sobre os Pagamentos</h3>
                     <p className="mb-2">
-                      <strong className="text-white">Importante:</strong> Os valores pagos vão diretamente 
-                      para o profissional escolhido. A Fanaticamente não recebe, processa ou retém 
-                      nenhum valor das sessões.
+                      <strong className="text-white">Importante:</strong> Os valores pagos vão diretamente para o(a) profissional escolhido(a). A Fanaticamente não recebe, processa ou retém nenhum valor das sessões.
                     </p>
                     <p>
-                      O QR Code ou link de pagamento é gerado usando exclusivamente a chave PIX do 
-                      profissional. Todo o valor é transferido diretamente a ele.
+                      O QR Code ou link de pagamento é gerado usando exclusivamente a chave PIX do(a) profissional. Todo o valor é transferido diretamente a ele(a).
                     </p>
                   </div>
 
                   <div>
                     <h3 className="font-semibold text-white mb-2">Nossa Função</h3>
                     <p>
-                      Oferecemos um ambiente para que profissionais anunciem serviços, usuários encontrem 
-                      profissionais e agendamentos sejam organizados. Facilitamos a conexão, mas não 
-                      interferimos na atuação profissional.
+                      Oferecemos um ambiente para que profissionais anunciem serviços, usuários encontrem profissionais e agendamentos sejam organizados. Facilitamos a conexão, mas não interferimos na atuação profissional.
                     </p>
                   </div>
 
                   <div>
                     <h3 className="font-semibold text-white mb-2">Suas Responsabilidades</h3>
                     <p>
-                      A escolha do profissional é sua responsabilidade. Verifique credenciais e 
-                      qualificações. Questões sobre o atendimento devem ser tratadas diretamente com 
-                      o profissional.
+                      A escolha do(a) profissional é sua responsabilidade. Verifique credenciais e qualificações. Questões sobre o atendimento devem ser tratadas diretamente com o profissional.
                     </p>
                   </div>
 
                   <div>
                     <h3 className="font-semibold text-white mb-2">Cancelamentos</h3>
+                    <p className="mb-2">
+                      Em caso de impossibilidade de comparecer à sessão no dia e horário agendado, os usuários poderão reagendar uma nova data e horário em seu painel de agendamentos. Em caso de cancelamentos, no mesmo painel o usuário ou o profissional poderão solicitar o mesmo, ficando a cargo dos profissionais a responsabilidade de reembolso ao usuário caso existir.
+                    </p>
                     <p>
-                      Como os pagamentos vão direto ao profissional, políticas de cancelamento e 
-                      reembolso são definidas por cada um. Trate essas questões diretamente com o 
-                      profissional escolhido.
+                      Como os pagamentos são realizados diretamente aos profissionais, políticas de cancelamento e reembolso são definidas por cada um. Trate essas questões diretamente com o(a) profissional escolhido(a).
                     </p>
                   </div>
 
