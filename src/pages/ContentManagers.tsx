@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Smartphone, Monitor, ArrowRight, Loader2, Settings, LogOut, ExternalLink } from "lucide-react";
+import { Smartphone, Monitor, ArrowRight, Loader2, Settings, LogOut, ExternalLink, GraduationCap, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import CourseManager from "@/components/admin/CourseManager";
 
 const ContentManagers = () => {
   const { user, hasRole, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const [activeView, setActiveView] = useState<"menu" | "courses">("menu");
 
   const handleLogout = async () => {
     await signOut();
@@ -97,8 +99,19 @@ const ContentManagers = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center p-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
+      <main className="flex-1 overflow-y-auto p-8">
+        {activeView === "courses" ? (
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-6">
+              <Button variant="ghost" onClick={() => setActiveView("menu")} className="gap-2">
+                <ArrowLeft className="w-4 h-4" /> Voltar
+              </Button>
+            </div>
+            <CourseManager />
+          </div>
+        ) : (
+        <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full">
           {/* Mobile Manager Card */}
           <div 
             onClick={() => navigate("/developer/mobile")}
@@ -107,14 +120,8 @@ const ContentManagers = () => {
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <Smartphone className="w-10 h-10 text-primary" />
             </div>
-            
-            <h2 className="font-display text-2xl text-card-foreground mb-3">
-              App Mobile
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              Edite o conteúdo do aplicativo mobile: home, carrossel, cards, navegação e páginas internas do app.
-            </p>
-            
+            <h2 className="font-display text-2xl text-card-foreground mb-3">App Mobile</h2>
+            <p className="text-muted-foreground mb-6">Edite o conteúdo do aplicativo mobile: home, carrossel, cards, navegação e páginas internas do app.</p>
             <div className="flex items-center gap-2 text-primary group-hover:gap-4 transition-all">
               <span className="font-medium">Acessar gerenciador</span>
               <ArrowRight className="w-5 h-5" />
@@ -129,20 +136,32 @@ const ContentManagers = () => {
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-secondary/20 to-secondary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <Monitor className="w-10 h-10 text-secondary" />
             </div>
-            
-            <h2 className="font-display text-2xl text-card-foreground mb-3">
-              Site Desktop/Web
-            </h2>
-            <p className="text-muted-foreground mb-6">
-              Edite o conteúdo do site institucional: hero, seções, depoimentos, formulários e páginas web.
-            </p>
-            
+            <h2 className="font-display text-2xl text-card-foreground mb-3">Site Desktop/Web</h2>
+            <p className="text-muted-foreground mb-6">Edite o conteúdo do site institucional: hero, seções, depoimentos, formulários e páginas web.</p>
             <div className="flex items-center gap-2 text-secondary group-hover:gap-4 transition-all">
               <span className="font-medium">Acessar gerenciador</span>
               <ArrowRight className="w-5 h-5" />
             </div>
           </div>
+
+          {/* FanatiClass Manager Card */}
+          <div 
+            onClick={() => setActiveView("courses")}
+            className="group cursor-pointer bg-card border border-border rounded-2xl p-8 hover:border-primary/50 hover:shadow-xl transition-all duration-300"
+          >
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <GraduationCap className="w-10 h-10 text-primary" />
+            </div>
+            <h2 className="font-display text-2xl text-card-foreground mb-3">FanatiClass</h2>
+            <p className="text-muted-foreground mb-6">Gerencie cursos, módulos, aulas, vídeos e atividades complementares da plataforma de ensino.</p>
+            <div className="flex items-center gap-2 text-primary group-hover:gap-4 transition-all">
+              <span className="font-medium">Acessar gerenciador</span>
+              <ArrowRight className="w-5 h-5" />
+            </div>
+          </div>
         </div>
+        </div>
+        )}
       </main>
 
       {/* Footer info */}

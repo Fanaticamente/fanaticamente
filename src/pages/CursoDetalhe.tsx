@@ -1,294 +1,326 @@
 import { useState } from "react";
-import { Play, ChevronLeft, Star, Clock, Lock, Check, Plus, ThumbsUp, Share2, Download, ChevronDown, X, Cast, Volume2 } from "lucide-react";
+import { Play, ChevronLeft, Lock, Check, Plus, ThumbsUp, Share2, ChevronDown, Clock, BookOpen, CheckCircle } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
-
-interface Episode {
-  id: number;
-  number: number;
-  title: string;
-  duration: string;
-  description: string;
-  progress?: number;
-  timeRemaining?: string;
-}
-
-interface Course {
-  id: number;
-  title: string;
-  instructor: string;
-  duration: string;
-  lessons: number;
-  rating: number;
-  thumbnail: string;
-  isPremium: boolean;
-  category: string;
-  progress?: number;
-  year: string;
-  seasons: number;
-  description: string;
-  episodes: Episode[];
-}
-
-const courses: Course[] = [
-  {
-    id: 1,
-    title: "Controlando a Ansiedade nos Dias de Jogo",
-    instructor: "Dr. Roberto Mendes",
-    duration: "2h 30min",
-    lessons: 8,
-    rating: 4.9,
-    thumbnail: "🎯",
-    isPremium: false,
-    category: "Ansiedade",
-    progress: 45,
-    year: "2024",
-    seasons: 1,
-    description: "Aprenda técnicas práticas para controlar a ansiedade antes, durante e depois dos jogos do seu time. Este curso aborda desde respiração até técnicas cognitivas avançadas.",
-    episodes: [
-      { id: 1, number: 1, title: "Capítulo um: Entendendo a ansiedade do torcedor", duration: "24m", description: "Introdução ao fenômeno da ansiedade relacionada ao futebol.", progress: 60, timeRemaining: "24m" },
-      { id: 2, number: 2, title: "Capítulo dois: Técnicas de respiração", duration: "18m", description: "Aprenda técnicas de respiração para momentos de tensão.", progress: 0 },
-      { id: 3, number: 3, title: "Capítulo três: Reestruturação cognitiva", duration: "22m", description: "Como mudar pensamentos negativos." },
-      { id: 4, number: 4, title: "Capítulo quatro: Mindfulness no estádio", duration: "20m", description: "Práticas de atenção plena." },
-      { id: 5, number: 5, title: "Capítulo cinco: Gerenciando expectativas", duration: "25m", description: "Como criar expectativas realistas." },
-      { id: 6, number: 6, title: "Capítulo seis: A hora do jogo", duration: "19m", description: "Estratégias para o dia da partida." },
-      { id: 7, number: 7, title: "Capítulo sete: Pós-jogo", duration: "21m", description: "Como processar vitórias e derrotas." },
-      { id: 8, number: 8, title: "Capítulo oito: Mantendo o equilíbrio", duration: "23m", description: "Construindo uma relação saudável com o futebol." },
-    ],
-  },
-];
+import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useCourse, useCourseModules, useCourseLessons, useLessonActivities } from "@/hooks/useCourses";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const CursoDetalhe = () => {
   const { id } = useParams();
-  const [activeTab, setActiveTab] = useState<"episodes" | "collection" | "similar">("episodes");
+  const isMobile = useIsMobile();
+  const [activeTab, setActiveTab] = useState<"modulos" | "sobre">("modulos");
+  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
 
-  const course = courses.find((c) => c.id === Number(id)) || courses[0];
-  const currentEpisode = course.episodes.find(e => e.progress && e.progress < 100) || course.episodes[0];
+  const { data: course, isLoading: loadingCourse } = useCourse(id);
+  const { data: modules, isLoading: loadingModules } = useCourseModules(id);
+  const { data: allLessons } = useCourseLessons(id);
+  const { data: activities } = useLessonActivities(selectedLessonId || undefined);
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Video Player Area */}
-      <div className="relative aspect-video bg-black">
-        {/* Video placeholder */}
-        <div className="absolute inset-0 bg-gradient-to-b from-muted/50 to-background flex items-center justify-center">
-          <span className="text-[120px] opacity-50">{course.thumbnail}</span>
-        </div>
-        
-        {/* Top controls */}
-        <div className="absolute top-0 left-0 right-0 p-4 flex justify-end gap-4">
-          <button className="p-2 text-foreground">
-            <Cast className="w-6 h-6" />
-          </button>
-          <Link to="/cursos" className="p-2 text-foreground">
-            <X className="w-6 h-6" />
-          </Link>
-        </div>
+  const currentLesson = selectedLessonId ? allLessons?.find(l => l.id === selectedLessonId) : allLessons?.[0];
 
-        {/* Volume control */}
-        <div className="absolute bottom-4 right-4">
-          <button className="p-2 text-foreground bg-background/50 rounded-full">
-            <Volume2 className="w-5 h-5" />
-          </button>
+  if (loadingCourse) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!course) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-display text-foreground mb-2">Curso não encontrado</h2>
+          <Link to="/cursos" className="text-primary hover:underline">Voltar aos cursos</Link>
         </div>
       </div>
+    );
+  }
 
-      <main>
-        {/* Course Info */}
-        <div className="px-4 py-4">
-          {/* Brand/Category */}
-          <p className="text-destructive font-bold text-sm mb-1 tracking-wide">
-            FANATICLASS
-          </p>
+  const getLessonsForModule = (moduleId: string) => {
+    return allLessons?.filter(l => l.module_id === moduleId) || [];
+  };
 
-          <h1 className="font-display text-2xl text-foreground mb-3">
-            {course.title}
-          </h1>
+  const totalLessons = allLessons?.length || 0;
 
-          {/* Meta info */}
-          <div className="flex items-center gap-2 text-sm mb-3 flex-wrap">
-            <span className="text-foreground">{course.year}</span>
-            <span className="px-1.5 py-0.5 border border-muted-foreground text-muted-foreground text-xs rounded">
-              16
-            </span>
-            <span className="text-muted-foreground">{course.seasons} temporada</span>
-            <span className="px-1.5 py-0.5 border border-muted-foreground text-muted-foreground text-xs rounded">
-              HD
-            </span>
-          </div>
-
-          {/* Current episode info */}
-          <p className="text-foreground text-sm mb-3">
-            Novo episódio disponível agora
-          </p>
-
-          {/* Action Buttons */}
-          <div className="space-y-3 mb-4">
-            <button className="w-full flex items-center justify-center gap-2 py-3 bg-foreground text-background rounded-md font-medium">
-              <Play className="w-5 h-5 fill-current" />
-              Continuar
-            </button>
-            <button className="w-full flex items-center justify-center gap-2 py-3 bg-muted text-foreground rounded-md font-medium">
-              <Download className="w-5 h-5" />
-              Baixar T1:E1
-            </button>
-          </div>
-
-          {/* Episode Progress */}
-          <div className="mb-4">
-            <p className="text-foreground font-medium text-sm mb-1">
-              T1:E1 {currentEpisode.title}
-            </p>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-destructive" 
-                  style={{ width: `${currentEpisode.progress || 0}%` }}
-                />
+  const DetailContent = () => (
+    <div className="max-w-4xl mx-auto">
+      {/* Video Player */}
+      <div className="relative aspect-video bg-black rounded-2xl overflow-hidden mb-6">
+        {currentLesson?.video_url ? (
+          <video
+            src={currentLesson.video_url}
+            controls
+            className="w-full h-full"
+            poster={currentLesson.thumbnail_url || course.thumbnail_url || undefined}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-muted to-card flex flex-col items-center justify-center">
+            {course.thumbnail_url ? (
+              <img src={course.thumbnail_url} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+            ) : null}
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center mb-3">
+                <Play className="w-8 h-8 text-primary-foreground fill-current ml-1" />
               </div>
-              <span className="text-muted-foreground text-xs">
-                Tempo restante: {currentEpisode.timeRemaining || currentEpisode.duration}
-              </span>
+              <p className="text-foreground/70 text-sm">
+                {currentLesson ? "Vídeo em breve" : "Selecione uma aula"}
+              </p>
             </div>
           </div>
+        )}
+      </div>
 
-          {/* Description */}
-          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-            {course.description}
-          </p>
-
-          {/* Cast & Creator */}
-          <p className="text-muted-foreground text-xs mb-1">
-            <span className="text-foreground/70">Instrutor:</span> {course.instructor}
-          </p>
-          <p className="text-muted-foreground text-xs mb-6">
-            <span className="text-foreground/70">Criação:</span> FanaticaMente
-          </p>
-
-          {/* Quick Actions */}
-          <div className="flex justify-around border-b border-border pb-4 mb-4">
-            <button className="flex flex-col items-center gap-1 text-foreground">
-              <Plus className="w-6 h-6" />
-              <span className="text-xs">Minha lista</span>
-            </button>
-            <button className="flex flex-col items-center gap-1 text-foreground">
-              <ThumbsUp className="w-6 h-6" />
-              <span className="text-xs">Avaliar</span>
-            </button>
-            <button className="flex flex-col items-center gap-1 text-foreground">
-              <Share2 className="w-6 h-6" />
-              <span className="text-xs">Compartilhe</span>
-            </button>
-            <button className="flex flex-col items-center gap-1 text-foreground">
-              <Download className="w-6 h-6" />
-              <span className="text-xs text-center leading-tight">Baixar<br/>Temporada 1</span>
-            </button>
-          </div>
-
-          {/* Tabs */}
-          <div className="flex gap-6 mb-4">
-            <button
-              onClick={() => setActiveTab("episodes")}
-              className={`pb-2 font-medium text-sm transition-colors ${
-                activeTab === "episodes"
-                  ? "text-foreground border-b-2 border-destructive"
-                  : "text-muted-foreground"
-              }`}
-            >
-              Episódios
-            </button>
-            <button
-              onClick={() => setActiveTab("collection")}
-              className={`pb-2 font-medium text-sm transition-colors ${
-                activeTab === "collection"
-                  ? "text-foreground border-b-2 border-destructive"
-                  : "text-muted-foreground"
-              }`}
-            >
-              Coleção
-            </button>
-            <button
-              onClick={() => setActiveTab("similar")}
-              className={`pb-2 font-medium text-sm transition-colors ${
-                activeTab === "similar"
-                  ? "text-foreground border-b-2 border-destructive"
-                  : "text-muted-foreground"
-              }`}
-            >
-              Títulos semelhantes
-            </button>
-          </div>
-
-          {/* Season Selector */}
-          {activeTab === "episodes" && (
-            <button className="flex items-center gap-2 px-4 py-2 bg-muted rounded-md mb-4">
-              <span className="text-foreground text-sm">{course.title}</span>
-              <ChevronDown className="w-4 h-4 text-foreground" />
-            </button>
+      {/* Course Info */}
+      <div className="px-1">
+        <span className="text-primary font-bold text-xs tracking-widest uppercase">FANATICLASS</span>
+        <h1 className="font-display text-2xl text-foreground mt-1 mb-2">{course.title}</h1>
+        
+        <div className="flex items-center gap-3 text-sm text-muted-foreground mb-4 flex-wrap">
+          {course.instructor && <span>{course.instructor}</span>}
+          {course.total_duration && (
+            <span className="flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5" /> {course.total_duration}
+            </span>
+          )}
+          <span className="flex items-center gap-1">
+            <BookOpen className="w-3.5 h-3.5" /> {totalLessons} aulas
+          </span>
+          {course.is_premium ? (
+            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1">
+              <Lock className="w-3 h-3" /> Premium
+            </span>
+          ) : (
+            <span className="bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full text-xs font-bold">
+              Gratuito
+            </span>
           )}
         </div>
 
-        {/* Episodes List */}
-        {activeTab === "episodes" && (
-          <div className="px-4 space-y-4">
-            {course.episodes.map((episode) => (
-              <div key={episode.id} className="flex gap-3">
-                {/* Episode thumbnail */}
-                <div className="relative w-28 aspect-video rounded-md overflow-hidden bg-muted flex-shrink-0">
-                  <div className="absolute inset-0 flex items-center justify-center text-2xl">
-                    {course.thumbnail}
-                  </div>
-                  {/* Play icon */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-8 h-8 rounded-full border-2 border-foreground flex items-center justify-center bg-background/50">
-                      <Play className="w-3 h-3 text-foreground fill-current ml-0.5" />
+        {/* Current Lesson Title */}
+        {currentLesson && (
+          <div className="bg-muted/50 rounded-xl p-3 mb-4 border border-border">
+            <p className="text-xs text-muted-foreground mb-0.5">Assistindo agora</p>
+            <p className="text-foreground font-medium text-sm">{currentLesson.title}</p>
+            {currentLesson.duration && (
+              <p className="text-xs text-muted-foreground mt-1">{currentLesson.duration}</p>
+            )}
+          </div>
+        )}
+
+        {/* Quick Actions */}
+        <div className="flex justify-around border-b border-border pb-4 mb-4">
+          <button className="flex flex-col items-center gap-1 text-foreground hover:text-primary transition-colors">
+            <Plus className="w-5 h-5" />
+            <span className="text-xs">Minha lista</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 text-foreground hover:text-primary transition-colors">
+            <ThumbsUp className="w-5 h-5" />
+            <span className="text-xs">Avaliar</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 text-foreground hover:text-primary transition-colors">
+            <Share2 className="w-5 h-5" />
+            <span className="text-xs">Compartilhar</span>
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-6 mb-4">
+          <button
+            onClick={() => setActiveTab("modulos")}
+            className={`pb-2 font-medium text-sm transition-colors ${
+              activeTab === "modulos"
+                ? "text-foreground border-b-2 border-primary"
+                : "text-muted-foreground"
+            }`}
+          >
+            Módulos e Aulas
+          </button>
+          <button
+            onClick={() => setActiveTab("sobre")}
+            className={`pb-2 font-medium text-sm transition-colors ${
+              activeTab === "sobre"
+                ? "text-foreground border-b-2 border-primary"
+                : "text-muted-foreground"
+            }`}
+          >
+            Sobre
+          </button>
+        </div>
+
+        {/* Modules Tab */}
+        {activeTab === "modulos" && (
+          <div className="space-y-2">
+            {loadingModules ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 rounded-xl" />)}
+              </div>
+            ) : modules && modules.length > 0 ? (
+              <Accordion type="multiple" className="space-y-2">
+                {modules.map((mod, modIdx) => {
+                  const modLessons = getLessonsForModule(mod.id);
+                  return (
+                    <AccordionItem key={mod.id} value={mod.id} className="border border-border rounded-xl overflow-hidden">
+                      <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/50">
+                        <div className="flex items-center gap-3 text-left">
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
+                            {modIdx + 1}
+                          </div>
+                          <div>
+                            <h3 className="text-foreground font-medium text-sm">{mod.title}</h3>
+                            <p className="text-muted-foreground text-xs">{modLessons.length} aulas</p>
+                          </div>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-0 pb-0">
+                        <div className="border-t border-border">
+                          {modLessons.map((lesson, lesIdx) => (
+                            <button
+                              key={lesson.id}
+                              onClick={() => setSelectedLessonId(lesson.id)}
+                              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/50 transition-colors border-b border-border last:border-b-0 ${
+                                currentLesson?.id === lesson.id ? "bg-primary/5" : ""
+                              }`}
+                            >
+                              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${
+                                currentLesson?.id === lesson.id
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-muted text-muted-foreground"
+                              }`}>
+                                {currentLesson?.id === lesson.id ? (
+                                  <Play className="w-3 h-3 fill-current ml-0.5" />
+                                ) : (
+                                  lesIdx + 1
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-foreground text-sm font-medium line-clamp-1">{lesson.title}</h4>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  {lesson.duration && (
+                                    <span className="text-muted-foreground text-xs">{lesson.duration}</span>
+                                  )}
+                                  {lesson.is_free && (
+                                    <span className="text-green-600 text-xs font-medium">Grátis</span>
+                                  )}
+                                </div>
+                              </div>
+                              {!lesson.is_free && course.is_premium && (
+                                <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p>Conteúdo em breve</p>
+              </div>
+            )}
+
+            {/* Activities Section */}
+            {currentLesson && activities && activities.length > 0 && (
+              <div className="mt-6 pt-4 border-t border-border">
+                <h3 className="font-display text-lg text-foreground mb-3 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-primary" />
+                  Atividades Complementares
+                </h3>
+                <div className="space-y-3">
+                  {activities.map((activity) => (
+                    <div
+                      key={activity.id}
+                      className="bg-muted/50 border border-border rounded-xl p-4"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-3.5 h-3.5 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="text-foreground font-medium text-sm">{activity.title}</h4>
+                          {activity.description && (
+                            <p className="text-muted-foreground text-xs mt-1">{activity.description}</p>
+                          )}
+                          {activity.is_required && (
+                            <span className="text-xs text-primary font-medium mt-2 inline-block">Obrigatória</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  {/* Duration */}
-                  <div className="absolute bottom-1 right-1">
-                    <span className="text-foreground text-xs bg-background/70 px-1 rounded">
-                      {episode.duration}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Episode info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-foreground text-sm font-medium mb-1 line-clamp-2">
-                    {episode.number}. {episode.title.replace(`Capítulo ${episode.number === 1 ? 'um' : episode.number === 2 ? 'dois' : episode.number === 3 ? 'três' : episode.number === 4 ? 'quatro' : episode.number === 5 ? 'cinco' : episode.number === 6 ? 'seis' : episode.number === 7 ? 'sete' : 'oito'}: `, '')}
-                  </h3>
-                  <p className="text-muted-foreground text-xs line-clamp-2">
-                    {episode.description}
-                  </p>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
           </div>
         )}
 
-        {/* Collection */}
-        {activeTab === "collection" && (
-          <div className="px-4">
-            <p className="text-muted-foreground text-center py-8">
-              Nenhum conteúdo adicional disponível
-            </p>
+        {/* About Tab */}
+        {activeTab === "sobre" && (
+          <div className="space-y-4">
+            {course.description && (
+              <div>
+                <h3 className="text-foreground font-medium mb-2">Descrição</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">
+                  {course.description}
+                </p>
+              </div>
+            )}
+            {course.instructor && (
+              <div>
+                <h3 className="text-foreground font-medium mb-1">Instrutor</h3>
+                <p className="text-muted-foreground text-sm">{course.instructor}</p>
+              </div>
+            )}
+            <div>
+              <h3 className="text-foreground font-medium mb-1">Categoria</h3>
+              <p className="text-muted-foreground text-sm">{course.category}</p>
+            </div>
+            {course.price !== null && course.price > 0 && (
+              <div>
+                <h3 className="text-foreground font-medium mb-1">Preço</h3>
+                <p className="text-primary font-bold">R$ {Number(course.price).toFixed(2).replace('.', ',')}</p>
+              </div>
+            )}
           </div>
         )}
-
-        {/* Similar */}
-        {activeTab === "similar" && (
-          <div className="px-4">
-            <p className="text-muted-foreground text-center py-8">
-              Em breve mais cursos semelhantes
-            </p>
-          </div>
-        )}
-
-        {/* Spacer para manter distância do BottomNav */}
-        <div aria-hidden className="h-28" />
-      </main>
-
-      <BottomNav />
+      </div>
     </div>
+  );
+
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-16 px-4 pb-4">
+          <div className="mb-4">
+            <Link to="/cursos" className="flex items-center gap-1 text-muted-foreground text-sm hover:text-foreground transition-colors">
+              <ChevronLeft className="w-4 h-4" /> Voltar
+            </Link>
+          </div>
+          <DetailContent />
+          <div aria-hidden className="h-28" />
+        </main>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  return (
+    <UserDesktopLayout title={course.title} subtitle="FanatiClass">
+      <div className="mb-4">
+        <Link to="/cursos" className="flex items-center gap-1 text-muted-foreground text-sm hover:text-foreground transition-colors">
+          <ChevronLeft className="w-4 h-4" /> Voltar aos cursos
+        </Link>
+      </div>
+      <DetailContent />
+    </UserDesktopLayout>
   );
 };
 
