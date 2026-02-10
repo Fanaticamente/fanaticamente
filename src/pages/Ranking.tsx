@@ -80,10 +80,10 @@ const Ranking = () => {
       <main className="pt-20">
         {/* Title */}
         <div className="px-4 mb-4">
-          <div className="flex items-center gap-3 border-b-2 border-gray-800 pb-3 mb-2">
+          <div className="flex items-center gap-3 border-b-2 border-gray-400 pb-3 mb-2">
             <Trophy className="w-8 h-8 text-amber-500" />
             <div>
-              <h1 className="text-2xl font-display font-bold text-gray-900 tracking-tight leading-tight">
+              <h1 className="text-2xl font-display font-bold text-gray-800 tracking-tight leading-tight">
                 Brasileirão da Saúde Mental
               </h1>
               <p className="text-xs text-gray-500 font-medium">Temporada 2026</p>
