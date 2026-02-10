@@ -9,6 +9,16 @@ import sportBadge from "@/assets/badges/sport.png";
 import vilaNovaBadge from "@/assets/badges/vila-nova.png";
 import amazonasBadge from "@/assets/badges/amazonas.png";
 import anapolisBadge from "@/assets/badges/anapolis.png";
+import barraScBadge from "@/assets/badges/barra-sc.png";
+import caxiasBadge from "@/assets/badges/caxias.png";
+import confiancaBadge from "@/assets/badges/confianca.png";
+import florestaBadge from "@/assets/badges/floresta.png";
+import interDeLimeiraBadge from "@/assets/badges/inter-de-limeira.png";
+import itabaianaBadge from "@/assets/badges/itabaiana.png";
+import maranhaoBadge from "@/assets/badges/maranhao.png";
+import maringaBadge from "@/assets/badges/maringa.png";
+import paysanduBadge from "@/assets/badges/paysandu.png";
+import ypirangaBadge from "@/assets/badges/ypiranga-rs.png";
 
 export interface BrazilianClub {
   id: string;
@@ -500,7 +510,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "BAR",
     primaryColor: "#E30613",
     secondaryColor: "#000000",
-    badgeUrl: "https://logodetimes.com/times/barra/logo-barra-256.png",
+    badgeUrl: barraScBadge,
     league: "serie_c",
     storeUrl: "https://www.barrafc.com.br",
   },
@@ -530,7 +540,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "CAX",
     primaryColor: "#7B2D42",
     secondaryColor: "#FFFFFF",
-    badgeUrl: "https://logodetimes.com/times/caxias/logo-caxias-256.png",
+    badgeUrl: caxiasBadge,
     league: "serie_c",
     storeUrl: "https://www.sfreccaxias.com.br",
   },
@@ -540,7 +550,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "CON",
     primaryColor: "#004A99",
     secondaryColor: "#FFFFFF",
-    badgeUrl: "https://logodetimes.com/times/confianca/logo-confianca-256.png",
+    badgeUrl: confiancaBadge,
     league: "serie_c",
     storeUrl: "https://www.adconfianca.com.br",
   },
@@ -570,7 +580,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "FLO",
     primaryColor: "#006437",
     secondaryColor: "#FFFFFF",
-    badgeUrl: "https://logodetimes.com/times/floresta/logo-floresta-256.png",
+    badgeUrl: florestaBadge,
     league: "serie_c",
     storeUrl: "https://www.florestaec.com.br",
   },
@@ -590,7 +600,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "ILI",
     primaryColor: "#E30613",
     secondaryColor: "#000000",
-    badgeUrl: "https://logodetimes.com/times/inter-de-limeira/logo-inter-de-limeira-256.png",
+    badgeUrl: interDeLimeiraBadge,
     league: "serie_c",
     storeUrl: "https://www.interdelimeira.com.br",
   },
@@ -600,7 +610,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "ITA",
     primaryColor: "#E30613",
     secondaryColor: "#FFFFFF",
-    badgeUrl: "https://logodetimes.com/times/itabaiana/logo-itabaiana-256.png",
+    badgeUrl: itabaianaBadge,
     league: "serie_c",
     storeUrl: "https://www.itabaianafc.com.br",
   },
@@ -620,7 +630,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "MAR",
     primaryColor: "#E30613",
     secondaryColor: "#FFFFFF",
-    badgeUrl: "https://logodetimes.com/times/maranhao/logo-maranhao-256.png",
+    badgeUrl: maranhaoBadge,
     league: "serie_c",
     storeUrl: "https://www.maranhaoac.com.br",
   },
@@ -630,7 +640,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "MRG",
     primaryColor: "#FFD700",
     secondaryColor: "#000000",
-    badgeUrl: "https://logodetimes.com/times/maringa/logo-maringa-256.png",
+    badgeUrl: maringaBadge,
     league: "serie_c",
     storeUrl: "https://www.maringafc.com.br",
   },
@@ -640,7 +650,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "PAY",
     primaryColor: "#004A99",
     secondaryColor: "#FFFFFF",
-    badgeUrl: "https://logodetimes.com/times/paysandu/logo-paysandu-256.png",
+    badgeUrl: paysanduBadge,
     league: "serie_c",
     storeUrl: "https://www.paysandu.com.br",
   },
@@ -670,7 +680,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "YPI",
     primaryColor: "#FFD700",
     secondaryColor: "#006437",
-    badgeUrl: "https://logodetimes.com/times/ypiranga-rs/logo-ypiranga-rs-256.png",
+    badgeUrl: ypirangaBadge,
     league: "serie_c",
     storeUrl: "https://www.ypirangafc.com.br",
   },
