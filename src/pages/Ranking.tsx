@@ -118,16 +118,22 @@ const Ranking = () => {
           <div className="flex items-center py-2 px-3 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
             <span className="w-8 text-center">#</span>
             <span className="flex-1 ml-3">Clube</span>
-            <span className="w-16 text-center">Sessões</span>
+            <span className="w-12 text-center" title="Sessões concluídas">🛋️</span>
+            <span className="w-12 text-center" title="Termômetro Torcedor">🌡️</span>
+            <span className="w-12 text-center" title="Cursos FanatiClass">🎓</span>
+            <span className="w-14 text-center">Total</span>
           </div>
 
           {/* Table Rows */}
           <div className="divide-y divide-gray-100">
             {sortedClubs.map((club, index) => {
-              const count = clubCounts[club.id] || 0;
+              const sessions = clubCounts[club.id] || 0;
+              const thermometer = 0; // Placeholder — será integrado ao banco futuramente
+              const courses = 0; // Placeholder — será integrado ao banco futuramente
+              const total = sessions + thermometer + courses;
               const position = index + 1;
-              const isG4 = position <= 4 && count > 0;
-              const isZ4 = position > sortedClubs.length - 4 && count === 0;
+              const isG4 = position <= 4 && total > 0;
+              const isZ4 = position > sortedClubs.length - 4 && total === 0;
 
               return (
                 <div
@@ -140,7 +146,6 @@ const Ranking = () => {
                       : ""
                   }`}
                 >
-                  {/* Position */}
                   <span
                     className={`w-8 text-center text-sm font-bold ${
                       isG4
@@ -153,26 +158,29 @@ const Ranking = () => {
                     {position}
                   </span>
 
-                  {/* Club Badge + Name */}
-                  <div className="flex items-center gap-3 flex-1 ml-3 min-w-0">
+                  <div className="flex items-center gap-2 flex-1 ml-3 min-w-0">
                     <img
                       src={club.badgeUrl}
                       alt={club.name}
-                      className="w-8 h-8 object-contain flex-shrink-0"
+                      className="w-7 h-7 object-contain flex-shrink-0"
                       loading="lazy"
                     />
-                    <span className="text-sm font-semibold text-gray-900 truncate">
+                    <span className="text-xs font-semibold text-gray-900 truncate">
                       {club.name}
                     </span>
                   </div>
 
-                  {/* Session Count */}
-                  <span
-                    className={`w-16 text-center text-sm font-bold ${
-                      count > 0 ? "text-emerald-600" : "text-gray-300"
-                    }`}
-                  >
-                    {count}
+                  <span className={`w-12 text-center text-xs font-bold ${sessions > 0 ? "text-emerald-600" : "text-gray-300"}`}>
+                    {sessions}
+                  </span>
+                  <span className={`w-12 text-center text-xs font-bold ${thermometer > 0 ? "text-blue-600" : "text-gray-300"}`}>
+                    {thermometer}
+                  </span>
+                  <span className={`w-12 text-center text-xs font-bold ${courses > 0 ? "text-amber-600" : "text-gray-300"}`}>
+                    {courses}
+                  </span>
+                  <span className={`w-14 text-center text-xs font-extrabold ${total > 0 ? "text-gray-900" : "text-gray-300"}`}>
+                    {total}
                   </span>
                 </div>
               );
