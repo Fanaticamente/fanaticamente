@@ -113,89 +113,87 @@ const Ranking = () => {
         </div>
 
         {/* Ranking Table */}
-        <div className="px-4">
-          {/* Table Header */}
-          <div className="flex items-center py-2 px-3 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
-            <span className="w-8 text-center">#</span>
-            <span className="flex-1 ml-3">Clube</span>
-            <span className="w-12 text-center" title="Sessões concluídas">🛋️</span>
-            <span className="w-12 text-center" title="Termômetro Torcedor">🌡️</span>
-            <span className="w-12 text-center" title="Cursos FanatiClass">🎓</span>
-            <span className="w-14 text-center">Total</span>
-          </div>
+        <div className="px-4 overflow-x-auto">
+          <div className="min-w-[480px]">
+            {/* Table Header */}
+            <div className="flex items-center py-2 px-3 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+              <span className="w-8 text-center">#</span>
+              <span className="flex-1 ml-3">Clube</span>
+              <span className="w-16 text-center">Sessões</span>
+              <span className="w-20 text-center">Termômetro</span>
+              <span className="w-16 text-center">Cursos</span>
+            </div>
 
-          {/* Table Rows */}
-          <div className="divide-y divide-gray-100">
-            {sortedClubs.map((club, index) => {
-              const sessions = clubCounts[club.id] || 0;
-              const thermometer = 0; // Placeholder — será integrado ao banco futuramente
-              const courses = 0; // Placeholder — será integrado ao banco futuramente
-              const total = sessions + thermometer + courses;
-              const position = index + 1;
-              const isG4 = position <= 4 && total > 0;
-              const isZ4 = position > sortedClubs.length - 4 && total === 0;
+            {/* Table Rows */}
+            <div className="divide-y divide-gray-100">
+              {sortedClubs.map((club, index) => {
+                const sessions = clubCounts[club.id] || 0;
+                const thermometer = 0;
+                const courses = 0;
+                const total = sessions + thermometer + courses;
+                const position = index + 1;
+                const isG4 = position <= 4 && total > 0;
+                const isZ4 = position > sortedClubs.length - 4 && total === 0;
 
-              return (
-                <div
-                  key={club.id}
-                  className={`flex items-center py-3 px-3 transition-colors ${
-                    isG4
-                      ? "bg-emerald-50/60"
-                      : isZ4
-                      ? "bg-red-50/40"
-                      : ""
-                  }`}
-                >
-                  <span
-                    className={`w-8 text-center text-sm font-bold ${
+                return (
+                  <div
+                    key={club.id}
+                    className={`flex items-center py-3 px-3 transition-colors ${
                       isG4
-                        ? "text-emerald-600"
+                        ? "bg-emerald-50/60"
                         : isZ4
-                        ? "text-red-500"
-                        : "text-gray-400"
+                        ? "bg-red-50/40"
+                        : ""
                     }`}
                   >
-                    {position}
-                  </span>
+                    <span
+                      className={`w-8 text-center text-sm font-bold ${
+                        isG4
+                          ? "text-emerald-600"
+                          : isZ4
+                          ? "text-red-500"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      {position}
+                    </span>
 
-                  <div className="flex items-center gap-2 flex-1 ml-3 min-w-0">
-                    <img
-                      src={club.badgeUrl}
-                      alt={club.name}
-                      className="w-7 h-7 object-contain flex-shrink-0"
-                      loading="lazy"
-                    />
-                    <span className="text-xs font-semibold text-gray-900 truncate">
-                      {club.name}
+                    <div className="flex items-center gap-3 flex-1 ml-3 min-w-0">
+                      <img
+                        src={club.badgeUrl}
+                        alt={club.name}
+                        className="w-8 h-8 object-contain flex-shrink-0"
+                        loading="lazy"
+                      />
+                      <span className="text-sm font-semibold text-gray-900 truncate">
+                        {club.name}
+                      </span>
+                    </div>
+
+                    <span className={`w-16 text-center text-sm font-bold ${sessions > 0 ? "text-emerald-600" : "text-gray-300"}`}>
+                      {sessions}
+                    </span>
+                    <span className={`w-20 text-center text-sm font-bold ${thermometer > 0 ? "text-emerald-600" : "text-gray-300"}`}>
+                      {thermometer}
+                    </span>
+                    <span className={`w-16 text-center text-sm font-bold ${courses > 0 ? "text-emerald-600" : "text-gray-300"}`}>
+                      {courses}
                     </span>
                   </div>
-
-                  <span className={`w-12 text-center text-xs font-bold ${sessions > 0 ? "text-emerald-600" : "text-gray-300"}`}>
-                    {sessions}
-                  </span>
-                  <span className={`w-12 text-center text-xs font-bold ${thermometer > 0 ? "text-blue-600" : "text-gray-300"}`}>
-                    {thermometer}
-                  </span>
-                  <span className={`w-12 text-center text-xs font-bold ${courses > 0 ? "text-amber-600" : "text-gray-300"}`}>
-                    {courses}
-                  </span>
-                  <span className={`w-14 text-center text-xs font-extrabold ${total > 0 ? "text-gray-900" : "text-gray-300"}`}>
-                    {total}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Legend */}
-          <div className="flex items-center gap-6 py-4 mt-2 text-xs text-gray-500">
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-sm bg-emerald-500/20 border border-emerald-500/40" />
-              <span>G-4 — Zona de classificação</span>
+                );
+              })}
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-sm bg-red-500/20 border border-red-500/40" />
-              <span>Z-4 — Zona de rebaixamento</span>
+
+            {/* Legend */}
+            <div className="flex items-center gap-6 py-4 mt-2 text-xs text-gray-500">
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-sm bg-emerald-500/20 border border-emerald-500/40" />
+                <span>G-4 — Zona de classificação</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-sm bg-red-500/20 border border-red-500/40" />
+                <span>Z-4 — Zona de rebaixamento</span>
+              </div>
             </div>
           </div>
         </div>
