@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Check, Star, Crown, Zap, Shield } from "lucide-react";
-import { toast } from "sonner";
+import MercadoPagoCardForm from "./MercadoPagoCardForm";
 
 interface SubscriptionPlansProps {
   professionalId: string;
@@ -11,7 +11,7 @@ const plans = [
   {
     id: "monthly",
     name: "Mensal",
-    price: 20.00,
+    price: 1.00,
     originalPrice: null,
     discount: null,
     period: "mês",
@@ -64,11 +64,35 @@ const plans = [
 
 const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansProps) => {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const handleProceedToCheckout = () => {
     if (!selectedPlan) return;
-    toast.info("Sistema de pagamento em configuração. Tente novamente em breve.");
+    setShowCheckout(true);
   };
+
+  const handleBackToPlans = () => {
+    setShowCheckout(false);
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowCheckout(false);
+    onSubscribe();
+  };
+
+  const selectedPlanData = plans.find(p => p.id === selectedPlan);
+
+  if (showCheckout && selectedPlan && selectedPlanData) {
+    return (
+      <MercadoPagoCardForm
+        planId={selectedPlan}
+        planName={selectedPlanData.name}
+        planPrice={selectedPlanData.price}
+        onBack={handleBackToPlans}
+        onSuccess={handlePaymentSuccess}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -161,7 +185,7 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
       <div className="bg-muted/30 rounded-xl p-4 border border-border">
         <p className="text-muted-foreground text-sm text-center flex items-center justify-center gap-2">
           <Shield className="w-4 h-4" />
-          Pagamento seguro — sistema em configuração
+          Pagamento seguro via Mercado Pago
         </p>
       </div>
     </div>
