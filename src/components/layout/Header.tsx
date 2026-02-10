@@ -28,6 +28,7 @@ const Header = () => {
     { icon: "BookOpen", label: "FanatiClass", path: "/cursos" },
     { icon: "Radio", label: "Alambrado FM", path: "/radio" },
     { icon: "Newspaper", label: "Notícias", path: "/futebol" },
+    { icon: "Shirt", label: "FanaticaShop", path: "/loja" },
     { icon: "User", label: "Perfil", path: "/perfil" },
   ];
 
@@ -36,7 +37,7 @@ const Header = () => {
       <div className="flex items-center justify-between px-4 py-3">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
-            <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+            <button className="p-2 hover:bg-muted rounded-lg transition-colors focus:outline-none focus-visible:outline-none">
               <Menu className="w-6 h-6 text-white" />
             </button>
           </SheetTrigger>
