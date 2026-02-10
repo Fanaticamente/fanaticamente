@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, Settings, ShoppingBag, Thermometer, Shirt } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, Settings, ShoppingBag, Thermometer, Shirt, LogOut } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAppMenu } from "@/hooks/useAppContent";
+import { supabase } from "@/integrations/supabase/client";
 import logoHeader from "@/assets/logo-header.png";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -20,9 +21,10 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
   const { data: menuData } = useAppMenu('header_menu');
 
-  const menuItems = menuData?.items || [
+  const allItems = menuData?.items || [
     { icon: "Home", label: "Início", path: "/" },
     { icon: "Users", label: "Terapeutas", path: "/terapeutas" },
     { icon: "BookOpen", label: "FanatiClass", path: "/cursos" },
@@ -31,6 +33,23 @@ const Header = () => {
     { icon: "Shirt", label: "FanaticaShop", path: "/loja" },
     { icon: "User", label: "Perfil", path: "/perfil" },
   ];
+
+  // Separate Perfil from the rest — it goes to the bottom
+  const mainItems = allItems.filter((item) => item.icon !== "User");
+  // Ensure FanaticaShop is present after Notícias
+  const hasShop = mainItems.some((i) => i.path === "/loja");
+  if (!hasShop) {
+    const newsIndex = mainItems.findIndex((i) => i.path === "/futebol");
+    mainItems.splice(newsIndex + 1, 0, { icon: "Shirt", label: "FanaticaShop", path: "/loja" });
+  }
+
+  const profileItem = allItems.find((item) => item.icon === "User") || { icon: "User", label: "Perfil", path: "/perfil" };
+
+  const handleLogout = async () => {
+    setIsOpen(false);
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass-dark pt-[env(safe-area-inset-top)] transform-gpu will-change-transform">
@@ -41,7 +60,7 @@ const Header = () => {
               <Menu className="w-6 h-6 text-white" />
             </button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-80 bg-background border-border p-0">
+          <SheetContent side="left" className="w-80 bg-background border-border p-0 flex flex-col">
             <div className="p-6 border-b border-border flex flex-col items-center">
               <img src={logoHeader} alt="Logo" className="h-12 w-auto" />
               <p className="text-muted-foreground text-sm mt-2">
@@ -49,8 +68,9 @@ const Header = () => {
               </p>
             </div>
 
-            <nav className="p-4">
-              {menuItems.map((item) => {
+            {/* Main menu items */}
+            <nav className="p-4 flex-1 overflow-y-auto">
+              {mainItems.map((item) => {
                 const IconComponent = iconMap[item.icon] || Home;
                 return (
                   <Link
@@ -65,6 +85,25 @@ const Header = () => {
                 );
               })}
             </nav>
+
+            {/* Bottom section: Perfil + Sair */}
+            <div className="border-t border-border p-4 space-y-1">
+              <Link
+                to={profileItem.path}
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-4 p-4 rounded-xl hover:bg-muted transition-colors group"
+              >
+                <User className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+                <span className="text-card-foreground font-medium">{profileItem.label}</span>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-4 p-4 rounded-xl hover:bg-muted transition-colors group w-full text-left"
+              >
+                <LogOut className="w-5 h-5 text-red-400 group-hover:scale-110 transition-transform" />
+                <span className="text-red-400 font-medium">Sair</span>
+              </button>
+            </div>
           </SheetContent>
         </Sheet>
 
