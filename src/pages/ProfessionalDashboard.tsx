@@ -736,7 +736,7 @@ const ProfessionalDashboard = () => {
         )}
 
         {/* Tabs - Order changes based on approval status */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 pt-2 -mt-2">
           {(isMarketplaceActive ? [
             { id: "agenda", label: "Agendamentos", locked: false, hasNotification: hasNewAppointments },
             { id: "disponibilidade", label: "Disponibilidade", locked: false },
