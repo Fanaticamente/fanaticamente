@@ -1,4 +1,4 @@
-import { Home, Thermometer, Trophy, Newspaper, Shirt } from "lucide-react";
+import { Home, Thermometer, Trophy, Newspaper } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const navItems = [
@@ -6,7 +6,6 @@ const navItems = [
   { icon: Thermometer, label: "Termômetro", path: "/diario" },
   { icon: Trophy, label: "Ranking", path: "/ranking" },
   { icon: Newspaper, label: "Futebol", path: "/futebol" },
-  { icon: Shirt, label: "FanaticaShop", path: "/loja" },
 ];
 
 const BottomNav = () => {
