@@ -11,6 +11,7 @@ import { useRouteRestoration } from "@/hooks/useRouteRestoration";
 import { useGlobalSessionCompletion } from "@/hooks/useGlobalSessionCompletion";
 import { useDisableServiceWorkerOnManagerRoutes } from "@/hooks/useDisableServiceWorkerOnManagerRoutes";
 import SessionCompletedDialog from "@/components/user/SessionCompletedDialog";
+import { useSplashScreen } from "@/components/SplashScreen";
 import Index from "./pages/Index";
 import Terapeutas from "./pages/Terapeutas";
 import ProfessionalProfile from "./pages/ProfessionalProfile";
@@ -87,9 +88,13 @@ const AppProviders = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const App = () => (
+const App = () => {
+  const { SplashElement } = useSplashScreen();
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      {SplashElement}
       {/*
         Embed mode: used by the Developer "preview" iframe.
         We intentionally avoid mounting AuthProvider/ProtectedRoute and other global side-effects
@@ -185,6 +190,7 @@ const App = () => (
       )}
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
