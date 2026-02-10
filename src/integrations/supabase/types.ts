@@ -488,6 +488,142 @@ export type Database = {
         }
         Relationships: []
       }
+      course_lessons: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: string | null
+          id: string
+          is_free: boolean
+          module_id: string
+          order_index: number
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_free?: boolean
+          module_id: string
+          order_index?: number
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_free?: boolean
+          module_id?: string
+          order_index?: number
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_modules: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string | null
+          id: string
+          order_index: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_index?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_index?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          instructor: string | null
+          is_premium: boolean
+          is_published: boolean
+          order_index: number
+          price: number | null
+          thumbnail_url: string | null
+          title: string
+          total_duration: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          instructor?: string | null
+          is_premium?: boolean
+          is_published?: boolean
+          order_index?: number
+          price?: number | null
+          thumbnail_url?: string | null
+          title: string
+          total_duration?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          instructor?: string | null
+          is_premium?: boolean
+          is_published?: boolean
+          order_index?: number
+          price?: number | null
+          thumbnail_url?: string | null
+          title?: string
+          total_duration?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       football_news: {
         Row: {
           category: string | null
@@ -544,6 +680,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      lesson_activities: {
+        Row: {
+          activity_type: string
+          content: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          is_required: boolean
+          lesson_id: string
+          order_index: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          activity_type?: string
+          content?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_required?: boolean
+          lesson_id: string
+          order_index?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          activity_type?: string
+          content?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_required?: boolean
+          lesson_id?: string
+          order_index?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_activities_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "course_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       osmf_reports: {
         Row: {
@@ -870,6 +1053,114 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_activity_completion: {
+        Row: {
+          activity_id: string
+          completed_at: string
+          id: string
+          response: Json | null
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          completed_at?: string
+          id?: string
+          response?: Json | null
+          user_id: string
+        }
+        Update: {
+          activity_id?: string
+          completed_at?: string
+          id?: string
+          response?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_activity_completion_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_course_access: {
+        Row: {
+          access_type: string
+          course_id: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          access_type?: string
+          course_id: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          access_type?: string
+          course_id?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_course_access_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_lesson_progress: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          last_position: number | null
+          lesson_id: string
+          progress_percent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          last_position?: number | null
+          lesson_id: string
+          progress_percent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          last_position?: number | null
+          lesson_id?: string
+          progress_percent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "course_lessons"
             referencedColumns: ["id"]
           },
         ]

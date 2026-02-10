@@ -1,406 +1,226 @@
 import { useState } from "react";
-import { Play, Star, Clock, ChevronRight, Search, Plus, ThumbsUp, Share2, Download, ChevronDown } from "lucide-react";
+import { Play, ChevronRight, Search, Plus, ChevronDown, Lock, Star, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useCourses, type Course } from "@/hooks/useCourses";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface Course {
-  id: number;
-  title: string;
-  instructor: string;
-  duration: string;
-  lessons: number;
-  rating: number;
-  thumbnail: string;
-  isPremium: boolean;
-  category: string;
-  progress?: number;
-  tag?: string;
-  year: string;
-  seasons: number;
-  description: string;
-}
-
-const courses: Course[] = [
-  {
-    id: 1,
-    title: "Controlando a Ansiedade nos Dias de Jogo",
-    instructor: "Dr. Roberto Mendes",
-    duration: "2h 30min",
-    lessons: 8,
-    rating: 4.9,
-    thumbnail: "🎯",
-    isPremium: false,
-    category: "Ansiedade",
-    progress: 45,
-    tag: "Continue assistindo",
-    year: "2024",
-    seasons: 1,
-    description: "Aprenda técnicas práticas para controlar a ansiedade antes, durante e depois dos jogos do seu time.",
-  },
-  {
-    id: 2,
-    title: "Lidando com Derrotas e Frustrações",
-    instructor: "Dra. Camila Souza",
-    duration: "1h 45min",
-    lessons: 6,
-    rating: 4.8,
-    thumbnail: "💪",
-    isPremium: false,
-    category: "Resiliência",
-    tag: "Novos episódios",
-    year: "2024",
-    seasons: 2,
-    description: "Desenvolva resiliência emocional para lidar com derrotas do seu time favorito.",
-  },
-  {
-    id: 3,
-    title: "Torcida Saudável: Família e Futebol",
-    instructor: "Dr. Fernando Lima",
-    duration: "3h 15min",
-    lessons: 12,
-    rating: 4.7,
-    thumbnail: "👨‍👩‍👧‍👦",
-    isPremium: true,
-    category: "Relacionamentos",
-    tag: "Top 10",
-    year: "2024",
-    seasons: 1,
-    description: "Como equilibrar a paixão pelo futebol com os relacionamentos familiares.",
-  },
-  {
-    id: 4,
-    title: "Masculinidade e Emoções no Esporte",
-    instructor: "Dr. André Costa",
-    duration: "2h",
-    lessons: 7,
-    rating: 5.0,
-    thumbnail: "🧠",
-    isPremium: true,
-    category: "Autoconhecimento",
-    tag: "Nova temporada",
-    year: "2024",
-    seasons: 3,
-    description: "Quebre tabus sobre masculinidade e aprenda a expressar suas emoções.",
-  },
-  {
-    id: 5,
-    title: "Mindfulness para Torcedores",
-    instructor: "Dra. Paula Rodrigues",
-    duration: "1h 30min",
-    lessons: 5,
-    rating: 4.6,
-    thumbnail: "🧘",
-    isPremium: false,
-    category: "Bem-estar",
-    year: "2023",
-    seasons: 1,
-    description: "Técnicas de meditação e atenção plena para momentos de tensão nos jogos.",
-  },
-  {
-    id: 6,
-    title: "Finanças Emocionais: Apostas e Saúde Mental",
-    instructor: "Dr. Marcos Silva",
-    duration: "4h",
-    lessons: 15,
-    rating: 4.9,
-    thumbnail: "💰",
-    isPremium: true,
-    category: "Finanças",
-    tag: "Top 10",
-    year: "2024",
-    seasons: 2,
-    description: "Entenda a relação entre apostas esportivas e saúde mental.",
-  },
-];
-
-const categories = ["Séries", "Filmes", "Categorias"];
+const categories = ["Todos", "Saúde Mental", "Resiliência", "Autoconhecimento", "Bem-estar", "Relacionamentos"];
 
 const Cursos = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
+  const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
+  const { data: courses, isLoading } = useCourses();
 
-  const continueWatching = courses.filter((c) => c.progress);
-  const topTen = courses.filter((c) => c.tag === "Top 10");
-  const newEpisodes = courses.filter((c) => c.tag === "Novos episódios" || c.tag === "Nova temporada");
-  const featuredCourse = courses[0];
+  const filteredCourses = courses?.filter(c => {
+    const matchCat = selectedCategory === "Todos" || c.category === selectedCategory;
+    const matchSearch = !searchTerm || c.title.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchCat && matchSearch;
+  }) || [];
+
+  const featuredCourse = filteredCourses[0];
+  const premiumCourses = filteredCourses.filter(c => c.is_premium);
+  const freeCourses = filteredCourses.filter(c => !c.is_premium);
+
+  const CourseCard = ({ course, size = "normal" }: { course: Course; size?: "normal" | "small" }) => (
+    <Link
+      to={`/curso/${course.id}`}
+      className={`flex-shrink-0 group ${size === "small" ? (isMobile ? "w-32" : "w-40") : (isMobile ? "w-36" : "w-48")}`}
+    >
+      <div className={`relative ${size === "small" ? "aspect-[2/3]" : "aspect-video"} rounded-xl overflow-hidden bg-muted mb-2`}>
+        {course.thumbnail_url ? (
+          <img src={course.thumbnail_url} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
+            <Play className="w-8 h-8 text-foreground/50" />
+          </div>
+        )}
+        {course.is_premium && (
+          <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+            <Lock className="w-3 h-3" />
+            PRO
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+            <Play className="w-5 h-5 text-primary-foreground fill-current ml-0.5" />
+          </div>
+        </div>
+      </div>
+      <h3 className="text-foreground text-sm font-medium line-clamp-2">{course.title}</h3>
+      {course.instructor && (
+        <p className="text-muted-foreground text-xs mt-0.5">{course.instructor}</p>
+      )}
+    </Link>
+  );
 
   const CursosContent = () => (
     <>
+      {/* Search */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <input
+          type="text"
+          placeholder="Buscar cursos..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-4 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+        />
+      </div>
+
       {/* Category Pills */}
-      <div className="py-3 flex gap-2 mb-4">
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
         {categories.map((cat) => (
           <button
             key={cat}
-            onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
+            onClick={() => setSelectedCategory(cat)}
             className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors border ${
               selectedCategory === cat
-                ? "bg-foreground text-background border-foreground"
+                ? "bg-primary text-primary-foreground border-primary"
                 : "bg-transparent border-border text-foreground hover:bg-muted"
             }`}
           >
             {cat}
-            {cat === "Categorias" && <ChevronDown className="w-4 h-4 inline ml-1" />}
           </button>
         ))}
       </div>
 
-      {/* Featured Hero Card */}
-      <div className="mb-6">
-        <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-b from-muted to-card ${isMobile ? 'aspect-[4/5] max-h-[500px]' : 'aspect-[21/9]'}`}>
-          {/* Background with emoji */}
-          <div className={`absolute inset-0 flex items-center justify-center opacity-30 ${isMobile ? 'text-[180px]' : 'text-[200px]'}`}>
-            {featuredCourse.thumbnail}
+      {isLoading ? (
+        <div className="space-y-6">
+          <Skeleton className="w-full aspect-video rounded-2xl" />
+          <div className="flex gap-3">
+            {[1, 2, 3].map(i => <Skeleton key={i} className="w-40 aspect-[2/3] rounded-xl" />)}
           </div>
-          
-          {/* Content overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          
-          {/* Featured content */}
-          <div className={`absolute bottom-0 left-0 right-0 p-6 ${!isMobile ? 'max-w-2xl' : ''}`}>
-            <h2 className="font-display text-3xl text-foreground mb-2 leading-tight">
-              {featuredCourse.title}
-            </h2>
-            <p className="text-muted-foreground text-sm mb-4">
-              {featuredCourse.description}
-            </p>
-            
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <Link
-                to={`/curso/${featuredCourse.id}`}
-                className="flex items-center justify-center gap-2 py-3 px-6 bg-foreground text-background rounded-lg font-medium hover:bg-foreground/90 transition-colors"
-              >
-                <Play className="w-5 h-5 fill-current" />
-                Assistir
-              </Link>
-              <button className="flex items-center justify-center gap-2 py-3 px-6 bg-muted/80 text-foreground rounded-lg font-medium hover:bg-muted transition-colors">
-                <Plus className="w-5 h-5" />
-                Minha lista
-              </button>
+        </div>
+      ) : filteredCourses.length === 0 ? (
+        <div className="text-center py-20">
+          <Play className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">Nenhum curso disponível</h3>
+          <p className="text-muted-foreground text-sm">Em breve novos conteúdos serão adicionados.</p>
+        </div>
+      ) : (
+        <>
+          {/* Featured Hero */}
+          {featuredCourse && (
+            <div className="mb-8">
+              <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-b from-muted to-card ${isMobile ? "aspect-[4/5] max-h-[500px]" : "aspect-[21/9]"}`}>
+                {featuredCourse.thumbnail_url ? (
+                  <img src={featuredCourse.thumbnail_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/30" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+                <div className={`absolute bottom-0 left-0 right-0 p-6 ${!isMobile ? "max-w-2xl" : ""}`}>
+                  <span className="text-primary font-bold text-xs tracking-widest uppercase mb-2 block">FANATICLASS</span>
+                  <h2 className="font-display text-3xl text-foreground mb-2 leading-tight">
+                    {featuredCourse.title}
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                    {featuredCourse.description}
+                  </p>
+                  <div className="flex gap-3">
+                    <Link
+                      to={`/curso/${featuredCourse.id}`}
+                      className="flex items-center gap-2 py-3 px-6 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      <Play className="w-5 h-5 fill-current" />
+                      Assistir
+                    </Link>
+                    <button className="flex items-center gap-2 py-3 px-6 bg-muted/80 text-foreground rounded-xl font-medium hover:bg-muted transition-colors">
+                      <Plus className="w-5 h-5" />
+                      Minha lista
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
+          )}
 
-      {/* New Episodes Section */}
-      {newEpisodes.length > 0 && (
-        <div className="mb-6">
-          <h2 className="font-display text-xl text-foreground mb-3">
-            Chega de tédio
-          </h2>
-          <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? 'flex-wrap' : ''}`}>
-            {newEpisodes.map((course) => (
-              <Link
-                key={course.id}
-                to={`/curso/${course.id}`}
-                className={`flex-shrink-0 group ${isMobile ? 'w-32' : 'w-40'}`}
-              >
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-2">
-                  <div className="absolute inset-0 flex items-center justify-center text-5xl">
-                    {course.thumbnail}
-                  </div>
-                  {course.tag && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-destructive text-destructive-foreground text-xs font-bold py-1 px-2 text-center">
-                      {course.tag}
+          {/* Free Courses */}
+          {freeCourses.length > 0 && (
+            <div className="mb-8">
+              <h2 className="font-display text-xl text-foreground mb-4">
+                🎓 Gratuitos
+              </h2>
+              <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
+                {freeCourses.map((course) => (
+                  <CourseCard key={course.id} course={course} size="small" />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Premium Courses */}
+          {premiumCourses.length > 0 && (
+            <div className="mb-8">
+              <h2 className="font-display text-xl text-foreground mb-4">
+                ⭐ Conteúdo Premium
+              </h2>
+              <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
+                {premiumCourses.map((course) => (
+                  <CourseCard key={course.id} course={course} size="small" />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* All Courses Grid */}
+          {filteredCourses.length > 1 && (
+            <div className="mb-8">
+              <h2 className="font-display text-xl text-foreground mb-4">
+                Todos os cursos
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {filteredCourses.map((course) => (
+                  <Link
+                    key={course.id}
+                    to={`/curso/${course.id}`}
+                    className="group"
+                  >
+                    <div className="relative aspect-video rounded-xl overflow-hidden bg-muted mb-2">
+                      {course.thumbnail_url ? (
+                        <img src={course.thumbnail_url} alt={course.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                          <Play className="w-8 h-8 text-foreground/40" />
+                        </div>
+                      )}
+                      {course.is_premium && (
+                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+                          <Lock className="w-3 h-3" /> PRO
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
-                  )}
-                </div>
-              </Link>
-            ))}
-            {courses.slice(0, 4).map((course) => (
-              <Link
-                key={`extra-${course.id}`}
-                to={`/curso/${course.id}`}
-                className={`flex-shrink-0 group ${isMobile ? 'w-32' : 'w-40'}`}
-              >
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-2">
-                  <div className="absolute inset-0 flex items-center justify-center text-5xl">
-                    {course.thumbnail}
-                  </div>
-                  {course.isPremium && (
-                    <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs font-bold py-0.5 px-2 rounded">
-                      TOP 10
+                    <h3 className="text-foreground text-sm font-medium line-clamp-2">{course.title}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      {course.instructor && <span className="text-muted-foreground text-xs">{course.instructor}</span>}
+                      {course.total_duration && (
+                        <span className="text-muted-foreground text-xs flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> {course.total_duration}
+                        </span>
+                      )}
                     </div>
-                  )}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
-
-      {/* Top 10 Section */}
-      {topTen.length > 0 && (
-        <div className="mb-6">
-          <h2 className="font-display text-xl text-foreground mb-3">
-            Brasil: top 10 em séries hoje
-          </h2>
-          <div className={`flex gap-2 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? 'flex-wrap' : ''}`}>
-            {topTen.map((course, index) => (
-              <Link
-                key={course.id}
-                to={`/curso/${course.id}`}
-                className="flex-shrink-0 flex items-end"
-              >
-                <span className="font-display text-[100px] leading-none text-foreground/20 -mr-4 relative z-0">
-                  {index + 1}
-                </span>
-                <div className="relative w-28 aspect-[2/3] rounded-lg overflow-hidden bg-muted z-10">
-                  <div className="absolute inset-0 flex items-center justify-center text-4xl">
-                    {course.thumbnail}
-                  </div>
-                  {course.tag && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-destructive text-destructive-foreground text-xs font-bold py-1 px-2 text-center">
-                      {course.tag}
-                    </div>
-                  )}
-                </div>
-              </Link>
-            ))}
-            {courses.slice(2, 5).map((course, index) => (
-              <Link
-                key={`top-extra-${course.id}`}
-                to={`/curso/${course.id}`}
-                className="flex-shrink-0 flex items-end"
-              >
-                <span className="font-display text-[100px] leading-none text-foreground/20 -mr-4 relative z-0">
-                  {index + 3}
-                </span>
-                <div className="relative w-28 aspect-[2/3] rounded-lg overflow-hidden bg-muted z-10">
-                  <div className="absolute inset-0 flex items-center justify-center text-4xl">
-                    {course.thumbnail}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Continue Watching */}
-      {continueWatching.length > 0 && (
-        <div className="mb-6">
-          <h2 className="font-display text-xl text-foreground mb-3">
-            Continuar assistindo
-          </h2>
-          <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? 'flex-wrap' : ''}`}>
-            {continueWatching.map((course) => (
-              <div key={course.id} className={`flex-shrink-0 ${isMobile ? 'w-36' : 'w-48'}`}>
-                <Link to={`/curso/${course.id}`} className="block">
-                  <div className="relative aspect-video rounded-lg overflow-hidden bg-muted mb-1">
-                    <div className="absolute inset-0 flex items-center justify-center text-4xl">
-                      {course.thumbnail}
-                    </div>
-                    {/* Play overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-10 h-10 rounded-full border-2 border-foreground flex items-center justify-center bg-background/50">
-                        <Play className="w-4 h-4 text-foreground fill-current ml-0.5" />
-                      </div>
-                    </div>
-                    {/* Progress bar */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted-foreground/30">
-                      <div 
-                        className="h-full bg-destructive" 
-                        style={{ width: `${course.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                </Link>
-                {/* Action icons */}
-                <div className="flex justify-between mt-2">
-                  <button className="p-2 hover:bg-muted rounded-full transition-colors">
-                    <span className="w-5 h-5 rounded-full border border-foreground flex items-center justify-center text-xs">i</span>
-                  </button>
-                  <button className="p-2 hover:bg-muted rounded-full transition-colors">
-                    <span className="text-foreground">⋮</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-            {courses.slice(1, 4).map((course) => (
-              <div key={`cont-${course.id}`} className={`flex-shrink-0 ${isMobile ? 'w-36' : 'w-48'}`}>
-                <Link to={`/curso/${course.id}`} className="block">
-                  <div className="relative aspect-video rounded-lg overflow-hidden bg-muted mb-1">
-                    <div className="absolute inset-0 flex items-center justify-center text-4xl">
-                      {course.thumbnail}
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-10 h-10 rounded-full border-2 border-foreground flex items-center justify-center bg-background/50">
-                        <Play className="w-4 h-4 text-foreground fill-current ml-0.5" />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-                <div className="flex justify-between mt-2">
-                  <button className="p-2 hover:bg-muted rounded-full transition-colors">
-                    <span className="w-5 h-5 rounded-full border border-foreground flex items-center justify-center text-xs">i</span>
-                  </button>
-                  <button className="p-2 hover:bg-muted rounded-full transition-colors">
-                    <span className="text-foreground">⋮</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* All Courses by Category */}
-      <div className="mb-6">
-        <h2 className="font-display text-xl text-foreground mb-3">
-          Bem-estar
-        </h2>
-        <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? 'flex-wrap' : ''}`}>
-          {courses.filter(c => c.category === "Bem-estar" || c.category === "Ansiedade").map((course) => (
-            <Link
-              key={course.id}
-              to={`/curso/${course.id}`}
-              className={`flex-shrink-0 ${isMobile ? 'w-32' : 'w-40'}`}
-            >
-              <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted">
-                <div className="absolute inset-0 flex items-center justify-center text-5xl">
-                  {course.thumbnail}
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      <div className="mb-6">
-        <h2 className="font-display text-xl text-foreground mb-3">
-          Autoconhecimento
-        </h2>
-        <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? 'flex-wrap' : ''}`}>
-          {courses.filter(c => c.category === "Autoconhecimento" || c.category === "Resiliência").map((course) => (
-            <Link
-              key={course.id}
-              to={`/curso/${course.id}`}
-              className={`flex-shrink-0 ${isMobile ? 'w-32' : 'w-40'}`}
-            >
-              <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted">
-                <div className="absolute inset-0 flex items-center justify-center text-5xl">
-                  {course.thumbnail}
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
     </>
   );
 
-  // Mobile Layout
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <main className="pt-16 px-4">
           <CursosContent />
-          {/* Spacer para manter distância do BottomNav */}
           <div aria-hidden className="h-28" />
         </main>
         <BottomNav />
@@ -408,7 +228,6 @@ const Cursos = () => {
     );
   }
 
-  // Desktop Layout
   return (
     <UserDesktopLayout title="FanatiClass" subtitle="Cursos exclusivos sobre saúde mental e futebol">
       <CursosContent />
