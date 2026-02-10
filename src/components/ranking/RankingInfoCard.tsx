@@ -29,7 +29,7 @@ const RankingInfoCard = () => {
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-bold text-gray-900 mb-3">
+        <h2 className="text-lg font-sans font-bold text-gray-800 mb-3">
           Como funciona o Ranking?
         </h2>
 
