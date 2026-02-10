@@ -49,6 +49,7 @@ import PsiHouse from "./pages/PsiHouse";
 import Conecta from "./pages/Conecta";
 import OSMF from "./pages/OSMF";
 import ZonaMista from "./pages/ZonaMista";
+import Ranking from "./pages/Ranking";
 
 const queryClient = new QueryClient();
 
@@ -117,7 +118,8 @@ const App = () => {
               <Route path="/curso/:id" element={<CursoDetalhe />} />
               <Route path="/quiz" element={<Quiz />} />
               <Route path="/radio" element={<Radio />} />
-              <Route path="/futebol" element={<Futebol />} />
+               <Route path="/futebol" element={<Futebol />} />
+               <Route path="/ranking" element={<Ranking />} />
               <Route path="/loja" element={<FanaticaShop />} />
               <Route path="/loja/produto/:id" element={<ProductDetail />} />
               <Route path="/osmf" element={<OSMF />} />
@@ -149,6 +151,7 @@ const App = () => {
                 <Route path="/quiz" element={<Quiz />} />
                 <Route path="/radio" element={<Radio />} />
                 <Route path="/futebol" element={<Futebol />} />
+                <Route path="/ranking" element={<Ranking />} />
                 <Route path="/loja" element={<FanaticaShop />} />
                 <Route path="/loja/produto/:id" element={<ProductDetail />} />
                 <Route path="/osmf" element={<OSMF />} />
