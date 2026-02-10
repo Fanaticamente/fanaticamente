@@ -11,6 +11,64 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[MERCADOPAGO-WEBHOOK] ${step}${detailsStr}`);
 };
 
+async function verifySignature(req: Request, body: string): Promise<boolean> {
+  const webhookSecret = Deno.env.get("MERCADOPAGO_WEBHOOK_SECRET");
+  if (!webhookSecret) {
+    logStep("MERCADOPAGO_WEBHOOK_SECRET not configured, skipping signature verification");
+    return true; // Allow if not configured (dev mode)
+  }
+
+  const xSignature = req.headers.get("x-signature");
+  const xRequestId = req.headers.get("x-request-id");
+
+  if (!xSignature || !xRequestId) {
+    logStep("Missing x-signature or x-request-id headers");
+    return false;
+  }
+
+  // Parse x-signature: "ts=...,v1=..."
+  const parts: Record<string, string> = {};
+  for (const part of xSignature.split(",")) {
+    const [key, value] = part.split("=", 2);
+    parts[key.trim()] = value.trim();
+  }
+
+  const ts = parts["ts"];
+  const v1 = parts["v1"];
+
+  if (!ts || !v1) {
+    logStep("Invalid x-signature format", { xSignature });
+    return false;
+  }
+
+  // Get data.id from query params (MP sends it as query param)
+  const url = new URL(req.url);
+  const dataId = url.searchParams.get("data.id") || "";
+
+  // Build the manifest string per MP docs
+  const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
+
+  // HMAC-SHA256
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(webhookSecret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(manifest));
+  const computedHash = Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  const isValid = computedHash === v1;
+  if (!isValid) {
+    logStep("Signature mismatch", { expected: v1, computed: computedHash });
+  }
+  return isValid;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -22,7 +80,19 @@ serve(async (req) => {
   );
 
   try {
-    const body = await req.json();
+    const bodyText = await req.text();
+
+    // Verify webhook signature
+    const isValid = await verifySignature(req, bodyText);
+    if (!isValid) {
+      logStep("Invalid webhook signature, rejecting");
+      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
+
+    const body = JSON.parse(bodyText);
     logStep("Webhook received", { type: body.type, action: body.action, dataId: body.data?.id });
 
     // Only process payment notifications
@@ -108,7 +178,6 @@ serve(async (req) => {
       }
     } else if (payment.status === "refunded" || payment.status === "cancelled" || payment.status === "charged_back") {
       logStep("Payment refunded/cancelled/charged_back", { status: payment.status, userId });
-      // Optionally handle refunds here
     }
 
     return new Response(JSON.stringify({ received: true }), {
