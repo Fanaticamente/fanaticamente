@@ -1,19 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import splashImage from "@/assets/splash-screen.png";
 
 const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
+  const [dissolving, setDissolving] = useState(false);
+
   useEffect(() => {
-    const timer = setTimeout(onFinish, 2500);
-    return () => clearTimeout(timer);
-  }, [onFinish]);
+    const dissolveTimer = setTimeout(() => setDissolving(true), 2000);
+    return () => clearTimeout(dissolveTimer);
+  }, []);
 
   return (
     <motion.div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
+      className="fixed inset-0 z-[9999]"
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
+      animate={{ opacity: dissolving ? 0 : 1 }}
+      transition={{ duration: 0.8, ease: "easeInOut" }}
+      onAnimationComplete={() => {
+        if (dissolving) onFinish();
+      }}
     >
       <img
         src={splashImage}
@@ -26,23 +31,22 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
 
 export const useSplashScreen = () => {
   const [showSplash, setShowSplash] = useState(() => {
-    // Only show on mobile and only once per session
     if (typeof window === "undefined") return false;
     const isMobile = window.innerWidth < 768;
     const alreadyShown = sessionStorage.getItem("fanatica_splash_shown");
     return isMobile && !alreadyShown;
   });
 
-  const handleFinish = () => {
+  const handleFinish = useCallback(() => {
     sessionStorage.setItem("fanatica_splash_shown", "1");
     setShowSplash(false);
-  };
+  }, []);
 
-  const SplashElement = showSplash ? (
+  const SplashElement = (
     <AnimatePresence>
-      <SplashScreen onFinish={handleFinish} />
+      {showSplash && <SplashScreen key="splash" onFinish={handleFinish} />}
     </AnimatePresence>
-  ) : null;
+  );
 
   return { SplashElement, showSplash };
 };
