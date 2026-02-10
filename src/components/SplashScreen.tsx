@@ -12,7 +12,7 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[9999]"
+      className="fixed inset-0 z-[9999] bg-[#0a0a0a]"
       initial={{ opacity: 1 }}
       animate={{ opacity: dissolving ? 0 : 1 }}
       transition={{ duration: 0.8, ease: "easeInOut" }}
