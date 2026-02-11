@@ -416,53 +416,6 @@ const ProfessionalProfile = () => {
           </div>
         )}
 
-        {/* Bio Section */}
-        {professional.bio && (
-          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div 
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: clubColor + '15' }}
-              >
-                <User className="w-5 h-5" style={{ color: clubColor }} />
-              </div>
-              <h2 className="font-bold text-gray-900">Sobre Mim</h2>
-            </div>
-            <p className="text-gray-600 leading-relaxed">
-              {professional.bio}
-            </p>
-          </div>
-        )}
-
-        {/* Specialties Section */}
-        {professional.specialties && professional.specialties.length > 0 && (
-          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div 
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: clubColor + '15' }}
-              >
-                <Award className="w-5 h-5" style={{ color: clubColor }} />
-              </div>
-              <h2 className="font-bold text-gray-900">Especialidades</h2>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {professional.specialties.map((specialty) => (
-                <span
-                  key={specialty}
-                  className="px-4 py-2 text-sm font-medium rounded-full"
-                  style={{ 
-                    backgroundColor: clubColor + '12', 
-                    color: clubColor 
-                  }}
-                >
-                  {specialty}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Scheduling Section */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
           {/* Section Header */}
@@ -600,6 +553,53 @@ const ProfessionalProfile = () => {
             )}
           </div>
         </div>
+
+        {/* Bio Section */}
+        {professional.bio && (
+          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div 
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: clubColor + '15' }}
+              >
+                <User className="w-5 h-5" style={{ color: clubColor }} />
+              </div>
+              <h2 className="font-bold text-gray-900">Sobre Mim</h2>
+            </div>
+            <p className="text-gray-600 leading-relaxed">
+              {professional.bio}
+            </p>
+          </div>
+        )}
+
+        {/* Specialties Section */}
+        {professional.specialties && professional.specialties.length > 0 && (
+          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div 
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: clubColor + '15' }}
+              >
+                <Award className="w-5 h-5" style={{ color: clubColor }} />
+              </div>
+              <h2 className="font-bold text-gray-900">Especialidades</h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {professional.specialties.map((specialty) => (
+                <span
+                  key={specialty}
+                  className="px-4 py-2 text-sm font-medium rounded-full"
+                  style={{ 
+                    backgroundColor: clubColor + '12', 
+                    color: clubColor 
+                  }}
+                >
+                  {specialty}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       {isMobile && <BottomNav />}
