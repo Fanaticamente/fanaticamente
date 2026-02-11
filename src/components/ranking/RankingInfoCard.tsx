@@ -65,7 +65,8 @@ const RankingInfoCard = () => {
 
         <button
           onClick={handleDismiss}
-          className="w-full py-3 rounded-full bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors"
+          className="w-full py-3 rounded-full text-white text-sm font-semibold transition-colors"
+          style={{ backgroundColor: '#0066ff' }}
         >
           Não ver esta mensagem novamente
         </button>
