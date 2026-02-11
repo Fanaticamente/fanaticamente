@@ -79,7 +79,7 @@ const Ranking = () => {
 
       <main className="pt-16">
         {/* Title Banner */}
-        <div className="relative overflow-hidden mb-4" style={{ background: 'linear-gradient(135deg, #1a1152 0%, #1a1152 30%, #0055ff 30%, #0066ff 100%)' }}>
+        <div className="relative overflow-hidden mb-4" style={{ background: 'linear-gradient(135deg, #2244aa 0%, #2244aa 30%, #0055ff 30%, #0066ff 100%)' }}>
           {/* Yellow triangle accent */}
           <div className="absolute top-0 left-0 w-24 h-full" style={{ background: '#ffcc00', clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
           
