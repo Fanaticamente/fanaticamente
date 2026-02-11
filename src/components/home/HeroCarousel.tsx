@@ -115,8 +115,8 @@ const HeroCarousel = () => {
 
   return (
     <div 
-      className="relative w-full overflow-hidden bg-background" 
-      style={{ aspectRatio: '1/1', maxHeight: '1080px' }}
+      className="relative w-full overflow-hidden bg-background select-none" 
+      style={{ aspectRatio: '1/1', maxHeight: '1080px', WebkitUserSelect: 'none' }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
