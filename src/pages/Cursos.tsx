@@ -46,13 +46,13 @@ const Cursos = () => {
               PRO
             </div>
           )}
-          {course.coming_soon && (
-            <div className="bg-amber-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              EM BREVE
-            </div>
-          )}
         </div>
+        {course.coming_soon && (
+          <div className="absolute bottom-2 left-2 bg-amber-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            EM BREVE
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
             <Play className="w-5 h-5 text-gray-800 fill-current ml-0.5" />
@@ -203,12 +203,12 @@ const Cursos = () => {
                             <Lock className="w-3 h-3" /> PRO
                           </div>
                         )}
-                        {course.coming_soon && (
-                          <div className="bg-amber-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
-                            <Clock className="w-3 h-3" /> EM BREVE
-                          </div>
-                        )}
                       </div>
+                      {course.coming_soon && (
+                        <div className="absolute bottom-2 left-2 bg-amber-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> EM BREVE
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
