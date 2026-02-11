@@ -210,7 +210,7 @@ const Ranking = () => {
             </div>
           </div>
           </div>
-          <div aria-hidden className="h-28" />
+          <div aria-hidden className="h-20" />
         </div>
       </main>
 
