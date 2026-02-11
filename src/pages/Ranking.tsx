@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Trophy } from "lucide-react";
 import Header from "@/components/layout/Header";
@@ -17,19 +17,6 @@ const leagueTabs: { key: LeagueTab; label: string }[] = [
 
 const Ranking = () => {
   const [activeLeague, setActiveLeague] = useState<LeagueTab>("serie_a");
-  const headerScrollRef = useRef<HTMLDivElement>(null);
-  const bodyScrollRef = useRef<HTMLDivElement>(null);
-
-  const syncScroll = (source: 'header' | 'body') => {
-    const header = headerScrollRef.current;
-    const body = bodyScrollRef.current;
-    if (!header || !body) return;
-    if (source === 'body') {
-      header.scrollLeft = body.scrollLeft;
-    } else {
-      body.scrollLeft = header.scrollLeft;
-    }
-  };
 
   // Fetch completed appointments count per club
   const { data: clubCounts = {} } = useQuery({
@@ -133,26 +120,20 @@ const Ranking = () => {
           </div>
         </div>
 
-        {/* Table Header - static */}
-        <div className="px-4">
-          <div ref={headerScrollRef} className="overflow-x-auto" onScroll={() => syncScroll('header')} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            <div className="min-w-[620px]">
-              <div className="flex items-center py-2 px-3 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                <span className="w-8 text-center">#</span>
-                <span className="flex-1 ml-3">Clube</span>
-                <span className="w-16 text-center font-extrabold text-gray-700">Pts</span>
-                <span className="w-20 text-center">Sessões</span>
-                <span className="w-24 text-center">Termômetro</span>
-                <span className="w-20 text-center">Cursos</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Scrollable Table Rows */}
-        <div className="flex-1 overflow-y-auto overscroll-contain px-4">
-          <div ref={bodyScrollRef} className="overflow-x-auto" onScroll={() => syncScroll('body')}>
+        {/* Single overflow-x container for perfect horizontal sync */}
+        <div className="flex-1 overflow-x-auto overflow-y-auto overscroll-contain px-4">
           <div className="min-w-[620px]">
+            {/* Table Header */}
+            <div className="flex items-center py-2 px-3 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200 sticky top-0 bg-white z-10">
+              <span className="w-8 text-center">#</span>
+              <span className="flex-1 ml-3">Clube</span>
+              <span className="w-16 text-center font-extrabold text-gray-700">Pts</span>
+              <span className="w-20 text-center">Sessões</span>
+              <span className="w-24 text-center">Termômetro</span>
+              <span className="w-20 text-center">Cursos</span>
+            </div>
+
+            {/* Table Rows */}
             <div className="divide-y divide-gray-100">
               {sortedClubs.map((club, index) => {
                 const sessions = clubCounts[club.id] || 0;
@@ -226,7 +207,6 @@ const Ranking = () => {
                 <span>Z-4 — Zona de rebaixamento</span>
               </div>
             </div>
-          </div>
           </div>
           <div aria-hidden className="h-20" />
         </div>
