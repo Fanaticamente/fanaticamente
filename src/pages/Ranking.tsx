@@ -79,12 +79,12 @@ const Ranking = () => {
 
       <main className="pt-20">
         {/* Title Banner */}
-        <div className="relative overflow-hidden mb-4" style={{ background: 'linear-gradient(135deg, #1a1152 0%, #1a1152 30%, #0033cc 30%, #0055ff 100%)' }}>
+        <div className="relative overflow-hidden mb-4" style={{ background: 'linear-gradient(135deg, #1a1152 0%, #1a1152 30%, #0055ff 30%, #0066ff 100%)' }}>
           {/* Yellow triangle accent */}
           <div className="absolute top-0 left-0 w-24 h-full" style={{ background: '#ffcc00', clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
           
           <div className="relative flex items-center gap-4 px-5 py-5">
-            <Trophy className="w-10 h-10 text-[#ffcc00] drop-shadow-lg z-10" />
+            <Trophy className="w-10 h-10 text-[#0066ff] drop-shadow-lg z-10" />
             <div className="z-10">
               <h1 className="text-xl font-extrabold text-white tracking-wide leading-tight uppercase" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.6rem', letterSpacing: '0.05em' }}>
                 Brasileirão da Saúde Mental
@@ -109,9 +109,10 @@ const Ranking = () => {
                 onClick={() => setActiveLeague(tab.key)}
                 className={`flex-1 py-2.5 rounded-full text-sm font-semibold transition-colors ${
                   activeLeague === tab.key
-                    ? "bg-emerald-600 text-white"
+                    ? "text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
+                style={activeLeague === tab.key ? { backgroundColor: '#0066ff' } : undefined}
               >
                 {tab.label}
               </button>
