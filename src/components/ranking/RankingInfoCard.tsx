@@ -44,21 +44,21 @@ const RankingInfoCard = () => {
             <span className="text-emerald-600 font-bold mt-0.5">•</span>
             <span>
               <strong>Sessão de terapia</strong> — cada consulta concluída com
-              um profissional da plataforma gera <strong>3 pontos</strong>.
+              um profissional da plataforma vale <strong>3 pontos</strong>.
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-emerald-600 font-bold mt-0.5">•</span>
             <span>
               <strong>Termômetro Emocional</strong> — cada preenchimento diário
-              do termômetro emocional gera <strong>1 ponto</strong>.
+              do termômetro emocional vale <strong>1 ponto</strong>.
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-emerald-600 font-bold mt-0.5">•</span>
             <span>
               <strong>FanatiClass</strong> — cada curso assistido ou finalizado
-              na plataforma gera <strong>1 ponto</strong>.
+              na plataforma vale <strong>1 ponto</strong>.
             </span>
           </li>
         </ul>
