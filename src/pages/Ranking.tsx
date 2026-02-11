@@ -77,7 +77,7 @@ const Ranking = () => {
     <div className="min-h-screen bg-white">
       <Header />
 
-      <main className="pt-16">
+      <main className="pt-16 flex flex-col" style={{ height: 'calc(100vh - 4rem)' }}>
         {/* Title Banner */}
         <div className="relative overflow-hidden mb-4" style={{ background: 'linear-gradient(135deg, #2244aa 0%, #2244aa 30%, #0055ff 30%, #0066ff 100%)' }}>
           {/* Yellow triangle accent */}
@@ -121,10 +121,11 @@ const Ranking = () => {
         </div>
 
         {/* Ranking Table */}
-        <div className="px-4 overflow-x-auto">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4">
+          <div className="overflow-x-auto">
           <div className="min-w-[620px]">
             {/* Table Header */}
-            <div className="flex items-center py-2 px-3 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+            <div className="flex items-center py-2 px-3 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200 sticky top-0 bg-white z-10">
               <span className="w-8 text-center">#</span>
               <span className="flex-1 ml-3">Clube</span>
               <span className="w-16 text-center font-extrabold text-gray-700">Pts</span>
@@ -208,9 +209,9 @@ const Ranking = () => {
               </div>
             </div>
           </div>
+          </div>
+          <div aria-hidden className="h-28" />
         </div>
-
-        <div aria-hidden className="h-28" />
       </main>
 
       <RankingInfoCard />
