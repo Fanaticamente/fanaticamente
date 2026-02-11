@@ -251,7 +251,7 @@ export const useCreateModule = () => {
       qc.invalidateQueries({ queryKey: ["course-modules"] });
       toast.success("Módulo criado!");
     },
-    onError: () => toast.error("Erro ao criar módulo"),
+    onError: (err: any) => { console.error("createModule error:", err); toast.error(err?.message || "Erro ao criar módulo"); },
   });
 };
 
@@ -305,7 +305,7 @@ export const useCreateLesson = () => {
       qc.invalidateQueries({ queryKey: ["course-lessons"] });
       toast.success("Aula criada!");
     },
-    onError: () => toast.error("Erro ao criar aula"),
+    onError: (err: any) => { console.error("createLesson error:", err); toast.error(err?.message || "Erro ao criar aula"); },
   });
 };
 
@@ -360,7 +360,7 @@ export const useCreateActivity = () => {
       qc.invalidateQueries({ queryKey: ["lesson-activities"] });
       toast.success("Atividade criada!");
     },
-    onError: () => toast.error("Erro ao criar atividade"),
+    onError: (err: any) => { console.error("createActivity error:", err); toast.error(err?.message || "Erro ao criar atividade"); },
   });
 };
 
