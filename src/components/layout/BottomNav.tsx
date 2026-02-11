@@ -22,8 +22,8 @@ const BottomNav = () => {
               className={({ isActive }) =>
                 `flex flex-col items-center gap-1 p-2 min-w-[64px] rounded-xl transition-all ${
                   isActive
-                    ? "text-primary bg-primary/10"
-                    : "text-muted-foreground hover:text-primary"
+                    ? "text-white bg-white/10"
+                    : "text-muted-foreground hover:text-white"
                 }`
               }
             >
@@ -36,7 +36,7 @@ const BottomNav = () => {
                   />
                   <span className="text-xs font-medium">{item.label}</span>
                   {isActive && (
-                    <div className="absolute -bottom-0.5 w-8 h-1 bg-primary rounded-full" />
+                    <div className="absolute -bottom-0.5 w-8 h-1 bg-white rounded-full" />
                   )}
                 </>
               )}
