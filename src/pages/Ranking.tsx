@@ -79,9 +79,9 @@ const Ranking = () => {
 
       <main className="pt-20">
         {/* Title Banner */}
-        <div className="relative overflow-hidden mb-4" style={{ background: '#0066ff' }}>
-          {/* Yellow left section with diagonal cut */}
-          <div className="absolute top-0 left-0 h-full" style={{ width: '35%', background: '#ffcc00', clipPath: 'polygon(0 0, 100% 0, 70% 100%, 0 100%)' }} />
+        <div className="relative overflow-hidden mb-4" style={{ background: 'linear-gradient(135deg, #1a1152 0%, #1a1152 30%, #0055ff 30%, #0066ff 100%)' }}>
+          {/* Yellow triangle accent */}
+          <div className="absolute top-0 left-0 w-24 h-full" style={{ background: '#ffcc00', clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
           
           <div className="relative flex items-center gap-4 px-5 py-5">
             <Trophy className="w-10 h-10 text-[#0066ff] drop-shadow-lg z-10" />
