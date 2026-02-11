@@ -91,49 +91,90 @@ const CourseManager = () => {
       toast.error("Título é obrigatório");
       return;
     }
-    if (editingCourse.id) {
-      await updateCourse.mutateAsync(editingCourse as Course & { id: string });
-    } else {
-      await createCourse.mutateAsync(editingCourse);
+    try {
+      if (editingCourse.id) {
+        await updateCourse.mutateAsync(editingCourse as Course & { id: string });
+      } else {
+        await createCourse.mutateAsync(editingCourse);
+      }
+      setShowCourseDialog(false);
+      setEditingCourse(null);
+    } catch (err: any) {
+      console.error("Erro ao salvar curso:", err);
+      toast.error(err?.message || "Erro ao salvar curso");
     }
-    setShowCourseDialog(false);
-    setEditingCourse(null);
   };
 
   const handleSaveModule = async () => {
-    if (!editingModule?.title || !selectedCourseId) return;
-    const payload = { ...editingModule, course_id: selectedCourseId };
-    if (editingModule.id) {
-      await updateModule.mutateAsync(payload as CourseModule & { id: string });
-    } else {
-      await createModule.mutateAsync(payload);
+    if (!editingModule?.title) {
+      toast.error("Título do módulo é obrigatório");
+      return;
     }
-    setShowModuleDialog(false);
-    setEditingModule(null);
+    if (!selectedCourseId) {
+      toast.error("Nenhum curso selecionado");
+      return;
+    }
+    try {
+      const payload = { ...editingModule, course_id: selectedCourseId };
+      if (editingModule.id) {
+        await updateModule.mutateAsync(payload as CourseModule & { id: string });
+      } else {
+        await createModule.mutateAsync(payload);
+      }
+      setShowModuleDialog(false);
+      setEditingModule(null);
+    } catch (err: any) {
+      console.error("Erro ao salvar módulo:", err);
+      toast.error(err?.message || "Erro ao salvar módulo");
+    }
   };
 
   const handleSaveLesson = async () => {
-    if (!editingLesson?.title || !selectedModuleId) return;
-    const payload = { ...editingLesson, module_id: selectedModuleId };
-    if (editingLesson.id) {
-      await updateLesson.mutateAsync(payload as CourseLesson & { id: string });
-    } else {
-      await createLesson.mutateAsync(payload);
+    if (!editingLesson?.title) {
+      toast.error("Título da aula é obrigatório");
+      return;
     }
-    setShowLessonDialog(false);
-    setEditingLesson(null);
+    if (!selectedModuleId) {
+      toast.error("Nenhum módulo selecionado");
+      return;
+    }
+    try {
+      const payload = { ...editingLesson, module_id: selectedModuleId };
+      if (editingLesson.id) {
+        await updateLesson.mutateAsync(payload as CourseLesson & { id: string });
+      } else {
+        await createLesson.mutateAsync(payload);
+      }
+      setShowLessonDialog(false);
+      setEditingLesson(null);
+    } catch (err: any) {
+      console.error("Erro ao salvar aula:", err);
+      toast.error(err?.message || "Erro ao salvar aula");
+    }
   };
 
   const handleSaveActivity = async () => {
-    if (!editingActivity?.title || !selectedLessonId) return;
-    const payload = { ...editingActivity, lesson_id: selectedLessonId };
-    if (editingActivity.id) {
-      await updateActivity.mutateAsync(payload as LessonActivity & { id: string });
-    } else {
-      await createActivity.mutateAsync(payload);
+    if (!editingActivity?.title) {
+      toast.error("Título da atividade é obrigatório");
+      return;
     }
-    setShowActivityDialog(false);
-    setEditingActivity(null);
+    if (!selectedLessonId) {
+      toast.error("Nenhuma aula selecionada");
+      return;
+    }
+    try {
+      const payload = { ...editingActivity, lesson_id: selectedLessonId };
+      if (editingActivity.id) {
+        await updateActivity.mutateAsync(payload as LessonActivity & { id: string });
+      } else {
+        await createActivity.mutateAsync(payload);
+      }
+      setShowActivityDialog(false);
+      setEditingActivity(null);
+    } catch (err: any) {
+      console.error("Erro ao salvar atividade:", err);
+      toast.error(err?.message || "Erro ao salvar atividade");
+    }
   };
 
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
