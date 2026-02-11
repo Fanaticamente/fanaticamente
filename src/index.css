@@ -5,6 +5,12 @@
 @tailwind utilities;
 
 @layer base {
+  *:focus {
+    outline: none !important;
+  }
+  *:focus-visible {
+    outline: none !important;
+  }
   :root {
     /* Core Colors - Football Theme */
     --background: 0 0% 8%;
