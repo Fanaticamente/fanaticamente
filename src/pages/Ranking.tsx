@@ -86,7 +86,7 @@ const Ranking = () => {
           <div className="relative flex items-center gap-4 px-5 py-5">
             <Trophy className="w-10 h-10 text-white drop-shadow-lg z-10" />
             <div className="z-10">
-              <h1 className="text-xl font-extrabold text-white tracking-wide leading-tight uppercase" style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '1.6rem', letterSpacing: '0.05em' }}>
+              <h1 className="text-xl font-extrabold text-white tracking-wide leading-tight uppercase" style={{ fontFamily: "'Orbitron', sans-serif", fontSize: '1.6rem', letterSpacing: '0.05em' }}>
                 Brasileirão da Saúde Mental
               </h1>
               <p className="text-xs text-blue-200 font-medium">Temporada 2026</p>
