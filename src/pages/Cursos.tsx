@@ -36,7 +36,7 @@ const Cursos = () => {
           <img src={course.thumbnail_url} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/30 flex items-center justify-center">
-            <Play className="w-8 h-8 text-foreground/50" />
+            <Play className="w-8 h-8 text-white/50" />
           </div>
         )}
         {course.is_premium && (
@@ -51,7 +51,7 @@ const Cursos = () => {
           </div>
         </div>
       </div>
-      <h3 className="text-foreground text-sm font-medium line-clamp-2">{course.title}</h3>
+      <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
       {course.instructor && (
         <p className="text-muted-foreground text-xs mt-0.5">{course.instructor}</p>
       )}
@@ -68,7 +68,7 @@ const Cursos = () => {
           placeholder="Buscar cursos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-white/50"
+          className="w-full pl-10 pr-4 py-2.5 bg-muted rounded-xl text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-white/50"
         />
       </div>
 
@@ -81,7 +81,7 @@ const Cursos = () => {
             className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors border ${
               selectedCategory === cat
                 ? "bg-white text-gray-800 border-white shadow-sm"
-                : "bg-transparent border-border text-foreground hover:bg-muted"
+                : "bg-transparent border-border text-white hover:bg-muted"
             }`}
           >
             {cat}
@@ -99,7 +99,7 @@ const Cursos = () => {
       ) : filteredCourses.length === 0 ? (
         <div className="text-center py-20">
           <Play className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">Nenhum curso disponível</h3>
+          <h3 className="text-lg font-medium text-white mb-2">Nenhum curso disponível</h3>
           <p className="text-muted-foreground text-sm">Em breve novos conteúdos serão adicionados.</p>
         </div>
       ) : (
@@ -116,7 +116,7 @@ const Cursos = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                 <div className={`absolute bottom-0 left-0 right-0 p-6 ${!isMobile ? "max-w-2xl" : ""}`}>
                   <span className="text-white font-bold text-xs tracking-widest uppercase mb-2 block">FANATICLASS</span>
-                  <h2 className="font-display text-3xl text-foreground mb-2 leading-tight">
+                  <h2 className="font-display text-3xl text-white mb-2 leading-tight">
                     {featuredCourse.title}
                   </h2>
                   <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
@@ -130,7 +130,7 @@ const Cursos = () => {
                       <Play className="w-5 h-5 fill-current" />
                       Assistir
                     </Link>
-                    <button className="flex items-center gap-2 py-3 px-6 bg-muted/80 text-foreground rounded-xl font-medium hover:bg-muted transition-colors">
+                    <button className="flex items-center gap-2 py-3 px-6 bg-muted/80 text-white rounded-xl font-medium hover:bg-muted transition-colors">
                       <Plus className="w-5 h-5" />
                       Minha lista
                     </button>
@@ -143,7 +143,7 @@ const Cursos = () => {
           {/* Free Courses */}
           {freeCourses.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-display text-xl text-foreground mb-4">
+              <h2 className="font-display text-xl text-white mb-4">
                 🎓 Gratuitos
               </h2>
               <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
@@ -157,7 +157,7 @@ const Cursos = () => {
           {/* Premium Courses */}
           {premiumCourses.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-display text-xl text-foreground mb-4">
+              <h2 className="font-display text-xl text-white mb-4">
                 ⭐ Conteúdo Premium
               </h2>
               <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
@@ -171,7 +171,7 @@ const Cursos = () => {
           {/* All Courses Grid */}
           {filteredCourses.length > 1 && (
             <div className="mb-8">
-              <h2 className="font-display text-xl text-foreground mb-4">
+              <h2 className="font-display text-xl text-white mb-4">
                 Todos os cursos
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -186,7 +186,7 @@ const Cursos = () => {
                         <img src={course.thumbnail_url} alt={course.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       ) : (
                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/20 flex items-center justify-center">
-                          <Play className="w-8 h-8 text-foreground/40" />
+                          <Play className="w-8 h-8 text-white/40" />
                         </div>
                       )}
                       {course.is_premium && (
@@ -196,7 +196,7 @@ const Cursos = () => {
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
-                    <h3 className="text-foreground text-sm font-medium line-clamp-2">{course.title}</h3>
+                    <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
                     <div className="flex items-center gap-2 mt-1">
                       {course.instructor && <span className="text-muted-foreground text-xs">{course.instructor}</span>}
                       {course.total_duration && (

@@ -25,7 +25,7 @@ const CursoDetalhe = () => {
   if (loadingCourse) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-4 border-white border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -34,8 +34,8 @@ const CursoDetalhe = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-display text-foreground mb-2">Curso não encontrado</h2>
-          <Link to="/cursos" className="text-primary hover:underline">Voltar aos cursos</Link>
+          <h2 className="text-xl font-display text-white mb-2">Curso não encontrado</h2>
+          <Link to="/cursos" className="text-white/70 hover:underline">Voltar aos cursos</Link>
         </div>
       </div>
     );
@@ -67,7 +67,7 @@ const CursoDetalhe = () => {
               <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center mb-3">
                 <Play className="w-8 h-8 text-gray-800 fill-current ml-1" />
               </div>
-              <p className="text-foreground/70 text-sm">
+              <p className="text-white/70 text-sm">
                 {currentLesson ? "Vídeo em breve" : "Selecione uma aula"}
               </p>
             </div>
@@ -78,7 +78,7 @@ const CursoDetalhe = () => {
       {/* Course Info */}
       <div className="px-1">
         <span className="text-white font-bold text-xs tracking-widest uppercase">FANATICLASS</span>
-        <h1 className="font-display text-2xl text-foreground mt-1 mb-2">{course.title}</h1>
+        <h1 className="font-display text-2xl text-white mt-1 mb-2">{course.title}</h1>
         
         <div className="flex items-center gap-3 text-sm text-muted-foreground mb-4 flex-wrap">
           {course.instructor && <span>{course.instructor}</span>}
@@ -105,7 +105,7 @@ const CursoDetalhe = () => {
         {currentLesson && (
           <div className="bg-muted/50 rounded-xl p-3 mb-4 border border-border">
             <p className="text-xs text-muted-foreground mb-0.5">Assistindo agora</p>
-            <p className="text-foreground font-medium text-sm">{currentLesson.title}</p>
+            <p className="text-white font-medium text-sm">{currentLesson.title}</p>
             {currentLesson.duration && (
               <p className="text-xs text-muted-foreground mt-1">{currentLesson.duration}</p>
             )}
@@ -114,15 +114,15 @@ const CursoDetalhe = () => {
 
         {/* Quick Actions */}
         <div className="flex justify-around border-b border-border pb-4 mb-4">
-          <button className="flex flex-col items-center gap-1 text-foreground hover:text-white transition-colors">
+          <button className="flex flex-col items-center gap-1 text-white/70 hover:text-white transition-colors">
             <Plus className="w-5 h-5" />
             <span className="text-xs">Minha lista</span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-foreground hover:text-white transition-colors">
+          <button className="flex flex-col items-center gap-1 text-white/70 hover:text-white transition-colors">
             <ThumbsUp className="w-5 h-5" />
             <span className="text-xs">Avaliar</span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-foreground hover:text-white transition-colors">
+          <button className="flex flex-col items-center gap-1 text-white/70 hover:text-white transition-colors">
             <Share2 className="w-5 h-5" />
             <span className="text-xs">Compartilhar</span>
           </button>
@@ -134,7 +134,7 @@ const CursoDetalhe = () => {
             onClick={() => setActiveTab("modulos")}
             className={`pb-2 font-medium text-sm transition-colors ${
               activeTab === "modulos"
-                ? "text-foreground border-b-2 border-white"
+                ? "text-white border-b-2 border-white"
                 : "text-muted-foreground"
             }`}
           >
@@ -144,7 +144,7 @@ const CursoDetalhe = () => {
             onClick={() => setActiveTab("sobre")}
             className={`pb-2 font-medium text-sm transition-colors ${
               activeTab === "sobre"
-                ? "text-foreground border-b-2 border-white"
+                ? "text-white border-b-2 border-white"
                 : "text-muted-foreground"
             }`}
           >
@@ -171,7 +171,7 @@ const CursoDetalhe = () => {
                             {modIdx + 1}
                           </div>
                           <div>
-                            <h3 className="text-foreground font-medium text-sm">{mod.title}</h3>
+                            <h3 className="text-white font-medium text-sm">{mod.title}</h3>
                             <p className="text-muted-foreground text-xs">{modLessons.length} aulas</p>
                           </div>
                         </div>
@@ -198,7 +198,7 @@ const CursoDetalhe = () => {
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h4 className="text-foreground text-sm font-medium line-clamp-1">{lesson.title}</h4>
+                                <h4 className="text-white text-sm font-medium line-clamp-1">{lesson.title}</h4>
                                 <div className="flex items-center gap-2 mt-0.5">
                                   {lesson.duration && (
                                     <span className="text-muted-foreground text-xs">{lesson.duration}</span>
@@ -229,7 +229,7 @@ const CursoDetalhe = () => {
             {/* Activities Section */}
             {currentLesson && activities && activities.length > 0 && (
               <div className="mt-6 pt-4 border-t border-border">
-                <h3 className="font-display text-lg text-foreground mb-3 flex items-center gap-2">
+                <h3 className="font-display text-lg text-white mb-3 flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-white" />
                   Atividades Complementares
                 </h3>
@@ -244,7 +244,7 @@ const CursoDetalhe = () => {
                           <Check className="w-3.5 h-3.5 text-white" />
                         </div>
                         <div>
-                          <h4 className="text-foreground font-medium text-sm">{activity.title}</h4>
+                          <h4 className="text-white font-medium text-sm">{activity.title}</h4>
                           {activity.description && (
                             <p className="text-muted-foreground text-xs mt-1">{activity.description}</p>
                           )}
@@ -266,7 +266,7 @@ const CursoDetalhe = () => {
           <div className="space-y-4">
             {course.description && (
               <div>
-                <h3 className="text-foreground font-medium mb-2">Descrição</h3>
+                <h3 className="text-white font-medium mb-2">Descrição</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">
                   {course.description}
                 </p>
@@ -274,17 +274,17 @@ const CursoDetalhe = () => {
             )}
             {course.instructor && (
               <div>
-                <h3 className="text-foreground font-medium mb-1">Instrutor</h3>
+                <h3 className="text-white font-medium mb-1">Instrutor</h3>
                 <p className="text-muted-foreground text-sm">{course.instructor}</p>
               </div>
             )}
             <div>
-              <h3 className="text-foreground font-medium mb-1">Categoria</h3>
+              <h3 className="text-white font-medium mb-1">Categoria</h3>
               <p className="text-muted-foreground text-sm">{course.category}</p>
             </div>
             {course.price !== null && course.price > 0 && (
               <div>
-                <h3 className="text-foreground font-medium mb-1">Preço</h3>
+                <h3 className="text-white font-medium mb-1">Preço</h3>
                 <p className="text-white font-bold">R$ {Number(course.price).toFixed(2).replace('.', ',')}</p>
               </div>
             )}
@@ -300,7 +300,7 @@ const CursoDetalhe = () => {
         <Header />
         <main className="pt-16 px-4 pb-4">
           <div className="mb-4">
-            <Link to="/cursos" className="flex items-center gap-1 text-muted-foreground text-sm hover:text-foreground transition-colors">
+        <Link to="/cursos" className="flex items-center gap-1 text-muted-foreground text-sm hover:text-white transition-colors">
               <ChevronLeft className="w-4 h-4" /> Voltar
             </Link>
           </div>
