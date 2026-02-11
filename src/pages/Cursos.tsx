@@ -35,7 +35,7 @@ const Cursos = () => {
         {course.thumbnail_url ? (
           <img src={course.thumbnail_url} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/30 flex items-center justify-center">
             <Play className="w-8 h-8 text-foreground/50" />
           </div>
         )}
@@ -68,7 +68,7 @@ const Cursos = () => {
           placeholder="Buscar cursos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="w-full pl-10 pr-4 py-2.5 bg-muted rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-white/50"
         />
       </div>
 
@@ -111,11 +111,11 @@ const Cursos = () => {
                 {featuredCourse.thumbnail_url ? (
                   <img src={featuredCourse.thumbnail_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/30" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/30" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                 <div className={`absolute bottom-0 left-0 right-0 p-6 ${!isMobile ? "max-w-2xl" : ""}`}>
-                  <span className="text-primary font-bold text-xs tracking-widest uppercase mb-2 block">FANATICLASS</span>
+                  <span className="text-white font-bold text-xs tracking-widest uppercase mb-2 block">FANATICLASS</span>
                   <h2 className="font-display text-3xl text-foreground mb-2 leading-tight">
                     {featuredCourse.title}
                   </h2>
@@ -185,7 +185,7 @@ const Cursos = () => {
                       {course.thumbnail_url ? (
                         <img src={course.thumbnail_url} alt={course.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/20 flex items-center justify-center">
                           <Play className="w-8 h-8 text-foreground/40" />
                         </div>
                       )}
