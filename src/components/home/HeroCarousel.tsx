@@ -22,6 +22,7 @@ interface SlideConfig {
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
+  const [isPaused, setIsPaused] = useState(false);
   const moduleQuery = useModuleConfig("hero_carousel");
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
@@ -39,17 +40,18 @@ const HeroCarousel = () => {
   }, [moduleQuery.data]);
 
   useEffect(() => {
-    if (slides.length <= 1) return;
+    if (slides.length <= 1 || isPaused) return;
 
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [slides.length]);
+  }, [slides.length, isPaused]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX;
+    setIsPaused(true);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -57,7 +59,13 @@ const HeroCarousel = () => {
   };
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
+    setIsPaused(false);
+
+    if (!touchStartX.current || !touchEndX.current) {
+      touchStartX.current = null;
+      touchEndX.current = null;
+      return;
+    }
     
     const diff = touchStartX.current - touchEndX.current;
     const minSwipeDistance = 50;
