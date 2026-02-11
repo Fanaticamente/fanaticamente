@@ -1,0 +1,1 @@
+ALTER TABLE public.courses ADD COLUMN hero_image_url text, ADD COLUMN grid_image_url text;
