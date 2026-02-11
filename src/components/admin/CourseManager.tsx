@@ -460,7 +460,11 @@ const CourseManager = () => {
               </div>
             </div>
             <div>
-              <Label>Thumbnail</Label>
+              <Label>Thumbnail do Curso</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Usada no hero, cards e grid. Tamanho recomendado: <strong>800 × 1200px</strong> (proporção 2:3, retrato).
+                Para o grid "Todos os cursos" a imagem será cortada em 16:9. Para o hero, será exibida em 4:5.
+              </p>
               <div className="flex gap-2 items-center">
                 {editingCourse?.thumbnail_url && (
                   <img src={editingCourse.thumbnail_url} alt="" className="w-20 h-14 rounded-lg object-cover" />
@@ -566,6 +570,9 @@ const CourseManager = () => {
             </div>
             <div>
               <Label>Thumbnail da Aula</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Tamanho recomendado: <strong>1280 × 720px</strong> (proporção 16:9, paisagem).
+              </p>
               <div className="flex gap-2 items-center">
                 {editingLesson?.thumbnail_url && (
                   <img src={editingLesson.thumbnail_url} alt="" className="w-16 h-10 rounded object-cover" />
