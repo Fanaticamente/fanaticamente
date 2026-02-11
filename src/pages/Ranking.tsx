@@ -78,17 +78,23 @@ const Ranking = () => {
       <Header />
 
       <main className="pt-20">
-        {/* Title */}
-        <div className="px-4 mb-4">
-          <div className="flex items-center gap-3 border-b-2 border-gray-400 pb-3 mb-2">
-            <Trophy className="w-8 h-8 text-amber-500" />
-            <div>
-              <h1 className="text-2xl font-display font-bold text-gray-800 tracking-tight leading-tight">
+        {/* Title Banner */}
+        <div className="relative overflow-hidden mb-4" style={{ background: 'linear-gradient(135deg, #1a1152 0%, #1a1152 30%, #0033cc 30%, #0055ff 100%)' }}>
+          {/* Yellow triangle accent */}
+          <div className="absolute top-0 left-0 w-24 h-full" style={{ background: '#ffcc00', clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
+          
+          <div className="relative flex items-center gap-4 px-5 py-5">
+            <Trophy className="w-10 h-10 text-[#ffcc00] drop-shadow-lg z-10" />
+            <div className="z-10">
+              <h1 className="text-xl font-extrabold text-white tracking-wide leading-tight uppercase" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.6rem', letterSpacing: '0.05em' }}>
                 Brasileirão da Saúde Mental
               </h1>
-              <p className="text-xs text-gray-500 font-medium">Temporada 2026</p>
+              <p className="text-xs text-blue-200 font-medium">Temporada 2026</p>
             </div>
           </div>
+        </div>
+
+        <div className="px-4 mb-4">
           <p className="text-gray-600 text-sm">
             Ranking dos clubes com mais torcedores cuidando da saúde mental
           </p>
