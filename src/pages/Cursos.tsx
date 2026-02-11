@@ -158,7 +158,7 @@ const Cursos = () => {
           {premiumCourses.length > 0 && (
             <div className="mb-8">
               <h2 className="font-display text-xl text-white mb-4">
-                ⭐ Conteúdo Premium
+                Conteúdo Premium
               </h2>
               <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
                 {premiumCourses.map((course) => (
