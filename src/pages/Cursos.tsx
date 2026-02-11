@@ -40,14 +40,14 @@ const Cursos = () => {
           </div>
         )}
         {course.is_premium && (
-          <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+          <div className="absolute top-2 right-2 bg-white text-gray-800 text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
             <Lock className="w-3 h-3" />
             PRO
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-            <Play className="w-5 h-5 text-primary-foreground fill-current ml-0.5" />
+          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+            <Play className="w-5 h-5 text-gray-800 fill-current ml-0.5" />
           </div>
         </div>
       </div>
@@ -80,7 +80,7 @@ const Cursos = () => {
             onClick={() => setSelectedCategory(cat)}
             className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors border ${
               selectedCategory === cat
-                ? "bg-primary text-primary-foreground border-primary"
+                ? "bg-white text-gray-800 border-white shadow-sm"
                 : "bg-transparent border-border text-foreground hover:bg-muted"
             }`}
           >
@@ -125,7 +125,7 @@ const Cursos = () => {
                   <div className="flex gap-3">
                     <Link
                       to={`/curso/${featuredCourse.id}`}
-                      className="flex items-center gap-2 py-3 px-6 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors"
+                      className="flex items-center gap-2 py-3 px-6 bg-white text-gray-800 rounded-xl font-medium hover:bg-gray-100 transition-colors"
                     >
                       <Play className="w-5 h-5 fill-current" />
                       Assistir
@@ -190,7 +190,7 @@ const Cursos = () => {
                         </div>
                       )}
                       {course.is_premium && (
-                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+                        <div className="absolute top-2 right-2 bg-white text-gray-800 text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
                           <Lock className="w-3 h-3" /> PRO
                         </div>
                       )}
