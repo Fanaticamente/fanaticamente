@@ -48,7 +48,7 @@ const Cursos = () => {
           )}
         </div>
         {course.coming_soon && (
-          <div className="absolute bottom-2 left-2 bg-amber-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+          <div className="absolute bottom-2 right-2 bg-amber-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
             <Clock className="w-3 h-3" />
             EM BREVE
           </div>
@@ -205,7 +205,7 @@ const Cursos = () => {
                         )}
                       </div>
                       {course.coming_soon && (
-                        <div className="absolute bottom-2 left-2 bg-amber-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+                        <div className="absolute bottom-2 right-2 bg-amber-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
                           <Clock className="w-3 h-3" /> EM BREVE
                         </div>
                       )}
