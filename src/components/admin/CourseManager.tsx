@@ -276,6 +276,9 @@ const CourseManager = () => {
                       ) : (
                         <span className="text-xs bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full">Gratuito</span>
                       )}
+                      {(course as any).coming_soon && (
+                        <span className="text-xs bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded-full">Em breve</span>
+                      )}
                       {course.is_published ? (
                         <span className="text-xs bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full flex items-center gap-1">
                           <Eye className="w-3 h-3" /> Publicado
@@ -528,7 +531,7 @@ const CourseManager = () => {
                 </Button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="flex items-center gap-2">
                 <Switch checked={editingCourse?.is_premium || false} onCheckedChange={(v) => setEditingCourse(prev => ({ ...prev, is_premium: v }))} />
                 <Label>Conteúdo Premium</Label>
@@ -536,6 +539,10 @@ const CourseManager = () => {
               <div className="flex items-center gap-2">
                 <Switch checked={editingCourse?.is_published || false} onCheckedChange={(v) => setEditingCourse(prev => ({ ...prev, is_published: v }))} />
                 <Label>Publicado</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch checked={(editingCourse as any)?.coming_soon || false} onCheckedChange={(v) => setEditingCourse(prev => ({ ...prev, coming_soon: v }))} />
+                <Label>Em breve</Label>
               </div>
             </div>
             {editingCourse?.is_premium && (

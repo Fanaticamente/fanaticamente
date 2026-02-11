@@ -1,0 +1,1 @@
+ALTER TABLE public.courses ADD COLUMN coming_soon boolean NOT NULL DEFAULT false;
