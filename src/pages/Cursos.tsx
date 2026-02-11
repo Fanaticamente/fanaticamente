@@ -22,7 +22,7 @@ const Cursos = () => {
     return matchCat && matchSearch;
   }) || [];
 
-  const featuredCourse = filteredCourses[0];
+  const featuredCourse = filteredCourses.find(c => (c as any).is_featured) || filteredCourses[0];
   const premiumCourses = filteredCourses.filter(c => c.is_premium);
   const freeCourses = filteredCourses.filter(c => !c.is_premium);
 

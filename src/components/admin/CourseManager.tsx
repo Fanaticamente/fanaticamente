@@ -267,10 +267,14 @@ const CourseManager = () => {
                       </div>
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
+                   <div className="flex-1 min-w-0">
                     <h3 className="text-foreground font-medium truncate">{course.title}</h3>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className="text-xs text-muted-foreground">#{course.order_index}</span>
                       <span className="text-xs text-muted-foreground">{course.category}</span>
+                      {(course as any).is_featured && (
+                        <span className="text-xs bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-full">⭐ Hero</span>
+                      )}
                       {course.is_premium ? (
                         <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">Premium</span>
                       ) : (
@@ -531,7 +535,12 @@ const CourseManager = () => {
                 </Button>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div>
+              <Label>Ordem na página</Label>
+              <Input type="number" value={editingCourse?.order_index ?? 0} onChange={(e) => setEditingCourse(prev => ({ ...prev, order_index: parseInt(e.target.value) || 0 }))} />
+              <p className="text-xs text-muted-foreground mt-1">Cursos com menor número aparecem primeiro.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
                 <Switch checked={editingCourse?.is_premium || false} onCheckedChange={(v) => setEditingCourse(prev => ({ ...prev, is_premium: v }))} />
                 <Label>Conteúdo Premium</Label>
@@ -543,6 +552,10 @@ const CourseManager = () => {
               <div className="flex items-center gap-2">
                 <Switch checked={(editingCourse as any)?.coming_soon || false} onCheckedChange={(v) => setEditingCourse(prev => ({ ...prev, coming_soon: v }))} />
                 <Label>Em breve</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch checked={(editingCourse as any)?.is_featured || false} onCheckedChange={(v) => setEditingCourse(prev => ({ ...prev, is_featured: v }))} />
+                <Label>Destaque (Hero)</Label>
               </div>
             </div>
             {editingCourse?.is_premium && (
