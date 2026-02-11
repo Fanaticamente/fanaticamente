@@ -55,6 +55,7 @@ const CursoDetalhe = () => {
           <video
             src={currentLesson.video_url}
             controls
+            playsInline
             className="w-full h-full"
             poster={currentLesson.thumbnail_url || course.thumbnail_url || undefined}
           />
