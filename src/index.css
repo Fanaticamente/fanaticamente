@@ -1,13 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700;900&family=Nunito:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700;800;900&display=swap');
 
-@font-face {
-  font-family: 'Univia Pro';
-  src: url('/fonts/univia-pro-ultra.otf') format('opentype');
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

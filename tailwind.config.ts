@@ -18,7 +18,6 @@ export default {
         display: ['Bebas Neue', 'sans-serif'],
         montserrat: ['Montserrat', 'sans-serif'],
         poppins: ['Poppins', 'sans-serif'],
-        univia: ['Univia Pro', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

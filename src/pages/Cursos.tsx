@@ -51,7 +51,7 @@ const Cursos = () => {
           </div>
         </div>
       </div>
-      <h3 className="text-white text-sm font-univia line-clamp-2">{course.title}</h3>
+      <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
       {course.instructor && (
         <p className="text-muted-foreground text-xs mt-0.5">{course.instructor}</p>
       )}
@@ -196,7 +196,7 @@ const Cursos = () => {
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
-                    <h3 className="text-white text-sm font-univia line-clamp-2">{course.title}</h3>
+                    <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
                     <div className="flex items-center gap-2 mt-1">
                       {course.instructor && <span className="text-muted-foreground text-xs">{course.instructor}</span>}
                       {course.total_duration && (
