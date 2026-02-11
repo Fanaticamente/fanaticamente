@@ -579,6 +579,7 @@ export type Database = {
       courses: {
         Row: {
           category: string
+          coming_soon: boolean
           created_at: string
           description: string | null
           grid_image_url: string | null
@@ -596,6 +597,7 @@ export type Database = {
         }
         Insert: {
           category?: string
+          coming_soon?: boolean
           created_at?: string
           description?: string | null
           grid_image_url?: string | null
@@ -613,6 +615,7 @@ export type Database = {
         }
         Update: {
           category?: string
+          coming_soon?: boolean
           created_at?: string
           description?: string | null
           grid_image_url?: string | null

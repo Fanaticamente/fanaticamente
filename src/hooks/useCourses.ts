@@ -14,6 +14,7 @@ export interface Course {
   is_premium: boolean;
   price: number | null;
   is_published: boolean;
+  coming_soon: boolean;
   order_index: number;
   total_duration: string | null;
   created_at: string;
