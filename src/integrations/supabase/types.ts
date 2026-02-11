@@ -586,6 +586,7 @@ export type Database = {
           hero_image_url: string | null
           id: string
           instructor: string | null
+          is_featured: boolean
           is_premium: boolean
           is_published: boolean
           order_index: number
@@ -604,6 +605,7 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           instructor?: string | null
+          is_featured?: boolean
           is_premium?: boolean
           is_published?: boolean
           order_index?: number
@@ -622,6 +624,7 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           instructor?: string | null
+          is_featured?: boolean
           is_premium?: boolean
           is_published?: boolean
           order_index?: number

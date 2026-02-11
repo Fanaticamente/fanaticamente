@@ -12,6 +12,7 @@ export interface Course {
   category: string;
   instructor: string | null;
   is_premium: boolean;
+  is_featured: boolean;
   price: number | null;
   is_published: boolean;
   coming_soon: boolean;
