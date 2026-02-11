@@ -41,21 +41,21 @@ const RankingInfoCard = () => {
 
         <ul className="text-sm text-gray-600 space-y-2 mb-6">
           <li className="flex items-start gap-2">
-            <span className="text-emerald-600 font-bold mt-0.5">•</span>
+            <span className="font-bold mt-0.5" style={{ color: '#0066ff' }}>•</span>
             <span>
               <strong>Sessão de terapia</strong> — cada consulta concluída com
               um profissional da plataforma vale <strong>3 pontos</strong>.
             </span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-emerald-600 font-bold mt-0.5">•</span>
+            <span className="font-bold mt-0.5" style={{ color: '#0066ff' }}>•</span>
             <span>
               <strong>Termômetro Emocional</strong> — cada preenchimento diário
               do termômetro emocional vale <strong>1 ponto</strong>.
             </span>
           </li>
           <li className="flex items-start gap-2">
-            <span className="text-emerald-600 font-bold mt-0.5">•</span>
+            <span className="font-bold mt-0.5" style={{ color: '#0066ff' }}>•</span>
             <span>
               <strong>FanatiClass</strong> — cada curso assistido ou finalizado
               na plataforma vale <strong>1 ponto</strong>.
