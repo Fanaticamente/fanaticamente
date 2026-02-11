@@ -108,8 +108,8 @@ const Cursos = () => {
           {featuredCourse && (
             <div className="mb-8">
               <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-b from-muted to-card ${isMobile ? "aspect-[4/5] max-h-[500px]" : "aspect-[21/9]"}`}>
-                {featuredCourse.thumbnail_url ? (
-                  <img src={featuredCourse.thumbnail_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                {(featuredCourse.hero_image_url || featuredCourse.thumbnail_url) ? (
+                  <img src={featuredCourse.hero_image_url || featuredCourse.thumbnail_url!} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/30" />
                 )}
@@ -182,8 +182,8 @@ const Cursos = () => {
                     className="group"
                   >
                     <div className="relative aspect-video rounded-xl overflow-hidden bg-muted mb-2">
-                      {course.thumbnail_url ? (
-                        <img src={course.thumbnail_url} alt={course.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      {(course.grid_image_url || course.thumbnail_url) ? (
+                        <img src={course.grid_image_url || course.thumbnail_url!} alt={course.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       ) : (
                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/20 flex items-center justify-center">
                           <Play className="w-8 h-8 text-white/40" />

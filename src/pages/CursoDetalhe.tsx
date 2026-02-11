@@ -57,7 +57,7 @@ const CursoDetalhe = () => {
             controls
             playsInline
             className="w-full h-full"
-            poster={currentLesson.thumbnail_url || course.thumbnail_url || undefined}
+            poster={currentLesson.thumbnail_url || (course as any).grid_image_url || course.thumbnail_url || undefined}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-muted to-card flex flex-col items-center justify-center">

@@ -51,8 +51,11 @@ const CourseManager = () => {
   const [editingLesson, setEditingLesson] = useState<Partial<CourseLesson> | null>(null);
   const [editingActivity, setEditingActivity] = useState<Partial<LessonActivity> | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
   const videoRef = useRef<HTMLInputElement>(null);
   const thumbRef = useRef<HTMLInputElement>(null);
+  const heroRef = useRef<HTMLInputElement>(null);
+  const gridRef = useRef<HTMLInputElement>(null);
 
   const { data: courses, isLoading } = useAllCourses();
   const { data: modules } = useCourseModules(selectedCourseId || undefined);
@@ -202,6 +205,21 @@ const CourseManager = () => {
       toast.success("Imagem enviada!");
     } catch {
       toast.error("Erro ao enviar imagem");
+    }
+  };
+
+  const handleCourseImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: "thumbnail_url" | "hero_image_url" | "grid_image_url") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingField(field);
+    try {
+      const url = await uploadFile(file, "thumbnails");
+      setEditingCourse(prev => prev ? { ...prev, [field]: url } : null);
+      toast.success("Imagem enviada!");
+    } catch {
+      toast.error("Erro ao enviar imagem");
+    } finally {
+      setUploadingField(null);
     }
   };
 
@@ -459,19 +477,53 @@ const CourseManager = () => {
                 <Input placeholder="ex: 2h 30min" value={editingCourse?.total_duration || ""} onChange={(e) => setEditingCourse(prev => ({ ...prev, total_duration: e.target.value }))} />
               </div>
             </div>
+            {/* Thumbnail - Cards horizontais */}
             <div>
-              <Label>Thumbnail do Curso</Label>
+              <Label>Thumbnail (Cards Horizontais)</Label>
               <p className="text-xs text-muted-foreground mb-2">
-                Tamanho recomendado: <strong>800 × 1200px</strong> (proporção 2:3, retrato).
-                Usada no hero em destaque (exibida em ~4:5), nos cards horizontais (cortada em 2:3) e no grid "Todos os cursos" (cortada em 16:9).
+                <strong>800 × 1200px</strong> (proporção 2:3, retrato). Usada nos cards horizontais.
               </p>
               <div className="flex gap-2 items-center">
                 {editingCourse?.thumbnail_url && (
-                  <img src={editingCourse.thumbnail_url} alt="" className="w-20 h-14 rounded-lg object-cover" />
+                  <img src={editingCourse.thumbnail_url} alt="" className="w-14 h-20 rounded-lg object-cover" />
                 )}
-                <input type="file" accept="image/*" ref={thumbRef} className="hidden" onChange={(e) => handleThumbnailUpload(e, "course")} />
+                <input type="file" accept="image/*" ref={thumbRef} className="hidden" onChange={(e) => handleCourseImageUpload(e, "thumbnail_url")} />
                 <Button variant="outline" size="sm" onClick={() => thumbRef.current?.click()} disabled={uploading}>
-                  {uploading ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Upload className="w-4 h-4 mr-1" />}
+                  {uploadingField === "thumbnail_url" ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Upload className="w-4 h-4 mr-1" />}
+                  Upload
+                </Button>
+              </div>
+            </div>
+            {/* Hero Image */}
+            <div>
+              <Label>Imagem Hero (Destaque)</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                <strong>800 × 1000px</strong> (proporção ~4:5). Usada na seção em destaque.
+              </p>
+              <div className="flex gap-2 items-center">
+                {(editingCourse as any)?.hero_image_url && (
+                  <img src={(editingCourse as any).hero_image_url} alt="" className="w-14 h-[70px] rounded-lg object-cover" />
+                )}
+                <input type="file" accept="image/*" ref={heroRef} className="hidden" onChange={(e) => handleCourseImageUpload(e, "hero_image_url")} />
+                <Button variant="outline" size="sm" onClick={() => heroRef.current?.click()} disabled={uploading}>
+                  {uploadingField === "hero_image_url" ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Upload className="w-4 h-4 mr-1" />}
+                  Upload
+                </Button>
+              </div>
+            </div>
+            {/* Grid Image */}
+            <div>
+              <Label>Imagem Grid (Todos os Cursos)</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                <strong>1280 × 720px</strong> (proporção 16:9, paisagem). Usada no grid "Todos os cursos".
+              </p>
+              <div className="flex gap-2 items-center">
+                {(editingCourse as any)?.grid_image_url && (
+                  <img src={(editingCourse as any).grid_image_url} alt="" className="w-20 h-[45px] rounded-lg object-cover" />
+                )}
+                <input type="file" accept="image/*" ref={gridRef} className="hidden" onChange={(e) => handleCourseImageUpload(e, "grid_image_url")} />
+                <Button variant="outline" size="sm" onClick={() => gridRef.current?.click()} disabled={uploading}>
+                  {uploadingField === "grid_image_url" ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Upload className="w-4 h-4 mr-1" />}
                   Upload
                 </Button>
               </div>

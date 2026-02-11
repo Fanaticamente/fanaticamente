@@ -581,6 +581,8 @@ export type Database = {
           category: string
           created_at: string
           description: string | null
+          grid_image_url: string | null
+          hero_image_url: string | null
           id: string
           instructor: string | null
           is_premium: boolean
@@ -596,6 +598,8 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string | null
+          grid_image_url?: string | null
+          hero_image_url?: string | null
           id?: string
           instructor?: string | null
           is_premium?: boolean
@@ -611,6 +615,8 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string | null
+          grid_image_url?: string | null
+          hero_image_url?: string | null
           id?: string
           instructor?: string | null
           is_premium?: boolean

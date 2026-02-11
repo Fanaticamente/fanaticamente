@@ -7,6 +7,8 @@ export interface Course {
   title: string;
   description: string | null;
   thumbnail_url: string | null;
+  hero_image_url: string | null;
+  grid_image_url: string | null;
   category: string;
   instructor: string | null;
   is_premium: boolean;
