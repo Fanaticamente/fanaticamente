@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Trophy } from "lucide-react";
 import Header from "@/components/layout/Header";
@@ -17,6 +17,19 @@ const leagueTabs: { key: LeagueTab; label: string }[] = [
 
 const Ranking = () => {
   const [activeLeague, setActiveLeague] = useState<LeagueTab>("serie_a");
+  const headerScrollRef = useRef<HTMLDivElement>(null);
+  const bodyScrollRef = useRef<HTMLDivElement>(null);
+
+  const syncScroll = (source: 'header' | 'body') => {
+    const header = headerScrollRef.current;
+    const body = bodyScrollRef.current;
+    if (!header || !body) return;
+    if (source === 'body') {
+      header.scrollLeft = body.scrollLeft;
+    } else {
+      body.scrollLeft = header.scrollLeft;
+    }
+  };
 
   // Fetch completed appointments count per club
   const { data: clubCounts = {} } = useQuery({
@@ -122,7 +135,7 @@ const Ranking = () => {
 
         {/* Table Header - static */}
         <div className="px-4">
-          <div className="overflow-x-auto">
+          <div ref={headerScrollRef} className="overflow-x-auto" onScroll={() => syncScroll('header')} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <div className="min-w-[620px]">
               <div className="flex items-center py-2 px-3 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
                 <span className="w-8 text-center">#</span>
@@ -138,7 +151,7 @@ const Ranking = () => {
 
         {/* Scrollable Table Rows */}
         <div className="flex-1 overflow-y-auto overscroll-contain px-4">
-          <div className="overflow-x-auto">
+          <div ref={bodyScrollRef} className="overflow-x-auto" onScroll={() => syncScroll('body')}>
           <div className="min-w-[620px]">
             <div className="divide-y divide-gray-100">
               {sortedClubs.map((club, index) => {
