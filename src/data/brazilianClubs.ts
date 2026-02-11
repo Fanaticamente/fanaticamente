@@ -19,6 +19,7 @@ import maranhaoBadge from "@/assets/badges/maranhao.png";
 import maringaBadge from "@/assets/badges/maringa.png";
 import paysanduBadge from "@/assets/badges/paysandu.png";
 import ypirangaBadge from "@/assets/badges/ypiranga-rs.png";
+import mirassolBadge from "@/assets/badges/mirassol.png";
 
 export interface BrazilianClub {
   id: string;
@@ -216,7 +217,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "MIR",
     primaryColor: "#FFD700",
     secondaryColor: "#000000",
-    badgeUrl: "https://logodetimes.com/times/mirassol/logo-mirassol-256.png",
+    badgeUrl: mirassolBadge,
     league: "serie_a",
     storeUrl: "https://www.mirassol.com.br",
   },
