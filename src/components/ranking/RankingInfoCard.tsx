@@ -35,8 +35,8 @@ const RankingInfoCard = () => {
 
         <p className="text-sm text-gray-600 leading-relaxed mb-4">
           O <strong>Brasileirão da Saúde Mental</strong> pontua os clubes com
-          base nas ações dos seus torcedores. Cada atividade abaixo gera{" "}
-          <strong>1 ponto</strong> para o clube do coração do torcedor:
+          base nas ações dos seus torcedores. Cada atividade gera pontos
+          para o clube do coração do torcedor conforme abaixo:
         </p>
 
         <ul className="text-sm text-gray-600 space-y-2 mb-6">
@@ -44,21 +44,21 @@ const RankingInfoCard = () => {
             <span className="text-emerald-600 font-bold mt-0.5">•</span>
             <span>
               <strong>Sessão de terapia</strong> — cada consulta concluída com
-              um profissional da plataforma.
+              um profissional da plataforma gera <strong>3 pontos</strong>.
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-emerald-600 font-bold mt-0.5">•</span>
             <span>
               <strong>Termômetro Emocional</strong> — cada preenchimento diário
-              do termômetro emocional.
+              do termômetro emocional gera <strong>1 ponto</strong>.
             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-emerald-600 font-bold mt-0.5">•</span>
             <span>
               <strong>FanatiClass</strong> — cada curso assistido ou finalizado
-              na plataforma.
+              na plataforma gera <strong>1 ponto</strong>.
             </span>
           </li>
         </ul>
