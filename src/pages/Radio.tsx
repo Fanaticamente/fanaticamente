@@ -87,7 +87,7 @@ const Radio = () => {
         </div>
       )}
 
-      <main className={`px-4 ${playingStation ? 'pt-[calc(env(safe-area-inset-top)+128px)]' : 'pt-20'}`}>
+      <main className={`px-4 ${playingStation ? 'pt-[calc(env(safe-area-inset-top)+144px)]' : 'pt-20'}`}>
         {/* Header */}
         <div className="text-center mb-6">
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-radio/20 flex items-center justify-center">
