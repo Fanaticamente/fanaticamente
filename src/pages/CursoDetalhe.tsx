@@ -41,6 +41,19 @@ const CursoDetalhe = () => {
     );
   }
 
+  if (course.coming_soon) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Clock className="w-12 h-12 text-amber-500 mx-auto mb-3" />
+          <h2 className="text-xl font-display text-white mb-2">Em breve</h2>
+          <p className="text-muted-foreground text-sm mb-4">Este curso ainda não está disponível.</p>
+          <Link to="/cursos" className="text-white/70 hover:underline">Voltar aos cursos</Link>
+        </div>
+      </div>
+    );
+  }
+
   const getLessonsForModule = (moduleId: string) => {
     return allLessons?.filter(l => l.module_id === moduleId) || [];
   };

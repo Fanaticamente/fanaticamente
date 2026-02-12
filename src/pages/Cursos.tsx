@@ -26,45 +26,117 @@ const Cursos = () => {
   const premiumCourses = filteredCourses.filter(c => c.is_premium);
   const freeCourses = filteredCourses.filter(c => !c.is_premium);
 
-  const CourseCard = ({ course, size = "normal" }: { course: Course; size?: "normal" | "small" }) => (
-    <Link
-      to={`/curso/${course.id}`}
-      className={`flex-shrink-0 group ${size === "small" ? (isMobile ? "w-32" : "w-40") : (isMobile ? "w-36" : "w-48")}`}
-    >
-      <div className={`relative ${size === "small" ? "aspect-[2/3]" : "aspect-video"} rounded-xl overflow-hidden bg-muted mb-2`}>
-        {course.thumbnail_url ? (
-          <img src={course.thumbnail_url} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/30 flex items-center justify-center">
-            <Play className="w-8 h-8 text-white/50" />
+  const CourseCard = ({ course, size = "normal" }: { course: Course; size?: "normal" | "small" }) => {
+    const content = (
+      <>
+        <div className={`relative ${size === "small" ? "aspect-[2/3]" : "aspect-video"} rounded-xl overflow-hidden bg-muted mb-2`}>
+          {course.thumbnail_url ? (
+            <img src={course.thumbnail_url} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/30 flex items-center justify-center">
+              <Play className="w-8 h-8 text-white/50" />
+            </div>
+          )}
+          <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+            {course.is_premium && (
+              <div className="bg-white text-gray-800 text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+                <Lock className="w-3 h-3" />
+                PRO
+              </div>
+            )}
           </div>
-        )}
-        <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
-          {course.is_premium && (
-            <div className="bg-white text-gray-800 text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
-              <Lock className="w-3 h-3" />
-              PRO
+          {course.coming_soon && (
+            <div className="absolute bottom-2 right-2 bg-amber-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              EM BREVE
+            </div>
+          )}
+          {!course.coming_soon && (
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
+                <Play className="w-5 h-5 text-gray-800 fill-current ml-0.5" />
+              </div>
             </div>
           )}
         </div>
-        {course.coming_soon && (
-          <div className="absolute bottom-2 right-2 bg-amber-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            EM BREVE
-          </div>
+        <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
+        {course.instructor && (
+          <p className="text-muted-foreground text-xs mt-0.5">{course.instructor}</p>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-            <Play className="w-5 h-5 text-gray-800 fill-current ml-0.5" />
-          </div>
+      </>
+    );
+
+    if (course.coming_soon) {
+      return (
+        <div className={`flex-shrink-0 group cursor-default opacity-70 ${size === "small" ? (isMobile ? "w-32" : "w-40") : (isMobile ? "w-36" : "w-48")}`}>
+          {content}
         </div>
-      </div>
-      <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
-      {course.instructor && (
-        <p className="text-muted-foreground text-xs mt-0.5">{course.instructor}</p>
-      )}
-    </Link>
-  );
+      );
+    }
+
+    return (
+      <Link
+        to={`/curso/${course.id}`}
+        className={`flex-shrink-0 group ${size === "small" ? (isMobile ? "w-32" : "w-40") : (isMobile ? "w-36" : "w-48")}`}
+      >
+        {content}
+      </Link>
+    );
+  };
+
+  const GridCourseCard = ({ course }: { course: Course }) => {
+    const content = (
+      <>
+        <div className="relative aspect-video rounded-xl overflow-hidden bg-muted mb-2">
+          {(course.grid_image_url || course.thumbnail_url) ? (
+            <img src={course.grid_image_url || course.thumbnail_url!} alt={course.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/20 flex items-center justify-center">
+              <Play className="w-8 h-8 text-white/40" />
+            </div>
+          )}
+          <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+            {course.is_premium && (
+              <div className="bg-white text-gray-800 text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+                <Lock className="w-3 h-3" /> PRO
+              </div>
+            )}
+          </div>
+          {course.coming_soon && (
+            <div className="absolute bottom-2 right-2 bg-amber-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+              <Clock className="w-3 h-3" /> EM BREVE
+            </div>
+          )}
+          {!course.coming_soon && (
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          )}
+        </div>
+        <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
+        <div className="flex items-center gap-2 mt-1">
+          {course.instructor && <span className="text-muted-foreground text-xs">{course.instructor}</span>}
+          {course.total_duration && (
+            <span className="text-muted-foreground text-xs flex items-center gap-1">
+              <Clock className="w-3 h-3" /> {course.total_duration}
+            </span>
+          )}
+        </div>
+      </>
+    );
+
+    if (course.coming_soon) {
+      return (
+        <div key={course.id} className="group cursor-default opacity-70">
+          {content}
+        </div>
+      );
+    }
+
+    return (
+      <Link key={course.id} to={`/curso/${course.id}`} className="group">
+        {content}
+      </Link>
+    );
+  };
 
   const CursosContent = () => (
     <>
@@ -131,13 +203,20 @@ const Cursos = () => {
                     {featuredCourse.description}
                   </p>
                   <div className="flex gap-3">
-                    <Link
-                      to={`/curso/${featuredCourse.id}`}
-                      className="flex items-center gap-2 py-3 px-6 bg-white text-gray-800 rounded-xl font-medium hover:bg-gray-100 transition-colors"
-                    >
-                      <Play className="w-5 h-5 fill-current" />
-                      Assistir
-                    </Link>
+                    {featuredCourse.coming_soon ? (
+                      <div className="flex items-center gap-2 py-3 px-6 bg-amber-500 text-white rounded-xl font-medium">
+                        <Clock className="w-5 h-5" />
+                        Em breve
+                      </div>
+                    ) : (
+                      <Link
+                        to={`/curso/${featuredCourse.id}`}
+                        className="flex items-center gap-2 py-3 px-6 bg-white text-gray-800 rounded-xl font-medium hover:bg-gray-100 transition-colors"
+                      >
+                        <Play className="w-5 h-5 fill-current" />
+                        Assistir
+                      </Link>
+                    )}
                     <button className="flex items-center gap-2 py-3 px-6 bg-muted/80 text-white rounded-xl font-medium hover:bg-muted transition-colors">
                       <Plus className="w-5 h-5" />
                       Minha lista
@@ -184,43 +263,7 @@ const Cursos = () => {
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {filteredCourses.map((course) => (
-                  <Link
-                    key={course.id}
-                    to={`/curso/${course.id}`}
-                    className="group"
-                  >
-                    <div className="relative aspect-video rounded-xl overflow-hidden bg-muted mb-2">
-                      {(course.grid_image_url || course.thumbnail_url) ? (
-                        <img src={course.grid_image_url || course.thumbnail_url!} alt={course.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                      ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/20 flex items-center justify-center">
-                          <Play className="w-8 h-8 text-white/40" />
-                        </div>
-                      )}
-                      <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
-                        {course.is_premium && (
-                          <div className="bg-white text-gray-800 text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
-                            <Lock className="w-3 h-3" /> PRO
-                          </div>
-                        )}
-                      </div>
-                      {course.coming_soon && (
-                        <div className="absolute bottom-2 right-2 bg-amber-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> EM BREVE
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      {course.instructor && <span className="text-muted-foreground text-xs">{course.instructor}</span>}
-                      {course.total_duration && (
-                        <span className="text-muted-foreground text-xs flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> {course.total_duration}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
+                  <GridCourseCard key={course.id} course={course} />
                 ))}
               </div>
             </div>
