@@ -42,9 +42,11 @@ export const RadioProvider = ({ children }: { children: ReactNode }) => {
       hlsRef.current = null;
     }
     if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = "";
+      const oldAudio = audioRef.current;
       audioRef.current = null;
+      oldAudio.pause();
+      oldAudio.removeAttribute("src");
+      oldAudio.load();
     }
   }, []);
 
@@ -89,8 +91,10 @@ export const RadioProvider = ({ children }: { children: ReactNode }) => {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
+      if (audioRef.current !== audio) return; // stale
       setIsLoading(false);
       audio.play().catch(() => {
+        if (audioRef.current !== audio) return;
         toast.error("Não foi possível reproduzir esta rádio");
         setPlayingStation(null);
         setIsLoading(false);
@@ -98,6 +102,7 @@ export const RadioProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const onError = () => {
+      if (audioRef.current !== audio) return; // stale
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
