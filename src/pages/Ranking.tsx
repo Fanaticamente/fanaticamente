@@ -188,9 +188,11 @@ const Ranking = () => {
               </div>
             </div>
 
-            <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
-              * Cada sessão de terapia concluída vale <strong className="text-gray-500">3 pontos</strong>. Cada preenchimento diário do termômetro emocional e cada curso completo no FanatiClass vale <strong className="text-gray-500">1 ponto</strong>.
-            </p>
+            <div className="text-[11px] text-gray-400 mt-1 leading-relaxed space-y-0.5">
+              <p>* Sessão de terapia concluída → <strong className="text-gray-500">3 pontos</strong></p>
+              <p>* Preenchimento diário do termômetro emocional → <strong className="text-gray-500">1 ponto</strong></p>
+              <p>* Curso completo no FanatiClass → <strong className="text-gray-500">1 ponto</strong></p>
+            </div>
           </div>
           </div>
           <div aria-hidden className="h-20" />
