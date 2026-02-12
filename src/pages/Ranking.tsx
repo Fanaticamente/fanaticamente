@@ -154,7 +154,7 @@ const Ranking = () => {
                         className="w-8 h-8 object-contain flex-shrink-0"
                         loading="lazy"
                       />
-                      <span className="text-sm font-semibold text-gray-900 truncate">
+                      <span className="text-sm font-semibold text-gray-500 truncate">
                         {club.name}
                       </span>
                     </div>
