@@ -13,7 +13,7 @@ const GlobalRadioPlayer = () => {
 
   return (
     <>
-      <div className="fixed top-[calc(env(safe-area-inset-top)+56px)] left-0 right-0 z-40 bg-radio p-3 flex items-center gap-4 md:hidden">
+      <div className="fixed top-[calc(env(safe-area-inset-top)+56px)] left-0 right-0 z-40 bg-radio py-4 px-3 flex items-center justify-center gap-4 md:hidden">
         <div className="w-10 h-10 rounded-full bg-radio-foreground/20 flex items-center justify-center">
           {isLoading ? (
             <Loader2 className="w-5 h-5 text-radio-foreground animate-spin" />
