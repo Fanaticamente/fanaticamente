@@ -164,7 +164,7 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
         </div>
 
         {/* Messages */}
-        <div className={`space-y-3 ${expanded ? "max-h-80 overflow-y-auto" : "max-h-40 overflow-hidden"}`}>
+        <div className={`space-y-3 overflow-y-auto ${expanded ? "max-h-80" : "max-h-48"}`}>
           {loading ? (
             <div className="space-y-2 pl-12">
               <Skeleton className="h-4 w-full" />
