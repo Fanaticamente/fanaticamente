@@ -187,6 +187,10 @@ const Ranking = () => {
                 <span>Z-4 — Zona de rebaixamento</span>
               </div>
             </div>
+
+            <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+              * Cada sessão de terapia concluída vale <strong className="text-gray-500">3 pontos</strong>. Cada preenchimento diário do termômetro emocional e cada curso completo no FanatiClass vale <strong className="text-gray-500">1 ponto</strong>.
+            </p>
           </div>
           </div>
           <div aria-hidden className="h-20" />
