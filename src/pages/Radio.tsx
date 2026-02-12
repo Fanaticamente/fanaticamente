@@ -62,7 +62,7 @@ const Radio = () => {
 
       {/* Now Playing Bar - fixed at top below header */}
       {playingStation && (
-        <div className="fixed top-[calc(env(safe-area-inset-top)+56px)] left-0 right-0 z-40 bg-radio py-5 px-3 flex items-center gap-4">
+        <div className="fixed top-[calc(env(safe-area-inset-top)+60px)] left-0 right-0 z-40 bg-radio p-3 flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-radio-foreground/20 flex items-center justify-center">
             {isLoading ? (
               <Loader2 className="w-5 h-5 text-radio-foreground animate-spin" />
