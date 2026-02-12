@@ -92,38 +92,42 @@ serve(async (req) => {
 
     // Fetch data in parallel
     const [
-      todayRes, yesterdayRes, pendingRes, weekRes, unreadRes, ratingsRes, refundRes, weeklyAvailRes
+      allApptsRes, unreadRes, ratingsRes, weeklyAvailRes
     ] = await Promise.all([
-      supabase.from("appointments").select("id, scheduled_date, scheduled_time, status")
-        .eq("professional_id", professional.id).eq("scheduled_date", today),
-      supabase.from("appointments").select("id")
+      supabase.from("appointments")
+        .select("id, scheduled_date, scheduled_time, status, notes, rating, user_id, consultation_link, rejection_reason, user_pix_key, user_pix_key_type, created_at")
         .eq("professional_id", professional.id)
-        .gte("created_at", yesterday + "T00:00:00.000Z")
-        .lte("created_at", yesterday + "T23:59:59.999Z"),
-      supabase.from("appointments").select("id")
-        .eq("professional_id", professional.id).eq("status", "pending"),
-      supabase.from("appointments").select("id, scheduled_date, status")
-        .eq("professional_id", professional.id)
-        .gte("scheduled_date", today).lte("scheduled_date", weekFromNow)
-        .in("status", ["confirmed", "pending"]),
+        .order("scheduled_date", { ascending: false })
+        .limit(100),
       supabase.from("admin_messages").select("id, message")
         .eq("professional_id", professional.id).eq("is_read", false),
       supabase.from("appointments").select("rating")
         .eq("professional_id", professional.id).not("rating", "is", null)
         .order("updated_at", { ascending: false }).limit(10),
-      supabase.from("appointments").select("id")
-        .eq("professional_id", professional.id).eq("status", "refund_pending"),
       supabase.from("professional_weekly_availability").select("day_of_week, time_slots")
         .eq("professional_id", professional.id),
     ]);
 
-    const todayAppointments = todayRes.data;
-    const yesterdayNew = yesterdayRes.data;
-    const pending = pendingRes.data;
-    const weekAppts = weekRes.data;
+    const allAppts = allApptsRes.data || [];
+
+    // Fetch patient names for all appointments
+    const userIds = [...new Set(allAppts.map(a => a.user_id))];
+    const { data: patientProfiles } = userIds.length > 0
+      ? await supabase.from("profiles").select("user_id, full_name").in("user_id", userIds)
+      : { data: [] };
+
+    const profileMap: Record<string, string> = {};
+    (patientProfiles || []).forEach((p: any) => { profileMap[p.user_id] = p.full_name || "Sem nome"; });
+
+    // Derive subsets
+    const todayAppointments = allAppts.filter(a => a.scheduled_date === today);
+    const yesterdayNew = allAppts.filter(a => a.created_at >= yesterday + "T00:00:00" && a.created_at <= yesterday + "T23:59:59");
+    const pending = allAppts.filter(a => a.status === "pending");
+    const weekAppts = allAppts.filter(a => a.scheduled_date >= today && a.scheduled_date <= weekFromNow && ["confirmed", "pending"].includes(a.status));
+    const refunds = allAppts.filter(a => a.status === "refund_pending");
+
     const unread = unreadRes.data;
     const ratings = ratingsRes.data;
-    const refunds = refundRes.data;
     const weeklyAvail = weeklyAvailRes.data;
 
     const avgRating = ratings && ratings.length > 0
@@ -143,6 +147,32 @@ serve(async (req) => {
       ? weeklyAvail.map(a => `${daysOfWeek[a.day_of_week]}: ${a.time_slots.length} horários`).join(", ")
       : "nenhuma disponibilidade configurada";
 
+    // Build detailed appointments list
+    const formatAppt = (a: any) => {
+      const name = profileMap[a.user_id] || "Paciente desconhecido";
+      let detail = `  - Paciente: ${name} | Data: ${a.scheduled_date} ${a.scheduled_time} | Status: ${a.status}`;
+      if (a.rating) detail += ` | Avaliação: ${a.rating}/5`;
+      if (a.rejection_reason) detail += ` | Motivo rejeição: ${a.rejection_reason}`;
+      if (a.user_pix_key) detail += ` | Pix paciente: ${a.user_pix_key} (${a.user_pix_key_type})`;
+      return detail;
+    };
+
+    const todayDetails = todayAppointments.length > 0
+      ? todayAppointments.map(formatAppt).join("\n")
+      : "  Nenhuma sessão hoje";
+
+    const pendingDetails = pending.length > 0
+      ? pending.map(formatAppt).join("\n")
+      : "  Nenhum pendente";
+
+    const refundDetails = refunds.length > 0
+      ? refunds.map(formatAppt).join("\n")
+      : "  Nenhum reembolso pendente";
+
+    const weekDetails = weekAppts.length > 0
+      ? weekAppts.map(formatAppt).join("\n")
+      : "  Nenhum agendamento na próxima semana";
+
     const context = `
 Dados do profissional:
 - Nome: ${firstName}
@@ -154,16 +184,28 @@ Dados do profissional:
 - Assinatura: ${professional.subscription_type || "nenhuma"}
 - Chave Pix: ${professional.pix_key ? "configurada" : "não configurada"}
 
-Movimentação (${today}):
-- Sessões hoje: ${todayAppointments?.length || 0} ${todayAppointments && todayAppointments.length > 0 ? `(${todayAppointments.filter(a => a.status === "confirmed").length} confirmados, ${todayAppointments.filter(a => a.status === "pending").length} pendentes)` : ""}
-- Novos agendamentos ontem: ${yesterdayNew?.length || 0}
-- Pendentes de confirmação: ${pending?.length || 0}
-- Próxima semana: ${weekAppts?.length || 0}
+Resumo (${today}):
+- Sessões hoje: ${todayAppointments.length}
+- Novos agendamentos ontem: ${yesterdayNew.length}
+- Pendentes de confirmação: ${pending.length}
+- Próxima semana: ${weekAppts.length}
 - Mensagens admin não lidas: ${unread?.length || 0}
 - Avaliação média: ${avgRating || "sem avaliações"}
-- Reembolsos pendentes: ${refunds?.length || 0}
+- Reembolsos pendentes: ${refunds.length}
 - Disponibilidade semanal: ${availSummary}
-- Saudação: ${greeting}`.trim();
+- Saudação: ${greeting}
+
+DETALHES DOS AGENDAMENTOS DE HOJE:
+${todayDetails}
+
+AGENDAMENTOS PENDENTES DE CONFIRMAÇÃO:
+${pendingDetails}
+
+REEMBOLSOS PENDENTES (profissional deve reembolsar diretamente o paciente):
+${refundDetails}
+
+AGENDAMENTOS DA PRÓXIMA SEMANA:
+${weekDetails}`.trim();
 
     // Build messages for AI
     const aiMessages = [
