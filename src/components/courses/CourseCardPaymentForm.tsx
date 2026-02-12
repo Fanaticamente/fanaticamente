@@ -200,32 +200,32 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
           <Label className="text-sm text-white/70">Número do cartão</Label>
-          <Input value={cardNumber} onChange={(e) => setCardNumber(formatCardNumber(e.target.value))} placeholder="0000 0000 0000 0000" maxLength={19} required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40" />
+          <Input value={cardNumber} onChange={(e) => setCardNumber(formatCardNumber(e.target.value))} placeholder="0000 0000 0000 0000" maxLength={19} required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 focus-visible:ring-white/30" />
         </div>
 
         <div className="space-y-1.5">
           <Label className="text-sm text-white/70">Nome no cartão</Label>
-          <Input value={cardholderName} onChange={(e) => setCardholderName(e.target.value)} placeholder="NOME COMO NO CARTÃO" required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 uppercase" />
+          <Input value={cardholderName} onChange={(e) => setCardholderName(e.target.value)} placeholder="NOME COMO NO CARTÃO" required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 focus-visible:ring-white/30 uppercase" />
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1.5">
             <Label className="text-sm text-white/70">Mês</Label>
             <Select value={expirationMonth} onValueChange={setExpirationMonth} required>
-              <SelectTrigger className="bg-white/5 border-white/20 text-white [&>span]:text-white"><SelectValue placeholder="MM" /></SelectTrigger>
+              <SelectTrigger className="bg-white/5 border-white/20 text-white [&>span]:text-white [&>svg]:text-white/50 focus:ring-white/30 focus:border-white/40 data-[placeholder]:text-white/30"><SelectValue placeholder="MM" /></SelectTrigger>
               <SelectContent>{months.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
             <Label className="text-sm text-white/70">Ano</Label>
             <Select value={expirationYear} onValueChange={setExpirationYear} required>
-              <SelectTrigger className="bg-white/5 border-white/20 text-white [&>span]:text-white"><SelectValue placeholder="AAAA" /></SelectTrigger>
+              <SelectTrigger className="bg-white/5 border-white/20 text-white [&>span]:text-white [&>svg]:text-white/50 focus:ring-white/30 focus:border-white/40 data-[placeholder]:text-white/30"><SelectValue placeholder="AAAA" /></SelectTrigger>
               <SelectContent>{years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
             <Label className="text-sm text-white/70">CVV</Label>
-            <Input value={securityCode} onChange={(e) => setSecurityCode(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="123" maxLength={4} required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40" />
+            <Input value={securityCode} onChange={(e) => setSecurityCode(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="123" maxLength={4} required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 focus-visible:ring-white/30" />
           </div>
         </div>
 
@@ -233,7 +233,7 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
           <div className="space-y-1.5">
             <Label className="text-sm text-white/70">Documento</Label>
             <Select value={docType} onValueChange={setDocType}>
-              <SelectTrigger className="bg-white/5 border-white/20 text-white [&>span]:text-white"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="bg-white/5 border-white/20 text-white [&>span]:text-white [&>svg]:text-white/50 focus:ring-white/30 focus:border-white/40"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="CPF">CPF</SelectItem>
                 <SelectItem value="CNPJ">CNPJ</SelectItem>
@@ -242,13 +242,13 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
           </div>
           <div className="col-span-2 space-y-1.5">
             <Label className="text-sm text-white/70">Número</Label>
-            <Input value={docNumber} onChange={(e) => setDocNumber(formatDocNumber(e.target.value))} placeholder={docType === "CPF" ? "000.000.000-00" : "00.000.000/0000-00"} required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40" />
+            <Input value={docNumber} onChange={(e) => setDocNumber(formatDocNumber(e.target.value))} placeholder={docType === "CPF" ? "000.000.000-00" : "00.000.000/0000-00"} required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 focus-visible:ring-white/30" />
           </div>
         </div>
 
         <div className="space-y-1.5">
           <Label className="text-sm text-white/70">E-mail</Label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40" />
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 focus-visible:ring-white/30" />
         </div>
 
         <button type="submit" disabled={isLoading || !isSDKLoaded} className="w-full py-4 bg-white text-gray-900 rounded-xl font-bold uppercase tracking-wide hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
