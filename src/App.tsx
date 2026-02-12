@@ -4,7 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { RadioProvider } from "@/contexts/RadioContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import GlobalRadioPlayer from "@/components/radio/GlobalRadioPlayer";
 
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
 import { useRouteRestoration } from "@/hooks/useRouteRestoration";
@@ -109,9 +111,11 @@ const App = () => {
         // But we avoid AppProviders (realtime + route restoration + global session dialog)
         // to prevent any cross-context loops.
         <AuthProvider>
+          <RadioProvider>
           <BrowserRouter>
             <Toaster />
             <Sonner />
+            <GlobalRadioPlayer />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/terapeutas" element={<Terapeutas />} />
@@ -130,13 +134,16 @@ const App = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
+          </RadioProvider>
         </AuthProvider>
       ) : (
         <AuthProvider>
+          <RadioProvider>
           <BrowserRouter>
             <AppProviders>
               <Toaster />
               <Sonner />
+              <GlobalRadioPlayer />
               <Routes>
                 {/* Public routes - accessible without login */}
                 <Route path="/auth" element={<Auth />} />
@@ -195,6 +202,7 @@ const App = () => {
               </Routes>
             </AppProviders>
           </BrowserRouter>
+          </RadioProvider>
         </AuthProvider>
       )}
     </TooltipProvider>
