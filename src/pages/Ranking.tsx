@@ -190,7 +190,7 @@ const Ranking = () => {
 
             <div className="text-[11px] text-gray-400 mt-1 leading-relaxed space-y-0.5">
               <p>* Sessão de terapia concluída → <strong className="text-gray-500">3 pontos</strong></p>
-              <p>* Preenchimento diário do termômetro emocional → <strong className="text-gray-500">1 ponto</strong></p>
+              <p>* Preenchimento diário do Termômetro Torcedor → <strong className="text-gray-500">1 ponto</strong></p>
               <p>* Curso completo no FanatiClass → <strong className="text-gray-500">1 ponto</strong></p>
             </div>
           </div>
