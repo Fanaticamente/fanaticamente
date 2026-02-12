@@ -68,8 +68,8 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
       {coursePrice > 0 && (
         <div className="bg-muted/50 border border-border rounded-xl p-5 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+              <CreditCard className="w-6 h-6 text-white" />
             </div>
             <div>
               <h3 className="text-white font-display text-lg uppercase tracking-wide">Compra Avulsa</h3>
@@ -108,8 +108,8 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
       {/* Option 2: Membership */}
       <div className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/30 rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.15)]">
-            <Crown className="w-5 h-5 text-amber-400" />
+          <div className="w-12 h-12 rounded-xl bg-amber-500/15 flex items-center justify-center">
+            <Crown className="w-6 h-6 text-amber-400" />
           </div>
           <div>
             <h3 className="text-white font-display text-lg uppercase tracking-wide">Assinatura Mensal</h3>
