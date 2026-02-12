@@ -6,19 +6,32 @@ import BottomNav from "@/components/layout/BottomNav";
 import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useCourse, useCourseModules, useCourseLessons, useLessonActivities } from "@/hooks/useCourses";
+import { useCourseAccess } from "@/hooks/useCourseAccess";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import CoursePaywall from "@/components/courses/CoursePaywall";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CursoDetalhe = () => {
   const { id } = useParams();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"modulos" | "sobre">("modulos");
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
 
   const { data: course, isLoading: loadingCourse } = useCourse(id);
+  const { data: accessData, isLoading: loadingAccess } = useCourseAccess(id);
   const { data: modules, isLoading: loadingModules } = useCourseModules(id);
   const { data: allLessons } = useCourseLessons(id);
   const { data: activities } = useLessonActivities(selectedLessonId || undefined);
+
+  const hasAccess = !course?.is_premium || accessData?.hasAccess === true;
+
+  const handleAccessGranted = () => {
+    queryClient.invalidateQueries({ queryKey: ["course-access", id] });
+  };
 
   const currentLesson = selectedLessonId ? allLessons?.find(l => l.id === selectedLessonId) : allLessons?.[0];
 
@@ -62,9 +75,9 @@ const CursoDetalhe = () => {
 
   const DetailContent = () => (
     <div className="max-w-4xl mx-auto">
-      {/* Video Player */}
+      {/* Video Player / Locked Thumbnail */}
       <div className="relative aspect-video bg-black rounded-2xl overflow-hidden mb-6">
-        {currentLesson?.video_url ? (
+        {hasAccess && currentLesson?.video_url ? (
           <video
             src={currentLesson.video_url}
             controls
@@ -78,12 +91,23 @@ const CursoDetalhe = () => {
               <img src={course.thumbnail_url} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
             ) : null}
             <div className="relative z-10 flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center mb-3">
-                <Play className="w-8 h-8 text-gray-800 fill-current ml-1" />
-              </div>
-              <p className="text-white/70 text-sm">
-                {currentLesson ? "Vídeo em breve" : "Selecione uma aula"}
-              </p>
+              {!hasAccess && course.is_premium ? (
+                <>
+                  <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mb-3">
+                    <Lock className="w-8 h-8 text-white/80" />
+                  </div>
+                  <p className="text-white/70 text-sm">Conteúdo bloqueado</p>
+                </>
+              ) : (
+                <>
+                  <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center mb-3">
+                    <Play className="w-8 h-8 text-gray-800 fill-current ml-1" />
+                  </div>
+                  <p className="text-white/70 text-sm">
+                    {currentLesson ? "Vídeo em breve" : "Selecione uma aula"}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -115,6 +139,11 @@ const CursoDetalhe = () => {
           )}
         </div>
 
+        {/* Paywall - show if premium and no access */}
+        {course.is_premium && !hasAccess ? (
+          <CoursePaywall course={course} onAccessGranted={handleAccessGranted} />
+        ) : (
+        <>
         {/* Current Lesson Title */}
         {currentLesson && (
           <div className="bg-muted/50 rounded-xl p-3 mb-4 border border-border">
@@ -303,6 +332,8 @@ const CursoDetalhe = () => {
               </div>
             )}
           </div>
+        )}
+        </>
         )}
       </div>
     </div>
