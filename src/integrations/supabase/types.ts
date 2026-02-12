@@ -1409,6 +1409,13 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_ranking_counts: {
+        Args: never
+        Returns: {
+          club_id: string
+          session_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
