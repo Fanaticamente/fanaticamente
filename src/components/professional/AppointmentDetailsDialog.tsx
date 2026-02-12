@@ -145,7 +145,7 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
       onClick={onClose}
     >
       <div 
-        className="bg-card rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto" 
+        className="bg-card rounded-2xl max-w-lg w-full max-h-[80vh] overflow-auto mb-24" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
