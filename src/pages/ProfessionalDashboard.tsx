@@ -655,12 +655,6 @@ const ProfessionalDashboard = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-3">
       <div className="flex items-center justify-between max-w-6xl mx-auto">
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          <button
-            onClick={() => navigate("/")}
-            className="p-1.5 hover:bg-muted rounded-lg transition-colors flex-shrink-0"
-          >
-            <ChevronLeft className="w-5 h-5 text-muted-foreground" />
-          </button>
           {profile?.avatar_url ? (
             <div className="w-9 h-9 rounded-full overflow-hidden shadow-md flex-shrink-0">
               <img

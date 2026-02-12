@@ -14,14 +14,31 @@ const PROFESSIONAL_ROUTES = [
   "/conecta",
 ];
 
+// Rotas de torcedor (usuário comum) que profissionais NÃO podem acessar
+const USER_ONLY_ROUTES = [
+  "/perfil",
+  "/meus-agendamentos",
+  "/diario",
+  "/pagamentos",
+  "/configuracoes",
+  "/notificacoes",
+  "/pagamento/",
+];
+
 const isProfessionalRoute = (pathname: string): boolean => {
   return PROFESSIONAL_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(route)
   );
 };
 
+const isUserOnlyRoute = (pathname: string): boolean => {
+  return USER_ONLY_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(route)
+  );
+};
+
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading, hasRole } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -50,6 +67,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   if (!user) {
     // Redirect to auth page, preserving the intended destination
     return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  // Profissionais não podem acessar rotas de torcedor
+  if (hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
+    if (isUserOnlyRoute(location.pathname)) {
+      return <Navigate to="/profissional" replace />;
+    }
   }
 
   return <>{children}</>;
