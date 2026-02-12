@@ -52,7 +52,7 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass-dark pt-[env(safe-area-inset-top)] transform-gpu will-change-transform">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl pt-[env(safe-area-inset-top)] transform-gpu will-change-transform">
       <div className="flex items-center justify-between px-4 py-3">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
