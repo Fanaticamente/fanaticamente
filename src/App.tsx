@@ -45,6 +45,7 @@ import ObservationMap from "./pages/fanatica-lab/ObservationMap";
 import TherapeuticPlan from "./pages/fanatica-lab/TherapeuticPlan";
 import CaseReview from "./pages/fanatica-lab/CaseReview";
 import ReferenceLibrary from "./pages/fanatica-lab/ReferenceLibrary";
+import ReceiptTemplate from "./pages/fanatica-lab/ReceiptTemplate";
 import PsiHouse from "./pages/PsiHouse";
 import Conecta from "./pages/Conecta";
 import OSMF from "./pages/OSMF";
@@ -179,6 +180,7 @@ const App = () => {
                 <Route path="/fanatica-lab/plano-terapeutico" element={<ProtectedRoute><TherapeuticPlan /></ProtectedRoute>} />
                 <Route path="/fanatica-lab/revisao-caso" element={<ProtectedRoute><CaseReview /></ProtectedRoute>} />
                 <Route path="/fanatica-lab/biblioteca" element={<ProtectedRoute><ReferenceLibrary /></ProtectedRoute>} />
+                <Route path="/fanatica-lab/modelo-recibo" element={<ProtectedRoute><ReceiptTemplate /></ProtectedRoute>} />
                 <Route path="/psi-house" element={<ProtectedRoute><PsiHouse /></ProtectedRoute>} />
                 <Route path="/conecta" element={<ProtectedRoute><Conecta /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />

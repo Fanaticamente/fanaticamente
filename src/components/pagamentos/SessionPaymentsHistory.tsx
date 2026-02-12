@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckCircle2, Clock, AlertCircle, ExternalLink, Receipt, BookOpen } from "lucide-react";
+import { Calendar, CheckCircle2, Clock, AlertCircle, ExternalLink, Receipt, BookOpen, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -20,6 +21,7 @@ type PaymentItem = {
 
 const SessionPaymentsHistory = () => {
   const { user } = useAuth();
+  const [viewingReceipt, setViewingReceipt] = useState<string | null>(null);
 
   const { data: appointments, isLoading: loadingAppointments } = useQuery({
     queryKey: ["user-session-payments", user?.id],
@@ -62,6 +64,25 @@ const SessionPaymentsHistory = () => {
     enabled: !!user?.id,
   });
 
+  // Fetch session receipts
+  const { data: sessionReceipts } = useQuery({
+    queryKey: ["session-receipts", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from("session_receipts")
+        .select("appointment_id, receipt_html")
+        .eq("user_id", user.id);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
+
+  const receiptMap = new Map(
+    (sessionReceipts || []).map((r) => [r.appointment_id, r.receipt_html])
+  );
+
   const isLoading = loadingAppointments || loadingCourses;
 
   // Merge and sort all payments
@@ -87,6 +108,22 @@ const SessionPaymentsHistory = () => {
       receiptUrl: null,
     })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const handleViewReceipt = (appointmentId: string) => {
+    const html = receiptMap.get(appointmentId);
+    if (html) setViewingReceipt(html);
+  };
+
+  const handleDownloadReceipt = () => {
+    if (!viewingReceipt) return;
+    const blob = new Blob([viewingReceipt], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "recibo-atendimento.html";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const getStatusBadge = (status: string | null) => {
     switch (status) {
@@ -156,52 +193,117 @@ const SessionPaymentsHistory = () => {
   }
 
   return (
-    <div className="space-y-3">
-      {allPayments.map((item) => (
-        <div
-          key={item.id}
-          className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/[0.08] transition-colors"
-        >
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="p-2.5 rounded-lg bg-white/10 shrink-0">
-              {item.type === "course" ? (
-                <BookOpen className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Calendar className="w-4 h-4 text-white/60" />
+    <>
+      <div className="space-y-3">
+        {allPayments.map((item) => (
+          <div
+            key={item.id}
+            className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/[0.08] transition-colors"
+          >
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="p-2.5 rounded-lg bg-white/10 shrink-0">
+                {item.type === "course" ? (
+                  <BookOpen className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Calendar className="w-4 h-4 text-white/60" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-white truncate">
+                  {item.title}
+                </p>
+                <p className="text-xs text-white/40">
+                  {item.subtitle}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="text-right">
+                <p className="text-sm font-bold text-white">
+                  R$ {item.amount.toFixed(2)}
+                </p>
+                {getStatusBadge(item.status)}
+              </div>
+              {item.type === "session" && receiptMap.has(item.id) && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-emerald-400 hover:text-emerald-300 hover:bg-white/10 h-8 w-8"
+                  onClick={() => handleViewReceipt(item.id)}
+                  title="Ver recibo"
+                >
+                  <FileText className="w-4 h-4" />
+                </Button>
+              )}
+              {item.receiptUrl && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white/40 hover:text-white hover:bg-white/10 h-8 w-8"
+                  asChild
+                >
+                  <a href={item.receiptUrl} target="_blank" rel="noopener noreferrer" title="Ver comprovante">
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </Button>
               )}
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-white truncate">
-                {item.title}
-              </p>
-              <p className="text-xs text-white/40">
-                {item.subtitle}
-              </p>
-            </div>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="text-right">
-              <p className="text-sm font-bold text-white">
-                R$ {item.amount.toFixed(2)}
-              </p>
-              {getStatusBadge(item.status)}
-            </div>
-            {item.receiptUrl && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white/40 hover:text-white hover:bg-white/10 h-8 w-8"
-                asChild
+        ))}
+      </div>
+
+      {/* Receipt Viewer Modal */}
+      {viewingReceipt && (
+        <div
+          className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+          onClick={() => setViewingReceipt(null)}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h3 className="font-semibold text-gray-900">Recibo de Atendimento</h3>
+              <button
+                onClick={() => setViewingReceipt(null)}
+                className="text-gray-500 hover:text-gray-700 text-lg font-bold"
               >
-                <a href={item.receiptUrl} target="_blank" rel="noopener noreferrer" title="Ver comprovante">
-                  <ExternalLink className="w-4 h-4" />
-                </a>
+                X
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto">
+              <iframe
+                srcDoc={viewingReceipt}
+                className="w-full h-[60vh] border-0"
+                title="Recibo"
+              />
+            </div>
+            <div className="p-4 border-t border-gray-200 flex gap-3">
+              <Button
+                onClick={handleDownloadReceipt}
+                className="flex-1 bg-primary hover:bg-primary/90"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Baixar Recibo
               </Button>
-            )}
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const printWindow = window.open("", "_blank");
+                  if (printWindow) {
+                    printWindow.document.write(viewingReceipt);
+                    printWindow.document.close();
+                    printWindow.print();
+                  }
+                }}
+              >
+                Imprimir
+              </Button>
+            </div>
           </div>
         </div>
-      ))}
-    </div>
+      )}
+    </>
   );
 };
 

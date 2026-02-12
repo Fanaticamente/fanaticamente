@@ -2,11 +2,7 @@ import { useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   FlaskConical, 
-  FileText, 
-  Map, 
-  Target, 
-  RefreshCw, 
-  BookOpen,
+  Receipt,
   ChevronRight,
   Shield
 } from "lucide-react";
@@ -17,44 +13,12 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const modules = [
   {
-    id: "clinical-notes",
-    title: "Notas Clínicas Pessoais",
-    description: "Registre observações pessoais após as sessões",
-    icon: FileText,
-    path: "/fanatica-lab/notas-clinicas",
-    color: "bg-blue-500"
-  },
-  {
-    id: "observation-map",
-    title: "Mapa de Observação Clínica",
-    description: "Estrutura guiada com campos reflexivos",
-    icon: Map,
-    path: "/fanatica-lab/mapa-observacao",
-    color: "bg-purple-500"
-  },
-  {
-    id: "therapeutic-plan",
-    title: "Plano Terapêutico Pessoal",
-    description: "Defina objetivos e estratégias terapêuticas",
-    icon: Target,
-    path: "/fanatica-lab/plano-terapeutico",
+    id: "receipt-template",
+    title: "Modelo de Recibo",
+    description: "Configure os dados para emissão de recibos",
+    icon: Receipt,
+    path: "/fanatica-lab/modelo-recibo",
     color: "bg-primary"
-  },
-  {
-    id: "case-review",
-    title: "Revisão de Caso",
-    description: "Auto-supervisão com perguntas orientadoras",
-    icon: RefreshCw,
-    path: "/fanatica-lab/revisao-caso",
-    color: "bg-orange-500"
-  },
-  {
-    id: "reference-library",
-    title: "Biblioteca de Referências",
-    description: "Salve links, textos e ideias clínicas",
-    icon: BookOpen,
-    path: "/fanatica-lab/biblioteca",
-    color: "bg-rose-500"
   }
 ];
 

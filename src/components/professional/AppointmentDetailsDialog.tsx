@@ -98,13 +98,93 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
   const handleEndSession = async () => {
     setIsUpdatingStatus(true);
     try {
+      // Get professional data
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) throw new Error("Não autenticado");
+
+      const { data: professional } = await supabase
+        .from("professionals")
+        .select("id, hourly_rate")
+        .eq("user_id", authUser.id)
+        .single();
+
+      if (!professional) throw new Error("Perfil profissional não encontrado");
+
+      // Get receipt template
+      const { data: receiptTemplate } = await supabase
+        .from("receipt_templates")
+        .select("*")
+        .eq("professional_id", professional.id)
+        .maybeSingle();
+
+      // Get patient profile
+      const { data: patientProfile } = await supabase
+        .from("profiles")
+        .select("full_name, cpf")
+        .eq("user_id", appointment.id ? "" : "")
+        .maybeSingle();
+
+      // Get user_id from appointment
+      const { data: appointmentData } = await supabase
+        .from("appointments")
+        .select("user_id")
+        .eq("id", appointment.id)
+        .single();
+
+      let patientData = { full_name: appointment.profiles?.full_name || "Paciente", cpf: "" };
+      if (appointmentData?.user_id) {
+        const { data: pProfile } = await supabase
+          .from("profiles")
+          .select("full_name, cpf")
+          .eq("user_id", appointmentData.user_id)
+          .single();
+        if (pProfile) {
+          patientData = { full_name: pProfile.full_name || "Paciente", cpf: pProfile.cpf || "" };
+        }
+      }
+
+      // Update status to completed
       const { error } = await supabase
         .from("appointments")
         .update({ status: "completed" })
         .eq("id", appointment.id);
 
       if (error) throw error;
-      
+
+      // Generate receipt if template exists
+      if (receiptTemplate && appointmentData?.user_id) {
+        const receiptData = {
+          professional: {
+            full_name: receiptTemplate.full_name,
+            crp: receiptTemplate.crp,
+            document_type: receiptTemplate.document_type,
+            document_number: receiptTemplate.document_number,
+          },
+          service: {
+            description: receiptTemplate.service_description,
+            date: appointment.scheduled_date,
+            time: appointment.scheduled_time,
+            amount: professional.hourly_rate || 0,
+          },
+          patient: {
+            full_name: patientData.full_name,
+            cpf: patientData.cpf,
+          },
+        };
+
+        const receiptHtml = generateReceiptHtml(receiptData);
+
+        await supabase
+          .from("session_receipts")
+          .insert({
+            appointment_id: appointment.id,
+            professional_id: professional.id,
+            user_id: appointmentData.user_id,
+            receipt_html: receiptHtml,
+            receipt_data: receiptData,
+          });
+      }
+
       setCurrentStatus("completed");
       toast.success("Atendimento encerrado!");
       onUpdate();
@@ -114,6 +194,73 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
     } finally {
       setIsUpdatingStatus(false);
     }
+  };
+
+  const generateReceiptHtml = (data: any) => {
+    const formattedDate = (() => {
+      try {
+        const d = parseISO(data.service.date);
+        return format(d, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+      } catch {
+        return data.service.date;
+      }
+    })();
+
+    return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Recibo de Atendimento</title>
+<style>
+body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 40px; color: #1a1a1a; }
+.header { text-align: center; border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 30px; }
+.header h1 { font-size: 24px; margin: 0 0 5px; }
+.professional-info { margin-bottom: 30px; }
+.professional-info p { margin: 4px 0; font-size: 14px; }
+.service-info { background: #f8f8f8; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+.service-info h3 { margin: 0 0 15px; font-size: 16px; }
+.row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+.amount { font-size: 20px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px; }
+.patient-info { margin-bottom: 30px; }
+.patient-info h3 { font-size: 16px; margin-bottom: 10px; }
+.patient-info p { margin: 4px 0; font-size: 14px; }
+.footer { text-align: center; margin-top: 60px; font-size: 12px; color: #666; }
+.signature { margin-top: 60px; text-align: center; }
+.signature-line { border-top: 1px solid #1a1a1a; width: 250px; margin: 0 auto 8px; }
+@media print { body { margin: 0; padding: 20px; } }
+</style>
+</head>
+<body>
+<div class="header">
+<h1>RECIBO</h1>
+</div>
+<div class="professional-info">
+<p><strong>${data.professional.full_name}</strong></p>
+<p>${data.professional.crp}</p>
+<p>${data.professional.document_type}: ${data.professional.document_number}</p>
+</div>
+<div class="service-info">
+<h3>Dados do Servico</h3>
+<div class="row"><span>Servico:</span><span>${data.service.description}</span></div>
+<div class="row"><span>Data:</span><span>${formattedDate}</span></div>
+<div class="row"><span>Horario:</span><span>${data.service.time}</span></div>
+<div class="row amount"><span>Valor:</span><span>R$ ${Number(data.service.amount).toFixed(2)}</span></div>
+</div>
+<div class="patient-info">
+<h3>Tomador do Servico</h3>
+<p><strong>${data.patient.full_name}</strong></p>
+${data.patient.cpf ? `<p>CPF: ${data.patient.cpf}</p>` : ""}
+</div>
+<div class="signature">
+<div class="signature-line"></div>
+<p>${data.professional.full_name}</p>
+<p style="font-size:12px;color:#666">${data.professional.crp}</p>
+</div>
+<div class="footer">
+<p>Documento emitido em ${new Date().toLocaleDateString('pt-BR')}</p>
+</div>
+</body>
+</html>`;
   };
 
   // Calculate reminder time (10 min before)
