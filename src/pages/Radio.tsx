@@ -29,7 +29,7 @@ const stations: RadioStation[] = [
   { id: 10, name: "BandNews FM BH", state: "Minas Gerais", frequency: "89.5 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/BANDNEWSFM_BHAAC.aac" },
   // Rio Grande do Sul
   { id: 11, name: "Rádio Gaúcha", state: "Rio Grande do Sul", frequency: "93.7 FM", streamUrl: "https://1132747t.ha.azioncdn.net/primary/gaucha_rbs.sdp/playlist.m3u8" },
-  { id: 12, name: "Rádio Guaíba", state: "Rio Grande do Sul", frequency: "101.3 FM", streamUrl: "https://liverdguaiba.rbsdirect.com.br/primary/guaiba_rbs.sdp/playlist.m3u8" },
+  { id: 12, name: "Rádio Guaíba", state: "Rio Grande do Sul", frequency: "101.3 FM", streamUrl: "https://radio.saopaulo01.com.br:10827/stream" },
   // Ceará
   { id: 13, name: "CBN Fortaleza", state: "Ceará", frequency: "95.5 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_SPAAC_SC" },
   // Pernambuco
