@@ -17,6 +17,7 @@ const Perfil = () => {
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null; favorite_club_id: string | null } | null>(null);
   const [favoriteClub, setFavoriteClub] = useState<BrazilianClub | null>(null);
   const [appointmentsCount, setAppointmentsCount] = useState(0);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
@@ -55,6 +56,15 @@ const Perfil = () => {
           .eq("user_id", user.id);
         
         setAppointmentsCount(count || 0);
+
+        // Fetch unread notifications count
+        const { count: notifCount } = await supabase
+          .from("user_notifications")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("is_read", false);
+        
+        setUnreadNotifications(notifCount || 0);
         setProfileLoading(false);
       } else if (!loading && !user) {
         setProfileLoading(false);
@@ -99,9 +109,9 @@ const Perfil = () => {
     {
       icon: Bell,
       label: "Notificações",
-      description: "Configurar alertas",
+      description: "Seus alertas e atualizações",
       path: "/perfil/notificacoes",
-      badge: "5",
+      badge: unreadNotifications > 0 ? unreadNotifications.toString() : null,
     },
     {
       icon: Settings,

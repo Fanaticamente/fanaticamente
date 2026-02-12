@@ -50,6 +50,7 @@ import Conecta from "./pages/Conecta";
 import OSMF from "./pages/OSMF";
 import ZonaMista from "./pages/ZonaMista";
 import Ranking from "./pages/Ranking";
+import Notificacoes from "./pages/Notificacoes";
 
 const queryClient = new QueryClient();
 
@@ -167,6 +168,8 @@ const App = () => {
                 <Route path="/pagamentos" element={<ProtectedRoute><Pagamentos /></ProtectedRoute>} />
                 <Route path="/perfil/pagamentos" element={<ProtectedRoute><Pagamentos /></ProtectedRoute>} />
                 <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+                <Route path="/perfil/notificacoes" element={<ProtectedRoute><Notificacoes /></ProtectedRoute>} />
+                <Route path="/notificacoes" element={<ProtectedRoute><Notificacoes /></ProtectedRoute>} />
                 <Route path="/loja/produto/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
                 <Route path="/loja/produto/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
                 <Route path="/profissional" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />
