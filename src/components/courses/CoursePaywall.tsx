@@ -108,7 +108,7 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
       {/* Option 2: Membership */}
       <div className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/30 rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/15 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
             <Crown className="w-6 h-6 text-amber-400" />
           </div>
           <div>
