@@ -83,13 +83,10 @@ const MembershipSection = () => {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="h-48 bg-muted/50 animate-pulse rounded-2xl" />
+        <div className="h-48 bg-white/5 animate-pulse rounded-2xl" />
       </div>
     );
   }
-
-  const getMembershipExpiresAt = (m: any) => new Date(m.expires_at);
-  const getMembershipDaysLeft = (m: any) => differenceInDays(getMembershipExpiresAt(m), new Date());
 
   return (
     <>
@@ -105,34 +102,34 @@ const MembershipSection = () => {
 
       {/* Past Subscriptions */}
       {expiredMemberships.length > 0 && (
-        <div className="mt-8">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-            Histórico
+        <div className="mt-6">
+          <h3 className="font-display text-sm uppercase tracking-wider text-white/40 mb-3">
+            Assinaturas Anteriores
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {expiredMemberships.slice(0, 5).map((m) => (
               <div
                 key={m.id}
-                className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/30"
+                className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-muted">
+                  <div className="p-2 rounded-lg bg-white/5">
                     {m.payment_method === "mercadopago_card" ? (
-                      <CreditCard className="w-4 h-4 text-muted-foreground" />
+                      <CreditCard className="w-4 h-4 text-white/30" />
                     ) : (
-                      <QrCode className="w-4 h-4 text-muted-foreground" />
+                      <QrCode className="w-4 h-4 text-white/30" />
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Assinatura Mensal — R$ 49,90
+                    <p className="text-sm font-medium text-white/50">
+                      Mensal — R$ 49,90
                     </p>
-                    <p className="text-xs text-muted-foreground/70">
-                      Expirou em {format(getMembershipExpiresAt(m), "dd/MM/yyyy")}
+                    <p className="text-xs text-white/30">
+                      Expirou em {format(new Date(m.expires_at), "dd/MM/yyyy")}
                     </p>
                   </div>
                 </div>
-                <Badge variant="secondary" className="text-xs">
+                <Badge className="bg-white/10 text-white/40 hover:bg-white/10 text-xs border-white/10">
                   Expirada
                 </Badge>
               </div>
@@ -195,32 +192,31 @@ const ActiveMembershipCard = ({
   const isCancelled = membership.status === "cancelled";
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-background to-amber-600/5">
-      {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-amber-500/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-600/20 via-amber-500/10 to-transparent border border-amber-500/20">
+      {/* Decorative glow */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
 
       <div className="relative p-6 space-y-5">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
               <Crown className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="font-display text-xl uppercase tracking-wide text-foreground">
+              <h3 className="font-display text-xl uppercase tracking-wide text-white">
                 FanatiClass
               </h3>
-              <p className="text-sm text-muted-foreground">Assinatura Mensal</p>
+              <p className="text-sm text-white/50">Assinatura Mensal</p>
             </div>
           </div>
           {isCancelled ? (
-            <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-orange-200 px-3 py-1">
+            <Badge className="bg-orange-500/20 text-orange-400 hover:bg-orange-500/20 border-orange-500/30 px-3 py-1">
               <Clock className="w-3 h-3 mr-1" />
               Cancelada
             </Badge>
           ) : (
-            <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200 px-3 py-1">
+            <Badge className="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/30 px-3 py-1">
               <ShieldCheck className="w-3 h-3 mr-1" />
               Ativa
             </Badge>
@@ -229,69 +225,68 @@ const ActiveMembershipCard = ({
 
         {/* Price */}
         <div className="flex items-baseline gap-1">
-          <span className="text-3xl font-bold text-foreground">R$ 49,90</span>
-          <span className="text-muted-foreground text-sm">/mês</span>
+          <span className="text-3xl font-bold text-white">R$ 49,90</span>
+          <span className="text-white/40 text-sm">/mês</span>
         </div>
 
         {/* Details */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
             {isCardPayment ? (
-              <CreditCard className="w-5 h-5 text-muted-foreground" />
+              <CreditCard className="w-5 h-5 text-white/50" />
             ) : (
-              <QrCode className="w-5 h-5 text-muted-foreground" />
+              <QrCode className="w-5 h-5 text-white/50" />
             )}
             <div>
-              <p className="text-xs text-muted-foreground">Método</p>
-              <p className="text-sm font-medium text-foreground">
+              <p className="text-xs text-white/40">Método</p>
+              <p className="text-sm font-medium text-white">
                 {isCardPayment ? "Cartão de crédito" : "PIX"}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
-            <Calendar className="w-5 h-5 text-muted-foreground" />
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+            <Calendar className="w-5 h-5 text-white/50" />
             <div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-white/40">
                 {isCancelled
                   ? "Acesso até"
                   : isPixPayment
                   ? "Válido até"
                   : "Próxima cobrança"}
               </p>
-              <p className="text-sm font-medium text-foreground">
+              <p className="text-sm font-medium text-white">
                 {format(expiresAt, "dd 'de' MMM, yyyy", { locale: ptBR })}
               </p>
             </div>
           </div>
         </div>
 
-        {/* PIX expiry warning */}
+        {/* Warnings */}
         {isPixPayment && !isCancelled && daysLeft <= 5 && (
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
-            <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0" />
-            <p className="text-sm text-yellow-700">
-              Sua assinatura PIX expira em <strong>{daysLeft} dia{daysLeft !== 1 ? "s" : ""}</strong>. Renove para manter o acesso.
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
+            <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0" />
+            <p className="text-sm text-yellow-400">
+              Expira em <strong>{daysLeft} dia{daysLeft !== 1 ? "s" : ""}</strong>. Renove para manter o acesso.
             </p>
           </div>
         )}
 
-        {/* Cancelled info */}
         {isCancelled && (
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-orange-500/10 border border-orange-500/30">
-            <Clock className="w-5 h-5 text-orange-600 shrink-0" />
-            <p className="text-sm text-orange-700">
-              Assinatura cancelada. Acesso mantido por mais <strong>{daysLeft} dia{daysLeft !== 1 ? "s" : ""}</strong>.
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
+            <Clock className="w-5 h-5 text-orange-500 shrink-0" />
+            <p className="text-sm text-orange-400">
+              Cancelada. Acesso por mais <strong>{daysLeft} dia{daysLeft !== 1 ? "s" : ""}</strong>.
             </p>
           </div>
         )}
 
         {/* Cancel button */}
         {isCardPayment && !isCancelled && (
-          <div className="pt-2 border-t border-border/50">
+          <div className="pt-2 border-t border-white/10">
             <Button
               variant="ghost"
               size="sm"
-              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              className="text-white/40 hover:text-red-400 hover:bg-red-500/10"
               onClick={() => onCancel(membership.id)}
             >
               <XCircle className="w-4 h-4 mr-2" />
@@ -305,13 +300,13 @@ const ActiveMembershipCard = ({
 };
 
 const NoActiveSubscription = () => (
-  <div className="rounded-2xl border-2 border-dashed border-muted-foreground/20 p-8 text-center">
-    <div className="mx-auto w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4">
-      <Crown className="w-7 h-7 text-muted-foreground" />
+  <div className="rounded-2xl border-2 border-dashed border-white/10 p-8 text-center">
+    <div className="mx-auto w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-4">
+      <Crown className="w-7 h-7 text-white/30" />
     </div>
-    <h3 className="text-lg font-semibold text-foreground mb-1">Nenhuma assinatura ativa</h3>
-    <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-      Assine o FanatiClass para ter acesso ilimitado a todos os cursos e conteúdos exclusivos da plataforma.
+    <h3 className="text-lg font-semibold text-white/80 mb-1">Nenhuma assinatura ativa</h3>
+    <p className="text-sm text-white/40 max-w-sm mx-auto">
+      Assine o FanatiClass para ter acesso ilimitado a todos os cursos e conteúdos exclusivos.
     </p>
   </div>
 );
