@@ -302,7 +302,7 @@ const Cursos = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className={`${playingStation ? 'pt-[calc(env(safe-area-inset-top)+122px)]' : 'pt-[calc(env(safe-area-inset-top)+64px)]'} px-4`}>
+        <main className={`${playingStation ? 'pt-[calc(env(safe-area-inset-top)+112px)]' : 'pt-[calc(env(safe-area-inset-top)+64px)]'} px-4`}>
           <CursosContent />
           <div aria-hidden className="h-28" />
         </main>
