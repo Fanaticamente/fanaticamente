@@ -3,14 +3,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckCircle2, Clock, AlertCircle, ExternalLink, Receipt } from "lucide-react";
+import { Calendar, CheckCircle2, Clock, AlertCircle, ExternalLink, Receipt, BookOpen } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+
+type PaymentItem = {
+  id: string;
+  type: "session" | "course";
+  title: string;
+  subtitle: string;
+  amount: number;
+  status: string | null;
+  date: string;
+  receiptUrl?: string | null;
+};
 
 const SessionPaymentsHistory = () => {
   const { user } = useAuth();
 
-  const { data: appointments, isLoading } = useQuery({
+  const { data: appointments, isLoading: loadingAppointments } = useQuery({
     queryKey: ["user-session-payments", user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -31,6 +42,51 @@ const SessionPaymentsHistory = () => {
     },
     enabled: !!user?.id,
   });
+
+  const { data: courseAccess, isLoading: loadingCourses } = useQuery({
+    queryKey: ["user-course-payments", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from("user_course_access")
+        .select(`
+          *,
+          course:courses(title, price)
+        `)
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
+
+  const isLoading = loadingAppointments || loadingCourses;
+
+  // Merge and sort all payments
+  const allPayments: PaymentItem[] = [
+    ...(appointments || []).map((a) => ({
+      id: a.id,
+      type: "session" as const,
+      title: `Sessão com ${(a.professional as any)?.profiles?.full_name || "Profissional"}`,
+      subtitle: `${format(new Date(a.scheduled_date), "dd 'de' MMM, yyyy", { locale: ptBR })} às ${a.scheduled_time}`,
+      amount: (a.professional as any)?.hourly_rate || 0,
+      status: a.status,
+      date: a.created_at,
+      receiptUrl: a.receipt_url,
+    })),
+    ...(courseAccess || []).map((c) => ({
+      id: c.id,
+      type: "course" as const,
+      title: `Curso: ${(c.course as any)?.title || "Curso"}`,
+      subtitle: format(new Date(c.created_at), "dd 'de' MMM, yyyy", { locale: ptBR }),
+      amount: (c.course as any)?.price || 0,
+      status: "completed",
+      date: c.created_at,
+      receiptUrl: null,
+    })),
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const getStatusBadge = (status: string | null) => {
     switch (status) {
@@ -85,15 +141,15 @@ const SessionPaymentsHistory = () => {
     );
   }
 
-  if (!appointments || appointments.length === 0) {
+  if (allPayments.length === 0) {
     return (
       <div className="text-center py-10">
         <div className="mx-auto w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-4">
           <Receipt className="w-7 h-7 text-white/30" />
         </div>
-        <h3 className="text-base font-semibold text-white/80 mb-1">Nenhuma sessão encontrada</h3>
+        <h3 className="text-base font-semibold text-white/80 mb-1">Nenhum pagamento encontrado</h3>
         <p className="text-sm text-white/40 max-w-xs mx-auto">
-          Seus pagamentos de sessões aparecerão aqui após agendar com um profissional.
+          Seus pagamentos de sessões e cursos aparecerão aqui.
         </p>
       </div>
     );
@@ -101,51 +157,50 @@ const SessionPaymentsHistory = () => {
 
   return (
     <div className="space-y-3">
-      {appointments.map((appointment) => {
-        const professionalName = (appointment.professional as any)?.profiles?.full_name || "Profissional";
-        const rate = (appointment.professional as any)?.hourly_rate || 0;
-
-        return (
-          <div
-            key={appointment.id}
-            className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/[0.08] transition-colors"
-          >
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="p-2.5 rounded-lg bg-white/10 shrink-0">
+      {allPayments.map((item) => (
+        <div
+          key={item.id}
+          className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/[0.08] transition-colors"
+        >
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="p-2.5 rounded-lg bg-white/10 shrink-0">
+              {item.type === "course" ? (
+                <BookOpen className="w-4 h-4 text-amber-400" />
+              ) : (
                 <Calendar className="w-4 h-4 text-white/60" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-white truncate">
-                  Sessão com {professionalName}
-                </p>
-                <p className="text-xs text-white/40">
-                  {format(new Date(appointment.scheduled_date), "dd 'de' MMM, yyyy", { locale: ptBR })} às {appointment.scheduled_time}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <div className="text-right">
-                <p className="text-sm font-bold text-white">
-                  R$ {rate.toFixed(2)}
-                </p>
-                {getStatusBadge(appointment.status)}
-              </div>
-              {appointment.receipt_url && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white/40 hover:text-white hover:bg-white/10 h-8 w-8"
-                  asChild
-                >
-                  <a href={appointment.receipt_url} target="_blank" rel="noopener noreferrer" title="Ver comprovante">
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </Button>
               )}
             </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-white truncate">
+                {item.title}
+              </p>
+              <p className="text-xs text-white/40">
+                {item.subtitle}
+              </p>
+            </div>
           </div>
-        );
-      })}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="text-right">
+              <p className="text-sm font-bold text-white">
+                R$ {item.amount.toFixed(2)}
+              </p>
+              {getStatusBadge(item.status)}
+            </div>
+            {item.receiptUrl && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white/40 hover:text-white hover:bg-white/10 h-8 w-8"
+                asChild
+              >
+                <a href={item.receiptUrl} target="_blank" rel="noopener noreferrer" title="Ver comprovante">
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </Button>
+            )}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

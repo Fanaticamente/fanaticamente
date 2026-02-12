@@ -35,12 +35,12 @@ const Pagamentos = () => {
       {/* Divider */}
       <div className="border-t border-white/10" />
 
-      {/* Session Payments Section */}
+      {/* Payments History Section */}
       <section>
         <div className="flex items-center gap-2 mb-5">
           <Receipt className="w-5 h-5 text-emerald-500" />
           <h2 className="font-display text-lg uppercase tracking-wide text-white">
-            Histórico de Sessões
+            Extrato de Pagamentos
           </h2>
         </div>
         <SessionPaymentsHistory />
