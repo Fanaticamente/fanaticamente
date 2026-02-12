@@ -953,6 +953,7 @@ export type Database = {
           avatar_url: string | null
           birth_date: string | null
           city: string | null
+          cpf: string | null
           created_at: string
           favorite_club_id: string | null
           full_name: string | null
@@ -966,6 +967,7 @@ export type Database = {
           avatar_url?: string | null
           birth_date?: string | null
           city?: string | null
+          cpf?: string | null
           created_at?: string
           favorite_club_id?: string | null
           full_name?: string | null
@@ -979,6 +981,7 @@ export type Database = {
           avatar_url?: string | null
           birth_date?: string | null
           city?: string | null
+          cpf?: string | null
           created_at?: string
           favorite_club_id?: string | null
           full_name?: string | null
@@ -989,6 +992,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      receipt_templates: {
+        Row: {
+          created_at: string
+          crp: string
+          document_number: string
+          document_type: string
+          full_name: string
+          id: string
+          professional_id: string
+          service_description: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          crp: string
+          document_number: string
+          document_type?: string
+          full_name: string
+          id?: string
+          professional_id: string
+          service_description?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          crp?: string
+          document_number?: string
+          document_type?: string
+          full_name?: string
+          id?: string
+          professional_id?: string
+          service_description?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receipt_templates_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: true
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reference_library: {
         Row: {
@@ -1024,6 +1071,51 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "reference_library_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_receipts: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          id: string
+          professional_id: string
+          receipt_data: Json
+          receipt_html: string
+          user_id: string
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          id?: string
+          professional_id: string
+          receipt_data?: Json
+          receipt_html: string
+          user_id: string
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          id?: string
+          professional_id?: string
+          receipt_data?: Json
+          receipt_html?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_receipts_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: true
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_receipts_professional_id_fkey"
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
