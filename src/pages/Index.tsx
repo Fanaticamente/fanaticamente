@@ -1,3 +1,6 @@
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+
 // Mobile Components
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
@@ -20,6 +23,12 @@ import DesktopProfessionalForm from "@/components/desktop/DesktopProfessionalFor
 import DesktopFooter from "@/components/desktop/DesktopFooter";
 
 const Index = () => {
+  const { user, hasRole, loading } = useAuth();
+
+  // Profissionais logados são redirecionados ao painel
+  if (!loading && user && hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
+    return <Navigate to="/profissional" replace />;
+  }
   return (
     <>
       {/* Mobile Layout */}
