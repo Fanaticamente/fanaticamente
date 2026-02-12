@@ -55,8 +55,9 @@ serve(async (req) => {
 
     const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    console.log("Auth result:", { userId: user?.id, error: userError?.message });
     if (userError || !user) {
-      return new Response(JSON.stringify({ error: "Usuário não encontrado" }), {
+      return new Response(JSON.stringify({ error: "Usuário não encontrado", detail: userError?.message }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
