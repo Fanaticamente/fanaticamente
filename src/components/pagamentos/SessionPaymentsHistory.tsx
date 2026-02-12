@@ -33,14 +33,31 @@ const SessionPaymentsHistory = () => {
           *,
           professional:professionals(
             hourly_rate,
-            profiles:profiles(full_name)
+            user_id
           )
         `)
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      
+      // Fetch professional names separately via profiles
+      const professionalUserIds = [...new Set((data || []).map((a: any) => a.professional?.user_id).filter(Boolean))];
+      let profilesMap: Record<string, string> = {};
+      if (professionalUserIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name")
+          .in("user_id", professionalUserIds);
+        if (profiles) {
+          profilesMap = Object.fromEntries(profiles.map(p => [p.user_id, p.full_name || "Profissional"]));
+        }
+      }
+      
+      return (data || []).map((a: any) => ({
+        ...a,
+        professional_name: a.professional?.user_id ? (profilesMap[a.professional.user_id] || "Profissional") : "Profissional",
+      }));
     },
     enabled: !!user?.id,
   });
@@ -87,10 +104,10 @@ const SessionPaymentsHistory = () => {
 
   // Merge and sort all payments
   const allPayments: PaymentItem[] = [
-    ...(appointments || []).map((a) => ({
+    ...(appointments || []).map((a: any) => ({
       id: a.id,
       type: "session" as const,
-      title: `Sessão com ${(a.professional as any)?.profiles?.full_name || "Profissional"}`,
+      title: `Sessão com ${a.professional_name || "Profissional"}`,
       subtitle: `${format(new Date(a.scheduled_date), "dd 'de' MMM, yyyy", { locale: ptBR })} às ${a.scheduled_time}`,
       amount: (a.professional as any)?.hourly_rate || 0,
       status: a.status,
