@@ -119,7 +119,7 @@ const Ranking = () => {
                 const sessions = clubCounts[club.id] || 0;
                 const thermometer = 0;
                 const courses = 0;
-                const total = sessions + thermometer + courses;
+                const total = (sessions * 3) + thermometer + courses;
                 const position = index + 1;
                 const isG4 = position <= 4 && total > 0;
                 const isZ4 = position > sortedClubs.length - 4 && total === 0;
