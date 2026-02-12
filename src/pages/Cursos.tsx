@@ -8,6 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useCourses, type Course } from "@/hooks/useCourses";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserCourseAccess } from "@/hooks/useUserCourseAccess";
+import { useRadio } from "@/contexts/RadioContext";
 
 const categories = ["Todos", "Saúde Mental", "Resiliência", "Autoconhecimento", "Bem-estar", "Relacionamentos"];
 
@@ -17,6 +18,7 @@ const Cursos = () => {
   const isMobile = useIsMobile();
   const { data: courses, isLoading } = useCourses();
   const { data: accessData } = useUserCourseAccess();
+  const { playingStation } = useRadio();
 
   const hasAccessToCourse = (courseId: string, isPremium: boolean) => {
     if (!isPremium) return true;
@@ -300,7 +302,7 @@ const Cursos = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <main className="pt-[calc(env(safe-area-inset-top)+64px)] px-4">
+        <main className={`${playingStation ? 'pt-[calc(env(safe-area-inset-top)+122px)]' : 'pt-[calc(env(safe-area-inset-top)+64px)]'} px-4`}>
           <CursosContent />
           <div aria-hidden className="h-28" />
         </main>
