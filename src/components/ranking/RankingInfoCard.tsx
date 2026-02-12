@@ -50,9 +50,9 @@ const RankingInfoCard = () => {
           <li className="flex items-start gap-2">
             <span className="font-bold mt-0.5" style={{ color: '#0066ff' }}>•</span>
             <span>
-              <strong>Termômetro Emocional</strong> — cada preenchimento diário
-              do termômetro emocional vale <strong>1 ponto</strong>.
-            </span>
+               <strong>Termômetro Torcedor</strong> — cada preenchimento diário
+               do Termômetro Torcedor vale <strong>1 ponto</strong>.
+             </span>
           </li>
           <li className="flex items-start gap-2">
             <span className="font-bold mt-0.5" style={{ color: '#0066ff' }}>•</span>
