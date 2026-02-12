@@ -55,8 +55,8 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
     <div className="space-y-6">
       {/* Lock Banner */}
       <div className="text-center py-6">
-        <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
-          <Lock className="w-8 h-8 text-amber-500" />
+        <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">
+          <Lock className="w-8 h-8 text-white" />
         </div>
         <h2 className="font-display text-xl text-white mb-2">Conteúdo Premium</h2>
         <p className="text-muted-foreground text-sm max-w-xs mx-auto">
@@ -68,8 +68,8 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
       {coursePrice > 0 && (
         <div className="bg-muted/50 border border-border rounded-xl p-5 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-blue-400" />
+            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-white" />
             </div>
             <div>
               <h3 className="text-white font-medium">Compra Avulsa</h3>
@@ -82,13 +82,13 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
           <div className="flex gap-2">
             <button
               onClick={() => handleSelectPayment("course", "card")}
-              className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-white text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
             >
               <CreditCard className="w-4 h-4" /> Cartão
             </button>
             <button
               onClick={() => handleSelectPayment("course", "pix")}
-              className="flex-1 py-3 bg-emerald-600 text-white rounded-lg font-medium text-sm hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-white text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
             >
               <QrCode className="w-4 h-4" /> PIX
             </button>
@@ -115,21 +115,20 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
             <h3 className="text-white font-medium">Assinatura Mensal</h3>
             <p className="text-muted-foreground text-xs">Acesso a todos os cursos da plataforma</p>
           </div>
-          <div className="ml-auto text-right">
-            <span className="text-white font-bold text-lg">R$ 49,90</span>
-            <span className="text-muted-foreground text-xs block">/mês</span>
-          </div>
+          <span className="ml-auto text-white font-bold text-lg whitespace-nowrap">
+            R$ 49,90<span className="text-muted-foreground text-xs font-normal">/mês</span>
+          </span>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => handleSelectPayment("membership", "card")}
-            className="flex-1 py-3 bg-amber-600 text-white rounded-lg font-medium text-sm hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-3 bg-white text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
           >
             <CreditCard className="w-4 h-4" /> Cartão
           </button>
           <button
             onClick={() => handleSelectPayment("membership", "pix")}
-            className="flex-1 py-3 bg-emerald-600 text-white rounded-lg font-medium text-sm hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-3 bg-white text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
           >
             <QrCode className="w-4 h-4" /> PIX
           </button>
