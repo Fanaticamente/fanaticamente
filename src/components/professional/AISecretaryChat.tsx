@@ -17,6 +17,32 @@ interface AISecretaryChatProps {
   professionalId: string;
 }
 
+const getStorageKey = (professionalId: string) => `assistant-chat-${professionalId}`;
+
+const getTodayDateStr = () => new Date().toISOString().split("T")[0];
+
+const loadCachedMessages = (professionalId: string): Message[] | null => {
+  try {
+    const raw = localStorage.getItem(getStorageKey(professionalId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed.date !== getTodayDateStr()) {
+      localStorage.removeItem(getStorageKey(professionalId));
+      return null;
+    }
+    return parsed.messages as Message[];
+  } catch {
+    return null;
+  }
+};
+
+const saveCachedMessages = (professionalId: string, messages: Message[]) => {
+  localStorage.setItem(
+    getStorageKey(professionalId),
+    JSON.stringify({ date: getTodayDateStr(), messages })
+  );
+};
+
 const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +53,6 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    // Scroll only the chat container, not the page
     if (messagesEndRef.current) {
       const container = messagesEndRef.current.parentElement;
       if (container) {
@@ -37,7 +62,6 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
   };
 
   useEffect(() => {
-    // Only auto-scroll to bottom for the messages container, not the page
     if (messagesEndRef.current) {
       const container = messagesEndRef.current.parentElement;
       if (container) {
@@ -45,6 +69,13 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
       }
     }
   }, [messages]);
+
+  // Persist messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      saveCachedMessages(professionalId, messages);
+    }
+  }, [messages, professionalId]);
 
   const callSecretary = async (chatMessages: Message[] = []) => {
     try {
@@ -82,6 +113,14 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
   const fetchInitialMessage = async () => {
     setLoading(true);
     setError(false);
+
+    // Check cache first
+    const cached = loadCachedMessages(professionalId);
+    if (cached && cached.length > 0) {
+      setMessages(cached);
+      setLoading(false);
+      return;
+    }
 
     const message = await callSecretary();
     if (message) {
