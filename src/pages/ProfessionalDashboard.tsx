@@ -19,6 +19,7 @@ import ApprovalPendingBanner from "@/components/professional/ApprovalPendingBann
 import WeeklyAvailabilityManager from "@/components/professional/WeeklyAvailabilityManager";
 import ProfessionalMetricsTab from "@/components/professional/ProfessionalMetricsTab";
 import RejectAppointmentDialog from "@/components/professional/RejectAppointmentDialog";
+import AISecretaryChat from "@/components/professional/AISecretaryChat";
 import RefundPendingCard from "@/components/professional/RefundPendingCard";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
 import ProfessionalDesktopLayout from "@/components/layout/ProfessionalDesktopLayout";
@@ -698,6 +699,10 @@ const ProfessionalDashboard = () => {
         <AdminMessagesAlert professionalId={professional.id} />
       )}
 
+      {/* AI Secretary Chat */}
+      {professional && professional.is_active && activeTab === "agenda" && (
+        <AISecretaryChat professionalId={professional.id} />
+      )}
         {/* Approval Status Banner - hide on assinatura tab when pending_approval (shown inside SubscriptionManager) */}
         {professional && !(activeTab === 'assinatura' && professional.approval_status === 'pending_approval') && (
           <ApprovalPendingBanner
