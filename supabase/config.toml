@@ -65,3 +65,6 @@ verify_jwt = false
 
 [functions.cancel-course-membership]
 verify_jwt = false
+
+[functions.professional-secretary]
+verify_jwt = false
