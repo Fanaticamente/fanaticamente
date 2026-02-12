@@ -13,48 +13,43 @@ interface RadioStation {
 }
 
 const stations: RadioStation[] = [
-  // São Paulo
-  { id: 1, name: "Rádio Bandeirantes SP", state: "São Paulo", frequency: "90.9 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIO_BANDEIRANTES_SPAAC.aac" },
-  { id: 2, name: "Jovem Pan News", state: "São Paulo", frequency: "620 AM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/JPNEWSAAC.aac" },
-  { id: 3, name: "Rádio Transamérica", state: "São Paulo", frequency: "100.1 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/TRANSABORINGAAC.aac" },
-  { id: 4, name: "CBN São Paulo", state: "São Paulo", frequency: "90.5 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_SPAAC.aac" },
-  { id: 5, name: "BandNews FM SP", state: "São Paulo", frequency: "96.9 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/BANDNEWS_SPAAC.aac" },
+  // São Paulo - verified from radio-browser.info
+  { id: 1, name: "Rádio Bandeirantes SP", state: "São Paulo", frequency: "90.9 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/RadioBandeirantesAAC.aac" },
+  { id: 2, name: "Jovem Pan FM", state: "São Paulo", frequency: "100.9 FM", streamUrl: "https://stream.zeno.fm/c45wbq2us3buv" },
+  { id: 3, name: "Rádio Transamérica", state: "São Paulo", frequency: "100.1 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/RT_SPAAC.aac" },
+  { id: 4, name: "CBN São Paulo", state: "São Paulo", frequency: "90.5 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_SPAAC_SC" },
+  { id: 5, name: "BandNews FM SP", state: "São Paulo", frequency: "96.9 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/BANDNEWSFM_SPAAC_SC" },
   // Rio de Janeiro
-  { id: 6, name: "CBN Rio de Janeiro", state: "Rio de Janeiro", frequency: "92.5 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_RJAAC.aac" },
-  { id: 7, name: "BandNews FM RJ", state: "Rio de Janeiro", frequency: "90.3 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/BANDNEWS_RJAAC.aac" },
-  { id: 8, name: "Super Rádio Tupi", state: "Rio de Janeiro", frequency: "96.5 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/SUPERTUPIAAC.aac" },
+  { id: 6, name: "Super Rádio Tupi", state: "Rio de Janeiro", frequency: "96.5 FM", streamUrl: "https://8923.brasilstream.com.br/stream" },
+  { id: 7, name: "CBN Rio de Janeiro", state: "Rio de Janeiro", frequency: "92.5 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_SPAAC.aac" },
   // Minas Gerais
-  { id: 9, name: "Rádio Itatiaia", state: "Minas Gerais", frequency: "95.7 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/ITATIAIAAAC.aac" },
-  { id: 10, name: "CBN BH", state: "Minas Gerais", frequency: "106.1 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_BHAAC.aac" },
+  { id: 8, name: "Rádio Itatiaia", state: "Minas Gerais", frequency: "95.7 FM", streamUrl: "https://8903.brasilstream.com.br/stream" },
+  { id: 9, name: "Jovem Pan BH", state: "Minas Gerais", frequency: "99.1 FM", streamUrl: "https://8062.brasilstream.com.br/stream" },
+  { id: 10, name: "BandNews FM BH", state: "Minas Gerais", frequency: "89.5 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/BANDNEWSFM_BHAAC.aac" },
   // Rio Grande do Sul
-  { id: 11, name: "Rádio Gaúcha", state: "Rio Grande do Sul", frequency: "93.7 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIOGAUCHAAAC.aac" },
+  { id: 11, name: "Rádio Gaúcha", state: "Rio Grande do Sul", frequency: "93.7 FM", streamUrl: "https://1132747t.ha.azioncdn.net/primary/gaucha_rbs.sdp/playlist.m3u8" },
   { id: 12, name: "Rádio Guaíba", state: "Rio Grande do Sul", frequency: "101.3 FM", streamUrl: "https://liverdguaiba.rbsdirect.com.br/primary/guaiba_rbs.sdp/playlist.m3u8" },
-  { id: 13, name: "BandNews FM POA", state: "Rio Grande do Sul", frequency: "99.3 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/BANDNEWS_POAAAC.aac" },
   // Ceará
-  { id: 14, name: "CBN Fortaleza", state: "Ceará", frequency: "95.5 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_FORAAC.aac" },
+  { id: 13, name: "CBN Fortaleza", state: "Ceará", frequency: "95.5 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_SPAAC_SC" },
   // Pernambuco
-  { id: 15, name: "Rádio Jornal Recife", state: "Pernambuco", frequency: "780 AM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIOJORNALAAC.aac" },
+  { id: 14, name: "Rádio Jornal Recife", state: "Pernambuco", frequency: "780 AM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIOJORNALAAC.aac" },
   // Bahia
-  { id: 16, name: "CBN Salvador", state: "Bahia", frequency: "100.7 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_SSAAAC.aac" },
+  { id: 15, name: "CBN Salvador", state: "Bahia", frequency: "100.7 FM", streamUrl: "https://sv1.audiostream.com.br/radio/8030/stream" },
   // Paraná
-  { id: 17, name: "CBN Curitiba", state: "Paraná", frequency: "98.9 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_CTBAAAC.aac" },
-  { id: 18, name: "BandNews FM Curitiba", state: "Paraná", frequency: "96.3 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/BANDNEWS_CTBAAAC.aac" },
+  { id: 16, name: "CBN Maringá", state: "Paraná", frequency: "95.1 FM", streamUrl: "https://ice.fabricahost.com.br/cbnmaringa" },
   // Distrito Federal
-  { id: 19, name: "CBN Brasília", state: "Distrito Federal", frequency: "95.3 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_BSBAAC.aac" },
-  // Goiás
-  { id: 20, name: "CBN Goiânia", state: "Goiás", frequency: "97.1 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_GOIAAC.aac" },
+  { id: 17, name: "CBN Brasília", state: "Distrito Federal", frequency: "95.3 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_SPAAC_SC" },
   // Santa Catarina
-  { id: 21, name: "CBN Florianópolis", state: "Santa Catarina", frequency: "93.9 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_FLOAAC.aac" },
-  // Pará
-  { id: 22, name: "CBN Belém", state: "Pará", frequency: "93.1 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/CBN_BELAAC.aac" },
-  // Maranhão
-  { id: 23, name: "Mirante FM", state: "Maranhão", frequency: "95.1 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/MIRANTEFMAAC.aac" },
+  { id: 18, name: "Jovem Pan Floripa", state: "Santa Catarina", frequency: "101.7 FM", streamUrl: "https://live.paineldj.com.br/proxy/jfloripa?mp=/stream" },
+  // Campinas
+  { id: 19, name: "CBN Campinas", state: "São Paulo", frequency: "99.1 FM", streamUrl: "https://8214.brasilstream.com.br/stream" },
+  { id: 20, name: "Bandeirantes Campinas", state: "São Paulo", frequency: "85.7 FM", streamUrl: "https://stm23.xcast.com.br:11284/stream" },
 ];
 
 const states = [
   "Todos", "São Paulo", "Rio de Janeiro", "Minas Gerais", "Rio Grande do Sul",
-  "Ceará", "Pernambuco", "Bahia", "Paraná", "Distrito Federal", "Goiás",
-  "Santa Catarina", "Pará", "Maranhão"
+  "Ceará", "Pernambuco", "Bahia", "Paraná", "Distrito Federal",
+  "Santa Catarina"
 ];
 
 const Radio = () => {
