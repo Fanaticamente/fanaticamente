@@ -167,8 +167,8 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
       <Card className="bg-primary/5 border-primary/20 mb-4">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <img src={secretaryIcon} alt="Assistente" className="w-5 h-5" style={{ filter: "invert(56%) sepia(43%) saturate(2061%) hue-rotate(118deg) brightness(97%) contrast(87%)" }} />
+            <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <img src={secretaryIcon} alt="Assistente" className="w-7 h-7" style={{ filter: "invert(56%) sepia(43%) saturate(2061%) hue-rotate(118deg) brightness(97%) contrast(87%)" }} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-muted-foreground">
@@ -195,11 +195,11 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
       <CardContent className="p-4">
         {/* Header */}
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <img src={secretaryIcon} alt="Assistente" className="w-5 h-5" style={{ filter: "invert(56%) sepia(43%) saturate(2061%) hue-rotate(118deg) brightness(97%) contrast(87%)" }} />
+          <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <img src={secretaryIcon} alt="Assistente" className="w-7 h-7" style={{ filter: "invert(56%) sepia(43%) saturate(2061%) hue-rotate(118deg) brightness(97%) contrast(87%)" }} />
           </div>
           <div className="flex-1 min-w-0">
-            <span className="text-xs font-semibold text-primary uppercase tracking-wide">
+            <span className="text-sm font-bold text-primary uppercase tracking-wide">
               Assistente
             </span>
           </div>
@@ -232,7 +232,7 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
                       : "bg-background border border-border rounded-bl-md"
                   }`}
                 >
-                  <p className="whitespace-pre-line">{msg.content}</p>
+                  <p className="whitespace-pre-line" dangerouslySetInnerHTML={{ __html: msg.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
                 </div>
               </div>
             ))
