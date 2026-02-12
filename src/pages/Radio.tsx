@@ -8,25 +8,59 @@ interface RadioStation {
   name: string;
   state: string;
   frequency: string;
-  isPlaying?: boolean;
 }
 
 const stations: RadioStation[] = [
+  // São Paulo
   { id: 1, name: "Rádio Globo SP", state: "São Paulo", frequency: "1100 AM" },
   { id: 2, name: "Rádio Bandeirantes", state: "São Paulo", frequency: "840 AM" },
-  { id: 3, name: "Super Rádio Tupi", state: "Rio de Janeiro", frequency: "1280 AM" },
-  { id: 4, name: "Rádio Itatiaia", state: "Minas Gerais", frequency: "610 AM" },
-  { id: 5, name: "Rádio Gaúcha", state: "Rio Grande do Sul", frequency: "600 AM" },
-  { id: 6, name: "Rádio Guaíba", state: "Rio Grande do Sul", frequency: "720 AM" },
-  { id: 7, name: "Rádio CBN", state: "Nacional", frequency: "780 AM" },
-  { id: 8, name: "Rádio Jovem Pan", state: "São Paulo", frequency: "620 AM" },
-  { id: 9, name: "Rádio Transamérica", state: "São Paulo", frequency: "100.1 FM" },
-  { id: 10, name: "Rádio Verdes Mares", state: "Ceará", frequency: "810 AM" },
-  { id: 11, name: "Rádio Jornal", state: "Pernambuco", frequency: "780 AM" },
-  { id: 12, name: "Rádio Metrópole", state: "Bahia", frequency: "101.3 FM" },
+  { id: 3, name: "Rádio Jovem Pan", state: "São Paulo", frequency: "620 AM" },
+  { id: 4, name: "Rádio Transamérica", state: "São Paulo", frequency: "100.1 FM" },
+  // Rio de Janeiro
+  { id: 5, name: "Super Rádio Tupi", state: "Rio de Janeiro", frequency: "1280 AM" },
+  { id: 6, name: "Rádio Globo RJ", state: "Rio de Janeiro", frequency: "1220 AM" },
+  // Minas Gerais
+  { id: 7, name: "Rádio Itatiaia", state: "Minas Gerais", frequency: "610 AM" },
+  { id: 8, name: "Rádio Super", state: "Minas Gerais", frequency: "91.7 FM" },
+  // Rio Grande do Sul
+  { id: 9, name: "Rádio Gaúcha", state: "Rio Grande do Sul", frequency: "93.7 FM" },
+  { id: 10, name: "Rádio Guaíba", state: "Rio Grande do Sul", frequency: "101.3 FM" },
+  // Ceará
+  { id: 11, name: "Rádio Verdes Mares", state: "Ceará", frequency: "810 AM" },
+  { id: 12, name: "Rádio Cidade FM", state: "Ceará", frequency: "92.1 FM" },
+  // Pernambuco
+  { id: 13, name: "Rádio Jornal", state: "Pernambuco", frequency: "780 AM" },
+  { id: 14, name: "Rádio Clube", state: "Pernambuco", frequency: "720 AM" },
+  // Bahia
+  { id: 15, name: "Rádio Metrópole", state: "Bahia", frequency: "101.3 FM" },
+  { id: 16, name: "Rádio A Tarde FM", state: "Bahia", frequency: "103.9 FM" },
+  // Paraná
+  { id: 17, name: "Rádio Transamérica Curitiba", state: "Paraná", frequency: "100.3 FM" },
+  { id: 18, name: "Rádio Banda B", state: "Paraná", frequency: "550 AM" },
+  // Distrito Federal
+  { id: 19, name: "Rádio Super Esportes", state: "Distrito Federal", frequency: "730 AM" },
+  { id: 20, name: "Rádio Nacional", state: "Distrito Federal", frequency: "980 AM" },
+  // Goiás
+  { id: 21, name: "Rádio Bandeirantes Goiânia", state: "Goiás", frequency: "820 AM" },
+  // Pará
+  { id: 22, name: "Rádio Liberal", state: "Pará", frequency: "97.5 FM" },
+  { id: 23, name: "Rádio Clube do Pará", state: "Pará", frequency: "690 AM" },
+  // Amazonas
+  { id: 24, name: "Rádio Rio Mar", state: "Amazonas", frequency: "1290 AM" },
+  // Maranhão
+  { id: 25, name: "Rádio Mirante", state: "Maranhão", frequency: "95.1 FM" },
+  // Santa Catarina
+  { id: 26, name: "Rádio Atlântida SC", state: "Santa Catarina", frequency: "102.1 FM" },
+  { id: 27, name: "Rádio CBN Florianópolis", state: "Santa Catarina", frequency: "93.9 FM" },
+  // Nacional
+  { id: 28, name: "Rádio CBN", state: "Nacional", frequency: "780 AM" },
 ];
 
-const states = ["Todos", "São Paulo", "Rio de Janeiro", "Minas Gerais", "Rio Grande do Sul", "Nacional"];
+const states = [
+  "Todos", "São Paulo", "Rio de Janeiro", "Minas Gerais", "Rio Grande do Sul",
+  "Ceará", "Pernambuco", "Bahia", "Paraná", "Distrito Federal", "Goiás",
+  "Pará", "Amazonas", "Maranhão", "Santa Catarina", "Nacional"
+];
 
 const Radio = () => {
   const [playingStation, setPlayingStation] = useState<number | null>(null);
@@ -50,7 +84,30 @@ const Radio = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-20 px-4">
+      {/* Now Playing Bar - fixed at top below header */}
+      {currentStation && (
+        <div className="fixed top-[calc(env(safe-area-inset-top)+64px)] left-0 right-0 z-40 bg-radio p-3 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-full bg-radio-foreground/20 flex items-center justify-center">
+            <RadioIcon className="w-5 h-5 text-radio-foreground" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-radio-foreground font-medium text-sm truncate">
+              {currentStation.name}
+            </p>
+            <p className="text-radio-foreground/70 text-xs">
+              {currentStation.frequency} • Ao vivo
+            </p>
+          </div>
+          <button
+            onClick={() => setPlayingStation(null)}
+            className="w-9 h-9 rounded-full bg-radio-foreground/20 flex items-center justify-center flex-shrink-0"
+          >
+            <Pause className="w-4 h-4 text-radio-foreground" />
+          </button>
+        </div>
+      )}
+
+      <main className={`px-4 ${currentStation ? 'pt-[calc(env(safe-area-inset-top)+128px)]' : 'pt-20'}`}>
         {/* Header */}
         <div className="text-center mb-6">
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-radio/20 flex items-center justify-center">
@@ -135,29 +192,6 @@ const Radio = () => {
         {/* Spacer para manter distância do BottomNav */}
         <div aria-hidden className="h-28" />
       </main>
-
-      {/* Now Playing Bar */}
-      {currentStation && (
-        <div className="fixed bottom-16 left-0 right-0 bg-radio p-4 flex items-center gap-4 animate-slide-up">
-          <div className="w-12 h-12 rounded-full bg-radio-foreground/20 flex items-center justify-center">
-            <RadioIcon className="w-6 h-6 text-radio-foreground" />
-          </div>
-          <div className="flex-1">
-            <p className="text-radio-foreground font-medium">
-              {currentStation.name}
-            </p>
-            <p className="text-radio-foreground/70 text-sm">
-              {currentStation.frequency} • Ao vivo
-            </p>
-          </div>
-          <button
-            onClick={() => setPlayingStation(null)}
-            className="w-10 h-10 rounded-full bg-radio-foreground/20 flex items-center justify-center"
-          >
-            <Pause className="w-5 h-5 text-radio-foreground" />
-          </button>
-        </div>
-      )}
 
       <BottomNav />
     </div>
