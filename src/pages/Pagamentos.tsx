@@ -10,7 +10,7 @@ const Pagamentos = () => {
   const isMobile = useIsMobile();
 
   const PageContent = () => (
-    <div className="bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 rounded-2xl p-6 md:p-8 space-y-10">
+    <div className="bg-gradient-to-b from-black via-neutral-950 to-black rounded-2xl p-6 md:p-8 space-y-10">
       {/* Page Header */}
       <div>
         <h1 className="font-display text-2xl md:text-3xl uppercase tracking-wide text-white">
