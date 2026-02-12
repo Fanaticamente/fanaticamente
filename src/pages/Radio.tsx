@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Radio as RadioIcon, Play, Pause, MapPin, Loader2 } from "lucide-react";
+import Hls from "hls.js";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { toast } from "sonner";
@@ -57,29 +58,31 @@ const Radio = () => {
   const [selectedState, setSelectedState] = useState("Todos");
   const [isLoading, setIsLoading] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const hlsRef = useRef<Hls | null>(null);
 
   const filteredStations = stations.filter(
     (station) => selectedState === "Todos" || station.state === selectedState
   );
 
+  const stopPlayback = () => {
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+      hlsRef.current = null;
+    }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+      audioRef.current = null;
+    }
+  };
+
   useEffect(() => {
-    // Cleanup audio on unmount
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = "";
-        audioRef.current = null;
-      }
-    };
+    return () => stopPlayback();
   }, []);
 
   const handlePlayPause = (stationId: number) => {
     if (playingStation === stationId) {
-      // Stop
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = "";
-      }
+      stopPlayback();
       setPlayingStation(null);
       setIsLoading(false);
       return;
@@ -91,29 +94,26 @@ const Radio = () => {
       return;
     }
 
-    // Stop current
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = "";
-    }
-
+    stopPlayback();
     setIsLoading(true);
     setPlayingStation(stationId);
 
-    // Create fresh audio element each time to avoid stale state
     const audio = new Audio();
     audioRef.current = audio;
     audio.crossOrigin = "anonymous";
     audio.preload = "none";
 
-    const cleanup = () => {
-      audio.removeEventListener("canplay", onCanPlay);
-      audio.removeEventListener("error", onError);
-      clearTimeout(timeout);
-    };
+    const isHls = station.streamUrl.includes(".m3u8");
 
-    const onCanPlay = () => {
-      cleanup();
+    const timeout = setTimeout(() => {
+      stopPlayback();
+      toast.error("Tempo esgotado ao conectar. Tente outra rádio.");
+      setPlayingStation(null);
+      setIsLoading(false);
+    }, 12000);
+
+    const playAudio = () => {
+      clearTimeout(timeout);
       setIsLoading(false);
       audio.play().catch(() => {
         toast.error("Não foi possível reproduzir esta rádio");
@@ -123,27 +123,34 @@ const Radio = () => {
     };
 
     const onError = () => {
-      cleanup();
+      clearTimeout(timeout);
       toast.error("Erro ao conectar com a rádio. Tente novamente.");
       setPlayingStation(null);
       setIsLoading(false);
     };
 
-    // Timeout after 10 seconds
-    const timeout = setTimeout(() => {
-      cleanup();
-      audio.pause();
-      audio.src = "";
-      toast.error("Tempo esgotado ao conectar. Tente outra rádio.");
-      setPlayingStation(null);
-      setIsLoading(false);
-    }, 10000);
-
-    audio.addEventListener("canplay", onCanPlay, { once: true });
-    audio.addEventListener("error", onError, { once: true });
-
-    audio.src = station.streamUrl;
-    audio.load();
+    if (isHls && Hls.isSupported()) {
+      const hls = new Hls({ enableWorker: false });
+      hlsRef.current = hls;
+      hls.loadSource(station.streamUrl);
+      hls.attachMedia(audio);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => playAudio());
+      hls.on(Hls.Events.ERROR, (_event, data) => {
+        if (data.fatal) onError();
+      });
+    } else if (isHls && audio.canPlayType("application/vnd.apple.mpegurl")) {
+      // Safari native HLS
+      audio.src = station.streamUrl;
+      audio.addEventListener("canplay", playAudio, { once: true });
+      audio.addEventListener("error", onError, { once: true });
+      audio.load();
+    } else {
+      // Regular stream (AAC, MP3)
+      audio.addEventListener("canplay", playAudio, { once: true });
+      audio.addEventListener("error", onError, { once: true });
+      audio.src = station.streamUrl;
+      audio.load();
+    }
   };
 
   const currentStation = stations.find((s) => s.id === playingStation);
