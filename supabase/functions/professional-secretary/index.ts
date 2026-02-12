@@ -20,9 +20,9 @@ serve(async (req) => {
       });
     }
 
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    if (!OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY não configurada");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY não configurada");
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -153,15 +153,15 @@ Dados de hoje (${today}):
 - Saudação adequada: ${greeting}
     `.trim();
 
-    // Call OpenAI
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    // Call Lovable AI
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "google/gemini-3-flash-preview",
         messages: [
           {
             role: "system",
@@ -189,7 +189,7 @@ Regras:
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("OpenAI error:", response.status, errorText);
+      console.error("AI Gateway error:", response.status, errorText);
       return new Response(JSON.stringify({ error: "Erro ao gerar mensagem da IA" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
