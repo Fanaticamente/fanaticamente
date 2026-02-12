@@ -252,18 +252,6 @@ const SessionPaymentsHistory = () => {
                   <FileText className="w-4 h-4" />
                 </Button>
               )}
-              {item.receiptUrl && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white/40 hover:text-white hover:bg-white/10 h-8 w-8"
-                  asChild
-                >
-                  <a href={item.receiptUrl} target="_blank" rel="noopener noreferrer" title="Ver comprovante">
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </Button>
-              )}
             </div>
           </div>
         ))}
