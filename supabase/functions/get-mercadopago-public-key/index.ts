@@ -11,7 +11,19 @@ serve(async (req) => {
   }
 
   try {
-    const publicKey = Deno.env.get("MERCADOPAGO_PUBLIC_KEY");
+    // Check for context param to return course-specific or default key
+    let publicKey: string | undefined;
+    try {
+      const body = await req.json();
+      if (body?.context === "courses") {
+        publicKey = Deno.env.get("MERCADOPAGO_COURSES_PUBLIC_KEY");
+      }
+    } catch {
+      // No body or invalid JSON, use default
+    }
+    if (!publicKey) {
+      publicKey = Deno.env.get("MERCADOPAGO_PUBLIC_KEY");
+    }
     if (!publicKey) {
       throw new Error("MERCADOPAGO_PUBLIC_KEY is not configured");
     }

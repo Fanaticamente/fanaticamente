@@ -26,8 +26,8 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const accessToken = Deno.env.get("MERCADOPAGO_ACCESS_TOKEN");
-    if (!accessToken) throw new Error("MERCADOPAGO_ACCESS_TOKEN is not configured");
+    const accessToken = Deno.env.get("MERCADOPAGO_COURSES_ACCESS_TOKEN");
+    if (!accessToken) throw new Error("MERCADOPAGO_COURSES_ACCESS_TOKEN is not configured");
 
     const { purchaseType, courseId, coursePrice, email } = await req.json();
     logStep("Request received", { purchaseType, courseId, coursePrice });

@@ -65,7 +65,9 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
 
   const initializeMercadoPago = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke("get-mercadopago-public-key");
+      const { data, error } = await supabase.functions.invoke("get-mercadopago-public-key", {
+        body: { context: "courses" },
+      });
       if (error || !data?.publicKey) throw new Error("Failed to get public key");
       const mercadoPago = new window.MercadoPago(data.publicKey, { locale: "pt-BR" });
       setMp(mercadoPago);
