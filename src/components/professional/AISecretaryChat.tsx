@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, RefreshCw, Send, ChevronDown, ChevronUp } from "lucide-react";
+import { RefreshCw, Send, ChevronDown, ChevronUp } from "lucide-react";
+import secretaryIcon from "@/assets/secretary-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -128,7 +129,7 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-5 h-5 text-primary" />
+              <img src={secretaryIcon} alt="Assistente" className="w-5 h-5" style={{ filter: "invert(56%) sepia(43%) saturate(2061%) hue-rotate(118deg) brightness(97%) contrast(87%)" }} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-muted-foreground">
@@ -156,7 +157,7 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
         {/* Header */}
         <div className="flex items-center gap-3 mb-3">
           <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <Sparkles className="w-5 h-5 text-primary" />
+            <img src={secretaryIcon} alt="Assistente" className="w-5 h-5" style={{ filter: "invert(56%) sepia(43%) saturate(2061%) hue-rotate(118deg) brightness(97%) contrast(87%)" }} />
           </div>
           <div className="flex-1 min-w-0">
             <span className="text-xs font-semibold text-primary uppercase tracking-wide">
