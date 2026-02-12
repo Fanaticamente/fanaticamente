@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Play, ChevronRight, Search, Plus, ChevronDown, Lock, Star, Clock } from "lucide-react";
+import { Play, ChevronRight, Search, Plus, ChevronDown, Lock, Star, Clock, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
@@ -7,6 +7,7 @@ import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useCourses, type Course } from "@/hooks/useCourses";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUserCourseAccess } from "@/hooks/useUserCourseAccess";
 
 const categories = ["Todos", "Saúde Mental", "Resiliência", "Autoconhecimento", "Bem-estar", "Relacionamentos"];
 
@@ -15,6 +16,14 @@ const Cursos = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
   const { data: courses, isLoading } = useCourses();
+  const { data: accessData } = useUserCourseAccess();
+
+  const hasAccessToCourse = (courseId: string, isPremium: boolean) => {
+    if (!isPremium) return true;
+    if (!accessData) return false;
+    if (accessData.hasMembership) return true;
+    return accessData.accessibleIds.has(courseId);
+  };
 
   const filteredCourses = courses?.filter(c => {
     const matchCat = selectedCategory === "Todos" || c.category === selectedCategory;
@@ -39,10 +48,17 @@ const Cursos = () => {
           )}
           <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
             {course.is_premium && (
-              <div className="bg-white text-gray-800 text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
-                <Lock className="w-3 h-3" />
-                PRO
-              </div>
+              hasAccessToCourse(course.id, course.is_premium) ? (
+                <div className="bg-green-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  DISPONÍVEL
+                </div>
+              ) : (
+                <div className="bg-white text-gray-800 text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+                  <Lock className="w-3 h-3" />
+                  PRO
+                </div>
+              )
             )}
           </div>
           {course.coming_soon && (
@@ -97,9 +113,16 @@ const Cursos = () => {
           )}
           <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
             {course.is_premium && (
-              <div className="bg-white text-gray-800 text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
-                <Lock className="w-3 h-3" /> PRO
-              </div>
+              hasAccessToCourse(course.id, course.is_premium) ? (
+                <div className="bg-green-500 text-white text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  DISPONÍVEL
+                </div>
+              ) : (
+                <div className="bg-white text-gray-800 text-xs font-bold py-0.5 px-2 rounded-full flex items-center gap-1">
+                  <Lock className="w-3 h-3" /> PRO
+                </div>
+              )
             )}
           </div>
           {course.coming_soon && (
