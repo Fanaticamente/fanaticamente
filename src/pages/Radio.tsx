@@ -1,20 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Radio as RadioIcon, Play, Pause, MapPin, Loader2 } from "lucide-react";
-import Hls from "hls.js";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
-import { toast } from "sonner";
-
-interface RadioStation {
-  id: number;
-  name: string;
-  state: string;
-  frequency: string;
-  streamUrl?: string;
-}
+import { useRadio, type RadioStation } from "@/contexts/RadioContext";
 
 const stations: RadioStation[] = [
-  // São Paulo - verified from radio-browser.info
+  // São Paulo
   { id: 1, name: "Rádio Bandeirantes SP", state: "São Paulo", frequency: "90.9 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/RadioBandeirantesAAC.aac" },
   { id: 2, name: "Jovem Pan FM", state: "São Paulo", frequency: "100.9 FM", streamUrl: "https://stream.zeno.fm/c45wbq2us3buv" },
   { id: 3, name: "Rádio Transamérica", state: "São Paulo", frequency: "100.1 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/RT_SPAAC.aac" },
@@ -54,114 +45,24 @@ const states = [
 ];
 
 const Radio = () => {
-  const [playingStation, setPlayingStation] = useState<number | null>(null);
+  const { playingStation, isLoading, play } = useRadio();
   const [selectedState, setSelectedState] = useState("Todos");
-  const [isLoading, setIsLoading] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const hlsRef = useRef<Hls | null>(null);
 
   const filteredStations = stations.filter(
     (station) => selectedState === "Todos" || station.state === selectedState
   );
 
-  const stopPlayback = () => {
-    if (hlsRef.current) {
-      hlsRef.current.destroy();
-      hlsRef.current = null;
-    }
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = "";
-      audioRef.current = null;
-    }
+  const handlePlayPause = (station: RadioStation) => {
+    play(station);
   };
-
-  useEffect(() => {
-    return () => stopPlayback();
-  }, []);
-
-  const handlePlayPause = (stationId: number) => {
-    if (playingStation === stationId) {
-      stopPlayback();
-      setPlayingStation(null);
-      setIsLoading(false);
-      return;
-    }
-
-    const station = stations.find((s) => s.id === stationId);
-    if (!station?.streamUrl) {
-      toast.error("Stream indisponível para esta rádio");
-      return;
-    }
-
-    stopPlayback();
-    setIsLoading(true);
-    setPlayingStation(stationId);
-
-    const audio = new Audio();
-    audioRef.current = audio;
-    audio.crossOrigin = "anonymous";
-    audio.preload = "none";
-
-    const isHls = station.streamUrl.includes(".m3u8");
-
-    const timeout = setTimeout(() => {
-      stopPlayback();
-      toast.error("Tempo esgotado ao conectar. Tente outra rádio.");
-      setPlayingStation(null);
-      setIsLoading(false);
-    }, 12000);
-
-    const playAudio = () => {
-      clearTimeout(timeout);
-      setIsLoading(false);
-      audio.play().catch(() => {
-        toast.error("Não foi possível reproduzir esta rádio");
-        setPlayingStation(null);
-        setIsLoading(false);
-      });
-    };
-
-    const onError = () => {
-      clearTimeout(timeout);
-      toast.error("Erro ao conectar com a rádio. Tente novamente.");
-      setPlayingStation(null);
-      setIsLoading(false);
-    };
-
-    if (isHls && Hls.isSupported()) {
-      const hls = new Hls({ enableWorker: false });
-      hlsRef.current = hls;
-      hls.loadSource(station.streamUrl);
-      hls.attachMedia(audio);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => playAudio());
-      hls.on(Hls.Events.ERROR, (_event, data) => {
-        if (data.fatal) onError();
-      });
-    } else if (isHls && audio.canPlayType("application/vnd.apple.mpegurl")) {
-      // Safari native HLS
-      audio.src = station.streamUrl;
-      audio.addEventListener("canplay", playAudio, { once: true });
-      audio.addEventListener("error", onError, { once: true });
-      audio.load();
-    } else {
-      // Regular stream (AAC, MP3)
-      audio.addEventListener("canplay", playAudio, { once: true });
-      audio.addEventListener("error", onError, { once: true });
-      audio.src = station.streamUrl;
-      audio.load();
-    }
-  };
-
-  const currentStation = stations.find((s) => s.id === playingStation);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
       {/* Now Playing Bar - fixed at top below header */}
-      {currentStation && (
-        <div className="fixed top-[calc(env(safe-area-inset-top)+64px)] left-0 right-0 z-40 bg-radio p-3 flex items-center gap-4">
+      {playingStation && (
+        <div className="fixed top-[calc(env(safe-area-inset-top)+56px)] left-0 right-0 z-40 bg-radio p-3 flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-radio-foreground/20 flex items-center justify-center">
             {isLoading ? (
               <Loader2 className="w-5 h-5 text-radio-foreground animate-spin" />
@@ -171,14 +72,14 @@ const Radio = () => {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-radio-foreground font-medium text-sm truncate">
-              {currentStation.name}
+              {playingStation.name}
             </p>
             <p className="text-radio-foreground/70 text-xs">
-              {currentStation.frequency} • {isLoading ? "Conectando..." : "Ao vivo"}
+              {playingStation.frequency} • {isLoading ? "Conectando..." : "Ao vivo"}
             </p>
           </div>
           <button
-            onClick={() => handlePlayPause(currentStation.id)}
+            onClick={() => play(playingStation)}
             className="w-9 h-9 rounded-full bg-radio-foreground/20 flex items-center justify-center flex-shrink-0"
           >
             <Pause className="w-4 h-4 text-radio-foreground" />
@@ -186,7 +87,7 @@ const Radio = () => {
         </div>
       )}
 
-      <main className={`px-4 ${currentStation ? 'pt-[calc(env(safe-area-inset-top)+128px)]' : 'pt-20'}`}>
+      <main className={`px-4 ${playingStation ? 'pt-[calc(env(safe-area-inset-top)+128px)]' : 'pt-20'}`}>
         {/* Header */}
         <div className="text-center mb-6">
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-radio/20 flex items-center justify-center">
@@ -224,23 +125,23 @@ const Radio = () => {
           {filteredStations.map((station) => (
             <button
               key={station.id}
-              onClick={() => handlePlayPause(station.id)}
+              onClick={() => handlePlayPause(station)}
               className={`w-full flex items-center gap-4 bg-card border rounded-xl p-4 transition-all ${
-                playingStation === station.id
+                playingStation?.id === station.id
                   ? "border-radio bg-radio/10"
                   : "border-border hover:border-radio"
               }`}
             >
               <div
                 className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors ${
-                  playingStation === station.id
+                  playingStation?.id === station.id
                     ? "bg-radio text-radio-foreground"
                     : "bg-muted text-muted-foreground"
                 }`}
               >
-                {playingStation === station.id && isLoading ? (
+                {playingStation?.id === station.id && isLoading ? (
                   <Loader2 className="w-6 h-6 animate-spin" />
-                ) : playingStation === station.id ? (
+                ) : playingStation?.id === station.id ? (
                   <Pause className="w-6 h-6" />
                 ) : (
                   <Play className="w-6 h-6 ml-1" />
@@ -259,7 +160,7 @@ const Radio = () => {
                 </div>
               </div>
 
-              {playingStation === station.id && !isLoading && (
+              {playingStation?.id === station.id && !isLoading && (
                 <div className="flex items-center gap-1">
                   <span className="w-1 h-4 bg-radio rounded-full animate-pulse" />
                   <span className="w-1 h-6 bg-radio rounded-full animate-pulse" style={{ animationDelay: "0.1s" }} />
