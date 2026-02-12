@@ -72,7 +72,7 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
               <CreditCard className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-white font-medium">Compra Avulsa</h3>
+              <h3 className="text-white font-display text-lg uppercase tracking-wide">Compra Avulsa</h3>
               <p className="text-muted-foreground text-xs">Acesso vitalício a este curso</p>
             </div>
             <span className="ml-auto text-white font-bold text-lg">
@@ -112,7 +112,7 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
             <Crown className="w-5 h-5 text-amber-400" />
           </div>
           <div>
-            <h3 className="text-white font-medium">Assinatura Mensal</h3>
+            <h3 className="text-white font-display text-lg uppercase tracking-wide">Assinatura Mensal</h3>
             <p className="text-muted-foreground text-xs">Acesso a todos os cursos da plataforma</p>
           </div>
           <span className="ml-auto text-white font-bold text-lg whitespace-nowrap">
