@@ -74,12 +74,12 @@ export const RadioProvider = ({ children }: { children: ReactNode }) => {
 
     const audio = new Audio();
     audioRef.current = audio;
-    audio.crossOrigin = "anonymous";
     audio.preload = "none";
 
     const isHls = station.streamUrl.includes(".m3u8");
 
     timeoutRef.current = setTimeout(() => {
+      if (audioRef.current !== audio) return; // stale
       stopPlayback();
       toast.error("Tempo esgotado ao conectar. Tente outra rádio.");
       setPlayingStation(null);
