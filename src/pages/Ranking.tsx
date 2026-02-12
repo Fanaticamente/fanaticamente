@@ -18,44 +18,18 @@ const leagueTabs: { key: LeagueTab; label: string }[] = [
 const Ranking = () => {
   const [activeLeague, setActiveLeague] = useState<LeagueTab>("serie_a");
 
-  // Fetch completed appointments count per club
+  // Fetch completed appointments count per club using security definer function
   const { data: clubCounts = {} } = useQuery({
     queryKey: ["ranking-counts"],
     queryFn: async () => {
-      // Get all completed appointments joined with user profiles to get favorite_club_id
-      const { data, error } = await supabase
-        .from("appointments")
-        .select("user_id")
-        .eq("status", "concluido");
+      const { data, error } = await supabase.rpc("get_ranking_counts");
 
       if (error) throw error;
       if (!data || data.length === 0) return {};
 
-      // Get unique user_ids
-      const userIds = [...new Set(data.map((a) => a.user_id))];
-
-      // Get profiles with favorite clubs for those users
-      const { data: profiles, error: profileError } = await supabase
-        .from("profiles")
-        .select("user_id, favorite_club_id")
-        .in("user_id", userIds)
-        .not("favorite_club_id", "is", null);
-
-      if (profileError) throw profileError;
-
-      // Create a map user_id -> club_id
-      const userClubMap: Record<string, string> = {};
-      profiles?.forEach((p) => {
-        if (p.favorite_club_id) userClubMap[p.user_id] = p.favorite_club_id;
-      });
-
-      // Count completed appointments per club
       const counts: Record<string, number> = {};
-      data.forEach((appointment) => {
-        const clubId = userClubMap[appointment.user_id];
-        if (clubId) {
-          counts[clubId] = (counts[clubId] || 0) + 1;
-        }
+      data.forEach((row: { club_id: string; session_count: number }) => {
+        counts[row.club_id] = row.session_count;
       });
 
       return counts;
