@@ -217,7 +217,7 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
     })();
 
     const verificationUrl = `https://fanaticamente.lovable.app/verificar-recibo/${receiptNumber}`;
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(verificationUrl)}`;
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
 
     return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -239,7 +239,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 40p
 .footer-date { text-align: center; margin-top: 40px; font-size: 12px; color: #666; }
 .auth-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e5e5; }
 .auth-footer .auth-text { flex: 1; font-size: 11px; color: #888; line-height: 1.5; }
-.auth-footer .qr-code img { width: 80px; height: 80px; }
+.auth-footer .qr-code img { width: 120px; height: 120px; }
 @media print { body { margin: 0; padding: 20px; } }
 </style>
 </head>
