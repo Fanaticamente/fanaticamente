@@ -232,7 +232,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 40p
 .section { margin-bottom: 30px; }
 .section h3 { font-size: 16px; margin: 0 0 10px; }
 .section p { margin: 4px 0; font-size: 14px; }
-.service-info { background: #f8f8f8; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+.service-info { background: #ffffff; padding: 20px; border: 1px solid #e5e5e5; border-radius: 8px; margin-bottom: 30px; }
 .service-info h3 { margin: 0 0 15px; font-size: 16px; }
 .row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
 .amount { font-size: 20px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px; }
