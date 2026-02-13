@@ -140,15 +140,77 @@ const SessionPaymentsHistory = () => {
     if (html) setViewingReceipt(html);
   };
 
-  const handleDownloadReceipt = () => {
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const handleDownloadReceipt = async () => {
     if (!viewingReceipt) return;
-    const blob = new Blob([viewingReceipt], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "recibo-atendimento.html";
-    a.click();
-    URL.revokeObjectURL(url);
+    setIsGeneratingPdf(true);
+    try {
+      const { default: jsPDF } = await import("jspdf");
+      const { default: html2canvas } = await import("html2canvas");
+
+      // Create a temporary container to render the receipt HTML
+      const container = document.createElement("div");
+      container.style.position = "absolute";
+      container.style.left = "-9999px";
+      container.style.top = "0";
+      container.style.width = "800px";
+      container.innerHTML = "";
+
+      // Parse the receipt HTML and extract body content
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(viewingReceipt, "text/html");
+      
+      // Apply styles inline
+      const styles = doc.querySelectorAll("style");
+      const styleEl = document.createElement("style");
+      styles.forEach((s) => (styleEl.textContent += s.textContent));
+      container.appendChild(styleEl);
+
+      // Clone body content
+      const bodyContent = doc.body.cloneNode(true) as HTMLElement;
+      container.appendChild(bodyContent);
+
+      document.body.appendChild(container);
+
+      // Wait for QR code image to load
+      const images = container.querySelectorAll("img");
+      await Promise.all(
+        Array.from(images).map(
+          (img) =>
+            new Promise<void>((resolve) => {
+              if (img.complete) return resolve();
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+              // Force reload with crossorigin
+              img.crossOrigin = "anonymous";
+              const src = img.src;
+              img.src = "";
+              img.src = src;
+            })
+        )
+      );
+
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        width: 800,
+      });
+
+      document.body.removeChild(container);
+
+      const imgWidth = 210; // A4 mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pdf = new jsPDF("p", "mm", "a4");
+      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save("recibo-atendimento.pdf");
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   const getStatusBadge = (status: string | null) => {
@@ -295,10 +357,11 @@ const SessionPaymentsHistory = () => {
             <div className="p-4 border-t border-gray-200 flex gap-3">
               <Button
                 onClick={handleDownloadReceipt}
+                disabled={isGeneratingPdf}
                 className="flex-1 bg-gray-900 hover:bg-gray-800 text-white"
               >
                 <FileText className="w-4 h-4 mr-2" />
-                Baixar Recibo
+                {isGeneratingPdf ? "Gerando PDF..." : "Baixar PDF"}
               </Button>
               <Button
                 className="bg-gray-900 hover:bg-gray-800 text-white"
