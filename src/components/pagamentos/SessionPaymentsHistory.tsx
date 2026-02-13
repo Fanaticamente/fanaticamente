@@ -88,7 +88,7 @@ const SessionPaymentsHistory = () => {
       if (!user?.id) return [];
       const { data, error } = await supabase
         .from("session_receipts")
-        .select("appointment_id, receipt_html")
+        .select("appointment_id, receipt_html, receipt_data")
         .eq("user_id", user.id);
       if (error) throw error;
       return data || [];
@@ -100,20 +100,29 @@ const SessionPaymentsHistory = () => {
     (sessionReceipts || []).map((r) => [r.appointment_id, r.receipt_html])
   );
 
+  const receiptDataMap = new Map(
+    (sessionReceipts || []).map((r) => [r.appointment_id, r.receipt_data as any])
+  );
+
   const isLoading = loadingAppointments || loadingCourses;
 
   // Merge and sort all payments
   const allPayments: PaymentItem[] = [
-    ...(appointments || []).map((a: any) => ({
-      id: a.id,
-      type: "session" as const,
-      title: `Sessão com ${a.professional_name || "Profissional"}`,
-      subtitle: `${format(new Date(a.scheduled_date), "dd 'de' MMM, yyyy", { locale: ptBR })} às ${a.scheduled_time}`,
-      amount: (a.professional as any)?.hourly_rate || 0,
-      status: a.status,
-      date: a.created_at,
-      receiptUrl: a.receipt_url,
-    })),
+    ...(appointments || []).map((a: any) => {
+      const receiptAmount = receiptDataMap.get(a.id)?.service?.amount;
+      const hourlyRate = (a.professional as any)?.hourly_rate;
+      const amount = receiptAmount != null && receiptAmount > 0 ? receiptAmount : (hourlyRate || 0);
+      return {
+        id: a.id,
+        type: "session" as const,
+        title: `Sessão com ${a.professional_name || "Profissional"}`,
+        subtitle: `${format(new Date(a.scheduled_date), "dd 'de' MMM, yyyy", { locale: ptBR })} às ${a.scheduled_time}`,
+        amount,
+        status: a.status,
+        date: a.created_at,
+        receiptUrl: a.receipt_url,
+      };
+    }),
     ...(courseAccess || []).map((c) => ({
       id: c.id,
       type: "course" as const,
