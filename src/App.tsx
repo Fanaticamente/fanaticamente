@@ -132,6 +132,7 @@ const App = () => {
               <Route path="/osmf" element={<OSMF />} />
               <Route path="/zona-mista" element={<ZonaMista />} />
               <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
+              <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
