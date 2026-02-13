@@ -271,7 +271,7 @@ ${data.patient.cpf ? `<p>CPF: ${data.patient.cpf}</p>` : ""}
 </div>
 <div class="auth-footer">
 <div class="auth-text">
-Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App pelo prestador do serviço. Consulte a autenticidade no QR Code ao lado.
+Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, sistema utilizado pelo prestador do serviço. Consulte a autenticidade no QR Code ao lado.
 </div>
 <div class="qr-code">
 <img src="${qrApiUrl}" alt="QR Code de verificação" />
