@@ -54,6 +54,7 @@ import OSMF from "./pages/OSMF";
 import ZonaMista from "./pages/ZonaMista";
 import Ranking from "./pages/Ranking";
 import Notificacoes from "./pages/Notificacoes";
+import VerificarRecibo from "./pages/VerificarRecibo";
 
 const queryClient = new QueryClient();
 
@@ -150,6 +151,7 @@ const App = () => {
                 <Route path="/admin-access" element={<AdminAccess />} />
                 <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
                 <Route path="/setup-test" element={<SetupTestUsers />} />
+                <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
                 
                 {/* Public content routes - viewable without login (desktop navigation) */}
                 <Route path="/" element={<Index />} />
