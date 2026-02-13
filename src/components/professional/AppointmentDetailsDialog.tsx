@@ -215,46 +215,38 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
 body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 40px; color: #1a1a1a; }
 .header { text-align: center; border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 30px; }
 .header h1 { font-size: 24px; margin: 0 0 5px; }
-.professional-info { margin-bottom: 30px; }
-.professional-info p { margin: 4px 0; font-size: 14px; }
+.section { margin-bottom: 30px; }
+.section h3 { font-size: 16px; margin: 0 0 10px; }
+.section p { margin: 4px 0; font-size: 14px; }
 .service-info { background: #f8f8f8; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
 .service-info h3 { margin: 0 0 15px; font-size: 16px; }
 .row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
 .amount { font-size: 20px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px; }
-.patient-info { margin-bottom: 30px; }
-.patient-info h3 { font-size: 16px; margin-bottom: 10px; }
-.patient-info p { margin: 4px 0; font-size: 14px; }
 .footer { text-align: center; margin-top: 60px; font-size: 12px; color: #666; }
-.signature { margin-top: 60px; text-align: center; }
-.signature-line { border-top: 1px solid #1a1a1a; width: 250px; margin: 0 auto 8px; }
 @media print { body { margin: 0; padding: 20px; } }
 </style>
 </head>
 <body>
 <div class="header">
-<h1>RECIBO</h1>
+<h1>RECIBO DE ATENDIMENTO</h1>
 </div>
-<div class="professional-info">
+<div class="section">
+<h3>Prestador de Serviço</h3>
 <p><strong>${data.professional.full_name}</strong></p>
-<p>${data.professional.crp}</p>
+<p>CRP: ${data.professional.crp}</p>
 <p>${data.professional.document_type}: ${data.professional.document_number}</p>
 </div>
 <div class="service-info">
-<h3>Dados do Servico</h3>
-<div class="row"><span>Servico:</span><span>${data.service.description}</span></div>
+<h3>Dados do Serviço</h3>
+<div class="row"><span>Serviço:</span><span>${data.service.description}</span></div>
 <div class="row"><span>Data:</span><span>${formattedDate}</span></div>
-<div class="row"><span>Horario:</span><span>${data.service.time}</span></div>
+<div class="row"><span>Horário:</span><span>${data.service.time}</span></div>
 <div class="row amount"><span>Valor:</span><span>R$ ${Number(data.service.amount).toFixed(2)}</span></div>
 </div>
-<div class="patient-info">
-<h3>Tomador do Servico</h3>
+<div class="section">
+<h3>Tomador do Serviço</h3>
 <p><strong>${data.patient.full_name}</strong></p>
 ${data.patient.cpf ? `<p>CPF: ${data.patient.cpf}</p>` : ""}
-</div>
-<div class="signature">
-<div class="signature-line"></div>
-<p>${data.professional.full_name}</p>
-<p style="font-size:12px;color:#666">${data.professional.crp}</p>
 </div>
 <div class="footer">
 <p>Documento emitido em ${new Date().toLocaleDateString('pt-BR')}</p>
