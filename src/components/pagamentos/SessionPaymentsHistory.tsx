@@ -301,8 +301,7 @@ const SessionPaymentsHistory = () => {
                 Baixar Recibo
               </Button>
               <Button
-                variant="outline"
-                className="border-gray-900 text-gray-900 hover:bg-gray-100"
+                className="bg-gray-900 hover:bg-gray-800 text-white"
                 onClick={() => {
                   const printWindow = window.open("", "_blank");
                   if (printWindow) {
