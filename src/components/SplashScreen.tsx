@@ -32,12 +32,9 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
 export const useSplashScreen = () => {
   const [showSplash, setShowSplash] = useState(() => {
     if (typeof window === "undefined") return false;
-    // Only show splash for installed PWA (standalone mode)
-    const isStandalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as any).standalone === true;
+    const isMobile = window.innerWidth < 768;
     const alreadyShown = sessionStorage.getItem("fanatica_splash_shown");
-    return isStandalone && !alreadyShown;
+    return isMobile && !alreadyShown;
   });
 
   const handleFinish = useCallback(() => {

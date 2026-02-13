@@ -1,6 +1,5 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 // Mobile Components
 import Header from "@/components/layout/Header";
@@ -25,16 +24,15 @@ import DesktopFooter from "@/components/desktop/DesktopFooter";
 
 const Index = () => {
   const { user, hasRole, loading } = useAuth();
-  const isMobile = useIsMobile();
 
   // Profissionais logados são redirecionados ao painel
   if (!loading && user && hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
     return <Navigate to="/profissional" replace />;
   }
-
-  if (isMobile) {
-    return (
-      <div data-layout="mobile" className="min-h-screen bg-background">
+  return (
+    <>
+      {/* Mobile Layout */}
+      <div data-layout="mobile" className="min-h-screen bg-background md:hidden">
         <Header />
         <main className="pt-14">
           <HeroCarousel />
@@ -48,31 +46,30 @@ const Index = () => {
         </main>
         <BottomNav />
       </div>
-    );
-  }
 
-  return (
-    <div data-layout="desktop" className="min-h-screen bg-[#0a0a0a]">
-      <DesktopHeader />
-      <main className="pt-[72px]">
-        <DesktopHero />
-        <div id="funcionalidades">
-          <DesktopFeatures />
-        </div>
-        <div id="curiosidades">
-          <DesktopCuriosities />
-        </div>
-        <DesktopChampionship />
-        <div id="sobre">
-          <DesktopAbout />
-        </div>
-        <DesktopTestimonials />
-        <div id="profissionais">
-          <DesktopProfessionalForm />
-        </div>
-      </main>
-      <DesktopFooter />
-    </div>
+      {/* Desktop Layout - Fanaticamente.com style */}
+      <div data-layout="desktop" className="hidden min-h-screen bg-[#0a0a0a] md:block">
+        <DesktopHeader />
+        <main className="pt-[72px]">
+          <DesktopHero />
+          <div id="funcionalidades">
+            <DesktopFeatures />
+          </div>
+          <div id="curiosidades">
+            <DesktopCuriosities />
+          </div>
+          <DesktopChampionship />
+          <div id="sobre">
+            <DesktopAbout />
+          </div>
+          <DesktopTestimonials />
+          <div id="profissionais">
+            <DesktopProfessionalForm />
+          </div>
+        </main>
+        <DesktopFooter />
+      </div>
+    </>
   );
 };
 

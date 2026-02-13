@@ -6,8 +6,12 @@
     <!-- Prevent layout flash before Tailwind loads -->
     <style>
       /* Prevent layout flash before Tailwind loads */
-      /* Mobile layout is only shown for installed PWA (standalone mode) */
-      /* Desktop layout is always visible in browsers, even on small screens */
+      @media (min-width: 768px) {
+        [data-layout="mobile"] { display: none !important; }
+      }
+      @media (max-width: 767.98px) {
+        [data-layout="desktop"] { display: none !important; }
+      }
 
       /* Base: avoid locking document height on desktop (keeps native scrollbar working) */
       html, body {
