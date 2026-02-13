@@ -155,6 +155,8 @@ const SessionPaymentsHistory = () => {
       container.style.left = "-9999px";
       container.style.top = "0";
       container.style.width = "800px";
+      container.style.backgroundColor = "#ffffff";
+      container.style.color = "#000000";
       container.innerHTML = "";
 
       // Parse the receipt HTML and extract body content
@@ -197,6 +199,7 @@ const SessionPaymentsHistory = () => {
         allowTaint: true,
         logging: false,
         width: 800,
+        backgroundColor: "#ffffff",
       });
 
       document.body.removeChild(container);
