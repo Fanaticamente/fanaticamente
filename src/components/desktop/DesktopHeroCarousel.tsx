@@ -67,7 +67,7 @@ const DesktopHeroCarousel = () => {
   };
 
   return (
-    <section className="relative w-full h-[90vh] min-h-[600px] overflow-hidden bg-[#0a0a0a]">
+    <section className="relative w-full h-[60vh] sm:h-[75vh] lg:h-[90vh] min-h-[400px] lg:min-h-[600px] overflow-hidden bg-[#0a0a0a]">
       {/* Slides */}
       {slides.map((slide, index) => (
         <div
@@ -86,15 +86,15 @@ const DesktopHeroCarousel = () => {
           </div>
 
           {/* Content - Title and Subtitle only */}
-          <div className="relative z-10 h-full max-w-7xl mx-auto px-6 flex items-end pb-24">
+          <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 flex items-end pb-16 sm:pb-20 lg:pb-24">
             <div className="max-w-2xl">
               {/* Title */}
-              <h1 className="font-display text-5xl lg:text-6xl xl:text-7xl text-white leading-tight mb-6 tracking-tight drop-shadow-lg">
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-6xl xl:text-7xl text-white leading-tight mb-4 sm:mb-6 tracking-tight drop-shadow-lg">
                 {slide.title}
               </h1>
 
               {/* Subtitle */}
-              <p className="text-gray-300 text-xl lg:text-2xl leading-relaxed max-w-xl drop-shadow-md">
+              <p className="text-gray-300 text-base sm:text-lg lg:text-2xl leading-relaxed max-w-xl drop-shadow-md">
                 {slide.subtitle}
               </p>
             </div>
