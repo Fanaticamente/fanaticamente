@@ -149,32 +149,75 @@ const SessionPaymentsHistory = () => {
       const { default: jsPDF } = await import("jspdf");
       const { default: html2canvas } = await import("html2canvas");
 
-      // Use an iframe to fully isolate receipt styles from the dark theme
-      const iframe = document.createElement("iframe");
-      iframe.style.position = "absolute";
-      iframe.style.left = "-9999px";
-      iframe.style.top = "0";
-      iframe.style.width = "800px";
-      iframe.style.height = "1200px";
-      iframe.style.border = "none";
-      document.body.appendChild(iframe);
+      // Inject explicit white background into the receipt HTML
+      const fixedHtml = viewingReceipt.replace(
+        '<body>',
+        '<body style="background-color: #ffffff !important; color: #1a1a1a !important;">'
+      ).replace(
+        /body\s*\{/,
+        'html { background-color: #ffffff !important; } body { background-color: #ffffff !important; '
+      );
 
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc) throw new Error("Could not access iframe document");
+      // Create a fully isolated container with CSS reset
+      const wrapper = document.createElement("div");
+      wrapper.style.cssText = `
+        position: fixed; left: -9999px; top: 0; z-index: -1;
+        width: 800px; height: auto;
+        all: initial;
+        background-color: #ffffff;
+        font-family: 'Segoe UI', Arial, sans-serif;
+      `;
 
-      // Write the receipt HTML into the isolated iframe
-      iframeDoc.open();
-      iframeDoc.write(viewingReceipt);
-      iframeDoc.close();
+      // Create shadow DOM to fully isolate from page styles
+      const shadow = wrapper.attachShadow({ mode: "open" });
 
-      // Force white background on the iframe body
-      iframeDoc.body.style.backgroundColor = "#ffffff";
-      iframeDoc.body.style.color = "#1a1a1a";
-      iframeDoc.body.style.margin = "0";
-      iframeDoc.body.style.padding = "0";
+      // Parse and reconstruct
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(fixedHtml, "text/html");
+
+      // Build isolated content inside shadow DOM
+      const container = document.createElement("div");
+      container.style.cssText = "background-color: #ffffff; color: #1a1a1a; width: 800px;";
+
+      // Copy styles
+      const styles = doc.querySelectorAll("style");
+      styles.forEach((s) => {
+        const styleClone = document.createElement("style");
+        styleClone.textContent = s.textContent || "";
+        container.appendChild(styleClone);
+      });
+
+      // Add override styles
+      const overrideStyle = document.createElement("style");
+      overrideStyle.textContent = `
+        *, *::before, *::after { color: inherit; }
+        body, html, div { background-color: #ffffff; }
+        .header { color: #1a1a1a; }
+        .header h1 { color: #1a1a1a; }
+        .header .receipt-number { color: #666666; }
+        .section h3 { color: #1a1a1a; }
+        .section p { color: #1a1a1a; }
+        .service-info { background: #f8f8f8; color: #1a1a1a; }
+        .row { color: #1a1a1a; }
+        .footer-date { color: #666666; }
+        .auth-footer .auth-text { color: #888888; }
+      `;
+      container.appendChild(overrideStyle);
+
+      // Copy body content
+      const bodyContent = doc.body.cloneNode(true) as HTMLElement;
+      bodyContent.style.backgroundColor = "#ffffff";
+      bodyContent.style.color = "#1a1a1a";
+      bodyContent.style.maxWidth = "600px";
+      bodyContent.style.margin = "40px auto";
+      bodyContent.style.padding = "40px";
+      container.appendChild(bodyContent);
+
+      shadow.appendChild(container);
+      document.body.appendChild(wrapper);
 
       // Wait for images (QR code) to load
-      const images = iframeDoc.querySelectorAll("img");
+      const images = container.querySelectorAll("img");
       await Promise.all(
         Array.from(images).map(
           (img) =>
@@ -182,26 +225,26 @@ const SessionPaymentsHistory = () => {
               if (img.complete && img.naturalWidth > 0) return resolve();
               img.onload = () => resolve();
               img.onerror = () => resolve();
+              // Timeout fallback
+              setTimeout(resolve, 3000);
             })
         )
       );
 
-      // Small delay to ensure full render
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-      const canvas = await html2canvas(iframeDoc.body, {
+      const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
         width: 800,
         backgroundColor: "#ffffff",
-        windowWidth: 800,
       });
 
-      document.body.removeChild(iframe);
+      document.body.removeChild(wrapper);
 
-      const imgWidth = 210; // A4 mm
+      const imgWidth = 210;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       const pdf = new jsPDF("p", "mm", "a4");
       pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, imgWidth, imgHeight);
