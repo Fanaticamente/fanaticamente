@@ -149,60 +149,57 @@ const SessionPaymentsHistory = () => {
       const { default: jsPDF } = await import("jspdf");
       const { default: html2canvas } = await import("html2canvas");
 
-      // Create a temporary container to render the receipt HTML
-      const container = document.createElement("div");
-      container.style.position = "absolute";
-      container.style.left = "-9999px";
-      container.style.top = "0";
-      container.style.width = "800px";
-      container.style.backgroundColor = "#ffffff";
-      container.style.color = "#000000";
-      container.innerHTML = "";
+      // Use an iframe to fully isolate receipt styles from the dark theme
+      const iframe = document.createElement("iframe");
+      iframe.style.position = "absolute";
+      iframe.style.left = "-9999px";
+      iframe.style.top = "0";
+      iframe.style.width = "800px";
+      iframe.style.height = "1200px";
+      iframe.style.border = "none";
+      document.body.appendChild(iframe);
 
-      // Parse the receipt HTML and extract body content
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(viewingReceipt, "text/html");
-      
-      // Apply styles inline
-      const styles = doc.querySelectorAll("style");
-      const styleEl = document.createElement("style");
-      styles.forEach((s) => (styleEl.textContent += s.textContent));
-      container.appendChild(styleEl);
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc) throw new Error("Could not access iframe document");
 
-      // Clone body content
-      const bodyContent = doc.body.cloneNode(true) as HTMLElement;
-      container.appendChild(bodyContent);
+      // Write the receipt HTML into the isolated iframe
+      iframeDoc.open();
+      iframeDoc.write(viewingReceipt);
+      iframeDoc.close();
 
-      document.body.appendChild(container);
+      // Force white background on the iframe body
+      iframeDoc.body.style.backgroundColor = "#ffffff";
+      iframeDoc.body.style.color = "#1a1a1a";
+      iframeDoc.body.style.margin = "0";
+      iframeDoc.body.style.padding = "0";
 
-      // Wait for QR code image to load
-      const images = container.querySelectorAll("img");
+      // Wait for images (QR code) to load
+      const images = iframeDoc.querySelectorAll("img");
       await Promise.all(
         Array.from(images).map(
           (img) =>
             new Promise<void>((resolve) => {
-              if (img.complete) return resolve();
+              if (img.complete && img.naturalWidth > 0) return resolve();
               img.onload = () => resolve();
               img.onerror = () => resolve();
-              // Force reload with crossorigin
-              img.crossOrigin = "anonymous";
-              const src = img.src;
-              img.src = "";
-              img.src = src;
             })
         )
       );
 
-      const canvas = await html2canvas(container, {
+      // Small delay to ensure full render
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const canvas = await html2canvas(iframeDoc.body, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
         width: 800,
         backgroundColor: "#ffffff",
+        windowWidth: 800,
       });
 
-      document.body.removeChild(container);
+      document.body.removeChild(iframe);
 
       const imgWidth = 210; // A4 mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
