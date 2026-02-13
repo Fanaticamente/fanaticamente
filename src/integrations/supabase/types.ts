@@ -1086,6 +1086,7 @@ export type Database = {
           professional_id: string
           receipt_data: Json
           receipt_html: string
+          receipt_number: number
           user_id: string
         }
         Insert: {
@@ -1095,6 +1096,7 @@ export type Database = {
           professional_id: string
           receipt_data?: Json
           receipt_html: string
+          receipt_number?: number
           user_id: string
         }
         Update: {
@@ -1104,6 +1106,7 @@ export type Database = {
           professional_id?: string
           receipt_data?: Json
           receipt_html?: string
+          receipt_number?: number
           user_id?: string
         }
         Relationships: [

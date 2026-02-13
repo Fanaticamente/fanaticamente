@@ -295,13 +295,14 @@ const SessionPaymentsHistory = () => {
             <div className="p-4 border-t border-gray-200 flex gap-3">
               <Button
                 onClick={handleDownloadReceipt}
-                className="flex-1 bg-primary hover:bg-primary/90"
+                className="flex-1 bg-gray-900 hover:bg-gray-800 text-white"
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Baixar Recibo
               </Button>
               <Button
                 variant="outline"
+                className="border-gray-900 text-gray-900 hover:bg-gray-100"
                 onClick={() => {
                   const printWindow = window.open("", "_blank");
                   if (printWindow) {
