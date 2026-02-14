@@ -11,6 +11,11 @@
   *:focus-visible {
     outline: none !important;
   }
+  img {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
   :root {
     /* Core Colors - Football Theme */
     --background: 0 0% 8%;
