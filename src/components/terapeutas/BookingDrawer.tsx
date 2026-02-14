@@ -785,7 +785,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
                       style={{ borderColor: clubColor + "30", backgroundColor: clubColor + "10" }}
                     >
                       <div className="flex items-center gap-2">
-                        <span>✅</span>
+                        <CheckCircle className="w-5 h-5 flex-shrink-0" style={{ color: clubColor }} />
                         <div>
                           <p className="text-xs font-bold" style={{ color: clubColor }}>Parceria aplicada</p>
                           <p className="text-[10px]" style={{ color: clubColor + "99" }}>Matrícula: {socioMatricula}</p>
