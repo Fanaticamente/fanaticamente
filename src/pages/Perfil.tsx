@@ -24,16 +24,11 @@ const Perfil = () => {
     if (!loading && !user) {
       navigate("/auth");
     }
-    // Redirecionar profissionais para o painel profissional
-    if (!loading && user && hasRole("professional")) {
-      navigate("/profissional");
-    }
-  }, [user, loading, navigate, hasRole]);
+  }, [user, loading, navigate]);
 
   useEffect(() => {
     const fetchProfile = async () => {
-      // Só buscar profile se não for profissional (evita flash antes do redirect)
-      if (user && !loading && !hasRole("professional")) {
+      if (user && !loading) {
         const { data } = await supabase
           .from("profiles")
           .select("full_name, avatar_url, favorite_club_id")
@@ -79,8 +74,7 @@ const Perfil = () => {
     navigate("/");
   };
 
-  // Aguardar auth e evitar flash para profissionais
-  if (loading || hasRole("professional") || profileLoading) {
+  if (loading || profileLoading) {
     return null;
   }
 

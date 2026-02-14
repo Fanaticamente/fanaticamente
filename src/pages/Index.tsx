@@ -25,10 +25,6 @@ import DesktopFooter from "@/components/desktop/DesktopFooter";
 const Index = () => {
   const { user, hasRole, loading } = useAuth();
 
-  // Profissionais logados são redirecionados ao painel
-  if (!loading && user && hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
-    return <Navigate to="/profissional" replace />;
-  }
   return (
     <>
       {/* Mobile Layout */}

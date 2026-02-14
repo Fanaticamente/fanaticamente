@@ -108,7 +108,9 @@ const Auth = () => {
       } else if (hasRole("developer")) {
         navigate("/desenvolvedor");
       } else if (hasRole("professional")) {
-        navigate("/profissional");
+        // Profissionais logando no modo profissional vão para o painel
+        // Profissionais logando no modo torcedor vão para a home
+        navigate(authMode === "professional" ? "/profissional" : "/");
       } else {
         navigate("/");
       }
@@ -140,16 +142,9 @@ const Auth = () => {
         return;
       }
 
+      // Profissionais podem acessar o modo torcedor normalmente
       if (authMode === "user" && isProfessional) {
-        await supabase.auth.signOut();
-        setRoleValidated(false);
-        setEmail("");
-        setPassword("");
-        setAuthMode("professional");
-        toast.error(
-          "Esta conta é de um profissional. Você será direcionado para o login de Profissional."
-        );
-        navigate("/auth?mode=professional", { replace: true });
+        setRoleValidated(true);
       }
     };
 
@@ -188,17 +183,9 @@ const Auth = () => {
           return;
         }
 
-        // If on user mode but user is a professional
+        // Profissionais podem acessar o modo torcedor normalmente
         if (authMode === "user" && isProfessional) {
-          await supabase.auth.signOut();
-          setRoleValidated(false);
-          setEmail("");
-          setPassword("");
-          setAuthMode("professional");
-          toast.error(
-            "Esta conta é de um profissional. Você será direcionado para o login de Profissional."
-          );
-          navigate("/auth?mode=professional", { replace: true });
+          setRoleValidated(true);
           return;
         }
 
