@@ -116,8 +116,15 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
                   </div>
                 )}
                 {therapist.socioConsciente && (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                    <Heart className="w-3.5 h-3.5 fill-emerald-500 text-emerald-500" />
+                  <div 
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border"
+                    style={{
+                      backgroundColor: clubColor + "15",
+                      color: clubColor,
+                      borderColor: clubColor + "30",
+                    }}
+                  >
+                    <Heart className="w-3.5 h-3.5" style={{ color: clubColor, fill: clubColor }} />
                     Sócio Consciente
                   </div>
                 )}
