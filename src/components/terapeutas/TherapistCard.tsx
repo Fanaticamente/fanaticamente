@@ -101,24 +101,26 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
               </span>
             </div>
 
-            {/* Hourly Rate */}
-            {therapist.hourlyRate && (
-              <div 
-                className="mt-2 sm:mt-3 inline-block px-3 py-1 rounded-full text-sm font-bold"
-                style={{ 
-                  backgroundColor: clubColor + "20", 
-                  color: clubColor 
-                }}
-              >
-                R$ {therapist.hourlyRate.toFixed(2).replace('.', ',')}
-              </div>
-            )}
-
-            {/* Sócio Consciente Badge */}
-            {therapist.socioConsciente && (
-              <div className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                <Heart className="w-3.5 h-3.5 fill-emerald-500 text-emerald-500" />
-                Sócio Consciente
+            {/* Hourly Rate & Sócio Consciente */}
+            {(therapist.hourlyRate || therapist.socioConsciente) && (
+              <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-3">
+                {therapist.hourlyRate && (
+                  <div 
+                    className="inline-block px-3 py-1 rounded-full text-sm font-bold"
+                    style={{ 
+                      backgroundColor: clubColor + "20", 
+                      color: clubColor 
+                    }}
+                  >
+                    R$ {therapist.hourlyRate.toFixed(2).replace('.', ',')}
+                  </div>
+                )}
+                {therapist.socioConsciente && (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                    <Heart className="w-3.5 h-3.5 fill-emerald-500 text-emerald-500" />
+                    Sócio Consciente
+                  </div>
+                )}
               </div>
             )}
           </div>
