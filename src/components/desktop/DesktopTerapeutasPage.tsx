@@ -38,7 +38,7 @@ const leagueLabels: Record<League, string> = {
   serie_c: "Série C",
 };
 
-const DesktopTerapeutasPage = () => {
+const DesktopTerapeutasPage = ({ showBadges = true }: { showBadges?: boolean }) => {
   const navigate = useNavigate();
   const [selectedLeague, setSelectedLeague] = useState<League>("serie_a");
   const [selectedClub, setSelectedClub] = useState<BrazilianClub | null>(null);
@@ -254,16 +254,18 @@ const DesktopTerapeutasPage = () => {
                         : "bg-gray-50 hover:bg-gray-100"
                     }`}
                   >
-                    <div className="w-12 h-12 rounded-full bg-white p-1.5 shadow-sm flex items-center justify-center mb-2">
-                      <img
-                        src={club.badgeUrl}
-                        alt={club.name}
-                        className="w-9 h-9 object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://via.placeholder.com/36?text=${club.shortName}`;
-                        }}
-                      />
-                    </div>
+                    {showBadges && (
+                      <div className="w-12 h-12 rounded-full bg-white p-1.5 shadow-sm flex items-center justify-center mb-2">
+                        <img
+                          src={club.badgeUrl}
+                          alt={club.name}
+                          className="w-9 h-9 object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = `https://via.placeholder.com/36?text=${club.shortName}`;
+                          }}
+                        />
+                      </div>
+                    )}
                     <span className="text-sm text-gray-600 text-center leading-tight line-clamp-2 font-medium">
                       {club.shortName}
                     </span>
@@ -318,16 +320,18 @@ const DesktopTerapeutasPage = () => {
               <>
                 {/* Selected Club Header */}
                 <div className="flex items-center gap-4 mb-6 p-4 bg-white rounded-xl border border-gray-100">
-                  <div 
-                    className="w-14 h-14 rounded-full p-2 flex items-center justify-center"
-                    style={{ backgroundColor: `${selectedClub.primaryColor}15` }}
-                  >
-                    <img
-                      src={selectedClub.badgeUrl}
-                      alt={selectedClub.name}
-                      className="w-10 h-10 object-contain"
-                    />
-                  </div>
+                  {showBadges && (
+                    <div 
+                      className="w-14 h-14 rounded-full p-2 flex items-center justify-center"
+                      style={{ backgroundColor: `${selectedClub.primaryColor}15` }}
+                    >
+                      <img
+                        src={selectedClub.badgeUrl}
+                        alt={selectedClub.name}
+                        className="w-10 h-10 object-contain"
+                      />
+                    </div>
+                  )}
                   <div>
                     <h2 className="text-2xl font-bold text-gray-800 font-display uppercase tracking-wide">{selectedClub.name}</h2>
                     <p className="text-gray-500">{filteredTherapists.length} especialista(s) disponível(is)</p>

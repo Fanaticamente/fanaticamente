@@ -11,6 +11,7 @@ import { addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import DesktopTerapeutasPage from "@/components/desktop/DesktopTerapeutasPage";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
 
 interface Professional {
   id: string;
@@ -83,6 +84,9 @@ const Terapeutas = () => {
   const [therapists, setTherapists] = useState<TherapistData[]>([]);
   const [loading, setLoading] = useState(false);
   
+  const { data: moduleConfig } = useModuleConfig("therapists_page");
+  const showBadges = moduleConfig?.config?.show_badges !== false;
+  
   // Booking drawer state
   const [selectedTherapist, setSelectedTherapist] = useState<TherapistData | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -91,7 +95,7 @@ const Terapeutas = () => {
 
   // Render desktop version
   if (!isMobile) {
-    return <DesktopTerapeutasPage />;
+    return <DesktopTerapeutasPage showBadges={showBadges} />;
   }
 
   const fetchTherapistsForClub = async (clubId: string) => {
@@ -239,16 +243,18 @@ const Terapeutas = () => {
                     "--hover-color": club.primaryColor,
                   } as React.CSSProperties}
                 >
-                  <div className="w-14 h-14 mx-auto mb-2 rounded-full bg-white p-1.5 shadow-md group-hover:shadow-lg transition-shadow overflow-hidden flex items-center justify-center">
-                    <img
-                      src={club.badgeUrl}
-                      alt={club.name}
-                      className={club.id === "coritiba" ? "w-12 h-12 object-contain" : "w-10 h-10 object-contain"}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${club.shortName}`;
-                      }}
-                    />
-                  </div>
+                  {showBadges && (
+                    <div className="w-14 h-14 mx-auto mb-2 rounded-full bg-white p-1.5 shadow-md group-hover:shadow-lg transition-shadow overflow-hidden flex items-center justify-center">
+                      <img
+                        src={club.badgeUrl}
+                        alt={club.name}
+                        className={club.id === "coritiba" ? "w-12 h-12 object-contain" : "w-10 h-10 object-contain"}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${club.shortName}`;
+                        }}
+                      />
+                    </div>
+                  )}
                   <p className="text-card-foreground font-medium text-xs group-hover:text-primary transition-colors">
                     {club.name}
                   </p>
@@ -267,16 +273,18 @@ const Terapeutas = () => {
                 borderLeft: `4px solid ${selectedClub.primaryColor}`
               }}
             >
-              <div className="w-16 h-16 rounded-full bg-white p-2 shadow-lg overflow-hidden flex items-center justify-center">
-                <img
-                  src={selectedClub.badgeUrl}
-                  alt={selectedClub.name}
-                  className={selectedClub.id === "coritiba" ? "w-13 h-13 object-contain" : "w-11 h-11 object-contain"}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${selectedClub.shortName}`;
-                  }}
-                />
-              </div>
+              {showBadges && (
+                <div className="w-16 h-16 rounded-full bg-white p-2 shadow-lg overflow-hidden flex items-center justify-center">
+                  <img
+                    src={selectedClub.badgeUrl}
+                    alt={selectedClub.name}
+                    className={selectedClub.id === "coritiba" ? "w-13 h-13 object-contain" : "w-11 h-11 object-contain"}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${selectedClub.shortName}`;
+                    }}
+                  />
+                </div>
+              )}
               <div>
                 <h1 
                   className="font-display text-3xl italic uppercase"
