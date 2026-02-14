@@ -43,8 +43,18 @@ const MobileBrowserBlock = ({ children }: { children: React.ReactNode }) => {
     setIsMounted(true);
   }, []);
 
-  // Show children while mounting or loading setting
-  if (!isMounted || isLoading || !isMobileBrowser || !isBlocked) {
+  // On desktop, always show children immediately
+  if (!isMounted || !isMobileBrowser) {
+    return <>{children}</>;
+  }
+
+  // On mobile browser, show nothing while loading the setting
+  if (isLoading) {
+    return <div className="fixed inset-0 z-[9999] bg-[#0a0a0a]" />;
+  }
+
+  // Setting loaded and not blocked — show children
+  if (!isBlocked) {
     return <>{children}</>;
   }
 
