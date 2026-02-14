@@ -90,7 +90,7 @@ const ModuleList = ({
           key: "mobile_browser_block",
           value,
           category: "sistema",
-          type: "toggle",
+          type: "text",
           description: "Bloquear acesso mobile via navegador",
         });
       }
