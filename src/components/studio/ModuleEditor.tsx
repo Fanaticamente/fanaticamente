@@ -651,6 +651,21 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
                     />
                   </div>
                 </div>
+
+                {module.module_id === "therapists_page" && (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Exibir escudos dos clubes</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Mostra os escudos junto aos nomes dos clubes
+                      </p>
+                    </div>
+                    <Switch
+                      checked={config.show_badges !== false}
+                      onCheckedChange={(val) => setConfig({ ...config, show_badges: val })}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </TabsContent>
