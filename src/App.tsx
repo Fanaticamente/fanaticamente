@@ -99,8 +99,8 @@ const App = () => {
   const { SplashElement } = useSplashScreen();
 
   return (
-  <MobileBrowserBlock>
   <QueryClientProvider client={queryClient}>
+    <MobileBrowserBlock>
     <TooltipProvider>
       {SplashElement}
       {/*
@@ -211,8 +211,8 @@ const App = () => {
         </AuthProvider>
       )}
     </TooltipProvider>
+    </MobileBrowserBlock>
   </QueryClientProvider>
-  </MobileBrowserBlock>
   );
 };
 
