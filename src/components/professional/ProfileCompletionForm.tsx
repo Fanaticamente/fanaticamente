@@ -978,7 +978,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
               style={{ color: '#3b82f6' }}
             >
               <Info className="w-3.5 h-3.5" />
-              Saiba mais sobre o programa
+              Saiba mais
             </button>
           </div>
         </div>
