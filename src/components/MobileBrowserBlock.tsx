@@ -3,14 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import logoAuth from "@/assets/logo-auth.png";
 
-const isStandalone = () => {
-  if (typeof window === "undefined") return false;
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    (window.navigator as any).standalone === true
-  );
-};
-
 const useMobileBrowserBlockSetting = () => {
   return useQuery({
     queryKey: ["mobile-browser-block"],
@@ -33,19 +25,26 @@ const useMobileBrowserBlockSetting = () => {
 
 const MobileBrowserBlock = ({ children }: { children: React.ReactNode }) => {
   const { data: isBlocked, isLoading } = useMobileBrowserBlockSetting();
-
   const [isMobileBrowser, setIsMobileBrowser] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    const check = () => {
-      setIsMobileBrowser(window.innerWidth < 768 && !isStandalone());
-    };
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    if (typeof window === "undefined") return;
+
+    const userAgent = navigator.userAgent;
+    const isMobileDevice =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone === true;
+
+    // Only block on actual mobile devices accessed via browser (not standalone PWA)
+    setIsMobileBrowser(isMobileDevice && !isStandalone);
+    setIsMounted(true);
   }, []);
 
-  if (!isMobileBrowser || isLoading || !isBlocked) {
+  // Show children while mounting or loading setting
+  if (!isMounted || isLoading || !isMobileBrowser || !isBlocked) {
     return <>{children}</>;
   }
 
