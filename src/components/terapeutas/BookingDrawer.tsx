@@ -26,6 +26,7 @@ interface TherapistData {
   imageUrl?: string;
   hourlyRate?: number;
   bio?: string;
+  socioConsciente?: boolean;
 }
 
 interface WeeklyAvailability {
@@ -142,6 +143,8 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
   const [showReceiptUpload, setShowReceiptUpload] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
+  const [socioMatricula, setSocioMatricula] = useState("");
+  const [socioDiscountApplied, setSocioDiscountApplied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Get current user
@@ -210,6 +213,8 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
       setTermsAccepted(false);
       setShowReceiptUpload(false);
       setReceiptFile(null);
+      setSocioMatricula("");
+      setSocioDiscountApplied(false);
       setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }));
     }
   }, [open]);
@@ -319,7 +324,10 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
     }
   };
 
-  const sessionPrice = therapist.hourlyRate || 150;
+  const basePrice = therapist.hourlyRate || 150;
+  const isSocioConsciente = therapist.socioConsciente && socioDiscountApplied;
+  const discountAmount = isSocioConsciente ? basePrice * 0.15 : 0;
+  const sessionPrice = basePrice - discountAmount;
   const scheduledDateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
   const canProcessStripe = paymentInfo?.stripe_account_status === "active";
   const hasPixKey = !!paymentInfo?.pix_key;
@@ -729,14 +737,75 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
                     <Clock className="w-5 h-5" style={{ color: clubColor }} />
                     <span className="text-gray-700 text-sm">{selectedTime}</span>
                   </div>
+                  {/* Sócio Consciente Input */}
+                  {therapist.socioConsciente && !socioDiscountApplied && (
+                    <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50/50">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-base">⚽</span>
+                        <div>
+                          <p className="font-bold text-gray-900 text-xs">Sócio Consciente</p>
+                          <p className="text-[10px] text-gray-500">Informe sua matrícula para 15% de desconto</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={socioMatricula}
+                          onChange={(e) => setSocioMatricula(e.target.value)}
+                          placeholder="Nº da matrícula"
+                          maxLength={20}
+                          className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 text-sm focus:border-emerald-500 focus:outline-none transition-colors"
+                        />
+                        <button
+                          onClick={() => {
+                            if (!socioMatricula.trim() || socioMatricula.trim().length < 3) {
+                              toast.error("Informe uma matrícula válida");
+                              return;
+                            }
+                            setSocioDiscountApplied(true);
+                            toast.success("Desconto Sócio Consciente aplicado! -15%");
+                          }}
+                          className="px-4 py-2 bg-emerald-500 text-white rounded-lg font-semibold text-sm hover:bg-emerald-600 transition-colors"
+                        >
+                          Aplicar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {socioDiscountApplied && (
+                    <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span>✅</span>
+                        <div>
+                          <p className="text-xs font-bold text-emerald-800">Desconto aplicado!</p>
+                          <p className="text-[10px] text-emerald-600">Matrícula: {socioMatricula}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => { setSocioDiscountApplied(false); setSocioMatricula(""); }}
+                        className="text-[10px] text-emerald-600 hover:text-emerald-800 font-medium underline"
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  )}
+
                   <div
                     className="mt-2 p-3 rounded-xl flex items-center justify-between"
                     style={{ backgroundColor: clubColor + '10' }}
                   >
                     <span className="text-gray-600 font-medium text-sm">Valor</span>
-                    <span className="text-xl font-bold" style={{ color: clubColor }}>
-                      R$ {sessionPrice.toFixed(2).replace(".", ",")}
-                    </span>
+                    <div className="text-right">
+                      {isSocioConsciente && (
+                        <span className="text-xs text-gray-400 line-through block">
+                          R$ {basePrice.toFixed(2).replace(".", ",")}
+                        </span>
+                      )}
+                      <span className="text-xl font-bold" style={{ color: clubColor }}>
+                        R$ {sessionPrice.toFixed(2).replace(".", ",")}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
