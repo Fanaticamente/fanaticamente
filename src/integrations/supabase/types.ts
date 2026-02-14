@@ -878,6 +878,7 @@ export type Database = {
           pix_key: string | null
           pix_key_type: string | null
           rejection_reason: string | null
+          socio_consciente: boolean
           specialties: string[] | null
           stripe_account_id: string | null
           stripe_account_status: string | null
@@ -908,6 +909,7 @@ export type Database = {
           pix_key?: string | null
           pix_key_type?: string | null
           rejection_reason?: string | null
+          socio_consciente?: boolean
           specialties?: string[] | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
@@ -938,6 +940,7 @@ export type Database = {
           pix_key?: string | null
           pix_key_type?: string | null
           rejection_reason?: string | null
+          socio_consciente?: boolean
           specialties?: string[] | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
