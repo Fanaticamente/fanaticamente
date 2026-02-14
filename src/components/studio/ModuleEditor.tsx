@@ -652,7 +652,7 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
                   </div>
                 </div>
 
-                {module.module_id === "therapists_page" && (
+                {(module.module_id === "therapists_page" || module.module_id === "ranking_page") && (
                   <div className="flex items-center justify-between">
                     <div>
                       <Label>Exibir escudos dos clubes</Label>
