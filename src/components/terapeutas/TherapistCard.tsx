@@ -25,6 +25,7 @@ interface Therapist {
   hourlyRate?: number;
   bio?: string;
   socioConsciente?: boolean;
+  clubNickname?: string;
 }
 
 interface TherapistCardProps {
@@ -117,7 +118,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
             {therapist.socioConsciente && (
               <div className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
                 <Heart className="w-3.5 h-3.5 fill-emerald-500 text-emerald-500" />
-                Sócio Consciente · -15%
+                Sócio Consciente{therapist.clubNickname ? ` ${therapist.clubNickname}` : ''} · -15%
               </div>
             )}
           </div>

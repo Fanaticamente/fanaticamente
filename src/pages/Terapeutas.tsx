@@ -5,6 +5,7 @@ import BottomNav from "@/components/layout/BottomNav";
 import TherapistCard from "@/components/terapeutas/TherapistCard";
 import BookingDrawer from "@/components/terapeutas/BookingDrawer";
 import { getClubsByLeague, BrazilianClub } from "@/data/brazilianClubs";
+import { clubNicknames } from "@/data/clubNicknames";
 import { supabase } from "@/integrations/supabase/client";
 import { addDays } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -312,7 +313,7 @@ const Terapeutas = () => {
               therapists.map((therapist) => (
                 <TherapistCard
                   key={therapist.id}
-                  therapist={therapist}
+                  therapist={{...therapist, clubNickname: selectedClub ? clubNicknames[selectedClub.id] : undefined}}
                   clubColor={selectedClub.primaryColor}
                   clubSecondaryColor={selectedClub.secondaryColor}
                   onSelect={handleTherapistSelect}
@@ -331,6 +332,7 @@ const Terapeutas = () => {
       <BookingDrawer
         therapist={selectedTherapist}
         clubColor={selectedClub?.primaryColor || "#10b981"}
+        clubNickname={selectedClub ? clubNicknames[selectedClub.id] : undefined}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
       />

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getClubsByLeague, BrazilianClub } from "@/data/brazilianClubs";
+import { clubNicknames } from "@/data/clubNicknames";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import DesktopHeader from "./DesktopHeader";
@@ -414,7 +415,7 @@ const DesktopTerapeutasPage = () => {
                           )}
                           {therapist.socioConsciente && (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                              ⚽ -15% Sócio
+                              -15% Sócio{therapist.clubId ? ` ${clubNicknames[therapist.clubId] || ''}` : ''}
                             </span>
                           )}
                         </div>
@@ -441,6 +442,7 @@ const DesktopTerapeutasPage = () => {
       <BookingDrawer
         therapist={selectedTherapist}
         clubColor={selectedClub?.primaryColor || "#10b981"}
+        clubNickname={selectedClub ? clubNicknames[selectedClub.id] : undefined}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
       />
