@@ -807,11 +807,6 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
                   >
                     <span className="text-gray-600 font-medium text-sm">Valor</span>
                     <div className="text-right">
-                      {isSocioConsciente && (
-                        <span className="text-xs text-gray-400 line-through block">
-                          R$ {basePrice.toFixed(2).replace(".", ",")}
-                        </span>
-                      )}
                       <span className="text-xl font-bold" style={{ color: clubColor }}>
                         R$ {sessionPrice.toFixed(2).replace(".", ",")}
                       </span>
