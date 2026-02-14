@@ -22,6 +22,7 @@ interface Professional {
   is_verified: boolean | null;
   bio: string | null;
   hourly_rate: number | null;
+  socio_consciente: boolean | null;
 }
 
 interface TherapistData {
@@ -37,6 +38,7 @@ interface TherapistData {
   availableSlots: { date: Date; times: string[] }[];
   hourlyRate?: number;
   bio?: string;
+  socioConsciente?: boolean;
 }
 
 const generateAvailableSlots = () => {
@@ -142,6 +144,7 @@ const Terapeutas = () => {
             availableSlots: generateAvailableSlots(),
             hourlyRate: professional.hourly_rate || undefined,
             bio: professional.bio || undefined,
+            socioConsciente: professional.socio_consciente || false,
           });
         }
       }

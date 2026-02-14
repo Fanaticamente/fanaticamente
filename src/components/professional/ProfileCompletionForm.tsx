@@ -18,6 +18,7 @@ interface ProfileData {
   crpDocumentBackUrl: string;
   degreeDocumentFrontUrl: string;
   degreeDocumentBackUrl: string;
+  socioConsciente: boolean;
 }
 
 const DEGREE_BASE_OPTIONS = [
@@ -51,6 +52,7 @@ interface ExistingProfileData {
   crpDocumentBackUrl?: string;
   degreeDocumentFrontUrl?: string;
   degreeDocumentBackUrl?: string;
+  socioConsciente?: boolean;
 }
 
 interface ProfileCompletionFormProps {
@@ -145,7 +147,8 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
       crpDocumentFrontUrl: existingData?.crpDocumentFrontUrl ?? draft?.crpDocumentFrontUrl ?? "",
       crpDocumentBackUrl: existingData?.crpDocumentBackUrl ?? draft?.crpDocumentBackUrl ?? "",
       degreeDocumentFrontUrl: existingData?.degreeDocumentFrontUrl ?? draft?.degreeDocumentFrontUrl ?? "",
-      degreeDocumentBackUrl: existingData?.degreeDocumentBackUrl ?? draft?.degreeDocumentBackUrl ?? ""
+      degreeDocumentBackUrl: existingData?.degreeDocumentBackUrl ?? draft?.degreeDocumentBackUrl ?? "",
+      socioConsciente: draft?.socioConsciente ?? existingData?.socioConsciente ?? false
     };
   }, [existingData, loadDraftFromStorage]);
 
@@ -477,7 +480,8 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
           bio: formData.bio,
           degree: combinedDegree,
           specialties: formData.specialties,
-          hourly_rate: formData.sessionPrice ? parseFloat(formData.sessionPrice) : null
+          hourly_rate: formData.sessionPrice ? parseFloat(formData.sessionPrice) : null,
+          socio_consciente: formData.socioConsciente
         })
         .eq('id', professionalId);
 
@@ -941,6 +945,27 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
         <label htmlFor="showPrice" className="text-card-foreground text-sm">
           Exibir valor da sessão no meu card
         </label>
+      </div>
+
+      {/* Sócio Consciente Toggle */}
+      <div className="border border-therapy/30 rounded-xl p-4 bg-therapy/5">
+        <div className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            id="socioConsciente"
+            checked={formData.socioConsciente}
+            onChange={(e) => setFormData(prev => ({ ...prev, socioConsciente: e.target.checked }))}
+            className="w-5 h-5 rounded border-border text-therapy focus:ring-therapy mt-0.5"
+          />
+          <div>
+            <label htmlFor="socioConsciente" className="text-card-foreground text-sm font-semibold block">
+              ⚽ Programa Sócio Consciente
+            </label>
+            <p className="text-muted-foreground text-xs mt-1">
+              Ofereça 15% de desconto para sócios-torcedores ativos. Um selo especial será exibido no seu perfil do marketplace.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Save Button */}

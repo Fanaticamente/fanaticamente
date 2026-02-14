@@ -1,4 +1,4 @@
-import { CheckCircle, MapPin, Star } from "lucide-react";
+import { CheckCircle, MapPin, Star, Heart } from "lucide-react";
 import { getFirstAndLastName } from "@/lib/utils";
 
 import therapist1 from "@/assets/therapist-1.jpg";
@@ -24,6 +24,7 @@ interface Therapist {
   imageUrl?: string;
   hourlyRate?: number;
   bio?: string;
+  socioConsciente?: boolean;
 }
 
 interface TherapistCardProps {
@@ -109,6 +110,14 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
                 }}
               >
                 R$ {therapist.hourlyRate.toFixed(2).replace('.', ',')}
+              </div>
+            )}
+
+            {/* Sócio Consciente Badge */}
+            {therapist.socioConsciente && (
+              <div className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                <Heart className="w-3.5 h-3.5 fill-emerald-500 text-emerald-500" />
+                Sócio Consciente · -15%
               </div>
             )}
           </div>
