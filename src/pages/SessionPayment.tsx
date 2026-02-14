@@ -383,7 +383,7 @@ const SessionPayment = () => {
       return;
     }
     setSocioDiscountApplied(true);
-    toast.success("Desconto Sócio Consciente aplicado! -15%");
+    // Toast removed per design request
   };
 
   const handleRemoveSocioDiscount = () => {
