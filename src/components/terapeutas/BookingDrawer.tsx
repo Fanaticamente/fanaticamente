@@ -787,7 +787,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
                       <div className="flex items-center gap-2">
                         <span>✅</span>
                         <div>
-                          <p className="text-xs font-bold" style={{ color: clubColor }}>Desconto aplicado!</p>
+                          <p className="text-xs font-bold" style={{ color: clubColor }}>Parceria aplicada</p>
                           <p className="text-[10px]" style={{ color: clubColor + "99" }}>Matrícula: {socioMatricula}</p>
                         </div>
                       </div>
