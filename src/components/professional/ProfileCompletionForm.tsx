@@ -1,5 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Upload, X, Plus, Info, Edit2, FileText, CheckCircle } from "lucide-react";
+import { Upload, X, Plus, Info, Edit2, FileText, CheckCircle, ExternalLink } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -162,6 +168,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
   const [isSaving, setIsSaving] = useState(false);
   const [newSpecialty, setNewSpecialty] = useState("");
   const [isAddingCustom, setIsAddingCustom] = useState(false);
+  const [socioInfoOpen, setSocioInfoOpen] = useState(false);
   const [customSpecialty, setCustomSpecialty] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const crpFrontInputRef = useRef<HTMLInputElement>(null);
@@ -964,9 +971,40 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
             <p className="text-muted-foreground text-xs mt-1">
               Ofereça 15% de desconto para sócios-torcedores ativos. Um selo especial será exibido no seu perfil do marketplace.
             </p>
+            <button
+              type="button"
+              onClick={() => setSocioInfoOpen(true)}
+              className="text-xs font-medium mt-2 flex items-center gap-1 hover:underline"
+              style={{ color: '#3b82f6' }}
+            >
+              <Info className="w-3.5 h-3.5" />
+              Saiba mais sobre o programa
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Sócio Consciente Info Dialog */}
+      <Dialog open={socioInfoOpen} onOpenChange={setSocioInfoOpen}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-gray-800 flex items-center gap-2">
+              ⚽ Programa Sócio Consciente
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
+            <p>
+              O Sócio Consciente é um programa criado para ampliar e incentivar o acesso de sócios-torcedores dos clubes ao cuidado com a saúde mental, por meio de parcerias com profissionais comprometidos com uma prática ética e responsável.
+            </p>
+            <p>
+              Ao optar por atender pelo programa, você mantém integralmente sua autonomia profissional e seu valor de referência. A adesão consiste em conceder, de forma voluntária, uma condição específica aos torcedores elegíveis, aplicada ao valor da sessão como incentivo ao acesso e à continuidade do cuidado, correspondente a uma redução de 15% sobre o valor habitualmente praticado.
+            </p>
+            <p>
+              Além de beneficiar os sócios-torcedores, o programa também favorece profissionais que desejam ampliar seu alcance de forma ética, considerando que os clubes reúnem milhares de associados continuamente incentivados a cuidar da saúde mental.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Save Button */}
       <button
