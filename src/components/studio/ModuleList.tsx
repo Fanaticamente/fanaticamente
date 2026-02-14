@@ -3,10 +3,14 @@ import {
   GripVertical, Eye, EyeOff, ChevronRight, ChevronDown, 
   MoreVertical, Trash2, Copy, Home, Navigation as NavIcon,
   Layout, Image, Users, Ticket, Brain, Radio, GraduationCap,
-  ShoppingBag, Trophy, LucideIcon, FileText
+  ShoppingBag, Trophy, LucideIcon, FileText, Smartphone
 } from "lucide-react";
 import { AppModule, useToggleModuleVisibility, useReorderModules } from "@/hooks/useAppModules";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,6 +54,53 @@ const ModuleList = ({
   onPageChange,
   onChanged,
 }: ModuleListProps) => {
+  const queryClient = useQueryClient();
+
+  const { data: mobileBlockEnabled } = useQuery({
+    queryKey: ["mobile-browser-block"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_content")
+        .select("value")
+        .eq("key", "mobile_browser_block")
+        .single();
+      if (error && error.code !== "PGRST116") return true;
+      return data?.value !== "false";
+    },
+    staleTime: 1000 * 60 * 2,
+  });
+
+  const toggleMobileBlock = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      const value = enabled ? "true" : "false";
+      // Try update first, then upsert
+      const { data: existing } = await supabase
+        .from("app_content")
+        .select("id")
+        .eq("key", "mobile_browser_block")
+        .single();
+
+      if (existing) {
+        await supabase
+          .from("app_content")
+          .update({ value, updated_at: new Date().toISOString() })
+          .eq("key", "mobile_browser_block");
+      } else {
+        await supabase.from("app_content").insert({
+          key: "mobile_browser_block",
+          value,
+          category: "sistema",
+          type: "toggle",
+          description: "Bloquear acesso mobile via navegador",
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mobile-browser-block"] });
+      toast.success("Configuração salva");
+    },
+  });
+
   const [expandedSections, setExpandedSections] = useState<string[]>(["home", "navigation", "pages", "system-pages"]);
   const toggleVisibility = useToggleModuleVisibility();
   const reorderModules = useReorderModules();
@@ -96,7 +147,16 @@ const ModuleList = ({
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 border-b border-border">
-        <h3 className="font-display text-lg text-card-foreground">Organização</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-lg text-card-foreground">Organização</h3>
+          <div className="flex items-center gap-2" title="Permitir acesso mobile via navegador">
+            <Smartphone className="w-4 h-4 text-muted-foreground" />
+            <Switch
+              checked={!(mobileBlockEnabled ?? true)}
+              onCheckedChange={(checked) => toggleMobileBlock.mutate(!checked)}
+            />
+          </div>
+        </div>
         <p className="text-xs text-muted-foreground mt-1">Gerencie módulos e páginas</p>
       </div>
       
