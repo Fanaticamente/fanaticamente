@@ -768,7 +768,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
                               return;
                             }
                             setSocioDiscountApplied(true);
-                            toast.success("Desconto Sócio Consciente aplicado! -15%");
+                            // Toast removed per design request
                           }}
                           className="px-4 py-2 text-white rounded-lg font-semibold text-sm transition-colors"
                           style={{ backgroundColor: clubColor }}
