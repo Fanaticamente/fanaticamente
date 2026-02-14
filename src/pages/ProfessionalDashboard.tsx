@@ -46,6 +46,7 @@ interface Professional {
   degree_document_front_url: string | null;
   degree_document_back_url: string | null;
   google_calendar_url: string | null;
+  socio_consciente: boolean;
 }
 
 interface Profile {
@@ -941,7 +942,8 @@ const ProfessionalDashboard = () => {
                     crpDocumentFrontUrl: professional.crp_document_front_url || "",
                     crpDocumentBackUrl: professional.crp_document_back_url || "",
                     degreeDocumentFrontUrl: professional.degree_document_front_url || "",
-                    degreeDocumentBackUrl: professional.degree_document_back_url || ""
+                    degreeDocumentBackUrl: professional.degree_document_back_url || "",
+                    socioConsciente: professional.socio_consciente || false
                   }}
                   onComplete={() => {
                     toast.success("Perfil atualizado!");

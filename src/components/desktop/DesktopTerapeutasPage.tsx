@@ -22,6 +22,7 @@ interface TherapistData {
   imageUrl?: string;
   hourlyRate?: number;
   bio?: string;
+  socioConsciente?: boolean;
   clubId?: string;
   clubName?: string;
   clubColor?: string;
@@ -92,6 +93,7 @@ const DesktopTerapeutasPage = () => {
             imageUrl: profile.avatar_url || undefined,
             hourlyRate: professional.hourly_rate || undefined,
             bio: professional.bio || undefined,
+            socioConsciente: professional.socio_consciente || false,
             clubId: club.id,
             clubName: club.name,
             clubColor: club.primaryColor,
@@ -400,15 +402,22 @@ const DesktopTerapeutasPage = () => {
                           </div>
                         </div>
 
-                        {/* Price */}
-                        {therapist.hourlyRate && (
-                          <div className="text-right">
-                            <p className="text-2xl font-bold text-emerald-600">
-                              R${therapist.hourlyRate}
-                            </p>
-                            <p className="text-xs text-gray-400">por sessão</p>
-                          </div>
-                        )}
+                        {/* Price & Sócio Consciente */}
+                        <div className="text-right space-y-2">
+                          {therapist.hourlyRate && (
+                            <div>
+                              <p className="text-2xl font-bold text-emerald-600">
+                                R${therapist.hourlyRate}
+                              </p>
+                              <p className="text-xs text-gray-400">por sessão</p>
+                            </div>
+                          )}
+                          {therapist.socioConsciente && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                              ⚽ -15% Sócio
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
