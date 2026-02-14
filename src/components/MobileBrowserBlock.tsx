@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import logoAuth from "@/assets/logo-auth.png";
@@ -24,7 +25,6 @@ const useMobileBrowserBlockSetting = () => {
         console.error("Error fetching mobile block setting:", error);
       }
 
-      // Default to "true" (blocked) if no setting exists
       return data?.value !== "false";
     },
     staleTime: 1000 * 60 * 2,
@@ -34,12 +34,17 @@ const useMobileBrowserBlockSetting = () => {
 const MobileBrowserBlock = ({ children }: { children: React.ReactNode }) => {
   const { data: isBlocked, isLoading } = useMobileBrowserBlockSetting();
 
-  const isMobileBrowser =
-    typeof window !== "undefined" &&
-    window.innerWidth < 768 &&
-    !isStandalone();
+  const [isMobileBrowser, setIsMobileBrowser] = useState(false);
 
-  // While loading or if not mobile browser, show children
+  useEffect(() => {
+    const check = () => {
+      setIsMobileBrowser(window.innerWidth < 768 && !isStandalone());
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   if (!isMobileBrowser || isLoading || !isBlocked) {
     return <>{children}</>;
   }
