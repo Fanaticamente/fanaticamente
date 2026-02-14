@@ -1002,6 +1002,9 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
             <p>
               Além de beneficiar os sócios-torcedores, o programa também favorece profissionais que desejam ampliar seu alcance de forma ética, considerando que os clubes reúnem milhares de associados continuamente incentivados a cuidar da saúde mental.
             </p>
+            <p className="text-xs text-gray-500 italic border-t border-gray-200 pt-3 mt-2">
+              Ao selecionar a caixa de seleção do programa, você declara estar ciente e de acordo com os termos acima, comprometendo-se a atender pelo Sócio Consciente.
+            </p>
           </div>
         </DialogContent>
       </Dialog>
