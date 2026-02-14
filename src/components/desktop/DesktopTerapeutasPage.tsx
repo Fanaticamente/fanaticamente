@@ -38,7 +38,7 @@ const leagueLabels: Record<League, string> = {
   serie_c: "Série C",
 };
 
-const DesktopTerapeutasPage = ({ showBadges = true }: { showBadges?: boolean }) => {
+const DesktopTerapeutasPage = ({ showBadges = true, hiddenBadges = [] }: { showBadges?: boolean; hiddenBadges?: string[] }) => {
   const navigate = useNavigate();
   const [selectedLeague, setSelectedLeague] = useState<League>("serie_a");
   const [selectedClub, setSelectedClub] = useState<BrazilianClub | null>(null);
@@ -254,7 +254,7 @@ const DesktopTerapeutasPage = ({ showBadges = true }: { showBadges?: boolean }) 
                         : "bg-gray-50 hover:bg-gray-100"
                     }`}
                   >
-                    {showBadges && (
+                    {showBadges && !hiddenBadges.includes(club.id) && (
                       <div className="w-12 h-12 rounded-full bg-white p-1.5 shadow-sm flex items-center justify-center mb-2">
                         <img
                           src={club.badgeUrl}
@@ -320,7 +320,7 @@ const DesktopTerapeutasPage = ({ showBadges = true }: { showBadges?: boolean }) 
               <>
                 {/* Selected Club Header */}
                 <div className="flex items-center gap-4 mb-6 p-4 bg-white rounded-xl border border-gray-100">
-                  {showBadges && (
+                  {showBadges && !hiddenBadges.includes(selectedClub.id) && (
                     <div 
                       className="w-14 h-14 rounded-full p-2 flex items-center justify-center"
                       style={{ backgroundColor: `${selectedClub.primaryColor}15` }}
