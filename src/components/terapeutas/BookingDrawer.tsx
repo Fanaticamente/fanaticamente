@@ -740,9 +740,12 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
                   </div>
                   {/* Sócio Consciente Input */}
                    {therapist.socioConsciente && !socioDiscountApplied && (
-                    <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50/50">
+                    <div 
+                      className="p-3 rounded-xl border"
+                      style={{ borderColor: clubColor + "30", backgroundColor: clubColor + "08" }}
+                    >
                       <div className="flex items-center gap-2 mb-2">
-                        <Shield className="w-5 h-5 text-emerald-600" />
+                        <Shield className="w-5 h-5" style={{ color: clubColor }} />
                         <div>
                           <p className="font-bold text-gray-900 text-xs">Sócio Consciente{clubNickname ? ` ${clubNickname}` : ''}</p>
                           <p className="text-[10px] text-gray-500">Informe sua matrícula</p>
@@ -755,7 +758,8 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
                           onChange={(e) => setSocioMatricula(e.target.value)}
                           placeholder="Nº da matrícula"
                           maxLength={20}
-                          className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 text-sm focus:border-emerald-500 focus:outline-none transition-colors"
+                          className="flex-1 px-3 py-2 bg-white border rounded-lg text-gray-800 text-sm focus:outline-none transition-colors"
+                          style={{ borderColor: clubColor + "30" }}
                         />
                         <button
                           onClick={() => {
@@ -766,7 +770,8 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
                             setSocioDiscountApplied(true);
                             toast.success("Desconto Sócio Consciente aplicado! -15%");
                           }}
-                          className="px-4 py-2 bg-emerald-500 text-white rounded-lg font-semibold text-sm hover:bg-emerald-600 transition-colors"
+                          className="px-4 py-2 text-white rounded-lg font-semibold text-sm transition-colors"
+                          style={{ backgroundColor: clubColor }}
                         >
                           Aplicar
                         </button>
@@ -775,17 +780,21 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
                   )}
 
                   {socioDiscountApplied && (
-                    <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50 flex items-center justify-between">
+                    <div 
+                      className="p-3 rounded-xl border flex items-center justify-between"
+                      style={{ borderColor: clubColor + "30", backgroundColor: clubColor + "10" }}
+                    >
                       <div className="flex items-center gap-2">
                         <span>✅</span>
                         <div>
-                          <p className="text-xs font-bold text-emerald-800">Desconto aplicado!</p>
-                          <p className="text-[10px] text-emerald-600">Matrícula: {socioMatricula}</p>
+                          <p className="text-xs font-bold" style={{ color: clubColor }}>Desconto aplicado!</p>
+                          <p className="text-[10px]" style={{ color: clubColor + "99" }}>Matrícula: {socioMatricula}</p>
                         </div>
                       </div>
                       <button
                         onClick={() => { setSocioDiscountApplied(false); setSocioMatricula(""); }}
-                        className="text-[10px] text-emerald-600 hover:text-emerald-800 font-medium underline"
+                        className="text-[10px] font-medium underline"
+                        style={{ color: clubColor }}
                       >
                         Remover
                       </button>
