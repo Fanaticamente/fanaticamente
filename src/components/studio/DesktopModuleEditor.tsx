@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
+import ClubBadgeToggles from "./ClubBadgeToggles";
 
 interface DesktopModuleEditorProps {
   module: AppModule | null;
@@ -1212,18 +1213,12 @@ const DesktopModuleEditor = ({ module, onClose, onSaved }: DesktopModuleEditorPr
             </div>
 
             {(module.module_id === "therapists_page" || module.module_id === "ranking_page") && (
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Exibir escudos dos clubes</Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Mostra os escudos junto aos nomes dos clubes
-                  </p>
-                </div>
-                <Switch
-                  checked={config.show_badges !== false}
-                  onCheckedChange={(val) => setConfig({ ...config, show_badges: val })}
-                />
-              </div>
+              <ClubBadgeToggles
+                showBadges={config.show_badges !== false}
+                onShowBadgesChange={(val) => setConfig({ ...config, show_badges: val })}
+                hiddenBadges={(config.hidden_badges as string[]) || []}
+                onHiddenBadgesChange={(badges) => setConfig({ ...config, hidden_badges: badges })}
+              />
             )}
           </TabsContent>
         </Tabs>

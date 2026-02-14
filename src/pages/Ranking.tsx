@@ -20,6 +20,7 @@ const Ranking = () => {
   const [activeLeague, setActiveLeague] = useState<LeagueTab>("serie_a");
   const { data: moduleConfig } = useModuleConfig("ranking_page");
   const showBadges = moduleConfig?.config?.show_badges !== false;
+  const hiddenBadges = (moduleConfig?.config?.hidden_badges as string[]) || [];
 
   // Fetch completed appointments count per club using security definer function
   const { data: clubCounts = {} } = useQuery({
@@ -151,7 +152,7 @@ const Ranking = () => {
                     </span>
 
                     <div className="flex items-center gap-3 flex-1 ml-3 min-w-0">
-                      {showBadges && (
+                      {showBadges && !hiddenBadges.includes(club.id) && (
                         <img
                           src={club.badgeUrl}
                           alt={club.name}

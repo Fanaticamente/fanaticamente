@@ -86,6 +86,7 @@ const Terapeutas = () => {
   
   const { data: moduleConfig } = useModuleConfig("therapists_page");
   const showBadges = moduleConfig?.config?.show_badges !== false;
+  const hiddenBadges = (moduleConfig?.config?.hidden_badges as string[]) || [];
   
   // Booking drawer state
   const [selectedTherapist, setSelectedTherapist] = useState<TherapistData | null>(null);
@@ -95,7 +96,7 @@ const Terapeutas = () => {
 
   // Render desktop version
   if (!isMobile) {
-    return <DesktopTerapeutasPage showBadges={showBadges} />;
+    return <DesktopTerapeutasPage showBadges={showBadges} hiddenBadges={hiddenBadges} />;
   }
 
   const fetchTherapistsForClub = async (clubId: string) => {
@@ -243,7 +244,7 @@ const Terapeutas = () => {
                     "--hover-color": club.primaryColor,
                   } as React.CSSProperties}
                 >
-                  {showBadges && (
+                  {showBadges && !hiddenBadges.includes(club.id) && (
                     <div className="w-14 h-14 mx-auto mb-2 rounded-full bg-white p-1.5 shadow-md group-hover:shadow-lg transition-shadow overflow-hidden flex items-center justify-center">
                       <img
                         src={club.badgeUrl}
@@ -273,7 +274,7 @@ const Terapeutas = () => {
                 borderLeft: `4px solid ${selectedClub.primaryColor}`
               }}
             >
-              {showBadges && (
+              {showBadges && selectedClub && !hiddenBadges.includes(selectedClub.id) && (
                 <div className="w-16 h-16 rounded-full bg-white p-2 shadow-lg overflow-hidden flex items-center justify-center">
                   <img
                     src={selectedClub.badgeUrl}
