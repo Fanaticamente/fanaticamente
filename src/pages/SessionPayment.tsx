@@ -488,15 +488,65 @@ const SessionPayment = () => {
               </div>
             </div>
 
+            {/* Sócio Consciente Input - above price */}
+            {professional.socio_consciente && !socioDiscountApplied && (
+              <div className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/50 animate-in fade-in">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center">
+                    <span className="text-base">⚽</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 text-sm">Sócio Consciente</h3>
+                    <p className="text-xs text-gray-500">Informe sua matrícula para 15% de desconto</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={socioMatricula}
+                    onChange={(e) => setSocioMatricula(e.target.value)}
+                    placeholder="Nº da matrícula"
+                    maxLength={20}
+                    className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-800 text-sm focus:border-emerald-500 focus:outline-none transition-colors"
+                  />
+                  <button
+                    onClick={handleApplySocioDiscount}
+                    className="px-5 py-3 bg-emerald-500 text-white rounded-xl font-semibold text-sm hover:bg-emerald-600 transition-colors"
+                  >
+                    Aplicar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Sócio Consciente Applied */}
+            {socioDiscountApplied && (
+              <div className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">✅</span>
+                  <div>
+                    <p className="text-sm font-bold text-emerald-800">Desconto aplicado!</p>
+                    <p className="text-xs text-emerald-600">Matrícula: {socioMatricula}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleRemoveSocioDiscount}
+                  className="text-xs text-emerald-600 hover:text-emerald-800 font-medium underline"
+                >
+                  Remover
+                </button>
+              </div>
+            )}
+
             {/* Price Highlight */}
             <div 
-              className="mt-4 p-4 rounded-2xl"
+              className="mt-1 p-4 rounded-2xl"
               style={{ backgroundColor: clubColor + '08' }}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Sparkles className="w-5 h-5" style={{ color: clubColor }} />
-                  <span className="text-gray-700 font-medium">Valor da Sessão</span>
+                  <span className="text-gray-700 font-medium">Valor</span>
                 </div>
                 <div className="text-right">
                   {isSocioConsciente && (
@@ -520,56 +570,6 @@ const SessionPayment = () => {
             </div>
           </div>
         </div>
-
-        {/* Sócio Consciente Discount Card */}
-        {professional.socio_consciente && !socioDiscountApplied && (
-          <div className="bg-white rounded-2xl p-5 shadow-lg border border-emerald-200 overflow-hidden animate-in fade-in">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                <span className="text-lg">⚽</span>
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-900 text-sm">Sócio Consciente</h3>
-                <p className="text-xs text-gray-500">Informe sua matrícula para ganhar 15% de desconto</p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={socioMatricula}
-                onChange={(e) => setSocioMatricula(e.target.value)}
-                placeholder="Nº da matrícula"
-                maxLength={20}
-                className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-sm focus:border-emerald-500 focus:outline-none transition-colors"
-              />
-              <button
-                onClick={handleApplySocioDiscount}
-                className="px-5 py-3 bg-emerald-500 text-white rounded-xl font-semibold text-sm hover:bg-emerald-600 transition-colors"
-              >
-                Aplicar
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Sócio Consciente Applied */}
-        {socioDiscountApplied && (
-          <div className="bg-emerald-50 rounded-2xl p-4 shadow-lg border border-emerald-200 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-lg">✅</span>
-              <div>
-                <p className="text-sm font-bold text-emerald-800">Desconto aplicado!</p>
-                <p className="text-xs text-emerald-600">Matrícula: {socioMatricula}</p>
-              </div>
-            </div>
-            <button
-              onClick={handleRemoveSocioDiscount}
-              className="text-xs text-emerald-600 hover:text-emerald-800 font-medium underline"
-            >
-              Remover
-            </button>
-          </div>
-        )}
 
         {/* Terms Card */}
         <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
