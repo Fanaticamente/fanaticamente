@@ -947,7 +947,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
           id="showPrice"
           checked={formData.showPrice}
           onChange={(e) => setFormData(prev => ({ ...prev, showPrice: e.target.checked }))}
-          className="w-4 h-4 rounded border-border text-therapy focus:ring-therapy"
+          className="w-4 h-4 rounded border-border accent-emerald-500 focus:ring-emerald-500"
         />
         <label htmlFor="showPrice" className="text-card-foreground text-sm">
           Exibir valor da sessão no meu card
@@ -962,14 +962,14 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
             id="socioConsciente"
             checked={formData.socioConsciente}
             onChange={(e) => setFormData(prev => ({ ...prev, socioConsciente: e.target.checked }))}
-            className="w-5 h-5 rounded border-border text-therapy focus:ring-therapy mt-0.5"
+            className="w-5 h-5 rounded border-border accent-emerald-500 focus:ring-emerald-500 mt-0.5"
           />
           <div>
             <label htmlFor="socioConsciente" className="text-card-foreground text-sm font-semibold block">
               ⚽ Programa Sócio Consciente
             </label>
             <p className="text-muted-foreground text-xs mt-1">
-              Ofereça 15% de desconto para sócios-torcedores ativos. Um selo especial será exibido no seu perfil do marketplace.
+              O programa aplica uma redução de 15% no valor praticado como incentivo aos sócios-torcedores.
             </p>
             <button
               type="button"
