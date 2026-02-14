@@ -48,6 +48,7 @@ interface ProfessionalPaymentInfo {
 interface BookingDrawerProps {
   therapist: TherapistData | null;
   clubColor: string;
+  clubNickname?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -119,7 +120,7 @@ const generatePixCode = (
   return payloadNoCrc + crc16ccitt(payloadNoCrc);
 };
 
-const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDrawerProps) => {
+const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange }: BookingDrawerProps) => {
   const { toast: toastHook } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -738,13 +739,13 @@ const BookingDrawer = ({ therapist, clubColor, open, onOpenChange }: BookingDraw
                     <span className="text-gray-700 text-sm">{selectedTime}</span>
                   </div>
                   {/* Sócio Consciente Input */}
-                  {therapist.socioConsciente && !socioDiscountApplied && (
+                   {therapist.socioConsciente && !socioDiscountApplied && (
                     <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50/50">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-base">⚽</span>
+                        <Shield className="w-5 h-5 text-emerald-600" />
                         <div>
-                          <p className="font-bold text-gray-900 text-xs">Sócio Consciente</p>
-                          <p className="text-[10px] text-gray-500">Informe sua matrícula para 15% de desconto</p>
+                          <p className="font-bold text-gray-900 text-xs">Sócio Consciente{clubNickname ? ` ${clubNickname}` : ''}</p>
+                          <p className="text-[10px] text-gray-500">Informe sua matrícula</p>
                         </div>
                       </div>
                       <div className="flex gap-2">
