@@ -14,8 +14,8 @@ const logStep = (step: string, details?: unknown) => {
 async function verifySignature(req: Request, body: string): Promise<boolean> {
   const webhookSecret = Deno.env.get("MERCADOPAGO_WEBHOOK_SECRET");
   if (!webhookSecret) {
-    logStep("MERCADOPAGO_WEBHOOK_SECRET not configured, skipping signature verification");
-    return true; // Allow if not configured (dev mode)
+    logStep("MERCADOPAGO_WEBHOOK_SECRET not configured, rejecting request");
+    return false;
   }
 
   const xSignature = req.headers.get("x-signature");
