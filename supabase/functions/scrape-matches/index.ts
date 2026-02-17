@@ -6,70 +6,60 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-const AGENDA_URL = "https://ge.globo.com/agenda/#/futebol";
-
 function logStep(step: string) {
   console.log(`[scrape-matches] ${step}`);
 }
 
-async function scrapeAgendaPage(): Promise<string> {
-  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
-  if (!apiKey) throw new Error('FIRECRAWL_API_KEY not configured');
-
-  const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
-    method: 'POST',
+// Fetch raw HTML using native fetch
+async function fetchHtml(url: string): Promise<string> {
+  const response = await fetch(url, {
     headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
     },
-    body: JSON.stringify({
-      url: AGENDA_URL,
-      formats: ['markdown'],
-      onlyMainContent: true,
-      waitFor: 5000, // Wait for SPA to render
-    }),
   });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Firecrawl error ${response.status}: ${text}`);
-  }
-
-  const data = await response.json();
-  return data.data?.markdown || data.markdown || '';
+  if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
+  return response.text();
 }
 
+// Extract match data from HTML using Lovable AI
 async function extractMatchesWithAI(
-  markdown: string,
+  html: string,
   clubsList: { id: string; name: string }[]
 ): Promise<any[]> {
-  const openaiKey = Deno.env.get('OPENAI_API_KEY');
-  if (!openaiKey) throw new Error('OPENAI_API_KEY not configured');
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
 
   const today = new Date().toISOString().split('T')[0];
-
-  // Build a mapping of club names for the AI
   const clubNamesMap = clubsList.map(c => `"${c.name}" (id: "${c.id}")`).join(', ');
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  // Extract only text content from the HTML to reduce token usage
+  const textContent = html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+    .substring(0, 15000);
+
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${openaiKey}`,
+      'Authorization': `Bearer ${LOVABLE_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      temperature: 0,
-      response_format: { type: 'json_object' },
+      model: 'google/gemini-2.5-flash',
       messages: [
         {
           role: 'system',
-          content: `Você é um extrator de dados de futebol. A partir da agenda de jogos do dia no ge.globo.com, extraia TODOS os jogos listados.
+          content: `Você é um extrator de dados de futebol. Extraia TODOS os jogos listados na agenda.
 
-CLUBES CADASTRADOS NO SISTEMA (use EXATAMENTE estes IDs quando o time corresponder):
+CLUBES CADASTRADOS NO SISTEMA:
 ${clubNamesMap}
 
-Para cada jogo encontrado, identifique se algum dos dois times corresponde a um clube cadastrado. Se sim, gere uma entrada para CADA clube cadastrado envolvido nesse jogo (ou seja, se dois clubes cadastrados jogam entre si, gere DUAS entradas, uma para cada).
+Para cada jogo, identifique se algum dos dois times corresponde a um clube cadastrado. Se sim, gere uma entrada para CADA clube cadastrado envolvido.
 
 A data de hoje é ${today}.
 
@@ -78,21 +68,21 @@ Retorne um JSON no formato:
   "matches": [
     {
       "club_id": "id-do-clube-cadastrado",
-      "opponent": "Nome do adversário (o outro time)",
+      "opponent": "Nome do adversário",
       "match_date": "${today}",
       "match_time": "HH:MM" ou null,
       "competition": "Nome da competição" ou null,
-      "is_home": true/false (true se o clube cadastrado é mandante)
+      "is_home": true/false
     }
   ]
 }
 
 Se não encontrar jogos envolvendo clubes cadastrados, retorne { "matches": [] }.
-Use variações de nomes (ex: "Athletico-PR" = "athletico-pr", "São Paulo" = "sao-paulo", "Grêmio" = "gremio", "Vasco" = "vasco", "Inter" ou "Internacional" = "internacional").`
+Use variações de nomes (ex: "Athletico-PR" = "athletico-pr", "São Paulo" = "sao-paulo", "Grêmio" = "gremio").`
         },
         {
           role: 'user',
-          content: `Extraia os jogos de hoje desta agenda:\n\n${markdown.substring(0, 12000)}`
+          content: `Extraia os jogos desta agenda:\n\n${textContent}`
         }
       ],
     }),
@@ -100,18 +90,22 @@ Use variações de nomes (ex: "Athletico-PR" = "athletico-pr", "São Paulo" = "s
 
   if (!response.ok) {
     const text = await response.text();
-    logStep(`OpenAI error: ${text}`);
+    logStep(`AI error: ${text}`);
     return [];
   }
 
   const data = await response.json();
   try {
-    const parsed = JSON.parse(data.choices[0].message.content);
-    return parsed.matches || [];
+    const content = data.choices[0].message.content;
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      return parsed.matches || [];
+    }
   } catch {
     logStep(`Failed to parse AI response`);
-    return [];
   }
+  return [];
 }
 
 serve(async (req) => {
@@ -151,7 +145,7 @@ serve(async (req) => {
       });
     }
 
-    logStep('Scraping agenda page...');
+    logStep('Fetching agenda page with native fetch...');
 
     // 1. Get all clubs from DB
     const { data: clubs } = await adminClient.from('clubs').select('id, name');
@@ -161,18 +155,18 @@ serve(async (req) => {
       });
     }
 
-    // 2. Scrape the agenda page (single request)
-    const markdown = await scrapeAgendaPage();
-    logStep(`Got ${markdown.length} chars from agenda`);
+    // 2. Fetch the agenda page using native fetch
+    const html = await fetchHtml('https://ge.globo.com/agenda/#/futebol');
+    logStep(`Got ${html.length} chars from agenda`);
 
-    if (!markdown || markdown.length < 50) {
-      return new Response(JSON.stringify({ success: false, error: 'No content from agenda page', markdownLength: markdown.length }), {
+    if (!html || html.length < 100) {
+      return new Response(JSON.stringify({ success: false, error: 'No content from agenda page', htmlLength: html.length }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    // 3. Extract matches with AI, passing our club list
-    const matches = await extractMatchesWithAI(markdown, clubs);
+    // 3. Extract matches with AI
+    const matches = await extractMatchesWithAI(html, clubs);
     logStep(`AI found ${matches.length} matches involving registered clubs`);
 
     // 4. Upsert matches
@@ -180,7 +174,6 @@ serve(async (req) => {
     for (const match of matches) {
       if (!match.club_id || !match.opponent || !match.match_date) continue;
 
-      // Verify the club_id exists in our DB
       const validClub = clubs.find((c: any) => c.id === match.club_id);
       if (!validClub) {
         logStep(`Skipping unknown club_id: ${match.club_id}`);
@@ -219,11 +212,11 @@ serve(async (req) => {
     }
 
     // 5. Clean old matches
-    const today = new Date().toISOString().split('T')[0];
+    const todayStr = new Date().toISOString().split('T')[0];
     await adminClient
       .from('upcoming_matches')
       .delete()
-      .lt('match_date', today);
+      .lt('match_date', todayStr);
 
     logStep(`Done. ${results.length} matches processed.`);
 
@@ -231,7 +224,7 @@ serve(async (req) => {
       success: true,
       matchesProcessed: results.length,
       results,
-      markdownLength: markdown.length,
+      htmlLength: html.length,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

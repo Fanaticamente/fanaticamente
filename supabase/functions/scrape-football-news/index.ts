@@ -12,9 +12,8 @@ interface NewsItem {
   content: string;
   imageUrl?: string;
   imageCaption?: string;
-  imageCredits?: string;
   sourceSite: string;
-  clubId?: string; // Club ID if scraped from a club-specific page
+  clubId?: string;
 }
 
 // Mapping of club IDs to ge.globo.com URLs for Série A and B
@@ -63,139 +62,136 @@ const CLUB_GE_URLS: Record<string, string> = {
   "vila-nova": "https://ge.globo.com/go/futebol/times/vila-nova/",
 };
 
-async function scrapeWithFirecrawl(
-  url: string,
-  options?: { onlyMainContent?: boolean; formats?: string[] }
-): Promise<any> {
-  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
-  if (!apiKey) {
-    throw new Error('FIRECRAWL_API_KEY not configured');
-  }
-
-  // Add cache-busting timestamp to force fresh content
-  const urlWithTimestamp = url.includes('?') 
-    ? `${url}&_t=${Date.now()}` 
-    : `${url}?_t=${Date.now()}`;
-
-  const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
-    method: 'POST',
+// Fetch raw HTML from a URL using native fetch
+async function fetchHtml(url: string): Promise<string> {
+  const response = await fetch(url, {
     headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
     },
-    body: JSON.stringify({
-      url: urlWithTimestamp,
-      formats: options?.formats || ['markdown', 'html', 'links'],
-      // For article pages we want only main content; for home pages we may want full.
-      onlyMainContent: options?.onlyMainContent ?? false,
-      skipTlsVerification: false,
-      timeout: 30000,
-    }),
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    console.error('Firecrawl error:', text);
-    throw new Error(`Firecrawl request failed: ${response.status}`);
+    throw new Error(`Fetch failed for ${url}: ${response.status}`);
   }
 
-  return response.json();
+  return response.text();
 }
 
-function cleanOriginalArticleText(input: string): string {
-  // Aggressively remove boilerplate, navigation, metadata from scraped content
-  
-  // First, remove common markdown headers that are navigation/menu items
-  let text = input
-    .replace(/\r\n/g, '\n')
-    // Remove navigation menu items (single words/short phrases as headings)
-    .replace(/^#+\s*(TIMES|Série [AB]|Europa|Internacional|Brasileirão|Campeonatos?|Futebol|Notícias|Vídeos|Ao Vivo|Tabela|Classificação)\s*$/gim, '')
-    // Remove "Por [Author] — [City]" lines
-    .replace(/^Por\s+[A-ZÀ-Ú][a-zà-ú]+\s+[A-ZÀ-Ú][a-zà-ú]+.*?—.*$/gim, '')
-    // Remove timestamps like "29/01/2026 18h09 Atualizado há X minutos"
-    .replace(/^\d{2}\/\d{2}\/\d{4}\s+\d{1,2}h\d{2}.*$/gim, '')
-    .replace(/^Atualizado há \d+.*$/gim, '')
-    // Remove asterisk separators
-    .replace(/^\*\s*\*\s*\*\s*$/gm, '')
-    // Remove hashtag headers that are just menu items
-    .replace(/^##+\s*[A-ZÀ-Ú][a-zà-ú]+\s+[a-zà-ú]+\s+[a-zà-ú]+\s*$/gim, '')
-    // Remove empty lines with just whitespace
-    .replace(/^\s+$/gm, '')
-    // Remove multiple consecutive newlines
-    .replace(/\n{3,}/g, '\n\n');
-  
-  // Block patterns for entire paragraphs
-  const blockedPatterns = [
-    /navegue pelo conteúdo/i,
-    /conta globo/i,
-    /seja pro/i,
-    /globoplay/i,
-    /cartola/i,
-    /gshow/i,
-    /globocom/i,
-    /\bg1\b/i,
-    /assine|assinante|assinatura/i,
-    /login unificad/i,
-    /receber recomendações/i,
-    /ofertas exclusivas/i,
-    /clique para/i,
-    /compartilhe no/i,
-    /facebook|twitter|whatsapp|telegram/i,
-    /saiba mais\s*$/i,
-    /veja também/i,
-    /leia mais/i,
-    /PUBLICIDADE/i,
-    /baixe o app/i,
-    /^TIMES$/i,
-    /^Série [AB]$/i,
-    /^Europa$/i,
-    /^#\s/,
-    /^##\s/,
-    // Single word or very short lines that are likely menu items
-  ];
+// Extract article URLs from an HTML page
+function extractArticleUrls(html: string, clubId?: string): NewsItem[] {
+  const news: NewsItem[] = [];
+  const seenUrls = new Set<string>();
 
-  const paragraphs = text
-    .split(/\n\s*\n/g)
-    .map((p) => p.trim())
-    .filter(Boolean)
-    .filter((p) => {
-      // Skip very short paragraphs that are likely menu items (less than 20 chars)
-      if (p.length < 20 && !p.includes('.')) return false;
-      // Skip if matches blocked patterns
-      if (blockedPatterns.some((re) => re.test(p))) return false;
-      return true;
-    });
+  const now = new Date();
+  const today = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const yesterdayStr = `${yesterday.getFullYear()}/${String(yesterday.getMonth() + 1).padStart(2, '0')}/${String(yesterday.getDate()).padStart(2, '0')}`;
 
-  // Find where the actual article content starts (skip headers/navigation)
-  let startIndex = 0;
-  for (let i = 0; i < paragraphs.length; i++) {
-    // Actual article paragraphs are usually longer than 50 chars
-    if (paragraphs[i].length > 50 && !paragraphs[i].startsWith('#')) {
-      startIndex = i;
-      break;
+  // Extract hrefs matching news article pattern
+  const hrefPattern = /href="(https:\/\/ge\.globo\.com\/[^"]*\/noticia\/[^"]*\.ghtml)"/g;
+  let match;
+  while ((match = hrefPattern.exec(html)) !== null && news.length < 25) {
+    const url = match[1].split('?')[0];
+    if (seenUrls.has(url)) continue;
+
+    // Only recent articles
+    if (!url.includes(`/noticia/${today}/`) && !url.includes(`/noticia/${yesterdayStr}/`)) continue;
+    // Skip non-article pages
+    if (url.includes('/jogo/') || url.includes('/ao-vivo/') || url.includes('/video/')) continue;
+    if (!url.includes('/futebol/')) continue;
+
+    seenUrls.add(url);
+
+    const pathMatch = url.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
+    if (pathMatch) {
+      const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
+      news.push({ url, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com', clubId });
     }
   }
 
-  return paragraphs.slice(startIndex).join('\n\n').trim();
+  return news;
 }
 
+// Extract article content, image, and publication date from article HTML
+function extractArticleDetails(html: string, url: string): {
+  content: string;
+  imageUrl?: string;
+  imageCaption?: string;
+  publishedAt?: Date;
+  isRecent: boolean;
+} {
+  // Extract main text content from article body
+  // GE uses <p class="content-text__container"> for article paragraphs
+  const paragraphs: string[] = [];
+  const pPattern = /<p[^>]*class="[^"]*content-text[^"]*"[^>]*>([\s\S]*?)<\/p>/gi;
+  let pMatch;
+  while ((pMatch = pPattern.exec(html)) !== null) {
+    const text = pMatch[1].replace(/<[^>]+>/g, '').trim();
+    if (text.length > 20) paragraphs.push(text);
+  }
+
+  // Fallback: extract from <article> or generic <p> tags
+  if (paragraphs.length === 0) {
+    const articleMatch = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
+    const section = articleMatch ? articleMatch[1] : html;
+    const genericP = /<p[^>]*>([\s\S]*?)<\/p>/gi;
+    while ((pMatch = genericP.exec(section)) !== null) {
+      const text = pMatch[1].replace(/<[^>]+>/g, '').trim();
+      if (text.length > 40) paragraphs.push(text);
+    }
+  }
+
+  const content = paragraphs.join('\n\n').slice(0, 16000);
+
+  // Extract og:image
+  let imageUrl: string | undefined;
+  const ogImageMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+                        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+  if (ogImageMatch) imageUrl = ogImageMatch[1];
+
+  // Extract image caption from figcaption
+  let imageCaption: string | undefined;
+  const figcaptionMatch = html.match(/<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i);
+  if (figcaptionMatch) {
+    const raw = figcaptionMatch[1].replace(/<[^>]+>/g, '').trim();
+    if (raw.includes('—')) {
+      imageCaption = raw.split('—')[0].trim();
+    } else if (!raw.startsWith('Foto:')) {
+      imageCaption = raw;
+    }
+  }
+
+  // Extract publication date
+  let publishedAt: Date | undefined;
+  const dateMatch = html.match(/"datePublished"\s*:\s*"([^"]+)"/i) ||
+                    html.match(/<meta[^>]+property=["']article:published_time["'][^>]+content=["']([^"']+)["']/i) ||
+                    html.match(/<time[^>]+datetime=["']([^"']+)["']/i);
+  if (dateMatch) publishedAt = new Date(dateMatch[1]);
+
+  let isRecent = false;
+  if (publishedAt && !isNaN(publishedAt.getTime())) {
+    const hoursSince = (Date.now() - publishedAt.getTime()) / (1000 * 60 * 60);
+    isRecent = hoursSince <= 6;
+  } else {
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
+    isRecent = url.includes(`/noticia/${todayStr}/`);
+  }
+
+  return { content, imageUrl, imageCaption, publishedAt, isRecent };
+}
+
+// Sanitize rewritten content
 function sanitizeRewrittenContent(text: string): string {
-  // Hard-remove any accidental attribution/citation lines and photo credits.
-  let result = text
+  return text
     .replace(/\r\n/g, '\n')
-    // Remove photo credit patterns like "— Foto: Getty Images" or "Foto: Reprodução"
     .replace(/—?\s*Foto:\s*[^\n]+/gi, '')
-    // Remove patterns like "Nome — Foto: ..."
-    .replace(/[A-Za-zÀ-ú\s]+—\s*Foto:\s*[^\n]+/gi, '')
-    // Remove markdown image syntax ![...](...) including multi-line
     .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-    // Remove timestamp patterns like "Há 10 minutos" or "Há 1 hora"
     .replace(/^Há\s+\d+\s+(minuto|hora|segundo|dia)s?\s*[a-záàâãéèêíïóôõöúç\s]*$/gim, '')
-    // Remove timestamps with team names like "Há 6 horas gato mestre" or "Há 5 horas corinthians"
     .replace(/Há\s+\d+\s+(minuto|hora|segundo|dia)s?\s+[a-záàâãéèêíïóôõöúç\s]+/gi, '')
-    // Remove "Acompanhe a cobertura" patterns
     .replace(/^Acompanhe a cobertura.*$/gim, '')
-    // Remove lines that are just club/section names (single words/short phrases)
     .replace(/^(flamengo|corinthians|palmeiras|são paulo|santos|vasco|botafogo|fluminense|grêmio|internacional|atlético-mg|cruzeiro|bahia|fortaleza|sport|coritiba|futebol internacional|gato mestre|brasileirão)\s*$/gim, '')
     .split('\n')
     .filter((line) => {
@@ -204,105 +200,34 @@ function sanitizeRewrittenContent(text: string): string {
       if (/^fonte\s*:/i.test(l)) return false;
       if (/https?:\/\//i.test(l)) return false;
       if (/ge\.globo\.com|\bglobo\.com\b|\bg1\b|globoplay/i.test(l)) return false;
-      // Remove standalone photo credit lines
       if (/^\s*Foto:\s*/i.test(l)) return false;
-      // Remove lines that are just navigation/metadata
       if (/^(TIMES|Série [AB]|Europa|Internacional|Brasileirão)$/i.test(l)) return false;
       return true;
     })
     .join('\n')
-    // Remove duplicate consecutive lines
     .split('\n')
     .filter((line, index, arr) => index === 0 || line.trim().toLowerCase() !== arr[index - 1].trim().toLowerCase())
     .join('\n')
-    // Clean up extra whitespace
     .replace(/\n{3,}/g, '\n\n')
     .trim();
-  
-  return result;
 }
 
-// Validate text quality - returns true if text is clean and readable
-function validateTextQuality(text: string): { isValid: boolean; issues: string[] } {
-  const issues: string[] = [];
-  
-  // Check for orphan timestamps
-  if (/Há\s+\d+\s+(minuto|hora|segundo|dia)s?/i.test(text)) {
-    issues.push('Contém timestamps órfãos');
-  }
-  
-  // Check for markdown image syntax
-  if (/!\[[^\]]*\]\([^)]*\)/.test(text)) {
-    issues.push('Contém sintaxe de imagem markdown');
-  }
-  
-  // Check for photo credits
-  if (/—?\s*Foto:\s*/i.test(text)) {
-    issues.push('Contém créditos de foto');
-  }
-  
-  // Check for URLs
-  if (/https?:\/\//i.test(text)) {
-    issues.push('Contém URLs');
-  }
-  
-  // Check for disconnected words (lines with less than 3 words that don't end with punctuation)
-  const lines = text.split('\n').filter(l => l.trim());
-  for (const line of lines) {
-    const words = line.trim().split(/\s+/);
-    if (words.length <= 2 && words.length > 0 && !/[.!?:,]$/.test(line.trim())) {
-      // Skip if it's a proper name or title capitalized
-      if (!/^[A-ZÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇ][a-záàâãéèêíïóôõöúç]+(\s+[A-ZÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇ][a-záàâãéèêíïóôõöúç]+)*$/.test(line.trim())) {
-        issues.push(`Linha desconectada: "${line.trim().substring(0, 30)}..."`);
-        break; // Only report first issue
-      }
-    }
-  }
-  
-  // Check for repeated content (same paragraph appearing twice)
-  const paragraphs = text.split(/\n\s*\n/).map(p => p.trim().toLowerCase()).filter(p => p.length > 50);
-  const seen = new Set<string>();
-  for (const p of paragraphs) {
-    if (seen.has(p)) {
-      issues.push('Contém parágrafos duplicados');
-      break;
-    }
-    seen.add(p);
-  }
-  
-  // Check for source references
-  if (/\bge\.globo\.com\b|\bglobo\b|\bg1\b/i.test(text)) {
-    issues.push('Contém referência a fonte original');
-  }
-  
-  return { isValid: issues.length === 0, issues };
-}
-
-// Deep clean text - aggressively remove all problematic content
+// Deep clean text
 function deepCleanText(text: string): string {
   let cleaned = sanitizeRewrittenContent(text);
-  
-  // Additional aggressive cleaning
   cleaned = cleaned
-    // Remove any remaining markdown syntax
-    .replace(/\*\*([^*]+)\*\*/g, '$1') // Bold
-    .replace(/\*([^*]+)\*/g, '$1') // Italic
-    .replace(/#{1,6}\s+/g, '') // Headers
-    // Remove lines that are navigation items
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/#{1,6}\s+/g, '')
     .split('\n')
     .filter(line => {
       const l = line.trim().toLowerCase();
-      // Skip very short lines that look like menu items
       if (l.length < 15 && !l.includes('.') && !l.includes('!') && !l.includes('?')) {
-        // Allow if it's clearly part of article (e.g., quotes, names)
-        if (!/^["']/.test(l) && !/[a-z],$/.test(l)) {
-          return false;
-        }
+        if (!/^["']/.test(l) && !/[a-z],$/.test(l)) return false;
       }
       return true;
     })
     .join('\n')
-    // Remove duplicate paragraphs
     .split(/\n\s*\n/)
     .filter((para, index, arr) => {
       const normalized = para.trim().toLowerCase();
@@ -310,420 +235,22 @@ function deepCleanText(text: string): string {
     })
     .join('\n\n')
     .trim();
-  
   return cleaned;
 }
 
-// Use Firecrawl Map to discover more URLs quickly
-async function mapWebsiteUrls(baseUrl: string): Promise<string[]> {
-  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
-  if (!apiKey) {
-    throw new Error('FIRECRAWL_API_KEY not configured');
-  }
-
-  // Add cache-busting timestamp to force fresh content discovery
-  const urlWithTimestamp = baseUrl.includes('?') 
-    ? `${baseUrl}&_t=${Date.now()}` 
-    : `${baseUrl}?_t=${Date.now()}`;
-
-  console.log(`Mapping URLs from ${urlWithTimestamp} (cache-busted)...`);
-  
-  const response = await fetch('https://api.firecrawl.dev/v1/map', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-    },
-    body: JSON.stringify({
-      url: urlWithTimestamp,
-      limit: 100, // Get up to 100 URLs
-      includeSubdomains: false,
-    }),
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    console.error('Firecrawl map error:', text);
-    return [];
-  }
-
-  const data = await response.json();
-  const links = data.links || [];
-  console.log(`Map found ${links.length} URLs (fresh fetch)`);
-  return links;
-}
-
-function extractNewsFromGE(html: string, markdown: string, links?: string[], mappedUrls?: string[], clubId?: string): NewsItem[] {
-  const news: NewsItem[] = [];
-  const seenUrls = new Set<string>();
-  
-  // Get today's date for filtering recent news
-  const now = new Date();
-  const today = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
-  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  const yesterdayStr = `${yesterday.getFullYear()}/${String(yesterday.getMonth() + 1).padStart(2, '0')}/${String(yesterday.getDate()).padStart(2, '0')}`;
-  
-  console.log(`Filtering for news from: ${today} or ${yesterdayStr}${clubId ? ` (club: ${clubId})` : ''}`);
-  
-  // Helper to check if URL is a valid recent news article
-  const isValidArticle = (url: string): boolean => {
-    // Skip game/match pages - they don't have images
-    if (url.includes('/jogo/')) return false;
-    // Skip live/ao-vivo pages
-    if (url.includes('/ao-vivo/')) return false;
-    // Skip video pages
-    if (url.includes('/video/')) return false;
-    // Must be a news article with /noticia/ in URL
-    if (!url.includes('/noticia/')) return false;
-    
-    // Only allow articles from today or yesterday
-    const hasToday = url.includes(`/noticia/${today}/`);
-    const hasYesterday = url.includes(`/noticia/${yesterdayStr}/`);
-    if (!hasToday && !hasYesterday) {
-      return false;
-    }
-    
-    return true;
-  };
-  
-  // PRIORITY 1: Extract from HTML href attributes (main page has freshest content)
-  // This gets articles visible on the homepage RIGHT NOW
-  console.log('Extracting from HTML hrefs (priority - freshest content)...');
-  const hrefPattern = /href="(https:\/\/ge\.globo\.com\/(?:[a-z]{2}\/(?:[a-z-]+\/)?)?futebol\/[^"]+\.ghtml)"/g;
-  let match;
-  while ((match = hrefPattern.exec(html)) !== null && news.length < 25) {
-    const url = match[1].split('?')[0];
-    if (seenUrls.has(url)) continue;
-    if (!isValidArticle(url)) continue;
-    seenUrls.add(url);
-    
-    const pathMatch = url.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
-    if (pathMatch) {
-      const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
-      news.push({ url, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com', clubId });
-    }
-  }
-  console.log(`Got ${news.length} articles from HTML hrefs`);
-  
-  // PRIORITY 2: Extract from markdown links (also from main page)
-  console.log('Extracting from markdown links...');
-  const articlePattern = /\[([^\]]+)\]\((https:\/\/ge\.globo\.com\/(?:[a-z]{2}\/(?:[a-z-]+\/)?)?futebol\/[^\s\)]+\.ghtml)\)/g;
-  while ((match = articlePattern.exec(markdown)) !== null && news.length < 25) {
-    const title = match[1].trim();
-    const url = match[2].split('?')[0];
-    
-    if (seenUrls.has(url)) continue;
-    if (!isValidArticle(url)) continue;
-    if (title.length < 15 || title.includes('Veja mais') || title.includes('Saiba mais')) continue;
-    
-    seenUrls.add(url);
-    news.push({ url, title, content: '', sourceSite: 'ge.globo.com', clubId });
-  }
-  console.log(`Total after markdown: ${news.length} articles`);
-  
-  // PRIORITY 3: Extract URLs from links array provided by Firecrawl scrape
-  if (links && Array.isArray(links)) {
-    console.log(`Processing ${links.length} direct links from scrape...`);
-    for (const link of links) {
-      if (news.length >= 25) break;
-      if (!link.includes('ge.globo.com/') || !link.endsWith('.ghtml') || !link.includes('/futebol/')) continue;
-      
-      const cleanUrl = link.split('?')[0];
-      if (seenUrls.has(cleanUrl)) continue;
-      if (!isValidArticle(cleanUrl)) continue;
-      seenUrls.add(cleanUrl);
-      
-      const pathMatch = cleanUrl.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
-      if (pathMatch) {
-        const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
-        news.push({ url: cleanUrl, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com', clubId });
-      }
-    }
-    console.log(`Total after direct links: ${news.length} articles`);
-  }
-  
-  // PRIORITY 4 (LAST): Process URLs from the Map API (sitemap - may have older content)
-  if (mappedUrls && Array.isArray(mappedUrls) && news.length < 25) {
-    console.log(`Processing ${mappedUrls.length} mapped URLs (lower priority)...`);
-    for (const url of mappedUrls) {
-      if (news.length >= 25) break;
-      if (!url.includes('ge.globo.com/') || !url.endsWith('.ghtml') || !url.includes('/futebol/')) continue;
-      
-      const cleanUrl = url.split('?')[0];
-      if (seenUrls.has(cleanUrl)) continue;
-      if (!isValidArticle(cleanUrl)) continue;
-      seenUrls.add(cleanUrl);
-      
-      const pathMatch = cleanUrl.match(/\/noticia\/\d{4}\/\d{2}\/\d{2}\/([^\/]+)\.ghtml/);
-      if (pathMatch) {
-        const titleFromUrl = pathMatch[1].replace(/-/g, ' ');
-        news.push({ url: cleanUrl, title: titleFromUrl, content: '', sourceSite: 'ge.globo.com', clubId });
-      }
-    }
-    console.log(`Total after mapped URLs: ${news.length} articles`);
-  }
-  
-  console.log(`Extracted ${news.length} unique articles total`);
-  return news;
-}
-
-function extractNewsFromElGrafico(html: string, markdown: string, links?: string[]): NewsItem[] {
-  const news: NewsItem[] = [];
-  
-  // Extract article links from El Grafico
-  const articlePattern = /\[([^\]]+)\]\((https:\/\/www\.elgrafico\.com\.ar\/[^\s\)]+)\)/g;
-  let match;
-  
-  while ((match = articlePattern.exec(markdown)) !== null && news.length < 10) {
-    const title = match[1].trim();
-    const url = match[2];
-    
-    if (title.length < 15) continue;
-    
-    news.push({
-      url,
-      title,
-      content: '',
-      sourceSite: 'elgrafico.com.ar',
-    });
-  }
-  
-  return news;
-}
-
-async function scrapeArticleDetails(url: string): Promise<{
-  content: string;
-  imageUrl?: string;
-  imageCaption?: string;
-  imageCredits?: string;
-  publishedAt?: Date;
-  isRecent: boolean;
-}> {
-  try {
-    // For article pages, request only main content to avoid boilerplate.
-    const result = await scrapeWithFirecrawl(url, { onlyMainContent: true, formats: ['markdown', 'html'] });
-    const data = result.data || result;
-    const markdown = data.markdown || '';
-    const html = data.html || '';
-    
-    // Extract full article content - increased limit to capture complete articles
-    const content = cleanOriginalArticleText(markdown).slice(0, 16000);
-    
-    // Extract publication date/time from article metadata
-    let publishedAt: Date | undefined;
-    let isRecent = false;
-    
-    // Pattern 1: Look for datePublished in JSON-LD
-    const jsonLdMatch = html.match(/"datePublished"\s*:\s*"([^"]+)"/i);
-    if (jsonLdMatch) {
-      publishedAt = new Date(jsonLdMatch[1]);
-      console.log(`Found datePublished from JSON-LD: ${publishedAt.toISOString()}`);
-    }
-    
-    // Pattern 2: Look for article:published_time meta tag
-    if (!publishedAt) {
-      const metaMatch = html.match(/<meta[^>]+property=["']article:published_time["'][^>]+content=["']([^"']+)["']/i) ||
-                        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']article:published_time["']/i);
-      if (metaMatch) {
-        publishedAt = new Date(metaMatch[1]);
-        console.log(`Found datePublished from meta tag: ${publishedAt.toISOString()}`);
-      }
-    }
-    
-    // Pattern 3: Look for time element with datetime attribute
-    if (!publishedAt) {
-      const timeMatch = html.match(/<time[^>]+datetime=["']([^"']+)["']/i);
-      if (timeMatch) {
-        publishedAt = new Date(timeMatch[1]);
-        console.log(`Found datePublished from time element: ${publishedAt.toISOString()}`);
-      }
-    }
-    
-    // Check if article is recent (published within last 6 hours)
-    if (publishedAt && !isNaN(publishedAt.getTime())) {
-      const now = new Date();
-      const hoursSincePublished = (now.getTime() - publishedAt.getTime()) / (1000 * 60 * 60);
-      isRecent = hoursSincePublished <= 6;
-      console.log(`Article age: ${hoursSincePublished.toFixed(1)} hours, isRecent: ${isRecent}`);
-    } else {
-      // If we can't determine the date, check URL date as fallback
-      const today = new Date();
-      const todayStr = `${today.getFullYear()}/${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
-      isRecent = url.includes(`/noticia/${todayStr}/`);
-      console.log(`Could not extract date, using URL date check. isRecent: ${isRecent}`);
-    }
-    
-    // Try to extract image from HTML - multiple patterns
-    let imageUrl: string | undefined;
-    let imageCaption: string | undefined;
-    let imageCredits: string | undefined;
-    
-    // Pattern 1: Look for og:image meta tag (most reliable for main article image)
-    const ogImageMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
-                         html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
-    if (ogImageMatch) {
-      imageUrl = ogImageMatch[1];
-      console.log('Found og:image:', imageUrl);
-    }
-    
-    // Pattern 2: Look for main article image in figure tags
-    if (!imageUrl) {
-      const figureImgMatch = html.match(/<figure[^>]*>[\s\S]*?<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i);
-      if (figureImgMatch) {
-        imageUrl = figureImgMatch[1].split('?')[0]; // Remove query params
-        console.log('Found figure image:', imageUrl);
-      }
-    }
-    
-    // Pattern 3: Look for data-src (lazy loaded images)
-    if (!imageUrl) {
-      const dataSrcMatch = html.match(/<img[^>]+data-src=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/i);
-      if (dataSrcMatch) {
-        imageUrl = dataSrcMatch[1].split('?')[0];
-        console.log('Found data-src image:', imageUrl);
-      }
-    }
-    
-    // Pattern 4: Regular img src
-    if (!imageUrl) {
-      const imgMatch = html.match(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["'][^>]*>/i);
-      if (imgMatch) {
-        const src = imgMatch[1];
-        // Skip small icons and logos
-        if (!src.includes('logo') && !src.includes('icon') && !src.includes('avatar')) {
-          imageUrl = src.split('?')[0];
-          console.log('Found img src:', imageUrl);
-        }
-      }
-    }
-    
-    // Pattern 5: Extract from markdown image syntax
-    if (!imageUrl) {
-      const mdImageMatch = markdown.match(/!\[[^\]]*\]\(([^)]+\.(?:jpg|jpeg|png|webp)[^)]*)\)/i);
-      if (mdImageMatch) {
-        imageUrl = mdImageMatch[1].split('?')[0];
-        console.log('Found markdown image:', imageUrl);
-      }
-    }
-    
-    // Clean up image URL
-    if (imageUrl) {
-      // Ensure it's a full URL
-      if (imageUrl.startsWith('//')) {
-        imageUrl = 'https:' + imageUrl;
-      } else if (imageUrl.startsWith('/')) {
-        // Relative URL - try to construct full URL from the article URL
-        const urlObj = new URL(url);
-        imageUrl = urlObj.origin + imageUrl;
-      }
-      // Remove size parameters that might make image too small
-      imageUrl = imageUrl.replace(/\/\d+x\d+\//, '/');
-    }
-    
-    // Look for figure with figcaption - this is where GE stores the caption
-    const figcaptionMatch = html.match(/<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i);
-    if (figcaptionMatch) {
-      let fullCaption = figcaptionMatch[1].replace(/<[^>]+>/g, '').trim();
-      
-      // Clean up the caption - remove pagination like "1 de 2"
-      fullCaption = fullCaption.replace(/^\d+ de \d+\s*/i, '').trim();
-      
-      // Parse caption format: "Description — Foto: Credit" or just "Foto: Credit"
-      if (fullCaption.includes('—')) {
-        const parts = fullCaption.split('—');
-        const descriptionPart = parts[0].trim();
-        const creditPart = parts.slice(1).join('—').trim();
-        
-        // Extract ONLY the person's name from the description
-        // Remove action descriptions like "durante entrevista para o ge" 
-        // Keep only "Name" or "Name, do Clube"
-        if (descriptionPart && 
-            !descriptionPart.includes('|') && 
-            descriptionPart.length > 3) {
-          // If contains "durante", "em", "no", "na" - extract only the name before
-          const actionPatterns = [
-            / vive .*/i,
-            / está .*/i,
-            / faz .*/i,
-            / durante .*/i,
-            / em partida .*/i,
-            / em treino .*/i,
-            / em entrevista .*/i,
-            / no jogo .*/i,
-            / na partida .*/i,
-            / após .*/i,
-            / antes .*/i,
-            / comemora .*/i,
-            / celebra .*/i,
-            / disputa .*/i,
-            / treina .*/i,
-            / participa .*/i,
-            / momento .*/i,
-            / concede .*/i,
-            / fala .*/i,
-            / conversa .*/i,
-          ];
-          
-          let cleanedCaption = descriptionPart;
-          for (const pattern of actionPatterns) {
-            cleanedCaption = cleanedCaption.replace(pattern, '');
-          }
-          cleanedCaption = cleanedCaption.trim();
-          
-          if (cleanedCaption.length > 3) {
-            imageCaption = cleanedCaption;
-          }
-        }
-        
-        if (creditPart) {
-          // Clean credits from pagination
-          imageCredits = creditPart.replace(/^\d+ de \d+\s*/i, '').trim();
-        }
-      } else if (fullCaption.startsWith('Foto:') || fullCaption.startsWith('Crédito:')) {
-        imageCredits = fullCaption;
-      } else if (!fullCaption.includes('|') && fullCaption.length > 3) {
-        // For simple captions, also try to clean action descriptions
-        let cleanedCaption = fullCaption;
-        const actionPatterns = [
-          / durante .*/i,
-          / em partida .*/i,
-          / em treino .*/i,
-          / em entrevista .*/i,
-        ];
-        for (const pattern of actionPatterns) {
-          cleanedCaption = cleanedCaption.replace(pattern, '');
-        }
-        if (cleanedCaption.length > 3) {
-          imageCaption = cleanedCaption.trim();
-        }
-      }
-    }
-    
-    console.log(`Article ${url} - Image: ${imageUrl ? 'found' : 'NOT FOUND'}, isRecent: ${isRecent}`);
-    return { content, imageUrl, imageCaption, imageCredits, publishedAt, isRecent };
-  } catch (error) {
-    console.error('Error scraping article:', url, error);
-    return { content: '', isRecent: false };
-  }
-}
-
+// Rewrite article with Lovable AI
 async function rewriteWithAI(title: string, content: string): Promise<{ rewrittenTitle: string; rewrittenContent: string; shouldSkip: boolean }> {
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-  if (!LOVABLE_API_KEY) {
-    throw new Error('LOVABLE_API_KEY not configured');
-  }
+  if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
 
   const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é REESCREVER notícias de futebol de forma COMPLETA e LIMPA.
 
 ⚠️ REGRAS ABSOLUTAS DE QUALIDADE:
 1. O texto deve ser 100% LEGÍVEL - sem palavras soltas, timestamps, ou linhas desconexas
-2. NUNCA inclua: timestamps ("Há X minutos/horas"), nomes de seções ("flamengo", "corinthians"), créditos de foto
-3. NUNCA inclua: URLs, markdown de imagem (![...]()), referências a ge.globo.com ou Globo
+2. NUNCA inclua: timestamps ("Há X minutos/horas"), nomes de seções, créditos de foto
+3. NUNCA inclua: URLs, markdown de imagem, referências a ge.globo.com ou Globo
 4. Cada parágrafo deve ser completo e fazer sentido isoladamente
 5. Use pontuação correta em todas as frases
-6. O texto deve fluir naturalmente de parágrafo em parágrafo
 
 ⚠️ REGRAS DE CONTEÚDO:
 1. Use EXCLUSIVAMENTE informações do texto original - NÃO invente NADA
@@ -737,34 +264,26 @@ PRIMEIRO, ANALISE SE DEVE IGNORAR:
 
 REGRAS DO TÍTULO:
 - Use "sentence case" (só primeira letra maiúscula, exceto nomes próprios)
-- Nomes próprios em maiúscula: Neymar, Flamengo, Brasileirão, São Paulo
 - Tom formal sem sensacionalismo
 - Máximo 80 caracteres
 
 ESTRUTURA DO CONTEÚDO:
 1. LIDE (primeiro parágrafo): Resumo do fato principal em 2-3 frases
-2. DESENVOLVIMENTO: Detalhes e contexto do acontecimento
-3. DECLARAÇÕES: Mantenha aspas originais, reformule apenas a introdução
+2. DESENVOLVIMENTO: Detalhes e contexto
+3. DECLARAÇÕES: Mantenha aspas originais
 4. FECHAMENTO: Conclusão ou próximos passos
-
-REGRAS DE FORMATAÇÃO:
-1. Parágrafos com 3-5 frases cada
-2. Frases completas com sujeito, verbo e predicado
-3. Pontuação correta (ponto final, vírgulas, dois-pontos)
-4. SEM linhas em branco desnecessárias dentro de parágrafos
-5. O texto final deve ter entre 400-800 palavras
 
 TÍTULO ORIGINAL:
 ${title}
 
-CONTEÚDO ORIGINAL COMPLETO (REESCREVA TUDO, NÃO RESUMA):
+CONTEÚDO ORIGINAL COMPLETO:
 ${content}
 
 Responda APENAS em JSON válido:
 {
   "shouldSkip": false,
   "rewrittenTitle": "título reformulado",
-  "rewrittenContent": "texto COMPLETO reformulado, limpo e legível"
+  "rewrittenContent": "texto COMPLETO reformulado"
 }`;
 
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -776,7 +295,7 @@ Responda APENAS em JSON válido:
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
       messages: [
-        { role: 'system', content: 'Você é um jornalista esportivo experiente. Produza APENAS texto jornalístico limpo e legível. Use APENAS informações do texto fornecido. NÃO invente fatos. Sempre responda em JSON válido.' },
+        { role: 'system', content: 'Você é um jornalista esportivo experiente. Produza APENAS texto jornalístico limpo e legível. Use APENAS informações do texto fornecido. Sempre responda em JSON válido.' },
         { role: 'user', content: prompt }
       ],
     }),
@@ -790,37 +309,24 @@ Responda APENAS em JSON válido:
 
   const data = await response.json();
   const aiContent = data.choices?.[0]?.message?.content || '';
-  
-  // Parse JSON from response
+
   try {
     const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
-      
       if (parsed.shouldSkip === true) {
         return { shouldSkip: true, rewrittenTitle: title, rewrittenContent: '' };
       }
-      
-      // Apply deep cleaning and validation
-      let cleanedContent = deepCleanText(parsed.rewrittenContent || content);
-      const validation = validateTextQuality(cleanedContent);
-      
-      if (!validation.isValid) {
-        console.log(`Quality issues found: ${validation.issues.join(', ')}`);
-        // Apply additional cleaning
-        cleanedContent = deepCleanText(cleanedContent);
-      }
-      
       return {
         shouldSkip: false,
         rewrittenTitle: parsed.rewrittenTitle || title,
-        rewrittenContent: cleanedContent,
+        rewrittenContent: deepCleanText(parsed.rewrittenContent || content),
       };
     }
   } catch (e) {
     console.error('Failed to parse AI response:', aiContent);
   }
-  
+
   return { shouldSkip: false, rewrittenTitle: title, rewrittenContent: deepCleanText(content) };
 }
 
@@ -830,7 +336,7 @@ serve(async (req) => {
   }
 
   try {
-    // Authenticate and require admin/developer role
+    // Auth check - admin or developer only
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(
@@ -865,105 +371,71 @@ serve(async (req) => {
       );
     }
 
-    console.log('Starting news scrape...');
+    console.log('Starting news scrape (using native fetch + AI)...');
 
-    // OPTIMIZED APPROACH: Rotate through clubs to avoid rate limits
-    // Each run processes the main page + a rotating subset of clubs
-    // With 40 clubs and 8 per run, full coverage every ~5 runs (10 minutes)
+    // Rotate through clubs
     const CLUBS_PER_RUN = 8;
-    
-    // Get all club entries and determine which batch to process this run
     const allClubEntries = Object.entries(CLUB_GE_URLS);
-    
-    // Use a simple rotation based on the current minute (changes every 2 min with auto-scrape)
     const rotationIndex = Math.floor(Date.now() / (2 * 60 * 1000)) % Math.ceil(allClubEntries.length / CLUBS_PER_RUN);
     const clubBatchStart = rotationIndex * CLUBS_PER_RUN;
     const clubsThisRun = allClubEntries.slice(clubBatchStart, clubBatchStart + CLUBS_PER_RUN);
-    
-    console.log(`Club rotation: batch ${rotationIndex + 1}/${Math.ceil(allClubEntries.length / CLUBS_PER_RUN)}, clubs: ${clubsThisRun.map(c => c[0]).join(', ')}`);
-    
-    // STEP 1: Scrape the main page (1 Firecrawl call)
-    console.log('Scraping main page for recent news...');
-    let mainPageLinks: string[] = [];
-    let mainPageMarkdown = '';
-    let mainPageHtml = '';
-    
+
+    console.log(`Club rotation: batch ${rotationIndex + 1}, clubs: ${clubsThisRun.map(c => c[0]).join(', ')}`);
+
+    // STEP 1: Fetch main football page
+    console.log('Fetching main page...');
+    let mainPageNews: NewsItem[] = [];
     try {
-      const mainPageUrl = `https://ge.globo.com/futebol/?_nocache=${Date.now()}&r=${Math.random()}`;
-      const result = await scrapeWithFirecrawl(mainPageUrl, { onlyMainContent: false, formats: ['markdown', 'html', 'links'] });
-      const data = result.data || result;
-      mainPageMarkdown = data.markdown || '';
-      mainPageHtml = data.html || '';
-      mainPageLinks = data.links || [];
-      console.log(`Got ${mainPageLinks.length} links from main page scrape`);
+      const mainHtml = await fetchHtml('https://ge.globo.com/futebol/');
+      mainPageNews = extractArticleUrls(mainHtml);
+      console.log(`Main page: found ${mainPageNews.length} articles`);
     } catch (error) {
-      console.error('Error scraping main page:', error);
+      console.error('Error fetching main page:', error);
     }
 
-    // Extract news from main page (no club_id)
-    const mainPageNews = extractNewsFromGE(mainPageHtml, mainPageMarkdown, mainPageLinks, [], undefined);
-    console.log(`Main page articles found: ${mainPageNews.length}`);
-    
-    // STEP 2: Scrape club pages - only 1 Firecrawl call per club (no map, just scrape for links)
-    // This uses only 8 calls instead of 80+
-    const allClubNews: NewsItem[] = [];
-    
-    // Process clubs in parallel (only 8, so safe)
+    // STEP 2: Fetch club pages in parallel
     const clubResults = await Promise.all(
       clubsThisRun.map(async ([clubId, clubUrl]) => {
         try {
-          const url = `${clubUrl}?_nocache=${Date.now()}&r=${Math.random()}`;
-          // Only request html and links - skip markdown to be lighter
-          const result = await scrapeWithFirecrawl(url, { onlyMainContent: false, formats: ['html', 'links'] });
-          const data = result.data || result;
-          const news = extractNewsFromGE(
-            data.html || '', 
-            '', // no markdown needed for link discovery
-            data.links || [], 
-            [], // no mapped URLs - skip map call entirely
-            clubId
-          );
+          const html = await fetchHtml(clubUrl);
+          const news = extractArticleUrls(html, clubId);
           console.log(`Club ${clubId}: found ${news.length} articles`);
           return news;
         } catch (err) {
-          console.error(`Error scraping club ${clubId}:`, err);
+          console.error(`Error fetching club ${clubId}:`, err);
           return [];
         }
       })
     );
-    
-    allClubNews.push(...clubResults.flat());
+
+    const allClubNews = clubResults.flat();
     console.log(`Total club-specific articles found: ${allClubNews.length}`);
-    
-    // Combine all news, prioritizing main page (fresher) but keeping club_id for club-specific
+
+    // Combine all news, dedup
     const seenUrls = new Set<string>();
     const allNews: NewsItem[] = [];
-    
-    // Add main page news first (no club_id, but fresher)
+
     for (const item of mainPageNews) {
       if (!seenUrls.has(item.url)) {
         seenUrls.add(item.url);
         allNews.push(item);
       }
     }
-    
-    // Add club news (has club_id for filtering)
     for (const item of allClubNews) {
       if (!seenUrls.has(item.url)) {
         seenUrls.add(item.url);
         allNews.push(item);
       } else {
-        // If article already exists from main page, update it with club_id
-        const existingIndex = allNews.findIndex(n => n.url === item.url);
-        if (existingIndex !== -1 && item.clubId && !allNews[existingIndex].clubId) {
-          allNews[existingIndex].clubId = item.clubId;
+        const existing = allNews.find(n => n.url === item.url);
+        if (existing && item.clubId && !existing.clubId) {
+          existing.clubId = item.clubId;
         }
       }
     }
-    
-    console.log(`Total unique articles found: ${allNews.length}`);
 
-    // Check which URLs already exist - fetch ALL existing URLs to avoid duplicates
+    console.log(`Total unique articles: ${allNews.length}`);
+
+    // Check existing URLs
     const { data: existingNews } = await supabase
       .from('football_news')
       .select('original_url')
@@ -975,63 +447,55 @@ serve(async (req) => {
 
     console.log(`${newArticles.length} new articles to process`);
 
-    // Process up to 5 new articles at a time
+    // Process up to 5 new articles
     const articlesToProcess = newArticles.slice(0, 5);
-    const processedNews = [];
+    const processedNews: string[] = [];
 
     for (const article of articlesToProcess) {
       try {
-        console.log(`Processing: ${article.title}`);
-        
-        // Get full article details including publication time
-        const details = await scrapeArticleDetails(article.url);
-        
-        // Skip if article is not recent (older than 6 hours)
+        console.log(`Fetching article: ${article.url}`);
+
+        // Fetch full article HTML
+        const articleHtml = await fetchHtml(article.url);
+        const details = extractArticleDetails(articleHtml, article.url);
+
         if (!details.isRecent) {
-          console.log(`Skipping old article: ${article.title} - not published within last 6 hours`);
-          continue;
-        }
-        
-        if (!details.content || details.content.length < 100) {
-          console.log(`Skipping ${article.url} - insufficient content`);
+          console.log(`Skipping old article: ${article.title}`);
           continue;
         }
 
-        // Try to rewrite with AI, but fallback to original if it fails
+        if (!details.content || details.content.length < 100) {
+          console.log(`Skipping insufficient content: ${article.url}`);
+          continue;
+        }
+
+        // Rewrite with AI
         let rewrittenTitle = article.title;
         let rewrittenContent = sanitizeRewrittenContent(details.content);
         let isOriginal = false;
-        
+
         try {
           const rewritten = await rewriteWithAI(article.title, details.content);
-          
-          // Skip interactive/task-based articles
           if (rewritten.shouldSkip) {
             console.log(`Skipping interactive article: ${article.title}`);
             continue;
           }
-          
           rewrittenTitle = rewritten.rewrittenTitle;
           rewrittenContent = rewritten.rewrittenContent;
         } catch (aiError) {
-          // AI failed (e.g., no credits) - use original content with credits
-          console.log(`AI rewrite failed, using original content for: ${article.title}`);
+          console.log(`AI rewrite failed, using original: ${article.title}`);
           console.error('AI Error:', aiError);
           isOriginal = true;
-          
-          // Capitalize title properly for display
           rewrittenTitle = article.title
             .split(' ')
             .map((word, index) => {
-              if (index === 0 || word.length > 3) {
-                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-              }
+              if (index === 0 || word.length > 3) return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
               return word.toLowerCase();
             })
             .join(' ');
         }
 
-        // Insert into database with club_id
+        // Insert into database
         const { error: insertError } = await supabase
           .from('football_news')
           .insert({
@@ -1043,17 +507,16 @@ serve(async (req) => {
             rewritten_content: rewrittenContent,
             image_url: details.imageUrl,
             image_caption: details.imageCaption,
-            image_credits: details.imageCredits,
             category: 'Futebol',
             is_original: isOriginal,
-            club_id: article.clubId || null, // Include club_id if available
+            club_id: article.clubId || null,
           });
 
         if (insertError) {
           console.error('Insert error:', insertError);
         } else {
-          processedNews.push(article.title);
-          console.log(`Successfully processed: ${article.title}${isOriginal ? ' (original content)' : ''}`);
+          processedNews.push(rewrittenTitle);
+          console.log(`✅ Processed: ${rewrittenTitle}${isOriginal ? ' (original)' : ''}`);
         }
       } catch (error) {
         console.error(`Error processing article ${article.url}:`, error);
@@ -1061,10 +524,10 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         processed: processedNews.length,
-        articles: processedNews 
+        articles: processedNews
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
