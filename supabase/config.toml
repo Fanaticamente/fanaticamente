@@ -71,3 +71,9 @@ verify_jwt = false
 
 [functions.scrape-matches]
 verify_jwt = false
+
+[functions.scrape-football-news]
+verify_jwt = false
+
+[functions.fix-missing-club-ids]
+verify_jwt = false
