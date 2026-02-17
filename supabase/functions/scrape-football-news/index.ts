@@ -119,6 +119,7 @@ function extractArticleDetails(html: string, url: string): {
   content: string;
   imageUrl?: string;
   imageCaption?: string;
+  imageCredits?: string;
   publishedAt?: Date;
   isRecent: boolean;
 } {
@@ -151,14 +152,21 @@ function extractArticleDetails(html: string, url: string): {
                         html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
   if (ogImageMatch) imageUrl = ogImageMatch[1];
 
-  // Extract image caption from figcaption
+  // Extract image caption AND credits from figcaption
   let imageCaption: string | undefined;
+  let imageCredits: string | undefined;
   const figcaptionMatch = html.match(/<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i);
   if (figcaptionMatch) {
     const raw = figcaptionMatch[1].replace(/<[^>]+>/g, '').trim();
     if (raw.includes('—')) {
-      imageCaption = raw.split('—')[0].trim();
-    } else if (!raw.startsWith('Foto:')) {
+      const parts = raw.split('—');
+      const captionPart = parts[0].trim();
+      const creditPart = parts.slice(1).join('—').trim();
+      if (captionPart) imageCaption = captionPart;
+      if (creditPart) imageCredits = creditPart;
+    } else if (raw.startsWith('Foto:')) {
+      imageCredits = raw;
+    } else {
       imageCaption = raw;
     }
   }
@@ -180,7 +188,7 @@ function extractArticleDetails(html: string, url: string): {
     isRecent = url.includes(`/noticia/${todayStr}/`);
   }
 
-  return { content, imageUrl, imageCaption, publishedAt, isRecent };
+  return { content, imageUrl, imageCaption, imageCredits, publishedAt, isRecent };
 }
 
 // Sanitize rewritten content
@@ -274,55 +282,55 @@ async function rewriteWithAI(title: string, content: string): Promise<{ rewritte
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
 
-  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é REESCREVER notícias de futebol de forma COMPLETA e LIMPA.
+  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é REESCREVER notícias de futebol com suas PRÓPRIAS PALAVRAS.
 
-⚠️ REGRAS ABSOLUTAS - PROIBIDO NO TEXTO FINAL:
-1. JAMAIS inclua qualquer instrução ao leitor como: "clique aqui", "siga o canal", "acesse", "assine", "vote", "participe", "ouça o podcast", "assista", "confira", "veja abaixo/acima", "leia mais", "monte seu time", "cadastre-se", "entre no grupo", "compartilhe", "curta", "comente"
-2. JAMAIS inclua emojis como ✅ 🗞️ 🎧 📺 👉 🔗 ou qualquer outro
-3. JAMAIS inclua referências a redes sociais (WhatsApp, Instagram, Twitter, Telegram, YouTube, TikTok)
-4. JAMAIS inclua timestamps ("Há X minutos/horas"), créditos de foto, nomes de seções
-5. JAMAIS inclua URLs, links, markdown de imagem, referências ao ge.globo.com, Globo, Globoplay, sportv, Cartola
-6. JAMAIS inclua linhas promocionais como "Mais notícias do...", "Contratações do...: quem chega, quem sai"
-7. JAMAIS inclua listas de links para outras notícias no meio ou fim do texto
+⚠️ REGRA ANTI-PLÁGIO (MAIS IMPORTANTE):
+- Você NÃO pode copiar frases do texto original. CADA FRASE deve ser reescrita com vocabulário e estrutura DIFERENTES.
+- Compare mentalmente cada frase que escrever com o original. Se for igual ou muito parecida, REESCREVA novamente.
+- Use sinônimos, mude a ordem das informações, reestruture parágrafos inteiros.
+- Exemplo: Original "O jogador marcou dois gols" → Reescrito "Dois gols foram anotados pelo atacante"
+- O texto final NÃO pode ter mais de 20% de semelhança textual com o original.
+
+⚠️ REGRAS DE PROIBIÇÃO ABSOLUTA NO TEXTO FINAL:
+1. JAMAIS inclua qualquer instrução ao leitor: "clique aqui", "siga o canal", "acesse", "assine", "vote", "participe", "ouça o podcast", "assista", "confira", "veja abaixo/acima", "leia mais", "monte seu time", "cadastre-se", "entre no grupo", "compartilhe", "curta", "comente"
+2. JAMAIS inclua emojis
+3. JAMAIS inclua referências a redes sociais, WhatsApp, Instagram, Twitter, Telegram, YouTube, TikTok
+4. JAMAIS inclua timestamps, créditos de foto, nomes de seções
+5. JAMAIS inclua URLs, links, markdown, referências ao ge.globo.com, Globo, Globoplay, sportv, Cartola
+6. JAMAIS inclua linhas promocionais ou listas de links
 
 ⚠️ REGRAS DE CONTEÚDO:
 1. Use EXCLUSIVAMENTE informações factuais do texto original - NÃO invente NADA
-2. NÃO RESUMA - sua reescrita deve ter o MESMO tamanho ou MAIOR que o original
-3. Mantenha TODOS os fatos, declarações, números e detalhes do original
-4. Apenas REFORMULE as frases com palavras diferentes para evitar plágio
-5. O texto deve conter APENAS conteúdo jornalístico puro - ZERO elementos interativos ou promocionais
+2. Mantenha TODOS os fatos, declarações diretas (entre aspas), números e detalhes
+3. A reescrita deve ter tamanho similar ao original
+4. O texto deve conter APENAS conteúdo jornalístico puro
 
 PRIMEIRO, ANALISE SE DEVE IGNORAR:
-- Se o conteúdo for apenas enquete, quiz, votação, ou promoção sem notícia real, responda: {"shouldSkip": true}
+- Se o conteúdo for apenas enquete, quiz, votação, ou promoção sem notícia real: {"shouldSkip": true}
 
 REGRAS DO TÍTULO:
-- Use "sentence case" (só primeira letra maiúscula, exceto nomes próprios)
-- Tom formal sem sensacionalismo
-- Máximo 80 caracteres
-- JAMAIS inclua CTAs ou emojis no título
-
-ESTRUTURA DO CONTEÚDO:
-1. LIDE (primeiro parágrafo): Resumo do fato principal em 2-3 frases
-2. DESENVOLVIMENTO: Detalhes e contexto
-3. DECLARAÇÕES: Mantenha aspas originais
-4. FECHAMENTO: Conclusão ou próximos passos
+- OBRIGATÓRIO usar "sentence case": apenas a PRIMEIRA LETRA da primeira palavra em maiúscula
+- Nomes próprios (pessoas, times, cidades, competições) mantêm maiúscula normal
+- Exemplo correto: "Flamengo anuncia novo reforço para a temporada"
+- Exemplo ERRADO: "Flamengo Anuncia Novo Reforço Para a Temporada"
+- Tom formal sem sensacionalismo, máximo 80 caracteres
 
 IDENTIFICAÇÃO DO CLUBE:
-Analise o conteúdo e identifique o CLUBE PRINCIPAL da notícia. Use APENAS um dos IDs abaixo:
+Analise o conteúdo e identifique o CLUBE PRINCIPAL. Use APENAS um dos IDs:
 ${VALID_CLUB_IDS.join(', ')}
-Se a notícia for sobre futebol internacional ou não se referir a nenhum clube específico, use null.
+Se não se referir a nenhum clube específico, use null.
 
 TÍTULO ORIGINAL:
 ${title}
 
-CONTEÚDO ORIGINAL COMPLETO:
+CONTEÚDO ORIGINAL:
 ${content}
 
 Responda APENAS em JSON válido:
 {
   "shouldSkip": false,
-  "rewrittenTitle": "título reformulado",
-  "rewrittenContent": "texto COMPLETO reformulado",
+  "rewrittenTitle": "título reescrito em sentence case",
+  "rewrittenContent": "texto COMPLETAMENTE reescrito com palavras diferentes",
   "clubId": "id-do-clube-ou-null"
 }`;
 
@@ -533,7 +541,9 @@ serve(async (req) => {
           rewrittenTitle = article.title
             .split(' ')
             .map((word, index) => {
-              if (index === 0 || word.length > 3) return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+              if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+              // Keep proper nouns (words that were originally capitalized and are likely names)
+              if (/^[A-ZÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇ]/.test(word) && word.length > 2) return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
               return word.toLowerCase();
             })
             .join(' ');
@@ -554,6 +564,7 @@ serve(async (req) => {
             rewritten_content: rewrittenContent,
             image_url: details.imageUrl,
             image_caption: details.imageCaption,
+            image_credits: details.imageCredits || null,
             category: 'Futebol',
             is_original: isOriginal,
             club_id: finalClubId,
