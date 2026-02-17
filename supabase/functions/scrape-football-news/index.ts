@@ -238,8 +238,20 @@ function deepCleanText(text: string): string {
   return cleaned;
 }
 
+// Valid club IDs for identification
+const VALID_CLUB_IDS = [
+  "athletico-pr", "atletico-mg", "bahia", "botafogo", "bragantino",
+  "chapecoense", "corinthians", "coritiba", "cruzeiro", "flamengo",
+  "fluminense", "gremio", "internacional", "mirassol", "palmeiras",
+  "remo", "santos", "sao-paulo", "vasco", "vitoria",
+  "america-mg", "athletic", "atletico-go", "avai", "botafogo-sp",
+  "ceara", "crb", "criciuma", "cuiaba", "fortaleza", "goias",
+  "juventude", "nautico", "novorizontino", "londrina", "operario-pr",
+  "ponte-preta", "sao-bernardo", "sport", "vila-nova"
+];
+
 // Rewrite article with Lovable AI
-async function rewriteWithAI(title: string, content: string): Promise<{ rewrittenTitle: string; rewrittenContent: string; shouldSkip: boolean }> {
+async function rewriteWithAI(title: string, content: string): Promise<{ rewrittenTitle: string; rewrittenContent: string; shouldSkip: boolean; detectedClubId?: string }> {
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
 
@@ -273,6 +285,11 @@ ESTRUTURA DO CONTEÚDO:
 3. DECLARAÇÕES: Mantenha aspas originais
 4. FECHAMENTO: Conclusão ou próximos passos
 
+IDENTIFICAÇÃO DO CLUBE:
+Analise o conteúdo e identifique o CLUBE PRINCIPAL da notícia. Use APENAS um dos IDs abaixo:
+${VALID_CLUB_IDS.join(', ')}
+Se a notícia for sobre futebol internacional ou não se referir a nenhum clube específico, use null.
+
 TÍTULO ORIGINAL:
 ${title}
 
@@ -283,7 +300,8 @@ Responda APENAS em JSON válido:
 {
   "shouldSkip": false,
   "rewrittenTitle": "título reformulado",
-  "rewrittenContent": "texto COMPLETO reformulado"
+  "rewrittenContent": "texto COMPLETO reformulado",
+  "clubId": "id-do-clube-ou-null"
 }`;
 
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -317,10 +335,12 @@ Responda APENAS em JSON válido:
       if (parsed.shouldSkip === true) {
         return { shouldSkip: true, rewrittenTitle: title, rewrittenContent: '' };
       }
+      const detectedClubId = parsed.clubId && VALID_CLUB_IDS.includes(parsed.clubId) ? parsed.clubId : undefined;
       return {
         shouldSkip: false,
         rewrittenTitle: parsed.rewrittenTitle || title,
         rewrittenContent: deepCleanText(parsed.rewrittenContent || content),
+        detectedClubId,
       };
     }
   } catch (e) {
@@ -474,6 +494,7 @@ serve(async (req) => {
         let rewrittenContent = sanitizeRewrittenContent(details.content);
         let isOriginal = false;
 
+        let detectedClubId: string | undefined;
         try {
           const rewritten = await rewriteWithAI(article.title, details.content);
           if (rewritten.shouldSkip) {
@@ -482,6 +503,7 @@ serve(async (req) => {
           }
           rewrittenTitle = rewritten.rewrittenTitle;
           rewrittenContent = rewritten.rewrittenContent;
+          detectedClubId = rewritten.detectedClubId;
         } catch (aiError) {
           console.log(`AI rewrite failed, using original: ${article.title}`);
           console.error('AI Error:', aiError);
@@ -494,6 +516,9 @@ serve(async (req) => {
             })
             .join(' ');
         }
+
+        // Use scrape-based clubId first, then AI-detected clubId
+        const finalClubId = article.clubId || detectedClubId || null;
 
         // Insert into database
         const { error: insertError } = await supabase
@@ -509,7 +534,7 @@ serve(async (req) => {
             image_caption: details.imageCaption,
             category: 'Futebol',
             is_original: isOriginal,
-            club_id: article.clubId || null,
+            club_id: finalClubId,
           });
 
         if (insertError) {
