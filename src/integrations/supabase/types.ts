@@ -671,6 +671,33 @@ export type Database = {
         }
         Relationships: []
       }
+      emotion_entries: {
+        Row: {
+          created_at: string
+          emotion: string
+          entry_date: string
+          id: string
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emotion: string
+          entry_date?: string
+          id?: string
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emotion?: string
+          entry_date?: string
+          id?: string
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       football_news: {
         Row: {
           category: string | null
@@ -771,6 +798,47 @@ export type Database = {
             columns: ["lesson_id"]
             isOneToOne: false
             referencedRelation: "course_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_expectations: {
+        Row: {
+          confidence_level: string
+          created_at: string
+          id: string
+          loss_impact: string | null
+          match_id: string
+          pre_match_feeling: string | null
+          user_id: string
+          win_impact: string | null
+        }
+        Insert: {
+          confidence_level: string
+          created_at?: string
+          id?: string
+          loss_impact?: string | null
+          match_id: string
+          pre_match_feeling?: string | null
+          user_id: string
+          win_impact?: string | null
+        }
+        Update: {
+          confidence_level?: string
+          created_at?: string
+          id?: string
+          loss_impact?: string | null
+          match_id?: string
+          pre_match_feeling?: string | null
+          user_id?: string
+          win_impact?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_expectations_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "upcoming_matches"
             referencedColumns: ["id"]
           },
         ]
@@ -1243,6 +1311,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      upcoming_matches: {
+        Row: {
+          club_id: string
+          competition: string | null
+          created_at: string
+          id: string
+          is_home: boolean | null
+          match_date: string
+          match_time: string | null
+          opponent: string
+        }
+        Insert: {
+          club_id: string
+          competition?: string | null
+          created_at?: string
+          id?: string
+          is_home?: boolean | null
+          match_date: string
+          match_time?: string | null
+          opponent: string
+        }
+        Update: {
+          club_id?: string
+          competition?: string | null
+          created_at?: string
+          id?: string
+          is_home?: boolean | null
+          match_date?: string
+          match_time?: string | null
+          opponent?: string
+        }
+        Relationships: []
       }
       user_activity_completion: {
         Row: {
