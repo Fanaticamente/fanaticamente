@@ -68,3 +68,6 @@ verify_jwt = false
 
 [functions.professional-secretary]
 verify_jwt = false
+
+[functions.scrape-matches]
+verify_jwt = false
