@@ -193,6 +193,21 @@ function sanitizeRewrittenContent(text: string): string {
     .replace(/Há\s+\d+\s+(minuto|hora|segundo|dia)s?\s+[a-záàâãéèêíïóôõöúç\s]+/gi, '')
     .replace(/^Acompanhe a cobertura.*$/gim, '')
     .replace(/^(flamengo|corinthians|palmeiras|são paulo|santos|vasco|botafogo|fluminense|grêmio|internacional|atlético-mg|cruzeiro|bahia|fortaleza|sport|coritiba|futebol internacional|gato mestre|brasileirão)\s*$/gim, '')
+    // Remove CTAs and navigation instructions
+    .replace(/[✅🗞️🎧📺📲👉🔗➡️⬇️]\s*[^\n]*(clique|siga|acesse|inscreva|assine|baixe|vote|participe|ouça|assista|acompanhe|confira|veja|leia|monte|cadastre|entre|compartilhe|curta|comente|envie|mande|responda)[^\n]*/gi, '')
+    .replace(/^\+\s*[^\n]*(clique|siga|acesse|inscreva|assine|baixe|vote|participe|ouça|assista|acompanhe|confira aqui|veja (abaixo|acima|aqui)|leia mais|monte seu|cadastre|entre no|compartilhe|curta|comente|envie|mande)[^\n]*/gim, '')
+    .replace(/^[^\n]*clique aqui[^\n]*/gim, '')
+    .replace(/^[^\n]*siga o (novo )?canal[^\n]*/gim, '')
+    .replace(/^[^\n]*no whatsapp[^\n]*$/gim, '')
+    .replace(/^[^\n]*podcast ge[^\n]*/gim, '')
+    .replace(/^[^\n]*tudo sobre .* no ge[^\n]*/gim, '')
+    .replace(/^[^\n]*o mercado do cartola[^\n]*/gim, '')
+    .replace(/^Assista:.*$/gim, '')
+    .replace(/^Veja (abaixo|acima|aqui|os|a|o)[^\n]*:?\s*$/gim, '')
+    .replace(/^Lembra como foi[^\n]*\?[^\n]*(Veja|Confira|Assista)[^\n]*/gim, '')
+    .replace(/^Mais notícias d[eao][^\n]*/gim, '')
+    .replace(/^Leia mais[^\n]*/gim, '')
+    .replace(/^Contratações d[eao][^\n]*quem (chega|sai|fica)[^\n]*/gim, '')
     .split('\n')
     .filter((line) => {
       const l = line.trim();
@@ -202,6 +217,10 @@ function sanitizeRewrittenContent(text: string): string {
       if (/ge\.globo\.com|\bglobo\.com\b|\bg1\b|globoplay/i.test(l)) return false;
       if (/^\s*Foto:\s*/i.test(l)) return false;
       if (/^(TIMES|Série [AB]|Europa|Internacional|Brasileirão)$/i.test(l)) return false;
+      // Remove lines that are just CTAs or promotional
+      if (/^\s*\+\s*$/i.test(l)) return false;
+      if (/^(clique|siga|acesse|inscreva|assine|baixe|vote|participe|ouça|assista|acompanhe|confira|veja|leia|monte|cadastre)\s/i.test(l)) return false;
+      if (/whatsapp|telegram|instagram|twitter|facebook|youtube|tiktok/i.test(l) && l.length < 120) return false;
       return true;
     })
     .join('\n')
@@ -257,27 +276,30 @@ async function rewriteWithAI(title: string, content: string): Promise<{ rewritte
 
   const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é REESCREVER notícias de futebol de forma COMPLETA e LIMPA.
 
-⚠️ REGRAS ABSOLUTAS DE QUALIDADE:
-1. O texto deve ser 100% LEGÍVEL - sem palavras soltas, timestamps, ou linhas desconexas
-2. NUNCA inclua: timestamps ("Há X minutos/horas"), nomes de seções, créditos de foto
-3. NUNCA inclua: URLs, markdown de imagem, referências a ge.globo.com ou Globo
-4. Cada parágrafo deve ser completo e fazer sentido isoladamente
-5. Use pontuação correta em todas as frases
+⚠️ REGRAS ABSOLUTAS - PROIBIDO NO TEXTO FINAL:
+1. JAMAIS inclua qualquer instrução ao leitor como: "clique aqui", "siga o canal", "acesse", "assine", "vote", "participe", "ouça o podcast", "assista", "confira", "veja abaixo/acima", "leia mais", "monte seu time", "cadastre-se", "entre no grupo", "compartilhe", "curta", "comente"
+2. JAMAIS inclua emojis como ✅ 🗞️ 🎧 📺 👉 🔗 ou qualquer outro
+3. JAMAIS inclua referências a redes sociais (WhatsApp, Instagram, Twitter, Telegram, YouTube, TikTok)
+4. JAMAIS inclua timestamps ("Há X minutos/horas"), créditos de foto, nomes de seções
+5. JAMAIS inclua URLs, links, markdown de imagem, referências ao ge.globo.com, Globo, Globoplay, sportv, Cartola
+6. JAMAIS inclua linhas promocionais como "Mais notícias do...", "Contratações do...: quem chega, quem sai"
+7. JAMAIS inclua listas de links para outras notícias no meio ou fim do texto
 
 ⚠️ REGRAS DE CONTEÚDO:
-1. Use EXCLUSIVAMENTE informações do texto original - NÃO invente NADA
+1. Use EXCLUSIVAMENTE informações factuais do texto original - NÃO invente NADA
 2. NÃO RESUMA - sua reescrita deve ter o MESMO tamanho ou MAIOR que o original
 3. Mantenha TODOS os fatos, declarações, números e detalhes do original
 4. Apenas REFORMULE as frases com palavras diferentes para evitar plágio
-5. PROIBIDO: "Fonte:", URLs, citações de site, instruções de navegação/assinatura
+5. O texto deve conter APENAS conteúdo jornalístico puro - ZERO elementos interativos ou promocionais
 
 PRIMEIRO, ANALISE SE DEVE IGNORAR:
-- Se pedir para votar, participar de enquete, quiz, ou realizar ação, responda: {"shouldSkip": true}
+- Se o conteúdo for apenas enquete, quiz, votação, ou promoção sem notícia real, responda: {"shouldSkip": true}
 
 REGRAS DO TÍTULO:
 - Use "sentence case" (só primeira letra maiúscula, exceto nomes próprios)
 - Tom formal sem sensacionalismo
 - Máximo 80 caracteres
+- JAMAIS inclua CTAs ou emojis no título
 
 ESTRUTURA DO CONTEÚDO:
 1. LIDE (primeiro parágrafo): Resumo do fato principal em 2-3 frases
