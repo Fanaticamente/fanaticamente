@@ -74,8 +74,8 @@ function cleanContent(text: string): string {
 
 // Rewrite with AI
 async function rewriteWithAI(title: string, content: string): Promise<{ rewrittenTitle: string; rewrittenContent: string }> {
-  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-  if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
+  const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+  if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY not configured');
 
   const prompt = `Você é um jornalista esportivo sênior. Reescreva esta notícia com suas PRÓPRIAS PALAVRAS.
 
@@ -94,14 +94,14 @@ CONTEÚDO: ${content}
 
 JSON: {"rewrittenTitle": "...", "rewrittenContent": "..."}`;
 
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'google/gemini-2.5-flash',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'Jornalista esportivo. Reescreva com palavras diferentes. Responda APENAS em JSON válido.' },
         { role: 'user', content: prompt }
