@@ -112,13 +112,13 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
     }
 
-    const { data: roleData } = await supabaseAdmin
+    const { data: rolesData } = await supabaseAdmin
       .from("user_roles")
       .select("role")
-      .eq("user_id", userData.user.id)
-      .single();
+      .eq("user_id", userData.user.id);
 
-    if (!roleData || !["admin", "developer"].includes(roleData.role)) {
+    const hasPermission = rolesData?.some((r) => ["admin", "developer"].includes(r.role));
+    if (!hasPermission) {
       return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: corsHeaders });
     }
 
