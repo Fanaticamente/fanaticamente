@@ -37,11 +37,15 @@ const EXCLUDED_FROM_RESTORE = [
   "/developer/desktop"
 ];
 
+// Prefixos de rotas que devem ser excluídos da restauração automática
+const EXCLUDED_PREFIXES_FROM_RESTORE = ["/curso/"];
+
 const isPublicRoute = (path: string) =>
   PUBLIC_ROUTES.some((route) => path.startsWith(route));
 
 const isExcludedFromRestore = (path: string) =>
-  EXCLUDED_FROM_RESTORE.includes(path);
+  EXCLUDED_FROM_RESTORE.includes(path) ||
+  EXCLUDED_PREFIXES_FROM_RESTORE.some((prefix) => path.startsWith(prefix));
 
 // Salva o campo focado no localStorage
 const saveFocusedField = () => {

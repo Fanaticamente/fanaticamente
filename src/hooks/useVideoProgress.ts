@@ -57,6 +57,37 @@ export const clearUserVideoProgress = (userId: string) => {
 };
 
 /**
+ * Core save logic — writes currentTime + duration to localStorage.
+ * Returns true if saved, false if cleared (finished/reset).
+ */
+const doSave = (lessonId: string, el: HTMLVideoElement) => {
+  const { currentTime, duration } = el;
+  if (!duration || isNaN(duration) || duration === 0) return;
+
+  const storageKey = buildProgressKey(lessonId);
+
+  // Always persist real duration so progress % is accurate in "continue watching"
+  saveLessonDuration(lessonId, duration);
+
+  // Near the beginning → clear (user rewound)
+  if (currentTime < 1) {
+    try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
+    return;
+  }
+  // Near the end (within 5s) → clear (considered finished)
+  if (duration - currentTime < 5) {
+    try {
+      localStorage.removeItem(storageKey);
+      localStorage.removeItem(buildDurationKey(lessonId));
+    } catch { /* ignore */ }
+    return;
+  }
+  try {
+    localStorage.setItem(storageKey, String(currentTime));
+  } catch { /* ignore */ }
+};
+
+/**
  * Persiste e restaura a posição de reprodução de um vídeo no localStorage,
  * com as chaves namespacadas por user_id para garantir isolamento entre usuários.
  */
@@ -64,56 +95,55 @@ export const useVideoProgress = (lessonId: string | undefined) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const saveIntervalRef = useRef<number | null>(null);
   const restoredLessonRef = useRef<string | undefined>(undefined);
+  // Throttle ref for timeupdate (fires ~4x/sec) — only save at most every 2s via this event
+  const lastTimeupdateSaveRef = useRef<number>(0);
 
-  // Build user-scoped key dynamically at call time (getUserId reads localStorage)
-  const getStorageKey = useCallback(() => {
-    return lessonId ? buildProgressKey(lessonId) : null;
+  // ─── Immediate save (pause, ended, seeked, visibility hide) ─────────────────
+  const saveNow = useCallback(() => {
+    if (!lessonId || !videoRef.current) return;
+    doSave(lessonId, videoRef.current);
   }, [lessonId]);
 
-  // ─── Save / clear progress ──────────────────────────────────────────────────
-  const saveProgress = useCallback(() => {
-    const storageKey = getStorageKey();
-    if (!storageKey || !videoRef.current) return;
-    const { currentTime, duration } = videoRef.current;
-    if (!duration) return;
+  // ─── Throttled save for timeupdate ──────────────────────────────────────────
+  const saveThrottled = useCallback(() => {
+    if (!lessonId || !videoRef.current) return;
+    const now = Date.now();
+    if (now - lastTimeupdateSaveRef.current < 2000) return;
+    lastTimeupdateSaveRef.current = now;
+    doSave(lessonId, videoRef.current);
+  }, [lessonId]);
 
-    // Always persist real duration so progress % is accurate in "continue watching"
-    if (lessonId) saveLessonDuration(lessonId, duration);
-
-    // Seek-to-beginning → clear so the video truly restarts next time
-    if (currentTime < 1) {
-      try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
-      return;
-    }
-    // Near the end (within 5s) → clear (considered finished)
-    if (duration - currentTime < 5) {
-      try {
-        localStorage.removeItem(storageKey);
-        if (lessonId) localStorage.removeItem(buildDurationKey(lessonId));
-      } catch { /* ignore */ }
-      return;
-    }
+  // ─── Safe pause (suppresses AbortError from play/pause race) ────────────────
+  const safePause = useCallback(() => {
+    const el = videoRef.current;
+    if (!el || el.paused) return;
     try {
-      localStorage.setItem(storageKey, String(currentTime));
+      const p = el.pause() as unknown;
+      if (p && typeof (p as Promise<void>).catch === "function") {
+        (p as Promise<void>).catch(() => { /* ignore AbortError */ });
+      }
     } catch { /* ignore */ }
-  }, [getStorageKey, lessonId]);
+  }, []);
 
   // ─── Register video element & attach save listeners ─────────────────────────
   const registerVideo = useCallback((el: HTMLVideoElement | null) => {
     if (videoRef.current) {
-      videoRef.current.removeEventListener("pause", saveProgress);
-      videoRef.current.removeEventListener("ended", saveProgress);
-      videoRef.current.removeEventListener("seeked", saveProgress);
+      videoRef.current.removeEventListener("pause", saveNow);
+      videoRef.current.removeEventListener("ended", saveNow);
+      videoRef.current.removeEventListener("seeked", saveNow);
+      videoRef.current.removeEventListener("timeupdate", saveThrottled);
     }
 
     videoRef.current = el;
 
     if (!el) return;
 
-    el.addEventListener("pause", saveProgress);
-    el.addEventListener("ended", saveProgress);
-    el.addEventListener("seeked", saveProgress);
-  }, [saveProgress]);
+    el.addEventListener("pause", saveNow);
+    el.addEventListener("ended", saveNow);
+    el.addEventListener("seeked", saveNow);
+    // timeupdate fires ~4x/sec while playing — throttled to avoid excessive writes
+    el.addEventListener("timeupdate", saveThrottled);
+  }, [saveNow, saveThrottled]);
 
   // ─── Restore progress once per lesson ───────────────────────────────────────
   useEffect(() => {
@@ -157,29 +187,18 @@ export const useVideoProgress = (lessonId: string | undefined) => {
 
   // ─── Periodic save + visibility / page-hide handlers ────────────────────────
   useEffect(() => {
-    saveIntervalRef.current = window.setInterval(saveProgress, SAVE_INTERVAL_MS);
-
-    const safePause = () => {
-      const el = videoRef.current;
-      if (!el || el.paused) return;
-      try {
-        const p = el.pause() as unknown;
-        if (p && typeof (p as Promise<void>).catch === "function") {
-          (p as Promise<void>).catch(() => { /* ignore AbortError */ });
-        }
-      } catch { /* ignore */ }
-    };
+    saveIntervalRef.current = window.setInterval(saveNow, SAVE_INTERVAL_MS);
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
         safePause();
-        saveProgress();
+        saveNow();
       }
     };
 
     const handlePageHide = () => {
       safePause();
-      saveProgress();
+      saveNow();
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -191,9 +210,9 @@ export const useVideoProgress = (lessonId: string | undefined) => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("pagehide", handlePageHide);
       window.removeEventListener("beforeunload", handlePageHide);
-      saveProgress();
+      saveNow();
     };
-  }, [saveProgress]);
+  }, [saveNow, safePause]);
 
   return { registerVideo };
 };
