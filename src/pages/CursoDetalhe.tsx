@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Play, ChevronLeft, Lock, Check, Plus, ThumbsUp, Share2, ChevronDown, Clock, BookOpen, CheckCircle } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
@@ -16,11 +16,13 @@ import { useVideoProgress } from "@/hooks/useVideoProgress";
 
 const CursoDetalhe = () => {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"modulos" | "sobre">("modulos");
-  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null);
+  const initialLessonId = searchParams.get("lesson");
+  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(initialLessonId);
 
   const { data: course, isLoading: loadingCourse } = useCourse(id);
   const { data: accessData, isLoading: loadingAccess } = useCourseAccess(id);
