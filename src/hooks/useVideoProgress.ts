@@ -1,29 +1,78 @@
 import { useRef, useEffect, useCallback } from "react";
 import { saveLessonDuration } from "./useContinueWatching";
 
-const STORAGE_PREFIX = "fanatica_video_progress_";
+export const STORAGE_PREFIX = "fanatica_video_progress_";
+export const DURATION_PREFIX_KEY = "fanatica_video_duration_";
+
 const SAVE_INTERVAL_MS = 3000;
 
+/** Returns the current authenticated user's id from the Supabase cached session. */
+const getUserId = (): string | null => {
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k?.startsWith("sb-") && k.endsWith("-auth-token")) {
+        const val = localStorage.getItem(k);
+        if (val) {
+          const parsed = JSON.parse(val);
+          return parsed?.user?.id ?? null;
+        }
+      }
+    }
+  } catch { /* ignore */ }
+  return null;
+};
+
+/** Build a user-scoped storage key. */
+export const buildProgressKey = (lessonId: string): string => {
+  const uid = getUserId();
+  if (!uid) return `${STORAGE_PREFIX}${lessonId}`;
+  return `${STORAGE_PREFIX}${uid}_${lessonId}`;
+};
+
+export const buildDurationKey = (lessonId: string): string => {
+  const uid = getUserId();
+  if (!uid) return `${DURATION_PREFIX_KEY}${lessonId}`;
+  return `${DURATION_PREFIX_KEY}${uid}_${lessonId}`;
+};
 
 /**
- * Persiste e restaura a posição de reprodução de um vídeo no localStorage.
- *
- * Design decisions:
- * - Restoration is tracked per-lessonId to guarantee it only happens once per lesson.
- * - The `seeked` event ONLY saves/clears progress — it never restores.
- * - The callback ref registers the DOM element and attaches save listeners.
- * - A separate effect restores progress once per lesson after metadata is ready.
+ * Clears all video progress localStorage keys for a specific user.
+ * Call this on logout to prevent progress leaking between accounts.
+ */
+export const clearUserVideoProgress = (userId: string) => {
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (
+        k?.startsWith(`${STORAGE_PREFIX}${userId}_`) ||
+        k?.startsWith(`${DURATION_PREFIX_KEY}${userId}_`)
+      ) {
+        keysToRemove.push(k);
+      }
+    }
+    keysToRemove.forEach((k) => localStorage.removeItem(k));
+  } catch { /* ignore */ }
+};
+
+/**
+ * Persiste e restaura a posição de reprodução de um vídeo no localStorage,
+ * com as chaves namespacadas por user_id para garantir isolamento entre usuários.
  */
 export const useVideoProgress = (lessonId: string | undefined) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const saveIntervalRef = useRef<number | null>(null);
-  // Track which lessonId we've already restored, so we never double-restore.
   const restoredLessonRef = useRef<string | undefined>(undefined);
 
-  const storageKey = lessonId ? `${STORAGE_PREFIX}${lessonId}` : null;
+  // Build user-scoped key dynamically at call time (getUserId reads localStorage)
+  const getStorageKey = useCallback(() => {
+    return lessonId ? buildProgressKey(lessonId) : null;
+  }, [lessonId]);
 
   // ─── Save / clear progress ──────────────────────────────────────────────────
   const saveProgress = useCallback(() => {
+    const storageKey = getStorageKey();
     if (!storageKey || !videoRef.current) return;
     const { currentTime, duration } = videoRef.current;
     if (!duration) return;
@@ -36,21 +85,21 @@ export const useVideoProgress = (lessonId: string | undefined) => {
       try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
       return;
     }
-    // Near the end (within 5s) → clear (considered finished, remove from continue watching)
+    // Near the end (within 5s) → clear (considered finished)
     if (duration - currentTime < 5) {
-      try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
+      try {
+        localStorage.removeItem(storageKey);
+        if (lessonId) localStorage.removeItem(buildDurationKey(lessonId));
+      } catch { /* ignore */ }
       return;
     }
     try {
       localStorage.setItem(storageKey, String(currentTime));
     } catch { /* ignore */ }
-  }, [storageKey, lessonId]);
-
+  }, [getStorageKey, lessonId]);
 
   // ─── Register video element & attach save listeners ─────────────────────────
-  // IMPORTANT: does NOT restore here — restoration is handled by the effect below.
   const registerVideo = useCallback((el: HTMLVideoElement | null) => {
-    // Clean up old element
     if (videoRef.current) {
       videoRef.current.removeEventListener("pause", saveProgress);
       videoRef.current.removeEventListener("ended", saveProgress);
@@ -63,32 +112,26 @@ export const useVideoProgress = (lessonId: string | undefined) => {
 
     el.addEventListener("pause", saveProgress);
     el.addEventListener("ended", saveProgress);
-    // seeked fires after every user-initiated or programmatic seek;
-    // it will clear localStorage when time < 1s (user restarted video).
     el.addEventListener("seeked", saveProgress);
   }, [saveProgress]);
 
   // ─── Restore progress once per lesson ───────────────────────────────────────
-  // This effect runs whenever lessonId changes. It waits for metadata to be
-  // ready, then sets currentTime to the saved value exactly once.
   useEffect(() => {
-    if (!lessonId || !storageKey) return;
+    if (!lessonId) return;
 
-    // Reset restoration gate for the new lesson
     restoredLessonRef.current = undefined;
 
     const doRestore = () => {
-      // Guard: only restore once per lesson
       if (restoredLessonRef.current === lessonId) return;
       restoredLessonRef.current = lessonId;
 
       const el = videoRef.current;
       if (!el) return;
 
-      // Persist real duration as soon as metadata is ready
       if (el.duration && lessonId) saveLessonDuration(lessonId, el.duration);
 
       try {
+        const storageKey = buildProgressKey(lessonId);
         const saved = localStorage.getItem(storageKey);
         if (saved) {
           const time = parseFloat(saved);
@@ -103,22 +146,20 @@ export const useVideoProgress = (lessonId: string | undefined) => {
     if (!el) return;
 
     if (el.readyState >= 1) {
-      // Metadata already available — restore immediately
       doRestore();
     } else {
-      // Wait for metadata
       el.addEventListener("loadedmetadata", doRestore, { once: true });
       return () => {
         el.removeEventListener("loadedmetadata", doRestore);
       };
     }
-  }, [lessonId, storageKey]);
+  }, [lessonId]);
 
   // ─── Periodic save + visibility / page-hide handlers ────────────────────────
   useEffect(() => {
     saveIntervalRef.current = window.setInterval(saveProgress, SAVE_INTERVAL_MS);
 
-  const safePause = () => {
+    const safePause = () => {
       const el = videoRef.current;
       if (!el || el.paused) return;
       try {

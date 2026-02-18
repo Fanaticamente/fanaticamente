@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { clearUserVideoProgress } from "@/hooks/useVideoProgress";
+
 
 type AppRole = "user" | "professional" | "developer" | "admin";
 
@@ -200,11 +202,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
+    // Clear user-scoped video progress from localStorage before signing out
+    if (user?.id) {
+      clearUserVideoProgress(user.id);
+    }
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
     setRoles([]);
   };
+
 
   const hasRole = (role: AppRole) => roles.includes(role);
 
