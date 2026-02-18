@@ -156,91 +156,87 @@ Deno.serve(async (req) => {
       console.log(`Broadcasting to ${userIds.length} users`);
     }
 
-    // Insert in-app notifications in batches
-    const notifRows = userIds.map((uid) => ({
-      user_id: uid,
-      title,
-      message,
-      type,
-      link: link || null,
-      is_read: false,
-    }));
-
-    if (notifRows.length > 0) {
-      await supabaseAdmin.from("user_notifications").insert(notifRows);
-    }
-
-    // 2. Send push notifications
+    // Send push notifications only to PWA subscribers (no in-app notifications)
     const vapidPublic = Deno.env.get("VAPID_PUBLIC_KEY");
     const vapidPrivate = Deno.env.get("VAPID_PRIVATE_KEY");
     const vapidSubject = Deno.env.get("VAPID_SUBJECT") || "mailto:contato@fanaticamente.com";
 
     let pushSent = 0;
     let pushFailed = 0;
+    let subsCount = 0;
 
-    if (vapidPublic && vapidPrivate) {
-      // Build query for push subscriptions - filter to only users in userIds list
-      let subsQuery = supabaseAdmin.from("push_subscriptions").select("*");
-      if (userIds.length > 0) subsQuery = subsQuery.in("user_id", userIds);
-      else {
-        // No users matched the filter - skip push
-        return new Response(
-          JSON.stringify({ success: true, in_app_sent: 0, push_sent: 0, push_failed: 0, vapid_configured: true }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+    if (!vapidPublic || !vapidPrivate) {
+      return new Response(
+        JSON.stringify({ success: false, error: "VAPID keys not configured", push_sent: 0, push_failed: 0 }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-      const { data: subs } = await subsQuery;
+    if (userIds.length === 0) {
+      return new Response(
+        JSON.stringify({ success: true, push_sent: 0, push_failed: 0, pwa_subscribers: 0, vapid_configured: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-      if (subs && subs.length > 0) {
-        const pushPayload = JSON.stringify({
-          title,
-          body: message,
-          icon: icon || "/pwa-192x192.png",
-          badge: "/pwa-192x192.png",
-          data: { url: link || "/" },
-        });
+    // Fetch only PWA push subscriptions for the target users
+    const { data: subs } = await supabaseAdmin
+      .from("push_subscriptions")
+      .select("*")
+      .in("user_id", userIds);
 
-        const results = await Promise.allSettled(
-          subs.map((sub) =>
-            sendWebPush(
-              { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
-              pushPayload,
-              vapidPublic,
-              vapidPrivate,
-              vapidSubject
-            )
+    subsCount = subs?.length ?? 0;
+    console.log(`Found ${subsCount} PWA push subscriptions for ${userIds.length} target user(s)`);
+
+    if (subs && subs.length > 0) {
+      const pushPayload = JSON.stringify({
+        title,
+        body: message,
+        icon: icon || "/pwa-192x192.png",
+        badge: "/pwa-192x192.png",
+        data: { url: link || "/" },
+      });
+
+      const results = await Promise.allSettled(
+        subs.map((sub) =>
+          sendWebPush(
+            { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
+            pushPayload,
+            vapidPublic,
+            vapidPrivate,
+            vapidSubject
           )
-        );
+        )
+      );
 
-        // Clean up expired subscriptions (410 Gone)
-        const expiredEndpoints: string[] = [];
-        results.forEach((result, idx) => {
-          if (result.status === "fulfilled") {
-            if (result.value.ok) pushSent++;
-            else {
-              pushFailed++;
-              if (result.value.status === 410) expiredEndpoints.push(subs[idx].endpoint);
-            }
-          } else pushFailed++;
-        });
+      // Clean up expired subscriptions (410 Gone)
+      const expiredEndpoints: string[] = [];
+      results.forEach((result, idx) => {
+        if (result.status === "fulfilled") {
+          if (result.value.ok) pushSent++;
+          else {
+            pushFailed++;
+            if (result.value.status === 410) expiredEndpoints.push(subs[idx].endpoint);
+          }
+        } else pushFailed++;
+      });
 
-        if (expiredEndpoints.length > 0) {
-          await supabaseAdmin
-            .from("push_subscriptions")
-            .delete()
-            .in("endpoint", expiredEndpoints);
-        }
+      if (expiredEndpoints.length > 0) {
+        await supabaseAdmin
+          .from("push_subscriptions")
+          .delete()
+          .in("endpoint", expiredEndpoints);
+        console.log(`Removed ${expiredEndpoints.length} expired push subscriptions`);
       }
     }
 
     return new Response(
       JSON.stringify({
         success: true,
-        in_app_sent: notifRows.length,
         push_sent: pushSent,
         push_failed: pushFailed,
-        vapid_configured: !!(vapidPublic && vapidPrivate),
+        pwa_subscribers: subsCount,
+        vapid_configured: true,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
