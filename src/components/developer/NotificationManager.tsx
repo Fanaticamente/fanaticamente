@@ -4,12 +4,13 @@ import {
   BookTemplate, Zap, History, BarChart3, Plus, Trash2, Edit3,
   Play, Pause, Clock, ArrowRight, RefreshCw, Filter, Search,
   TrendingUp, MessageSquare, Smartphone, Globe, ChevronRight,
-  X, Save, Eye, Copy, Calendar, Target
+  X, Save, Eye, Copy, Calendar, Target, Shield
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { brazilianClubs } from "@/data/brazilianClubs";
 
 type NotifType = "info" | "appointment" | "course" | "payment" | "warning" | "promo";
 type TabId = "send" | "templates" | "automations" | "history" | "metrics";
@@ -97,10 +98,14 @@ const NotifTypeBadge = ({ type }: { type: string }) => {
 
 // ─── SEND TAB ────────────────────────────────────────────────────────────────
 const SendTab = () => {
-  const [targetType, setTargetType] = useState<"all" | "specific">("all");
+  const [targetType, setTargetType] = useState<"all" | "specific" | "club">("all");
   const [targetUserId, setTargetUserId] = useState("");
   const [targetUserEmail, setTargetUserEmail] = useState("");
+  const [targetClubId, setTargetClubId] = useState("");
+  const [clubFanCount, setClubFanCount] = useState<number | null>(null);
   const [searchingUser, setSearchingUser] = useState(false);
+  const [loadingClubCount, setLoadingClubCount] = useState(false);
+  const [emailSearchResults, setEmailSearchResults] = useState<{ id: string; email: string }[]>([]);
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [type, setType] = useState<NotifType>("info");
@@ -116,9 +121,20 @@ const SendTab = () => {
     });
   }, []);
 
-  const searchUser = async () => {
+  // Load fan count when club changes
+  useEffect(() => {
+    if (targetType !== "club" || !targetClubId) { setClubFanCount(null); return; }
+    setLoadingClubCount(true);
+    supabase.from("profiles").select("user_id", { count: "exact", head: true }).eq("favorite_club_id", targetClubId).then(({ count }) => {
+      setClubFanCount(count ?? 0);
+      setLoadingClubCount(false);
+    });
+  }, [targetClubId, targetType]);
+
+  const searchUserByEmail = async () => {
     if (!targetUserEmail.trim()) return;
     setSearchingUser(true);
+    setEmailSearchResults([]);
     setTargetUserId("");
     try {
       const { data, error } = await supabase.functions.invoke("get-user-emails", {
@@ -126,10 +142,13 @@ const SendTab = () => {
       });
       if (error) throw error;
       if (data?.users?.length > 0) {
-        setTargetUserId(data.users[0].id);
-        toast.success(`Usuário encontrado: ${data.users[0].email}`);
+        setEmailSearchResults(data.users);
+        if (data.users.length === 1) {
+          setTargetUserId(data.users[0].id);
+          toast.success(`Usuário encontrado: ${data.users[0].email}`);
+        }
       } else {
-        toast.error("Nenhum usuário encontrado.");
+        toast.error("Nenhum usuário encontrado com esse email.");
       }
     } catch {
       toast.error("Erro ao buscar usuário.");
@@ -156,28 +175,34 @@ const SendTab = () => {
       toast.error("Selecione um usuário primeiro.");
       return;
     }
+    if (targetType === "club" && !targetClubId) {
+      toast.error("Selecione um clube primeiro.");
+      return;
+    }
     setSending(true);
     setLastResult(null);
     try {
-      const { data, error } = await supabase.functions.invoke("send-push-notification", {
-        body: {
-          title: title.trim(),
-          message: message.trim(),
-          type,
-          link: link.trim() || undefined,
-          target_user_id: targetType === "specific" ? targetUserId : undefined,
-        },
-      });
+      const payload: Record<string, unknown> = {
+        title: title.trim(),
+        message: message.trim(),
+        type,
+        link: link.trim() || undefined,
+      };
+      if (targetType === "specific") payload.target_user_id = targetUserId;
+      if (targetType === "club") payload.target_club_id = targetClubId;
+
+      const { data, error } = await supabase.functions.invoke("send-push-notification", { body: payload });
       if (error) throw error;
       setLastResult(data);
 
       // Log the send
+      const selectedClub = brazilianClubs.find(c => c.id === targetClubId);
       await supabase.from("notification_logs").insert({
         title: title.trim(),
         message: message.trim(),
         type,
         link: link.trim() || null,
-        target: targetType,
+        target: targetType === "club" ? `club:${selectedClub?.name || targetClubId}` : targetType,
         target_user_id: targetType === "specific" ? targetUserId : null,
         in_app_sent: data.in_app_sent,
         push_sent: data.push_sent,
@@ -187,6 +212,7 @@ const SendTab = () => {
       toast.success(`Notificação enviada para ${data.in_app_sent} usuário(s)!`);
       setTitle(""); setMessage(""); setLink(""); setType("info");
       setTargetUserId(""); setTargetUserEmail(""); setTargetType("all");
+      setTargetClubId(""); setClubFanCount(null); setEmailSearchResults([]);
     } catch (e) {
       console.error(e);
       toast.error("Erro ao enviar notificação.");
@@ -194,6 +220,14 @@ const SendTab = () => {
       setSending(false);
     }
   };
+
+  const selectedClub = brazilianClubs.find(c => c.id === targetClubId);
+
+  const targetOptions = [
+    { value: "all", label: "Todos os usuários", icon: Users, desc: "Envia para todos com role user" },
+    { value: "specific", label: "Usuário por e-mail", icon: User, desc: "Busca e seleciona um usuário" },
+    { value: "club", label: "Torcedores de um clube", icon: Shield, desc: "Filtra por clube favorito" },
+  ] as const;
 
   return (
     <div className="grid grid-cols-5 gap-6 h-full">
@@ -237,51 +271,120 @@ const SendTab = () => {
         {/* Destinatário */}
         <div>
           <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Destinatário</label>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { value: "all", label: "Todos os usuários", icon: Users },
-              { value: "specific", label: "Usuário específico", icon: User },
-            ].map(opt => {
+          <div className="grid grid-cols-3 gap-2">
+            {targetOptions.map(opt => {
               const Icon = opt.icon;
               return (
                 <button
                   key={opt.value}
-                  onClick={() => setTargetType(opt.value as "all" | "specific")}
-                  className={`flex items-center gap-2 p-3 rounded-xl border text-sm transition-all ${
+                  onClick={() => { setTargetType(opt.value); setTargetUserId(""); setEmailSearchResults([]); setTargetClubId(""); }}
+                  className={`flex flex-col items-start gap-1 p-3 rounded-xl border text-sm transition-all ${
                     targetType === opt.value
                       ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20"
                       : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-card-foreground"
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  {opt.label}
+                  <div className="flex items-center gap-2">
+                    <Icon className="w-4 h-4" />
+                    <span className="font-medium text-xs">{opt.label}</span>
+                  </div>
+                  <span className={`text-[10px] ${targetType === opt.value ? "text-primary-foreground/70" : "text-muted-foreground/60"}`}>{opt.desc}</span>
                 </button>
               );
             })}
           </div>
+
+          {/* Specific user search */}
           {targetType === "specific" && (
-            <div className="mt-3 flex gap-2">
-              <input
-                type="email"
-                value={targetUserEmail}
-                onChange={e => setTargetUserEmail(e.target.value)}
-                placeholder="email@usuario.com"
-                className="flex-1 px-3 py-2 rounded-lg border border-border bg-muted/30 text-card-foreground text-sm focus:border-primary focus:outline-none"
-                onKeyDown={e => e.key === "Enter" && searchUser()}
-              />
-              <button
-                onClick={searchUser}
-                disabled={searchingUser}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-primary/90 transition-colors"
-              >
-                {searchingUser ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-              </button>
+            <div className="mt-3 space-y-2">
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={targetUserEmail}
+                  onChange={e => { setTargetUserEmail(e.target.value); setTargetUserId(""); setEmailSearchResults([]); }}
+                  placeholder="Digite o e-mail do usuário..."
+                  className="flex-1 px-3 py-2 rounded-lg border border-border bg-muted/30 text-card-foreground text-sm focus:border-primary focus:outline-none"
+                  onKeyDown={e => e.key === "Enter" && searchUserByEmail()}
+                />
+                <button
+                  onClick={searchUserByEmail}
+                  disabled={searchingUser || !targetUserEmail.trim()}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-primary/90 transition-colors flex items-center gap-2"
+                >
+                  {searchingUser ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                  {searchingUser ? "" : "Buscar"}
+                </button>
+              </div>
+              {emailSearchResults.length > 0 && (
+                <div className="border border-border rounded-xl bg-card overflow-hidden">
+                  {emailSearchResults.map(u => (
+                    <button
+                      key={u.id}
+                      onClick={() => { setTargetUserId(u.id); setEmailSearchResults([]); setTargetUserEmail(u.email); toast.success(`Selecionado: ${u.email}`); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 hover:bg-primary/10 transition-colors text-left border-b border-border last:border-0 ${targetUserId === u.id ? "bg-primary/10" : ""}`}
+                    >
+                      <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                        <User className="w-3.5 h-3.5 text-muted-foreground" />
+                      </div>
+                      <span className="text-sm text-card-foreground">{u.email}</span>
+                      {targetUserId === u.id && <CheckCircle className="w-4 h-4 text-primary ml-auto" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {targetUserId && emailSearchResults.length === 0 && (
+                <p className="text-xs text-green-400 flex items-center gap-1.5">
+                  <CheckCircle className="w-3.5 h-3.5" /> Usuário selecionado: {targetUserEmail}
+                </p>
+              )}
             </div>
           )}
-          {targetUserId && (
-            <p className="text-xs text-green-400 mt-1.5 flex items-center gap-1">
-              <CheckCircle className="w-3.5 h-3.5" /> Usuário encontrado e selecionado
-            </p>
+
+          {/* Club filter */}
+          {targetType === "club" && (
+            <div className="mt-3 space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Selecione o clube</label>
+                <select
+                  value={targetClubId}
+                  onChange={e => setTargetClubId(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl border border-border bg-muted/30 text-card-foreground text-sm focus:border-primary focus:outline-none"
+                >
+                  <option value="">— Selecione um clube —</option>
+                  {["serie_a", "serie_b", "serie_c"].map(league => {
+                    const leagueClubs = brazilianClubs.filter(c => c.league === league);
+                    if (!leagueClubs.length) return null;
+                    return (
+                      <optgroup key={league} label={league === "serie_a" ? "Série A" : league === "serie_b" ? "Série B" : "Série C"}>
+                        {leagueClubs.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </optgroup>
+                    );
+                  })}
+                </select>
+              </div>
+              {targetClubId && (
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/20 border border-border">
+                  {selectedClub && (
+                    <img src={selectedClub.badgeUrl} alt={selectedClub.name} className="w-8 h-8 object-contain" />
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-card-foreground">{selectedClub?.name}</p>
+                    {loadingClubCount ? (
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">Contando torcedores...</p>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        <span className="font-semibold text-primary">{clubFanCount ?? 0}</span> torcedores cadastrados no app
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
@@ -399,9 +502,20 @@ const SendTab = () => {
               <span>In-app</span>
             </div>
             <NotifTypeBadge type={type} />
-            <p className="text-[10px] text-muted-foreground">
-              Para: {targetType === "all" ? "Todos os usuários (role: user)" : targetUserId ? "1 usuário selecionado" : "Aguardando seleção..."}
-            </p>
+            <div className="text-[10px] text-muted-foreground space-y-0.5">
+              <p>Para: {
+                targetType === "all" ? "Todos os usuários" :
+                targetType === "club" && selectedClub ? `Torcedores do ${selectedClub.name}${clubFanCount !== null ? ` (${clubFanCount})` : ""}` :
+                targetType === "club" ? "Selecione um clube..." :
+                targetUserId ? targetUserEmail : "Aguardando seleção..."
+              }</p>
+              {targetType === "club" && selectedClub && (
+                <div className="flex items-center gap-1 mt-1">
+                  <img src={selectedClub.badgeUrl} alt="" className="w-4 h-4 object-contain" />
+                  <span className="text-primary font-medium">{selectedClub.shortName}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

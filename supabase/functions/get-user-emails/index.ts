@@ -63,8 +63,27 @@ serve(async (req) => {
       );
     }
 
-    const { userIds } = await req.json();
+    const body = await req.json();
+    const { userIds, search } = body;
 
+    // Mode 1: search by email (partial match)
+    if (search && typeof search === "string") {
+      const { data: authUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers({ perPage: 500 });
+      if (listError) throw listError;
+
+      const searchLower = search.toLowerCase();
+      const matched = (authUsers?.users || [])
+        .filter(u => u.email && u.email.toLowerCase().includes(searchLower))
+        .slice(0, 10)
+        .map(u => ({ id: u.id, email: u.email! }));
+
+      return new Response(
+        JSON.stringify({ users: matched }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Mode 2: batch lookup by userIds
     if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
       return new Response(
         JSON.stringify({ emails: {} }),

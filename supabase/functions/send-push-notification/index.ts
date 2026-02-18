@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { title, message, type = "info", link, target_user_id, icon } = body;
+    const { title, message, type = "info", link, target_user_id, target_club_id, icon } = body;
 
     if (!title || !message) {
       return new Response(JSON.stringify({ error: "title and message are required" }), { status: 400, headers: corsHeaders });
@@ -133,9 +133,17 @@ Deno.serve(async (req) => {
     let userIds: string[] = [];
 
     if (target_user_id) {
+      // Single specific user
       userIds = [target_user_id];
+    } else if (target_club_id) {
+      // Filter by favorite club
+      const { data: profiles } = await supabaseAdmin
+        .from("profiles")
+        .select("user_id")
+        .eq("favorite_club_id", target_club_id);
+      userIds = (profiles || []).map((p) => p.user_id);
     } else {
-      // Broadcast: get all user ids
+      // Broadcast: get all users
       const { data: roles } = await supabaseAdmin
         .from("user_roles")
         .select("user_id")
@@ -166,9 +174,16 @@ Deno.serve(async (req) => {
     let pushFailed = 0;
 
     if (vapidPublic && vapidPrivate) {
-      // Build query for push subscriptions
+      // Build query for push subscriptions - filter to only users in userIds list
       let subsQuery = supabaseAdmin.from("push_subscriptions").select("*");
-      if (target_user_id) subsQuery = subsQuery.eq("user_id", target_user_id);
+      if (userIds.length > 0) subsQuery = subsQuery.in("user_id", userIds);
+      else {
+        // No users matched the filter - skip push
+        return new Response(
+          JSON.stringify({ success: true, in_app_sent: 0, push_sent: 0, push_failed: 0, vapid_configured: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
 
       const { data: subs } = await subsQuery;
 
