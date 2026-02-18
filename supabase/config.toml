@@ -77,3 +77,15 @@ verify_jwt = false
 
 [functions.fix-missing-club-ids]
 verify_jwt = false
+
+[functions.fix-missing-images]
+verify_jwt = false
+
+[functions.get-user-emails]
+verify_jwt = false
+
+[functions.send-push-notification]
+verify_jwt = false
+
+[functions.save-push-subscription]
+verify_jwt = false
