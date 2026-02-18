@@ -50,12 +50,45 @@ if (isEmbedMode() || isManagerRoute() || isServiceWorkerDisabledByManager()) {
 } else if (import.meta.env.PROD) {
   // In dev/preview the PWA update flow can cause refresh loops. Keep SW only in production.
   let alreadyRefreshing = false;
+
+  /**
+   * Returns true when it is NOT safe to perform an automatic reload:
+   * - user is on a course/lesson page (video may be playing)
+   * - a <video> element is currently playing
+   * - the manager stability flag is set
+   */
+  const isSafeToRefresh = () => {
+    if (isServiceWorkerDisabledByManager()) return false;
+    try {
+      const path = window.location.pathname;
+      // Never reload on course/lesson pages – video might be playing
+      if (path.startsWith("/curso")) return false;
+      // Never reload if any video is currently playing
+      const videos = document.querySelectorAll("video");
+      for (const v of Array.from(videos)) {
+        if (!v.paused && !v.ended) return false;
+      }
+    } catch {
+      // ignore
+    }
+    return true;
+  };
+
   const updateSW = registerSW({
     // Força verificação imediata de atualizações ao abrir o app
     immediate: true,
     onNeedRefresh() {
-      // If the manager stability flag is set, never force-refresh.
-      if (isServiceWorkerDisabledByManager()) return;
+      if (!isSafeToRefresh()) {
+        // Schedule a retry after a delay to catch the update when safe
+        setTimeout(() => {
+          if (!alreadyRefreshing && isSafeToRefresh()) {
+            alreadyRefreshing = true;
+            console.log("[PWA] Nova versão disponível, atualizando automaticamente...");
+            updateSW(true);
+          }
+        }, 5 * 60 * 1000); // retry in 5 minutes
+        return;
+      }
       if (alreadyRefreshing) return;
       alreadyRefreshing = true;
       console.log("[PWA] Nova versão disponível, atualizando automaticamente...");
