@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
       .eq("user_id", claimsData.claims.sub)
       .single();
 
-    if (!roleData || roleData.role !== "admin") {
+    if (!roleData || !["admin", "developer"].includes(roleData.role)) {
       return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: corsHeaders });
     }
 

@@ -843,6 +843,149 @@ export type Database = {
           },
         ]
       }
+      notification_automations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          delay_minutes: number
+          id: string
+          is_active: boolean
+          link: string | null
+          message: string
+          name: string
+          target_role: string
+          title: string
+          trigger_event: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          delay_minutes?: number
+          id?: string
+          is_active?: boolean
+          link?: string | null
+          message: string
+          name: string
+          target_role?: string
+          title: string
+          trigger_event: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          delay_minutes?: number
+          id?: string
+          is_active?: boolean
+          link?: string | null
+          message?: string
+          name?: string
+          target_role?: string
+          title?: string
+          trigger_event?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notification_logs: {
+        Row: {
+          automation_id: string | null
+          id: string
+          in_app_sent: number
+          link: string | null
+          message: string
+          push_failed: number
+          push_sent: number
+          sent_at: string
+          sent_by: string | null
+          target: string
+          target_user_id: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          automation_id?: string | null
+          id?: string
+          in_app_sent?: number
+          link?: string | null
+          message: string
+          push_failed?: number
+          push_sent?: number
+          sent_at?: string
+          sent_by?: string | null
+          target?: string
+          target_user_id?: string | null
+          title: string
+          type?: string
+        }
+        Update: {
+          automation_id?: string | null
+          id?: string
+          in_app_sent?: number
+          link?: string | null
+          message?: string
+          push_failed?: number
+          push_sent?: number
+          sent_at?: string
+          sent_by?: string | null
+          target?: string
+          target_user_id?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_logs_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "notification_automations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          icon: string | null
+          id: string
+          link: string | null
+          message: string
+          name: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          icon?: string | null
+          id?: string
+          link?: string | null
+          message: string
+          name: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          icon?: string | null
+          id?: string
+          link?: string | null
+          message?: string
+          name?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       osmf_reports: {
         Row: {
           attachment_paths: string[]
