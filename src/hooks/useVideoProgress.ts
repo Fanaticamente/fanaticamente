@@ -28,7 +28,12 @@ export const useVideoProgress = (lessonId: string | undefined) => {
     const key = getStorageKey();
     if (!key || !videoRef.current) return;
     const { currentTime, duration } = videoRef.current;
-    if (!duration || currentTime < 1) return;
+    if (!duration) return;
+    // Se o usuário voltou para o início (< 1s), limpa o progresso salvo
+    if (currentTime < 1) {
+      try { localStorage.removeItem(key); } catch { /* ignore */ }
+      return;
+    }
     // Não salva se está nos últimos 5 segundos (considera finalizado)
     if (duration - currentTime < 5) {
       try { localStorage.removeItem(key); } catch { /* ignore */ }
@@ -81,7 +86,7 @@ export const useVideoProgress = (lessonId: string | undefined) => {
     if (videoRef.current) {
       videoRef.current.removeEventListener("pause", saveProgress);
       videoRef.current.removeEventListener("ended", saveProgress);
-      videoRef.current.removeEventListener("timeupdate", saveProgress);
+      videoRef.current.removeEventListener("seeked", saveProgress);
     }
 
     videoRef.current = el;
@@ -92,9 +97,10 @@ export const useVideoProgress = (lessonId: string | undefined) => {
     // Restaura posição
     tryRestore();
 
-    // Salva ao pausar, terminar e periodicamente via timeupdate
+    // Salva ao pausar e terminar; limpa ao buscar o início
     el.addEventListener("pause", saveProgress);
     el.addEventListener("ended", saveProgress);
+    el.addEventListener("seeked", saveProgress);
   }, [saveProgress, tryRestore]);
 
   // Salva periodicamente e ao ocultar a aba/app (pausando o vídeo ao sair)
