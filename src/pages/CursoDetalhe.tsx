@@ -85,7 +85,6 @@ const CursoDetalhe = () => {
         {hasAccess && currentLesson?.video_url ? (
           <video
             ref={registerVideo}
-            key={currentLesson.id}
             src={currentLesson.video_url}
             controls
             playsInline
