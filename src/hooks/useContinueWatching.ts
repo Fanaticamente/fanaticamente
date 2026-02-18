@@ -1,9 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-
-const STORAGE_PREFIX = "fanatica_video_progress_";
-// Stores "currentTime/duration" so we can compute accurate % without DB duration string
-const DURATION_PREFIX = "fanatica_video_duration_";
+import { buildProgressKey, buildDurationKey, STORAGE_PREFIX } from "./useVideoProgress";
 
 export interface ContinueWatchingItem {
   lessonId: string;
@@ -19,15 +16,15 @@ export interface ContinueWatchingItem {
 export const saveLessonDuration = (lessonId: string, duration: number) => {
   if (!lessonId || !duration) return;
   try {
-    localStorage.setItem(`${DURATION_PREFIX}${lessonId}`, String(duration));
+    localStorage.setItem(buildDurationKey(lessonId), String(duration));
   } catch { /* ignore */ }
 };
 
-/** Read saved progress % for a lesson directly from localStorage. */
+/** Read saved progress % for a lesson directly from localStorage (user-scoped). */
 export const getProgressPercent = (lessonId: string): number => {
   try {
-    const timeStr = localStorage.getItem(`${STORAGE_PREFIX}${lessonId}`);
-    const durStr = localStorage.getItem(`${DURATION_PREFIX}${lessonId}`);
+    const timeStr = localStorage.getItem(buildProgressKey(lessonId));
+    const durStr = localStorage.getItem(buildDurationKey(lessonId));
     if (!timeStr || !durStr) return 0;
     const time = parseFloat(timeStr);
     const duration = parseFloat(durStr);
@@ -43,19 +40,33 @@ export const useContinueWatching = () => {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      // Collect all lesson IDs with saved progress (only unfinished ones)
+      // Get current user id to scope the search
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+
+      // If no user is logged in, show nothing
+      if (!userId) {
+        setItems([]);
+        setLoading(false);
+        return;
+      }
+
+      // Collect all lesson IDs with saved progress scoped to this user
       const lessonIds: { id: string; time: number }[] = [];
+      const userPrefix = `${STORAGE_PREFIX}${userId}_`;
+
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key?.startsWith(STORAGE_PREFIX)) {
-          const lessonId = key.replace(STORAGE_PREFIX, "");
-          const saved = localStorage.getItem(key);
-          if (saved) {
-            const time = parseFloat(saved);
-            // time > 1 means started; useVideoProgress already removes key when finished (near end)
-            if (!isNaN(time) && time > 1) {
-              lessonIds.push({ id: lessonId, time });
-            }
+        if (!key?.startsWith(userPrefix)) continue;
+
+        const lessonId = key.replace(userPrefix, "");
+        if (!lessonId) continue;
+
+        const saved = localStorage.getItem(key);
+        if (saved) {
+          const time = parseFloat(saved);
+          if (!isNaN(time) && time > 1) {
+            lessonIds.push({ id: lessonId, time });
           }
         }
       }
@@ -103,7 +114,6 @@ export const useContinueWatching = () => {
         return;
       }
 
-      // Build map for quick lookup
       const moduleMap = new Map(modules.map((m) => [m.id, m.course_id]));
       const courseMap = new Map(courses.map((c) => [c.id, c]));
 
@@ -116,7 +126,6 @@ export const useContinueWatching = () => {
           const savedEntry = lessonIds.find((l) => l.id === lesson.id);
           if (!savedEntry) return null;
 
-          // Prefer real duration from localStorage; fallback to DB duration string
           const progressPercent = getProgressPercent(lesson.id) || (() => {
             if (!lesson.duration) return 0;
             const parts = lesson.duration.split(":").map(Number);
@@ -165,4 +174,3 @@ export const useContinueWatching = () => {
 
   return { items, loading, reload: load };
 };
-
