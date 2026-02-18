@@ -192,24 +192,35 @@ const SendTab = () => {
       if (targetType === "club") payload.target_club_id = targetClubId;
 
       const { data, error } = await supabase.functions.invoke("send-push-notification", { body: payload });
-      if (error) throw error;
+      
+      // Log the error details for debugging
+      if (error) {
+        console.error("Edge function error:", error);
+        throw new Error(error.message || "Erro na edge function");
+      }
+      if (!data) throw new Error("Resposta vazia da edge function");
+      if (data.error) throw new Error(data.error);
+      
       setLastResult(data);
+      toast.success(`Notificação enviada para ${data.in_app_sent ?? 0} usuário(s)!`);
 
-      // Log the send
-      const selectedClub = brazilianClubs.find(c => c.id === targetClubId);
-      await supabase.from("notification_logs").insert({
-        title: title.trim(),
-        message: message.trim(),
-        type,
-        link: link.trim() || null,
-        target: targetType === "club" ? `club:${selectedClub?.name || targetClubId}` : targetType,
-        target_user_id: targetType === "specific" ? targetUserId : null,
-        in_app_sent: data.in_app_sent,
-        push_sent: data.push_sent,
-        push_failed: data.push_failed,
-      });
-
-      toast.success(`Notificação enviada para ${data.in_app_sent} usuário(s)!`);
+      // Log the send (non-blocking - don't fail if log fails)
+      try {
+        const selectedClub = brazilianClubs.find(c => c.id === targetClubId);
+        await supabase.from("notification_logs").insert({
+          title: title.trim(),
+          message: message.trim(),
+          type,
+          link: link.trim() || null,
+          target: targetType === "club" ? `club:${selectedClub?.name || targetClubId}` : targetType,
+          target_user_id: targetType === "specific" ? targetUserId : null,
+          in_app_sent: data.in_app_sent ?? 0,
+          push_sent: data.push_sent ?? 0,
+          push_failed: data.push_failed ?? 0,
+        });
+      } catch (logErr) {
+        console.warn("Falha ao salvar log de notificação:", logErr);
+      }
       setTitle(""); setMessage(""); setLink(""); setType("info");
       setTargetUserId(""); setTargetUserEmail(""); setTargetType("all");
       setTargetClubId(""); setClubFanCount(null); setEmailSearchResults([]);
