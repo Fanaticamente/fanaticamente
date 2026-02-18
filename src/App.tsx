@@ -2,6 +2,26 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Global safety net: prevent unhandled promise rejections (e.g. video.pause() AbortError)
+// from crashing the entire React app with a white screen.
+if (typeof window !== "undefined") {
+  window.addEventListener("unhandledrejection", (event) => {
+    // Suppress DOMException AbortError — these are harmless and come from video.pause()
+    // being called while play() is still resolving (browser race condition).
+    const reason = event.reason;
+    if (
+      reason instanceof DOMException &&
+      (reason.name === "AbortError" || reason.name === "NotAllowedError")
+    ) {
+      event.preventDefault();
+      return;
+    }
+    // Log other unhandled rejections but don't crash
+    console.error("[App] Unhandled rejection:", reason);
+    event.preventDefault();
+  });
+}
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RadioProvider } from "@/contexts/RadioContext";

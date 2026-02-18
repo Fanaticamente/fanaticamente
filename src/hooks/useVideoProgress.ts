@@ -109,19 +109,26 @@ export const useVideoProgress = (lessonId: string | undefined) => {
   useEffect(() => {
     saveIntervalRef.current = window.setInterval(saveProgress, SAVE_INTERVAL_MS);
 
+  const safePause = () => {
+      const el = videoRef.current;
+      if (!el || el.paused) return;
+      try {
+        const p = el.pause() as unknown;
+        if (p && typeof (p as Promise<void>).catch === "function") {
+          (p as Promise<void>).catch(() => { /* ignore AbortError */ });
+        }
+      } catch { /* ignore */ }
+    };
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
-        if (videoRef.current && !videoRef.current.paused) {
-          videoRef.current.pause();
-        }
+        safePause();
         saveProgress();
       }
     };
 
     const handlePageHide = () => {
-      if (videoRef.current && !videoRef.current.paused) {
-        videoRef.current.pause();
-      }
+      safePause();
       saveProgress();
     };
 
