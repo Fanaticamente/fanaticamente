@@ -38,6 +38,7 @@ export const useContinueWatching = () => {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
+
     setLoading(true);
     try {
       // Get current user id to scope the search
