@@ -110,7 +110,7 @@ export const useContinueWatching = () => {
               courseId: course.id,
               courseTitle: course.title,
               lessonTitle: lesson.title,
-              thumbnailUrl: lesson.thumbnail_url || course.thumbnail_url,
+              thumbnailUrl: course.thumbnail_url,
               savedTime: savedEntry.time,
               progressPercent,
             } as ContinueWatchingItem;

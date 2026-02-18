@@ -211,53 +211,6 @@ const Cursos = () => {
         </div>
       ) : (
         <>
-          {/* Continue Watching */}
-          {continueWatching.length > 0 && (
-            <div className="mb-8">
-              <h2 className="font-display text-xl text-white mb-4">Continuar assistindo</h2>
-              <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
-                {continueWatching.map((item) => (
-                  <Link
-                    key={item.lessonId}
-                    to={`/curso/${item.courseId}?lesson=${item.lessonId}`}
-                    className={`flex-shrink-0 group ${isMobile ? "w-40" : "w-52"}`}
-                  >
-                    <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-muted">
-                      {item.thumbnailUrl ? (
-                        <img
-                          src={item.thumbnailUrl}
-                          alt={item.lessonTitle}
-                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/30" />
-                      )}
-                      {/* Dark overlay gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      {/* Play button */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full border-2 border-white/80 bg-black/40 flex items-center justify-center backdrop-blur-sm group-hover:bg-black/60 transition-colors">
-                          <Play className="w-5 h-5 text-white fill-current ml-0.5" />
-                        </div>
-                      </div>
-                      {/* Progress bar */}
-                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
-                        <div
-                          className="h-full bg-white transition-all"
-                          style={{ width: `${item.progressPercent || 10}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="mt-2 px-0.5">
-                      <p className="text-white text-xs font-medium line-clamp-1">{item.courseTitle}</p>
-                      <p className="text-muted-foreground text-xs line-clamp-1 mt-0.5">{item.lessonTitle}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Featured Hero */}
           {featuredCourse && (
             <div className="mb-8">
@@ -297,6 +250,53 @@ const Cursos = () => {
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Continue Watching — aparece após o hero */}
+          {continueWatching.length > 0 && (
+            <div className="mb-8">
+              <h2 className="font-display text-xl text-white mb-4">CONTINUAR ASSISTINDO</h2>
+              <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
+                {continueWatching.map((item) => (
+                  <Link
+                    key={item.lessonId}
+                    to={`/curso/${item.courseId}?lesson=${item.lessonId}`}
+                    className={`flex-shrink-0 group ${isMobile ? "w-40" : "w-52"}`}
+                  >
+                    <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-muted">
+                      {item.thumbnailUrl ? (
+                        <img
+                          src={item.thumbnailUrl}
+                          alt={item.lessonTitle}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/30" />
+                      )}
+                      {/* Dark overlay gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      {/* Play button */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full border-2 border-white/80 bg-black/40 flex items-center justify-center backdrop-blur-sm group-hover:bg-black/60 transition-colors">
+                          <Play className="w-5 h-5 text-white fill-current ml-0.5" />
+                        </div>
+                      </div>
+                      {/* Progress bar */}
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
+                        <div
+                          className="h-full bg-white transition-all"
+                          style={{ width: `${item.progressPercent || 10}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-2 px-0.5">
+                      <p className="text-white text-xs font-medium line-clamp-1">{item.courseTitle}</p>
+                      <p className="text-muted-foreground text-xs line-clamp-1 mt-0.5">{item.lessonTitle}</p>
+                    </div>
+                  </Link>
+                ))}
               </div>
             </div>
           )}
