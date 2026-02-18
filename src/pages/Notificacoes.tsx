@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Bell, Check, CheckCheck, Trash2, BookOpen, Calendar, CreditCard, Info, AlertTriangle, Gift } from "lucide-react";
+import { Bell, Check, CheckCheck, Trash2, BookOpen, Calendar, CreditCard, Info, AlertTriangle, Gift, BellOff } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { format, parseISO, isToday, isYesterday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 interface Notification {
   id: string;
@@ -68,6 +69,7 @@ const Notificacoes = () => {
   const isMobile = useIsMobile();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const { isSupported: pushSupported, isSubscribed: pushSubscribed, isLoading: pushLoading, permission: pushPermission, subscribe: subscribePush, unsubscribe: unsubscribePush } = usePushNotifications();
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth");
@@ -115,6 +117,34 @@ const Notificacoes = () => {
 
   const Content = () => (
     <div className="space-y-4">
+      {/* Push notification toggle */}
+      {pushSupported && pushPermission !== "denied" && (
+        <div className={`flex items-center justify-between p-4 rounded-xl border ${
+          pushSubscribed ? "bg-primary/5 border-primary/20" : "bg-card border-border"
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${pushSubscribed ? "bg-primary/15" : "bg-muted"}`}>
+              {pushSubscribed ? <Bell className="w-4 h-4 text-primary" /> : <BellOff className="w-4 h-4 text-muted-foreground" />}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-card-foreground">Notificações Push</p>
+              <p className="text-xs text-muted-foreground">
+                {pushSubscribed ? "Ativas — você receberá alertas mesmo com o app fechado" : "Receba alertas mesmo com o app fechado"}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => pushSubscribed ? unsubscribePush() : subscribePush()}
+            disabled={pushLoading}
+            className={`w-12 h-6 rounded-full relative transition-colors flex-shrink-0 ${
+              pushSubscribed ? "bg-primary" : "bg-muted-foreground/30"
+            } disabled:opacity-50`}
+          >
+            <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${pushSubscribed ? "right-1" : "left-1"}`} />
+          </button>
+        </div>
+      )}
+
       {/* Header actions */}
       {notifications.length > 0 && (
         <div className="flex items-center justify-between">
