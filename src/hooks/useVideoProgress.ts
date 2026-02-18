@@ -1,10 +1,11 @@
 import { useRef, useEffect, useCallback } from "react";
-import { saveLessonDuration } from "./useContinueWatching";
+import { saveLessonDuration, saveProgressToDb } from "./useContinueWatching";
 
 export const STORAGE_PREFIX = "fanatica_video_progress_";
 export const DURATION_PREFIX_KEY = "fanatica_video_duration_";
 
 const SAVE_INTERVAL_MS = 3000;
+const DB_SAVE_INTERVAL_MS = 10000; // Salva no banco a cada 10s para não sobrecarregar
 
 /** Returns the current authenticated user's id from the Supabase cached session. */
 const getUserId = (): string | null => {
@@ -37,30 +38,18 @@ export const buildDurationKey = (lessonId: string): string => {
 };
 
 /**
- * Clears all video progress localStorage keys for a specific user.
- * Call this on logout to prevent progress leaking between accounts.
+ * Mantido para compatibilidade, mas não apaga mais o localStorage no logout
+ * pois o progresso é persistido no banco e restaurado ao fazer login novamente.
  */
-export const clearUserVideoProgress = (userId: string) => {
-  try {
-    const keysToRemove: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (
-        k?.startsWith(`${STORAGE_PREFIX}${userId}_`) ||
-        k?.startsWith(`${DURATION_PREFIX_KEY}${userId}_`)
-      ) {
-        keysToRemove.push(k);
-      }
-    }
-    keysToRemove.forEach((k) => localStorage.removeItem(k));
-  } catch { /* ignore */ }
+export const clearUserVideoProgress = (_userId: string) => {
+  // no-op: progresso é salvo no banco, não deve ser apagado no logout
 };
 
 /**
  * Core save logic — writes currentTime + duration to localStorage.
- * Returns true if saved, false if cleared (finished/reset).
+ * Optionally also saves to DB (fire-and-forget).
  */
-const doSave = (lessonId: string, el: HTMLVideoElement) => {
+const doSave = (lessonId: string, el: HTMLVideoElement, saveToDb = false) => {
   const { currentTime, duration } = el;
   if (!duration || isNaN(duration) || duration === 0) return;
 
@@ -72,6 +61,7 @@ const doSave = (lessonId: string, el: HTMLVideoElement) => {
   // Near the beginning → clear (user rewound)
   if (currentTime < 1) {
     try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
+    if (saveToDb) saveProgressToDb(lessonId, 0, duration);
     return;
   }
   // Near the end (within 5s) → clear (considered finished)
@@ -80,37 +70,45 @@ const doSave = (lessonId: string, el: HTMLVideoElement) => {
       localStorage.removeItem(storageKey);
       localStorage.removeItem(buildDurationKey(lessonId));
     } catch { /* ignore */ }
+    if (saveToDb) saveProgressToDb(lessonId, duration, duration);
     return;
   }
   try {
     localStorage.setItem(storageKey, String(currentTime));
   } catch { /* ignore */ }
+  if (saveToDb) saveProgressToDb(lessonId, currentTime, duration);
 };
 
 /**
- * Persiste e restaura a posição de reprodução de um vídeo no localStorage,
- * com as chaves namespacadas por user_id para garantir isolamento entre usuários.
+ * Persiste e restaura a posição de reprodução de um vídeo.
+ * localStorage = instantâneo (UX); DB = persistência entre sessões/dispositivos.
  */
 export const useVideoProgress = (lessonId: string | undefined) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const saveIntervalRef = useRef<number | null>(null);
+  const dbSaveIntervalRef = useRef<number | null>(null);
   const restoredLessonRef = useRef<string | undefined>(undefined);
-  // Throttle ref for timeupdate (fires ~4x/sec) — only save at most every 2s via this event
   const lastTimeupdateSaveRef = useRef<number>(0);
 
-  // ─── Immediate save (pause, ended, seeked, visibility hide) ─────────────────
+  // ─── Save localStorage only (para eventos de DOM) ─────────────────────────
   const saveNow = useCallback(() => {
     if (!lessonId || !videoRef.current) return;
-    doSave(lessonId, videoRef.current);
+    doSave(lessonId, videoRef.current, false);
   }, [lessonId]);
 
-  // ─── Throttled save for timeupdate ──────────────────────────────────────────
+  // ─── Save localStorage + DB (para interval e eventos de saída) ────────────
+  const saveNowWithDb = useCallback(() => {
+    if (!lessonId || !videoRef.current) return;
+    doSave(lessonId, videoRef.current, true);
+  }, [lessonId]);
+
+  // ─── Throttled save for timeupdate (localStorage only) ────────────────────
   const saveThrottled = useCallback(() => {
     if (!lessonId || !videoRef.current) return;
     const now = Date.now();
     if (now - lastTimeupdateSaveRef.current < 2000) return;
     lastTimeupdateSaveRef.current = now;
-    doSave(lessonId, videoRef.current);
+    doSave(lessonId, videoRef.current, false);
   }, [lessonId]);
 
   // ─── Safe pause (suppresses AbortError from play/pause race) ────────────────
@@ -141,7 +139,6 @@ export const useVideoProgress = (lessonId: string | undefined) => {
     el.addEventListener("pause", saveNow);
     el.addEventListener("ended", saveNow);
     el.addEventListener("seeked", saveNow);
-    // timeupdate fires ~4x/sec while playing — throttled to avoid excessive writes
     el.addEventListener("timeupdate", saveThrottled);
   }, [saveNow, saveThrottled]);
 
@@ -185,20 +182,23 @@ export const useVideoProgress = (lessonId: string | undefined) => {
     }
   }, [lessonId]);
 
-  // ─── Periodic save + visibility / page-hide handlers ────────────────────────
+  // ─── Periodic save (localStorage) + DB save interval + visibility handlers ──
   useEffect(() => {
+    // localStorage save a cada 3s
     saveIntervalRef.current = window.setInterval(saveNow, SAVE_INTERVAL_MS);
+    // DB save a cada 10s (fire-and-forget para persistência entre sessões)
+    dbSaveIntervalRef.current = window.setInterval(saveNowWithDb, DB_SAVE_INTERVAL_MS);
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
         safePause();
-        saveNow();
+        saveNowWithDb(); // Salva no banco ao minimizar/trocar de aba
       }
     };
 
     const handlePageHide = () => {
       safePause();
-      saveNow();
+      saveNowWithDb(); // Salva no banco ao fechar/navegar
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -207,12 +207,13 @@ export const useVideoProgress = (lessonId: string | undefined) => {
 
     return () => {
       if (saveIntervalRef.current !== null) clearInterval(saveIntervalRef.current);
+      if (dbSaveIntervalRef.current !== null) clearInterval(dbSaveIntervalRef.current);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("pagehide", handlePageHide);
       window.removeEventListener("beforeunload", handlePageHide);
-      saveNow();
+      saveNowWithDb(); // Salva no banco ao desmontar (trocar de aula ou sair)
     };
-  }, [saveNow, safePause]);
+  }, [saveNow, saveNowWithDb, safePause]);
 
   return { registerVideo };
 };
