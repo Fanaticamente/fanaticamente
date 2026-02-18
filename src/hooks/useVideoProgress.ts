@@ -1,7 +1,9 @@
 import { useRef, useEffect, useCallback } from "react";
+import { saveLessonDuration } from "./useContinueWatching";
 
 const STORAGE_PREFIX = "fanatica_video_progress_";
 const SAVE_INTERVAL_MS = 3000;
+
 
 /**
  * Persiste e restaura a posição de reprodução de um vídeo no localStorage.
@@ -26,12 +28,15 @@ export const useVideoProgress = (lessonId: string | undefined) => {
     const { currentTime, duration } = videoRef.current;
     if (!duration) return;
 
+    // Always persist real duration so progress % is accurate in "continue watching"
+    if (lessonId) saveLessonDuration(lessonId, duration);
+
     // Seek-to-beginning → clear so the video truly restarts next time
     if (currentTime < 1) {
       try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
       return;
     }
-    // Near the end → clear (considered finished)
+    // Near the end (within 5s) → clear (considered finished, remove from continue watching)
     if (duration - currentTime < 5) {
       try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
       return;
@@ -39,7 +44,8 @@ export const useVideoProgress = (lessonId: string | undefined) => {
     try {
       localStorage.setItem(storageKey, String(currentTime));
     } catch { /* ignore */ }
-  }, [storageKey]);
+  }, [storageKey, lessonId]);
+
 
   // ─── Register video element & attach save listeners ─────────────────────────
   // IMPORTANT: does NOT restore here — restoration is handled by the effect below.
@@ -78,6 +84,9 @@ export const useVideoProgress = (lessonId: string | undefined) => {
 
       const el = videoRef.current;
       if (!el) return;
+
+      // Persist real duration as soon as metadata is ready
+      if (el.duration && lessonId) saveLessonDuration(lessonId, el.duration);
 
       try {
         const saved = localStorage.getItem(storageKey);
