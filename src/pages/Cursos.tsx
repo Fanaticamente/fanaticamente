@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Play, ChevronRight, Search, Plus, ChevronDown, Lock, Star, Clock, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
@@ -20,12 +20,7 @@ const Cursos = () => {
   const { data: courses, isLoading } = useCourses();
   const { data: accessData } = useUserCourseAccess();
   const { playingStation } = useRadio();
-  const { items: continueWatching, reload: reloadContinueWatching } = useContinueWatching();
-
-  // Recarrega imediatamente ao entrar na página (ex: voltando de um curso)
-  useEffect(() => {
-    reloadContinueWatching();
-  }, [reloadContinueWatching]);
+  const { items: continueWatching } = useContinueWatching();
 
   const hasAccessToCourse = (courseId: string, isPremium: boolean) => {
     if (!isPremium) return true;
