@@ -114,7 +114,7 @@ const fetchMeta = async (lessonIds: string[]) => {
   const courseIds = [...new Set(modules.map((m) => m.course_id))];
   const { data: courses } = await supabase
     .from("courses")
-    .select("id, title, thumbnail_url, hero_image_url")
+    .select("id, title, thumbnail_url, grid_image_url")
     .in("id", courseIds);
 
   if (!courses?.length) return;
@@ -131,7 +131,8 @@ const fetchMeta = async (lessonIds: string[]) => {
       courseId: course.id,
       courseTitle: course.title,
       lessonTitle: lesson.title,
-      thumbnailUrl: lesson.thumbnail_url ?? course.hero_image_url ?? course.thumbnail_url ?? null,
+      // Prioridade: grid_image_url do curso > thumbnail_url do curso > thumbnail da lição
+      thumbnailUrl: course.grid_image_url ?? course.thumbnail_url ?? lesson.thumbnail_url ?? null,
     });
   }
 };
@@ -146,6 +147,97 @@ const buildItems = (raw: RawProgress[]): ContinueWatchingItem[] =>
     })
     .filter(Boolean) as ContinueWatchingItem[];
 
+/**
+ * Save progress to database (user_lesson_progress) for persistence across
+ * app closures and logouts. Falls back to localStorage gracefully if user
+ * is not authenticated.
+ */
+export const saveProgressToDb = async (
+  lessonId: string,
+  currentTime: number,
+  duration: number
+) => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user?.id) return;
+
+    if (!duration || isNaN(duration) || duration === 0) return;
+
+    const progressPercent = Math.min(100, Math.round((currentTime / duration) * 100));
+    const completed = duration - currentTime < 5;
+    const lastPosition = completed ? 0 : Math.round(currentTime);
+
+    await supabase
+      .from("user_lesson_progress")
+      .upsert(
+        {
+          user_id: session.user.id,
+          lesson_id: lessonId,
+          last_position: lastPosition,
+          progress_percent: progressPercent,
+          completed,
+        },
+        { onConflict: "user_id,lesson_id" }
+      );
+  } catch { /* ignore — localStorage remains as fallback */ }
+};
+
+/**
+ * Load progress from database and restore to localStorage for instant
+ * access on next mount. Called once on app start / after login.
+ */
+export const restoreProgressFromDb = async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user?.id) return;
+
+    const userId = session.user.id;
+
+    const { data: rows } = await supabase
+      .from("user_lesson_progress")
+      .select("lesson_id, last_position, progress_percent, completed")
+      .eq("user_id", userId)
+      .eq("completed", false)
+      .gt("last_position", 1);
+
+    if (!rows?.length) return;
+
+    // We need duration to restore — fetch lesson duration from DB if not cached
+    const lessonIds = rows.map((r) => r.lesson_id);
+    const { data: lessons } = await supabase
+      .from("course_lessons")
+      .select("id, duration")
+      .in("id", lessonIds);
+
+    for (const row of rows) {
+      const progressKey = `${STORAGE_PREFIX}${userId}_${row.lesson_id}`;
+      const durKey = `${DURATION_PREFIX_KEY}${userId}_${row.lesson_id}`;
+
+      // Only restore if localStorage doesn't already have a more recent value
+      const existingTime = parseFloat(localStorage.getItem(progressKey) ?? "");
+      if (!isNaN(existingTime) && existingTime > 1 && existingTime >= row.last_position) continue;
+
+      // Restore position
+      localStorage.setItem(progressKey, String(row.last_position));
+
+      // Try to restore duration from lesson metadata or compute from progress
+      const lesson = lessons?.find((l) => l.id === row.lesson_id);
+      if (lesson?.duration) {
+        // duration is stored as "MM:SS" string in DB — convert to seconds
+        const parts = lesson.duration.split(":").map(Number);
+        let totalSeconds = 0;
+        if (parts.length === 2) totalSeconds = parts[0] * 60 + parts[1];
+        else if (parts.length === 3) totalSeconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+        if (totalSeconds > 0) localStorage.setItem(durKey, String(totalSeconds));
+      } else if (row.progress_percent > 0 && row.last_position > 0) {
+        // Estimate duration from position + percent
+        const estimatedDuration = Math.round((row.last_position / row.progress_percent) * 100);
+        if (estimatedDuration > 0) localStorage.setItem(durKey, String(estimatedDuration));
+      }
+    }
+  } catch { /* ignore */ }
+};
+
 export const useContinueWatching = () => {
   // Initialize state synchronously — items appear on first render if meta is cached
   const [items, setItems] = useState<ContinueWatchingItem[]>(() => buildItems(readProgressSync()));
@@ -154,6 +246,9 @@ export const useContinueWatching = () => {
   const load = useCallback(async () => {
     if (loadingRef.current) return;
     loadingRef.current = true;
+
+    // First restore from DB to populate localStorage (fast after first load due to cache)
+    await restoreProgressFromDb();
 
     const raw = readProgressSync();
 
