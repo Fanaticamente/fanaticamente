@@ -129,26 +129,31 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "title and message are required" }), { status: 400, headers: corsHeaders });
     }
 
-    // 1. Save in-app notification(s)
+    // 1. Determine target user IDs
     let userIds: string[] = [];
 
     if (target_user_id) {
-      // Single specific user
-      userIds = [target_user_id];
+      if (typeof target_user_id !== "string" || target_user_id.trim() === "") {
+        return new Response(JSON.stringify({ error: "target_user_id inválido" }), { status: 400, headers: corsHeaders });
+      }
+      userIds = [target_user_id.trim()];
+      console.log(`Targeting specific user: ${target_user_id}`);
     } else if (target_club_id) {
-      // Filter by favorite club
-      const { data: profiles } = await supabaseAdmin
+      const { data: profiles, error: profilesErr } = await supabaseAdmin
         .from("profiles")
         .select("user_id")
         .eq("favorite_club_id", target_club_id);
+      if (profilesErr) console.error("Error fetching club fans:", profilesErr);
       userIds = (profiles || []).map((p) => p.user_id);
+      console.log(`Targeting club ${target_club_id}: ${userIds.length} fans`);
     } else {
-      // Broadcast: get all users
-      const { data: roles } = await supabaseAdmin
+      const { data: roles, error: rolesErr } = await supabaseAdmin
         .from("user_roles")
         .select("user_id")
         .eq("role", "user");
+      if (rolesErr) console.error("Error fetching users:", rolesErr);
       userIds = (roles || []).map((r) => r.user_id);
+      console.log(`Broadcasting to ${userIds.length} users`);
     }
 
     // Insert in-app notifications in batches
