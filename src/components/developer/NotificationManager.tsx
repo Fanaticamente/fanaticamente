@@ -52,9 +52,9 @@ interface NotifLog {
 }
 
 interface SendResult {
-  in_app_sent: number;
   push_sent: number;
   push_failed: number;
+  pwa_subscribers: number;
   vapid_configured: boolean;
 }
 
@@ -209,7 +209,7 @@ const SendTab = () => {
       if (data.error) throw new Error(data.error);
       
       setLastResult(data);
-      toast.success(`Notificação enviada para ${data.in_app_sent ?? 0} usuário(s)!`);
+      toast.success(`Push enviado para ${data.push_sent ?? 0} dispositivo(s) PWA!`);
 
       // Log the send (non-blocking - don't fail if log fails)
       try {
@@ -221,7 +221,7 @@ const SendTab = () => {
           link: link.trim() || null,
           target: targetType === "club" ? `club:${selectedClub?.name || targetClubId}` : targetType,
           target_user_id: targetType === "specific" ? targetUserId : null,
-          in_app_sent: data.in_app_sent ?? 0,
+          in_app_sent: 0,
           push_sent: data.push_sent ?? 0,
           push_failed: data.push_failed ?? 0,
         });
@@ -546,24 +546,20 @@ const SendTab = () => {
             </p>
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-card/50 rounded-lg p-3 text-center">
-                <p className="text-2xl font-bold text-card-foreground">{lastResult.in_app_sent}</p>
-                <p className="text-[10px] text-muted-foreground">In-app</p>
+                <p className="text-2xl font-bold text-card-foreground">{lastResult.push_sent}</p>
+                <p className="text-[10px] text-muted-foreground">Push PWA enviados</p>
               </div>
               <div className="bg-card/50 rounded-lg p-3 text-center">
-                <p className="text-2xl font-bold text-card-foreground">{lastResult.push_sent}</p>
-                <p className="text-[10px] text-muted-foreground">Push nativo</p>
+                <p className="text-2xl font-bold text-card-foreground">{lastResult.pwa_subscribers}</p>
+                <p className="text-[10px] text-muted-foreground">Dispositivos PWA</p>
               </div>
+              {lastResult.push_failed > 0 && (
+                <div className="col-span-2 bg-card/50 rounded-lg p-3 text-center">
+                  <p className="text-2xl font-bold text-destructive">{lastResult.push_failed}</p>
+                  <p className="text-[10px] text-muted-foreground">Falhas</p>
+                </div>
+              )}
             </div>
-            {lastResult.push_failed > 0 && (
-              <p className="text-xs text-red-400 flex items-center gap-1.5">
-                <AlertCircle className="w-3.5 h-3.5" /> {lastResult.push_failed} push(es) falharam
-              </p>
-            )}
-            {!lastResult.vapid_configured && (
-              <p className="text-xs text-amber-400 flex items-center gap-1.5">
-                <AlertCircle className="w-3.5 h-3.5" /> VAPID não configurado — push desabilitado
-              </p>
-            )}
           </div>
         )}
       </div>
