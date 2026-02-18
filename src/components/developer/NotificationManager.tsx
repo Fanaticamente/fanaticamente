@@ -193,10 +193,17 @@ const SendTab = () => {
 
       const { data, error } = await supabase.functions.invoke("send-push-notification", { body: payload });
       
-      // Log the error details for debugging
       if (error) {
         console.error("Edge function error:", error);
-        throw new Error(error.message || "Erro na edge function");
+        // Check for auth errors specifically
+        const msg = error.message || "";
+        if (msg.includes("401") || msg.toLowerCase().includes("unauthorized")) {
+          throw new Error("Sessão expirada. Faça login novamente.");
+        }
+        if (msg.includes("403") || msg.toLowerCase().includes("forbidden")) {
+          throw new Error("Sem permissão para enviar notificações.");
+        }
+        throw new Error(error.message || "Erro ao chamar a função de envio");
       }
       if (!data) throw new Error("Resposta vazia da edge function");
       if (data.error) throw new Error(data.error);
@@ -226,7 +233,8 @@ const SendTab = () => {
       setTargetClubId(""); setClubFanCount(null); setEmailSearchResults([]);
     } catch (e) {
       console.error(e);
-      toast.error("Erro ao enviar notificação.");
+      const errMsg = e instanceof Error ? e.message : "Erro ao enviar notificação.";
+      toast.error(errMsg);
     } finally {
       setSending(false);
     }
