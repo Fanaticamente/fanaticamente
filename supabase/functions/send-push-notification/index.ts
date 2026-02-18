@@ -11,25 +11,47 @@ const corsHeaders = {
 async function generateVapidJwt(
   audience: string,
   subject: string,
-  privateKeyBase64: string
+  privateKeyBase64url: string
 ): Promise<string> {
   const header = { alg: "ES256", typ: "JWT" };
   const now = Math.floor(Date.now() / 1000);
   const payload = { aud: audience, exp: now + 12 * 3600, sub: subject };
 
-  const encode = (obj: object) =>
+  const encodeB64url = (obj: object) =>
     btoa(JSON.stringify(obj)).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
 
-  const signingInput = `${encode(header)}.${encode(payload)}`;
+  const signingInput = `${encodeB64url(header)}.${encodeB64url(payload)}`;
 
-  const privateKeyBytes = Uint8Array.from(
-    atob(privateKeyBase64.replace(/-/g, "+").replace(/_/g, "/")),
+  // VAPID private key is stored as raw base64url (32-byte scalar for P-256).
+  // Import it via JWK format which Deno supports natively.
+  // We derive x/y from the private scalar by generating a temporary key pair,
+  // but the simplest approach is to use a known placeholder (x/y don't matter for signing
+  // since only d is used by the signing operation).
+  const rawPrivateBytes = Uint8Array.from(
+    atob(privateKeyBase64url.replace(/-/g, "+").replace(/_/g, "/")),
     (c) => c.charCodeAt(0)
   );
 
+  const dBase64url = btoa(String.fromCharCode(...rawPrivateBytes))
+    .replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+
+  // We need a matching public key (x, y). Generate a temporary key pair using the
+  // raw private bytes as seed via SubtleCrypto importKey with JWK, but we need x/y.
+  // Best approach: derive x/y by doing ECDH scalar multiplication on G.
+  // In WebCrypto we can't do that directly, so we generate a fresh key pair and
+  // swap the private scalar. Since we only need to SIGN (not verify here), x and y
+  // just need to be valid P-256 points. We'll generate a temporary key pair to get
+  // valid x/y coords, then replace d with our real private key.
+  const tempKey = await crypto.subtle.generateKey(
+    { name: "ECDSA", namedCurve: "P-256" },
+    true,
+    ["sign"]
+  );
+  const tempJwk = await crypto.subtle.exportKey("jwk", tempKey.privateKey) as JsonWebKey;
+
   const cryptoKey = await crypto.subtle.importKey(
-    "pkcs8",
-    privateKeyBytes,
+    "jwk",
+    { ...tempJwk, d: dBase64url, key_ops: ["sign"] },
     { name: "ECDSA", namedCurve: "P-256" },
     false,
     ["sign"]
@@ -48,6 +70,7 @@ async function generateVapidJwt(
 
   return `${signingInput}.${signatureBase64}`;
 }
+
 
 // ============================================================
 // Web Push Payload Encryption — RFC 8291 / RFC 8188
