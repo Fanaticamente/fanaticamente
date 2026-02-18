@@ -76,6 +76,7 @@ import ZonaMista from "./pages/ZonaMista";
 import Ranking from "./pages/Ranking";
 import Notificacoes from "./pages/Notificacoes";
 import VerificarRecibo from "./pages/VerificarRecibo";
+import NotificationManagerPage from "./pages/NotificationManagerPage";
 
 const queryClient = new QueryClient();
 
@@ -222,6 +223,8 @@ const App = () => {
                 <Route path="/desenvolvedor" element={<ProtectedRoute><ContentManagers /></ProtectedRoute>} />
                 <Route path="/desenvolvedor/mobile" element={<ProtectedRoute><DeveloperDashboard /></ProtectedRoute>} />
                 <Route path="/desenvolvedor/desktop" element={<ProtectedRoute><DesktopContentManager /></ProtectedRoute>} />
+                <Route path="/developer/notificacoes" element={<ProtectedRoute><NotificationManagerPage /></ProtectedRoute>} />
+                <Route path="/desenvolvedor/notificacoes" element={<ProtectedRoute><NotificationManagerPage /></ProtectedRoute>} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
