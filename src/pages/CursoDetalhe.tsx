@@ -12,6 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import CoursePaywall from "@/components/courses/CoursePaywall";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { useVideoProgress } from "@/hooks/useVideoProgress";
 
 const CursoDetalhe = () => {
   const { id } = useParams();
@@ -26,6 +27,10 @@ const CursoDetalhe = () => {
   const { data: modules, isLoading: loadingModules } = useCourseModules(id);
   const { data: allLessons } = useCourseLessons(id);
   const { data: activities } = useLessonActivities(selectedLessonId || undefined);
+
+  // Persist video position across app switches
+  const currentLessonId = selectedLessonId ?? (allLessons?.[0]?.id ?? undefined);
+  const { registerVideo } = useVideoProgress(currentLessonId);
 
   const hasAccess = !course?.is_premium || accessData?.hasAccess === true;
 
@@ -79,6 +84,8 @@ const CursoDetalhe = () => {
       <div className="relative aspect-video bg-black rounded-2xl overflow-hidden mb-6">
         {hasAccess && currentLesson?.video_url ? (
           <video
+            ref={registerVideo}
+            key={currentLesson.id}
             src={currentLesson.video_url}
             controls
             playsInline
