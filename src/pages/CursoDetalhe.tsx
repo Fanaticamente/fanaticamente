@@ -86,11 +86,12 @@ const CursoDetalhe = () => {
       <div className="relative aspect-video bg-black rounded-2xl overflow-hidden mb-6">
         {hasAccess && currentLesson?.video_url ? (
           <video
+            key={currentLesson.id}
             ref={registerVideo}
             src={currentLesson.video_url}
             controls
             playsInline
-            className="w-full h-full"
+            className="w-full h-full object-contain"
             poster={currentLesson.thumbnail_url || (course as any).grid_image_url || course.thumbnail_url || undefined}
           />
         ) : (
