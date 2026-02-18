@@ -91,6 +91,8 @@ const readProgressSync = (): RawProgress[] => {
 
 // Cache of lesson metadata so we don't re-fetch on every reload
 const metaCache = new Map<string, Pick<ContinueWatchingItem, "courseId" | "courseTitle" | "lessonTitle" | "thumbnailUrl">>();
+// Clear cache to force re-fetch with correct thumbnail_url (vertical 2:3)
+metaCache.clear();
 
 const fetchMeta = async (lessonIds: string[]) => {
   const missing = lessonIds.filter((id) => !metaCache.has(id));
@@ -114,7 +116,7 @@ const fetchMeta = async (lessonIds: string[]) => {
   const courseIds = [...new Set(modules.map((m) => m.course_id))];
   const { data: courses } = await supabase
     .from("courses")
-    .select("id, title, thumbnail_url, grid_image_url")
+    .select("id, title, thumbnail_url")
     .in("id", courseIds);
 
   if (!courses?.length) return;
@@ -131,8 +133,8 @@ const fetchMeta = async (lessonIds: string[]) => {
       courseId: course.id,
       courseTitle: course.title,
       lessonTitle: lesson.title,
-      // Prioridade: grid_image_url do curso > thumbnail_url do curso > thumbnail da lição
-      thumbnailUrl: course.grid_image_url ?? course.thumbnail_url ?? lesson.thumbnail_url ?? null,
+      // Prioridade: thumbnail_url do curso (vertical 2:3, capa premium) > thumbnail da lição
+      thumbnailUrl: course.thumbnail_url ?? lesson.thumbnail_url ?? null,
     });
   }
 };
