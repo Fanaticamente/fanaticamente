@@ -97,21 +97,30 @@ export const useVideoProgress = (lessonId: string | undefined) => {
     el.addEventListener("ended", saveProgress);
   }, [saveProgress, tryRestore]);
 
-  // Salva periodicamente e ao ocultar a aba/app
+  // Salva periodicamente e ao ocultar a aba/app (pausando o vídeo ao sair)
   useEffect(() => {
     saveIntervalRef.current = window.setInterval(saveProgress, SAVE_INTERVAL_MS);
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
+        // Pausa o vídeo e salva a posição ao sair do app/aba
+        if (videoRef.current && !videoRef.current.paused) {
+          videoRef.current.pause();
+        }
         saveProgress();
       }
     };
 
-    const handlePageHide = () => saveProgress();
+    const handlePageHide = () => {
+      // Pausa e salva ao fechar/trocar de página
+      if (videoRef.current && !videoRef.current.paused) {
+        videoRef.current.pause();
+      }
+      saveProgress();
+    };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("pagehide", handlePageHide);
-    // Garante salvar ao fechar a janela / trocar de aba
     window.addEventListener("beforeunload", handlePageHide);
 
     return () => {
