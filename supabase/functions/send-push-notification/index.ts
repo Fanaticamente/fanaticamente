@@ -8,10 +8,67 @@ const corsHeaders = {
 // ============================================================
 // VAPID JWT generation (no payload encryption needed for VAPID)
 // ============================================================
+async function importVapidPrivateKey(privateKeyRaw: string): Promise<CryptoKey> {
+  // Normalize: strip PEM headers/whitespace if present
+  const stripped = privateKeyRaw
+    .replace(/-----BEGIN.*?-----/g, "")
+    .replace(/-----END.*?-----/g, "")
+    .replace(/\s/g, "");
+
+  const bytes = Uint8Array.from(
+    atob(stripped.replace(/-/g, "+").replace(/_/g, "/")),
+    (c) => c.charCodeAt(0)
+  );
+
+  console.log(`VAPID private key decoded length: ${bytes.length} bytes`);
+
+  // If it's already a full PKCS#8 (starts with 0x30 and is > 60 bytes), import directly
+  if (bytes[0] === 0x30 && bytes.length > 60) {
+    console.log("Importing as PKCS#8");
+    return crypto.subtle.importKey(
+      "pkcs8",
+      bytes,
+      { name: "ECDSA", namedCurve: "P-256" },
+      false,
+      ["sign"]
+    );
+  }
+
+  // Otherwise assume it's a raw 32-byte P-256 private scalar (standard VAPID format)
+  // Wrap in minimal PKCS#8 DER structure for P-256
+  console.log("Importing as raw 32-byte P-256 scalar via PKCS#8 wrapper");
+  if (bytes.length !== 32) {
+    throw new Error(`Unexpected VAPID private key length: ${bytes.length}. Expected 32 bytes.`);
+  }
+
+  // PKCS#8 DER for EC P-256 private key (no public key included)
+  // Total structure length = 5 (header) + 2 (alg seq header) + 13 (OID) + 2 (octet header) + 4 (inner seq) + 32 (key) = 66 bytes content, wrapper = 68
+  const pkcs8 = new Uint8Array([
+    0x30, 0x41,       // SEQUENCE (65 bytes)
+    0x02, 0x01, 0x00, // INTEGER version = 0
+    0x30, 0x13,       // SEQUENCE (19 bytes) - AlgorithmIdentifier
+    0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01, // OID id-ecPublicKey
+    0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, // OID prime256v1
+    0x04, 0x27,       // OCTET STRING (39 bytes) - privateKey
+    0x30, 0x25,       // SEQUENCE (37 bytes) - ECPrivateKey
+    0x02, 0x01, 0x01, // INTEGER version = 1
+    0x04, 0x20,       // OCTET STRING (32 bytes) - privateKey value
+    ...bytes,
+  ]);
+
+  return crypto.subtle.importKey(
+    "pkcs8",
+    pkcs8,
+    { name: "ECDSA", namedCurve: "P-256" },
+    false,
+    ["sign"]
+  );
+}
+
 async function generateVapidJwt(
   audience: string,
   subject: string,
-  privateKeyBase64url: string
+  privateKeyRaw: string
 ): Promise<string> {
   const header = { alg: "ES256", typ: "JWT" };
   const now = Math.floor(Date.now() / 1000);
@@ -22,40 +79,7 @@ async function generateVapidJwt(
 
   const signingInput = `${encodeB64url(header)}.${encodeB64url(payload)}`;
 
-  // VAPID private key is stored as raw base64url (32-byte scalar for P-256).
-  // Import it via JWK format which Deno supports natively.
-  // We derive x/y from the private scalar by generating a temporary key pair,
-  // but the simplest approach is to use a known placeholder (x/y don't matter for signing
-  // since only d is used by the signing operation).
-  const rawPrivateBytes = Uint8Array.from(
-    atob(privateKeyBase64url.replace(/-/g, "+").replace(/_/g, "/")),
-    (c) => c.charCodeAt(0)
-  );
-
-  const dBase64url = btoa(String.fromCharCode(...rawPrivateBytes))
-    .replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-
-  // We need a matching public key (x, y). Generate a temporary key pair using the
-  // raw private bytes as seed via SubtleCrypto importKey with JWK, but we need x/y.
-  // Best approach: derive x/y by doing ECDH scalar multiplication on G.
-  // In WebCrypto we can't do that directly, so we generate a fresh key pair and
-  // swap the private scalar. Since we only need to SIGN (not verify here), x and y
-  // just need to be valid P-256 points. We'll generate a temporary key pair to get
-  // valid x/y coords, then replace d with our real private key.
-  const tempKey = await crypto.subtle.generateKey(
-    { name: "ECDSA", namedCurve: "P-256" },
-    true,
-    ["sign"]
-  );
-  const tempJwk = await crypto.subtle.exportKey("jwk", tempKey.privateKey) as JsonWebKey;
-
-  const cryptoKey = await crypto.subtle.importKey(
-    "jwk",
-    { ...tempJwk, d: dBase64url, key_ops: ["sign"] },
-    { name: "ECDSA", namedCurve: "P-256" },
-    false,
-    ["sign"]
-  );
+  const cryptoKey = await importVapidPrivateKey(privateKeyRaw);
 
   const signature = await crypto.subtle.sign(
     { name: "ECDSA", hash: "SHA-256" },
