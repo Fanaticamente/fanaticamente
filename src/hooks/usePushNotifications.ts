@@ -29,14 +29,17 @@ export const usePushNotifications = () => {
   const checkOneSignalSubscription = () => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const OneSignal = (window as any).OneSignalDeferred;
-      if (OneSignal) {
-        OneSignal.push(() => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window as any).OneSignal.isPushNotificationsEnabled((enabled: boolean) => {
-            setIsSubscribed(enabled);
-          });
-        });
+      const OneSignalObj = (window as any).OneSignal;
+      if (OneSignalObj) {
+        // Use the v11 API
+        const optedIn = OneSignalObj.User?.PushSubscription?.optedIn;
+        if (typeof optedIn === "boolean") {
+          setIsSubscribed(optedIn);
+        }
+        const perm = OneSignalObj.Notifications?.permission;
+        if (typeof perm === "boolean") {
+          setPermission(perm ? "granted" : "default");
+        }
       }
     } catch {
       // OneSignal not loaded yet
@@ -51,33 +54,42 @@ export const usePushNotifications = () => {
 
     setIsLoading(true);
     try {
-      const notifPermission = await Notification.requestPermission();
-      setPermission(notifPermission as PushPermission);
-
-      if (notifPermission !== "granted") {
-        toast.error("Permissão de notificações negada. Habilite nas configurações do navegador.");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const OneSignalObj = (window as any).OneSignal;
+      
+      if (!OneSignalObj) {
+        toast.error("SDK de notificações não carregado. Tente recarregar o app.");
         return false;
       }
 
       // Get current user to set as external_id in OneSignal
       const { data: { user } } = await supabase.auth.getUser();
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const OneSignalObj = (window as any).OneSignal;
-      if (OneSignalObj) {
-        // Set external ID to link OneSignal player to our user
-        if (user?.id) {
+      // Login user first so OneSignal knows who this device belongs to
+      if (user?.id) {
+        try {
           await OneSignalObj.login(user.id);
+        } catch (loginErr) {
+          console.warn("[OneSignal] login error (non-fatal):", loginErr);
         }
-        await OneSignalObj.Notifications.requestPermission();
       }
 
-      setIsSubscribed(true);
-      toast.success("Notificações push ativadas!");
-      return true;
+      // Let OneSignal handle the permission request (works properly on iOS PWA)
+      const granted = await OneSignalObj.Notifications.requestPermission();
+      
+      if (granted) {
+        setPermission("granted");
+        setIsSubscribed(true);
+        toast.success("Notificações push ativadas!");
+        return true;
+      } else {
+        setPermission(Notification.permission as PushPermission);
+        toast.error("Permissão negada. Habilite nas configurações do dispositivo.");
+        return false;
+      }
     } catch (e) {
       console.error("Push subscribe error:", e);
-      toast.error("Erro ao ativar notificações push.");
+      toast.error("Erro ao ativar notificações push. Tente novamente.");
       return false;
     } finally {
       setIsLoading(false);
