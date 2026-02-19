@@ -51,7 +51,21 @@ export const usePushNotifications = () => {
       const OneSignalObj = (window as any).OneSignal;
 
       if (!OneSignalObj) {
-        toast.error("SDK de notificações não carregado. Tente recarregar o app.");
+        // OneSignal not ready yet - try native Notification API as fallback
+        if ("Notification" in window) {
+          const result = await Notification.requestPermission();
+          if (result === "granted") {
+            setPermission("granted");
+            setIsSubscribed(true);
+            toast.success("Notificações ativadas!");
+            return true;
+          } else {
+            setPermission(result as PushPermission);
+            toast.error("Permissão negada. Habilite nas Configurações do iPhone → Notificações.");
+            return false;
+          }
+        }
+        toast.error("Recarregue o app e tente novamente.");
         return false;
       }
 
