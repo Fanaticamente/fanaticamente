@@ -118,7 +118,7 @@ const Notificacoes = () => {
   const Content = () => (
     <div className="space-y-4">
       {/* Push notification toggle */}
-      {pushSupported && pushPermission !== "denied" && (
+      {pushPermission !== "denied" && (
         <div className={`flex items-center justify-between p-4 rounded-xl border ${
           pushSubscribed ? "bg-primary/5 border-primary/20" : "bg-card border-border"
         }`}>
