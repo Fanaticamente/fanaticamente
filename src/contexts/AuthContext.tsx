@@ -126,6 +126,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Register user with OneSignal after login
+  const registerOneSignalUser = async (userId: string) => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const OneSignal = (window as any).OneSignal;
+      if (OneSignal) {
+        await OneSignal.login(userId);
+        console.log("[OneSignal] User logged in with external_id:", userId);
+      } else {
+        // Try via deferred queue
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const deferred = (window as any).OneSignalDeferred;
+        if (deferred) {
+          deferred.push(async (os: any) => {
+            await os.login(userId);
+            console.log("[OneSignal] User logged in (deferred) with external_id:", userId);
+          });
+        }
+      }
+    } catch (e) {
+      console.warn("[OneSignal] Could not register user:", e);
+    }
+  };
+
+  const logoutOneSignalUser = async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const OneSignal = (window as any).OneSignal;
+      if (OneSignal) {
+        await OneSignal.logout();
+        console.log("[OneSignal] User logged out");
+      }
+    } catch (e) {
+      console.warn("[OneSignal] Could not logout user:", e);
+    }
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -140,6 +177,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 await fetchUserRoles(session.user.id);
                 // Check for pending profile updates
                 await updatePendingProfileData(session.user.id);
+                // Register with OneSignal
+                registerOneSignalUser(session.user.id);
               } finally {
                 setRolesLoading(false);
               }
@@ -148,6 +187,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           setRoles([]);
           setRolesLoading(false);
+          logoutOneSignalUser();
         }
 
         setAuthLoading(false);
@@ -162,6 +202,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setRolesLoading(true);
         try {
           await fetchUserRoles(session.user.id);
+          // Register with OneSignal on session restore
+          setTimeout(() => registerOneSignalUser(session.user.id), 2000);
         } finally {
           setRolesLoading(false);
         }
