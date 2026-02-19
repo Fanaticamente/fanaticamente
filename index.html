@@ -125,6 +125,25 @@
           },
           allowLocalhostAsSecureOrigin: true,
         });
+
+        // Request permission automatically for PWA standalone mode or when already granted
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+          || window.navigator.standalone === true;
+        
+        if (isStandalone) {
+          // In PWA mode, request push permission after a short delay
+          setTimeout(async () => {
+            try {
+              const currentPermission = OneSignal.Notifications.permission;
+              if (!currentPermission) {
+                await OneSignal.Notifications.requestPermission();
+                console.log("[OneSignal] Push permission requested in PWA mode");
+              }
+            } catch(e) {
+              console.warn("[OneSignal] Permission request failed:", e);
+            }
+          }, 3000);
+        }
       });
     </script>
   
