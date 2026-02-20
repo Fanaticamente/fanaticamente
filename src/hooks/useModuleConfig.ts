@@ -56,9 +56,11 @@ export const useModuleConfig = (moduleId: string) => {
     },
     initialData: cached?.data,
     initialDataUpdatedAt: cached?.updatedAt,
-    staleTime: 0, // Always fetch fresh data for editing
+    staleTime: 30 * 1000, // Consider stale after 30s so refetches happen often
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true, // Refetch when user returns to tab/app
+    refetchOnReconnect: true,
+    refetchOnMount: "always", // Always refetch on component mount
   });
 
   useEffect(() => {
