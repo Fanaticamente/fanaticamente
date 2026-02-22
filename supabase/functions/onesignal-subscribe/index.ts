@@ -45,29 +45,42 @@ Deno.serve(async (req) => {
     const { action, subscription } = body;
 
     if (action === "get_vapid_key") {
-      // Return OneSignal's VAPID public key for the app
-      // OneSignal uses its own VAPID key associated with the App ID
-      // We fetch it from OneSignal's API
-      const appRes = await fetch(`https://api.onesignal.com/apps/${ONESIGNAL_APP_ID}`, {
-        headers: {
-          "Authorization": `Key ${ONESIGNAL_REST_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-      });
+      // Use the VAPID_PUBLIC_KEY secret directly (more reliable than fetching from OneSignal API)
+      const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY");
+      console.log("VAPID_PUBLIC_KEY present:", !!vapidPublicKey);
+      
+      if (!vapidPublicKey) {
+        // Fallback: try fetching from OneSignal API
+        const appRes = await fetch(`https://api.onesignal.com/apps/${ONESIGNAL_APP_ID}`, {
+          headers: {
+            "Authorization": `Key ${ONESIGNAL_REST_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+        });
 
-      if (!appRes.ok) {
+        if (appRes.ok) {
+          const appData = await appRes.json();
+          console.log("OneSignal VAPID key from API:", appData.chrome_web_vapid_key || appData.safari_apns_certificate || "none");
+          return new Response(
+            JSON.stringify({ 
+              vapid_public_key: appData.chrome_web_vapid_key || appData.vapid_public_key || null,
+              app_id: ONESIGNAL_APP_ID,
+            }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        
         const errText = await appRes.text();
         console.error("OneSignal get app error:", errText);
-        return new Response(JSON.stringify({ error: "Failed to get app info" }), {
+        return new Response(JSON.stringify({ error: "No VAPID key configured" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      const appData = await appRes.json();
       return new Response(
         JSON.stringify({ 
-          vapid_public_key: appData.vapid_public_key || null,
+          vapid_public_key: vapidPublicKey,
           app_id: ONESIGNAL_APP_ID,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
