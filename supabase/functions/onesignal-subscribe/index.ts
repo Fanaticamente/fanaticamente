@@ -27,6 +27,11 @@ Deno.serve(async (req) => {
       });
     }
 
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
     const supabaseUser = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -45,12 +50,10 @@ Deno.serve(async (req) => {
     const { action, subscription } = body;
 
     if (action === "get_vapid_key") {
-      // Use the VAPID_PUBLIC_KEY secret directly (more reliable than fetching from OneSignal API)
       const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY");
       console.log("VAPID_PUBLIC_KEY present:", !!vapidPublicKey);
       
       if (!vapidPublicKey) {
-        // Fallback: try fetching from OneSignal API
         const appRes = await fetch(`https://api.onesignal.com/apps/${ONESIGNAL_APP_ID}`, {
           headers: {
             "Authorization": `Key ${ONESIGNAL_REST_API_KEY}`,
@@ -60,7 +63,6 @@ Deno.serve(async (req) => {
 
         if (appRes.ok) {
           const appData = await appRes.json();
-          console.log("OneSignal VAPID key from API:", appData.chrome_web_vapid_key || appData.safari_apns_certificate || "none");
           return new Response(
             JSON.stringify({ 
               vapid_public_key: appData.chrome_web_vapid_key || appData.vapid_public_key || null,
@@ -90,92 +92,88 @@ Deno.serve(async (req) => {
     if (action === "subscribe" && subscription) {
       const { endpoint, keys } = subscription;
 
-      // Determine device type from endpoint
-      const isApple = endpoint.includes("apple") || endpoint.includes("webkit");
-      const deviceType = isApple ? 7 : 5; // 7 = Safari (macOS/iOS), 5 = Chrome Web Push
+      // ALWAYS use device_type 5 (Chrome Web Push) for Web Push API subscriptions
+      // device_type 7 is for Safari macOS native push (APNs for websites), NOT for iOS PWA web push
+      const deviceType = 5;
 
-      // Use OneSignal v1 Players API (more reliable for manual registration)
       const playerPayload = {
         app_id: ONESIGNAL_APP_ID,
         device_type: deviceType,
         identifier: endpoint,
         web_auth: keys.auth,
         web_p256: keys.p256dh,
-        external_user_id: user.id,
-        notification_types: 1, // subscribed
+        notification_types: 1,
       };
 
       console.log("Registering player with device_type:", deviceType, "endpoint prefix:", endpoint.substring(0, 60));
 
       const osRes = await fetch("https://onesignal.com/api/v1/players", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(playerPayload),
       });
 
-      let osData: Record<string, unknown> = {};
       const resText = await osRes.text();
-      try {
-        osData = JSON.parse(resText);
-      } catch {
-        console.error("OneSignal non-JSON response:", resText);
-        osData = { raw: resText };
-      }
-
+      let osData: Record<string, unknown> = {};
+      try { osData = JSON.parse(resText); } catch { osData = { raw: resText }; }
       console.log("OneSignal player response:", JSON.stringify(osData));
 
-      if (!osRes.ok) {
+      if (!osRes.ok || !osData.success) {
         console.error("OneSignal register error, status:", osRes.status);
-        
-        // Retry with alternate device type
-        const altType = deviceType === 7 ? 5 : 7;
-        console.log("Retrying with device_type:", altType);
-        
-        const osRes2 = await fetch("https://onesignal.com/api/v1/players", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...playerPayload, device_type: altType }),
-        });
-
-        const resText2 = await osRes2.text();
-        let osData2: Record<string, unknown> = {};
-        try { osData2 = JSON.parse(resText2); } catch { osData2 = { raw: resText2 }; }
-        console.log("OneSignal retry response:", JSON.stringify(osData2));
-
-        if (!osRes2.ok) {
-          return new Response(JSON.stringify({ error: "Failed to register", details: osData2 }), {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-
-        return new Response(JSON.stringify({ success: true, subscription_id: osData2.id }), {
+        return new Response(JSON.stringify({ error: "Failed to register with OneSignal", details: osData }), {
+          status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      return new Response(JSON.stringify({ success: true, subscription_id: osData.id }), {
+      const playerId = osData.id as string;
+      console.log("Player registered successfully, id:", playerId);
+
+      // Save/update the player_id in push_subscriptions table
+      const { error: upsertError } = await supabaseAdmin
+        .from("push_subscriptions")
+        .upsert(
+          {
+            user_id: user.id,
+            endpoint,
+            auth: keys.auth,
+            p256dh: keys.p256dh,
+            onesignal_player_id: playerId,
+            user_agent: "",
+          },
+          { onConflict: "user_id,endpoint" }
+        );
+
+      if (upsertError) {
+        console.error("Error saving push subscription:", upsertError);
+        // Try insert without unique constraint match (update existing by user_id)
+        await supabaseAdmin
+          .from("push_subscriptions")
+          .update({ onesignal_player_id: playerId, endpoint, auth: keys.auth, p256dh: keys.p256dh })
+          .eq("user_id", user.id);
+      }
+
+      return new Response(JSON.stringify({ success: true, subscription_id: playerId }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     if (action === "unsubscribe" && subscription?.subscription_id) {
-      const osRes = await fetch(
-        `https://api.onesignal.com/apps/${ONESIGNAL_APP_ID}/subscriptions/${subscription.subscription_id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Authorization": `Key ${ONESIGNAL_REST_API_KEY}`,
-          },
-        }
-      );
-
-      if (!osRes.ok) {
-        const errText = await osRes.text();
-        console.error("OneSignal unsubscribe error:", errText);
+      // Delete from OneSignal
+      try {
+        await fetch(
+          `https://onesignal.com/api/v1/players/${subscription.subscription_id}?app_id=${ONESIGNAL_APP_ID}`,
+          { method: "DELETE" }
+        );
+      } catch (e) {
+        console.error("OneSignal delete player error:", e);
       }
+
+      // Remove from our database
+      await supabaseAdmin
+        .from("push_subscriptions")
+        .delete()
+        .eq("user_id", user.id);
 
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

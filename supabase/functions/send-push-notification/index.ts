@@ -65,9 +65,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Determine target user IDs for logging / filtering
-    let targetUserIds: string[] = [];
-    let oneSignalPayload: Record<string, unknown> = {
+    // Build OneSignal notification payload
+    const oneSignalPayload: Record<string, unknown> = {
       app_id: oneSignalAppId,
       headings: { en: title, pt: title },
       contents: { en: message, pt: message },
@@ -79,32 +78,84 @@ Deno.serve(async (req) => {
       oneSignalPayload.url = link;
     }
 
+    // Determine player IDs from our push_subscriptions table
+    let targetUserIds: string[] = [];
+
     if (target_user_id) {
-      // Send to specific user via external_id
       targetUserIds = [target_user_id.trim()];
-      oneSignalPayload.include_aliases = { external_id: [target_user_id.trim()] };
-      oneSignalPayload.target_channel = "push";
-      console.log(`Targeting specific user: ${target_user_id}`);
+      
+      // Get player IDs for this specific user
+      const { data: subs } = await supabaseAdmin
+        .from("push_subscriptions")
+        .select("onesignal_player_id")
+        .eq("user_id", target_user_id.trim())
+        .not("onesignal_player_id", "is", null);
+
+      const playerIds = (subs || []).map((s) => s.onesignal_player_id).filter(Boolean);
+      
+      if (playerIds.length > 0) {
+        oneSignalPayload.include_player_ids = playerIds;
+        console.log(`Targeting user ${target_user_id} with ${playerIds.length} player(s):`, playerIds);
+      } else {
+        console.log(`No registered devices found for user ${target_user_id}`);
+        return new Response(
+          JSON.stringify({ success: true, push_sent: 0, push_failed: 1, pwa_subscribers: 0, error: "No registered devices for this user" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     } else if (target_club_id) {
-      // Get all users for this club, then send via external_ids
+      // Get all users for this club
       const { data: profiles } = await supabaseAdmin
         .from("profiles")
         .select("user_id")
         .eq("favorite_club_id", target_club_id);
-      targetUserIds = (profiles || []).map((p) => p.user_id);
-      if (targetUserIds.length === 0) {
+      
+      const clubUserIds = (profiles || []).map((p) => p.user_id);
+      targetUserIds = clubUserIds;
+
+      if (clubUserIds.length === 0) {
         return new Response(
           JSON.stringify({ success: true, push_sent: 0, push_failed: 0, pwa_subscribers: 0 }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      oneSignalPayload.include_aliases = { external_id: targetUserIds };
-      oneSignalPayload.target_channel = "push";
-      console.log(`Targeting club ${target_club_id}: ${targetUserIds.length} fans`);
+
+      // Get player IDs for these users
+      const { data: subs } = await supabaseAdmin
+        .from("push_subscriptions")
+        .select("onesignal_player_id")
+        .in("user_id", clubUserIds)
+        .not("onesignal_player_id", "is", null);
+
+      const playerIds = (subs || []).map((s) => s.onesignal_player_id).filter(Boolean);
+
+      if (playerIds.length > 0) {
+        oneSignalPayload.include_player_ids = playerIds;
+        console.log(`Targeting club ${target_club_id}: ${playerIds.length} device(s) from ${clubUserIds.length} fans`);
+      } else {
+        console.log(`No registered devices for club ${target_club_id}`);
+        return new Response(
+          JSON.stringify({ success: true, push_sent: 0, push_failed: 1, pwa_subscribers: 0, error: "No registered devices for this club" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     } else {
-      // Send to all subscribed users
-      oneSignalPayload.included_segments = ["All"];
-      console.log("Broadcasting to all OneSignal subscribers");
+      // Broadcast: get ALL player IDs from our database
+      const { data: subs } = await supabaseAdmin
+        .from("push_subscriptions")
+        .select("onesignal_player_id")
+        .not("onesignal_player_id", "is", null);
+
+      const playerIds = (subs || []).map((s) => s.onesignal_player_id).filter(Boolean);
+
+      if (playerIds.length > 0) {
+        oneSignalPayload.include_player_ids = playerIds;
+        console.log(`Broadcasting to ${playerIds.length} registered device(s)`);
+      } else {
+        // Fallback to included_segments if no player IDs in DB
+        oneSignalPayload.included_segments = ["All"];
+        console.log("No player IDs in DB, falling back to All segment");
+      }
     }
 
     // Send via OneSignal REST API
