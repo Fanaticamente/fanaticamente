@@ -27,7 +27,7 @@ export const usePushNotifications = () => {
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkSupport = () => {
+    const checkSupport = async () => {
       const supported =
         "serviceWorker" in navigator &&
         "PushManager" in window &&
@@ -38,13 +38,22 @@ export const usePushNotifications = () => {
       if (supported) {
         setPermission(Notification.permission as PushPermission);
 
+        // Register the push SW alongside the workbox SW
+        try {
+          await navigator.serviceWorker.register("/sw-push.js", { scope: "/" });
+          console.log("[Push] sw-push.js registered");
+        } catch (e) {
+          console.warn("[Push] sw-push.js registration failed:", e);
+        }
+
         // Check if already subscribed
-        navigator.serviceWorker.ready
-          .then((reg: AnyServiceWorkerReg) => reg.pushManager.getSubscription())
-          .then((sub: unknown) => {
-            if (sub) setIsSubscribed(true);
-          })
-          .catch(() => {});
+        try {
+          const reg: AnyServiceWorkerReg = await navigator.serviceWorker.ready;
+          const sub = await reg.pushManager.getSubscription();
+          if (sub) setIsSubscribed(true);
+        } catch {
+          // ignore
+        }
 
         // Restore saved subscription id
         const saved = localStorage.getItem("onesignal_subscription_id");
@@ -53,8 +62,6 @@ export const usePushNotifications = () => {
     };
 
     checkSupport();
-    const timer = setTimeout(checkSupport, 1500);
-    return () => clearTimeout(timer);
   }, []);
 
   const subscribe = async (): Promise<boolean> => {
@@ -63,9 +70,10 @@ export const usePushNotifications = () => {
       // Step 1: Request permission (must be direct user gesture)
       const permResult = await Notification.requestPermission();
       setPermission(permResult as PushPermission);
+      console.log("[Push] Permission result:", permResult);
 
       if (permResult !== "granted") {
-        toast.error("Permissão negada. Habilite nas Configurações do iPhone → Notificações.");
+        toast.error("Permissão negada. Habilite nas Configurações → Notificações.");
         return false;
       }
 
@@ -76,60 +84,62 @@ export const usePushNotifications = () => {
         return false;
       }
 
-      // Step 3: Fetch OneSignal's VAPID public key from our edge function
+      // Step 3: Fetch OneSignal's VAPID public key
+      console.log("[Push] Fetching VAPID key...");
       const vapidRes = await supabase.functions.invoke("onesignal-subscribe", {
         body: { action: "get_vapid_key" },
       });
+      console.log("[Push] VAPID response:", vapidRes);
 
       const vapidPublicKey: string | null = vapidRes.data?.vapid_public_key ?? null;
+      console.log("[Push] VAPID key:", vapidPublicKey ? `${vapidPublicKey.substring(0, 20)}...` : "null");
 
-      // Step 4: Subscribe via Push Manager
-      const reg: AnyServiceWorkerReg = await navigator.serviceWorker.ready;
-
-      let pushSub: PushSubscription | null = null;
-
-      // Try with VAPID key first (required for Chrome/Android), then without (iOS may not need it)
-      const trySubscribe = async (withKey: boolean): Promise<PushSubscription> => {
-        const opts: Record<string, unknown> = { userVisibleOnly: true };
-        if (withKey && vapidPublicKey) {
-          opts.applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
-        }
-        return reg.pushManager.subscribe(opts);
-      };
-
-      try {
-        pushSub = await trySubscribe(true);
-      } catch (e1) {
-        console.warn("[Push] subscribe with VAPID failed, trying without:", e1);
-        try {
-          pushSub = await trySubscribe(false);
-        } catch (e2) {
-          console.error("[Push] subscribe failed:", e2);
-          toast.error("Erro ao registrar notificações. Verifique se o app está instalado como PWA.");
-          return false;
-        }
+      if (!vapidPublicKey) {
+        toast.error("Erro ao obter chave de notificações do servidor.");
+        return false;
       }
 
-      if (!pushSub) {
-        toast.error("Não foi possível criar a subscrição push.");
+      // Step 4: Get the service worker registration
+      const reg: AnyServiceWorkerReg = await navigator.serviceWorker.ready;
+      console.log("[Push] Service worker ready, subscribing...");
+
+      // Unsubscribe any existing subscription first to avoid conflicts
+      const existingSub = await reg.pushManager.getSubscription();
+      if (existingSub) {
+        console.log("[Push] Removing existing subscription");
+        await existingSub.unsubscribe();
+      }
+
+      // Subscribe with VAPID key
+      let pushSub: PushSubscription | null = null;
+      try {
+        pushSub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+        });
+        console.log("[Push] Subscribed successfully:", pushSub.endpoint.substring(0, 60));
+      } catch (subErr) {
+        console.error("[Push] pushManager.subscribe failed:", subErr);
+        toast.error("Erro ao registrar notificações. Verifique se o app está instalado como PWA.");
         return false;
       }
 
       // Step 5: Register with OneSignal via REST API
       const subJson = pushSub.toJSON();
-      const endpoint = pushSub.endpoint;
       const auth = subJson.keys?.auth;
       const p256dh = subJson.keys?.p256dh;
 
       if (!auth || !p256dh) {
+        console.error("[Push] Missing keys - auth:", !!auth, "p256dh:", !!p256dh);
         toast.error("Erro ao obter chaves de notificação.");
         return false;
       }
 
+      console.log("[Push] Registering with OneSignal...");
       const regRes = await supabase.functions.invoke("onesignal-subscribe", {
         body: {
           action: "subscribe",
-          subscription: { endpoint, keys: { auth, p256dh } },
+          subscription: { endpoint: pushSub.endpoint, keys: { auth, p256dh } },
         },
       });
 
@@ -144,7 +154,7 @@ export const usePushNotifications = () => {
       toast.success("Notificações push ativadas!");
       return true;
     } catch (e) {
-      console.error("Push subscribe error:", e);
+      console.error("[Push] subscribe error:", e);
       toast.error("Erro ao ativar notificações push.");
       return false;
     } finally {
