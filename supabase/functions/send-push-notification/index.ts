@@ -171,12 +171,18 @@ Deno.serve(async (req) => {
     const oneSignalData = await oneSignalRes.json();
     console.log("OneSignal response:", JSON.stringify(oneSignalData));
 
-    const pushSent = oneSignalData.recipients ?? 0;
-    const pushFailed = oneSignalData.errors ? 1 : 0;
+    // OneSignal may not return "recipients" when using include_player_ids
+    // Use the number of player IDs we targeted as the count
+    const targetedPlayerIds = (oneSignalPayload.include_player_ids as string[]) || [];
+    const wasAccepted = oneSignalRes.ok && oneSignalData.id;
+    const pushSent = wasAccepted ? (oneSignalData.recipients ?? targetedPlayerIds.length) : 0;
+    const pushFailed = (!wasAccepted || oneSignalData.errors) ? 1 : 0;
 
     if (!oneSignalRes.ok) {
       console.error("OneSignal error:", oneSignalData);
     }
+
+    console.log(`Result: accepted=${wasAccepted}, pushSent=${pushSent}, targeted=${targetedPlayerIds.length}`);
 
     // Log notification
     supabaseAdmin.from("notification_logs").insert({
@@ -194,10 +200,10 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        success: oneSignalRes.ok,
+        success: wasAccepted,
         push_sent: pushSent,
         push_failed: pushFailed,
-        pwa_subscribers: pushSent,
+        pwa_subscribers: targetedPlayerIds.length,
         onesignal_id: oneSignalData.id,
         onesignal_errors: oneSignalData.errors || null,
       }),
