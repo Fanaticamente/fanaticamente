@@ -88,73 +88,75 @@ Deno.serve(async (req) => {
     }
 
     if (action === "subscribe" && subscription) {
-      // Register the push subscription with OneSignal via REST API
       const { endpoint, keys } = subscription;
 
-      // Create/update the subscription in OneSignal
-      const osRes = await fetch(`https://api.onesignal.com/apps/${ONESIGNAL_APP_ID}/subscriptions`, {
+      // Determine device type from endpoint
+      const isApple = endpoint.includes("apple") || endpoint.includes("webkit");
+      const deviceType = isApple ? 7 : 5; // 7 = Safari (macOS/iOS), 5 = Chrome Web Push
+
+      // Use OneSignal v1 Players API (more reliable for manual registration)
+      const playerPayload = {
+        app_id: ONESIGNAL_APP_ID,
+        device_type: deviceType,
+        identifier: endpoint,
+        web_auth: keys.auth,
+        web_p256: keys.p256dh,
+        external_user_id: user.id,
+        notification_types: 1, // subscribed
+      };
+
+      console.log("Registering player with device_type:", deviceType, "endpoint prefix:", endpoint.substring(0, 60));
+
+      const osRes = await fetch("https://onesignal.com/api/v1/players", {
         method: "POST",
         headers: {
-          "Authorization": `Key ${ONESIGNAL_REST_API_KEY}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          subscription: {
-            type: "SafariPush",
-            token: endpoint,
-            enabled: true,
-            web_auth: keys.auth,
-            web_p256: keys.p256dh,
-          },
-          retain_previous_owner: false,
-          identity: {
-            external_id: user.id,
-          },
-        }),
+        body: JSON.stringify(playerPayload),
       });
 
-      const osData = await osRes.json();
-      console.log("OneSignal subscribe response:", JSON.stringify(osData));
+      let osData: Record<string, unknown> = {};
+      const resText = await osRes.text();
+      try {
+        osData = JSON.parse(resText);
+      } catch {
+        console.error("OneSignal non-JSON response:", resText);
+        osData = { raw: resText };
+      }
+
+      console.log("OneSignal player response:", JSON.stringify(osData));
 
       if (!osRes.ok) {
-        console.error("OneSignal subscribe error:", osData);
-        // Try alternate endpoint for web push (ChromeWeb type)
-        const osRes2 = await fetch(`https://api.onesignal.com/apps/${ONESIGNAL_APP_ID}/subscriptions`, {
+        console.error("OneSignal register error, status:", osRes.status);
+        
+        // Retry with alternate device type
+        const altType = deviceType === 7 ? 5 : 7;
+        console.log("Retrying with device_type:", altType);
+        
+        const osRes2 = await fetch("https://onesignal.com/api/v1/players", {
           method: "POST",
-          headers: {
-            "Authorization": `Key ${ONESIGNAL_REST_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            subscription: {
-              type: "ChromeWeb",
-              token: endpoint,
-              enabled: true,
-              web_auth: keys.auth,
-              web_p256: keys.p256dh,
-            },
-            retain_previous_owner: false,
-            identity: {
-              external_id: user.id,
-            },
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...playerPayload, device_type: altType }),
         });
-        const osData2 = await osRes2.json();
-        console.log("OneSignal subscribe response (ChromeWeb):", JSON.stringify(osData2));
+
+        const resText2 = await osRes2.text();
+        let osData2: Record<string, unknown> = {};
+        try { osData2 = JSON.parse(resText2); } catch { osData2 = { raw: resText2 }; }
+        console.log("OneSignal retry response:", JSON.stringify(osData2));
 
         if (!osRes2.ok) {
-          return new Response(JSON.stringify({ error: "Failed to register with OneSignal", details: osData2 }), {
+          return new Response(JSON.stringify({ error: "Failed to register", details: osData2 }), {
             status: 500,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
 
-        return new Response(JSON.stringify({ success: true, subscription_id: osData2.subscription?.id }), {
+        return new Response(JSON.stringify({ success: true, subscription_id: osData2.id }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      return new Response(JSON.stringify({ success: true, subscription_id: osData.subscription?.id }), {
+      return new Response(JSON.stringify({ success: true, subscription_id: osData.id }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
