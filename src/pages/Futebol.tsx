@@ -51,6 +51,7 @@ const Futebol = () => {
             <ClubFilterDropdown
               selectedClub={selectedClub}
               onSelectClub={setSelectedClub}
+              accentColor={accentColor}
             />
           </div>
           <p className="text-gray-600 text-sm tracking-wide font-sans">
