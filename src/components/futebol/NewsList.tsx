@@ -14,7 +14,7 @@ interface NewsListProps {
 }
 
 const NewsList = ({ selectedCategory, selectedClub, accentColor }: NewsListProps) => {
-  const { data: news, isLoading, error, refetch, isFetching, forceScrape } = useFootballNews();
+  const { data: news, isLoading, error, refetch, isFetching, forceScrape } = useFootballNews(selectedClub);
   const [isForceRefreshing, setIsForceRefreshing] = useState(false);
 
   const handleForceRefresh = async () => {
@@ -86,16 +86,11 @@ const NewsList = ({ selectedCategory, selectedClub, accentColor }: NewsListProps
     ? brazilianClubs.find((c) => c.id === selectedClub) 
     : null;
 
-  // Filter by category if not "Todos"
+  // Filter by category if not "Todos" (club filtering is done at DB level)
   let filteredNews =
     selectedCategory === "Todos"
       ? news
       : news.filter((item) => item.category === selectedCategory);
-
-  // Filter by club: only show news scraped from that club's source page
-  if (selectedClub) {
-    filteredNews = filteredNews.filter((item) => item.club_id === selectedClub);
-  }
 
   // First 3 articles go to the carousel (featured)
   const featuredNews = filteredNews.slice(0, 3);
