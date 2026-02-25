@@ -91,34 +91,9 @@ const NewsList = ({ selectedCategory, selectedClub }: NewsListProps) => {
       ? news
       : news.filter((item) => item.category === selectedCategory);
 
-  // Filter by club if selected
-  // Priority 1: Use club_id from the database (scraped from club-specific page)
-  // Priority 2: Search in title and content (fallback for older news)
+  // Filter by club: only show news scraped from that club's source page
   if (selectedClub) {
-    filteredNews = filteredNews.filter((item) => {
-      // First check if the news was scraped from this club's page
-      if (item.club_id === selectedClub) {
-        return true;
-      }
-      
-      // Fallback: search in title and content for older news without club_id
-      if (selectedClubData) {
-        const clubKeywords = [
-          selectedClubData.name.toLowerCase(),
-          selectedClubData.shortName.toLowerCase(),
-          selectedClubData.id.replace(/-/g, " ").toLowerCase(),
-        ];
-
-        const titleLower = item.rewritten_title.toLowerCase();
-        const contentLower = item.rewritten_content.toLowerCase();
-        
-        return clubKeywords.some(
-          (keyword) => titleLower.includes(keyword) || contentLower.includes(keyword)
-        );
-      }
-      
-      return false;
-    });
+    filteredNews = filteredNews.filter((item) => item.club_id === selectedClub);
   }
 
   // First 3 articles go to the carousel (featured)
@@ -187,12 +162,6 @@ const NewsList = ({ selectedCategory, selectedClub }: NewsListProps) => {
         </div>
       )}
 
-      {/* Auto-update indicator */}
-      <div className="px-4 py-2 text-center">
-        <p className="text-xs text-gray-500">
-          ⚡ Atualização automática a cada 2 minutos
-        </p>
-      </div>
     </div>
   );
 };
