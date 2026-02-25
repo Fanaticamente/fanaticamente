@@ -160,7 +160,7 @@ const NewsList = ({ selectedCategory, selectedClub }: NewsListProps) => {
       {otherNews.length > 0 && (
         <div className="px-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display text-xl text-black">
+            <h3 className="font-display text-xl text-gray-800">
               {selectedClubData ? `Notícias do ${selectedClubData.name}` : "Últimas Notícias"}
             </h3>
             <div className="flex items-center gap-2">
