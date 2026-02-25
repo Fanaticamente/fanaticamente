@@ -80,7 +80,7 @@ async function fetchHtml(url: string): Promise<string> {
 }
 
 // Extract article URLs from an HTML page
-function extractArticleUrls(html: string, clubId?: string): NewsItem[] {
+function extractArticleUrls(html: string, clubId?: string, skipDateFilter = false): NewsItem[] {
   const news: NewsItem[] = [];
   const seenUrls = new Set<string>();
 
@@ -96,8 +96,8 @@ function extractArticleUrls(html: string, clubId?: string): NewsItem[] {
     const url = match[1].split('?')[0];
     if (seenUrls.has(url)) continue;
 
-    // Only recent articles
-    if (!url.includes(`/noticia/${today}/`) && !url.includes(`/noticia/${yesterdayStr}/`)) continue;
+    // Only recent articles (skip filter for targeted scrapes)
+    if (!skipDateFilter && !url.includes(`/noticia/${today}/`) && !url.includes(`/noticia/${yesterdayStr}/`)) continue;
     // Skip non-article pages
     if (url.includes('/jogo/') || url.includes('/ao-vivo/') || url.includes('/video/')) continue;
     if (!url.includes('/futebol/')) continue;
@@ -393,13 +393,40 @@ serve(async (req) => {
     // Parse request body for optional parameters
     let requestedClubIds: string[] | null = null;
     let maxArticles = 5;
+    let forceRewrite = false;
     try {
       const body = await req.json();
       if (body?.clubIds && Array.isArray(body.clubIds)) {
         requestedClubIds = body.clubIds;
         maxArticles = body.maxArticles || 10;
       }
+      if (body?.forceRewrite === true) {
+        forceRewrite = true;
+      }
     } catch { /* no body, use defaults */ }
+
+    // Force rewrite mode: delete existing news for requested clubs and re-scrape
+    if (forceRewrite && requestedClubIds && requestedClubIds.length > 0) {
+      console.log(`Force rewrite mode: deleting existing news for clubs: ${requestedClubIds.join(', ')}`);
+      for (const clubId of requestedClubIds) {
+        const { data: existing } = await supabase
+          .from('football_news')
+          .select('id')
+          .eq('club_id', clubId)
+          .order('published_at', { ascending: false })
+          .limit(maxArticles);
+        
+        if (existing && existing.length > 0) {
+          const ids = existing.map(e => e.id);
+          const { error: delError } = await supabase
+            .from('football_news')
+            .delete()
+            .in('id', ids);
+          if (delError) console.error(`Delete error for ${clubId}:`, delError);
+          else console.log(`Deleted ${ids.length} articles for ${clubId}`);
+        }
+      }
+    }
 
     console.log('Starting news scrape (using native fetch + AI)...');
 
@@ -439,7 +466,7 @@ serve(async (req) => {
       clubsThisRun.map(async ([clubId, clubUrl]) => {
         try {
           const html = await fetchHtml(clubUrl);
-          const news = extractArticleUrls(html, clubId);
+          const news = extractArticleUrls(html, clubId, !!requestedClubIds);
           console.log(`Club ${clubId}: found ${news.length} articles`);
           return news;
         } catch (err) {
