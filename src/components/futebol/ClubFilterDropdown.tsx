@@ -7,9 +7,10 @@ import fanaticaLogoIcon from "@/assets/fanatica-logo-icon.png";
 interface ClubFilterDropdownProps {
   selectedClub: string | null;
   onSelectClub: (clubId: string | null) => void;
+  accentColor?: string | null;
 }
 
-const ClubFilterDropdown = ({ selectedClub, onSelectClub }: ClubFilterDropdownProps) => {
+const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFilterDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -60,10 +61,13 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub }: ClubFilterDropdownPr
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors",
-          selectedClub 
-            ? "border-primary bg-primary/5 text-primary" 
-            : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+          !selectedClub && "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
         )}
+        style={selectedClub && accentColor ? {
+          borderColor: accentColor,
+          backgroundColor: `${accentColor}0D`,
+          color: accentColor,
+        } : undefined}
       >
         {selectedClubData ? (
           <>
@@ -74,13 +78,14 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub }: ClubFilterDropdownPr
                 className="w-4 h-4 object-contain"
               />
             </div>
-            <span className="text-sm font-medium">{selectedClubData.shortName}</span>
+            <span className="text-sm font-medium" style={{ color: accentColor || undefined }}>{selectedClubData.shortName}</span>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleSelectClub(null);
               }}
               className="ml-1 p-0.5 rounded-full hover:bg-gray-200"
+              style={{ color: accentColor || undefined }}
             >
               <X className="w-3 h-3" />
             </button>
