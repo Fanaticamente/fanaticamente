@@ -35,7 +35,7 @@ const CLUB_GE_URLS: Record<string, string> = {
   "mirassol": "https://ge.globo.com/sp/tem-esporte/futebol/times/mirassol/",
   "palmeiras": "https://ge.globo.com/futebol/times/palmeiras/",
   "remo": "https://ge.globo.com/pa/futebol/times/remo/",
-  "santos": "https://ge.globo.com/pa/futebol/times/santos/",
+  "santos": "https://ge.globo.com/sp/santos-e-regiao/futebol/times/santos/",
   "sao-paulo": "https://ge.globo.com/futebol/times/sao-paulo/",
   "vasco": "https://ge.globo.com/futebol/times/vasco/",
   "vitoria": "https://ge.globo.com/ba/futebol/times/vitoria/",
