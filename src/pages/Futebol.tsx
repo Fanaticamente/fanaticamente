@@ -42,29 +42,12 @@ const Futebol = () => {
               borderColor: selectedClub && accentColor ? accentColor : "#1f2937",
             }}
           >
-            {selectedClubData ? (
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border border-gray-200 shadow-sm">
-                  <img
-                    src={selectedClubData.badgeUrl}
-                    alt={selectedClubData.name}
-                    className="w-8 h-8 object-contain"
-                  />
-                </div>
-                <div>
-                  <h1
-                    className="text-3xl font-display font-bold italic uppercase tracking-tight transition-colors duration-300"
-                    style={{ color: accentColor || "#1f2937" }}
-                  >
-                    {selectedClubData.name}
-                  </h1>
-                </div>
-              </div>
-            ) : (
-              <h1 className="text-4xl font-display font-bold text-gray-800 tracking-tight">
-                Notícias
-              </h1>
-            )}
+            <h1
+              className="text-4xl font-display font-bold tracking-tight transition-colors duration-300"
+              style={{ color: selectedClub && accentColor ? accentColor : "#1f2937" }}
+            >
+              Notícias
+            </h1>
             <ClubFilterDropdown
               selectedClub={selectedClub}
               onSelectClub={setSelectedClub}
@@ -105,7 +88,7 @@ const Futebol = () => {
         </div>
 
         {/* News List */}
-        <NewsList selectedCategory={selectedCategory} selectedClub={selectedClub} />
+        <NewsList selectedCategory={selectedCategory} selectedClub={selectedClub} accentColor={accentColor} />
 
         {/* Spacer para manter distância do BottomNav */}
         <div aria-hidden className="h-28" />

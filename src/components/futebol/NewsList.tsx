@@ -10,9 +10,10 @@ import { brazilianClubs } from "@/data/brazilianClubs";
 interface NewsListProps {
   selectedCategory: string;
   selectedClub?: string | null;
+  accentColor?: string | null;
 }
 
-const NewsList = ({ selectedCategory, selectedClub }: NewsListProps) => {
+const NewsList = ({ selectedCategory, selectedClub, accentColor }: NewsListProps) => {
   const { data: news, isLoading, error, refetch, isFetching, forceScrape } = useFootballNews();
   const [isForceRefreshing, setIsForceRefreshing] = useState(false);
 
@@ -127,7 +128,7 @@ const NewsList = ({ selectedCategory, selectedClub }: NewsListProps) => {
       {/* Featured News Carousel - always shows the 3 most recent */}
       {featuredNews.length > 0 && (
         <div className="px-4">
-          <FeaturedNewsCarousel news={featuredNews} />
+          <FeaturedNewsCarousel news={featuredNews} accentColor={accentColor} />
         </div>
       )}
 
@@ -140,14 +141,15 @@ const NewsList = ({ selectedCategory, selectedClub }: NewsListProps) => {
             </h3>
             <div className="flex items-center gap-2">
               {(isFetching || isForceRefreshing) && (
-                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                <Loader2 className="w-4 h-4 animate-spin" style={{ color: accentColor || undefined }} />
               )}
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleForceRefresh}
                 disabled={isForceRefreshing}
-                className="text-primary hover:text-primary/80 hover:bg-transparent"
+                className="hover:bg-transparent"
+                style={{ color: accentColor || undefined }}
               >
                 <RefreshCw className={`w-4 h-4 ${isForceRefreshing ? 'animate-spin' : ''}`} />
               </Button>
@@ -156,7 +158,7 @@ const NewsList = ({ selectedCategory, selectedClub }: NewsListProps) => {
 
           <div className="space-y-3">
             {otherNews.map((item) => (
-              <NewsCard key={item.id} news={item} />
+              <NewsCard key={item.id} news={item} accentColor={accentColor} />
             ))}
           </div>
         </div>

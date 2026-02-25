@@ -12,9 +12,10 @@ import NewsCard from "./NewsCard";
 
 interface FeaturedNewsCarouselProps {
   news: FootballNewsItem[];
+  accentColor?: string | null;
 }
 
-const FeaturedNewsCarousel = ({ news }: FeaturedNewsCarouselProps) => {
+const FeaturedNewsCarousel = ({ news, accentColor }: FeaturedNewsCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedNews, setSelectedNews] = useState<FootballNewsItem | null>(null);
 
@@ -41,6 +42,7 @@ const FeaturedNewsCarousel = ({ news }: FeaturedNewsCarouselProps) => {
                 <FeaturedSlide 
                   news={item} 
                   onOpen={() => setSelectedNews(item)}
+                  accentColor={accentColor}
                 />
               </CarouselItem>
             ))}
@@ -54,10 +56,9 @@ const FeaturedNewsCarousel = ({ news }: FeaturedNewsCarouselProps) => {
               <button
                 key={index}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentIndex
-                    ? "bg-primary w-6"
-                    : "bg-gray-300 hover:bg-gray-400"
+                  index === currentIndex ? "w-6" : "bg-gray-300 hover:bg-gray-400"
                 }`}
+                style={index === currentIndex ? { backgroundColor: accentColor || 'hsl(var(--primary))' } : undefined}
                 aria-label={`Ir para slide ${index + 1}`}
               />
             ))}
@@ -79,6 +80,7 @@ const FeaturedNewsCarousel = ({ news }: FeaturedNewsCarouselProps) => {
 interface FeaturedSlideProps {
   news: FootballNewsItem;
   onOpen: () => void;
+  accentColor?: string | null;
 }
 
 // Clean content to remove photo credits and metadata mixed in text
@@ -102,7 +104,7 @@ const cleanNewsContent = (content: string): string => {
 };
 
 
-const FeaturedSlide = ({ news, onOpen }: FeaturedSlideProps) => {
+const FeaturedSlide = ({ news, onOpen, accentColor }: FeaturedSlideProps) => {
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
     locale: ptBR,
@@ -131,13 +133,16 @@ const FeaturedSlide = ({ news, onOpen }: FeaturedSlideProps) => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             
             {/* Badge on image */}
-            <span className="absolute top-3 left-3 px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full uppercase">
+            <span 
+              className="absolute top-3 left-3 px-3 py-1 text-white text-xs font-bold rounded-full uppercase"
+              style={{ backgroundColor: accentColor || 'hsl(var(--primary))' }}
+            >
               Destaque
             </span>
           </div>
         )}
         <div className="p-4">
-          <h2 className="font-sans font-bold text-lg leading-tight text-gray-900 mb-2 group-hover:text-primary transition-colors line-clamp-2">
+          <h2 className="font-sans font-bold text-lg leading-tight text-gray-900 mb-2 transition-colors line-clamp-2">
             {news.rewritten_title}
           </h2>
           <p className="text-gray-600 text-sm line-clamp-2 mb-3">
@@ -145,13 +150,13 @@ const FeaturedSlide = ({ news, onOpen }: FeaturedSlideProps) => {
           </p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-gray-500 text-xs">
-              <span className="font-medium text-primary">Fanaticamente</span>
+              <span className="font-medium" style={{ color: accentColor || 'hsl(var(--primary))' }}>Fanaticamente</span>
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 {timeAgo}
               </span>
             </div>
-            <span className="text-primary text-sm font-medium flex items-center gap-1">
+            <span className="text-sm font-medium flex items-center gap-1" style={{ color: accentColor || 'hsl(var(--primary))' }}>
               <Newspaper className="w-4 h-4" />
               Ler mais
             </span>

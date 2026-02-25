@@ -390,26 +390,48 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Parse request body for optional parameters
+    let requestedClubIds: string[] | null = null;
+    let maxArticles = 5;
+    try {
+      const body = await req.json();
+      if (body?.clubIds && Array.isArray(body.clubIds)) {
+        requestedClubIds = body.clubIds;
+        maxArticles = body.maxArticles || 10;
+      }
+    } catch { /* no body, use defaults */ }
+
     console.log('Starting news scrape (using native fetch + AI)...');
 
-    // Rotate through clubs
-    const CLUBS_PER_RUN = 8;
-    const allClubEntries = Object.entries(CLUB_GE_URLS);
-    const rotationIndex = Math.floor(Date.now() / (2 * 60 * 1000)) % Math.ceil(allClubEntries.length / CLUBS_PER_RUN);
-    const clubBatchStart = rotationIndex * CLUBS_PER_RUN;
-    const clubsThisRun = allClubEntries.slice(clubBatchStart, clubBatchStart + CLUBS_PER_RUN);
+    let clubsThisRun: [string, string][];
 
-    console.log(`Club rotation: batch ${rotationIndex + 1}, clubs: ${clubsThisRun.map(c => c[0]).join(', ')}`);
+    if (requestedClubIds) {
+      // Scrape specific clubs
+      clubsThisRun = requestedClubIds
+        .filter(id => CLUB_GE_URLS[id])
+        .map(id => [id, CLUB_GE_URLS[id]] as [string, string]);
+      console.log(`Targeted scrape for clubs: ${clubsThisRun.map(c => c[0]).join(', ')}`);
+    } else {
+      // Rotate through clubs
+      const CLUBS_PER_RUN = 8;
+      const allClubEntries = Object.entries(CLUB_GE_URLS);
+      const rotationIndex = Math.floor(Date.now() / (2 * 60 * 1000)) % Math.ceil(allClubEntries.length / CLUBS_PER_RUN);
+      const clubBatchStart = rotationIndex * CLUBS_PER_RUN;
+      clubsThisRun = allClubEntries.slice(clubBatchStart, clubBatchStart + CLUBS_PER_RUN) as [string, string][];
+      console.log(`Club rotation: batch ${rotationIndex + 1}, clubs: ${clubsThisRun.map(c => c[0]).join(', ')}`);
+    }
 
-    // STEP 1: Fetch main football page
-    console.log('Fetching main page...');
+    // STEP 1: Fetch main football page (skip if targeted club scrape)
     let mainPageNews: NewsItem[] = [];
-    try {
-      const mainHtml = await fetchHtml('https://ge.globo.com/futebol/');
-      mainPageNews = extractArticleUrls(mainHtml);
-      console.log(`Main page: found ${mainPageNews.length} articles`);
-    } catch (error) {
-      console.error('Error fetching main page:', error);
+    if (!requestedClubIds) {
+      console.log('Fetching main page...');
+      try {
+        const mainHtml = await fetchHtml('https://ge.globo.com/futebol/');
+        mainPageNews = extractArticleUrls(mainHtml);
+        console.log(`Main page: found ${mainPageNews.length} articles`);
+      } catch (error) {
+        console.error('Error fetching main page:', error);
+      }
     }
 
     // STEP 2: Fetch club pages in parallel
@@ -467,7 +489,7 @@ serve(async (req) => {
     console.log(`${newArticles.length} new articles to process`);
 
     // Process up to 5 new articles
-    const articlesToProcess = newArticles.slice(0, 5);
+    const articlesToProcess = newArticles.slice(0, maxArticles);
     const processedNews: string[] = [];
 
     for (const article of articlesToProcess) {
@@ -478,7 +500,7 @@ serve(async (req) => {
         const articleHtml = await fetchHtml(article.url);
         const details = extractArticleDetails(articleHtml, article.url);
 
-        if (!details.isRecent) {
+        if (!requestedClubIds && !details.isRecent) {
           console.log(`Skipping old article: ${article.title}`);
           continue;
         }

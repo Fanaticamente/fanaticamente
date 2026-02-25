@@ -16,6 +16,7 @@ import type { FootballNewsItem } from "@/hooks/useFootballNews";
 interface NewsCardProps {
   news: FootballNewsItem;
   isFeatured?: boolean;
+  accentColor?: string | null;
 }
 
 // Clean caption to show only subject name, removing action descriptions
@@ -101,7 +102,7 @@ const cleanNewsContent = (content: string): string => {
 };
 
 
-const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
+const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -138,10 +139,10 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
               </div>
             )}
             <div className="p-4">
-              <span className="inline-block px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-full uppercase mb-2">
+              <span className="inline-block px-3 py-1 text-white text-xs font-bold rounded-full uppercase mb-2" style={{ backgroundColor: accentColor || 'hsl(var(--primary))' }}>
                 Destaque
               </span>
-              <h2 className="font-sans font-bold text-xl leading-tight text-gray-900 mb-2 group-hover:text-primary transition-colors">
+              <h2 className="font-sans font-bold text-xl leading-tight text-gray-900 mb-2 transition-colors">
                 {news.rewritten_title}
               </h2>
               <p className="text-gray-600 text-sm line-clamp-2 mb-3">
@@ -149,13 +150,13 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
               </p>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-gray-500 text-sm">
-                  <span className="font-medium text-primary">Fanaticamente</span>
+                  <span className="font-medium" style={{ color: accentColor || 'hsl(var(--primary))' }}>Fanaticamente</span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {timeAgo}
                   </span>
                 </div>
-                <span className="text-primary text-sm font-medium flex items-center gap-1">
+                <span className="text-sm font-medium flex items-center gap-1" style={{ color: accentColor || 'hsl(var(--primary))' }}>
                   <Newspaper className="w-4 h-4" />
                   Ler mais
                 </span>
@@ -173,7 +174,7 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full text-left bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-4 hover:border-primary transition-colors group shadow-sm"
+        className="w-full text-left bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-4 transition-colors group shadow-sm"
       >
         {!imageError && news.image_url ? (
           <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
@@ -190,19 +191,19 @@ const NewsCard = ({ news, isFeatured = false }: NewsCardProps) => {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h4 className="font-sans font-bold text-gray-900 text-sm leading-tight line-clamp-2 mb-1 group-hover:text-primary transition-colors">
+          <h4 className="font-sans font-bold text-gray-900 text-sm leading-tight line-clamp-2 mb-1 transition-colors">
             {news.rewritten_title}
           </h4>
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <span className="px-2 py-0.5 bg-gray-100 rounded">{news.category}</span>
-            <span className="font-medium text-primary">Fanaticamente</span>
+            <span className="font-medium" style={{ color: accentColor || 'hsl(var(--primary))' }}>Fanaticamente</span>
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {timeAgo}
             </span>
           </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform flex-shrink-0" />
+        <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" style={{ color: accentColor || 'hsl(var(--primary))' }} />
       </button>
 
       <NewsDrawer news={news} isOpen={isOpen} onClose={() => setIsOpen(false)} />
