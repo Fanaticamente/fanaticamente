@@ -106,6 +106,7 @@ const cleanNewsContent = (content: string): string => {
 const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const fixedTitle = fixTitleCapitalization(news.rewritten_title);
 
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
