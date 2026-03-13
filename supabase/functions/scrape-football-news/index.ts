@@ -420,7 +420,7 @@ Responda APENAS em JSON válido:
       const detectedClubId = parsed.clubId && VALID_CLUB_IDS.includes(parsed.clubId) ? parsed.clubId : undefined;
       return {
         shouldSkip: false,
-        rewrittenTitle: parsed.rewrittenTitle || title,
+        rewrittenTitle: fixTitleCapitalization(parsed.rewrittenTitle || title),
         rewrittenContent: deepCleanText(parsed.rewrittenContent || content),
         detectedClubId,
       };
