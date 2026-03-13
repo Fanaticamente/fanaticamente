@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { FootballNewsItem } from "@/hooks/useFootballNews";
+import { fixTitleCapitalization } from "@/lib/fixTitleCapitalization";
 
 interface NewsCardProps {
   news: FootballNewsItem;
@@ -105,6 +106,7 @@ const cleanNewsContent = (content: string): string => {
 const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const fixedTitle = fixTitleCapitalization(news.rewritten_title);
 
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
@@ -130,7 +132,7 @@ const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
               <div className="relative h-48 overflow-hidden">
                 <img
                   src={news.image_url}
-                  alt={displayCaption || news.rewritten_title}
+                   alt={displayCaption || fixedTitle}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
@@ -143,7 +145,7 @@ const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
                 Destaque
               </span>
               <h2 className="font-sans font-bold text-xl leading-tight text-gray-900 mb-2 transition-colors">
-                {news.rewritten_title}
+                {fixedTitle}
               </h2>
               <p className="text-gray-600 text-sm line-clamp-2 mb-3">
                 {contentPreview}
@@ -180,7 +182,7 @@ const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
           <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
             <img
               src={news.image_url}
-              alt={displayCaption || news.rewritten_title}
+               alt={displayCaption || fixedTitle}
               className="w-full h-full object-cover"
               onError={() => setImageError(true)}
             />
@@ -192,7 +194,7 @@ const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
         )}
         <div className="flex-1 min-w-0">
           <h4 className="font-sans font-bold text-gray-900 text-sm leading-tight line-clamp-2 mb-1 transition-colors">
-            {news.rewritten_title}
+            {fixedTitle}
           </h4>
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <span className="px-2 py-0.5 bg-gray-100 rounded">{news.category}</span>
@@ -218,11 +220,12 @@ interface NewsDrawerProps {
 }
 
 const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
-  const [fontSizeLevel, setFontSizeLevel] = useState(0); // 0 = normal, 1 = medium, 2 = large
+  const [fontSizeLevel, setFontSizeLevel] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fixedTitle = fixTitleCapitalization(news.rewritten_title);
   
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
@@ -265,7 +268,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     setIsLoading(true);
     
     try {
-      const textToRead = `${news.rewritten_title}. ${news.rewritten_content}`;
+      const textToRead = `${fixedTitle}. ${news.rewritten_content}`;
       
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
@@ -410,7 +413,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               
               {/* Newspaper headline */}
               <DrawerTitle className="text-2xl sm:text-3xl font-sans font-bold text-black leading-tight tracking-tight text-left">
-                {news.rewritten_title}
+                {fixedTitle}
               </DrawerTitle>
             </div>
             
@@ -431,7 +434,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               <figure className="border border-gray-300">
                 <img
                   src={news.image_url}
-                  alt={displayCaption || news.rewritten_title}
+                  alt={displayCaption || fixedTitle}
                   className="w-full h-auto object-cover grayscale-[20%] contrast-[1.05]"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";

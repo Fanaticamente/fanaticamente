@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import type { FootballNewsItem } from "@/hooks/useFootballNews";
 import NewsCard from "./NewsCard";
+import { fixTitleCapitalization } from "@/lib/fixTitleCapitalization";
 
 interface FeaturedNewsCarouselProps {
   news: FootballNewsItem[];
@@ -110,6 +111,7 @@ const FeaturedSlide = ({ news, onOpen, accentColor }: FeaturedSlideProps) => {
     locale: ptBR,
   });
 
+  const fixedTitle = fixTitleCapitalization(news.rewritten_title);
   const cleanedContent = cleanNewsContent(news.rewritten_content);
   const contentPreview = cleanedContent.slice(0, 120) + (cleanedContent.length > 120 ? "..." : "");
 
@@ -123,8 +125,8 @@ const FeaturedSlide = ({ news, onOpen, accentColor }: FeaturedSlideProps) => {
           <div className="relative h-52 overflow-hidden">
             <img
               src={news.image_url}
-              alt={news.rewritten_title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+               alt={fixedTitle}
+               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}
@@ -142,8 +144,8 @@ const FeaturedSlide = ({ news, onOpen, accentColor }: FeaturedSlideProps) => {
           </div>
         )}
         <div className="p-4">
-          <h2 className="font-sans font-bold text-lg leading-tight text-gray-900 mb-2 transition-colors line-clamp-2">
-            {news.rewritten_title}
+           <h2 className="font-sans font-bold text-lg leading-tight text-gray-900 mb-2 transition-colors line-clamp-2">
+            {fixedTitle}
           </h2>
           <p className="text-gray-600 text-sm line-clamp-2 mb-3">
             {contentPreview}
@@ -185,6 +187,7 @@ interface NewsCardDrawerWrapperProps {
 
 const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) => {
   const [fontSizeLevel, setFontSizeLevel] = useState(0);
+  const fixedTitle = fixTitleCapitalization(news.rewritten_title);
   
   const cleanedContent = cleanNewsContent(news.rewritten_content);
   
@@ -249,7 +252,7 @@ const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) =>
               </div>
               
               <DrawerTitle className="text-2xl sm:text-3xl font-sans font-bold text-black leading-tight tracking-tight text-left">
-                {news.rewritten_title}
+                {fixedTitle}
               </DrawerTitle>
             </div>
             
@@ -267,7 +270,7 @@ const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) =>
               <figure className="border border-gray-300">
                 <img
                   src={news.image_url}
-                  alt={news.rewritten_title}
+                  alt={fixedTitle}
                   className="w-full h-auto object-cover grayscale-[20%] contrast-[1.05]"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
