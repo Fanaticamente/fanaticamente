@@ -182,7 +182,7 @@ const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
           <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
             <img
               src={news.image_url}
-              alt={displayCaption || news.rewritten_title}
+               alt={displayCaption || fixedTitle}
               className="w-full h-full object-cover"
               onError={() => setImageError(true)}
             />
