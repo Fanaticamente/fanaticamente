@@ -268,7 +268,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     setIsLoading(true);
     
     try {
-      const textToRead = `${news.rewritten_title}. ${news.rewritten_content}`;
+      const textToRead = `${fixedTitle}. ${news.rewritten_content}`;
       
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-tts`,
