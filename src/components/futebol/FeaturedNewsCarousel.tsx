@@ -252,7 +252,7 @@ const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) =>
               </div>
               
               <DrawerTitle className="text-2xl sm:text-3xl font-sans font-bold text-black leading-tight tracking-tight text-left">
-                {news.rewritten_title}
+                {fixedTitle}
               </DrawerTitle>
             </div>
             
