@@ -125,8 +125,8 @@ const FeaturedSlide = ({ news, onOpen, accentColor }: FeaturedSlideProps) => {
           <div className="relative h-52 overflow-hidden">
             <img
               src={news.image_url}
-              alt={news.rewritten_title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+               alt={fixedTitle}
+               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}
