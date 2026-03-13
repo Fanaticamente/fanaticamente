@@ -187,6 +187,7 @@ interface NewsCardDrawerWrapperProps {
 
 const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) => {
   const [fontSizeLevel, setFontSizeLevel] = useState(0);
+  const fixedTitle = fixTitleCapitalization(news.rewritten_title);
   
   const cleanedContent = cleanNewsContent(news.rewritten_content);
   
