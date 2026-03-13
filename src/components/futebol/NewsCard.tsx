@@ -220,11 +220,12 @@ interface NewsDrawerProps {
 }
 
 const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
-  const [fontSizeLevel, setFontSizeLevel] = useState(0); // 0 = normal, 1 = medium, 2 = large
+  const [fontSizeLevel, setFontSizeLevel] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fixedTitle = fixTitleCapitalization(news.rewritten_title);
   
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
