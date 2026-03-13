@@ -145,7 +145,7 @@ const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
                 Destaque
               </span>
               <h2 className="font-sans font-bold text-xl leading-tight text-gray-900 mb-2 transition-colors">
-                {news.rewritten_title}
+                {fixedTitle}
               </h2>
               <p className="text-gray-600 text-sm line-clamp-2 mb-3">
                 {contentPreview}
