@@ -111,6 +111,7 @@ const FeaturedSlide = ({ news, onOpen, accentColor }: FeaturedSlideProps) => {
     locale: ptBR,
   });
 
+  const fixedTitle = fixTitleCapitalization(news.rewritten_title);
   const cleanedContent = cleanNewsContent(news.rewritten_content);
   const contentPreview = cleanedContent.slice(0, 120) + (cleanedContent.length > 120 ? "..." : "");
 
