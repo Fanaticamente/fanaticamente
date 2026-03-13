@@ -194,7 +194,7 @@ const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
         )}
         <div className="flex-1 min-w-0">
           <h4 className="font-sans font-bold text-gray-900 text-sm leading-tight line-clamp-2 mb-1 transition-colors">
-            {news.rewritten_title}
+            {fixedTitle}
           </h4>
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <span className="px-2 py-0.5 bg-gray-100 rounded">{news.category}</span>
