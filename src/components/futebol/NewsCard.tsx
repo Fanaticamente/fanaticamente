@@ -132,7 +132,7 @@ const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
               <div className="relative h-48 overflow-hidden">
                 <img
                   src={news.image_url}
-                  alt={displayCaption || news.rewritten_title}
+                   alt={displayCaption || fixedTitle}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
