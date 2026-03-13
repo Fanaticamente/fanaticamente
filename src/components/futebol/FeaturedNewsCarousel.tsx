@@ -144,8 +144,8 @@ const FeaturedSlide = ({ news, onOpen, accentColor }: FeaturedSlideProps) => {
           </div>
         )}
         <div className="p-4">
-          <h2 className="font-sans font-bold text-lg leading-tight text-gray-900 mb-2 transition-colors line-clamp-2">
-            {news.rewritten_title}
+           <h2 className="font-sans font-bold text-lg leading-tight text-gray-900 mb-2 transition-colors line-clamp-2">
+            {fixedTitle}
           </h2>
           <p className="text-gray-600 text-sm line-clamp-2 mb-3">
             {contentPreview}
