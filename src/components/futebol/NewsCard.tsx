@@ -434,7 +434,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               <figure className="border border-gray-300">
                 <img
                   src={news.image_url}
-                  alt={displayCaption || news.rewritten_title}
+                  alt={displayCaption || fixedTitle}
                   className="w-full h-auto object-cover grayscale-[20%] contrast-[1.05]"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
