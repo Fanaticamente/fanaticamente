@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { FootballNewsItem } from "@/hooks/useFootballNews";
+import { fixTitleCapitalization } from "@/lib/fixTitleCapitalization";
 
 interface NewsCardProps {
   news: FootballNewsItem;

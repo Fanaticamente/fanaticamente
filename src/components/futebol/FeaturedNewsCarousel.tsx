@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import type { FootballNewsItem } from "@/hooks/useFootballNews";
 import NewsCard from "./NewsCard";
+import { fixTitleCapitalization } from "@/lib/fixTitleCapitalization";
 
 interface FeaturedNewsCarouselProps {
   news: FootballNewsItem[];
