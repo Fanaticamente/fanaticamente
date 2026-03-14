@@ -1,11 +1,6 @@
 import { useState } from "react";
-import { ClipboardList, RotateCcw, CheckCircle } from "lucide-react";
+import { ClipboardList, RotateCcw, CheckCircle, X } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
 const positiveEmotions = [
   { id: "alegre", icon: "😄", label: "Alegre" },
@@ -37,7 +32,7 @@ const negativeEmotions = [
 
 const allEmotions = [...positiveEmotions, ...negativeEmotions];
 
-// 1-2-3-2-3 formation slots
+// 1-2-3-2-3 formation slots (order = sequence of blinking)
 const formationSlots = [
   { id: "gk", x: 50, y: 90, role: "GOL" },
   { id: "def-l", x: 25, y: 75, role: "ZAG" },
@@ -53,50 +48,22 @@ const formationSlots = [
 ];
 
 interface SlotAssignment {
-  [slotId: string]: string; // slotId -> emotionId
+  [slotId: string]: string;
 }
-
-const BenchIcon = ({ type }: { type: "positive" | "negative" }) => (
-  <svg viewBox="0 0 80 50" className="w-full h-full" fill="none">
-    {/* Bench seat */}
-    <rect x="5" y="15" width="70" height="8" rx="3"
-      fill={type === "positive" ? "hsl(var(--primary))" : "hsl(var(--destructive))"}
-      opacity="0.9"
-    />
-    {/* Back rest */}
-    <rect x="8" y="5" width="64" height="10" rx="3"
-      fill={type === "positive" ? "hsl(var(--primary))" : "hsl(var(--destructive))"}
-      opacity="0.7"
-    />
-    {/* Legs */}
-    <rect x="10" y="23" width="4" height="20" rx="1" fill="hsl(var(--muted-foreground))" opacity="0.6" />
-    <rect x="36" y="23" width="4" height="20" rx="1" fill="hsl(var(--muted-foreground))" opacity="0.6" />
-    <rect x="66" y="23" width="4" height="20" rx="1" fill="hsl(var(--muted-foreground))" opacity="0.6" />
-    {/* 3 person silhouettes sitting */}
-    {[18, 38, 58].map((cx, i) => (
-      <g key={i}>
-        <circle cx={cx} cy="2" r="4" fill="hsl(var(--muted-foreground))" opacity="0.5" />
-      </g>
-    ))}
-  </svg>
-);
 
 const EmotionTacticalBoard = () => {
   const [assignments, setAssignments] = useState<SlotAssignment>({});
-  const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
-  const [posOpen, setPosOpen] = useState(false);
-  const [negOpen, setNegOpen] = useState(false);
+  const [pickerSlot, setPickerSlot] = useState<string | null>(null);
 
-  const handleSelectEmotion = (emotionId: string) => {
-    setSelectedEmotion(emotionId);
-    setPosOpen(false);
-    setNegOpen(false);
-  };
+  // Find the current active (blinking) slot = first unassigned slot in order
+  const activeSlotId = !saved
+    ? formationSlots.find((s) => !assignments[s.id])?.id ?? null
+    : null;
 
   const handleSlotClick = (slotId: string) => {
     if (saved) return;
-    // If slot is occupied, remove it
+    // If clicking an already assigned slot, remove it and don't open picker
     if (assignments[slotId]) {
       setAssignments((prev) => {
         const next = { ...prev };
@@ -105,16 +72,20 @@ const EmotionTacticalBoard = () => {
       });
       return;
     }
-    // If we have a selected emotion, place it
-    if (selectedEmotion) {
-      setAssignments((prev) => ({ ...prev, [slotId]: selectedEmotion }));
-      setSelectedEmotion(null);
-    }
+    // Only allow clicking the active (blinking) slot
+    if (slotId !== activeSlotId) return;
+    setPickerSlot(slotId);
+  };
+
+  const handlePickEmotion = (emotionId: string) => {
+    if (!pickerSlot) return;
+    setAssignments((prev) => ({ ...prev, [pickerSlot]: emotionId }));
+    setPickerSlot(null);
   };
 
   const handleReset = () => {
     setAssignments({});
-    setSelectedEmotion(null);
+    setPickerSlot(null);
     setSaved(false);
   };
 
@@ -124,37 +95,20 @@ const EmotionTacticalBoard = () => {
       return;
     }
     setSaved(true);
+    setPickerSlot(null);
     toast.success("Prancheta emocional salva! ⚽🧠");
+  };
+
+  const handleSkip = () => {
+    // Skip the current slot by closing picker without assigning
+    // We actually need to mark it as skipped — we'll just close picker
+    // and let user confirm with whatever they have
+    setPickerSlot(null);
   };
 
   const getEmotion = (id: string) => allEmotions.find((e) => e.id === id);
   const placedIds = new Set(Object.values(assignments));
-
-  const renderEmotionList = (emotions: typeof positiveEmotions) => (
-    <div className="grid grid-cols-2 gap-1.5 max-h-[260px] overflow-y-auto p-1">
-      {emotions.map((em) => {
-        const isPlaced = placedIds.has(em.id);
-        const isSelected = selectedEmotion === em.id;
-        return (
-          <button
-            key={em.id}
-            onClick={() => handleSelectEmotion(em.id)}
-            disabled={isPlaced || saved}
-            className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm transition-all border ${
-              isSelected
-                ? "bg-primary text-primary-foreground border-primary"
-                : isPlaced
-                ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
-                : "bg-card text-card-foreground border-border hover:border-primary/50"
-            }`}
-          >
-            <span className="text-base">{em.icon}</span>
-            <span className="text-xs font-medium">{em.label}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
+  const filledCount = Object.keys(assignments).length;
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 mb-6">
@@ -166,53 +120,12 @@ const EmotionTacticalBoard = () => {
         </span>
       </div>
       <p className="text-muted-foreground text-sm mb-4">
-        Escolha emoções nos bancos e posicione nos círculos do campo!
+        Toque no círculo piscando para escalar sua emoção!
       </p>
-
-      {/* Benches */}
-      <div className="flex gap-3 mb-4">
-        <Popover open={posOpen} onOpenChange={setPosOpen}>
-          <PopoverTrigger asChild>
-            <button className="flex-1 flex flex-col items-center gap-1 p-3 rounded-xl border border-primary/30 bg-primary/5 hover:bg-primary/10 transition-all">
-              <div className="w-16 h-10">
-                <BenchIcon type="positive" />
-              </div>
-              <span className="text-xs font-bold text-primary">Positivas</span>
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-72 p-2" align="start">
-            <p className="text-xs font-bold text-primary mb-2 px-1">Emoções Positivas</p>
-            {renderEmotionList(positiveEmotions)}
-          </PopoverContent>
-        </Popover>
-
-        <Popover open={negOpen} onOpenChange={setNegOpen}>
-          <PopoverTrigger asChild>
-            <button className="flex-1 flex flex-col items-center gap-1 p-3 rounded-xl border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 transition-all">
-              <div className="w-16 h-10">
-                <BenchIcon type="negative" />
-              </div>
-              <span className="text-xs font-bold text-destructive">Negativas</span>
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-72 p-2" align="end">
-            <p className="text-xs font-bold text-destructive mb-2 px-1">Emoções Negativas</p>
-            {renderEmotionList(negativeEmotions)}
-          </PopoverContent>
-        </Popover>
-      </div>
-
-      {selectedEmotion && (
-        <p className="text-primary text-xs font-medium mb-2 animate-pulse text-center">
-          👆 Toque num círculo para posicionar: {getEmotion(selectedEmotion)?.icon} {getEmotion(selectedEmotion)?.label}
-        </p>
-      )}
 
       {/* Football Pitch */}
       <div
-        className={`relative w-full rounded-xl overflow-hidden border-2 transition-all ${
-          selectedEmotion ? "border-primary shadow-lg shadow-primary/20" : "border-border"
-        }`}
+        className="relative w-full rounded-xl overflow-hidden border-2 border-border"
         style={{
           aspectRatio: "3/4",
           background:
@@ -250,6 +163,7 @@ const EmotionTacticalBoard = () => {
         {/* Formation slots */}
         {formationSlots.map((slot) => {
           const emotion = assignments[slot.id] ? getEmotion(assignments[slot.id]) : null;
+          const isActive = slot.id === activeSlotId && !pickerSlot;
           return (
             <button
               key={slot.id}
@@ -272,17 +186,84 @@ const EmotionTacticalBoard = () => {
                 </>
               ) : (
                 <div
-                  className={`w-10 h-10 rounded-full border-2 border-dashed transition-all ${
-                    selectedEmotion
-                      ? "border-white/90 bg-white/20 animate-pulse cursor-pointer"
-                      : "border-white/40 bg-white/10"
+                  className={`w-10 h-10 rounded-full border-2 transition-all ${
+                    isActive
+                      ? "border-white bg-white/30 animate-pulse shadow-[0_0_15px_rgba(255,255,255,0.6)] cursor-pointer"
+                      : "border-dashed border-white/30 bg-white/5"
                   }`}
                 />
               )}
             </button>
           );
         })}
+
+        {/* Emotion Picker Overlay */}
+        {pickerSlot && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="bg-card rounded-2xl p-4 mx-4 max-h-[85%] overflow-y-auto w-full max-w-xs shadow-2xl border border-border">
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-bold text-card-foreground text-sm">Escolha uma emoção</span>
+                <button onClick={handleSkip} className="p-1 rounded-full hover:bg-muted">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              {/* Positive */}
+              <p className="text-xs font-bold text-primary mb-1.5 px-0.5">✅ Positivas</p>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                {positiveEmotions.map((em) => {
+                  const isPlaced = placedIds.has(em.id);
+                  return (
+                    <button
+                      key={em.id}
+                      onClick={() => handlePickEmotion(em.id)}
+                      disabled={isPlaced}
+                      className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm border transition-all ${
+                        isPlaced
+                          ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
+                          : "bg-card text-card-foreground border-border hover:border-primary/50 hover:bg-primary/5"
+                      }`}
+                    >
+                      <span className="text-base">{em.icon}</span>
+                      <span className="text-xs font-medium">{em.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Negative */}
+              <p className="text-xs font-bold text-destructive mb-1.5 px-0.5">⛔ Negativas</p>
+              <div className="grid grid-cols-2 gap-1.5">
+                {negativeEmotions.map((em) => {
+                  const isPlaced = placedIds.has(em.id);
+                  return (
+                    <button
+                      key={em.id}
+                      onClick={() => handlePickEmotion(em.id)}
+                      disabled={isPlaced}
+                      className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm border transition-all ${
+                        isPlaced
+                          ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
+                          : "bg-card text-card-foreground border-border hover:border-destructive/50 hover:bg-destructive/5"
+                      }`}
+                    >
+                      <span className="text-base">{em.icon}</span>
+                      <span className="text-xs font-medium">{em.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Progress indicator */}
+      {filledCount > 0 && !saved && (
+        <p className="text-muted-foreground text-xs text-center mt-2">
+          {filledCount}/11 posições preenchidas
+        </p>
+      )}
 
       {/* Actions */}
       <div className="flex gap-3 mt-4">
