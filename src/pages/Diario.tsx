@@ -78,6 +78,9 @@ const Diario = () => {
       {/* Match Expectation Card */}
       <MatchExpectationCard userClubId={profile?.favorite_club_id ?? null} />
 
+      {/* Tactical Board */}
+      <EmotionTacticalBoard />
+
       <div className={`${!isMobile ? "grid grid-cols-2 gap-6" : ""}`}>
         <div>
           {/* Today's Entry */}
