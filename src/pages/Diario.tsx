@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
 import MatchExpectationCard from "@/components/diario/MatchExpectationCard";
+import EmotionTacticalBoard from "@/components/diario/EmotionTacticalBoard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEmotionEntries } from "@/hooks/useEmotionEntries";
 import { useAuth } from "@/contexts/AuthContext";
@@ -76,6 +77,9 @@ const Diario = () => {
 
       {/* Match Expectation Card */}
       <MatchExpectationCard userClubId={profile?.favorite_club_id ?? null} />
+
+      {/* Tactical Board */}
+      <EmotionTacticalBoard />
 
       <div className={`${!isMobile ? "grid grid-cols-2 gap-6" : ""}`}>
         <div>
