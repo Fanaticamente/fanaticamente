@@ -1,38 +1,41 @@
 
 
-## Prancheta Emocional — Posições Fixas + Bancos de Reserva
+## Adicionar 3 campos de imagem separados no gerenciador de cursos
 
-### O que muda
+Atualmente o curso possui apenas um campo `thumbnail_url` que e reutilizado em diferentes contextos (hero, cards, grid), sendo cortado conforme a proporcao de cada area. A proposta e criar 3 campos de upload independentes, cada um com suas dimensoes recomendadas.
 
-**1. Posições fixas no campo (formação 1-2-3-2-3 = 11 slots)**
-- 11 círculos brancos vazios fixos no campo, dispostos numa formação tática como na imagem de referência
-- Cada slot tem posição fixa (percentual x/y) — o usuário não toca livremente no campo, apenas clica num slot vazio para preencher com a emoção selecionada
-- Ao clicar num slot vazio com uma emoção selecionada, ela "encaixa" ali; clicar num slot preenchido remove a emoção
+### 1. Criar novas colunas no banco de dados
 
-**2. Dois "bancos de reserva" — Positivas e Negativas**
-- Substituir a lista de emoções atual por dois ícones lado a lado representando bancos de estádio (usando SVG inline de bancos/assentos)
-- Cada ícone é clicável e abre um dropdown/popover com as emoções do grupo
-- **Positivas (11):** Alegre 😄, Eufórico 🤩, Feliz 🙂, Confiante 💪, Empolgado 🎉, Orgulhoso 🏆, Esperançoso ⭐, Grato 🙏, Aliviado 😮‍💨, Inspirado ✨, Motivado 🔥
-- **Negativas (11):** Triste 😢, Raiva 😡, Ansioso 😰, Decepcionado 😞, Medo 😨, Irritado 😤, Desanimado 😔, Impaciente ⏳, Frustrado 😤, Inseguro 😟, Envergonhado 😳
+Adicionar 2 novas colunas na tabela `courses`:
+- `hero_image_url` (text, nullable) -- imagem para o hero em destaque (proporcao ~4:5, 800x1000px)
+- `grid_image_url` (text, nullable) -- imagem para o grid "Todos os cursos" (proporcao 16:9, 1280x720px)
 
-**3. Fluxo de uso**
-1. Usuário clica num banco (positivo ou negativo) → abre popover com emoções
-2. Seleciona uma emoção → popover fecha, emoção fica "na mão"
-3. Clica num círculo vazio do campo → emoção encaixa ali
-4. Repete até preencher quantos slots quiser (máx 11)
+A coluna `thumbnail_url` existente sera mantida como a imagem principal dos cards horizontais (800x1200px, proporcao 2:3).
 
-### Detalhes técnicos
+### 2. Atualizar o formulario de curso (CourseManager.tsx)
 
-- **Formação dos slots** (coordenadas % no viewBox 300x400):
-  - GK: (50%, 90%)
-  - DEF: (25%, 75%), (75%, 75%)  
-  - MID: (20%, 55%), (50%, 50%), (80%, 55%)
-  - MID2: (30%, 35%), (70%, 35%)
-  - ATK: (20%, 18%), (50%, 12%), (80%, 18%)
+Substituir o campo unico de thumbnail por 3 campos de upload separados:
 
-- **Componente**: Reescrever `EmotionTacticalBoard.tsx` — remover lógica de click livre, adicionar slots fixos e popovers dos bancos
-- **UI dos bancos**: Dois botões lado a lado com ícone SVG de banco de estádio (3 assentos), labels "Positivas" e "Negativas", usando `Popover` do shadcn
+- **Thumbnail do Curso** -- 800x1200px (2:3, retrato). Usada nos cards horizontais.
+- **Imagem Hero** -- 800x1000px (~4:5). Usada na secao em destaque.
+- **Imagem Grid** -- 1280x720px (16:9, paisagem). Usada no grid "Todos os cursos".
 
-### Arquivo editado
-- `src/components/diario/EmotionTacticalBoard.tsx` — reescrita completa
+Cada campo tera seu proprio botao de upload e preview.
+
+### 3. Atualizar as paginas de exibicao (Cursos.tsx e CursoDetalhe.tsx)
+
+- **Hero em destaque**: usar `hero_image_url` (fallback para `thumbnail_url`)
+- **Cards horizontais (2:3)**: continuar usando `thumbnail_url`
+- **Grid "Todos os cursos" (16:9)**: usar `grid_image_url` (fallback para `thumbnail_url`)
+- **Poster do video**: usar `grid_image_url` ou `thumbnail_url` como fallback
+
+### 4. Atualizar tipos e hooks
+
+Atualizar o hook `useCourses.ts` para incluir os novos campos `hero_image_url` e `grid_image_url` nas operacoes de criacao e atualizacao.
+
+### Detalhes tecnicos
+
+- Migration SQL: `ALTER TABLE courses ADD COLUMN hero_image_url text, ADD COLUMN grid_image_url text;`
+- Upload usa o bucket `course-assets` existente na pasta `thumbnails/`
+- Fallback chain garante compatibilidade com cursos existentes que so possuem `thumbnail_url`
 
