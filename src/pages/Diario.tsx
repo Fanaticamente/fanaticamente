@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
 import MatchExpectationCard from "@/components/diario/MatchExpectationCard";
+import EmotionTacticalBoard from "@/components/diario/EmotionTacticalBoard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEmotionEntries } from "@/hooks/useEmotionEntries";
 import { useAuth } from "@/contexts/AuthContext";
