@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ClipboardList, RotateCcw, CheckCircle, X, Loader2, Swords, Shield } from "lucide-react";
+import { ClipboardList, RotateCcw, Loader2, Swords, Shield, X, CloudLightning } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -58,47 +58,47 @@ const formations: Formation[] = [
   {
     id: "4-3-3", label: "4-3-3", type: "ofensiva",
     slots: [
-      { id: "gk", x: 50, y: 92, sector: "defesa" },
-      { id: "d1", x: 15, y: 76, sector: "defesa" },
-      { id: "d2", x: 38, y: 78, sector: "defesa" },
-      { id: "d3", x: 62, y: 78, sector: "defesa" },
-      { id: "d4", x: 85, y: 76, sector: "defesa" },
-      { id: "m1", x: 25, y: 52, sector: "meio_campo" },
-      { id: "m2", x: 50, y: 55, sector: "meio_campo" },
-      { id: "m3", x: 75, y: 52, sector: "meio_campo" },
-      { id: "a1", x: 20, y: 22, sector: "ataque" },
-      { id: "a2", x: 50, y: 18, sector: "ataque" },
-      { id: "a3", x: 80, y: 22, sector: "ataque" },
+      { id: "gk", x: 50, y: 90, sector: "defesa" },
+      { id: "d1", x: 12, y: 74, sector: "defesa" },
+      { id: "d2", x: 37, y: 76, sector: "defesa" },
+      { id: "d3", x: 63, y: 76, sector: "defesa" },
+      { id: "d4", x: 88, y: 74, sector: "defesa" },
+      { id: "m1", x: 22, y: 50, sector: "meio_campo" },
+      { id: "m2", x: 50, y: 53, sector: "meio_campo" },
+      { id: "m3", x: 78, y: 50, sector: "meio_campo" },
+      { id: "a1", x: 18, y: 25, sector: "ataque" },
+      { id: "a2", x: 50, y: 20, sector: "ataque" },
+      { id: "a3", x: 82, y: 25, sector: "ataque" },
     ],
   },
   {
     id: "3-4-3", label: "3-4-3", type: "ofensiva",
     slots: [
-      { id: "gk", x: 50, y: 92, sector: "defesa" },
-      { id: "d1", x: 25, y: 78, sector: "defesa" },
-      { id: "d2", x: 50, y: 80, sector: "defesa" },
-      { id: "d3", x: 75, y: 78, sector: "defesa" },
-      { id: "m1", x: 15, y: 52, sector: "meio_campo" },
-      { id: "m2", x: 38, y: 55, sector: "meio_campo" },
-      { id: "m3", x: 62, y: 55, sector: "meio_campo" },
-      { id: "m4", x: 85, y: 52, sector: "meio_campo" },
-      { id: "a1", x: 20, y: 22, sector: "ataque" },
-      { id: "a2", x: 50, y: 18, sector: "ataque" },
-      { id: "a3", x: 80, y: 22, sector: "ataque" },
+      { id: "gk", x: 50, y: 90, sector: "defesa" },
+      { id: "d1", x: 22, y: 76, sector: "defesa" },
+      { id: "d2", x: 50, y: 78, sector: "defesa" },
+      { id: "d3", x: 78, y: 76, sector: "defesa" },
+      { id: "m1", x: 12, y: 50, sector: "meio_campo" },
+      { id: "m2", x: 37, y: 53, sector: "meio_campo" },
+      { id: "m3", x: 63, y: 53, sector: "meio_campo" },
+      { id: "m4", x: 88, y: 50, sector: "meio_campo" },
+      { id: "a1", x: 18, y: 25, sector: "ataque" },
+      { id: "a2", x: 50, y: 20, sector: "ataque" },
+      { id: "a3", x: 82, y: 25, sector: "ataque" },
     ],
   },
   {
     id: "3-5-2", label: "3-5-2", type: "ofensiva",
     slots: [
-      { id: "gk", x: 50, y: 92, sector: "defesa" },
-      { id: "d1", x: 25, y: 78, sector: "defesa" },
-      { id: "d2", x: 50, y: 80, sector: "defesa" },
-      { id: "d3", x: 75, y: 78, sector: "defesa" },
-      { id: "m1", x: 12, y: 52, sector: "meio_campo" },
-      { id: "m2", x: 32, y: 55, sector: "meio_campo" },
-      { id: "m3", x: 50, y: 50, sector: "meio_campo" },
-      { id: "m4", x: 68, y: 55, sector: "meio_campo" },
-      { id: "m5", x: 88, y: 52, sector: "meio_campo" },
+      { id: "gk", x: 50, y: 90, sector: "defesa" },
+      { id: "d1", x: 22, y: 76, sector: "defesa" },
+      { id: "d2", x: 50, y: 78, sector: "defesa" },
+      { id: "d3", x: 78, y: 76, sector: "defesa" },
+      { id: "m1", x: 10, y: 50, sector: "meio_campo" },
+      { id: "m2", x: 30, y: 53, sector: "meio_campo" },
+      { id: "m3", x: 50, y: 48, sector: "meio_campo" },
+      { id: "m4", x: 70, y: 53, sector: "meio_campo" },
+      { id: "m5", x: 90, y: 50, sector: "meio_campo" },
       { id: "a1", x: 35, y: 22, sector: "ataque" },
       { id: "a2", x: 65, y: 22, sector: "ataque" },
     ],
@@ -106,58 +106,58 @@ const formations: Formation[] = [
   {
     id: "4-5-1", label: "4-5-1", type: "defensiva",
     slots: [
-      { id: "gk", x: 50, y: 92, sector: "defesa" },
-      { id: "d1", x: 15, y: 76, sector: "defesa" },
-      { id: "d2", x: 38, y: 78, sector: "defesa" },
-      { id: "d3", x: 62, y: 78, sector: "defesa" },
-      { id: "d4", x: 85, y: 76, sector: "defesa" },
-      { id: "m1", x: 12, y: 52, sector: "meio_campo" },
-      { id: "m2", x: 32, y: 55, sector: "meio_campo" },
-      { id: "m3", x: 50, y: 50, sector: "meio_campo" },
-      { id: "m4", x: 68, y: 55, sector: "meio_campo" },
-      { id: "m5", x: 88, y: 52, sector: "meio_campo" },
-      { id: "ca", x: 50, y: 18, sector: "centroavante" },
+      { id: "gk", x: 50, y: 90, sector: "defesa" },
+      { id: "d1", x: 12, y: 74, sector: "defesa" },
+      { id: "d2", x: 37, y: 76, sector: "defesa" },
+      { id: "d3", x: 63, y: 76, sector: "defesa" },
+      { id: "d4", x: 88, y: 74, sector: "defesa" },
+      { id: "m1", x: 10, y: 50, sector: "meio_campo" },
+      { id: "m2", x: 30, y: 53, sector: "meio_campo" },
+      { id: "m3", x: 50, y: 48, sector: "meio_campo" },
+      { id: "m4", x: 70, y: 53, sector: "meio_campo" },
+      { id: "m5", x: 90, y: 50, sector: "meio_campo" },
+      { id: "ca", x: 50, y: 20, sector: "centroavante" },
     ],
   },
   {
     id: "5-4-1", label: "5-4-1", type: "defensiva",
     slots: [
-      { id: "gk", x: 50, y: 92, sector: "defesa" },
-      { id: "d1", x: 10, y: 76, sector: "defesa" },
-      { id: "d2", x: 30, y: 78, sector: "defesa" },
-      { id: "d3", x: 50, y: 80, sector: "defesa" },
-      { id: "d4", x: 70, y: 78, sector: "defesa" },
-      { id: "d5", x: 90, y: 76, sector: "defesa" },
-      { id: "m1", x: 15, y: 52, sector: "meio_campo" },
-      { id: "m2", x: 38, y: 55, sector: "meio_campo" },
-      { id: "m3", x: 62, y: 55, sector: "meio_campo" },
-      { id: "m4", x: 85, y: 52, sector: "meio_campo" },
-      { id: "ca", x: 50, y: 18, sector: "centroavante" },
+      { id: "gk", x: 50, y: 90, sector: "defesa" },
+      { id: "d1", x: 8, y: 74, sector: "defesa" },
+      { id: "d2", x: 28, y: 76, sector: "defesa" },
+      { id: "d3", x: 50, y: 78, sector: "defesa" },
+      { id: "d4", x: 72, y: 76, sector: "defesa" },
+      { id: "d5", x: 92, y: 74, sector: "defesa" },
+      { id: "m1", x: 15, y: 50, sector: "meio_campo" },
+      { id: "m2", x: 38, y: 53, sector: "meio_campo" },
+      { id: "m3", x: 62, y: 53, sector: "meio_campo" },
+      { id: "m4", x: 85, y: 50, sector: "meio_campo" },
+      { id: "ca", x: 50, y: 20, sector: "centroavante" },
     ],
   },
   {
     id: "4-2-3-1", label: "4-2-3-1", type: "defensiva",
     slots: [
-      { id: "gk", x: 50, y: 92, sector: "defesa" },
-      { id: "d1", x: 15, y: 76, sector: "defesa" },
-      { id: "d2", x: 38, y: 78, sector: "defesa" },
-      { id: "d3", x: 62, y: 78, sector: "defesa" },
-      { id: "d4", x: 85, y: 76, sector: "defesa" },
-      { id: "m1", x: 35, y: 58, sector: "meio_campo" },
-      { id: "m2", x: 65, y: 58, sector: "meio_campo" },
-      { id: "a1", x: 20, y: 38, sector: "ataque" },
+      { id: "gk", x: 50, y: 90, sector: "defesa" },
+      { id: "d1", x: 12, y: 74, sector: "defesa" },
+      { id: "d2", x: 37, y: 76, sector: "defesa" },
+      { id: "d3", x: 63, y: 76, sector: "defesa" },
+      { id: "d4", x: 88, y: 74, sector: "defesa" },
+      { id: "m1", x: 35, y: 56, sector: "meio_campo" },
+      { id: "m2", x: 65, y: 56, sector: "meio_campo" },
+      { id: "a1", x: 18, y: 38, sector: "ataque" },
       { id: "a2", x: 50, y: 35, sector: "ataque" },
-      { id: "a3", x: 80, y: 38, sector: "ataque" },
+      { id: "a3", x: 82, y: 38, sector: "ataque" },
       { id: "ca", x: 50, y: 18, sector: "centroavante" },
     ],
   },
 ];
 
-/* ── Pulsing animation CSS (injected once) ── */
+/* ── Pulsing animation CSS ── */
 const pulseStyle = `
-@keyframes slotPulse {
+@keyframes slotGrow {
   0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -50%) scale(1.35); }
+  50% { transform: translate(-50%, -50%) scale(1.25); }
 }
 `;
 
@@ -167,7 +167,6 @@ const EmotionTacticalBoard = () => {
   const queryClient = useQueryClient();
   const today = format(new Date(), "yyyy-MM-dd");
 
-  // Check if user already has a lineup today
   const { data: existingLineup, isLoading: loadingExisting } = useQuery({
     queryKey: ["emotional-lineup-today", user?.id],
     queryFn: async () => {
@@ -189,13 +188,12 @@ const EmotionTacticalBoard = () => {
   const [saving, setSaving] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [analyzingAI, setAnalyzingAI] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
 
-  // If there's an existing lineup, show it
   useEffect(() => {
     if (existingLineup) {
       const f = formations.find((fm) => fm.id === (existingLineup as any).formation);
       if (f) setSelectedFormation(f);
-      // Reconstruct assignments from lineup JSON
       const lineup = (existingLineup as any).lineup as Record<string, string[]>;
       if (lineup && f) {
         const newAssignments: Record<string, string> = {};
@@ -218,16 +216,18 @@ const EmotionTacticalBoard = () => {
       if ((existingLineup as any).ai_analysis) {
         setAiAnalysis((existingLineup as any).ai_analysis);
       }
+      setConfirmed(true);
     }
   }, [existingLineup]);
 
+  const isCompleted = !!existingLineup || confirmed;
   const currentSlots = selectedFormation?.slots ?? [];
-  const activeSlotId = !existingLineup && selectedFormation
+  const activeSlotId = !isCompleted && selectedFormation
     ? currentSlots.find((s) => !assignments[s.id])?.id ?? null
     : null;
 
   const handleSlotClick = (slotId: string) => {
-    if (existingLineup) return;
+    if (isCompleted) return;
     if (assignments[slotId]) {
       setAssignments((prev) => {
         const next = { ...prev };
@@ -246,11 +246,17 @@ const EmotionTacticalBoard = () => {
     setPickerSlot(null);
   };
 
-  const handleReset = () => {
+  const handleChangeFormation = (f: Formation) => {
+    if (isCompleted) return;
+    setSelectedFormation(f);
     setAssignments({});
     setPickerSlot(null);
-    setSelectedFormation(null);
-    setAiAnalysis(null);
+  };
+
+  const handleReset = () => {
+    if (isCompleted) return;
+    setAssignments({});
+    setPickerSlot(null);
   };
 
   const buildLineupObject = () => {
@@ -275,11 +281,11 @@ const EmotionTacticalBoard = () => {
 
     setSaving(true);
     setAnalyzingAI(true);
+    setConfirmed(true);
 
     const lineup = buildLineupObject();
 
     try {
-      // Get AI analysis
       const { data: fnData, error: fnError } = await supabase.functions.invoke(
         "analyze-emotional-lineup",
         { body: { formation: selectedFormation.id, lineup } }
@@ -288,7 +294,6 @@ const EmotionTacticalBoard = () => {
       const analysis = fnError ? null : fnData?.analysis || null;
       setAiAnalysis(analysis);
 
-      // Save to DB
       const { error: dbError } = await supabase
         .from("emotional_lineups" as any)
         .insert({
@@ -306,6 +311,7 @@ const EmotionTacticalBoard = () => {
     } catch (err: any) {
       console.error(err);
       toast.error("Erro ao salvar escalação.");
+      setConfirmed(false);
     } finally {
       setSaving(false);
       setAnalyzingAI(false);
@@ -314,7 +320,6 @@ const EmotionTacticalBoard = () => {
 
   const placedIds = new Set(Object.values(assignments));
   const filledCount = Object.keys(assignments).length;
-  const isCompleted = !!existingLineup;
 
   if (loadingExisting) {
     return (
@@ -329,252 +334,276 @@ const EmotionTacticalBoard = () => {
       <style>{pulseStyle}</style>
 
       {/* Header */}
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-4">
         <ClipboardList className="w-5 h-5 text-primary" />
         <span className="text-card-foreground font-bold font-sans">
           Prancheta Emocional
         </span>
       </div>
 
-      {/* Formation Selection */}
-      {!selectedFormation && !isCompleted && (
-        <div>
-          <p className="text-muted-foreground text-sm mb-4">
-            Escolha sua formação tática para escalar suas emoções:
-          </p>
+      {/* Formation Selection - always visible */}
+      <div className="mb-4">
+        <p className="text-muted-foreground text-sm mb-3">
+          {isCompleted
+            ? `Sua escalação de hoje — ${selectedFormation?.label ?? ""}`
+            : "Escolha sua formação tática:"}
+        </p>
 
-          {/* Offensive */}
-          <div className="mb-4">
-            <div className="flex items-center gap-1.5 mb-2">
-              <Swords className="w-4 h-4 text-secondary" />
-              <span className="text-xs font-bold text-secondary uppercase tracking-wide">Ofensivas</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {formations.filter((f) => f.type === "ofensiva").map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => setSelectedFormation(f)}
-                  className="py-3 rounded-xl border border-border bg-muted hover:border-secondary hover:bg-secondary/10 text-card-foreground font-bold text-sm transition-all"
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
+        {/* Offensive */}
+        <div className="mb-3">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Swords className="w-3.5 h-3.5 text-secondary" />
+            <span className="text-[10px] font-bold text-secondary uppercase tracking-wide">Ofensivas</span>
           </div>
-
-          {/* Defensive */}
-          <div>
-            <div className="flex items-center gap-1.5 mb-2">
-              <Shield className="w-4 h-4 text-primary" />
-              <span className="text-xs font-bold text-primary uppercase tracking-wide">Defensivas</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {formations.filter((f) => f.type === "defensiva").map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => setSelectedFormation(f)}
-                  className="py-3 rounded-xl border border-border bg-muted hover:border-primary hover:bg-primary/10 text-card-foreground font-bold text-sm transition-all"
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Football Pitch */}
-      {selectedFormation && (
-        <>
-          <p className="text-muted-foreground text-sm mb-2">
-            {isCompleted
-              ? `Sua escalação de hoje — ${selectedFormation.label}`
-              : `Formação ${selectedFormation.label} — toque no círculo ativo para escalar`}
-          </p>
-
-          <div
-            className="relative w-full rounded-xl overflow-hidden border-2 border-border"
-            style={{
-              aspectRatio: "3/4",
-              background:
-                "linear-gradient(180deg, #2d8a4e 0%, #34a058 8%, #2d8a4e 16%, #34a058 24%, #2d8a4e 32%, #34a058 40%, #2d8a4e 48%, #34a058 56%, #2d8a4e 64%, #34a058 72%, #2d8a4e 80%, #34a058 88%, #2d8a4e 96%)",
-            }}
-          >
-            {/* Pitch markings */}
-            <svg
-              viewBox="0 0 300 400"
-              className="absolute inset-0 w-full h-full"
-              fill="none"
-              stroke="rgba(255,255,255,0.5)"
-              strokeWidth="1.5"
-            >
-              <rect x="10" y="10" width="280" height="380" rx="2" />
-              <line x1="10" y1="200" x2="290" y2="200" />
-              <circle cx="150" cy="200" r="40" />
-              <circle cx="150" cy="200" r="3" fill="rgba(255,255,255,0.7)" />
-              <rect x="70" y="10" width="160" height="65" />
-              <rect x="105" y="10" width="90" height="30" />
-              <path d="M 110 75 Q 150 95 190 75" />
-              <circle cx="150" cy="55" r="2.5" fill="rgba(255,255,255,0.7)" />
-              <rect x="70" y="325" width="160" height="65" />
-              <rect x="105" y="360" width="90" height="30" />
-              <path d="M 110 325 Q 150 305 190 325" />
-              <circle cx="150" cy="345" r="2.5" fill="rgba(255,255,255,0.7)" />
-              <path d="M 10 18 Q 18 18 18 10" />
-              <path d="M 282 10 Q 282 18 290 18" />
-              <path d="M 10 382 Q 18 382 18 390" />
-              <path d="M 282 390 Q 282 382 290 382" />
-              <rect x="120" y="2" width="60" height="8" strokeDasharray="4 3" />
-              <rect x="120" y="390" width="60" height="8" strokeDasharray="4 3" />
-            </svg>
-
-            {/* Formation slots */}
-            {currentSlots.map((slot) => {
-              const emotion = assignments[slot.id] ? getEmotion(assignments[slot.id]) : null;
-              const isActive = slot.id === activeSlotId && !pickerSlot;
-              return (
-                <button
-                  key={slot.id}
-                  onClick={() => handleSlotClick(slot.id)}
-                  className="absolute flex flex-col items-center"
-                  style={{
-                    left: `${slot.x}%`,
-                    top: `${slot.y}%`,
-                    transform: "translate(-50%, -50%)",
-                    ...(isActive
-                      ? { animation: "slotPulse 1.5s ease-in-out infinite" }
-                      : {}),
-                  }}
-                >
-                  {emotion ? (
-                    <>
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-lg border-2 border-white/80 bg-white/90">
-                        {emotion.icon}
-                      </div>
-                      <span className="text-[9px] text-white font-bold mt-0.5 drop-shadow-md bg-black/50 px-1.5 py-0.5 rounded">
-                        {emotion.label}
-                      </span>
-                    </>
-                  ) : (
-                    <div
-                      className={`w-10 h-10 rounded-full border-2 transition-all ${
-                        isActive
-                          ? "border-white bg-white/30 shadow-[0_0_15px_rgba(255,255,255,0.6)] cursor-pointer"
-                          : "border-dashed border-white/30 bg-white/5"
-                      }`}
-                    />
-                  )}
-                </button>
-              );
-            })}
-
-            {/* Emotion Picker Overlay */}
-            {pickerSlot && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                <div className="bg-card rounded-2xl p-4 mx-4 max-h-[85%] overflow-y-auto w-full max-w-xs shadow-2xl border border-border">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-bold text-card-foreground text-sm">Escolha uma emoção</span>
-                    <button onClick={() => setPickerSlot(null)} className="p-1 rounded-full hover:bg-muted">
-                      <X className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  </div>
-
-                  <p className="text-xs font-bold text-secondary mb-1.5 px-0.5">✅ Positivas</p>
-                  <div className="grid grid-cols-2 gap-1.5 mb-3">
-                    {positiveEmotions.map((em) => {
-                      const isPlaced = placedIds.has(em.id);
-                      return (
-                        <button
-                          key={em.id}
-                          onClick={() => handlePickEmotion(em.id)}
-                          disabled={isPlaced}
-                          className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm border transition-all ${
-                            isPlaced
-                              ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
-                              : "bg-card text-card-foreground border-border hover:border-secondary/50 hover:bg-secondary/5"
-                          }`}
-                        >
-                          <span className="text-base">{em.icon}</span>
-                          <span className="text-xs font-medium">{em.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <p className="text-xs font-bold text-destructive mb-1.5 px-0.5">⛔ Negativas</p>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {negativeEmotions.map((em) => {
-                      const isPlaced = placedIds.has(em.id);
-                      return (
-                        <button
-                          key={em.id}
-                          onClick={() => handlePickEmotion(em.id)}
-                          disabled={isPlaced}
-                          className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm border transition-all ${
-                            isPlaced
-                              ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
-                              : "bg-card text-card-foreground border-border hover:border-destructive/50 hover:bg-destructive/5"
-                          }`}
-                        >
-                          <span className="text-base">{em.icon}</span>
-                          <span className="text-xs font-medium">{em.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Progress */}
-          {filledCount > 0 && !isCompleted && (
-            <p className="text-muted-foreground text-xs text-center mt-2">
-              {filledCount}/{currentSlots.length} posições preenchidas
-            </p>
-          )}
-
-          {/* Actions */}
-          {!isCompleted && (
-            <div className="flex gap-3 mt-4">
+          <div className="grid grid-cols-3 gap-2">
+            {formations.filter((f) => f.type === "ofensiva").map((f) => (
               <button
-                onClick={handleReset}
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-muted text-muted-foreground font-bold text-sm hover:bg-muted/80 transition-all"
-              >
-                <RotateCcw className="w-4 h-4" />
-                Limpar
-              </button>
-              <button
-                onClick={handleConfirm}
-                disabled={filledCount === 0 || saving}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all ${
-                  filledCount > 0
-                    ? "bg-primary text-primary-foreground hover:scale-[1.02]"
-                    : "bg-muted text-muted-foreground cursor-not-allowed"
+                key={f.id}
+                onClick={() => handleChangeFormation(f)}
+                disabled={isCompleted}
+                className={`py-2.5 rounded-xl border text-sm font-bold transition-all ${
+                  selectedFormation?.id === f.id
+                    ? "bg-secondary text-secondary-foreground border-secondary"
+                    : isCompleted
+                    ? "bg-muted/50 text-muted-foreground border-border cursor-not-allowed"
+                    : "bg-muted text-card-foreground border-border hover:border-secondary hover:bg-secondary/10"
                 }`}
               >
-                {saving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Analisando...
-                  </>
-                ) : (
-                  "Confirmar Escalação"
-                )}
+                {f.label}
               </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Defensive */}
+        <div>
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Shield className="w-3.5 h-3.5 text-primary" />
+            <span className="text-[10px] font-bold text-primary uppercase tracking-wide">Defensivas</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {formations.filter((f) => f.type === "defensiva").map((f) => (
+              <button
+                key={f.id}
+                onClick={() => handleChangeFormation(f)}
+                disabled={isCompleted}
+                className={`py-2.5 rounded-xl border text-sm font-bold transition-all ${
+                  selectedFormation?.id === f.id
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : isCompleted
+                    ? "bg-muted/50 text-muted-foreground border-border cursor-not-allowed"
+                    : "bg-muted text-card-foreground border-border hover:border-primary hover:bg-primary/10"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Football Pitch - always visible */}
+      <div
+        className="relative w-full rounded-xl overflow-hidden border-2 border-border"
+        style={{
+          aspectRatio: "3/4",
+          background:
+            "linear-gradient(180deg, #2d8a4e 0%, #34a058 8%, #2d8a4e 16%, #34a058 24%, #2d8a4e 32%, #34a058 40%, #2d8a4e 48%, #34a058 56%, #2d8a4e 64%, #34a058 72%, #2d8a4e 80%, #34a058 88%, #2d8a4e 96%)",
+        }}
+      >
+        {/* Pitch markings */}
+        <svg
+          viewBox="0 0 300 400"
+          className="absolute inset-0 w-full h-full"
+          fill="none"
+          stroke="rgba(255,255,255,0.5)"
+          strokeWidth="1.5"
+        >
+          <rect x="10" y="10" width="280" height="380" rx="2" />
+          <line x1="10" y1="200" x2="290" y2="200" />
+          <circle cx="150" cy="200" r="40" />
+          <circle cx="150" cy="200" r="3" fill="rgba(255,255,255,0.7)" />
+          <rect x="70" y="10" width="160" height="65" />
+          <rect x="105" y="10" width="90" height="30" />
+          <path d="M 110 75 Q 150 95 190 75" />
+          <circle cx="150" cy="55" r="2.5" fill="rgba(255,255,255,0.7)" />
+          <rect x="70" y="325" width="160" height="65" />
+          <rect x="105" y="360" width="90" height="30" />
+          <path d="M 110 325 Q 150 305 190 325" />
+          <circle cx="150" cy="345" r="2.5" fill="rgba(255,255,255,0.7)" />
+          <path d="M 10 18 Q 18 18 18 10" />
+          <path d="M 282 10 Q 282 18 290 18" />
+          <path d="M 10 382 Q 18 382 18 390" />
+          <path d="M 282 390 Q 282 382 290 382" />
+          <rect x="120" y="2" width="60" height="8" strokeDasharray="4 3" />
+          <rect x="120" y="390" width="60" height="8" strokeDasharray="4 3" />
+        </svg>
+
+        {/* Formation slots */}
+        {currentSlots.map((slot) => {
+          const emotion = assignments[slot.id] ? getEmotion(assignments[slot.id]) : null;
+          const isActive = slot.id === activeSlotId && !pickerSlot;
+          return (
+            <button
+              key={slot.id}
+              onClick={() => handleSlotClick(slot.id)}
+              className="absolute flex flex-col items-center"
+              style={{
+                left: `${slot.x}%`,
+                top: `${slot.y}%`,
+                transform: "translate(-50%, -50%)",
+                ...(isActive
+                  ? { animation: "slotGrow 2s ease-in-out infinite" }
+                  : {}),
+              }}
+            >
+              {emotion ? (
+                <>
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center text-xl border-2 border-white/80 bg-white/90 shadow-md">
+                    {emotion.icon}
+                  </div>
+                  <span className="text-[9px] text-white font-bold mt-0.5 bg-black/60 px-1.5 py-0.5 rounded whitespace-nowrap">
+                    {emotion.label}
+                  </span>
+                </>
+              ) : (
+                <div
+                  className={`w-10 h-10 rounded-full border-2 transition-all ${
+                    isActive
+                      ? "border-white bg-white/25 cursor-pointer"
+                      : "border-dashed border-white/30 bg-white/5"
+                  }`}
+                />
+              )}
+            </button>
+          );
+        })}
+
+        {/* No formation selected placeholder */}
+        {!selectedFormation && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-white/50 text-sm font-medium">Selecione uma formação acima</span>
+          </div>
+        )}
+
+        {/* Emotion Picker Overlay */}
+        {pickerSlot && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="bg-card rounded-2xl p-4 mx-4 max-h-[85%] overflow-y-auto w-full max-w-xs shadow-2xl border border-border">
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-bold text-card-foreground text-sm">Escolha uma emoção</span>
+                <button onClick={() => setPickerSlot(null)} className="p-1 rounded-full hover:bg-muted">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              <p className="text-xs font-bold text-secondary mb-1.5 px-0.5">✅ Positivas</p>
+              <div className="grid grid-cols-2 gap-1.5 mb-3">
+                {positiveEmotions.map((em) => {
+                  const isPlaced = placedIds.has(em.id);
+                  return (
+                    <button
+                      key={em.id}
+                      onClick={() => handlePickEmotion(em.id)}
+                      disabled={isPlaced}
+                      className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm border transition-all ${
+                        isPlaced
+                          ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
+                          : "bg-card text-card-foreground border-border hover:border-secondary/50 hover:bg-secondary/5"
+                      }`}
+                    >
+                      <span className="text-base">{em.icon}</span>
+                      <span className="text-xs font-medium">{em.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <p className="text-xs font-bold text-destructive mb-1.5 px-0.5">⛔ Negativas</p>
+              <div className="grid grid-cols-2 gap-1.5">
+                {negativeEmotions.map((em) => {
+                  const isPlaced = placedIds.has(em.id);
+                  return (
+                    <button
+                      key={em.id}
+                      onClick={() => handlePickEmotion(em.id)}
+                      disabled={isPlaced}
+                      className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm border transition-all ${
+                        isPlaced
+                          ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
+                          : "bg-card text-card-foreground border-border hover:border-destructive/50 hover:bg-destructive/5"
+                      }`}
+                    >
+                      <span className="text-base">{em.icon}</span>
+                      <span className="text-xs font-medium">{em.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          )}
-        </>
+          </div>
+        )}
+      </div>
+
+      {/* Progress */}
+      {selectedFormation && filledCount > 0 && !isCompleted && (
+        <p className="text-muted-foreground text-xs text-center mt-2">
+          {filledCount}/{currentSlots.length} posições preenchidas
+        </p>
+      )}
+
+      {/* Actions */}
+      {selectedFormation && !isCompleted && (
+        <div className="flex gap-3 mt-4">
+          <button
+            onClick={handleReset}
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-muted text-muted-foreground font-bold text-sm hover:bg-muted/80 transition-all"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Limpar
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={filledCount === 0 || saving}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all ${
+              filledCount > 0
+                ? "bg-primary text-primary-foreground hover:scale-[1.02]"
+                : "bg-muted text-muted-foreground cursor-not-allowed"
+            }`}
+          >
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Analisando...
+              </>
+            ) : (
+              "Confirmar Escalação"
+            )}
+          </button>
+        </div>
       )}
 
       {/* AI Analysis Card */}
       {aiAnalysis && (
         <div className="mt-5 bg-muted border border-border rounded-2xl p-5">
-          <h3 className="text-card-foreground font-bold text-sm mb-3 flex items-center gap-2">
+          <h3 className="text-card-foreground font-bold text-base mb-1 flex items-center gap-2">
             ⚽ Análise da sua escalação hoje
           </h3>
-          <div className="text-muted-foreground text-sm leading-relaxed prose prose-sm prose-invert max-w-none">
-            <ReactMarkdown>{aiAnalysis}</ReactMarkdown>
+          <div className="text-card-foreground text-base leading-relaxed mt-3 space-y-3">
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => <p className="text-card-foreground text-base leading-relaxed mb-3">{children}</p>,
+                blockquote: ({ children }) => (
+                  <div className="mt-4 pt-3 border-t border-border">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <CloudLightning className="w-4 h-4 text-primary" />
+                      <span className="text-xs font-bold text-primary uppercase tracking-wide">Para refletir</span>
+                    </div>
+                    <blockquote className="text-card-foreground text-base italic leading-relaxed">{children}</blockquote>
+                  </div>
+                ),
+              }}
+            >{aiAnalysis}</ReactMarkdown>
           </div>
         </div>
       )}
