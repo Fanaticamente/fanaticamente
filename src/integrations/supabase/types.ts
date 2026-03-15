@@ -698,6 +698,36 @@ export type Database = {
         }
         Relationships: []
       }
+      emotional_lineups: {
+        Row: {
+          ai_analysis: string | null
+          created_at: string
+          entry_date: string
+          formation: string
+          id: string
+          lineup: Json
+          user_id: string
+        }
+        Insert: {
+          ai_analysis?: string | null
+          created_at?: string
+          entry_date?: string
+          formation: string
+          id?: string
+          lineup?: Json
+          user_id: string
+        }
+        Update: {
+          ai_analysis?: string | null
+          created_at?: string
+          entry_date?: string
+          formation?: string
+          id?: string
+          lineup?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       football_news: {
         Row: {
           category: string | null
