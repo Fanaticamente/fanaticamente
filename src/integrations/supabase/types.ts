@@ -1250,6 +1250,7 @@ export type Database = {
           created_at: string
           favorite_club_id: string | null
           full_name: string | null
+          gender: string | null
           id: string
           phone: string | null
           state: string | null
@@ -1264,6 +1265,7 @@ export type Database = {
           created_at?: string
           favorite_club_id?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
           phone?: string | null
           state?: string | null
@@ -1278,6 +1280,7 @@ export type Database = {
           created_at?: string
           favorite_club_id?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
           phone?: string | null
           state?: string | null
