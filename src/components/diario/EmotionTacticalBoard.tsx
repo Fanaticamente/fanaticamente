@@ -5,39 +5,71 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import ReactMarkdown from "react-markdown";
 
-/* ── Emotions ── */
-const positiveEmotions = [
-  { id: "alegre", icon: "😄", label: "Alegre" },
-  { id: "euforico", icon: "🤩", label: "Eufórico" },
-  { id: "feliz", icon: "🙂", label: "Feliz" },
-  { id: "confiante", icon: "💪", label: "Confiante" },
-  { id: "empolgado", icon: "🎉", label: "Empolgado" },
-  { id: "orgulhoso", icon: "🏆", label: "Orgulhoso" },
-  { id: "esperancoso", icon: "⭐", label: "Esperançoso" },
-  { id: "grato", icon: "🙏", label: "Grato" },
-  { id: "aliviado", icon: "😮‍💨", label: "Aliviado" },
-  { id: "inspirado", icon: "✨", label: "Inspirado" },
-  { id: "motivado", icon: "🔥", label: "Motivado" },
+/* ── Emoji imports ── */
+import emojiAlegre from "@/assets/emojis/alegre.png";
+import emojiEuforico from "@/assets/emojis/euforico.png";
+import emojiFeliz from "@/assets/emojis/feliz.png";
+import emojiConfiante from "@/assets/emojis/confiante.png";
+import emojiEmpolgado from "@/assets/emojis/empolgado.png";
+import emojiOrgulhoso from "@/assets/emojis/orgulhoso.png";
+import emojiEsperancoso from "@/assets/emojis/esperancoso.png";
+import emojiGrato from "@/assets/emojis/grato.png";
+import emojiAliviado from "@/assets/emojis/aliviado.png";
+import emojiInspirado from "@/assets/emojis/inspirado.png";
+import emojiMotivado from "@/assets/emojis/motivado.png";
+import emojiTriste from "@/assets/emojis/triste.png";
+import emojiRaiva from "@/assets/emojis/raiva.png";
+import emojiAnsioso from "@/assets/emojis/ansioso.png";
+import emojiDecepcionado from "@/assets/emojis/decepcionado.png";
+import emojiMedo from "@/assets/emojis/medo.png";
+import emojiIrritado from "@/assets/emojis/irritado.png";
+import emojiDesanimado from "@/assets/emojis/desanimado.png";
+import emojiImpaciente from "@/assets/emojis/impaciente.png";
+import emojiFrustrado from "@/assets/emojis/frustrado.png";
+import emojiInseguro from "@/assets/emojis/inseguro.png";
+import emojiEnvergonhado from "@/assets/emojis/envergonhado.png";
+
+/* ── Emotions with gender support ── */
+interface EmotionDef {
+  id: string;
+  img: string;
+  labelM: string;
+  labelF: string;
+}
+
+const positiveEmotions: EmotionDef[] = [
+  { id: "alegre", img: emojiAlegre, labelM: "Alegre", labelF: "Alegre" },
+  { id: "euforico", img: emojiEuforico, labelM: "Eufórico", labelF: "Eufórica" },
+  { id: "feliz", img: emojiFeliz, labelM: "Feliz", labelF: "Feliz" },
+  { id: "confiante", img: emojiConfiante, labelM: "Confiante", labelF: "Confiante" },
+  { id: "empolgado", img: emojiEmpolgado, labelM: "Empolgado", labelF: "Empolgada" },
+  { id: "orgulhoso", img: emojiOrgulhoso, labelM: "Orgulhoso", labelF: "Orgulhosa" },
+  { id: "esperancoso", img: emojiEsperancoso, labelM: "Esperançoso", labelF: "Esperançosa" },
+  { id: "grato", img: emojiGrato, labelM: "Grato", labelF: "Grata" },
+  { id: "aliviado", img: emojiAliviado, labelM: "Aliviado", labelF: "Aliviada" },
+  { id: "inspirado", img: emojiInspirado, labelM: "Inspirado", labelF: "Inspirada" },
+  { id: "motivado", img: emojiMotivado, labelM: "Motivado", labelF: "Motivada" },
 ];
 
-const negativeEmotions = [
-  { id: "triste", icon: "😢", label: "Triste" },
-  { id: "raiva", icon: "😡", label: "Raiva" },
-  { id: "ansioso", icon: "😰", label: "Ansioso" },
-  { id: "decepcionado", icon: "😞", label: "Decepcionado" },
-  { id: "medo", icon: "😨", label: "Medo" },
-  { id: "irritado", icon: "😤", label: "Irritado" },
-  { id: "desanimado", icon: "😔", label: "Desanimado" },
-  { id: "impaciente", icon: "⏳", label: "Impaciente" },
-  { id: "frustrado", icon: "😣", label: "Frustrado" },
-  { id: "inseguro", icon: "😟", label: "Inseguro" },
-  { id: "envergonhado", icon: "😳", label: "Envergonhado" },
+const negativeEmotions: EmotionDef[] = [
+  { id: "triste", img: emojiTriste, labelM: "Triste", labelF: "Triste" },
+  { id: "raiva", img: emojiRaiva, labelM: "Com Raiva", labelF: "Com Raiva" },
+  { id: "ansioso", img: emojiAnsioso, labelM: "Ansioso", labelF: "Ansiosa" },
+  { id: "decepcionado", img: emojiDecepcionado, labelM: "Decepcionado", labelF: "Decepcionada" },
+  { id: "medo", img: emojiMedo, labelM: "Com Medo", labelF: "Com Medo" },
+  { id: "irritado", img: emojiIrritado, labelM: "Irritado", labelF: "Irritada" },
+  { id: "desanimado", img: emojiDesanimado, labelM: "Desanimado", labelF: "Desanimada" },
+  { id: "impaciente", img: emojiImpaciente, labelM: "Impaciente", labelF: "Impaciente" },
+  { id: "frustrado", img: emojiFrustrado, labelM: "Frustrado", labelF: "Frustrada" },
+  { id: "inseguro", img: emojiInseguro, labelM: "Inseguro", labelF: "Insegura" },
+  { id: "envergonhado", img: emojiEnvergonhado, labelM: "Envergonhado", labelF: "Envergonhada" },
 ];
 
 const allEmotions = [...positiveEmotions, ...negativeEmotions];
 const getEmotion = (id: string) => allEmotions.find((e) => e.id === id);
+const getLabel = (em: EmotionDef, gender: string) =>
+  gender === "feminino" ? em.labelF : em.labelM;
 
 /* ── Formations ── */
 interface FormationSlot {
@@ -161,11 +193,62 @@ const pulseStyle = `
 }
 `;
 
+/* ── Helper: split analysis into body + philosophical quote ── */
+const splitAnalysis = (text: string) => {
+  const lines = text.split("\n").filter((l) => l.trim());
+  // Look for the philosophical quote — typically contains em-dash and quotes
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const line = lines[i];
+    if (line.includes("—") || line.includes("–")) {
+      // Check if previous line is part of the quote too
+      let quoteStart = i;
+      if (i > 0 && (lines[i - 1].startsWith('"') || lines[i - 1].startsWith('"') || lines[i - 1].startsWith(">"))) {
+        quoteStart = i - 1;
+      }
+      const body = lines.slice(0, quoteStart).join("\n\n");
+      const quote = lines.slice(quoteStart).join("\n");
+      return { body, quote };
+    }
+  }
+  return { body: text, quote: null };
+};
+
 /* ── Component ── */
 const EmotionTacticalBoard = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const today = format(new Date(), "yyyy-MM-dd");
+
+  /* Fetch user profile for gender + club */
+  const { data: profile } = useQuery({
+    queryKey: ["profile-tactical", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("gender, favorite_club_id")
+        .eq("user_id", user!.id)
+        .single();
+      return data as any;
+    },
+    enabled: !!user,
+  });
+
+  /* Fetch club colors */
+  const { data: club } = useQuery({
+    queryKey: ["club-colors", profile?.favorite_club_id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("clubs")
+        .select("primary_color, secondary_color")
+        .eq("id", profile!.favorite_club_id!)
+        .single();
+      return data;
+    },
+    enabled: !!profile?.favorite_club_id,
+  });
+
+  const gender: string = (profile?.gender as string) || "masculino";
+  const teamColor = club?.primary_color || "#D4A017";
 
   const { data: existingLineup, isLoading: loadingExisting } = useQuery({
     queryKey: ["emotional-lineup-today", user?.id],
@@ -206,7 +289,10 @@ const EmotionTacticalBoard = () => {
           const slotIds = sectorSlots[sector] || [];
           (emotions as string[]).forEach((em, i) => {
             if (slotIds[i]) {
-              const emotionObj = allEmotions.find((e) => e.label === em);
+              // Try matching by labelM first, then labelF, then id
+              const emotionObj = allEmotions.find(
+                (e) => e.labelM === em || e.labelF === em || e.id === em
+              );
               if (emotionObj) newAssignments[slotIds[i]] = emotionObj.id;
             }
           });
@@ -222,9 +308,10 @@ const EmotionTacticalBoard = () => {
 
   const isCompleted = !!existingLineup || confirmed;
   const currentSlots = selectedFormation?.slots ?? [];
-  const activeSlotId = !isCompleted && selectedFormation
-    ? currentSlots.find((s) => !assignments[s.id])?.id ?? null
-    : null;
+  const activeSlotId =
+    !isCompleted && selectedFormation
+      ? currentSlots.find((s) => !assignments[s.id])?.id ?? null
+      : null;
 
   const handleSlotClick = (slotId: string) => {
     if (isCompleted) return;
@@ -267,7 +354,7 @@ const EmotionTacticalBoard = () => {
       const emotion = getEmotion(assignments[slot.id]);
       if (!emotion) return;
       if (!result[slot.sector]) result[slot.sector] = [];
-      result[slot.sector].push(emotion.label);
+      result[slot.sector].push(getLabel(emotion, gender));
     });
     return result;
   };
@@ -329,6 +416,9 @@ const EmotionTacticalBoard = () => {
     );
   }
 
+  /* ── Parsed analysis ── */
+  const analysisData = aiAnalysis ? splitAnalysis(aiAnalysis) : null;
+
   return (
     <div className="bg-card border border-border rounded-2xl p-5 mb-6">
       <style>{pulseStyle}</style>
@@ -341,7 +431,7 @@ const EmotionTacticalBoard = () => {
         </span>
       </div>
 
-      {/* Formation Selection - always visible */}
+      {/* Formation Selection */}
       <div className="mb-4">
         <p className="text-muted-foreground text-sm mb-3">
           {isCompleted
@@ -402,7 +492,7 @@ const EmotionTacticalBoard = () => {
         </div>
       </div>
 
-      {/* Football Pitch - always visible */}
+      {/* Football Pitch */}
       <div
         className="relative w-full rounded-xl overflow-hidden border-2 border-border"
         style={{
@@ -459,11 +549,14 @@ const EmotionTacticalBoard = () => {
             >
               {emotion ? (
                 <>
-                  <div className="w-11 h-11 rounded-full flex items-center justify-center text-xl border-2 border-white/80 bg-white/90 shadow-md">
-                    {emotion.icon}
+                  <div
+                    className="w-11 h-11 rounded-full flex items-center justify-center border-2 shadow-md overflow-hidden bg-white/90"
+                    style={{ borderColor: teamColor }}
+                  >
+                    <img src={emotion.img} alt={getLabel(emotion, gender)} className="w-10 h-10 object-contain" />
                   </div>
                   <span className="text-[9px] text-white font-bold mt-0.5 bg-black/60 px-1.5 py-0.5 rounded whitespace-nowrap">
-                    {emotion.label}
+                    {getLabel(emotion, gender)}
                   </span>
                 </>
               ) : (
@@ -486,59 +579,61 @@ const EmotionTacticalBoard = () => {
           </div>
         )}
 
-        {/* Emotion Picker Overlay */}
+        {/* Emotion Picker Overlay - Two columns */}
         {pickerSlot && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm">
             <div className="bg-card rounded-2xl p-4 mx-4 max-h-[85%] overflow-y-auto w-full max-w-xs shadow-2xl border border-border">
               <div className="flex items-center justify-between mb-3">
-                <span className="font-bold text-card-foreground text-sm">Escolha uma emoção</span>
+                <span className="font-bold text-card-foreground text-sm">⚽ Emoções</span>
                 <button onClick={() => setPickerSlot(null)} className="p-1 rounded-full hover:bg-muted">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
 
-              <p className="text-xs font-bold text-secondary mb-1.5 px-0.5">✅ Positivas</p>
-              <div className="grid grid-cols-2 gap-1.5 mb-3">
-                {positiveEmotions.map((em) => {
-                  const isPlaced = placedIds.has(em.id);
-                  return (
-                    <button
-                      key={em.id}
-                      onClick={() => handlePickEmotion(em.id)}
-                      disabled={isPlaced}
-                      className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm border transition-all ${
-                        isPlaced
-                          ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
-                          : "bg-card text-card-foreground border-border hover:border-secondary/50 hover:bg-secondary/5"
-                      }`}
-                    >
-                      <span className="text-base">{em.icon}</span>
-                      <span className="text-xs font-medium">{em.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {/* Left column: positive */}
+                <div className="space-y-1.5">
+                  {positiveEmotions.map((em) => {
+                    const isPlaced = placedIds.has(em.id);
+                    return (
+                      <button
+                        key={em.id}
+                        onClick={() => handlePickEmotion(em.id)}
+                        disabled={isPlaced}
+                        className={`flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs border transition-all ${
+                          isPlaced
+                            ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
+                            : "bg-card text-card-foreground border-border hover:border-secondary/50 hover:bg-secondary/5"
+                        }`}
+                      >
+                        <img src={em.img} alt="" className="w-7 h-7 object-contain flex-shrink-0" />
+                        <span className="text-xs font-medium truncate">{getLabel(em, gender)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-              <p className="text-xs font-bold text-destructive mb-1.5 px-0.5">⛔ Negativas</p>
-              <div className="grid grid-cols-2 gap-1.5">
-                {negativeEmotions.map((em) => {
-                  const isPlaced = placedIds.has(em.id);
-                  return (
-                    <button
-                      key={em.id}
-                      onClick={() => handlePickEmotion(em.id)}
-                      disabled={isPlaced}
-                      className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm border transition-all ${
-                        isPlaced
-                          ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
-                          : "bg-card text-card-foreground border-border hover:border-destructive/50 hover:bg-destructive/5"
-                      }`}
-                    >
-                      <span className="text-base">{em.icon}</span>
-                      <span className="text-xs font-medium">{em.label}</span>
-                    </button>
-                  );
-                })}
+                {/* Right column: negative */}
+                <div className="space-y-1.5">
+                  {negativeEmotions.map((em) => {
+                    const isPlaced = placedIds.has(em.id);
+                    return (
+                      <button
+                        key={em.id}
+                        onClick={() => handlePickEmotion(em.id)}
+                        disabled={isPlaced}
+                        className={`flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs border transition-all ${
+                          isPlaced
+                            ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
+                            : "bg-card text-card-foreground border-border hover:border-destructive/50 hover:bg-destructive/5"
+                        }`}
+                      >
+                        <img src={em.img} alt="" className="w-7 h-7 object-contain flex-shrink-0" />
+                        <span className="text-xs font-medium truncate">{getLabel(em, gender)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
@@ -584,27 +679,31 @@ const EmotionTacticalBoard = () => {
       )}
 
       {/* AI Analysis Card */}
-      {aiAnalysis && (
+      {analysisData && (
         <div className="mt-5 bg-muted border border-border rounded-2xl p-5">
-          <h3 className="text-card-foreground font-bold text-base mb-1 flex items-center gap-2">
+          <h3 className="text-card-foreground font-bold text-base mb-3 flex items-center gap-2">
             ⚽ Análise da sua escalação hoje
           </h3>
-          <div className="text-card-foreground text-base leading-relaxed mt-3 space-y-3">
-            <ReactMarkdown
-              components={{
-                p: ({ children }) => <p className="text-card-foreground text-base leading-relaxed mb-3">{children}</p>,
-                blockquote: ({ children }) => (
-                  <div className="mt-4 pt-3 border-t border-border">
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <CloudLightning className="w-4 h-4 text-primary" />
-                      <span className="text-xs font-bold text-primary uppercase tracking-wide">Para refletir</span>
-                    </div>
-                    <blockquote className="text-card-foreground text-base italic leading-relaxed">{children}</blockquote>
-                  </div>
-                ),
-              }}
-            >{aiAnalysis}</ReactMarkdown>
+
+          {/* Main body */}
+          <div className="text-card-foreground text-base leading-relaxed whitespace-pre-line">
+            {analysisData.body}
           </div>
+
+          {/* Philosophical quote with "Para refletir" subtitle */}
+          {analysisData.quote && (
+            <div className="mt-4 pt-3 border-t border-border">
+              <div className="flex items-center gap-1.5 mb-2">
+                <CloudLightning className="w-4 h-4 text-primary" />
+                <span className="text-sm font-bold text-primary uppercase tracking-wide">
+                  💭 Para refletir
+                </span>
+              </div>
+              <p className="text-card-foreground text-base italic leading-relaxed">
+                {analysisData.quote}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
