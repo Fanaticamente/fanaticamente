@@ -1266,16 +1266,12 @@ const Auth = () => {
                       <Link 
                         to="/politica-privacidade" 
                         target="_blank"
-                        className={`underline font-medium ${
-                          authMode === "professional" ? "text-therapy" : "text-primary"
-                        }`}
+                      className="underline font-medium text-therapy"
                       >
                         Política de Privacidade
                       </Link>
                       {" "}e os{" "}
-                      <span className={`font-medium ${
-                        authMode === "professional" ? "text-therapy" : "text-primary"
-                      }`}>
+                      <span className="font-medium text-therapy">
                         Termos de Uso
                       </span>
                       {" "}da plataforma Fanaticamente.

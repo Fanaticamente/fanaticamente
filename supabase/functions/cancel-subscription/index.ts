@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -26,74 +25,59 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-    logStep("Stripe key verified");
-
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
-    logStep("Authorization header found");
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError) throw new Error(`Authentication error: ${userError.message}`);
     const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    if (!user?.id) throw new Error("User not authenticated");
+    logStep("User authenticated", { userId: user.id });
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    // Get professional record
+    const { data: professional, error: profError } = await supabaseClient
+      .from('professionals')
+      .select('id, subscription_type, subscription_expires_at, approval_status')
+      .eq('user_id', user.id)
+      .maybeSingle();
 
-    // Find Stripe customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found for this user");
-    }
-    const customerId = customers.data[0].id;
-    logStep("Found Stripe customer", { customerId });
+    if (profError) throw new Error(`Database error: ${profError.message}`);
+    if (!professional) throw new Error("Professional record not found");
 
-    // Find active subscription
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      limit: 10,
+    logStep("Professional found", { 
+      id: professional.id, 
+      plan: professional.subscription_type, 
+      expiresAt: professional.subscription_expires_at,
+      status: professional.approval_status 
     });
 
-    const activeSubscriptions = subscriptions.data.filter(
-      (sub: { status: string }) => sub.status === "active" || sub.status === "trialing"
-    );
-
-    if (activeSubscriptions.length === 0) {
+    // Ensure they have an active subscription to cancel
+    if (!professional.subscription_expires_at) {
       throw new Error("No active subscription found to cancel");
     }
 
-    // Cancel the subscription at period end (not immediately)
-    const subscription = activeSubscriptions[0];
-    logStep("Cancelling subscription at period end", { subscriptionId: subscription.id });
+    const expiresAt = professional.subscription_expires_at;
+    const expirationDate = new Date(expiresAt);
 
-    // Use cancel with prorate=false to cancel at end of billing period
-    const cancelledSubscription = await stripe.subscriptions.update(subscription.id, {
-      cancel_at_period_end: true
-    });
-    
-    // Handle the period end timestamp properly
-    const periodEndTimestamp = cancelledSubscription.current_period_end;
-    let periodEnd: string;
-    
-    if (typeof periodEndTimestamp === 'number') {
-      periodEnd = new Date(periodEndTimestamp * 1000).toISOString();
-    } else {
-      // Fallback: set expiration to 30 days from now
-      periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    // Check if already expired
+    if (expirationDate < new Date()) {
+      throw new Error("Subscription has already expired");
     }
-    
-    logStep("Subscription will cancel at period end", { periodEnd, rawTimestamp: periodEndTimestamp });
 
-    // Update professional record - mark as pending_cancellation but keep active
+    // Check if already pending cancellation
+    if (professional.approval_status === 'pending_cancellation') {
+      throw new Error("Subscription is already marked for cancellation");
+    }
+
+    logStep("Cancelling subscription - will keep access until", { expiresAt });
+
+    // Update professional record - mark as pending_cancellation
+    // Keep the existing subscription_expires_at so they retain access until end of paid period
     const { error: updateError } = await supabaseClient
       .from('professionals')
       .update({
         approval_status: 'pending_cancellation',
-        subscription_expires_at: periodEnd
-        // Keep is_active: true, is_verified: true, subscription_type as-is
       })
       .eq('user_id', user.id);
 
@@ -107,7 +91,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       success: true,
       message: "Subscription will be cancelled at period end",
-      expires_at: periodEnd
+      expires_at: expiresAt
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
