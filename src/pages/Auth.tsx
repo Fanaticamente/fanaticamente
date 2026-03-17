@@ -812,16 +812,12 @@ const Auth = () => {
                           <Link 
                             to="/politica-privacidade" 
                             target="_blank"
-                            className={`underline font-medium ${
-                              authMode === "professional" ? "text-therapy" : "text-primary"
-                            }`}
-                          >
-                            Política de Privacidade
-                          </Link>
-                          {" "}e os{" "}
-                          <span className={`font-medium ${
-                            authMode === "professional" ? "text-therapy" : "text-primary"
-                          }`}>
+                        className="underline font-medium text-therapy"
+                      >
+                        Política de Privacidade
+                      </Link>
+                      {" "}e os{" "}
+                      <span className="font-medium text-therapy">
                             Termos de Uso
                           </span>
                           {" "}da plataforma Fanaticamente.
@@ -884,8 +880,8 @@ const Auth = () => {
 
   // Mobile Layout (existing)
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-background flex items-start justify-center px-4 py-8 overflow-y-auto">
+      <div className="w-full max-w-md pb-8">
         <div className="text-center mb-8">
           <img src={logoAuth} alt="Logo" className="h-44 w-auto mx-auto mb-6" />
           <p className={`text-muted-foreground ${authMode === "professional" ? "text-lg font-medium" : ""}`}>
@@ -1270,16 +1266,12 @@ const Auth = () => {
                       <Link 
                         to="/politica-privacidade" 
                         target="_blank"
-                        className={`underline font-medium ${
-                          authMode === "professional" ? "text-therapy" : "text-primary"
-                        }`}
+                      className="underline font-medium text-therapy"
                       >
                         Política de Privacidade
                       </Link>
                       {" "}e os{" "}
-                      <span className={`font-medium ${
-                        authMode === "professional" ? "text-therapy" : "text-primary"
-                      }`}>
+                      <span className="font-medium text-therapy">
                         Termos de Uso
                       </span>
                       {" "}da plataforma Fanaticamente.
