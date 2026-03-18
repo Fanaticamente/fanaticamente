@@ -1,10 +1,10 @@
 import { 
-  Eye, EyeOff, ChevronUp, ChevronDown, 
+  Eye, EyeOff, ChevronUp, ChevronDown, Lock, LockOpen,
   FileText, Home, Users, GraduationCap, Brain, Radio, Trophy,
   ShoppingBag, Heart, Newspaper, Book, User, Calendar, LucideIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAppPages, useTogglePageVisibility, useReorderPages, AppPage } from "@/hooks/useAppPages";
+import { useAppPages, useTogglePageVisibility, useUpdatePage, useReorderPages, AppPage } from "@/hooks/useAppPages";
 import { Loader2 } from "lucide-react";
 
 interface PagesListProps {
@@ -34,6 +34,7 @@ const getIconComponent = (iconName: string): LucideIcon => {
 const PagesList = ({ platform }: PagesListProps) => {
   const { data: pages, isLoading } = useAppPages(platform);
   const toggleVisibility = useTogglePageVisibility();
+  const updatePage = useUpdatePage();
   const reorderPages = useReorderPages();
 
   const handleMoveUp = (page: AppPage, index: number, sortedPages: AppPage[]) => {
@@ -54,6 +55,13 @@ const PagesList = ({ platform }: PagesListProps) => {
       ];
       reorderPages.mutate(updates);
     }
+  };
+
+  const handleTogglePublic = (page: AppPage) => {
+    updatePage.mutate({ 
+      id: page.id, 
+      updates: { is_public: !page.is_public } 
+    });
   };
 
   if (isLoading) {
@@ -117,8 +125,8 @@ const PagesList = ({ platform }: PagesListProps) => {
             </div>
             
             {!page.is_public && (
-              <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded flex-shrink-0">
-                privado
+              <span className="text-[10px] text-orange-400 bg-orange-400/10 px-1.5 py-0.5 rounded flex-shrink-0">
+                login
               </span>
             )}
             
@@ -127,7 +135,23 @@ const PagesList = ({ platform }: PagesListProps) => {
                 oculto
               </span>
             )}
+
+            {/* Toggle login required */}
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 w-7 p-0 flex-shrink-0"
+              onClick={() => handleTogglePublic(page)}
+              title={page.is_public ? "Tornar privado (exigir login)" : "Tornar público (sem login)"}
+            >
+              {page.is_public ? (
+                <LockOpen className="w-4 h-4 text-muted-foreground" />
+              ) : (
+                <Lock className="w-4 h-4 text-orange-400" />
+              )}
+            </Button>
             
+            {/* Toggle visibility */}
             <Button
               size="sm"
               variant="ghost"

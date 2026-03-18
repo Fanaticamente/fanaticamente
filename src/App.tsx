@@ -7,8 +7,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // from crashing the entire React app with a white screen.
 if (typeof window !== "undefined") {
   window.addEventListener("unhandledrejection", (event) => {
-    // Suppress DOMException AbortError — these are harmless and come from video.pause()
-    // being called while play() is still resolving (browser race condition).
     const reason = event.reason;
     if (
       reason instanceof DOMException &&
@@ -17,7 +15,6 @@ if (typeof window !== "undefined") {
       event.preventDefault();
       return;
     }
-    // Log other unhandled rejections but don't crash
     console.error("[App] Unhandled rejection:", reason);
     event.preventDefault();
   });
@@ -25,7 +22,7 @@ if (typeof window !== "undefined") {
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RadioProvider } from "@/contexts/RadioContext";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import ProtectedRoute, { DynamicProtectedRoute } from "@/components/ProtectedRoute";
 import GlobalRadioPlayer from "@/components/radio/GlobalRadioPlayer";
 
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
@@ -89,11 +86,8 @@ const isEmbedMode = () => {
   }
 };
 
-// Component that handles realtime subscriptions, route restoration, and global session completion
-// IMPORTANT: This component checks the current route and disables auto-refresh behavior on manager routes
 const AppProviders = ({ children }: { children: React.ReactNode }) => {
   useDisableServiceWorkerOnManagerRoutes();
-  // These hooks now internally check if we're on manager routes and skip their behavior
   useRealtimeSubscriptions();
   useRouteRestoration();
   const { completedAppointment, clearCompletedAppointment } = useGlobalSessionCompletion();
@@ -101,15 +95,11 @@ const AppProviders = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       {children}
-      {/* Global Session Completion Dialog - shows on any page */}
       {completedAppointment && (
         <SessionCompletedDialog
           appointment={completedAppointment}
           onClose={clearCompletedAppointment}
-          onRatingSubmitted={() => {
-            // Don't close immediately - let user see reschedule/close options
-            // The dialog will handle showing those options after rating
-          }}
+          onRatingSubmitted={() => {}}
         />
       )}
     </>
@@ -124,16 +114,7 @@ const App = () => {
     <MobileBrowserBlock>
     <TooltipProvider>
       {SplashElement}
-      {/*
-        Embed mode: used by the Developer "preview" iframe.
-        We intentionally avoid mounting AuthProvider/ProtectedRoute and other global side-effects
-        to prevent cross-tab auth broadcasts and route-restoration loops.
-      */}
       {isEmbedMode() ? (
-        // Embed mode is rendered inside an iframe preview.
-        // We still need AuthProvider because many public components use useAuth().
-        // But we avoid AppProviders (realtime + route restoration + global session dialog)
-        // to prevent any cross-context loops.
         <AuthProvider>
           <RadioProvider>
           <BrowserRouter>
@@ -148,8 +129,8 @@ const App = () => {
               <Route path="/curso/:id" element={<CursoDetalhe />} />
               <Route path="/quiz" element={<Quiz />} />
               <Route path="/radio" element={<Radio />} />
-               <Route path="/futebol" element={<Futebol />} />
-               <Route path="/ranking" element={<Ranking />} />
+              <Route path="/futebol" element={<Futebol />} />
+              <Route path="/ranking" element={<Ranking />} />
               <Route path="/loja" element={<FanaticaShop />} />
               <Route path="/loja/produto/:id" element={<ProductDetail />} />
               <Route path="/osmf" element={<OSMF />} />
@@ -170,42 +151,40 @@ const App = () => {
               <Sonner />
               <GlobalRadioPlayer />
               <Routes>
-                {/* Public routes - accessible without login */}
+                {/* Always public routes */}
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/admin-access" element={<AdminAccess />} />
                 <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
                 <Route path="/setup-test" element={<SetupTestUsers />} />
                 <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
                 
-                {/* Public content routes - viewable without login (desktop navigation) */}
-                <Route path="/" element={<Index />} />
-                <Route path="/terapeutas" element={<Terapeutas />} />
-                <Route path="/terapeuta/:id" element={<ProfessionalProfile />} />
-                <Route path="/cursos" element={<Cursos />} />
-                <Route path="/curso/:id" element={<CursoDetalhe />} />
-                <Route path="/quiz" element={<Quiz />} />
-                <Route path="/radio" element={<Radio />} />
-                <Route path="/futebol" element={<Futebol />} />
-                <Route path="/ranking" element={<Ranking />} />
-                <Route path="/loja" element={<FanaticaShop />} />
-                <Route path="/loja/produto/:id" element={<ProductDetail />} />
-                <Route path="/osmf" element={<OSMF />} />
-                <Route path="/zona-mista" element={<ZonaMista />} />
+                {/* Dynamic routes - respect app_pages.is_public setting */}
+                <Route path="/" element={<DynamicProtectedRoute pageId="home"><Index /></DynamicProtectedRoute>} />
+                <Route path="/terapeutas" element={<DynamicProtectedRoute pageId="terapeutas"><Terapeutas /></DynamicProtectedRoute>} />
+                <Route path="/terapeuta/:id" element={<DynamicProtectedRoute pageId="terapeutas"><ProfessionalProfile /></DynamicProtectedRoute>} />
+                <Route path="/cursos" element={<DynamicProtectedRoute pageId="cursos"><Cursos /></DynamicProtectedRoute>} />
+                <Route path="/curso/:id" element={<DynamicProtectedRoute pageId="cursos"><CursoDetalhe /></DynamicProtectedRoute>} />
+                <Route path="/quiz" element={<DynamicProtectedRoute pageId="quiz"><Quiz /></DynamicProtectedRoute>} />
+                <Route path="/radio" element={<DynamicProtectedRoute pageId="radio"><Radio /></DynamicProtectedRoute>} />
+                <Route path="/futebol" element={<DynamicProtectedRoute pageId="futebol"><Futebol /></DynamicProtectedRoute>} />
+                <Route path="/ranking" element={<DynamicProtectedRoute pageId="ranking"><Ranking /></DynamicProtectedRoute>} />
+                <Route path="/loja" element={<DynamicProtectedRoute pageId="loja"><FanaticaShop /></DynamicProtectedRoute>} />
+                <Route path="/loja/produto/:id" element={<DynamicProtectedRoute pageId="loja"><ProductDetail /></DynamicProtectedRoute>} />
+                <Route path="/osmf" element={<DynamicProtectedRoute pageId="osmf"><OSMF /></DynamicProtectedRoute>} />
+                <Route path="/zona-mista" element={<DynamicProtectedRoute pageId="zona-mista"><ZonaMista /></DynamicProtectedRoute>} />
+                <Route path="/diario" element={<DynamicProtectedRoute pageId="diario"><Diario /></DynamicProtectedRoute>} />
+                <Route path="/perfil" element={<DynamicProtectedRoute pageId="perfil"><Perfil /></DynamicProtectedRoute>} />
+                <Route path="/meus-agendamentos" element={<DynamicProtectedRoute pageId="agendamentos"><MeusAgendamentos /></DynamicProtectedRoute>} />
+                <Route path="/perfil/agendamentos" element={<DynamicProtectedRoute pageId="agendamentos"><MeusAgendamentos /></DynamicProtectedRoute>} />
+                <Route path="/pagamentos" element={<DynamicProtectedRoute pageId="pagamentos"><Pagamentos /></DynamicProtectedRoute>} />
+                <Route path="/perfil/pagamentos" element={<DynamicProtectedRoute pageId="pagamentos"><Pagamentos /></DynamicProtectedRoute>} />
+                <Route path="/configuracoes" element={<DynamicProtectedRoute pageId="configuracoes"><Configuracoes /></DynamicProtectedRoute>} />
+                <Route path="/perfil/notificacoes" element={<DynamicProtectedRoute pageId="notificacoes"><Notificacoes /></DynamicProtectedRoute>} />
+                <Route path="/notificacoes" element={<DynamicProtectedRoute pageId="notificacoes"><Notificacoes /></DynamicProtectedRoute>} />
+                <Route path="/pagamento/:id" element={<DynamicProtectedRoute pageId="terapeutas"><SessionPayment /></DynamicProtectedRoute>} />
+                <Route path="/pagamento/confirmacao/:id" element={<DynamicProtectedRoute pageId="terapeutas"><PaymentConfirmation /></DynamicProtectedRoute>} />
 
-                {/* Protected routes - require login */}
-                <Route path="/pagamento/:id" element={<ProtectedRoute><SessionPayment /></ProtectedRoute>} />
-                <Route path="/pagamento/confirmacao/:id" element={<ProtectedRoute><PaymentConfirmation /></ProtectedRoute>} />
-                <Route path="/diario" element={<ProtectedRoute><Diario /></ProtectedRoute>} />
-                <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
-                <Route path="/meus-agendamentos" element={<ProtectedRoute><MeusAgendamentos /></ProtectedRoute>} />
-                <Route path="/perfil/agendamentos" element={<ProtectedRoute><MeusAgendamentos /></ProtectedRoute>} />
-                <Route path="/pagamentos" element={<ProtectedRoute><Pagamentos /></ProtectedRoute>} />
-                <Route path="/perfil/pagamentos" element={<ProtectedRoute><Pagamentos /></ProtectedRoute>} />
-                <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
-                <Route path="/perfil/notificacoes" element={<ProtectedRoute><Notificacoes /></ProtectedRoute>} />
-                <Route path="/notificacoes" element={<ProtectedRoute><Notificacoes /></ProtectedRoute>} />
-                <Route path="/loja/produto/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
-                <Route path="/loja/produto/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
+                {/* Professional routes - always require login */}
                 <Route path="/profissional" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />
                 <Route path="/fanatica-lab" element={<ProtectedRoute><FanaticaLab /></ProtectedRoute>} />
                 <Route path="/fanatica-lab/notas-clinicas" element={<ProtectedRoute><ClinicalNotes /></ProtectedRoute>} />
@@ -216,6 +195,8 @@ const App = () => {
                 <Route path="/fanatica-lab/modelo-recibo" element={<ProtectedRoute><ReceiptTemplate /></ProtectedRoute>} />
                 <Route path="/psi-house" element={<ProtectedRoute><PsiHouse /></ProtectedRoute>} />
                 <Route path="/conecta" element={<ProtectedRoute><Conecta /></ProtectedRoute>} />
+
+                {/* Admin/Dev routes - always require login */}
                 <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                 <Route path="/developer" element={<ProtectedRoute><ContentManagers /></ProtectedRoute>} />
                 <Route path="/developer/mobile" element={<ProtectedRoute><DeveloperDashboard /></ProtectedRoute>} />
