@@ -875,31 +875,15 @@ const Auth = () => {
           </p>
         </div>
 
-        {/* Mode Selector */}
+        {/* Mode Selector - Professional tab hidden temporarily */}
         <div className="flex gap-2 mb-6">
           <button
             type="button"
             onClick={() => setAuthMode("user")}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
-              authMode === "user"
-                ? "bg-primary text-primary-foreground"
-                : "bg-card border border-border text-muted-foreground hover:border-primary"
-            }`}
+            className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all bg-primary text-primary-foreground"
           >
             <User className="w-5 h-5" />
             Torcedor
-          </button>
-          <button
-            type="button"
-            onClick={() => setAuthMode("professional")}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
-              authMode === "professional"
-                ? "bg-therapy text-therapy-foreground"
-                : "bg-card border border-border text-muted-foreground hover:border-therapy"
-            }`}
-          >
-            <Briefcase className="w-5 h-5" />
-            Profissional
           </button>
         </div>
 
