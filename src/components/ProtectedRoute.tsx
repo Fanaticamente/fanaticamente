@@ -68,7 +68,12 @@ export const DynamicProtectedRoute = ({ children, pageId }: ProtectedRouteProps 
   }
 
   const page = pages?.find((p) => p.page_id === pageId);
-  
+
+  // If page is explicitly hidden, do not allow direct access
+  if (page?.is_visible === false) {
+    return <Navigate to="/" replace />;
+  }
+
   // If page not found in DB or is_public is true, render without protection
   if (!page || page.is_public !== false) {
     return <>{children}</>;
