@@ -381,7 +381,7 @@ const EmotionTacticalBoard = () => {
   };
 
   const handleConfirm = async () => {
-    if (!user || !selectedFormation) return;
+    if (!selectedFormation) return;
     if (Object.keys(assignments).length === 0) {
       toast.error("Escale pelo menos uma emoção!");
       return;
@@ -402,19 +402,31 @@ const EmotionTacticalBoard = () => {
       const analysis = fnError ? null : fnData?.analysis || null;
       setAiAnalysis(analysis);
 
-      const { error: dbError } = await supabase
-        .from("emotional_lineups" as any)
-        .insert({
-          user_id: user.id,
+      if (user) {
+        const { error: dbError } = await supabase
+          .from("emotional_lineups" as any)
+          .insert({
+            user_id: user.id,
+            entry_date: today,
+            formation: selectedFormation.id,
+            lineup,
+            ai_analysis: analysis,
+          } as any);
+
+        if (dbError) throw dbError;
+        queryClient.invalidateQueries({ queryKey: ["emotional-lineup-today"] });
+      } else {
+        // Save to localStorage for anonymous users
+        const anonData = {
           entry_date: today,
           formation: selectedFormation.id,
           lineup,
           ai_analysis: analysis,
-        } as any);
+        };
+        localStorage.setItem(ANON_LINEUP_KEY, JSON.stringify(anonData));
+        setAnonLineup(anonData);
+      }
 
-      if (dbError) throw dbError;
-
-      queryClient.invalidateQueries({ queryKey: ["emotional-lineup-today"] });
       toast.success("Escalação emocional registrada! ⚽🧠");
     } catch (err: any) {
       console.error(err);

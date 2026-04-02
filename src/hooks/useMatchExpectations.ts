@@ -98,8 +98,8 @@ export const useMatchExpectations = (userClubId: string | null) => {
 
   return {
     upcomingMatch,
-    existingExpectation,
+    existingExpectation: existingExpectation || (anonExpExists ? {} as MatchExpectation : null),
     saveExpectation,
-    showMatchCard: !!upcomingMatch && !existingExpectation,
+    showMatchCard: !!upcomingMatch && !existingExpectation && !anonExpExists,
   };
 };
