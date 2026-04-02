@@ -77,14 +77,19 @@ export const useMatchExpectations = (userClubId: string | null) => {
       win_impact?: string;
       loss_impact?: string;
     }) => {
-      const { error } = await supabase
-        .from("match_expectations")
-        .insert({
-          user_id: user!.id,
-          match_id: upcomingMatch!.id,
-          ...data,
-        });
-      if (error) throw error;
+      if (user) {
+        const { error } = await supabase
+          .from("match_expectations")
+          .insert({
+            user_id: user!.id,
+            match_id: upcomingMatch!.id,
+            ...data,
+          });
+        if (error) throw error;
+      } else {
+        // Save to localStorage for anonymous users
+        localStorage.setItem(anonExpKey, JSON.stringify(data));
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["match-expectation"] });
