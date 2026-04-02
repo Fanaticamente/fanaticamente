@@ -48,7 +48,7 @@ export const useMatchExpectations = (userClubId: string | null) => {
     enabled: !!userClubId,
   });
 
-  // Check if user already answered for this match
+  // Check if user already answered for this match (only for logged-in users)
   const { data: existingExpectation } = useQuery({
     queryKey: ["match-expectation", upcomingMatch?.id, user?.id],
     queryFn: async () => {
@@ -63,6 +63,12 @@ export const useMatchExpectations = (userClubId: string | null) => {
     },
     enabled: !!user && !!upcomingMatch,
   });
+
+  // For anonymous users, check localStorage
+  const anonExpKey = `anon-match-expectation-${upcomingMatch?.id}`;
+  const anonExpExists = !user && upcomingMatch ? (() => {
+    try { return !!localStorage.getItem(anonExpKey); } catch { return false; }
+  })() : false;
 
   const saveExpectation = useMutation({
     mutationFn: async (data: {
