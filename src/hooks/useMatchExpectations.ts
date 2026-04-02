@@ -48,7 +48,7 @@ export const useMatchExpectations = (userClubId: string | null) => {
     enabled: !!userClubId,
   });
 
-  // Check if user already answered for this match
+  // Check if user already answered for this match (only for logged-in users)
   const { data: existingExpectation } = useQuery({
     queryKey: ["match-expectation", upcomingMatch?.id, user?.id],
     queryFn: async () => {
@@ -64,6 +64,12 @@ export const useMatchExpectations = (userClubId: string | null) => {
     enabled: !!user && !!upcomingMatch,
   });
 
+  // For anonymous users, check localStorage
+  const anonExpKey = `anon-match-expectation-${upcomingMatch?.id}`;
+  const anonExpExists = !user && upcomingMatch ? (() => {
+    try { return !!localStorage.getItem(anonExpKey); } catch { return false; }
+  })() : false;
+
   const saveExpectation = useMutation({
     mutationFn: async (data: {
       confidence_level: string;
@@ -71,14 +77,19 @@ export const useMatchExpectations = (userClubId: string | null) => {
       win_impact?: string;
       loss_impact?: string;
     }) => {
-      const { error } = await supabase
-        .from("match_expectations")
-        .insert({
-          user_id: user!.id,
-          match_id: upcomingMatch!.id,
-          ...data,
-        });
-      if (error) throw error;
+      if (user) {
+        const { error } = await supabase
+          .from("match_expectations")
+          .insert({
+            user_id: user!.id,
+            match_id: upcomingMatch!.id,
+            ...data,
+          });
+        if (error) throw error;
+      } else {
+        // Save to localStorage for anonymous users
+        localStorage.setItem(anonExpKey, JSON.stringify(data));
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["match-expectation"] });
@@ -87,8 +98,8 @@ export const useMatchExpectations = (userClubId: string | null) => {
 
   return {
     upcomingMatch,
-    existingExpectation,
+    existingExpectation: existingExpectation || (anonExpExists ? {} as MatchExpectation : null),
     saveExpectation,
-    showMatchCard: !!upcomingMatch && !existingExpectation,
+    showMatchCard: !!upcomingMatch && !existingExpectation && !anonExpExists,
   };
 };

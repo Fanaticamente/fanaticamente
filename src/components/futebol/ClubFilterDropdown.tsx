@@ -40,17 +40,12 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
 
   const ClubBadge = ({ club, size = "sm" }: { club: BrazilianClub; size?: "sm" | "md" }) => (
     <div className={cn(
-      "rounded-full bg-white flex items-center justify-center overflow-hidden border border-gray-200",
-      size === "sm" ? "w-8 h-8 p-0.5" : "w-10 h-10 p-1"
+      "rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200",
+      size === "sm" ? "w-8 h-8" : "w-10 h-10"
     )}>
-      <img
-        src={club.badgeUrl}
-        alt={club.name}
-        className="w-full h-full object-contain"
-        onError={(e) => {
-          (e.target as HTMLImageElement).style.display = 'none';
-        }}
-      />
+      <span className="text-[9px] font-bold text-gray-700 text-center leading-tight px-0.5">
+        {club.shortName || club.name.slice(0, 3).toUpperCase()}
+      </span>
     </div>
   );
 
@@ -71,14 +66,7 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
       >
         {selectedClubData ? (
           <>
-            <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center overflow-hidden">
-              <img
-                src={selectedClubData.badgeUrl}
-                alt={selectedClubData.name}
-                className="w-4 h-4 object-contain"
-              />
-            </div>
-            <span className="text-sm font-medium" style={{ color: accentColor || undefined }}>{selectedClubData.shortName}</span>
+            <span className="text-sm font-medium" style={{ color: accentColor || undefined }}>{selectedClubData.shortName || selectedClubData.name}</span>
             <button
               onClick={(e) => {
                 e.stopPropagation();

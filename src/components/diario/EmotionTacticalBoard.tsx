@@ -214,6 +214,8 @@ const splitAnalysis = (text: string) => {
 };
 
 /* ── Component ── */
+const ANON_LINEUP_KEY = "anon-emotional-lineup";
+
 const EmotionTacticalBoard = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -250,7 +252,8 @@ const EmotionTacticalBoard = () => {
   const gender: string = (profile?.gender as string) || "masculino";
   const teamColor = club?.primary_color || "#D4A017";
 
-  const { data: existingLineup, isLoading: loadingExisting } = useQuery({
+  /* For logged-in users: fetch from DB */
+  const { data: existingLineupDB, isLoading: loadingExistingDB } = useQuery({
     queryKey: ["emotional-lineup-today", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -264,6 +267,24 @@ const EmotionTacticalBoard = () => {
     },
     enabled: !!user,
   });
+
+  /* For anonymous users: fetch from localStorage */
+  const [anonLineup, setAnonLineup] = useState<any>(null);
+  useEffect(() => {
+    if (!user) {
+      try {
+        const stored = localStorage.getItem(ANON_LINEUP_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.entry_date === today) setAnonLineup(parsed);
+          else localStorage.removeItem(ANON_LINEUP_KEY);
+        }
+      } catch {}
+    }
+  }, [user, today]);
+
+  const existingLineup = user ? existingLineupDB : anonLineup;
+  const loadingExisting = user ? loadingExistingDB : false;
 
   const [selectedFormation, setSelectedFormation] = useState<Formation | null>(null);
   const [assignments, setAssignments] = useState<Record<string, string>>({});
@@ -360,7 +381,7 @@ const EmotionTacticalBoard = () => {
   };
 
   const handleConfirm = async () => {
-    if (!user || !selectedFormation) return;
+    if (!selectedFormation) return;
     if (Object.keys(assignments).length === 0) {
       toast.error("Escale pelo menos uma emoção!");
       return;
@@ -381,19 +402,31 @@ const EmotionTacticalBoard = () => {
       const analysis = fnError ? null : fnData?.analysis || null;
       setAiAnalysis(analysis);
 
-      const { error: dbError } = await supabase
-        .from("emotional_lineups" as any)
-        .insert({
-          user_id: user.id,
+      if (user) {
+        const { error: dbError } = await supabase
+          .from("emotional_lineups" as any)
+          .insert({
+            user_id: user.id,
+            entry_date: today,
+            formation: selectedFormation.id,
+            lineup,
+            ai_analysis: analysis,
+          } as any);
+
+        if (dbError) throw dbError;
+        queryClient.invalidateQueries({ queryKey: ["emotional-lineup-today"] });
+      } else {
+        // Save to localStorage for anonymous users
+        const anonData = {
           entry_date: today,
           formation: selectedFormation.id,
           lineup,
           ai_analysis: analysis,
-        } as any);
+        };
+        localStorage.setItem(ANON_LINEUP_KEY, JSON.stringify(anonData));
+        setAnonLineup(anonData);
+      }
 
-      if (dbError) throw dbError;
-
-      queryClient.invalidateQueries({ queryKey: ["emotional-lineup-today"] });
       toast.success("Escalação emocional registrada! ⚽🧠");
     } catch (err: any) {
       console.error(err);
