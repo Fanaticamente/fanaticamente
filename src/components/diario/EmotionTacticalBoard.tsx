@@ -214,6 +214,8 @@ const splitAnalysis = (text: string) => {
 };
 
 /* ── Component ── */
+const ANON_LINEUP_KEY = "anon-emotional-lineup";
+
 const EmotionTacticalBoard = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -250,7 +252,8 @@ const EmotionTacticalBoard = () => {
   const gender: string = (profile?.gender as string) || "masculino";
   const teamColor = club?.primary_color || "#D4A017";
 
-  const { data: existingLineup, isLoading: loadingExisting } = useQuery({
+  /* For logged-in users: fetch from DB */
+  const { data: existingLineupDB, isLoading: loadingExistingDB } = useQuery({
     queryKey: ["emotional-lineup-today", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -264,6 +267,24 @@ const EmotionTacticalBoard = () => {
     },
     enabled: !!user,
   });
+
+  /* For anonymous users: fetch from localStorage */
+  const [anonLineup, setAnonLineup] = useState<any>(null);
+  useEffect(() => {
+    if (!user) {
+      try {
+        const stored = localStorage.getItem(ANON_LINEUP_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.entry_date === today) setAnonLineup(parsed);
+          else localStorage.removeItem(ANON_LINEUP_KEY);
+        }
+      } catch {}
+    }
+  }, [user, today]);
+
+  const existingLineup = user ? existingLineupDB : anonLineup;
+  const loadingExisting = user ? loadingExistingDB : false;
 
   const [selectedFormation, setSelectedFormation] = useState<Formation | null>(null);
   const [assignments, setAssignments] = useState<Record<string, string>>({});
