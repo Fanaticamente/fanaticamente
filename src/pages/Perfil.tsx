@@ -244,13 +244,6 @@ const Perfil = () => {
         <div className="flex items-center gap-4">
           {favoriteClub ? (
             <>
-              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden p-2">
-                <img 
-                  src={favoriteClub.badgeUrl} 
-                  alt={`Escudo ${favoriteClub.name}`}
-                  className="w-full h-full object-contain"
-                />
-              </div>
               <div>
                 <p className="text-card-foreground font-bold text-lg">{favoriteClub.name}</p>
                 <p className="text-muted-foreground text-sm">
