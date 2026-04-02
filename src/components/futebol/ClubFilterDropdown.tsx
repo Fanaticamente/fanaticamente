@@ -66,14 +66,7 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
       >
         {selectedClubData ? (
           <>
-            <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center overflow-hidden">
-              <img
-                src={selectedClubData.badgeUrl}
-                alt={selectedClubData.name}
-                className="w-4 h-4 object-contain"
-              />
-            </div>
-            <span className="text-sm font-medium" style={{ color: accentColor || undefined }}>{selectedClubData.shortName}</span>
+            <span className="text-sm font-medium" style={{ color: accentColor || undefined }}>{selectedClubData.shortName || selectedClubData.name}</span>
             <button
               onClick={(e) => {
                 e.stopPropagation();
