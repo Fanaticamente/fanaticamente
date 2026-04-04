@@ -847,7 +847,7 @@ const Auth = () => {
                 </button>
               </div>
 
-              <button
+          <button
                 type="button"
                 onClick={() => navigate("/")}
                 className="w-full mt-4 py-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
@@ -856,6 +856,20 @@ const Auth = () => {
                 <span className="text-sm">Voltar</span>
               </button>
             </div>
+
+            {authMode === "user" && (
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode("professional");
+                  setIsLogin(true);
+                  setErrors({});
+                }}
+                className="mt-6 text-sm text-therapy underline hover:text-therapy/80 transition-colors"
+              >
+                Área do(a) profissional parceiro(a)
+              </button>
+            )}
           </div>
         </div>
       </div>
