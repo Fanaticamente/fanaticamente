@@ -16,18 +16,6 @@ const DesktopFooter = () => {
               className="h-12"
             />
           </a>
-          <a 
-            href="https://play.google.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="transition-transform hover:scale-105"
-          >
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" 
-              alt="Get it on Google Play" 
-              className="h-12"
-            />
-          </a>
         </div>
 
         {/* Copyright */}
