@@ -1338,17 +1338,19 @@ const Auth = () => {
         </div>
 
         {authMode === "user" && (
-          <button
-            type="button"
-            onClick={() => {
-              setAuthMode("professional");
-              setIsLogin(true);
-              setErrors({});
-            }}
-            className="mt-6 text-sm text-therapy underline hover:text-therapy/80 transition-colors text-center"
-          >
-            Área do(a) profissional parceiro(a)
-          </button>
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode("professional");
+                setIsLogin(true);
+                setErrors({});
+              }}
+              className="text-sm text-primary underline hover:text-primary/80 transition-colors"
+            >
+              Área do(a) profissional parceiro(a)
+            </button>
+          </div>
         )}
       </div>
     </div>
