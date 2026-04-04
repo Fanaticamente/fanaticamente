@@ -1,0 +1,1 @@
+UPDATE app_pages SET is_visible = true WHERE page_id = 'terapeutas';
