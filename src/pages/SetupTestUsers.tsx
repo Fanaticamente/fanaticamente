@@ -182,8 +182,8 @@ const SetupTestUsers = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <p className="text-card-foreground font-medium">{user.fullName}</p>
-                      <span className={`px-2 py-0.5 text-xs font-bold rounded-full border ${getRoleColor(user.role)}`}>
-                        {getRoleLabel(user.role)}
+                      <span className={`px-2 py-0.5 text-xs font-bold rounded-full border ${getRoleColor(user.role, user.email)}`}>
+                        {getRoleLabel(user.role, user.email)}
                       </span>
                     </div>
                     <p className="text-muted-foreground text-sm">
