@@ -133,7 +133,8 @@ const SetupTestUsers = () => {
     }
   };
 
-  const getRoleLabel = (role: string) => {
+  const getRoleLabel = (role: string, email?: string) => {
+    if (email === "universal@teste.com") return "Universal";
     switch (role) {
       case "admin": return "Administrador";
       case "developer": return "Desenvolvedor";
