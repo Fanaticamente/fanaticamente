@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, FlaskConical, Building2, Users, LogOut, ChevronRight } from "lucide-react";
+import { Home, CalendarCheck, CreditCard, UserCircle, LogOut, ChevronRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,9 +15,9 @@ interface ProfessionalDesktopLayoutProps {
 
 const navItems = [
   { icon: Home, label: "Início", path: "/profissional" },
-  { icon: FlaskConical, label: "FanaticaLab", path: "/fanatica-lab" },
-  { icon: Building2, label: "Psi House", path: "/psi-house" },
-  { icon: Users, label: "Conecta", path: "/conecta" },
+  { icon: CalendarCheck, label: "Agendamentos", path: "/meus-agendamentos" },
+  { icon: CreditCard, label: "Assinatura", path: "/psi-house" },
+  { icon: UserCircle, label: "Perfil", path: "/perfil-profissional" },
 ];
 
 const ProfessionalDesktopLayout = ({ children, title, subtitle }: ProfessionalDesktopLayoutProps) => {
