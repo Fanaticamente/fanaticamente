@@ -66,8 +66,26 @@ const SetupTestUsers = () => {
     } catch (error: any) {
       console.error(error);
       if (error.message?.includes("already registered")) {
+        // User exists - if universal, try to set up via edge function by logging in first
+        const isUniversal = user.email === "universal@teste.com";
+        if (isUniversal) {
+          try {
+            const { data: loginData } = await supabase.auth.signInWithPassword({
+              email: user.email,
+              password: user.password,
+            });
+            if (loginData.user) {
+              const { error: setupError } = await supabase.functions.invoke("setup-test-user", {
+                body: { user_id: loginData.user.id },
+              });
+              if (setupError) console.error("Setup error:", setupError);
+            }
+          } catch (e) {
+            console.error("Login for setup failed:", e);
+          }
+        }
         setUsers(prev => prev.map((u, i) => i === index ? { ...u, created: true, loading: false } : u));
-        toast.info(`${user.email} já existe`);
+        toast.info(`${user.email} já existe${user.email === "universal@teste.com" ? " - dados atualizados" : ""}`);
       } else {
         toast.error(`Erro ao criar ${user.email}: ${error.message}`);
         setUsers(prev => prev.map((u, i) => i === index ? { ...u, loading: false } : u));
