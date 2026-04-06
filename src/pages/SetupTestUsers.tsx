@@ -123,7 +123,8 @@ const SetupTestUsers = () => {
     toast.success("Todos os usuários de teste foram criados!");
   };
 
-  const getRoleColor = (role: string) => {
+  const getRoleColor = (role: string, email?: string) => {
+    if (email === "universal@teste.com") return "bg-purple-500/20 text-purple-400 border-purple-500/30";
     switch (role) {
       case "admin": return "bg-destructive/20 text-destructive border-destructive/30";
       case "developer": return "bg-secondary/20 text-secondary border-secondary/30";
