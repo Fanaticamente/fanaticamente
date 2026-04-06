@@ -1,11 +1,11 @@
-import { Home, FlaskConical, Building2, Users } from "lucide-react";
+import { Home, CalendarCheck, CreditCard, UserCircle } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const navItems = [
   { icon: Home, label: "Início", path: "/profissional" },
-  { icon: FlaskConical, label: "FanaticaLab", path: "/fanatica-lab" },
-  { icon: Building2, label: "Psi House", path: "/psi-house" },
-  { icon: Users, label: "Conecta", path: "/conecta" },
+  { icon: CalendarCheck, label: "Agendamentos", path: "/meus-agendamentos" },
+  { icon: CreditCard, label: "Assinatura", path: "/psi-house" },
+  { icon: UserCircle, label: "Perfil", path: "/perfil-profissional" },
 ];
 
 const ProfessionalBottomNav = () => {
