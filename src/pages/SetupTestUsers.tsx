@@ -43,15 +43,53 @@ const SetupTestUsers = () => {
       if (error) throw error;
 
       if (data.user) {
-        // Add additional role if not just 'user'
-        if (user.role !== "user") {
+        const isUniversal = user.email === "universal@teste.com";
+
+        // Add professional role for universal user
+        if (isUniversal) {
+          const { error: roleError } = await supabase
+            .from("user_roles")
+            .insert({ user_id: data.user.id, role: "professional" });
+          if (roleError) console.error("Role error:", roleError);
+
+          // Create professional record with full approval
+          const { error: profError } = await supabase
+            .from("professionals")
+            .insert({
+              user_id: data.user.id,
+              crp: "00/99999",
+              degree: "Psicologia",
+              bio: "Usuário universal de teste com acesso completo.",
+              location: "São Paulo, SP",
+              specialties: ["Psicologia do Esporte", "Terapia Cognitivo-Comportamental"],
+              experience_years: 5,
+              hourly_rate: 150,
+              is_verified: true,
+              is_active: true,
+              approval_status: "approved",
+              socio_consciente: true,
+              subscription_type: "yearly",
+              subscription_expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+            });
+          if (profError) console.error("Professional creation error:", profError);
+
+          // Create membership for full access
+          const { error: memberError } = await supabase
+            .from("user_memberships")
+            .insert({
+              user_id: data.user.id,
+              status: "active",
+              starts_at: new Date().toISOString(),
+              expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+            });
+          if (memberError) console.error("Membership error:", memberError);
+
+        } else if (user.role !== "user") {
+          // Add additional role if not just 'user'
           const { error: roleError } = await supabase
             .from("user_roles")
             .insert({ user_id: data.user.id, role: user.role });
-          
-          if (roleError) {
-            console.error("Role error:", roleError);
-          }
+          if (roleError) console.error("Role error:", roleError);
         }
 
         setUsers(prev => prev.map((u, i) => i === index ? { ...u, created: true, loading: false } : u));
