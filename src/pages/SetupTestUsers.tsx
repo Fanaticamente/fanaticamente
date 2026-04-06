@@ -14,6 +14,7 @@ interface TestUser {
 
 const SetupTestUsers = () => {
   const [users, setUsers] = useState<TestUser[]>([
+    { email: "universal@teste.com", password: "123456", fullName: "Usuário Universal", role: "user", created: false, loading: false },
     { email: "user@teste.com", password: "123456", fullName: "Torcedor Teste", role: "user", created: false, loading: false },
     { email: "profissional@teste.com", password: "123456", fullName: "Dr. Psicólogo Teste", role: "professional", created: false, loading: false },
     { email: "dev@teste.com", password: "123456", fullName: "Desenvolvedor Teste", role: "developer", created: false, loading: false },
