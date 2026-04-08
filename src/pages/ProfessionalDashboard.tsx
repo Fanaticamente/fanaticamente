@@ -111,6 +111,16 @@ const ProfessionalDashboard = () => {
 
   const [hasSyncedSubscription, setHasSyncedSubscription] = useState(false);
 
+  // Read tab from URL query params (e.g. /profissional?tab=agenda)
+  useEffect(() => {
+    const tabParam = searchParams.get("tab") as DashboardTab | null;
+    if (tabParam && ["agenda", "disponibilidade", "metricas", "perfil", "assinatura"].includes(tabParam)) {
+      setActiveTab(tabParam);
+      // Clear the param so it doesn't interfere with other logic
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
   // Check for checkout success and verify subscription
   useEffect(() => {
     const checkoutStatus = searchParams.get("checkout");
