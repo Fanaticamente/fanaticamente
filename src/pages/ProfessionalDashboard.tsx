@@ -707,7 +707,7 @@ const ProfessionalDashboard = () => {
   const dashboardContent = (
     <>
       {/* Full dashboard chrome - only when NOT in focused mode */}
-      {!focusedTab && (
+      {!isFocusedMode && (
         <>
           {/* Admin Messages Alert */}
           {professional && (
