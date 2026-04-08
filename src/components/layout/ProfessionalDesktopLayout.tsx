@@ -93,7 +93,7 @@ const ProfessionalDesktopLayout = ({ children, title, subtitle }: ProfessionalDe
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {navItems.map((item) => {
               const IconComponent = item.icon;
-              const active = isActive(item.path);
+              const active = isActive(item);
               
               return (
                 <button
