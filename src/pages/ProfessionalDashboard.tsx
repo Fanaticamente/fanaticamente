@@ -707,132 +707,135 @@ const ProfessionalDashboard = () => {
   // Main dashboard content (shared between mobile and desktop)
   const dashboardContent = (
     <>
-      {/* Admin Messages Alert */}
-      {professional && (
-        <AdminMessagesAlert professionalId={professional.id} />
-      )}
+      {/* Full dashboard chrome - only when NOT in focused mode */}
+      {!focusedTab && (
+        <>
+          {/* Admin Messages Alert */}
+          {professional && (
+            <AdminMessagesAlert professionalId={professional.id} />
+          )}
 
-      {/* AI Secretary Chat */}
-      {professional && professional.is_active && activeTab === "agenda" && (
-        <AISecretaryChat professionalId={professional.id} />
-      )}
-        {/* Approval Status Banner - hide on assinatura tab when pending_approval (shown inside SubscriptionManager) */}
-        {professional && !(activeTab === 'assinatura' && professional.approval_status === 'pending_approval') && (
-          <ApprovalPendingBanner
-            approvalStatus={professional.approval_status}
-            rejectionReason={professional.rejection_reason}
-            onResubmit={async () => {
-              try {
-                // Update approval status
-                const { error } = await supabase
-                  .from('professionals')
-                  .update({ approval_status: 'pending_approval', rejection_reason: null })
-                  .eq('id', professional.id);
-                
-                if (error) throw error;
+          {/* AI Secretary Chat */}
+          {professional && professional.is_active && activeTab === "agenda" && (
+            <AISecretaryChat professionalId={professional.id} />
+          )}
+          {/* Approval Status Banner - hide on assinatura tab when pending_approval (shown inside SubscriptionManager) */}
+          {professional && !(activeTab === 'assinatura' && professional.approval_status === 'pending_approval') && (
+            <ApprovalPendingBanner
+              approvalStatus={professional.approval_status}
+              rejectionReason={professional.rejection_reason}
+              onResubmit={async () => {
+                try {
+                  const { error } = await supabase
+                    .from('professionals')
+                    .update({ approval_status: 'pending_approval', rejection_reason: null })
+                    .eq('id', professional.id);
+                  
+                  if (error) throw error;
 
-                // Mark all admin messages as read (correction messages disappear)
-                await supabase
-                  .from('admin_messages')
-                  .update({ is_read: true })
-                  .eq('professional_id', professional.id);
+                  await supabase
+                    .from('admin_messages')
+                    .update({ is_read: true })
+                    .eq('professional_id', professional.id);
 
-                toast.success("Perfil reenviado para análise!");
-                fetchProfessionalData();
-              } catch (error) {
-                console.error("Error resubmitting:", error);
-                toast.error("Erro ao reenviar perfil");
-              }
-            }}
-          />
-        )}
-
-        {/* Tabs - Order changes based on approval status */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 pt-2 -mt-2">
-          {(isMarketplaceActive ? [
-            { id: "agenda", label: "Agendamentos", locked: false, hasNotification: hasNewAppointments },
-            { id: "disponibilidade", label: "Disponibilidade", locked: false },
-            { id: "metricas", label: "Métricas", locked: false },
-            { id: "perfil", label: "Meu Perfil", locked: false },
-            { id: "assinatura", label: "Assinatura", locked: false },
-          ] : [
-            { id: "perfil", label: "Meu Perfil", locked: false },
-            { id: "assinatura", label: "Assinatura", locked: false },
-            { id: "agenda", label: "Agendamentos", locked: true },
-            { id: "disponibilidade", label: "Disponibilidade", locked: true },
-            { id: "metricas", label: "Métricas", locked: true },
-          ]).map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                if (tab.locked) {
-                  toast.info("Complete sua assinatura para acessar esta funcionalidade");
-                  return;
+                  toast.success("Perfil reenviado para análise!");
+                  fetchProfessionalData();
+                } catch (error) {
+                  console.error("Error resubmitting:", error);
+                  toast.error("Erro ao reenviar perfil");
                 }
-                handleTabChange(tab.id as DashboardTab);
               }}
-              className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 relative overflow-visible ${
-                activeTab === tab.id
-                  ? "bg-therapy text-therapy-foreground"
-                  : tab.locked 
-                    ? "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              {tab.label}
-              {tab.locked && <Lock className="w-3.5 h-3.5 text-muted-foreground/40" />}
-              {'hasNotification' in tab && tab.hasNotification && (
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
-              )}
-            </button>
-          ))}
-        </div>
+            />
+          )}
 
-        {/* Onboarding Progress (only shown before subscription) */}
-        {!hasSubscription && (
-          <div className="bg-card border border-border rounded-2xl p-4 mb-6">
-            <div className="flex items-center justify-center gap-2">
+          {/* Tabs - Order changes based on approval status */}
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 pt-2 -mt-2">
+            {(isMarketplaceActive ? [
+              { id: "agenda", label: "Agendamentos", locked: false, hasNotification: hasNewAppointments },
+              { id: "disponibilidade", label: "Disponibilidade", locked: false },
+              { id: "metricas", label: "Métricas", locked: false },
+              { id: "perfil", label: "Meu Perfil", locked: false },
+              { id: "assinatura", label: "Assinatura", locked: false },
+            ] : [
+              { id: "perfil", label: "Meu Perfil", locked: false },
+              { id: "assinatura", label: "Assinatura", locked: false },
+              { id: "agenda", label: "Agendamentos", locked: true },
+              { id: "disponibilidade", label: "Disponibilidade", locked: true },
+              { id: "metricas", label: "Métricas", locked: true },
+            ]).map((tab) => (
               <button
-                onClick={() => setActiveTab("perfil")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
-                  isProfileComplete ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                key={tab.id}
+                onClick={() => {
+                  if (tab.locked) {
+                    toast.info("Complete sua assinatura para acessar esta funcionalidade");
+                    return;
+                  }
+                  handleTabChange(tab.id as DashboardTab);
+                }}
+                className={`px-4 py-2 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-2 relative overflow-visible ${
+                  activeTab === tab.id
+                    ? "bg-therapy text-therapy-foreground"
+                    : tab.locked 
+                      ? "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
                 }`}
               >
-                <span className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-sm font-bold">
-                  {isProfileComplete ? <CheckCircle className="w-4 h-4" /> : "1"}
-                </span>
-                <span className="text-sm font-medium hidden sm:inline">Completar Perfil</span>
+                {tab.label}
+                {tab.locked && <Lock className="w-3.5 h-3.5 text-muted-foreground/40" />}
+                {'hasNotification' in tab && tab.hasNotification && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+                )}
               </button>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              <button
-                onClick={() => setActiveTab("assinatura")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
-                  hasSubscription ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-              >
-                <span className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-sm font-bold">
-                  {hasSubscription ? <CheckCircle className="w-4 h-4" /> : "2"}
-                </span>
-                <span className="text-sm font-medium hidden sm:inline">Assinar Plano</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Stats (only shown when approved/active AND on agenda tab) */}
-        {isMarketplaceActive && activeTab === "agenda" && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                  <span className="text-muted-foreground text-sm">{stat.label}</span>
-                </div>
-                <p className="font-display text-3xl text-card-foreground">{stat.value}</p>
-              </div>
             ))}
           </div>
-        )}
+
+          {/* Onboarding Progress (only shown before subscription) */}
+          {!hasSubscription && (
+            <div className="bg-card border border-border rounded-2xl p-4 mb-6">
+              <div className="flex items-center justify-center gap-2">
+                <button
+                  onClick={() => setActiveTab("perfil")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
+                    isProfileComplete ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  <span className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-sm font-bold">
+                    {isProfileComplete ? <CheckCircle className="w-4 h-4" /> : "1"}
+                  </span>
+                  <span className="text-sm font-medium hidden sm:inline">Completar Perfil</span>
+                </button>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                <button
+                  onClick={() => setActiveTab("assinatura")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
+                    hasSubscription ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  <span className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-sm font-bold">
+                    {hasSubscription ? <CheckCircle className="w-4 h-4" /> : "2"}
+                  </span>
+                  <span className="text-sm font-medium hidden sm:inline">Assinar Plano</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Stats (only shown when approved/active AND on agenda tab) */}
+          {isMarketplaceActive && activeTab === "agenda" && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              {stats.map((stat) => (
+                <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                    <span className="text-muted-foreground text-sm">{stat.label}</span>
+                  </div>
+                  <p className="font-display text-3xl text-card-foreground">{stat.value}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
 
         {/* Perfil Tab */}
         {activeTab === "perfil" && professional && (
