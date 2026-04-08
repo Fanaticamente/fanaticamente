@@ -116,12 +116,17 @@ const ProfessionalDashboard = () => {
   // When coming from bottom nav, show focused view (no dashboard tabs/stats)
   useEffect(() => {
     const tabParam = searchParams.get("tab") as DashboardTab | null;
+    const checkoutParam = searchParams.get("checkout");
+    
     if (tabParam && ["agenda", "disponibilidade", "metricas", "perfil", "assinatura"].includes(tabParam)) {
       setActiveTab(tabParam);
       setFocusedTab(tabParam);
       setSearchParams({}, { replace: true });
+    } else if (!tabParam && !checkoutParam && focusedTab) {
+      // Navigated to /profissional without tab param — exit focused mode
+      setFocusedTab(null);
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, focusedTab]);
 
   // Check for checkout success and verify subscription
   useEffect(() => {
