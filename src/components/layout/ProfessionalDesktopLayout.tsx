@@ -14,10 +14,10 @@ interface ProfessionalDesktopLayoutProps {
 }
 
 const navItems = [
-  { icon: Home, label: "Início", path: "/profissional" },
-  { icon: CalendarCheck, label: "Agendamentos", path: "/meus-agendamentos" },
-  { icon: CreditCard, label: "Assinatura", path: "/psi-house" },
-  { icon: UserCircle, label: "Perfil", path: "/perfil-profissional" },
+  { icon: Home, label: "Início", path: "/profissional", tab: null },
+  { icon: CalendarCheck, label: "Agendamentos", path: "/profissional?tab=agenda", tab: "agenda" },
+  { icon: CreditCard, label: "Assinatura", path: "/profissional?tab=assinatura", tab: "assinatura" },
+  { icon: UserCircle, label: "Perfil", path: "/profissional?tab=perfil", tab: "perfil" },
 ];
 
 const ProfessionalDesktopLayout = ({ children, title, subtitle }: ProfessionalDesktopLayoutProps) => {
@@ -44,11 +44,11 @@ const ProfessionalDesktopLayout = ({ children, title, subtitle }: ProfessionalDe
     navigate("/");
   };
 
-  const isActive = (path: string) => {
-    if (path === "/profissional") {
-      return location.pathname === path;
-    }
-    return location.pathname.startsWith(path);
+  const isActive = (item: typeof navItems[0]) => {
+    if (location.pathname !== "/profissional") return false;
+    const currentTab = new URLSearchParams(location.search).get("tab");
+    if (item.tab === null) return !currentTab;
+    return currentTab === item.tab;
   };
 
   const getInitials = (name: string | null) => {
@@ -93,7 +93,7 @@ const ProfessionalDesktopLayout = ({ children, title, subtitle }: ProfessionalDe
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {navItems.map((item) => {
               const IconComponent = item.icon;
-              const active = isActive(item.path);
+              const active = isActive(item);
               
               return (
                 <button
