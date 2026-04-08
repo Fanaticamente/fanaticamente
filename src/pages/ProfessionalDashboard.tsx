@@ -98,6 +98,7 @@ const ProfessionalDashboard = () => {
   
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("status");
   const [activeTab, setActiveTab] = useState<DashboardTab | null>(null);
+  const [focusedTab, setFocusedTab] = useState<DashboardTab | null>(null);
   const [appointmentFilter, setAppointmentFilter] = useState<AppointmentFilter>("proximos");
   const [hasNewAppointments, setHasNewAppointments] = useState(false);
   const [lastSeenAppointmentCount, setLastSeenAppointmentCount] = useState<number | null>(null);
