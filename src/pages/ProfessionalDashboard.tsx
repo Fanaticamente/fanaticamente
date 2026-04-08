@@ -113,11 +113,12 @@ const ProfessionalDashboard = () => {
   const [hasSyncedSubscription, setHasSyncedSubscription] = useState(false);
 
   // Read tab from URL query params (e.g. /profissional?tab=agenda)
+  // When coming from bottom nav, show focused view (no dashboard tabs/stats)
   useEffect(() => {
     const tabParam = searchParams.get("tab") as DashboardTab | null;
     if (tabParam && ["agenda", "disponibilidade", "metricas", "perfil", "assinatura"].includes(tabParam)) {
       setActiveTab(tabParam);
-      // Clear the param so it doesn't interfere with other logic
+      setFocusedTab(tabParam);
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
