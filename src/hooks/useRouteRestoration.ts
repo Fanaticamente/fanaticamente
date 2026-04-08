@@ -15,7 +15,7 @@ const INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutos
 let restoredThisRuntime = false;
 
 // Rotas públicas que não devem participar da restauração
-const PUBLIC_ROUTES = ["/auth", "/admin-access", "/setup-test"];
+const PUBLIC_ROUTES = ["/auth", "/admin-access", "/setup-test", "/politica-privacidade"];
 
 // Rotas que devem ser excluídas da restauração automática (navegação explícita)
 const EXCLUDED_FROM_RESTORE = [
