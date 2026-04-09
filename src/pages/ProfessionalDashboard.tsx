@@ -97,7 +97,7 @@ const ProfessionalDashboard = () => {
   const [setupError, setSetupError] = useState(false);
   
   const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>("status");
-  const [activeTab, setActiveTab] = useState<DashboardTab | null>(null);
+  const [homeTab, setHomeTab] = useState<DashboardTab | null>(null);
   const [appointmentFilter, setAppointmentFilter] = useState<AppointmentFilter>("proximos");
   const [hasNewAppointments, setHasNewAppointments] = useState(false);
   const [lastSeenAppointmentCount, setLastSeenAppointmentCount] = useState<number | null>(null);
@@ -115,20 +115,20 @@ const ProfessionalDashboard = () => {
   // Focused routes render only the selected section; the home route always opens the dashboard start view.
   const tabParam = searchParams.get("tab") as DashboardTab | null;
   const isFocusedMode = tabParam !== null && ["agenda", "disponibilidade", "metricas", "perfil", "assinatura"].includes(tabParam);
+  const activeTab = isFocusedMode && tabParam ? tabParam : homeTab;
 
   useLayoutEffect(() => {
-    if (isFocusedMode && tabParam) {
-      setActiveTab(tabParam);
+    if (isFocusedMode) {
       return;
     }
 
     if (!professional) {
-      setActiveTab(null);
+      setHomeTab(null);
       return;
     }
 
-    setActiveTab(professional.is_active ? "agenda" : "perfil");
-  }, [tabParam, isFocusedMode, professional?.id, professional?.is_active]);
+    setHomeTab(professional.is_active ? "agenda" : "perfil");
+  }, [isFocusedMode, professional?.id, professional?.is_active]);
 
   // Check for checkout success and verify subscription
   useEffect(() => {
@@ -359,7 +359,7 @@ const ProfessionalDashboard = () => {
 
   // Persist dashboard UI state so that returning to the app resumes exactly where the user was.
   useEffect(() => {
-    if (!professional || activeTab === null) return;
+    if (!professional || homeTab === null || isFocusedMode) return;
 
     const uiStateKey = `professional_dashboard_ui_${professional.id}`;
 
@@ -367,7 +367,7 @@ const ProfessionalDashboard = () => {
       localStorage.setItem(
         uiStateKey,
         JSON.stringify({
-          activeTab,
+          activeTab: homeTab,
           appointmentFilter,
           isEditingProfile,
           savedAt: new Date().toISOString(),
@@ -376,7 +376,7 @@ const ProfessionalDashboard = () => {
     } catch {
       // ignore
     }
-  }, [professional, activeTab, appointmentFilter, isEditingProfile]);
+  }, [professional, homeTab, isFocusedMode, appointmentFilter, isEditingProfile]);
 
   // Fetch appointments when professional is loaded and approved/active
   useEffect(() => {
@@ -564,7 +564,7 @@ const ProfessionalDashboard = () => {
 
   // Clear new appointments badge when visiting the agenda tab
   const handleTabChange = (tabId: DashboardTab) => {
-    setActiveTab(tabId);
+    setHomeTab(tabId);
     if (tabId === "agenda" && professional) {
       setHasNewAppointments(false);
       // Save current timestamp as last seen time
@@ -787,7 +787,7 @@ const ProfessionalDashboard = () => {
             <div className="bg-card border border-border rounded-2xl p-4 mb-6">
               <div className="flex items-center justify-center gap-2">
                 <button
-                  onClick={() => setActiveTab("perfil")}
+                  onClick={() => setHomeTab("perfil")}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
                     isProfileComplete ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
@@ -799,7 +799,7 @@ const ProfessionalDashboard = () => {
                 </button>
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 <button
-                  onClick={() => setActiveTab("assinatura")}
+                  onClick={() => setHomeTab("assinatura")}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
                     hasSubscription ? "bg-therapy/20 text-therapy" : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
