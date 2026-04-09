@@ -116,7 +116,7 @@ const ProfessionalDashboard = () => {
   const tabParam = searchParams.get("tab") as DashboardTab | null;
   const isFocusedMode = tabParam !== null && ["agenda", "disponibilidade", "metricas", "perfil", "assinatura"].includes(tabParam);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isFocusedMode && tabParam) {
       setActiveTab(tabParam);
       return;
