@@ -119,6 +119,8 @@ const ProfessionalDashboard = () => {
   useEffect(() => {
     if (isFocusedMode && tabParam) {
       setActiveTab(tabParam);
+    } else if (!isFocusedMode) {
+      setActiveTab(null);
     }
   }, [tabParam, isFocusedMode]);
 
