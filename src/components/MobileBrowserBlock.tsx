@@ -17,7 +17,7 @@ const useMobileBrowserBlockSetting = () => {
         console.error("Error fetching mobile block setting:", error);
       }
 
-      return data?.value !== "false";
+      return data?.value === "true";
     },
     staleTime: 1000 * 60 * 2,
   });
@@ -63,9 +63,9 @@ const MobileBrowserBlock = ({ children }: { children: React.ReactNode }) => {
     return <>{children}</>;
   }
 
-  // On mobile browser, show nothing while loading the setting
+  // While loading, keep the app visible to avoid trapping preview behind an overlay
   if (isLoading) {
-    return <div className="fixed inset-0 z-[9999] bg-[#0a0a0a]" />;
+    return <>{children}</>;
   }
 
   // Setting loaded and not blocked — show children
