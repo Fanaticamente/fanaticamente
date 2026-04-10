@@ -1,6 +1,6 @@
 import * as React from "react";
 
-const MOBILE_BREAKPOINT = 768;
+const MOBILE_BREAKPOINT = 1024;
 
 // Detect if the device is a touch/mobile device (persists across orientation changes)
 const isTouchDevice = () => {

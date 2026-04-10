@@ -28,7 +28,7 @@ const Index = () => {
   return (
     <>
       {/* Mobile Layout */}
-      <div data-layout="mobile" className="min-h-screen bg-background md:hidden">
+      <div data-layout="mobile" className="min-h-screen bg-background lg:hidden">
         <Header />
         <main className="pt-14">
           <HeroCarousel />
@@ -44,7 +44,7 @@ const Index = () => {
       </div>
 
       {/* Desktop Layout - Fanaticamente.com style */}
-      <div data-layout="desktop" className="hidden min-h-screen bg-[#0a0a0a] md:block">
+      <div data-layout="desktop" className="hidden min-h-screen bg-[#0a0a0a] lg:block">
         <DesktopHeader />
         <main className="pt-[72px]">
           <DesktopHero />
