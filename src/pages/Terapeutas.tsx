@@ -311,11 +311,11 @@ const Terapeutas = () => {
               </div>
             ) : therapists.length === 0 ? (
               <div className="text-center py-12 bg-card border border-border rounded-2xl">
-                <p className="text-muted-foreground text-lg mb-2">
-                  Nenhum terapeuta disponível ainda
+                <p className="text-muted-foreground text-lg mb-2 font-semibold">
+                  🚀 Vagas abertas para o {selectedClub.name}!
                 </p>
-                <p className="text-muted-foreground text-sm">
-                  Em breve teremos profissionais para a torcida do {selectedClub.name}
+                <p className="text-muted-foreground text-sm px-4">
+                  Conhece um profissional de psicologia que torce para o {selectedClub.name}? Indique e compartilhe com profissionais!
                 </p>
               </div>
             ) : (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { User, Settings, LogOut, CreditCard, Calendar, BookOpen, ChevronRight, Bell, Briefcase, Shield, Code } from "lucide-react";
+import { User, LogOut, CreditCard, Calendar, BookOpen, ChevronRight, Bell, Briefcase, Shield, Code, Camera } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
@@ -107,13 +107,6 @@ const Perfil = () => {
       path: "/perfil/notificacoes",
       badge: unreadNotifications > 0 ? unreadNotifications.toString() : null,
     },
-    {
-      icon: Settings,
-      label: "Configurações",
-      description: "Preferências da conta",
-      path: "/perfil/configuracoes",
-      badge: null,
-    },
   ];
 
   // Role-based menu items
@@ -161,26 +154,26 @@ const Perfil = () => {
       {/* Profile Header */}
       <div className="bg-card border border-border rounded-2xl p-6 mb-6">
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden relative group">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover object-top" />
             ) : (
               <User className="w-10 h-10 text-primary" />
             )}
+            <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-full">
+              <Camera className="w-5 h-5 text-white" />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
+            </label>
           </div>
           <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <h1 className="font-display text-2xl text-card-foreground">
-                {profile?.full_name || "Torcedor Fanático"}
-              </h1>
-              <AccountSettingsDialog 
-                trigger={
-                  <button className="p-2 hover:bg-muted rounded-lg transition-colors">
-                    <Settings className="w-5 h-5 text-muted-foreground" />
-                  </button>
-                }
-              />
-            </div>
+            <h1 className="font-display text-2xl text-card-foreground">
+              {profile?.full_name || "Torcedor Fanático"}
+            </h1>
             <p className="text-muted-foreground text-sm">
               {user?.email}
             </p>
@@ -208,9 +201,13 @@ const Perfil = () => {
           </div>
         </div>
 
-        <button className="w-full py-3 border border-border rounded-xl text-card-foreground font-medium hover:border-primary transition-colors">
-          Editar Perfil
-        </button>
+        <AccountSettingsDialog 
+          trigger={
+            <button className="w-full py-3 border border-border rounded-xl text-card-foreground font-medium hover:border-primary transition-colors">
+              Editar Perfil
+            </button>
+          }
+        />
       </div>
 
       {/* Role-specific Menu Items */}
