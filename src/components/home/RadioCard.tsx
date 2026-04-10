@@ -19,7 +19,7 @@ const RadioCard = () => {
   return (
     <Link
       to={link}
-      className="block mx-4 my-4 relative overflow-hidden rounded-2xl h-40 group bg-muted"
+      className="block mx-4 my-4 relative overflow-hidden rounded-2xl h-40 sm:h-52 group bg-muted"
     >
       {image && (
         <img 
