@@ -32,6 +32,12 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
 export const useSplashScreen = () => {
   const [showSplash, setShowSplash] = useState(() => {
     if (typeof window === "undefined") return false;
+    const hostname = window.location.hostname;
+    const isPreview =
+      hostname.includes("lovableproject.com") ||
+      hostname.includes("lovable.app") ||
+      hostname === "localhost";
+    if (isPreview) return false;
     const isMobile = window.innerWidth < 768;
     const alreadyShown = sessionStorage.getItem("fanatica_splash_shown");
     return isMobile && !alreadyShown;
