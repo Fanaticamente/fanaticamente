@@ -27,7 +27,7 @@ const Index = () => {
   return (
     <>
       {isMobile ? (
-        <div data-layout="mobile" className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background">
           <Header />
           <main className="pt-14">
             <HeroCarousel />
@@ -41,7 +41,7 @@ const Index = () => {
           <BottomNav />
         </div>
       ) : (
-        <div data-layout="desktop" className="min-h-screen bg-[#0a0a0a]">
+        <div className="min-h-screen bg-[#0a0a0a]">
           <DesktopHeader />
           <main className="pt-[72px]">
             <DesktopHero />
