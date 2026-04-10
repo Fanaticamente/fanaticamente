@@ -1,8 +1,11 @@
-import { useState } from "react";
-import { Lock, CreditCard, QrCode, ArrowLeft, Crown } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Lock, CreditCard, QrCode, Crown, Shield, CheckCircle } from "lucide-react";
 import { Course } from "@/hooks/useCourses";
 import CourseCardPaymentForm from "./CourseCardPaymentForm";
 import CoursePixPayment from "./CoursePixPayment";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface CoursePaywallProps {
   course: Course;
@@ -13,16 +16,64 @@ type PaywallStep = "options" | "card" | "pix";
 type PurchaseType = "course" | "membership";
 
 const MEMBERSHIP_PRICE = 49.90;
+const SOCIO_DISCOUNT = 0.15;
 
 const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
+  const { user } = useAuth();
   const [step, setStep] = useState<PaywallStep>("options");
   const [purchaseType, setPurchaseType] = useState<PurchaseType>("course");
 
+  // Sócio Consciente state
+  const [clubName, setClubName] = useState<string | null>(null);
+  const [clubColor, setClubColor] = useState<string>("#16a34a");
+  const [socioMatricula, setSocioMatricula] = useState("");
+  const [socioDiscountApplied, setSocioDiscountApplied] = useState(false);
+
   const coursePrice = course.price || 0;
+  const discountedCoursePrice = socioDiscountApplied ? coursePrice * (1 - SOCIO_DISCOUNT) : coursePrice;
+  const discountedMembershipPrice = socioDiscountApplied ? MEMBERSHIP_PRICE * (1 - SOCIO_DISCOUNT) : MEMBERSHIP_PRICE;
+
+  // Fetch user's favorite club
+  useEffect(() => {
+    const fetchClub = async () => {
+      if (!user) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("favorite_club_id")
+        .eq("user_id", user.id)
+        .single();
+
+      if (profile?.favorite_club_id) {
+        const { data: club } = await supabase
+          .from("clubs")
+          .select("name, primary_color")
+          .eq("id", profile.favorite_club_id)
+          .single();
+
+        if (club) {
+          setClubName(club.name);
+          setClubColor(club.primary_color || "#16a34a");
+        }
+      }
+    };
+    fetchClub();
+  }, [user]);
+
+  const handleApplySocio = () => {
+    if (!socioMatricula.trim() || socioMatricula.trim().length < 3) {
+      toast.error("Informe uma matrícula válida");
+      return;
+    }
+    setSocioDiscountApplied(true);
+  };
 
   const handleSelectPayment = (type: PurchaseType, method: "card" | "pix") => {
     setPurchaseType(type);
     setStep(method);
+  };
+
+  const getPrice = (type: PurchaseType) => {
+    return type === "membership" ? discountedMembershipPrice : discountedCoursePrice;
   };
 
   if (step === "card") {
@@ -30,7 +81,7 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
       <CourseCardPaymentForm
         purchaseType={purchaseType}
         courseId={course.id}
-        coursePrice={purchaseType === "membership" ? MEMBERSHIP_PRICE : coursePrice}
+        coursePrice={getPrice(purchaseType)}
         label={purchaseType === "membership" ? "Assinatura Mensal" : course.title}
         onBack={() => setStep("options")}
         onSuccess={onAccessGranted}
@@ -43,7 +94,7 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
       <CoursePixPayment
         purchaseType={purchaseType}
         courseId={course.id}
-        coursePrice={purchaseType === "membership" ? MEMBERSHIP_PRICE : coursePrice}
+        coursePrice={getPrice(purchaseType)}
         label={purchaseType === "membership" ? "Assinatura Mensal" : course.title}
         onBack={() => setStep("options")}
         onSuccess={onAccessGranted}
@@ -64,6 +115,62 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
         </p>
       </div>
 
+      {/* Sócio Consciente Section */}
+      {clubName && !socioDiscountApplied && (
+        <div
+          className="rounded-xl border p-3 space-y-2"
+          style={{ backgroundColor: clubColor + "10", borderColor: clubColor + "30" }}
+        >
+          <div className="flex items-center gap-3">
+            <Shield className="w-5 h-5 flex-shrink-0" style={{ color: clubColor }} />
+            <div>
+              <p className="font-bold text-white text-xs">Sócio Consciente {clubName}</p>
+              <p className="text-[10px] text-white/50">Informe sua matrícula</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={socioMatricula}
+              onChange={(e) => setSocioMatricula(e.target.value)}
+              placeholder="Nº da matrícula"
+              maxLength={20}
+              className="flex-1 px-3 py-2 rounded-lg text-sm bg-white/10 border text-white placeholder:text-white/30 focus:outline-none focus:ring-1"
+              style={{ borderColor: clubColor + "30", focusRingColor: clubColor }}
+            />
+            <button
+              onClick={handleApplySocio}
+              className="px-4 py-2 rounded-lg text-white font-semibold text-sm"
+              style={{ backgroundColor: clubColor }}
+            >
+              Aplicar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {clubName && socioDiscountApplied && (
+        <div
+          className="rounded-xl border p-3"
+          style={{ backgroundColor: clubColor + "10", borderColor: clubColor + "30" }}
+        >
+          <div className="flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 flex-shrink-0" style={{ color: clubColor }} />
+            <div>
+              <p className="text-xs font-bold" style={{ color: clubColor }}>Parceria aplicada</p>
+              <p className="text-[10px]" style={{ color: clubColor + "99" }}>Matrícula: {socioMatricula}</p>
+            </div>
+            <button
+              onClick={() => { setSocioDiscountApplied(false); setSocioMatricula(""); }}
+              className="ml-auto text-[10px] font-medium underline"
+              style={{ color: clubColor }}
+            >
+              Remover
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Option 1: Individual Purchase */}
       {coursePrice > 0 && (
         <div className="bg-muted/50 border border-border rounded-xl p-5 space-y-4">
@@ -75,9 +182,22 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
               <h3 className="text-white font-display text-lg uppercase tracking-wide">Compra Avulsa</h3>
               <p className="text-muted-foreground text-xs">Acesso vitalício a este curso</p>
             </div>
-            <span className="ml-auto text-white font-bold text-lg">
-              R$ {coursePrice.toFixed(2).replace(".", ",")}
-            </span>
+            <div className="ml-auto text-right">
+              {socioDiscountApplied ? (
+                <>
+                  <span className="text-white/40 line-through text-sm block">
+                    R$ {coursePrice.toFixed(2).replace(".", ",")}
+                  </span>
+                  <span className="text-white font-bold text-lg">
+                    R$ {discountedCoursePrice.toFixed(2).replace(".", ",")}
+                  </span>
+                </>
+              ) : (
+                <span className="text-white font-bold text-lg">
+                  R$ {coursePrice.toFixed(2).replace(".", ",")}
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex gap-2">
             <button
@@ -115,9 +235,23 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
             <h3 className="text-white font-display text-lg uppercase tracking-wide">Assinatura Mensal</h3>
             <p className="text-muted-foreground text-xs">Acesso a todos os cursos da plataforma</p>
           </div>
-          <span className="ml-auto text-white font-bold text-lg whitespace-nowrap">
-            R$ 49,90<span className="text-muted-foreground text-xs font-normal">/mês</span>
-          </span>
+          <div className="ml-auto text-right whitespace-nowrap">
+            {socioDiscountApplied ? (
+              <>
+                <span className="text-white/40 line-through text-sm block">
+                  R$ 49,90
+                </span>
+                <span className="text-white font-bold text-lg">
+                  R$ {discountedMembershipPrice.toFixed(2).replace(".", ",")}
+                  <span className="text-muted-foreground text-xs font-normal">/mês</span>
+                </span>
+              </>
+            ) : (
+              <span className="text-white font-bold text-lg">
+                R$ 49,90<span className="text-muted-foreground text-xs font-normal">/mês</span>
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex gap-2">
           <button
