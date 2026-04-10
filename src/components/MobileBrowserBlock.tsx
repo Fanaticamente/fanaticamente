@@ -32,6 +32,17 @@ const MobileBrowserBlock = ({ children }: { children: React.ReactNode }) => {
     if (typeof window === "undefined") return;
 
     const userAgent = navigator.userAgent;
+    
+    // Never block in Lovable preview or localhost
+    const isPreview = window.location.hostname.includes('lovableproject.com') || 
+                      window.location.hostname.includes('lovable.app') ||
+                      window.location.hostname === 'localhost';
+    if (isPreview) {
+      setIsMobileBrowser(false);
+      setIsMounted(true);
+      return;
+    }
+
     const isTablet =
       /iPad/i.test(userAgent) ||
       (/Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1) ||
