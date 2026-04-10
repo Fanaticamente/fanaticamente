@@ -216,7 +216,7 @@ const Cursos = () => {
             <div className="mb-8">
               <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-b from-muted to-card ${isMobile ? "aspect-[4/5] sm:aspect-[16/9] max-h-[500px]" : "aspect-[21/9]"}`}>
                 {(featuredCourse.hero_image_url || featuredCourse.thumbnail_url) ? (
-                  <img src={featuredCourse.hero_image_url || featuredCourse.thumbnail_url!} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={featuredCourse.hero_image_url || featuredCourse.thumbnail_url!} alt="" className="absolute inset-0 w-full h-full object-cover object-top" />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/30" />
                 )}
