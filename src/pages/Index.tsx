@@ -1,5 +1,4 @@
-import { Navigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Mobile Components
 import Header from "@/components/layout/Header";
@@ -23,48 +22,47 @@ import DesktopProfessionalForm from "@/components/desktop/DesktopProfessionalFor
 import DesktopFooter from "@/components/desktop/DesktopFooter";
 
 const Index = () => {
-  const { user, hasRole, loading } = useAuth();
+  const isMobile = useIsMobile();
 
   return (
     <>
-      {/* Mobile Layout */}
-      <div data-layout="mobile" className="min-h-screen bg-background lg:hidden">
-        <Header />
-        <main className="pt-14">
-          <HeroCarousel />
-          <TunnelCard />
-          <TicketCard />
-          <QuizCard />
-          <FanatiClassCard />
-          <RadioCard />
-          {/* Spacer para manter distância do BottomNav (igual ao espaçamento entre cards) */}
-          <div aria-hidden className="h-28" />
-        </main>
-        <BottomNav />
-      </div>
-
-      {/* Desktop Layout - Fanaticamente.com style */}
-      <div data-layout="desktop" className="hidden min-h-screen bg-[#0a0a0a] lg:block">
-        <DesktopHeader />
-        <main className="pt-[72px]">
-          <DesktopHero />
-          <div id="funcionalidades">
-            <DesktopFeatures />
-          </div>
-          <div id="curiosidades">
-            <DesktopCuriosities />
-          </div>
-          <DesktopChampionship />
-          <div id="sobre">
-            <DesktopAbout />
-          </div>
-          <DesktopTestimonials />
-          <div id="profissionais">
-            <DesktopProfessionalForm />
-          </div>
-        </main>
-        <DesktopFooter />
-      </div>
+      {isMobile ? (
+        <div data-layout="mobile" className="min-h-screen bg-background">
+          <Header />
+          <main className="pt-14">
+            <HeroCarousel />
+            <TunnelCard />
+            <TicketCard />
+            <QuizCard />
+            <FanatiClassCard />
+            <RadioCard />
+            <div aria-hidden className="h-28" />
+          </main>
+          <BottomNav />
+        </div>
+      ) : (
+        <div data-layout="desktop" className="min-h-screen bg-[#0a0a0a]">
+          <DesktopHeader />
+          <main className="pt-[72px]">
+            <DesktopHero />
+            <div id="funcionalidades">
+              <DesktopFeatures />
+            </div>
+            <div id="curiosidades">
+              <DesktopCuriosities />
+            </div>
+            <DesktopChampionship />
+            <div id="sobre">
+              <DesktopAbout />
+            </div>
+            <DesktopTestimonials />
+            <div id="profissionais">
+              <DesktopProfessionalForm />
+            </div>
+          </main>
+          <DesktopFooter />
+        </div>
+      )}
     </>
   );
 };
