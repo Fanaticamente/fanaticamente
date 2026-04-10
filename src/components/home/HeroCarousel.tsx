@@ -147,7 +147,7 @@ const HeroCarousel = () => {
           {/* Content */}
           <div className="relative h-full flex flex-col justify-end p-6 pb-16">
             <h2 
-              className={`${getFontClass(slide.titleFont)} text-4xl md:text-5xl font-bold tracking-tight`}
+              className={`${getFontClass(slide.titleFont)} text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight`}
               style={{ 
                 color: slide.titleColor || "#FFFFFF",
                 lineHeight: slide.titleLineHeight ?? 1.1,
@@ -157,7 +157,7 @@ const HeroCarousel = () => {
               {slide.title}
             </h2>
             <p 
-              className={`${getFontClass(slide.subtitleFont)} text-lg mb-6`}
+              className={`${getFontClass(slide.subtitleFont)} text-lg sm:text-xl md:text-2xl mb-6`}
               style={{ 
                 color: slide.subtitleColor || "#FFFFFF", 
                 opacity: 0.8,
