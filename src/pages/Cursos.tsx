@@ -214,7 +214,7 @@ const Cursos = () => {
           {/* Featured Hero */}
           {featuredCourse && (
             <div className="mb-8">
-              <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-b from-muted to-card ${isMobile ? "aspect-[4/5] max-h-[500px]" : "aspect-[21/9]"}`}>
+              <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-b from-muted to-card ${isMobile ? "aspect-[4/5] sm:aspect-[16/9] max-h-[500px]" : "aspect-[21/9]"}`}>
                 {(featuredCourse.hero_image_url || featuredCourse.thumbnail_url) ? (
                   <img src={featuredCourse.hero_image_url || featuredCourse.thumbnail_url!} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
