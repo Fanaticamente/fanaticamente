@@ -190,22 +190,22 @@ const Perfil = () => {
       {/* Profile Header */}
       <div className="bg-card border border-border rounded-2xl p-6 mb-6">
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden relative group">
+          <label className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden relative cursor-pointer group">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover object-top" />
             ) : (
               <User className="w-10 h-10 text-primary" />
             )}
-            <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-full">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-100 group-hover:bg-black/50 transition-opacity rounded-full">
               <Camera className="w-5 h-5 text-white" />
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarUpload}
-              />
-            </label>
-          </div>
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+            />
+          </label>
           <div className="flex-1">
             <h1 className="font-display text-2xl text-card-foreground">
               {profile?.full_name || "Torcedor Fanático"}

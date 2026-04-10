@@ -294,7 +294,7 @@ const Terapeutas = () => {
                   {selectedClub.name}
                 </h1>
                 <p className="text-muted-foreground">
-                  Especialistas para a nossa torcida
+                  Especialistas para a torcida
                 </p>
               </div>
             </div>
@@ -312,10 +312,10 @@ const Terapeutas = () => {
             ) : therapists.length === 0 ? (
               <div className="text-center py-12 bg-card border border-border rounded-2xl">
                 <p className="text-muted-foreground text-lg mb-2 font-semibold">
-                  🚀 Vagas abertas para o {selectedClub.name}!
+                  Vagas abertas!
                 </p>
                 <p className="text-muted-foreground text-sm px-4">
-                  Conhece um profissional de psicologia que torce para o {selectedClub.name}? Indique e compartilhe com profissionais!
+                  Conhece um(a) profissional de psicologia que torce para o {selectedClub.name}? Indique e compartilhe com profissionais!
                 </p>
               </div>
             ) : (
