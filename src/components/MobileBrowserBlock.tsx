@@ -32,8 +32,12 @@ const MobileBrowserBlock = ({ children }: { children: React.ReactNode }) => {
     if (typeof window === "undefined") return;
 
     const userAgent = navigator.userAgent;
+    const isTablet =
+      /iPad/i.test(userAgent) ||
+      (/Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1) ||
+      (/Android/i.test(userAgent) && !/Mobile/i.test(userAgent));
     const isMobileDevice =
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+      /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) && !isTablet;
     const isStandalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (window.navigator as any).standalone === true;
