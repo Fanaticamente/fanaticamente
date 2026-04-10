@@ -74,6 +74,41 @@ const Perfil = () => {
     navigate("/");
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    const fileExt = file.name.split('.').pop();
+    const filePath = `avatars/${user.id}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      toast.error("Erro ao enviar foto");
+      console.error(uploadError);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ avatar_url: urlData.publicUrl })
+      .eq('user_id', user.id);
+
+    if (updateError) {
+      toast.error("Erro ao atualizar perfil");
+      return;
+    }
+
+    setProfile(prev => prev ? { ...prev, avatar_url: urlData.publicUrl } : prev);
+    toast.success("Foto atualizada!");
+  };
+
   if (loading || profileLoading) {
     return null;
   }
