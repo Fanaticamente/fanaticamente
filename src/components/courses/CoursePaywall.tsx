@@ -136,7 +136,7 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
               placeholder="Nº da matrícula"
               maxLength={20}
               className="flex-1 px-3 py-2 rounded-lg text-sm bg-white/10 border text-white placeholder:text-white/30 focus:outline-none focus:ring-1"
-              style={{ borderColor: clubColor + "30", focusRingColor: clubColor }}
+              style={{ borderColor: clubColor + "30" }}
             />
             <button
               onClick={handleApplySocio}
