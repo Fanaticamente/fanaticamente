@@ -26,6 +26,7 @@ const Perfil = () => {
   const [appointmentsCount, setAppointmentsCount] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [profileLoading, setProfileLoading] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!loading && !user) {
