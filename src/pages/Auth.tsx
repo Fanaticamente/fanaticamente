@@ -1023,7 +1023,7 @@ const Auth = () => {
                     {/* Birth Date */}
                     <div>
                       <label className="block text-card-foreground text-sm mb-2">
-                        Nascimento *
+                        Nascimento
                       </label>
                       <input
                         type="date"
