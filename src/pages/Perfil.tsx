@@ -259,7 +259,7 @@ const Perfil = () => {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/heic,image/heif,image/webp"
+                accept=".jpg,.jpeg,.png,.heic,.heif,.webp"
                 className="hidden"
                 onChange={handleAvatarUpload}
               />
@@ -268,7 +268,7 @@ const Perfil = () => {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/heic,image/heif,image/webp"
+            accept=".jpg,.jpeg,.png,.heic,.heif,.webp"
             className="hidden"
             onChange={handleAvatarUpload}
           />
