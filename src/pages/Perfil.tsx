@@ -201,7 +201,8 @@ const Perfil = () => {
             </div>
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/heic,image/heif,image/webp"
+              capture={undefined}
               className="hidden"
               onChange={handleAvatarUpload}
             />

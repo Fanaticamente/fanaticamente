@@ -256,19 +256,16 @@ const Auth = () => {
       }
     }
 
-    // Validate phone
-    if (!signUpData.phone.trim()) {
-      newErrors.phone = "Telefone é obrigatório";
-    } else {
+    // Validate phone (optional)
+    if (signUpData.phone.trim()) {
       const cleanPhone = signUpData.phone.replace(/\D/g, '');
       if (cleanPhone.length < 10 || cleanPhone.length > 11) {
         newErrors.phone = "Telefone inválido (DDD + número)";
       }
     }
 
-    if (!signUpData.birthDate) {
-      newErrors.birthDate = "Data de nascimento é obrigatória";
-    } else {
+    // Validate birth date (optional)
+    if (signUpData.birthDate) {
       const birthDate = new Date(signUpData.birthDate);
       const today = new Date();
       const age = today.getFullYear() - birthDate.getFullYear();
@@ -565,7 +562,7 @@ const Auth = () => {
                         </div>
                         <div>
                           <label className="block text-card-foreground text-sm mb-2">
-                            Nascimento *
+                            Nascimento
                           </label>
                           <input
                             type="date"
@@ -583,7 +580,7 @@ const Auth = () => {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-card-foreground text-sm mb-2">
-                            Nascimento *
+                            Nascimento
                           </label>
                           <input
                             type="date"
@@ -598,7 +595,7 @@ const Auth = () => {
                         </div>
                         <div>
                           <label className="block text-card-foreground text-sm mb-2">
-                            Telefone *
+                            Telefone
                           </label>
                           <input
                             type="tel"
@@ -619,7 +616,7 @@ const Auth = () => {
                     {authMode === "professional" && (
                       <div>
                         <label className="block text-card-foreground text-sm mb-2">
-                          Telefone com DDD *
+                          Telefone com DDD
                         </label>
                         <input
                           type="tel"
