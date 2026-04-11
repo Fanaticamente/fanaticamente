@@ -1042,7 +1042,7 @@ const Auth = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-card-foreground text-sm mb-2">
-                        Nascimento *
+                        Nascimento
                       </label>
                       <input
                         type="date"
