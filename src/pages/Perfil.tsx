@@ -131,6 +131,27 @@ const Perfil = () => {
     }
   };
 
+  const handleDeleteAvatar = async () => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('user_id', user.id);
+
+      if (error) {
+        toast.error("Erro ao remover foto");
+        return;
+      }
+
+      setProfile(prev => prev ? { ...prev, avatar_url: null } : prev);
+      toast.success("Foto removida!");
+    } catch (error) {
+      console.error("Delete avatar error:", error);
+      toast.error("Erro ao remover foto");
+    }
+  };
+
   if (loading || profileLoading) {
     return null;
   }
