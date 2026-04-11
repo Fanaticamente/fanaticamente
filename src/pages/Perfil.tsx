@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
-import { User, LogOut, CreditCard, Calendar, BookOpen, ChevronRight, Bell, Briefcase, Shield, Code, Camera } from "lucide-react";
+import { User, LogOut, CreditCard, Calendar, BookOpen, ChevronRight, Bell, Briefcase, Shield, Code, Camera, Pencil, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
@@ -20,6 +26,7 @@ const Perfil = () => {
   const [appointmentsCount, setAppointmentsCount] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [profileLoading, setProfileLoading] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -124,6 +131,27 @@ const Perfil = () => {
     }
   };
 
+  const handleDeleteAvatar = async () => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('user_id', user.id);
+
+      if (error) {
+        toast.error("Erro ao remover foto");
+        return;
+      }
+
+      setProfile(prev => prev ? { ...prev, avatar_url: null } : prev);
+      toast.success("Foto removida!");
+    } catch (error) {
+      console.error("Delete avatar error:", error);
+      toast.error("Erro ao remover foto");
+    }
+  };
+
   if (loading || profileLoading) {
     return null;
   }
@@ -204,23 +232,46 @@ const Perfil = () => {
       {/* Profile Header */}
       <div className="bg-card border border-border rounded-2xl p-6 mb-6">
         <div className="flex items-center gap-4 mb-4">
-          <label className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden relative cursor-pointer group">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover object-top" />
-            ) : (
+          {profile?.avatar_url ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden relative cursor-pointer">
+                  <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover object-top" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Alterar foto
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDeleteAvatar} className="text-destructive focus:text-destructive">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Excluir foto
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <label className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden relative cursor-pointer group">
               <User className="w-10 h-10 text-primary" />
-            )}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-100 group-hover:bg-black/50 transition-opacity rounded-full">
-              <Camera className="w-5 h-5 text-white" />
-            </div>
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/heic,image/heif,image/webp"
-              capture={undefined}
-              className="hidden"
-              onChange={handleAvatarUpload}
-            />
-          </label>
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-100 group-hover:bg-black/50 transition-opacity rounded-full">
+                <Camera className="w-5 h-5 text-white" />
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/heic,image/heif,image/webp"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
+            </label>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/heic,image/heif,image/webp"
+            className="hidden"
+            onChange={handleAvatarUpload}
+          />
           <div className="flex-1">
             <h1 className="font-display text-2xl text-card-foreground">
               {profile?.full_name || "Torcedor Fanático"}
