@@ -76,38 +76,52 @@ const Perfil = () => {
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
+    try {
+      const file = e.target.files?.[0];
+      if (!file || !user) return;
 
-    const fileExt = file.name.split('.').pop();
-    const filePath = `avatars/${user.id}.${fileExt}`;
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("A imagem deve ter no máximo 5MB");
+        return;
+      }
 
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(filePath, file, { upsert: true });
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const filePath = `avatars/${user.id}.${fileExt}`;
 
-    if (uploadError) {
-      toast.error("Erro ao enviar foto");
-      console.error(uploadError);
-      return;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) {
+        toast.error("Erro ao enviar foto");
+        console.error(uploadError);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: urlData.publicUrl })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        toast.error("Erro ao atualizar perfil");
+        return;
+      }
+
+      setProfile(prev => prev ? { ...prev, avatar_url: urlData.publicUrl } : prev);
+      toast.success("Foto atualizada!");
+    } catch (error) {
+      console.error("Avatar upload error:", error);
+      toast.error("Erro ao processar a imagem. Tente selecionar uma foto da galeria.");
+    } finally {
+      // Reset the input to allow re-selection
+      e.target.value = '';
     }
-
-    const { data: urlData } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(filePath);
-
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ avatar_url: urlData.publicUrl })
-      .eq('user_id', user.id);
-
-    if (updateError) {
-      toast.error("Erro ao atualizar perfil");
-      return;
-    }
-
-    setProfile(prev => prev ? { ...prev, avatar_url: urlData.publicUrl } : prev);
-    toast.success("Foto atualizada!");
   };
 
   if (loading || profileLoading) {
@@ -201,7 +215,8 @@ const Perfil = () => {
             </div>
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/heic,image/heif,image/webp"
+              capture={undefined}
               className="hidden"
               onChange={handleAvatarUpload}
             />
