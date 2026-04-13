@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import TherapistCard from "@/components/terapeutas/TherapistCard";
+import VacancyCard from "@/components/terapeutas/VacancyCard";
 import BookingDrawer from "@/components/terapeutas/BookingDrawer";
 import { getClubsByLeague, BrazilianClub } from "@/data/brazilianClubs";
 import { clubNicknames } from "@/data/clubNicknames";
