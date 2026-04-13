@@ -15,7 +15,7 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
   const imageUrl = silhouetteImages[index % 4];
 
   const handleCadastre = () => {
-    window.location.href = "/auth?role=professional";
+    window.location.href = "/auth?mode=professional";
   };
 
   return (
