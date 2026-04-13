@@ -14,13 +14,6 @@ interface VacancyCardProps {
 const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
   const imageUrl = silhouetteImages[index % 4];
 
-  const handleIndique = () => {
-    const message = encodeURIComponent(
-      `Olá! Gostaria de indicar um(a) profissional de psicologia para atender a torcida do ${clubName} no app Fanáticamente!`
-    );
-    window.open(`https://wa.me/?text=${message}`, "_blank");
-  };
-
   const handleCadastre = () => {
     window.location.href = "/auth?role=professional";
   };
@@ -73,45 +66,17 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          {["Psicologia Esportiva", "Ansiedade", "Bem-estar"].map((specialty) => (
-            <span
-              key={specialty}
-              className="px-3 py-1 text-xs rounded-full"
-              style={{
-                backgroundColor: clubColor + "15",
-                color: clubColor + "80",
-              }}
-            >
-              {specialty}
-            </span>
-          ))}
-        </div>
-
-        <div className="flex gap-2">
-          <button
-            onClick={handleIndique}
-            className="flex-1 py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] border-2"
-            style={{
-              borderColor: clubColor,
-              color: clubColor,
-              backgroundColor: "transparent",
-            }}
-          >
-            Indique
-          </button>
-          <button
-            onClick={handleCadastre}
-            className="flex-1 py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg"
-            style={{
-              backgroundColor: clubColor,
-              color: "#fff",
-              boxShadow: `0 4px 14px ${clubColor}40`,
-            }}
-          >
-            Cadastre-se
-          </button>
-        </div>
+        <button
+          onClick={handleCadastre}
+          className="w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg"
+          style={{
+            backgroundColor: clubColor,
+            color: "#fff",
+            boxShadow: `0 4px 14px ${clubColor}40`,
+          }}
+        >
+          Cadastre-se
+        </button>
       </div>
     </div>
   );
