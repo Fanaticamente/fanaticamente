@@ -14,13 +14,6 @@ interface VacancyCardProps {
 const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
   const imageUrl = silhouetteImages[index % 4];
 
-  const handleIndique = () => {
-    const message = encodeURIComponent(
-      `Olá! Gostaria de indicar um(a) profissional de psicologia para atender a torcida do ${clubName} no app Fanáticamente!`
-    );
-    window.open(`https://wa.me/?text=${message}`, "_blank");
-  };
-
   const handleCadastre = () => {
     window.location.href = "/auth?role=professional";
   };
