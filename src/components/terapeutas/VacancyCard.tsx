@@ -66,45 +66,17 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          {["Psicologia Esportiva", "Ansiedade", "Bem-estar"].map((specialty) => (
-            <span
-              key={specialty}
-              className="px-3 py-1 text-xs rounded-full"
-              style={{
-                backgroundColor: clubColor + "15",
-                color: clubColor + "80",
-              }}
-            >
-              {specialty}
-            </span>
-          ))}
-        </div>
-
-        <div className="flex gap-2">
-          <button
-            onClick={handleIndique}
-            className="flex-1 py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] border-2"
-            style={{
-              borderColor: clubColor,
-              color: clubColor,
-              backgroundColor: "transparent",
-            }}
-          >
-            Indique
-          </button>
-          <button
-            onClick={handleCadastre}
-            className="flex-1 py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg"
-            style={{
-              backgroundColor: clubColor,
-              color: "#fff",
-              boxShadow: `0 4px 14px ${clubColor}40`,
-            }}
-          >
-            Cadastre-se
-          </button>
-        </div>
+        <button
+          onClick={handleCadastre}
+          className="w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg"
+          style={{
+            backgroundColor: clubColor,
+            color: "#fff",
+            boxShadow: `0 4px 14px ${clubColor}40`,
+          }}
+        >
+          Cadastre-se
+        </button>
       </div>
     </div>
   );
