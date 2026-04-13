@@ -310,25 +310,26 @@ const Terapeutas = () => {
               <div className="flex justify-center py-12">
                 <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
               </div>
-            ) : therapists.length === 0 ? (
-              <div className="text-center py-12 bg-card border border-border rounded-2xl">
-                <p className="text-muted-foreground text-lg mb-2 font-semibold">
-                  Vagas abertas!
-                </p>
-                <p className="text-muted-foreground text-sm px-4">
-                  Conhece um(a) profissional de psicologia que torce para o {selectedClub.name}? Indique e compartilhe com profissionais!
-                </p>
-              </div>
             ) : (
-              therapists.map((therapist) => (
-                <TherapistCard
-                  key={therapist.id}
-                  therapist={{...therapist, clubNickname: selectedClub ? clubNicknames[selectedClub.id] : undefined}}
-                  clubColor={selectedClub.primaryColor}
-                  clubSecondaryColor={selectedClub.secondaryColor}
-                  onSelect={handleTherapistSelect}
-                />
-              ))
+              <>
+                {therapists.map((therapist) => (
+                  <TherapistCard
+                    key={therapist.id}
+                    therapist={{...therapist, clubNickname: selectedClub ? clubNicknames[selectedClub.id] : undefined}}
+                    clubColor={selectedClub.primaryColor}
+                    clubSecondaryColor={selectedClub.secondaryColor}
+                    onSelect={handleTherapistSelect}
+                  />
+                ))}
+                {[0, 1, 2, 3].map((i) => (
+                  <VacancyCard
+                    key={`vacancy-${i}`}
+                    index={i}
+                    clubColor={selectedClub.primaryColor}
+                    clubName={selectedClub.name}
+                  />
+                ))}
+              </>
             )}
           </div>
         )}
