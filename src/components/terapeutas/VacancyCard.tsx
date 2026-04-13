@@ -1,11 +1,9 @@
 import { MapPin, Star } from "lucide-react";
 
-import silhouetteMale1 from "@/assets/silhouette-male-1.jpg";
-import silhouetteFemale1 from "@/assets/silhouette-female-1.jpg";
-import silhouetteMale2 from "@/assets/silhouette-male-2.jpg";
-import silhouetteFemale2 from "@/assets/silhouette-female-2.jpg";
+import silhouetteMale from "@/assets/silhouette-male.png";
+import silhouetteFemale from "@/assets/silhouette-female.png";
 
-const silhouetteImages = [silhouetteMale1, silhouetteFemale1, silhouetteMale2, silhouetteFemale2];
+const silhouetteImages = [silhouetteMale, silhouetteFemale, silhouetteMale, silhouetteFemale];
 
 interface VacancyCardProps {
   index: number;
@@ -38,14 +36,20 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
         <div className="flex gap-3 sm:gap-4 mb-3">
           {/* Photo */}
           <div
-            className="w-20 h-28 sm:w-28 sm:h-36 rounded-xl overflow-hidden flex-shrink-0 border-2"
-            style={{ borderColor: clubColor + "60" }}
+            className="w-20 h-28 sm:w-28 sm:h-36 rounded-xl overflow-hidden flex-shrink-0 border-2 flex items-center justify-center"
+            style={{
+              borderColor: clubColor + "60",
+              backgroundColor: "#ffffff",
+            }}
           >
             <img
               src={imageUrl}
               alt="Vaga aberta"
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-contain object-center"
               loading="lazy"
+              style={{
+                filter: `opacity(0.85)`,
+              }}
             />
           </div>
 
