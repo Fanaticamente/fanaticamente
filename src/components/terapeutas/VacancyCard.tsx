@@ -36,19 +36,19 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
         <div className="flex gap-3 sm:gap-4 mb-3">
           {/* Photo */}
           <div
-            className="w-20 h-28 sm:w-28 sm:h-36 rounded-xl overflow-hidden flex-shrink-0 border-2 flex items-center justify-center"
+            className="w-20 h-28 sm:w-28 sm:h-36 rounded-xl overflow-hidden flex-shrink-0 border-2 relative"
             style={{
               borderColor: clubColor + "60",
-              backgroundColor: "#ffffff",
+              backgroundColor: clubColor,
             }}
           >
             <img
               src={imageUrl}
               alt="Vaga aberta"
-              className="w-full h-full object-contain object-center"
+              className="w-full h-full object-contain object-center relative z-10"
               loading="lazy"
               style={{
-                filter: `opacity(0.85)`,
+                mixBlendMode: "lighten",
               }}
             />
           </div>
