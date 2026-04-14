@@ -438,7 +438,6 @@ const EmotionTacticalBoard = () => {
     }
   };
 
-  const placedIds = new Set(Object.values(assignments));
   const filledCount = Object.keys(assignments).length;
 
   if (loadingExisting) {
@@ -449,14 +448,12 @@ const EmotionTacticalBoard = () => {
     );
   }
 
-  /* ── Parsed analysis ── */
   const analysisData = aiAnalysis ? splitAnalysis(aiAnalysis) : null;
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 mb-6">
       <style>{pulseStyle}</style>
 
-      {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <ClipboardList className="w-5 h-5 text-primary" />
         <span className="text-card-foreground font-bold font-sans">
@@ -464,7 +461,6 @@ const EmotionTacticalBoard = () => {
         </span>
       </div>
 
-      {/* Formation Selection */}
       <div className="mb-4">
         <p className="text-muted-foreground text-sm mb-3">
           {isCompleted
@@ -472,7 +468,6 @@ const EmotionTacticalBoard = () => {
             : "Escolha sua formação tática:"}
         </p>
 
-        {/* Offensive */}
         <div className="mb-3">
           <div className="flex items-center gap-1.5 mb-1.5">
             <Swords className="w-3.5 h-3.5 text-secondary" />
@@ -498,7 +493,6 @@ const EmotionTacticalBoard = () => {
           </div>
         </div>
 
-        {/* Defensive */}
         <div>
           <div className="flex items-center gap-1.5 mb-1.5">
             <Shield className="w-3.5 h-3.5 text-primary" />
@@ -525,7 +519,6 @@ const EmotionTacticalBoard = () => {
         </div>
       </div>
 
-      {/* Football Pitch */}
       <div
         className="relative w-full rounded-xl overflow-hidden border-2 border-border"
         style={{
@@ -534,7 +527,6 @@ const EmotionTacticalBoard = () => {
             "linear-gradient(180deg, #2d8a4e 0%, #34a058 8%, #2d8a4e 16%, #34a058 24%, #2d8a4e 32%, #34a058 40%, #2d8a4e 48%, #34a058 56%, #2d8a4e 64%, #34a058 72%, #2d8a4e 80%, #34a058 88%, #2d8a4e 96%)",
         }}
       >
-        {/* Pitch markings */}
         <svg
           viewBox="0 0 300 400"
           className="absolute inset-0 w-full h-full"
@@ -562,7 +554,6 @@ const EmotionTacticalBoard = () => {
           <rect x="120" y="390" width="60" height="8" strokeDasharray="4 3" />
         </svg>
 
-        {/* Formation slots */}
         {currentSlots.map((slot) => {
           const emotion = assignments[slot.id] ? getEmotion(assignments[slot.id]) : null;
           const isActive = slot.id === activeSlotId && !pickerSlot;
@@ -605,14 +596,12 @@ const EmotionTacticalBoard = () => {
           );
         })}
 
-        {/* No formation selected placeholder */}
         {!selectedFormation && (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-white/50 text-sm font-medium">Selecione uma formação acima</span>
           </div>
         )}
 
-        {/* Emotion Picker Overlay - Two columns */}
         {pickerSlot && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm">
             <div className="bg-card rounded-2xl p-4 mx-4 max-h-[85%] overflow-y-auto w-full max-w-xs shadow-2xl border border-border">
@@ -624,48 +613,30 @@ const EmotionTacticalBoard = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                {/* Left column: positive */}
                 <div className="space-y-1.5">
-                  {positiveEmotions.map((em) => {
-                    const isPlaced = placedIds.has(em.id);
-                    return (
-                      <button
-                        key={em.id}
-                        onClick={() => handlePickEmotion(em.id)}
-                        disabled={isPlaced}
-                        className={`flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs border transition-all ${
-                          isPlaced
-                            ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
-                            : "bg-card text-card-foreground border-border hover:border-secondary/50 hover:bg-secondary/5"
-                        }`}
-                      >
-                        <img src={em.img} alt="" className="w-7 h-7 object-contain flex-shrink-0" />
-                        <span className="text-xs font-medium truncate">{getLabel(em, gender)}</span>
-                      </button>
-                    );
-                  })}
+                  {positiveEmotions.map((em) => (
+                    <button
+                      key={em.id}
+                      onClick={() => handlePickEmotion(em.id)}
+                      className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs border transition-all bg-card text-card-foreground border-border hover:border-secondary/50 hover:bg-secondary/5"
+                    >
+                      <img src={em.img} alt="" className="w-7 h-7 object-contain flex-shrink-0" />
+                      <span className="text-xs font-medium truncate">{getLabel(em, gender)}</span>
+                    </button>
+                  ))}
                 </div>
 
-                {/* Right column: negative */}
                 <div className="space-y-1.5">
-                  {negativeEmotions.map((em) => {
-                    const isPlaced = placedIds.has(em.id);
-                    return (
-                      <button
-                        key={em.id}
-                        onClick={() => handlePickEmotion(em.id)}
-                        disabled={isPlaced}
-                        className={`flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs border transition-all ${
-                          isPlaced
-                            ? "bg-muted/40 text-muted-foreground border-border opacity-40 line-through"
-                            : "bg-card text-card-foreground border-border hover:border-destructive/50 hover:bg-destructive/5"
-                        }`}
-                      >
-                        <img src={em.img} alt="" className="w-7 h-7 object-contain flex-shrink-0" />
-                        <span className="text-xs font-medium truncate">{getLabel(em, gender)}</span>
-                      </button>
-                    );
-                  })}
+                  {negativeEmotions.map((em) => (
+                    <button
+                      key={em.id}
+                      onClick={() => handlePickEmotion(em.id)}
+                      className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs border transition-all bg-card text-card-foreground border-border hover:border-destructive/50 hover:bg-destructive/5"
+                    >
+                      <img src={em.img} alt="" className="w-7 h-7 object-contain flex-shrink-0" />
+                      <span className="text-xs font-medium truncate">{getLabel(em, gender)}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
