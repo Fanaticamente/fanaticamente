@@ -659,7 +659,7 @@ const ProfessionalDashboard = () => {
 
   // Mobile header component
   const MobileHeader = () => (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-3">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top,0.75rem))]">
       <div className="flex items-center justify-between max-w-6xl mx-auto">
         <div className="flex items-center gap-2 min-w-0 flex-1">
           {profile?.avatar_url ? (
