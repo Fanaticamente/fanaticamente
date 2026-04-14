@@ -60,7 +60,7 @@ const Header = () => {
               <Menu className="w-6 h-6 text-white" />
             </button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-80 bg-background border-border p-0 flex flex-col pt-[env(safe-area-inset-top)]">
+          <SheetContent side="left" className="w-80 bg-background border-border p-0 flex flex-col" style={{ paddingTop: 'max(0px, env(safe-area-inset-top, 0px))' }}>
             <div className="p-6 border-b border-border flex flex-col items-center">
               <img src={logoHeader} alt="Logo" className="h-12 w-auto" />
               <p className="text-muted-foreground text-sm mt-2">
