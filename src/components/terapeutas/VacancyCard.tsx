@@ -1,4 +1,6 @@
 import { MapPin, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 import silhouetteMale from "@/assets/silhouette-male.png";
 import silhouetteFemale from "@/assets/silhouette-female.png";
@@ -13,9 +15,14 @@ interface VacancyCardProps {
 
 const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
   const imageUrl = silhouetteImages[index % 4];
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
-  const handleCadastre = () => {
-    window.location.href = "/auth?mode=professional";
+  const handleCadastre = async () => {
+    if (user) {
+      await signOut();
+    }
+    navigate("/auth?mode=professional&signup=true");
   };
 
   return (

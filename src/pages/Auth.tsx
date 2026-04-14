@@ -71,9 +71,10 @@ const sortedClubs = [...allBrazilianClubs].sort((a, b) =>
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const initialMode = searchParams.get("mode") === "professional" ? "professional" : "user";
+  const initialSignup = searchParams.get("signup") === "true";
   
   const [authMode, setAuthMode] = useState<AuthMode>(initialMode);
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(!initialSignup);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [signUpData, setSignUpData] = useState<SignUpData>({
