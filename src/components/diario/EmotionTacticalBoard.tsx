@@ -439,7 +439,181 @@ const EmotionTacticalBoard = () => {
   };
 
   const filledCount = Object.keys(assignments).length;
-...
+
+  if (loadingExisting) {
+    return (
+      <div className="bg-card border border-border rounded-2xl p-5 mb-6 flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const analysisData = aiAnalysis ? splitAnalysis(aiAnalysis) : null;
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5 mb-6">
+      <style>{pulseStyle}</style>
+
+      <div className="flex items-center gap-2 mb-4">
+        <ClipboardList className="w-5 h-5 text-primary" />
+        <span className="text-card-foreground font-bold font-sans">
+          Prancheta Emocional
+        </span>
+      </div>
+
+      <div className="mb-4">
+        <p className="text-muted-foreground text-sm mb-3">
+          {isCompleted
+            ? `Sua escalação de hoje — ${selectedFormation?.label ?? ""}`
+            : "Escolha sua formação tática:"}
+        </p>
+
+        <div className="mb-3">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Swords className="w-3.5 h-3.5 text-secondary" />
+            <span className="text-[10px] font-bold text-secondary uppercase tracking-wide">Ofensivas</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {formations.filter((f) => f.type === "ofensiva").map((f) => (
+              <button
+                key={f.id}
+                onClick={() => handleChangeFormation(f)}
+                disabled={isCompleted}
+                className={`py-2.5 rounded-xl border text-sm font-bold transition-all ${
+                  selectedFormation?.id === f.id
+                    ? "bg-secondary text-secondary-foreground border-secondary"
+                    : isCompleted
+                    ? "bg-muted/50 text-muted-foreground border-border cursor-not-allowed"
+                    : "bg-muted text-card-foreground border-border hover:border-secondary hover:bg-secondary/10"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Shield className="w-3.5 h-3.5 text-primary" />
+            <span className="text-[10px] font-bold text-primary uppercase tracking-wide">Defensivas</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {formations.filter((f) => f.type === "defensiva").map((f) => (
+              <button
+                key={f.id}
+                onClick={() => handleChangeFormation(f)}
+                disabled={isCompleted}
+                className={`py-2.5 rounded-xl border text-sm font-bold transition-all ${
+                  selectedFormation?.id === f.id
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : isCompleted
+                    ? "bg-muted/50 text-muted-foreground border-border cursor-not-allowed"
+                    : "bg-muted text-card-foreground border-border hover:border-primary hover:bg-primary/10"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div
+        className="relative w-full rounded-xl overflow-hidden border-2 border-border"
+        style={{
+          aspectRatio: "3/4",
+          background:
+            "linear-gradient(180deg, #2d8a4e 0%, #34a058 8%, #2d8a4e 16%, #34a058 24%, #2d8a4e 32%, #34a058 40%, #2d8a4e 48%, #34a058 56%, #2d8a4e 64%, #34a058 72%, #2d8a4e 80%, #34a058 88%, #2d8a4e 96%)",
+        }}
+      >
+        <svg
+          viewBox="0 0 300 400"
+          className="absolute inset-0 w-full h-full"
+          fill="none"
+          stroke="rgba(255,255,255,0.5)"
+          strokeWidth="1.5"
+        >
+          <rect x="10" y="10" width="280" height="380" rx="2" />
+          <line x1="10" y1="200" x2="290" y2="200" />
+          <circle cx="150" cy="200" r="40" />
+          <circle cx="150" cy="200" r="3" fill="rgba(255,255,255,0.7)" />
+          <rect x="70" y="10" width="160" height="65" />
+          <rect x="105" y="10" width="90" height="30" />
+          <path d="M 110 75 Q 150 95 190 75" />
+          <circle cx="150" cy="55" r="2.5" fill="rgba(255,255,255,0.7)" />
+          <rect x="70" y="325" width="160" height="65" />
+          <rect x="105" y="360" width="90" height="30" />
+          <path d="M 110 325 Q 150 305 190 325" />
+          <circle cx="150" cy="345" r="2.5" fill="rgba(255,255,255,0.7)" />
+          <path d="M 10 18 Q 18 18 18 10" />
+          <path d="M 282 10 Q 282 18 290 18" />
+          <path d="M 10 382 Q 18 382 18 390" />
+          <path d="M 282 390 Q 282 382 290 382" />
+          <rect x="120" y="2" width="60" height="8" strokeDasharray="4 3" />
+          <rect x="120" y="390" width="60" height="8" strokeDasharray="4 3" />
+        </svg>
+
+        {currentSlots.map((slot) => {
+          const emotion = assignments[slot.id] ? getEmotion(assignments[slot.id]) : null;
+          const isActive = slot.id === activeSlotId && !pickerSlot;
+          return (
+            <button
+              key={slot.id}
+              onClick={() => handleSlotClick(slot.id)}
+              className="absolute flex flex-col items-center"
+              style={{
+                left: `${slot.x}%`,
+                top: `${slot.y}%`,
+                transform: "translate(-50%, -50%)",
+                ...(isActive
+                  ? { animation: "slotGrow 2s ease-in-out infinite" }
+                  : {}),
+              }}
+            >
+              {emotion ? (
+                <>
+                  <div
+                    className="w-11 h-11 rounded-full flex items-center justify-center border-2 shadow-md overflow-hidden bg-white/90"
+                    style={{ borderColor: teamColor }}
+                  >
+                    <img src={emotion.img} alt={getLabel(emotion, gender)} className="w-10 h-10 object-contain" />
+                  </div>
+                  <span className="text-[9px] text-white font-bold mt-0.5 bg-black/60 px-1.5 py-0.5 rounded whitespace-nowrap">
+                    {getLabel(emotion, gender)}
+                  </span>
+                </>
+              ) : (
+                <div
+                  className={`w-10 h-10 rounded-full border-2 transition-all ${
+                    isActive
+                      ? "border-white bg-white/25 cursor-pointer"
+                      : "border-dashed border-white/30 bg-white/5"
+                  }`}
+                />
+              )}
+            </button>
+          );
+        })}
+
+        {!selectedFormation && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-white/50 text-sm font-medium">Selecione uma formação acima</span>
+          </div>
+        )}
+
+        {pickerSlot && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="bg-card rounded-2xl p-4 mx-4 max-h-[85%] overflow-y-auto w-full max-w-xs shadow-2xl border border-border">
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-bold text-card-foreground text-sm">⚽ Emoções</span>
+                <button onClick={() => setPickerSlot(null)} className="p-1 rounded-full hover:bg-muted">
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
                   {positiveEmotions.map((em) => (
                     <button
                       key={em.id}
@@ -451,8 +625,7 @@ const EmotionTacticalBoard = () => {
                     </button>
                   ))}
                 </div>
- 
-                {/* Right column: negative */}
+
                 <div className="space-y-1.5">
                   {negativeEmotions.map((em) => (
                     <button
