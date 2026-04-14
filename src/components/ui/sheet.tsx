@@ -52,18 +52,60 @@ interface SheetContentProps
     VariantProps<typeof sheetVariants> {}
 
 const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(
-  ({ side = "right", className, children, ...props }, ref) => (
-    <SheetPortal>
-      <SheetOverlay />
-      <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
-        {children}
-        <SheetPrimitive.Close className="absolute right-4 top-[max(1rem,env(safe-area-inset-top,1rem))] rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </SheetPrimitive.Close>
-      </SheetPrimitive.Content>
-    </SheetPortal>
-  ),
+  ({ side = "right", className, children, ...props }, ref) => {
+    const internalRef = React.useRef<HTMLDivElement>(null);
+    const combinedRef = (node: HTMLDivElement) => {
+      (internalRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      if (typeof ref === 'function') ref(node);
+      else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+    };
+
+    const touchStart = React.useRef<{ x: number; y: number } | null>(null);
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+      touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    };
+
+    const handleTouchEnd = (e: React.TouchEvent) => {
+      if (!touchStart.current) return;
+      const dx = e.changedTouches[0].clientX - touchStart.current.x;
+      const dy = Math.abs(e.changedTouches[0].clientY - touchStart.current.y);
+      const threshold = 80;
+      
+      if (dy < 100) {
+        if (side === "left" && dx < -threshold) {
+          const closeBtn = internalRef.current?.querySelector('[data-sheet-close]') as HTMLElement;
+          closeBtn?.click();
+        } else if (side === "right" && dx > threshold) {
+          const closeBtn = internalRef.current?.querySelector('[data-sheet-close]') as HTMLElement;
+          closeBtn?.click();
+        }
+      }
+      touchStart.current = null;
+    };
+
+    return (
+      <SheetPortal>
+        <SheetOverlay />
+        <SheetPrimitive.Content
+          ref={combinedRef}
+          className={cn(sheetVariants({ side }), className)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          {...props}
+        >
+          {children}
+          <SheetPrimitive.Close
+            data-sheet-close
+            className="absolute right-4 top-[max(1rem,env(safe-area-inset-top,1rem))] rounded-sm ring-offset-background transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+          >
+            <X className="h-6 w-6 text-white" />
+            <span className="sr-only">Close</span>
+          </SheetPrimitive.Close>
+        </SheetPrimitive.Content>
+      </SheetPortal>
+    );
+  },
 );
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
