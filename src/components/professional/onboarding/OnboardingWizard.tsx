@@ -9,6 +9,8 @@ import StepDocuments from "./StepDocuments";
 import StepBio from "./StepBio";
 import StepSpecialties from "./StepSpecialties";
 import StepPricing from "./StepPricing";
+import StepPaymentMethod from "./StepPaymentMethod";
+import StepSubscription from "./StepSubscription";
 
 export interface OnboardingData {
   imageUrl: string;
@@ -24,6 +26,7 @@ export interface OnboardingData {
   sessionPrice: string;
   showPrice: boolean;
   socioConsciente: boolean;
+  pixKey: string;
 }
 
 interface OnboardingWizardProps {
@@ -39,6 +42,8 @@ const STEPS = [
   { id: "bio", label: "Bio" },
   { id: "specialties", label: "Especialidades" },
   { id: "pricing", label: "Valor" },
+  { id: "payment", label: "Recebimento" },
+  { id: "subscription", label: "Plano" },
 ];
 
 const STORAGE_KEY = "professional_onboarding_wizard";
@@ -74,6 +79,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
     sessionPrice: draft?.data?.sessionPrice ?? existingData?.sessionPrice ?? "",
     showPrice: draft?.data?.showPrice ?? existingData?.showPrice ?? true,
     socioConsciente: draft?.data?.socioConsciente ?? existingData?.socioConsciente ?? false,
+    pixKey: draft?.data?.pixKey ?? existingData?.pixKey ?? "",
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -104,7 +110,6 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
         }
         return true;
       case 2: // Documents
-        // CRP documents are recommended but not blocking
         return true;
       case 3: // Bio
         if (!data.bio.trim() || data.bio.length < 50) { toast.error("A bio deve ter pelo menos 50 caracteres"); return false; }
@@ -114,12 +119,42 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
         return true;
       case 5: // Pricing
         return true;
+      case 6: // Payment method
+        return true;
+      case 7: // Subscription - handled by its own flow
+        return true;
       default: return true;
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateStep(currentStep)) return;
+
+    // Save profile data when leaving pricing step (step 5) before payment/subscription
+    if (currentStep === 5) {
+      setIsSaving(true);
+      try {
+        const combinedDegree = data.degreeTitle ? `${data.degreeBase}, ${data.degreeTitle}` : data.degreeBase;
+        const { error } = await supabase
+          .from("professionals")
+          .update({
+            bio: data.bio,
+            degree: combinedDegree,
+            specialties: data.specialties,
+            hourly_rate: data.sessionPrice ? parseFloat(data.sessionPrice) : null,
+            socio_consciente: data.socioConsciente,
+          })
+          .eq("id", professionalId);
+        if (error) throw error;
+      } catch (error) {
+        console.error("Save error:", error);
+        toast.error("Erro ao salvar dados. Tente novamente.");
+        setIsSaving(false);
+        return;
+      }
+      setIsSaving(false);
+    }
+
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(prev => prev + 1);
     }
@@ -129,37 +164,14 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
     if (currentStep > 0) setCurrentStep(prev => prev - 1);
   };
 
-  const handleFinish = async () => {
-    if (!validateStep(currentStep)) return;
-    setIsSaving(true);
-    try {
-      const combinedDegree = data.degreeTitle ? `${data.degreeBase}, ${data.degreeTitle}` : data.degreeBase;
-
-      const { error } = await supabase
-        .from("professionals")
-        .update({
-          bio: data.bio,
-          degree: combinedDegree,
-          specialties: data.specialties,
-          hourly_rate: data.sessionPrice ? parseFloat(data.sessionPrice) : null,
-          socio_consciente: data.socioConsciente,
-        })
-        .eq("id", professionalId);
-
-      if (error) throw error;
-
-      localStorage.removeItem(STORAGE_KEY);
-      toast.success("Perfil profissional concluído!");
-      onComplete();
-    } catch (error) {
-      console.error("Save error:", error);
-      toast.error("Erro ao salvar. Tente novamente.");
-    } finally {
-      setIsSaving(false);
-    }
+  const handleSubscriptionComplete = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    toast.success("Cadastro profissional concluído! 🎉");
+    onComplete();
   };
 
   const isLastStep = currentStep === STEPS.length - 1;
+  const isSubscriptionStep = currentStep === 7;
   const progress = ((currentStep + 1) / STEPS.length) * 100;
 
   return (
@@ -184,7 +196,6 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
             <button
               key={step.id}
               onClick={() => {
-                // Allow going back, but only forward if current step is valid
                 if (i < currentStep) setCurrentStep(i);
                 else if (i === currentStep + 1 && validateStep(currentStep)) setCurrentStep(i);
               }}
@@ -237,41 +248,68 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
         {currentStep === 5 && (
           <StepPricing data={data} onUpdate={updateData} />
         )}
+        {currentStep === 6 && (
+          <StepPaymentMethod
+            professionalId={professionalId}
+            pixKey={data.pixKey}
+            onUpdate={(pixKey) => updateData({ pixKey })}
+          />
+        )}
+        {currentStep === 7 && (
+          <StepSubscription
+            professionalId={professionalId}
+            onSubscribed={handleSubscriptionComplete}
+          />
+        )}
       </div>
 
-      {/* Navigation */}
-      <div className="flex gap-3">
-        {currentStep > 0 && (
+      {/* Navigation - hide on subscription step since it has its own CTA */}
+      {!isSubscriptionStep && (
+        <div className="flex gap-3">
+          {currentStep > 0 && (
+            <button
+              type="button"
+              onClick={handleBack}
+              className="flex-1 py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors flex items-center justify-center gap-2"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Voltar
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handleNext}
+            disabled={isSaving}
+            className="flex-1 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:scale-[1.02] transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {isSaving ? (
+              <>
+                <div className="w-4 h-4 border-2 border-therapy-foreground border-t-transparent rounded-full animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              <>
+                Continuar
+                <ChevronRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* Back button only on subscription step */}
+      {isSubscriptionStep && (
+        <div className="mt-4">
           <button
             type="button"
             onClick={handleBack}
-            className="flex-1 py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors flex items-center justify-center gap-2"
           >
             <ChevronLeft className="w-4 h-4" />
             Voltar
           </button>
-        )}
-        <button
-          type="button"
-          onClick={isLastStep ? handleFinish : handleNext}
-          disabled={isSaving}
-          className="flex-1 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:scale-[1.02] transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-        >
-          {isSaving ? (
-            <>
-              <div className="w-4 h-4 border-2 border-therapy-foreground border-t-transparent rounded-full animate-spin" />
-              Salvando...
-            </>
-          ) : isLastStep ? (
-            "Concluir Cadastro"
-          ) : (
-            <>
-              Continuar
-              <ChevronRight className="w-4 h-4" />
-            </>
-          )}
-        </button>
-      </div>
+        </div>
+      )}
     </div>
   );
 };
