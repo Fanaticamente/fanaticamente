@@ -698,6 +698,29 @@ const ProfessionalDashboard = () => {
     </header>
   );
 
+  // Onboarding wizard content (shown when profile is not complete)
+  const onboardingContent = professional && !isProfileComplete ? (
+    <div className="py-4">
+      <OnboardingWizard
+        professionalId={professional.id}
+        existingData={{
+          imageUrl: profile?.avatar_url || "",
+          crpDocumentFrontUrl: professional.crp_document_front_url || "",
+          crpDocumentBackUrl: professional.crp_document_back_url || "",
+          degreeDocumentFrontUrl: professional.degree_document_front_url || "",
+          degreeDocumentBackUrl: professional.degree_document_back_url || "",
+          bio: professional.bio || "",
+          specialties: professional.specialties || [],
+          sessionPrice: professional.hourly_rate?.toString() || "",
+          socioConsciente: professional.socio_consciente || false,
+        }}
+        onComplete={() => {
+          fetchProfessionalData();
+        }}
+      />
+    </div>
+  ) : null;
+
   // Main dashboard content (shared between mobile and desktop)
   const dashboardContent = (
     <>
