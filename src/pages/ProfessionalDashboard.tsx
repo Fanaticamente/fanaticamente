@@ -9,6 +9,7 @@ import { format, addDays, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import ProfileCompletionForm from "@/components/professional/ProfileCompletionForm";
+import OnboardingWizard from "@/components/professional/onboarding/OnboardingWizard";
 import SubscriptionPlans from "@/components/professional/SubscriptionPlans";
 import StripeConnectCard from "@/components/professional/StripeConnectCard";
 import PixPaymentCard from "@/components/professional/PixPaymentCard";
