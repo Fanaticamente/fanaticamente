@@ -3,7 +3,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 // Mobile Components
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
-import BottomNavOnboarding from "@/components/layout/BottomNavOnboarding";
 import HeroCarousel from "@/components/home/HeroCarousel";
 import TunnelCard from "@/components/home/TunnelCard";
 import TicketCard from "@/components/home/TicketCard";
@@ -40,7 +39,6 @@ const Index = () => {
             <div aria-hidden className="h-28" />
           </main>
           <BottomNav />
-          <BottomNavOnboarding />
         </div>
       ) : (
         <div className="min-h-screen bg-[#0a0a0a]">
