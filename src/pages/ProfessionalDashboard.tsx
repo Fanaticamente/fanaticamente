@@ -1307,9 +1307,12 @@ const ProfessionalDashboard = () => {
       </>
     );
 
+  const showOnboarding = !!onboardingContent;
+  const contentToRender = showOnboarding ? onboardingContent : dashboardContent;
+
   // Render desktop layout
   if (!isMobile) {
-    return <DesktopWrapper>{dashboardContent}</DesktopWrapper>;
+    return <DesktopWrapper>{contentToRender}</DesktopWrapper>;
   }
 
   // Render mobile layout
@@ -1317,11 +1320,11 @@ const ProfessionalDashboard = () => {
     <div className="min-h-screen bg-background">
       <MobileHeader />
       <main className="pt-20 pb-8 px-4 max-w-6xl mx-auto">
-        {dashboardContent}
+        {contentToRender}
         {/* Bottom spacer for nav */}
         <div className="h-28" />
       </main>
-      <ProfessionalBottomNav />
+      {!showOnboarding && <ProfessionalBottomNav />}
     </div>
   );
 };
