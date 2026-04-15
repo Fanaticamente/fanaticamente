@@ -9,6 +9,7 @@ import { format, addDays, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import ProfileCompletionForm from "@/components/professional/ProfileCompletionForm";
+import OnboardingWizard from "@/components/professional/onboarding/OnboardingWizard";
 import SubscriptionPlans from "@/components/professional/SubscriptionPlans";
 import StripeConnectCard from "@/components/professional/StripeConnectCard";
 import PixPaymentCard from "@/components/professional/PixPaymentCard";
@@ -697,6 +698,29 @@ const ProfessionalDashboard = () => {
     </header>
   );
 
+  // Onboarding wizard content (shown when profile is not complete)
+  const onboardingContent = professional && !isProfileComplete ? (
+    <div className="py-4">
+      <OnboardingWizard
+        professionalId={professional.id}
+        existingData={{
+          imageUrl: profile?.avatar_url || "",
+          crpDocumentFrontUrl: professional.crp_document_front_url || "",
+          crpDocumentBackUrl: professional.crp_document_back_url || "",
+          degreeDocumentFrontUrl: professional.degree_document_front_url || "",
+          degreeDocumentBackUrl: professional.degree_document_back_url || "",
+          bio: professional.bio || "",
+          specialties: professional.specialties || [],
+          sessionPrice: professional.hourly_rate?.toString() || "",
+          socioConsciente: professional.socio_consciente || false,
+        }}
+        onComplete={() => {
+          fetchProfessionalData();
+        }}
+      />
+    </div>
+  ) : null;
+
   // Main dashboard content (shared between mobile and desktop)
   const dashboardContent = (
     <>
@@ -1283,9 +1307,12 @@ const ProfessionalDashboard = () => {
       </>
     );
 
+  const showOnboarding = !!onboardingContent;
+  const contentToRender = showOnboarding ? onboardingContent : dashboardContent;
+
   // Render desktop layout
   if (!isMobile) {
-    return <DesktopWrapper>{dashboardContent}</DesktopWrapper>;
+    return <DesktopWrapper>{contentToRender}</DesktopWrapper>;
   }
 
   // Render mobile layout
@@ -1293,11 +1320,11 @@ const ProfessionalDashboard = () => {
     <div className="min-h-screen bg-background">
       <MobileHeader />
       <main className="pt-20 pb-8 px-4 max-w-6xl mx-auto">
-        {dashboardContent}
+        {contentToRender}
         {/* Bottom spacer for nav */}
         <div className="h-28" />
       </main>
-      <ProfessionalBottomNav />
+      {!showOnboarding && <ProfessionalBottomNav />}
     </div>
   );
 };
