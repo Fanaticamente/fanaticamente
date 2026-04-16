@@ -48,18 +48,35 @@ const STEPS = [
 
 const STORAGE_KEY = "professional_onboarding_wizard";
 
+const DRAFT_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
+
+const loadDraft = (fallbackCrpFront: string, fallbackCrpBack: string): { step: number; data: OnboardingData } | null => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const draft = JSON.parse(raw);
+    const elapsed = Date.now() - (draft.savedAt ?? 0);
+    if (elapsed > DRAFT_EXPIRY_MS) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return { step: draft.step ?? 0, data: draft.data };
+  } catch {
+    localStorage.removeItem(STORAGE_KEY);
+    return null;
+  }
+};
+
 const OnboardingWizard = ({ professionalId, existingData, onComplete }: OnboardingWizardProps) => {
   const { user } = useAuth();
 
-  // Always start fresh — no localStorage draft restoration.
-  // If the professional closed the app before completing all 8 steps,
-  // they must start over from scratch.
-  useEffect(() => {
-    localStorage.removeItem(STORAGE_KEY);
-  }, []);
+  const [initialized] = useState(() => {
+    const draft = loadDraft(existingData?.crpDocumentFrontUrl ?? "", existingData?.crpDocumentBackUrl ?? "");
+    return draft;
+  });
 
-  const [currentStep, setCurrentStep] = useState(0);
-  const [data, setData] = useState<OnboardingData>({
+  const [currentStep, setCurrentStep] = useState(initialized?.step ?? 0);
+  const [data, setData] = useState<OnboardingData>(initialized?.data ?? {
     imageUrl: "",
     degreeBase: "",
     degreeTitle: "",
@@ -76,6 +93,15 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
     pixKey: "",
   });
   const [isSaving, setIsSaving] = useState(false);
+
+  // Persist draft to localStorage on every change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      step: currentStep,
+      data,
+      savedAt: Date.now(),
+    }));
+  }, [currentStep, data]);
 
   const updateData = useCallback((partial: Partial<OnboardingData>) => {
     setData(prev => ({ ...prev, ...partial }));
