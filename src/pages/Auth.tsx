@@ -354,6 +354,7 @@ const Auth = () => {
 
         if (authMode === "professional") {
           // CRP is collected later in the onboarding wizard
+          profileData.is_professional = true;
           profileData.document_type = signUpData.documentType;
           profileData.document_number = signUpData.documentNumber.replace(/\D/g, '');
         }
