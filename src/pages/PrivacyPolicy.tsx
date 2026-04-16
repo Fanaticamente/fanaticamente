@@ -18,10 +18,10 @@ const PrivacyPolicy = () => {
         <h1 className="text-black font-bold text-lg">Política de Privacidade</h1>
       </header>
 
-      <ScrollArea className="h-[calc(100vh-64px)]">
-        <main className="p-6 pb-24 max-w-4xl mx-auto">
-          <div className="prose prose-sm max-w-none text-black">
-            <h1 className="text-2xl font-bold text-black mb-6">
+      <ScrollArea className="h-[calc(100vh-64px)] w-full">
+        <main className="px-4 py-6 pb-24 max-w-4xl mx-auto w-full overflow-hidden">
+          <div className="prose prose-sm max-w-none text-black break-words [&_*]:break-words">
+            <h1 className="text-xl sm:text-2xl font-bold text-black mb-6 break-words">
               POLÍTICA DE PRIVACIDADE E TRATAMENTO DE DADOS DO FANATICAMENTE
             </h1>
 
