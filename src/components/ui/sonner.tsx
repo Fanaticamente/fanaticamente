@@ -13,14 +13,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-white group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-white/80",
-          actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-          cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
-          error: "group-[.toaster]:!text-white",
-          warning: "group-[.toaster]:!text-white",
-          success: "group-[.toaster]:!text-white",
-          info: "group-[.toaster]:!text-white",
+            "group toast group-[.toaster]:bg-therapy group-[.toaster]:text-therapy-foreground group-[.toaster]:border-therapy group-[.toaster]:shadow-lg",
+          title: "group-[.toast]:!text-therapy-foreground",
+          description: "group-[.toast]:!text-therapy-foreground/90",
+          actionButton: "group-[.toast]:bg-white group-[.toast]:text-therapy",
+          cancelButton: "group-[.toast]:bg-white/20 group-[.toast]:text-therapy-foreground",
+          error: "group-[.toaster]:!bg-therapy group-[.toaster]:!text-therapy-foreground",
+          warning: "group-[.toaster]:!bg-therapy group-[.toaster]:!text-therapy-foreground",
+          success: "group-[.toaster]:!bg-therapy group-[.toaster]:!text-therapy-foreground",
+          info: "group-[.toaster]:!bg-therapy group-[.toaster]:!text-therapy-foreground",
         },
       }}
       {...props}
