@@ -51,47 +51,31 @@ const STORAGE_KEY = "professional_onboarding_wizard";
 const OnboardingWizard = ({ professionalId, existingData, onComplete }: OnboardingWizardProps) => {
   const { user } = useAuth();
 
-  const loadDraft = useCallback((): { step: number; data: Partial<OnboardingData> } | null => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed.professionalId === professionalId) return parsed;
-      }
-    } catch {}
-    return null;
-  }, [professionalId]);
+  // Always start fresh — no localStorage draft restoration.
+  // If the professional closed the app before completing all 8 steps,
+  // they must start over from scratch.
+  useEffect(() => {
+    localStorage.removeItem(STORAGE_KEY);
+  }, []);
 
-  const draft = loadDraft();
-
-  const [currentStep, setCurrentStep] = useState(draft?.step ?? 0);
+  const [currentStep, setCurrentStep] = useState(0);
   const [data, setData] = useState<OnboardingData>({
-    imageUrl: draft?.data?.imageUrl ?? existingData?.imageUrl ?? "",
-    degreeBase: draft?.data?.degreeBase ?? existingData?.degreeBase ?? "",
-    degreeTitle: draft?.data?.degreeTitle ?? existingData?.degreeTitle ?? "",
-    degreeDocumentFrontUrl: draft?.data?.degreeDocumentFrontUrl ?? existingData?.degreeDocumentFrontUrl ?? "",
-    degreeDocumentBackUrl: draft?.data?.degreeDocumentBackUrl ?? existingData?.degreeDocumentBackUrl ?? "",
-    crpDocumentFrontUrl: existingData?.crpDocumentFrontUrl ?? draft?.data?.crpDocumentFrontUrl ?? "",
-    crpDocumentBackUrl: existingData?.crpDocumentBackUrl ?? draft?.data?.crpDocumentBackUrl ?? "",
-    bio: draft?.data?.bio ?? existingData?.bio ?? "",
-    specialties: draft?.data?.specialties ?? existingData?.specialties ?? [],
-    sessionDuration: draft?.data?.sessionDuration ?? existingData?.sessionDuration ?? "50",
-    sessionPrice: draft?.data?.sessionPrice ?? existingData?.sessionPrice ?? "",
-    showPrice: draft?.data?.showPrice ?? existingData?.showPrice ?? true,
-    socioConsciente: draft?.data?.socioConsciente ?? existingData?.socioConsciente ?? false,
-    pixKey: draft?.data?.pixKey ?? existingData?.pixKey ?? "",
+    imageUrl: "",
+    degreeBase: "",
+    degreeTitle: "",
+    degreeDocumentFrontUrl: "",
+    degreeDocumentBackUrl: "",
+    crpDocumentFrontUrl: existingData?.crpDocumentFrontUrl ?? "",
+    crpDocumentBackUrl: existingData?.crpDocumentBackUrl ?? "",
+    bio: "",
+    specialties: [],
+    sessionDuration: "50",
+    sessionPrice: "",
+    showPrice: true,
+    socioConsciente: false,
+    pixKey: "",
   });
   const [isSaving, setIsSaving] = useState(false);
-
-  // Persist draft
-  useEffect(() => {
-    const t = setTimeout(() => {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ professionalId, step: currentStep, data }));
-      } catch {}
-    }, 400);
-    return () => clearTimeout(t);
-  }, [data, currentStep, professionalId]);
 
   const updateData = useCallback((partial: Partial<OnboardingData>) => {
     setData(prev => ({ ...prev, ...partial }));
@@ -130,30 +114,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
   const handleNext = async () => {
     if (!validateStep(currentStep)) return;
 
-    // Save profile data when leaving pricing step (step 5) before payment/subscription
-    if (currentStep === 5) {
-      setIsSaving(true);
-      try {
-        const combinedDegree = data.degreeTitle ? `${data.degreeBase}, ${data.degreeTitle}` : data.degreeBase;
-        const { error } = await supabase
-          .from("professionals")
-          .update({
-            bio: data.bio,
-            degree: combinedDegree,
-            specialties: data.specialties,
-            hourly_rate: data.sessionPrice ? parseFloat(data.sessionPrice) : null,
-            socio_consciente: data.socioConsciente,
-          })
-          .eq("id", professionalId);
-        if (error) throw error;
-      } catch (error) {
-        console.error("Save error:", error);
-        toast.error("Erro ao salvar dados. Tente novamente.");
-        setIsSaving(false);
-        return;
-      }
-      setIsSaving(false);
-    }
+    // No intermediate DB saves — everything is saved only when all 8 steps are complete
 
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(prev => prev + 1);
@@ -164,10 +125,47 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
     if (currentStep > 0) setCurrentStep(prev => prev - 1);
   };
 
-  const handleSubscriptionComplete = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    toast.success("Cadastro profissional concluído! 🎉");
-    onComplete();
+  const handleSubscriptionComplete = async () => {
+    if (!user) return;
+
+    setIsSaving(true);
+    try {
+      const combinedDegree = data.degreeTitle ? `${data.degreeBase}, ${data.degreeTitle}` : data.degreeBase;
+
+      // Save all professional data at once
+      const { error: profError } = await supabase
+        .from("professionals")
+        .update({
+          bio: data.bio,
+          degree: combinedDegree,
+          specialties: data.specialties,
+          hourly_rate: data.sessionPrice ? parseFloat(data.sessionPrice) : null,
+          socio_consciente: data.socioConsciente,
+          pix_key: data.pixKey.trim() || null,
+          pix_key_type: data.pixKey.trim() ? "random" : null,
+          crp_document_front_url: data.crpDocumentFrontUrl || null,
+          crp_document_back_url: data.crpDocumentBackUrl || null,
+          degree_document_front_url: data.degreeDocumentFrontUrl || null,
+          degree_document_back_url: data.degreeDocumentBackUrl || null,
+        })
+        .eq("id", professionalId);
+
+      if (profError) throw profError;
+
+      // Save avatar to profile
+      if (data.imageUrl) {
+        await supabase.from("profiles").update({ avatar_url: data.imageUrl }).eq("user_id", user.id);
+      }
+
+      localStorage.removeItem(STORAGE_KEY);
+      toast.success("Cadastro profissional concluído! 🎉");
+      onComplete();
+    } catch (error) {
+      console.error("Save error:", error);
+      toast.error("Erro ao salvar dados. Tente novamente.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const isLastStep = currentStep === STEPS.length - 1;
@@ -282,17 +280,8 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
             disabled={isSaving}
             className="flex-1 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:scale-[1.02] transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {isSaving ? (
-              <>
-                <div className="w-4 h-4 border-2 border-therapy-foreground border-t-transparent rounded-full animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              <>
-                Continuar
-                <ChevronRight className="w-4 h-4" />
-              </>
-            )}
+            Continuar
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       )}

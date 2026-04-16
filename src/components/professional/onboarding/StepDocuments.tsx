@@ -41,9 +41,8 @@ const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) =
       if (sErr) throw sErr;
 
       const url = signed.signedUrl;
-      const field = side === "front" ? "crp_document_front_url" : "crp_document_back_url";
-      await supabase.from("professionals").update({ [field]: url }).eq("id", professionalId);
 
+      // Don't save to DB yet — will be saved when onboarding completes
       onUpdate(side === "front" ? { crpDocumentFrontUrl: url } : { crpDocumentBackUrl: url });
       toast.success(`CRP (${side === "front" ? "frente" : "verso"}) enviado!`);
     } catch (e) {
