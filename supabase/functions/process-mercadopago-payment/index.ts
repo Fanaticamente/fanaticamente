@@ -70,8 +70,8 @@ serve(async (req) => {
       throw new Error("MERCADOPAGO_ACCESS_TOKEN is not configured");
     }
 
-    const { planId, token, paymentMethodId, issuerId, installments, email, deviceId, clientIp } = await req.json();
-    logStep("Request received", { planId, paymentMethodId, issuerId, installments, hasToken: !!token, hasDeviceId: !!deviceId });
+    const { planId, token, paymentMethodId, issuerId, installments, email, deviceId, clientIp, couponCode } = await req.json();
+    logStep("Request received", { planId, paymentMethodId, issuerId, installments, hasToken: !!token, hasDeviceId: !!deviceId, couponCode });
 
     if (!planId || !PLANS[planId]) {
       throw new Error("Invalid plan ID");
@@ -93,9 +93,43 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id });
 
+    // Server-side coupon validation & price recalculation (source of truth)
+    let finalAmount = plan.amount;
+    let appliedCoupon: { id: string; discount: number; final: number; original: number } | null = null;
+
+    if (couponCode && typeof couponCode === "string") {
+      const code = couponCode.trim().toUpperCase();
+      const { data: coupon, error: couponError } = await supabaseClient
+        .from("coupons")
+        .select("*")
+        .eq("code", code)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (couponError) logStep("Coupon lookup error", { error: couponError });
+      if (!coupon) throw new Error("Cupom inválido");
+      if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) throw new Error("Cupom expirado");
+      if (coupon.max_uses && coupon.current_uses >= coupon.max_uses) throw new Error("Cupom esgotado");
+      if (coupon.applicable_to !== "all" && coupon.applicable_to !== "subscription") throw new Error("Cupom não aplicável a este plano");
+      if (coupon.min_amount && plan.amount < Number(coupon.min_amount)) throw new Error("Valor abaixo do mínimo do cupom");
+
+      let discount = 0;
+      if (coupon.discount_type === "percentage") {
+        discount = plan.amount * (Number(coupon.discount_value) / 100);
+      } else {
+        discount = Math.min(Number(coupon.discount_value), plan.amount);
+      }
+      finalAmount = Math.max(plan.amount - discount, 0);
+      // Mercado Pago requires a minimum charge; enforce R$ 0.50 minimum
+      if (finalAmount < 0.5) finalAmount = 0.5;
+      finalAmount = Math.round(finalAmount * 100) / 100;
+      appliedCoupon = { id: coupon.id, discount, final: finalAmount, original: plan.amount };
+      logStep("Coupon applied server-side", appliedCoupon);
+    }
+
     // Build payment body
     const paymentBody: Record<string, unknown> = {
-      transaction_amount: plan.amount,
+      transaction_amount: finalAmount,
       token: token,
       description: `${plan.name} - Fanática`,
       installments: installments || 1,
@@ -109,6 +143,8 @@ serve(async (req) => {
         user_id: user.id,
         plan_id: planId,
         plan_name: plan.name,
+        coupon_code: appliedCoupon ? couponCode : null,
+        original_amount: plan.amount,
       },
     };
 
@@ -166,6 +202,32 @@ serve(async (req) => {
         // Payment succeeded but DB update failed - log but don't fail
       } else {
         logStep("Professional subscription updated", { expiresAt: expiresAt.toISOString() });
+      }
+
+      // Register coupon usage server-side
+      if (appliedCoupon) {
+        const { error: usageError } = await supabaseClient.from("coupon_usage").insert({
+          coupon_id: appliedCoupon.id,
+          user_id: user.id,
+          original_amount: appliedCoupon.original,
+          discount_amount: appliedCoupon.discount,
+          final_amount: appliedCoupon.final,
+        });
+        if (usageError) {
+          logStep("Error inserting coupon usage", { error: usageError });
+        } else {
+          const { data: cur } = await supabaseClient
+            .from("coupons")
+            .select("current_uses")
+            .eq("id", appliedCoupon.id)
+            .maybeSingle();
+          const newUses = (cur?.current_uses ?? 0) + 1;
+          await supabaseClient
+            .from("coupons")
+            .update({ current_uses: newUses })
+            .eq("id", appliedCoupon.id);
+          logStep("Coupon usage registered", { couponId: appliedCoupon.id, newUses });
+        }
       }
     }
 
