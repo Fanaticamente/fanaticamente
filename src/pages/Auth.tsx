@@ -397,9 +397,9 @@ const Auth = () => {
     });
   };
 
-  const inputClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors";
-  const selectClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors appearance-none cursor-pointer";
-  const dateInputClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none transition-colors appearance-none text-base leading-none";
+  const inputClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-therapy focus:ring-2 focus:ring-therapy focus:outline-none transition-colors";
+  const selectClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-therapy focus:ring-2 focus:ring-therapy focus:outline-none transition-colors appearance-none cursor-pointer";
+  const dateInputClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-therapy focus:ring-2 focus:ring-therapy focus:outline-none transition-colors appearance-none text-base leading-none";
 
   const isMobile = useIsMobile();
 
@@ -799,7 +799,7 @@ const Auth = () => {
                           id="accept-terms-desktop"
                           checked={acceptedTerms}
                           onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                          className="mt-0.5"
+                          className="mt-0.5 border-therapy data-[state=checked]:bg-therapy data-[state=checked]:text-therapy-foreground data-[state=checked]:border-therapy focus-visible:ring-therapy"
                         />
                         <label htmlFor="accept-terms-desktop" className="text-sm text-therapy cursor-pointer leading-relaxed">
                           Li e aceito a{" "}
@@ -1213,7 +1213,7 @@ const Auth = () => {
                       id="accept-terms"
                       checked={acceptedTerms}
                       onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                      className="mt-0.5"
+                      className="mt-0.5 border-therapy data-[state=checked]:bg-therapy data-[state=checked]:text-therapy-foreground data-[state=checked]:border-therapy focus-visible:ring-therapy"
                     />
                     <label htmlFor="accept-terms" className="text-sm text-therapy cursor-pointer leading-relaxed">
                       Li e aceito a{" "}
