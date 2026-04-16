@@ -14,8 +14,9 @@ import AdminProfessionalsTable from "@/components/admin/AdminProfessionalsTable"
 import AdminProfessionalsManagement from "@/components/admin/AdminProfessionalsManagement";
 import AdminAppointmentsTable from "@/components/admin/AdminAppointmentsTable";
 import AdminNotifications from "@/components/admin/AdminNotifications";
+import AdminCouponManager from "@/components/admin/AdminCouponManager";
 
-type TabType = "dashboard" | "financeiro" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "notificacoes" | "configuracoes";
+type TabType = "dashboard" | "financeiro" | "financeiro-cupons" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "notificacoes" | "configuracoes";
 
 const AdminDashboard = () => {
   const { user, signOut, hasRole, loading } = useAuth();
@@ -23,7 +24,7 @@ const AdminDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Valid tabs
-  const validTabs: TabType[] = ["dashboard", "financeiro", "usuarios", "gestao", "profissionais", "agendamentos", "notificacoes", "configuracoes"];
+  const validTabs: TabType[] = ["dashboard", "financeiro", "financeiro-cupons", "usuarios", "gestao", "profissionais", "agendamentos", "notificacoes", "configuracoes"];
   
   // Get tab from URL or default
   const getTabFromUrl = (): TabType => {
@@ -100,7 +101,10 @@ const AdminDashboard = () => {
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "financeiro", label: "Financeiro", icon: DollarSign },
+    { id: "financeiro", label: "Financeiro", icon: DollarSign, subItems: [
+      { id: "financeiro", label: "Visão Geral" },
+      { id: "financeiro-cupons", label: "Gerenciador de Cupons" },
+    ]},
     { id: "usuarios", label: "Usuários", icon: Users },
     { id: "gestao", label: "Gestão", icon: ClipboardList },
     { id: "profissionais", label: "Profissionais", icon: UserCheck },
@@ -132,21 +136,45 @@ const AdminDashboard = () => {
         </div>
         <p className={`px-6 -mt-3 mb-4 ${themeStyles.textMuted} text-sm`}>Painel Administrativo</p>
 
-        <nav className="px-4 space-y-2">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleTabChange(item.id as TabType)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                activeTab === item.id
-                  ? "bg-secondary text-secondary-foreground"
-                  : `${themeStyles.textMuted} ${themeStyles.hoverBg}`
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              {item.label}
-            </button>
-          ))}
+        <nav className="px-4 space-y-1">
+          {navItems.map((item) => {
+            const isParentActive = item.subItems
+              ? item.subItems.some(sub => sub.id === activeTab)
+              : activeTab === item.id;
+
+            return (
+              <div key={item.id}>
+                <button
+                  onClick={() => handleTabChange(item.id as TabType)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                    isParentActive
+                      ? "bg-secondary text-secondary-foreground"
+                      : `${themeStyles.textMuted} ${themeStyles.hoverBg}`
+                  }`}
+                >
+                  <item.icon className="w-5 h-5" />
+                  {item.label}
+                </button>
+                {item.subItems && isParentActive && (
+                  <div className="ml-8 mt-1 space-y-1">
+                    {item.subItems.map(sub => (
+                      <button
+                        key={sub.id}
+                        onClick={() => handleTabChange(sub.id as TabType)}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                          activeTab === sub.id
+                            ? `${themeStyles.text} font-medium`
+                            : `${themeStyles.textMuted} ${themeStyles.hoverBg}`
+                        }`}
+                      >
+                        {sub.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
 
         <div className={`absolute bottom-0 left-0 right-0 p-4 border-t ${themeStyles.border}`}>
@@ -202,6 +230,11 @@ const AdminDashboard = () => {
         {/* Financeiro Tab */}
         {activeTab === "financeiro" && (
           <AdminFinanceDashboard themeStyles={themeStyles} isDarkMode={isDarkMode} />
+        )}
+
+        {/* Cupons Tab */}
+        {activeTab === "financeiro-cupons" && (
+          <AdminCouponManager themeStyles={themeStyles} isDarkMode={isDarkMode} />
         )}
 
         {/* Usuários Tab */}
