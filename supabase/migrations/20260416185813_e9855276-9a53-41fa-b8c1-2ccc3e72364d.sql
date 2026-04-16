@@ -1,0 +1,1 @@
+ALTER TABLE public.professionals ALTER COLUMN crp DROP NOT NULL;

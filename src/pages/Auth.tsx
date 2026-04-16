@@ -241,18 +241,8 @@ const Auth = () => {
       newErrors.fullName = "Nome completo é obrigatório";
     }
 
-    // Validate CRP only for professionals
+    // CRP is collected later in the onboarding wizard (step 3 — Documentos)
     if (authMode === "professional") {
-      if (!signUpData.crp.trim()) {
-        newErrors.crp = "CRP é obrigatório";
-      } else {
-        // CRP format: XX/XXXXX (2 digits / 4-6 digits)
-        const crpRegex = /^\d{2}\/\d{4,6}$/;
-        if (!crpRegex.test(signUpData.crp)) {
-          newErrors.crp = "Formato inválido. Use XX/XXXXX (ex: 06/12345)";
-        }
-      }
-
       // Validate document type and number for professionals
       if (!signUpData.documentType) {
         newErrors.documentType = "Selecione CPF ou CNPJ";
@@ -363,7 +353,7 @@ const Auth = () => {
         };
 
         if (authMode === "professional") {
-          profileData.crp = signUpData.crp;
+          // CRP is collected later in the onboarding wizard
           profileData.document_type = signUpData.documentType;
           profileData.document_number = signUpData.documentNumber.replace(/\D/g, '');
         }
@@ -607,82 +597,26 @@ const Auth = () => {
                       )}
                     </div>
 
-                    {/* CRP and Birth Date - Side by Side for Professionals */}
-                    {authMode === "professional" ? (
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-card-foreground text-sm mb-2">
-                            CRP *
-                          </label>
-                          <input
-                            type="text"
-                            value={signUpData.crp}
-                            onChange={(e) => handleSignUpDataChange('crp', formatCRP(e.target.value))}
-                            className={inputClassName}
-                            placeholder="06/12345"
-                            maxLength={8}
-                          />
-                          {errors.crp && (
-                            <p className="text-destructive text-xs mt-1">{errors.crp}</p>
-                          )}
-                        </div>
-                        <div>
-                          <label className="block text-card-foreground text-sm mb-2">
-                            Nascimento
-                          </label>
-                          <input
-                            type="date"
-                            value={signUpData.birthDate}
-                            onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
-                            className={dateInputClassName}
-                            max={new Date().toISOString().split('T')[0]}
-                          />
-                          {errors.birthDate && (
-                            <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-card-foreground text-sm mb-2">
-                            Nascimento
-                          </label>
-                          <input
-                            type="date"
-                            value={signUpData.birthDate}
-                            onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
-                            className={dateInputClassName}
-                            max={new Date().toISOString().split('T')[0]}
-                          />
-                          {errors.birthDate && (
-                            <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
-                          )}
-                        </div>
-                        <div>
-                          <label className="block text-card-foreground text-sm mb-2">
-                            Telefone
-                          </label>
-                          <input
-                            type="tel"
-                            value={signUpData.phone}
-                            onChange={(e) => handleSignUpDataChange('phone', formatPhone(e.target.value))}
-                            className={inputClassName}
-                            placeholder="(11) 99999-9999"
-                            maxLength={15}
-                          />
-                          {errors.phone && (
-                            <p className="text-destructive text-xs mt-1">{errors.phone}</p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Phone for Professionals */}
-                    {authMode === "professional" && (
+                    {/* Birth Date and Phone - Side by Side */}
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-card-foreground text-sm mb-2">
-                          Telefone com DDD
+                          Nascimento
+                        </label>
+                        <input
+                          type="date"
+                          value={signUpData.birthDate}
+                          onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
+                          className={dateInputClassName}
+                          max={new Date().toISOString().split('T')[0]}
+                        />
+                        {errors.birthDate && (
+                          <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-card-foreground text-sm mb-2">
+                          Telefone
                         </label>
                         <input
                           type="tel"
@@ -693,10 +627,10 @@ const Auth = () => {
                           maxLength={15}
                         />
                         {errors.phone && (
-                          <p className="text-destructive text-sm mt-1">{errors.phone}</p>
+                          <p className="text-destructive text-xs mt-1">{errors.phone}</p>
                         )}
                       </div>
-                    )}
+                    </div>
 
                     {/* Document Type Selection for Professionals */}
                     {authMode === "professional" && (
@@ -867,19 +801,23 @@ const Auth = () => {
                           onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
                           className="mt-0.5"
                         />
-                        <label htmlFor="accept-terms-desktop" className="text-sm text-foreground cursor-pointer leading-relaxed">
+                        <label htmlFor="accept-terms-desktop" className="text-sm text-therapy cursor-pointer leading-relaxed">
                           Li e aceito a{" "}
-                          <Link 
-                            to="/politica-privacidade" 
+                          <Link
+                            to="/politica-privacidade"
                             target="_blank"
-                        className="underline font-medium text-therapy"
-                      >
-                        Política de Privacidade
-                      </Link>
-                      {" "}e os{" "}
-                      <span className="font-medium text-therapy">
+                            className="underline font-medium text-therapy"
+                          >
+                            Política de Privacidade
+                          </Link>
+                          {" "}e os{" "}
+                          <Link
+                            to="/politica-privacidade"
+                            target="_blank"
+                            className="underline font-medium text-therapy"
+                          >
                             Termos de Uso
-                          </span>
+                          </Link>
                           {" "}da plataforma Fanaticamente.
                         </label>
                       </div>
@@ -1068,86 +1006,26 @@ const Auth = () => {
                   )}
                 </div>
 
-                {/* CRP and Birth Date - Side by Side for Professionals */}
-                {authMode === "professional" ? (
-                  <div className="grid grid-cols-2 gap-3">
-                    {/* CRP */}
-                    <div>
-                      <label className="block text-card-foreground text-sm mb-2">
-                        CRP *
-                      </label>
-                      <input
-                        type="text"
-                        value={signUpData.crp}
-                        onChange={(e) => handleSignUpDataChange('crp', formatCRP(e.target.value))}
-                        className={inputClassName}
-                        placeholder="06/12345"
-                        maxLength={8}
-                      />
-                      {errors.crp && (
-                        <p className="text-destructive text-xs mt-1">{errors.crp}</p>
-                      )}
-                    </div>
-
-                    {/* Birth Date */}
-                    <div>
-                      <label className="block text-card-foreground text-sm mb-2">
-                        Nascimento
-                      </label>
-                      <input
-                        type="date"
-                        value={signUpData.birthDate}
-                        onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
-                        className={dateInputClassName}
-                        max={new Date().toISOString().split('T')[0]}
-                      />
-                      {errors.birthDate && (
-                        <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  /* Birth Date and Phone - Side by Side for Users */
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-card-foreground text-sm mb-2">
-                        Nascimento
-                      </label>
-                      <input
-                        type="date"
-                        value={signUpData.birthDate}
-                        onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
-                        className={dateInputClassName}
-                        max={new Date().toISOString().split('T')[0]}
-                      />
-                      {errors.birthDate && (
-                        <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-card-foreground text-sm mb-2">
-                        Telefone
-                      </label>
-                      <input
-                        type="tel"
-                        value={signUpData.phone}
-                        onChange={(e) => handleSignUpDataChange('phone', formatPhone(e.target.value))}
-                        className={inputClassName}
-                        placeholder="(11) 99999-9999"
-                        maxLength={15}
-                      />
-                      {errors.phone && (
-                        <p className="text-destructive text-xs mt-1">{errors.phone}</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Phone for Professionals */}
-                {authMode === "professional" && (
+                {/* Birth Date and Phone - Side by Side */}
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-card-foreground text-sm mb-2">
-                      Telefone com DDD
+                      Nascimento
+                    </label>
+                    <input
+                      type="date"
+                      value={signUpData.birthDate}
+                      onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
+                      className={dateInputClassName}
+                      max={new Date().toISOString().split('T')[0]}
+                    />
+                    {errors.birthDate && (
+                      <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-card-foreground text-sm mb-2">
+                      Telefone
                     </label>
                     <input
                       type="tel"
@@ -1158,10 +1036,10 @@ const Auth = () => {
                       maxLength={15}
                     />
                     {errors.phone && (
-                      <p className="text-destructive text-sm mt-1">{errors.phone}</p>
+                      <p className="text-destructive text-xs mt-1">{errors.phone}</p>
                     )}
                   </div>
-                )}
+                </div>
 
                 {/* Document Type Selection for Professionals */}
                 {authMode === "professional" && (
@@ -1337,19 +1215,23 @@ const Auth = () => {
                       onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
                       className="mt-0.5"
                     />
-                    <label htmlFor="accept-terms" className="text-sm text-foreground cursor-pointer leading-relaxed">
+                    <label htmlFor="accept-terms" className="text-sm text-therapy cursor-pointer leading-relaxed">
                       Li e aceito a{" "}
-                      <Link 
-                        to="/politica-privacidade" 
+                      <Link
+                        to="/politica-privacidade"
                         target="_blank"
-                      className="underline font-medium text-therapy"
+                        className="underline font-medium text-therapy"
                       >
                         Política de Privacidade
                       </Link>
                       {" "}e os{" "}
-                      <span className="font-medium text-therapy">
+                      <Link
+                        to="/politica-privacidade"
+                        target="_blank"
+                        className="underline font-medium text-therapy"
+                      >
                         Termos de Uso
-                      </span>
+                      </Link>
                       {" "}da plataforma Fanaticamente.
                     </label>
                   </div>

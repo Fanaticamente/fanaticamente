@@ -11,6 +11,12 @@ interface StepDocumentsProps {
   onUpdate: (partial: Partial<OnboardingData>) => void;
 }
 
+const formatCRP = (value: string): string => {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 8)}`;
+};
+
 const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) => {
   const { user } = useAuth();
   const [isUploadingFront, setIsUploadingFront] = useState(false);
@@ -96,6 +102,23 @@ const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) =
           </div>
           <input ref={backRef} type="file" accept="image/*,application/pdf" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "back"); }} className="hidden" />
         </div>
+      </div>
+
+      {/* CRP number */}
+      <div className="mt-5">
+        <label className="block text-sm text-card-foreground mb-2">
+          Número do CRP <span className="text-destructive">*</span>
+        </label>
+        <input
+          type="text"
+          value={data.crp ?? ""}
+          onChange={(e) => onUpdate({ crp: formatCRP(e.target.value) })}
+          placeholder="06/12345"
+          maxLength={8}
+          inputMode="numeric"
+          className="w-full px-4 py-3 rounded-xl bg-background border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-therapy"
+        />
+        <p className="text-xs text-muted-foreground mt-1">Formato: XX/XXXXX (ex: 06/12345)</p>
       </div>
 
       <p className="text-xs text-muted-foreground text-center mt-4">

@@ -1236,7 +1236,7 @@ export type Database = {
           approval_status: string | null
           bio: string | null
           created_at: string
-          crp: string
+          crp: string | null
           crp_document_back_url: string | null
           crp_document_front_url: string | null
           degree: string | null
@@ -1267,7 +1267,7 @@ export type Database = {
           approval_status?: string | null
           bio?: string | null
           created_at?: string
-          crp: string
+          crp?: string | null
           crp_document_back_url?: string | null
           crp_document_front_url?: string | null
           degree?: string | null
@@ -1298,7 +1298,7 @@ export type Database = {
           approval_status?: string | null
           bio?: string | null
           created_at?: string
-          crp?: string
+          crp?: string | null
           crp_document_back_url?: string | null
           crp_document_front_url?: string | null
           degree?: string | null
