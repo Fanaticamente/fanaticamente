@@ -159,6 +159,7 @@ const MercadoPagoCardForm = ({ planId, planName, planPrice, onBack, onSuccess }:
           installments,
           email,
           deviceId,
+          couponCode: couponApplied ? couponCode.trim().toUpperCase() : undefined,
         },
       });
 
