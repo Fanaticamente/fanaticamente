@@ -18,6 +18,7 @@ export interface OnboardingData {
   degreeTitle: string;
   degreeDocumentFrontUrl: string;
   degreeDocumentBackUrl: string;
+  crp: string;
   crpDocumentFrontUrl: string;
   crpDocumentBackUrl: string;
   bio: string;
@@ -82,6 +83,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
     degreeTitle: "",
     degreeDocumentFrontUrl: "",
     degreeDocumentBackUrl: "",
+    crp: "",
     crpDocumentFrontUrl: existingData?.crpDocumentFrontUrl ?? "",
     crpDocumentBackUrl: existingData?.crpDocumentBackUrl ?? "",
     bio: "",
@@ -119,8 +121,14 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
           return false;
         }
         return true;
-      case 2: // Documents
+      case 2: { // Documents — CRP number + both card photos required
+        const crpRegex = /^\d{2}\/\d{4,6}$/;
+        if (!data.crp.trim()) { toast.error("Informe seu número do CRP"); return false; }
+        if (!crpRegex.test(data.crp.trim())) { toast.error("Formato de CRP inválido. Use XX/XXXXX (ex: 06/12345)"); return false; }
+        if (!data.crpDocumentFrontUrl) { toast.error("Envie a frente da carteira do CRP"); return false; }
+        if (!data.crpDocumentBackUrl) { toast.error("Envie o verso da carteira do CRP"); return false; }
         return true;
+      }
       case 3: // Bio
         if (!data.bio.trim() || data.bio.length < 50) { toast.error("A bio deve ter pelo menos 50 caracteres"); return false; }
         return true;
@@ -163,6 +171,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
         .from("professionals")
         .update({
           bio: data.bio,
+          crp: data.crp.trim(),
           degree: combinedDegree,
           specialties: data.specialties,
           hourly_rate: data.sessionPrice ? parseFloat(data.sessionPrice) : null,
