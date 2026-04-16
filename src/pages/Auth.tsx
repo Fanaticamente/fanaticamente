@@ -99,7 +99,20 @@ const Auth = () => {
   const navigate = useNavigate();
 
   // Get cities based on selected state
-  const availableCities = signUpData.state ? getCitiesByState(signUpData.state) : [];
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
+
+  useEffect(() => {
+    if (!signUpData.state) {
+      setAvailableCities([]);
+      return;
+    }
+    setLoadingCities(true);
+    getCitiesByState(signUpData.state).then(cities => {
+      setAvailableCities(cities);
+      setLoadingCities(false);
+    });
+  }, [signUpData.state]);
 
   useEffect(() => {
     // Only redirect if role has been validated AND roles are loaded
