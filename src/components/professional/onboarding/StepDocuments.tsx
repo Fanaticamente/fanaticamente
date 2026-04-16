@@ -11,6 +11,12 @@ interface StepDocumentsProps {
   onUpdate: (partial: Partial<OnboardingData>) => void;
 }
 
+const formatCRP = (value: string): string => {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 8)}`;
+};
+
 const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) => {
   const { user } = useAuth();
   const [isUploadingFront, setIsUploadingFront] = useState(false);
