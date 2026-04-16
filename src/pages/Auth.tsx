@@ -3,11 +3,16 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Briefcase, User, ChevronDown, Brain, ArrowLeft } from "lucide-react";
+import { Briefcase, User, ChevronDown, Brain, ArrowLeft, Calendar as CalendarIcon } from "lucide-react";
+import { format, parse } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { allBrazilianClubs } from "@/data/allBrazilianClubs";
 import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { supabase } from "@/integrations/supabase/client";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import logoAuth from "@/assets/logo-auth.png";
 import { useIsMobile } from "@/hooks/use-mobile";
 import heroCover from "@/assets/desktop/hero-cover.png";
@@ -604,13 +609,34 @@ const Auth = () => {
                         <label className="block text-card-foreground text-sm mb-2">
                           Nascimento
                         </label>
-                        <input
-                          type="date"
-                          value={signUpData.birthDate}
-                          onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
-                          className={dateInputClassName}
-                          max={new Date().toISOString().split('T')[0]}
-                        />
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button
+                              type="button"
+                              className={cn(dateInputClassName, "flex items-center justify-between text-left")}
+                            >
+                              <span className={signUpData.birthDate ? "" : "text-muted-foreground"}>
+                                {signUpData.birthDate
+                                  ? format(parse(signUpData.birthDate, "yyyy-MM-dd", new Date()), "dd/MM/yyyy")
+                                  : "dd/mm/aaaa"}
+                              </span>
+                              <CalendarIcon className="w-4 h-4 opacity-60" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0 bg-background z-[100]" align="start">
+                            <Calendar
+                              mode="single"
+                              locale={ptBR}
+                              selected={signUpData.birthDate ? parse(signUpData.birthDate, "yyyy-MM-dd", new Date()) : undefined}
+                              onSelect={(d) => d && handleSignUpDataChange('birthDate', format(d, "yyyy-MM-dd"))}
+                              disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                              captionLayout="dropdown-buttons"
+                              fromYear={1900}
+                              toYear={new Date().getFullYear()}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
                         {errors.birthDate && (
                           <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
                         )}
@@ -1013,13 +1039,34 @@ const Auth = () => {
                     <label className="block text-card-foreground text-sm mb-2">
                       Nascimento
                     </label>
-                    <input
-                      type="date"
-                      value={signUpData.birthDate}
-                      onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
-                      className={dateInputClassName}
-                      max={new Date().toISOString().split('T')[0]}
-                    />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className={cn(dateInputClassName, "flex items-center justify-between text-left")}
+                        >
+                          <span className={signUpData.birthDate ? "" : "text-muted-foreground"}>
+                            {signUpData.birthDate
+                              ? format(parse(signUpData.birthDate, "yyyy-MM-dd", new Date()), "dd/MM/yyyy")
+                              : "dd/mm/aaaa"}
+                          </span>
+                          <CalendarIcon className="w-4 h-4 opacity-60" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-background z-[100]" align="start">
+                        <Calendar
+                          mode="single"
+                          locale={ptBR}
+                          selected={signUpData.birthDate ? parse(signUpData.birthDate, "yyyy-MM-dd", new Date()) : undefined}
+                          onSelect={(d) => d && handleSignUpDataChange('birthDate', format(d, "yyyy-MM-dd"))}
+                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                          captionLayout="dropdown-buttons"
+                          fromYear={1900}
+                          toYear={new Date().getFullYear()}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
                     {errors.birthDate && (
                       <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
                     )}
