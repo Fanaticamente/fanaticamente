@@ -17,6 +17,7 @@
     user-select: none;
   }
   :root {
+    --app-height: 100dvh;
     /* Core Colors - Football Theme */
     --background: 0 0% 8%;
     --foreground: 45 100% 51%;

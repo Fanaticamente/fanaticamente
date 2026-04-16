@@ -400,6 +400,58 @@ const Auth = () => {
 
   const isMobile = useIsMobile();
 
+  useEffect(() => {
+    if (!isMobile || typeof document === "undefined" || typeof window === "undefined") {
+      return;
+    }
+
+    const html = document.documentElement;
+    const body = document.body;
+    const previousStyles = {
+      htmlOverflow: html.style.overflow,
+      htmlHeight: html.style.height,
+      htmlOverscroll: html.style.overscrollBehavior,
+      bodyOverflow: body.style.overflow,
+      bodyHeight: body.style.height,
+      bodyOverscroll: body.style.overscrollBehavior,
+    };
+
+    const resetWindowScroll = () => {
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      });
+    };
+
+    html.style.overflow = "hidden";
+    html.style.height = "var(--app-height, 100dvh)";
+    html.style.overscrollBehavior = "none";
+
+    body.style.overflow = "hidden";
+    body.style.height = "var(--app-height, 100dvh)";
+    body.style.overscrollBehavior = "none";
+
+    const viewport = window.visualViewport;
+
+    resetWindowScroll();
+    document.addEventListener("focusout", resetWindowScroll);
+    viewport?.addEventListener("resize", resetWindowScroll);
+    viewport?.addEventListener("scroll", resetWindowScroll);
+
+    return () => {
+      document.removeEventListener("focusout", resetWindowScroll);
+      viewport?.removeEventListener("resize", resetWindowScroll);
+      viewport?.removeEventListener("scroll", resetWindowScroll);
+
+      html.style.overflow = previousStyles.htmlOverflow;
+      html.style.height = previousStyles.htmlHeight;
+      html.style.overscrollBehavior = previousStyles.htmlOverscroll;
+
+      body.style.overflow = previousStyles.bodyOverflow;
+      body.style.height = previousStyles.bodyHeight;
+      body.style.overscrollBehavior = previousStyles.bodyOverscroll;
+    };
+  }, [isMobile]);
+
   // Desktop Layout
   if (!isMobile) {
     return (
@@ -891,7 +943,10 @@ const Auth = () => {
 
   // Mobile Layout (existing)
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-background flex items-start justify-center px-4 py-8 overflow-y-auto" style={{ minHeight: '-webkit-fill-available' }}>
+    <div
+      className="bg-background flex h-[var(--app-height,100dvh)] items-start justify-center overflow-y-auto overscroll-contain px-4 py-8"
+      style={{ WebkitOverflowScrolling: "touch" }}
+    >
       <div className="w-full max-w-md pb-8">
         <div className="text-center mb-8">
           <img src={logoAuth} alt="Logo" className="h-44 w-auto mx-auto mb-6" />
