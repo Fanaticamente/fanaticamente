@@ -32,6 +32,12 @@ const MercadoPagoCardForm = ({ planId, planName, planPrice, onBack, onSuccess }:
   const [mp, setMp] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Coupon
+  const [couponCode, setCouponCode] = useState("");
+  const [couponApplied, setCouponApplied] = useState<{ discount: number; finalPrice: number } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
   // Card form fields
   const [cardNumber, setCardNumber] = useState("");
   const [cardholderName, setCardholderName] = useState("");
@@ -220,6 +226,86 @@ const MercadoPagoCardForm = ({ planId, planName, planPrice, onBack, onSuccess }:
           {error}
         </div>
       )}
+
+      {/* Coupon Field */}
+      <div className="space-y-1.5">
+        <div className="flex gap-2">
+          <Input
+            value={couponCode}
+            onChange={(e) => {
+              setCouponCode(e.target.value.toUpperCase());
+              if (couponApplied) {
+                setCouponApplied(null);
+                setCouponError(null);
+              }
+            }}
+            placeholder="Cupom"
+            disabled={!!couponApplied || couponLoading}
+            className="bg-background border-border uppercase flex-1"
+          />
+          {couponApplied ? (
+            <button
+              type="button"
+              onClick={() => {
+                setCouponApplied(null);
+                setCouponCode("");
+                setCouponError(null);
+              }}
+              className="px-3 py-2 text-xs font-medium text-destructive border border-destructive/30 rounded-md hover:bg-destructive/10 transition-colors whitespace-nowrap"
+            >
+              Remover
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={!couponCode.trim() || couponLoading}
+              onClick={async () => {
+                setCouponLoading(true);
+                setCouponError(null);
+                try {
+                  const code = couponCode.trim();
+                  const { data, error: fetchError } = await supabase
+                    .from("coupons")
+                    .select("*")
+                    .eq("code", code)
+                    .eq("is_active", true)
+                    .maybeSingle();
+
+                  if (fetchError) throw fetchError;
+                  if (!data) { setCouponError("Cupom inválido"); return; }
+                  if (data.expires_at && new Date(data.expires_at) < new Date()) { setCouponError("Cupom expirado"); return; }
+                  if (data.max_uses && data.current_uses >= data.max_uses) { setCouponError("Cupom esgotado"); return; }
+                  if (data.applicable_to !== "all" && data.applicable_to !== "subscription") { setCouponError("Cupom não aplicável"); return; }
+                  if (data.min_amount && planPrice < Number(data.min_amount)) { setCouponError(`Valor mínimo: R$ ${Number(data.min_amount).toFixed(2).replace(".", ",")}`); return; }
+
+                  let discount = 0;
+                  if (data.discount_type === "percentage") {
+                    discount = planPrice * (Number(data.discount_value) / 100);
+                  } else {
+                    discount = Math.min(Number(data.discount_value), planPrice);
+                  }
+                  const finalPrice = Math.max(planPrice - discount, 0);
+                  setCouponApplied({ discount, finalPrice });
+                  toast.success(`Cupom aplicado! Desconto de R$ ${discount.toFixed(2).replace(".", ",")}`);
+                } catch {
+                  setCouponError("Erro ao validar cupom");
+                } finally {
+                  setCouponLoading(false);
+                }
+              }}
+              className="px-3 py-2 text-xs font-medium bg-therapy text-therapy-foreground rounded-md hover:opacity-90 transition-opacity disabled:opacity-50 whitespace-nowrap"
+            >
+              {couponLoading ? "..." : "Aplicar"}
+            </button>
+          )}
+        </div>
+        {couponError && <p className="text-xs text-destructive">{couponError}</p>}
+        {couponApplied && (
+          <p className="text-xs text-green-500">
+            Desconto aplicado: -R$ {couponApplied.discount.toFixed(2).replace(".", ",")} → Total: R$ {couponApplied.finalPrice.toFixed(2).replace(".", ",")}
+          </p>
+        )}
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Card number */}
