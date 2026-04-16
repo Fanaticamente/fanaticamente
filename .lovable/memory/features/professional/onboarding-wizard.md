@@ -18,5 +18,5 @@ CRP is NO LONGER collected at the signup screen — it is collected here at step
 
 Profile data (including CRP) is saved to DB only when the subscription step completes successfully.
 Subscription step uses existing `SubscriptionPlans` component with MercadoPago checkout.
-Draft progress persisted in localStorage key `professional_onboarding_wizard` (10 min expiry).
+Draft progress persisted in localStorage key `professional_onboarding_wizard` (7-day expiry, so users can leave and resume the app without losing data).
 Wizard renders full-screen, hiding `ProfessionalBottomNav`.
