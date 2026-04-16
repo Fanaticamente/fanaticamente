@@ -164,7 +164,7 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
                         e.stopPropagation();
                         handleProceedToCheckout();
                       }}
-                      className="w-full mt-4 h-11 px-4 inline-flex items-center justify-center bg-therapy text-therapy-foreground rounded-lg text-sm font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform"
+                      className="w-full mt-4 h-11 px-3 inline-flex items-center justify-center whitespace-nowrap bg-therapy text-therapy-foreground rounded-lg text-xs font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform"
                     >
                       Finalizar Pagamento
                     </button>
