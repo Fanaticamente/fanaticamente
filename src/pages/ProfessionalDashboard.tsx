@@ -724,45 +724,46 @@ const ProfessionalDashboard = () => {
   // Main dashboard content (shared between mobile and desktop)
   const dashboardContent = (
     <>
+      {/* Admin Messages Alert - shown on all tabs (focused and home) */}
+      {professional && (
+        <AdminMessagesAlert professionalId={professional.id} />
+      )}
+
+      {/* Approval Status Banner - shown on all tabs; hide only on assinatura tab when pending_approval (shown inside SubscriptionManager) */}
+      {professional && !(activeTab === 'assinatura' && professional.approval_status === 'pending_approval') && (
+        <ApprovalPendingBanner
+          approvalStatus={professional.approval_status}
+          rejectionReason={professional.rejection_reason}
+          onResubmit={async () => {
+            try {
+              const { error } = await supabase
+                .from('professionals')
+                .update({ approval_status: 'pending_approval', rejection_reason: null })
+                .eq('id', professional.id);
+              
+              if (error) throw error;
+
+              await supabase
+                .from('admin_messages')
+                .update({ is_read: true })
+                .eq('professional_id', professional.id);
+
+              toast.success("Perfil reenviado para análise!");
+              fetchProfessionalData();
+            } catch (error) {
+              console.error("Error resubmitting:", error);
+              toast.error("Erro ao reenviar perfil");
+            }
+          }}
+        />
+      )}
+
       {/* Full dashboard chrome - only when NOT in focused mode */}
       {!isFocusedMode && (
         <>
-          {/* Admin Messages Alert */}
-          {professional && (
-            <AdminMessagesAlert professionalId={professional.id} />
-          )}
-
           {/* AI Secretary Chat */}
           {professional && professional.is_active && activeTab === "agenda" && (
             <AISecretaryChat professionalId={professional.id} />
-          )}
-          {/* Approval Status Banner - hide on assinatura tab when pending_approval (shown inside SubscriptionManager) */}
-          {professional && !(activeTab === 'assinatura' && professional.approval_status === 'pending_approval') && (
-            <ApprovalPendingBanner
-              approvalStatus={professional.approval_status}
-              rejectionReason={professional.rejection_reason}
-              onResubmit={async () => {
-                try {
-                  const { error } = await supabase
-                    .from('professionals')
-                    .update({ approval_status: 'pending_approval', rejection_reason: null })
-                    .eq('id', professional.id);
-                  
-                  if (error) throw error;
-
-                  await supabase
-                    .from('admin_messages')
-                    .update({ is_read: true })
-                    .eq('professional_id', professional.id);
-
-                  toast.success("Perfil reenviado para análise!");
-                  fetchProfessionalData();
-                } catch (error) {
-                  console.error("Error resubmitting:", error);
-                  toast.error("Erro ao reenviar perfil");
-                }
-              }}
-            />
           )}
 
           {/* Tabs - Order changes based on approval status */}
