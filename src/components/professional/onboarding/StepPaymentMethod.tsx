@@ -1,7 +1,4 @@
-import { useState } from "react";
-import { QrCode, Info, CheckCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { QrCode, Info } from "lucide-react";
 
 interface StepPaymentMethodProps {
   professionalId: string;
@@ -10,28 +7,7 @@ interface StepPaymentMethodProps {
 }
 
 const StepPaymentMethod = ({ professionalId, pixKey, onUpdate }: StepPaymentMethodProps) => {
-  const [isSaving, setIsSaving] = useState(false);
   const inputClassName = "w-full px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-therapy focus:outline-none transition-colors";
-
-  const handleSavePixKey = async () => {
-    if (!pixKey.trim()) {
-      toast.error("Informe sua chave PIX");
-      return;
-    }
-    setIsSaving(true);
-    try {
-      const { error } = await supabase
-        .from("professionals")
-        .update({ pix_key: pixKey.trim(), pix_key_type: "random" })
-        .eq("id", professionalId);
-      if (error) throw error;
-      toast.success("Chave PIX salva com sucesso!");
-    } catch {
-      toast.error("Erro ao salvar chave PIX");
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   return (
     <div>
@@ -57,21 +33,6 @@ const StepPaymentMethod = ({ professionalId, pixKey, onUpdate }: StepPaymentMeth
             className={inputClassName}
             placeholder="Cole aqui sua chave PIX aleatória"
           />
-          {pixKey.trim() && (
-            <button
-              type="button"
-              onClick={handleSavePixKey}
-              disabled={isSaving}
-              className="mt-3 w-full py-2.5 bg-therapy/20 text-therapy rounded-xl text-sm font-medium hover:bg-therapy/30 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {isSaving ? (
-                <div className="w-4 h-4 border-2 border-therapy border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <CheckCircle className="w-4 h-4" />
-              )}
-              {isSaving ? "Salvando..." : "Salvar Chave PIX"}
-            </button>
-          )}
         </div>
 
         <div className="bg-muted/30 rounded-xl p-3 border border-border">

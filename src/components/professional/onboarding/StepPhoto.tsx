@@ -40,10 +40,7 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
 
       const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(fileName);
 
-      if (user) {
-        await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("user_id", user.id);
-      }
-
+      // Don't save to DB yet — will be saved when onboarding completes
       onUpdate(publicUrl);
       toast.success("Foto enviada com sucesso!");
     } catch (error) {

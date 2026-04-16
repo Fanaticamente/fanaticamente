@@ -61,9 +61,8 @@ const StepDegree = ({ professionalId, data, onUpdate }: StepDegreeProps) => {
       if (sErr) throw sErr;
 
       const url = signed.signedUrl;
-      const field = side === "front" ? "degree_document_front_url" : "degree_document_back_url";
-      await supabase.from("professionals").update({ [field]: url }).eq("id", professionalId);
 
+      // Don't save to DB yet — will be saved when onboarding completes
       onUpdate(side === "front" ? { degreeDocumentFrontUrl: url } : { degreeDocumentBackUrl: url });
       toast.success(`Diploma (${side === "front" ? "frente" : "verso"}) enviado!`);
     } catch (e) {
