@@ -174,9 +174,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setTimeout(() => {
             (async () => {
               try {
-                await fetchUserRoles(session.user.id);
-                // Check for pending profile updates
+                // CRITICAL: process pending professional signup BEFORE loading roles.
+                // The DB trigger `handle_new_user` always assigns the 'user' role on
+                // signup. If we read roles first, a brand-new professional would be
+                // momentarily seen as a torcedor and ProtectedRoute would redirect
+                // them to the fan area before the 'professional' role lands.
                 await updatePendingProfileData(session.user.id);
+                await fetchUserRoles(session.user.id);
                 // Register with OneSignal
                 registerOneSignalUser(session.user.id);
               } finally {
@@ -201,6 +205,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (session?.user) {
         setRolesLoading(true);
         try {
+          // Same ordering: pending professional data first, then roles.
+          await updatePendingProfileData(session.user.id);
           await fetchUserRoles(session.user.id);
           // Register with OneSignal on session restore
           setTimeout(() => registerOneSignalUser(session.user.id), 2000);
