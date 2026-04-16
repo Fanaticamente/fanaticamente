@@ -799,7 +799,7 @@ const Auth = () => {
                           id="accept-terms-desktop"
                           checked={acceptedTerms}
                           onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                          className="mt-0.5"
+                          className="mt-0.5 border-therapy data-[state=checked]:bg-therapy data-[state=checked]:text-therapy-foreground data-[state=checked]:border-therapy focus-visible:ring-therapy"
                         />
                         <label htmlFor="accept-terms-desktop" className="text-sm text-therapy cursor-pointer leading-relaxed">
                           Li e aceito a{" "}
@@ -1213,7 +1213,7 @@ const Auth = () => {
                       id="accept-terms"
                       checked={acceptedTerms}
                       onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                      className="mt-0.5"
+                      className="mt-0.5 border-therapy data-[state=checked]:bg-therapy data-[state=checked]:text-therapy-foreground data-[state=checked]:border-therapy focus-visible:ring-therapy"
                     />
                     <label htmlFor="accept-terms" className="text-sm text-therapy cursor-pointer leading-relaxed">
                       Li e aceito a{" "}
