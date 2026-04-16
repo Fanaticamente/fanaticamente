@@ -425,7 +425,7 @@ const MercadoPagoCardForm = ({ planId, planName, planPrice, onBack, onSuccess }:
               Processando...
             </>
           ) : (
-            `Pagar R$ ${planPrice.toFixed(2).replace(".", ",")}`
+            `Pagar R$ ${(couponApplied?.finalPrice ?? planPrice).toFixed(2).replace(".", ",")}`
           )}
         </button>
 
