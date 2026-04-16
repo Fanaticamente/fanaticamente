@@ -86,15 +86,9 @@ Deno.serve(async (req) => {
       profile: payload.profile,
     });
 
-    if (!crp) {
-      console.error("complete-professional-signup: CRP is required");
-      return new Response(JSON.stringify({ error: "CRP is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    if (!CRP_REGEX.test(crp)) {
+    // CRP is now optional at signup — collected later in the onboarding wizard (step 3).
+    // Only validate format if a value was provided.
+    if (crp && !CRP_REGEX.test(crp)) {
       console.error("complete-professional-signup: Invalid CRP format", crp);
       return new Response(JSON.stringify({ error: "Invalid CRP format" }), {
         status: 400,
@@ -138,7 +132,7 @@ Deno.serve(async (req) => {
       console.log("complete-professional-signup: Creating professional record");
       const professionalData: any = {
         user_id: user.id,
-        crp,
+        crp: crp || null,
         is_active: false,
         is_verified: false,
       };
