@@ -523,6 +523,92 @@ export type Database = {
         }
         Relationships: []
       }
+      coupon_usage: {
+        Row: {
+          coupon_id: string
+          discount_amount: number
+          final_amount: number
+          id: string
+          original_amount: number
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          coupon_id: string
+          discount_amount: number
+          final_amount: number
+          id?: string
+          original_amount: number
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          coupon_id?: string
+          discount_amount?: number
+          final_amount?: number
+          id?: string
+          original_amount?: number
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_usage_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          applicable_to: string
+          code: string
+          created_at: string
+          current_uses: number
+          description: string | null
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          applicable_to?: string
+          code: string
+          created_at?: string
+          current_uses?: number
+          description?: string | null
+          discount_type?: string
+          discount_value: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          applicable_to?: string
+          code?: string
+          created_at?: string
+          current_uses?: number
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       course_lessons: {
         Row: {
           created_at: string
