@@ -203,6 +203,32 @@ serve(async (req) => {
       } else {
         logStep("Professional subscription updated", { expiresAt: expiresAt.toISOString() });
       }
+
+      // Register coupon usage server-side
+      if (appliedCoupon) {
+        const { error: usageError } = await supabaseClient.from("coupon_usage").insert({
+          coupon_id: appliedCoupon.id,
+          user_id: user.id,
+          original_amount: appliedCoupon.original,
+          discount_amount: appliedCoupon.discount,
+          final_amount: appliedCoupon.final,
+        });
+        if (usageError) {
+          logStep("Error inserting coupon usage", { error: usageError });
+        } else {
+          const { data: cur } = await supabaseClient
+            .from("coupons")
+            .select("current_uses")
+            .eq("id", appliedCoupon.id)
+            .maybeSingle();
+          const newUses = (cur?.current_uses ?? 0) + 1;
+          await supabaseClient
+            .from("coupons")
+            .update({ current_uses: newUses })
+            .eq("id", appliedCoupon.id);
+          logStep("Coupon usage registered", { couponId: appliedCoupon.id, newUses });
+        }
+      }
     }
 
     return new Response(JSON.stringify({
