@@ -368,36 +368,12 @@ const Auth = () => {
         );
 
         if (error) {
-          const alreadyRegistered =
-            error.message.includes("already registered") ||
-            error.message.toLowerCase().includes("user already");
-
-          // Upgrade flow: torcedor existente virando profissional com o mesmo e-mail.
-          // Tenta autenticar com a senha informada e deixa o AuthContext chamar a
-          // edge function `complete-professional-signup` (idempotente: adiciona role
-          // 'professional' e cria o registro em `professionals` se faltar).
-          if (alreadyRegistered && authMode === "professional") {
-            const { error: signInError } = await signIn(
-              signUpData.email,
-              signUpData.password
-            );
-
-            if (signInError) {
-              sessionStorage.removeItem("pendingProfileUpdate");
-              toast.error(
-                "Este e-mail já está cadastrado como torcedor. Para virar profissional, informe a mesma senha da sua conta atual."
-              );
-            } else {
-              setRoleValidated(true);
-              toast.success("Conta atualizada! Bem-vindo(a) ao espaço profissional.");
-            }
+          // Clean up sensitive data on error
+          sessionStorage.removeItem("pendingProfileUpdate");
+          if (error.message.includes("already registered")) {
+            toast.error("Este email já está cadastrado");
           } else {
-            sessionStorage.removeItem("pendingProfileUpdate");
-            if (alreadyRegistered) {
-              toast.error("Este email já está cadastrado");
-            } else {
-              toast.error(error.message);
-            }
+            toast.error(error.message);
           }
         } else {
           // Sign up successful, set role validated for new users

@@ -1,34 +1,12 @@
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
 
-  const retentionRows = [
-    {
-      category: "Cadastro/conta",
-      example: "Nome, e-mail, telefone",
-      retention: "Enquanto durar a conta + prazos legais",
-      basis: "Execução de contrato/legítimo interesse/obrigação legal",
-      disposal: "Exclusão/anonimização após encerramento e prazos",
-    },
-    {
-      category: "Logs de acesso à aplicação",
-      example: "IP, data/hora",
-      retention: "6 meses",
-      basis: "Marco Civil da Internet",
-      disposal: "Descarte seguro",
-    },
-    {
-      category: "Faturamento/Notas fiscais (quando aplicável à Plataforma)",
-      example: "Dados fiscais",
-      retention: "5 anos (ou prazo legal aplicável)",
-      basis: "Obrigação legal/fiscal",
-      disposal: "—",
-    },
-  ];
-
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-white">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white px-4 py-4 flex items-center gap-3 border-b border-gray-200">
         <button
@@ -40,10 +18,10 @@ const PrivacyPolicy = () => {
         <h1 className="text-black font-bold text-lg">Política de Privacidade</h1>
       </header>
 
-      <div className="h-[calc(100vh-64px)] w-full overflow-y-auto overflow-x-hidden">
-        <main className="mx-auto w-full max-w-4xl overflow-x-hidden px-4 py-6 pb-24">
-          <div className="prose prose-sm max-w-none overflow-x-hidden text-black break-words [&_*]:max-w-full [&_*]:break-words">
-            <h1 className="text-xl sm:text-2xl font-bold text-black mb-6 break-words">
+      <ScrollArea className="h-[calc(100vh-64px)]">
+        <main className="p-6 pb-24 max-w-4xl mx-auto">
+          <div className="prose prose-sm max-w-none text-black">
+            <h1 className="text-2xl font-bold text-black mb-6">
               POLÍTICA DE PRIVACIDADE E TRATAMENTO DE DADOS DO FANATICAMENTE
             </h1>
 
@@ -216,8 +194,8 @@ const PrivacyPolicy = () => {
               </p>
 
               <h3 className="text-lg font-medium text-black mt-6 mb-3">3.7-B. Retenção e descarte</h3>
-              <div className="mb-4 hidden overflow-x-auto md:block">
-                <table className="w-full table-fixed border border-gray-300 text-sm">
+              <div className="overflow-x-auto mb-4">
+                <table className="min-w-full border border-gray-300 text-sm">
                   <thead>
                     <tr className="bg-gray-100">
                       <th className="border border-gray-300 px-3 py-2 text-left text-black">Categoria de dado</th>
@@ -251,30 +229,6 @@ const PrivacyPolicy = () => {
                     </tr>
                   </tbody>
                 </table>
-              </div>
-
-              <div className="mb-4 grid gap-3 md:hidden">
-                {retentionRows.map((row) => (
-                  <article key={row.category} className="rounded-lg border border-gray-300 p-4">
-                    <div className="space-y-2 text-sm text-black">
-                      <p>
-                        <strong>Categoria de dado:</strong> {row.category}
-                      </p>
-                      <p>
-                        <strong>Exemplo:</strong> {row.example}
-                      </p>
-                      <p>
-                        <strong>Retenção típica:</strong> {row.retention}
-                      </p>
-                      <p>
-                        <strong>Base de retenção:</strong> {row.basis}
-                      </p>
-                      <p>
-                        <strong>Descarte:</strong> {row.disposal}
-                      </p>
-                    </div>
-                  </article>
-                ))}
               </div>
 
               <h3 className="text-lg font-medium text-black mt-6 mb-3">3.8. Segurança</h3>
@@ -364,7 +318,7 @@ const PrivacyPolicy = () => {
             </p>
           </div>
         </main>
-      </div>
+      </ScrollArea>
     </div>
   );
 };
