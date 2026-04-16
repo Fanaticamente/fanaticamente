@@ -81,7 +81,15 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
     : null;
   const [draftRestoredForThisOpen, setDraftRestoredForThisOpen] = useState(false);
 
-  const cities = state ? getCitiesByState(state) : [];
+  const [cities, setCities] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!state) {
+      setCities([]);
+      return;
+    }
+    getCitiesByState(state).then(setCities);
+  }, [state]);
 
   const restoreDraft = () => {
     if (!storageKey) return;
