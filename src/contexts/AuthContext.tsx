@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const profileData = JSON.parse(pendingData);
-      const { crp, document_type, document_number, ...profileFields } = profileData;
+      const { crp, document_type, document_number, is_professional, ...profileFields } = profileData;
 
       // Clear sensitive data from storage as soon as we've read it
       const clearStorage = () => {
@@ -93,10 +93,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem("pendingProfileUpdate");
       };
 
-      if (crp) {
-        console.log("[Auth] Professional signup detected");
+      // Trigger professional setup if CRP provided OR explicit professional signup flag
+      if (crp || is_professional) {
+        console.log("[Auth] Professional signup detected", { hasCrp: !!crp, isProfessional: !!is_professional });
         
-        const success = await completeProfessionalSignup(userId, crp, profileFields, document_type, document_number);
+        const success = await completeProfessionalSignup(userId, crp || "", profileFields, document_type, document_number);
         
         if (success) {
           clearStorage();
