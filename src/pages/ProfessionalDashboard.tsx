@@ -1319,7 +1319,7 @@ const ProfessionalDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <MobileHeader />
-      <main className="pt-[calc(env(safe-area-inset-top,0px)+5rem)] pb-8 px-4 max-w-6xl mx-auto">
+      <main className="pt-[calc(env(safe-area-inset-top,0px)+4rem)] pb-8 px-4 max-w-6xl mx-auto">
         {contentToRender}
         {/* Bottom spacer for nav */}
         <div className="h-28" />
