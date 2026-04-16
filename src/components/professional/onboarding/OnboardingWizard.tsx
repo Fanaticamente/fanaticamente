@@ -49,7 +49,7 @@ const STEPS = [
 
 const STORAGE_KEY = "professional_onboarding_wizard";
 
-const DRAFT_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
+const DRAFT_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days — keep draft alive across app reopens
 
 const loadDraft = (fallbackCrpFront: string, fallbackCrpBack: string): { step: number; data: OnboardingData } | null => {
   try {
