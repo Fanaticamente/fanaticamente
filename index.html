@@ -180,7 +180,30 @@
 </head>
 
   <body>
+    <div id="initial-splash"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Hide initial splash once React has mounted content
+      (function () {
+        const splash = document.getElementById('initial-splash');
+        if (!splash) return;
+        const root = document.getElementById('root');
+        const hide = () => {
+          splash.classList.add('hidden');
+          setTimeout(() => splash.remove(), 500);
+        };
+        // Watch for any child added to #root (means React mounted)
+        const observer = new MutationObserver(() => {
+          if (root && root.children.length > 0) {
+            observer.disconnect();
+            hide();
+          }
+        });
+        if (root) observer.observe(root, { childList: true });
+        // Safety fallback
+        setTimeout(hide, 5000);
+      })();
+    </script>
   </body>
 </html>
