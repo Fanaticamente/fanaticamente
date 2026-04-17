@@ -196,6 +196,22 @@ const ProfessionalDashboard = () => {
       return;
     }
     fetchProfessionalData();
+
+    // Safety net: if the dashboard hasn't finished loading after 15s
+    // (e.g. network hang on iOS PWA after a stale session),
+    // surface the setup error UI so the user can recover instead of seeing
+    // an indefinite spinner.
+    const timeout = window.setTimeout(() => {
+      setIsLoading((current) => {
+        if (current) {
+          console.warn("[Dashboard] Loading timeout reached — forcing recovery");
+          setSetupError(true);
+        }
+        return false;
+      });
+    }, 15000);
+
+    return () => window.clearTimeout(timeout);
   }, [hasRole, navigate, user]);
 
   // If the user has a professional role but no professional record exists,
@@ -203,7 +219,19 @@ const ProfessionalDashboard = () => {
   useEffect(() => {
     if (!setupError) return;
 
-    toast.error("Conta inválida ou não cadastrada. Revise os dados ou cadastre-se.");
+    // Clean up any stale signup/onboarding data that may be keeping the
+    // user trapped in a half-finished registration state.
+    try {
+      localStorage.removeItem("pendingProfileUpdate");
+      sessionStorage.removeItem("pendingProfileUpdate");
+      localStorage.removeItem("professional_onboarding_wizard");
+      localStorage.removeItem("fanatica_last_route");
+      sessionStorage.removeItem("fanatica_last_route");
+    } catch {
+      // ignore
+    }
+
+    toast.error("Não foi possível carregar seus dados. Faça login novamente.");
 
     // Fire-and-forget: avoid rendering intermediate "redirecionando" screens.
     void signOut();
@@ -611,10 +639,29 @@ const ProfessionalDashboard = () => {
 
   if (isLoading || activeTab === null) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-white flex items-center justify-center px-6">
+        <div className="text-center max-w-sm">
           <div className="w-12 h-12 border-4 border-[hsl(145,63%,42%)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-500">Carregando...</p>
+          <button
+            type="button"
+            onClick={() => {
+              try {
+                localStorage.removeItem("pendingProfileUpdate");
+                sessionStorage.removeItem("pendingProfileUpdate");
+                localStorage.removeItem("professional_onboarding_wizard");
+                localStorage.removeItem("fanatica_last_route");
+                sessionStorage.removeItem("fanatica_last_route");
+              } catch {
+                // ignore
+              }
+              void signOut();
+              navigate("/auth", { replace: true });
+            }}
+            className="mt-8 text-sm text-gray-400 underline"
+          >
+            Demorando muito? Tocar para sair e tentar novamente
+          </button>
         </div>
       </div>
     );
