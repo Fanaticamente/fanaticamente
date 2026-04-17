@@ -639,10 +639,29 @@ const ProfessionalDashboard = () => {
 
   if (isLoading || activeTab === null) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-white flex items-center justify-center px-6">
+        <div className="text-center max-w-sm">
           <div className="w-12 h-12 border-4 border-[hsl(145,63%,42%)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-500">Carregando...</p>
+          <button
+            type="button"
+            onClick={() => {
+              try {
+                localStorage.removeItem("pendingProfileUpdate");
+                sessionStorage.removeItem("pendingProfileUpdate");
+                localStorage.removeItem("professional_onboarding_wizard");
+                localStorage.removeItem("fanatica_last_route");
+                sessionStorage.removeItem("fanatica_last_route");
+              } catch {
+                // ignore
+              }
+              void signOut();
+              navigate("/auth", { replace: true });
+            }}
+            className="mt-8 text-sm text-gray-400 underline"
+          >
+            Demorando muito? Tocar para sair e tentar novamente
+          </button>
         </div>
       </div>
     );
