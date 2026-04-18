@@ -75,6 +75,7 @@ import Ranking from "./pages/Ranking";
 import Notificacoes from "./pages/Notificacoes";
 import VerificarRecibo from "./pages/VerificarRecibo";
 import NotificationManagerPage from "./pages/NotificationManagerPage";
+import FanaticazeTV from "./pages/FanaticazeTV";
 
 const queryClient = new QueryClient();
 

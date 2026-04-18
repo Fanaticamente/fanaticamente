@@ -2,10 +2,11 @@ import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { Tv, Radio } from "lucide-react";
 
+const CHANNEL_ID = "UCZiYbVptd3PVPf4f6eR6UaQ";
 const CHANNEL_HANDLE = "CazeTV";
-const LIVE_EMBED_URL = `https://www.youtube.com/embed/live_stream?channel=UCfwZTHbnGPXmGENi3HE7y6w&autoplay=1&modestbranding=1&rel=0`;
-// Embed playlist of latest uploads from the channel (uploads playlist = UU + channel ID without UC prefix)
-const UPLOADS_PLAYLIST_EMBED = `https://www.youtube.com/embed/videoseries?list=UUfwZTHbnGPXmGENi3HE7y6w&modestbranding=1&rel=0`;
+const LIVE_EMBED_URL = `https://www.youtube.com/embed/live_stream?channel=${CHANNEL_ID}&autoplay=1&modestbranding=1&rel=0`;
+// Uploads playlist = UU + channel ID without UC prefix
+const UPLOADS_PLAYLIST_EMBED = `https://www.youtube.com/embed/videoseries?list=UU${CHANNEL_ID.slice(2)}&modestbranding=1&rel=0`;
 
 const FanaticazeTV = () => {
   return (
@@ -27,7 +28,7 @@ const FanaticazeTV = () => {
         {/* Live player */}
         <section>
           <div className="flex items-center gap-2 mb-2">
-            <Radio className="w-4 h-4 text-red-500 animate-pulse" />
+            <Radio className="w-4 h-4 text-destructive animate-pulse" />
             <h2 className="text-sm font-semibold text-card-foreground uppercase tracking-wide">
               Ao vivo agora
             </h2>
