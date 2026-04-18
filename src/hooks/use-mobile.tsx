@@ -1,29 +1,10 @@
 import * as React from "react";
 
-// Detecta apps nativos empacotados via Capacitor (lojas Apple/Android)
-const isCapacitorApp = () => {
-  if (typeof window === "undefined") return false;
-  return (
-    !!(window as any).Capacitor ||
-    /(capacitor)\//i.test(navigator.userAgent || "") ||
-    window.location.protocol === "capacitor:" ||
-    window.location.protocol === "ionic:"
-  );
-};
+const MOBILE_BREAKPOINT = 1024;
 
-// Detecta se o app está rodando como PWA standalone (instalado via "Adicionar à tela inicial")
-const isStandalonePWA = () => {
-  if (typeof window === "undefined") return false;
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    window.matchMedia("(display-mode: fullscreen)").matches ||
-    (window.navigator as any).standalone === true
-  );
-};
-
-// Detect if the device is a touch/mobile device
+// Detect if the device is a touch/mobile device (persists across orientation changes)
 const isTouchDevice = () => {
-  if (typeof window === "undefined") return false;
+  if (typeof window === "undefined") return true;
   return (
     window.matchMedia("(pointer: coarse)").matches ||
     "ontouchstart" in window ||
@@ -31,22 +12,33 @@ const isTouchDevice = () => {
   );
 };
 
-// Regra:
-// - App nativo (Capacitor) das lojas Apple/Android → layout MOBILE
-// - PWA standalone em touch device → layout MOBILE
-// - Qualquer navegador (desktop OU mobile como Safari/Chrome) → layout DESKTOP responsivo
-const shouldUseMobileLayout = () => {
-  if (typeof window === "undefined") return false;
-  if (isCapacitorApp()) return true;
-  return isStandalonePWA() && isTouchDevice();
+// Get initial value synchronously to avoid flash
+const getInitialValue = () => {
+  if (typeof window !== "undefined") {
+    // On touch devices, always consider mobile (handles landscape rotation)
+    if (isTouchDevice()) return true;
+    return window.innerWidth < MOBILE_BREAKPOINT;
+  }
+  return true; // Default to mobile for SSR
 };
 
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean>(shouldUseMobileLayout);
+  const [isMobile, setIsMobile] = React.useState<boolean>(getInitialValue);
 
   React.useEffect(() => {
-    // Define uma única vez ao montar — o ambiente (PWA vs navegador) não muda durante a sessão
-    setIsMobile(shouldUseMobileLayout());
+    // If it's a touch device, always return true (mobile layout)
+    if (isTouchDevice()) {
+      setIsMobile(true);
+      return;
+    }
+
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    const onChange = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    };
+    mql.addEventListener("change", onChange);
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    return () => mql.removeEventListener("change", onChange);
   }, []);
 
   return isMobile;

@@ -2,48 +2,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" id="app-viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <!--
-      Ajusta o viewport ANTES do React montar:
-      - PWA standalone (lojas via WebView/Capacitor) → viewport mobile nativo
-      - Navegador (Safari iPhone, Chrome Android, etc.) → força viewport desktop (1280px)
-        para o usuário ver o site igual ao computador, com pinch/zoom liberado.
-    -->
-    <script>
-      (function () {
-        try {
-          // Capacitor (apps nativos das lojas) → sempre layout mobile nativo
-          var isCapacitor =
-            !!window.Capacitor ||
-            /(capacitor)\//i.test(navigator.userAgent || '') ||
-            window.location.protocol === 'capacitor:' ||
-            window.location.protocol === 'ionic:';
-          var isStandalone =
-            (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-            (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) ||
-            window.navigator.standalone === true;
-          var isTouch =
-            (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ||
-            'ontouchstart' in window ||
-            (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
-
-          var viewportEl = document.getElementById('app-viewport');
-          if (!viewportEl) return;
-
-          // Apenas força desktop se: touch + NÃO standalone + NÃO Capacitor (apps nativos)
-          if (isTouch && !isStandalone && !isCapacitor) {
-            viewportEl.setAttribute(
-              'content',
-              'width=1280, initial-scale=' + (window.innerWidth / 1280) + ', user-scalable=yes, viewport-fit=cover'
-            );
-            document.documentElement.setAttribute('data-force-desktop', 'true');
-          }
-        } catch (e) {
-          // ignore
-        }
-      })();
-    </script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <!-- Prevent layout flash before Tailwind loads -->
     <style>
       /* Prevent layout flash before Tailwind loads */
@@ -53,9 +12,6 @@
       @media (max-width: 767.98px) {
         [data-layout="desktop"] { display: none !important; }
       }
-      /* Quando forçamos viewport desktop no navegador mobile, usar regras desktop */
-      html[data-force-desktop="true"] [data-layout="mobile"] { display: none !important; }
-      html[data-force-desktop="true"] [data-layout="desktop"] { display: block !important; }
 
       /* Base: avoid locking document height on desktop (keeps native scrollbar working) */
       html, body {
