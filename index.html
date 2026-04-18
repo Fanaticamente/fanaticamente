@@ -12,6 +12,12 @@
     <script>
       (function () {
         try {
+          // Capacitor (apps nativos das lojas) → sempre layout mobile nativo
+          var isCapacitor =
+            !!window.Capacitor ||
+            /(capacitor)\//i.test(navigator.userAgent || '') ||
+            window.location.protocol === 'capacitor:' ||
+            window.location.protocol === 'ionic:';
           var isStandalone =
             (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
             (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) ||
@@ -24,8 +30,8 @@
           var viewportEl = document.getElementById('app-viewport');
           if (!viewportEl) return;
 
-          if (isTouch && !isStandalone) {
-            // Navegador mobile: força layout desktop visível em zoom-out
+          // Apenas força desktop se: touch + NÃO standalone + NÃO Capacitor (apps nativos)
+          if (isTouch && !isStandalone && !isCapacitor) {
             viewportEl.setAttribute(
               'content',
               'width=1280, initial-scale=' + (window.innerWidth / 1280) + ', user-scalable=yes, viewport-fit=cover'
