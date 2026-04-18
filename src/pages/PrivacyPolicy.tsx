@@ -1,26 +1,34 @@
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
 
+  const handleBack = () => {
+    // Se houver histórico (mais que a entrada atual), volta. Senão, vai para a Home.
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/", { replace: true });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white px-4 py-4 flex items-center gap-3 border-b border-gray-200">
         <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-full bg-gray-100 text-black hover:bg-gray-200 transition-colors"
+          onClick={handleBack}
+          className="p-2 rounded-full bg-gray-100 text-black hover:bg-gray-200 transition-colors flex-shrink-0"
+          aria-label="Voltar"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-black font-bold text-lg">Política de Privacidade</h1>
+        <h1 className="text-black font-bold text-lg truncate">Política de Privacidade</h1>
       </header>
 
-      <ScrollArea className="h-[calc(100vh-64px)]">
-        <main className="p-6 pb-24 max-w-4xl mx-auto">
-          <div className="prose prose-sm max-w-none text-black">
+      <main className="px-4 sm:px-6 py-6 pb-24 max-w-4xl mx-auto">
+        <div className="prose prose-sm max-w-none text-black break-words">
             <h1 className="text-2xl font-bold text-black mb-6">
               POLÍTICA DE PRIVACIDADE E TRATAMENTO DE DADOS DO FANATICAMENTE
             </h1>
