@@ -4,16 +4,28 @@ const DesktopFooter = () => {
       <div className="max-w-7xl mx-auto px-6">
         {/* App Store Badges */}
         <div className="flex justify-center items-center gap-4 mb-8">
-          <a 
-            href="https://apps.apple.com" 
-            target="_blank" 
+          <a
+            href="https://apps.apple.com/br/app/fanaticamente/id6754257086"
+            target="_blank"
             rel="noopener noreferrer"
             className="transition-transform hover:scale-105"
           >
-            <img 
-              src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" 
-              alt="Download on the App Store" 
+            <img
+              src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
+              alt="Baixar na App Store"
               className="h-12"
+            />
+          </a>
+          <a
+            href="https://play.google.com/store/apps/details?id=br.com.app.gpu3041153.gpu2b1d548352a1db293fd37c557fea3180&hl=pt"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-transform hover:scale-105"
+          >
+            <img
+              src="https://play.google.com/intl/en_us/badges/static/images/badges/pt-br_badge_web_generic.png"
+              alt="Disponível no Google Play"
+              className="h-[72px] -my-3"
             />
           </a>
         </div>
