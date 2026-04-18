@@ -67,7 +67,7 @@ const DesktopHeroCarousel = () => {
   };
 
   return (
-    <section className="relative w-full h-[90vh] min-h-[600px] overflow-hidden bg-[#0a0a0a]">
+    <section className="relative w-full aspect-square max-h-[720px] lg:aspect-auto lg:h-[90vh] lg:min-h-[600px] overflow-hidden bg-[#0a0a0a]">
       {/* Slides */}
       {slides.map((slide, index) => (
         <div
