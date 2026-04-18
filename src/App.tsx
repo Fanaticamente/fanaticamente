@@ -75,6 +75,7 @@ import Ranking from "./pages/Ranking";
 import Notificacoes from "./pages/Notificacoes";
 import VerificarRecibo from "./pages/VerificarRecibo";
 import NotificationManagerPage from "./pages/NotificationManagerPage";
+import FanaticazeTV from "./pages/FanaticazeTV";
 
 const queryClient = new QueryClient();
 
@@ -172,6 +173,7 @@ const App = () => {
                 <Route path="/ranking" element={<DynamicProtectedRoute pageId="ranking"><Ranking /></DynamicProtectedRoute>} />
                 <Route path="/loja" element={<DynamicProtectedRoute pageId="loja"><FanaticaShop /></DynamicProtectedRoute>} />
                 <Route path="/loja/produto/:id" element={<DynamicProtectedRoute pageId="loja"><ProductDetail /></DynamicProtectedRoute>} />
+                <Route path="/fanaticaze-tv" element={<DynamicProtectedRoute pageId="fanaticaze-tv"><FanaticazeTV /></DynamicProtectedRoute>} />
                 <Route path="/osmf" element={<DynamicProtectedRoute pageId="osmf"><OSMF /></DynamicProtectedRoute>} />
                 <Route path="/zona-mista" element={<DynamicProtectedRoute pageId="zona-mista"><ZonaMista /></DynamicProtectedRoute>} />
                 <Route path="/diario" element={<DynamicProtectedRoute pageId="diario"><Diario /></DynamicProtectedRoute>} />
