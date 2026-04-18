@@ -1,6 +1,17 @@
 import * as React from "react";
 
-// Detecta se o app está rodando como PWA standalone (instalado nas lojas via WebView/Capacitor)
+// Detecta apps nativos empacotados via Capacitor (lojas Apple/Android)
+const isCapacitorApp = () => {
+  if (typeof window === "undefined") return false;
+  return (
+    !!(window as any).Capacitor ||
+    /(capacitor)\//i.test(navigator.userAgent || "") ||
+    window.location.protocol === "capacitor:" ||
+    window.location.protocol === "ionic:"
+  );
+};
+
+// Detecta se o app está rodando como PWA standalone (instalado via "Adicionar à tela inicial")
 const isStandalonePWA = () => {
   if (typeof window === "undefined") return false;
   return (
@@ -10,7 +21,7 @@ const isStandalonePWA = () => {
   );
 };
 
-// Detect if the device is a touch/mobile device (persists across orientation changes)
+// Detect if the device is a touch/mobile device
 const isTouchDevice = () => {
   if (typeof window === "undefined") return false;
   return (
@@ -21,12 +32,12 @@ const isTouchDevice = () => {
 };
 
 // Regra:
-// - PWA standalone em touch device (apps das lojas Apple/Android via WebView/Capacitor)
-//   → layout MOBILE dedicado (mantém experiência nativa)
-// - Qualquer outro acesso (navegador desktop OU navegador mobile como Safari/Chrome em iPhone)
-//   → layout DESKTOP (igual ao computador, sem versão responsiva mobile)
+// - App nativo (Capacitor) das lojas Apple/Android → layout MOBILE
+// - PWA standalone em touch device → layout MOBILE
+// - Qualquer navegador (desktop OU mobile como Safari/Chrome) → layout DESKTOP responsivo
 const shouldUseMobileLayout = () => {
   if (typeof window === "undefined") return false;
+  if (isCapacitorApp()) return true;
   return isStandalonePWA() && isTouchDevice();
 };
 
