@@ -1,0 +1,1 @@
+UPDATE public.app_pages SET is_public = true WHERE page_id = 'fanaticaze-tv';
