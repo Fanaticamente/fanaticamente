@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, Settings, ShoppingBag, Thermometer, Shirt, LogOut, Tv } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAppMenu } from "@/hooks/useAppContent";
+import { useAppPages } from "@/hooks/useAppPages";
 import { supabase } from "@/integrations/supabase/client";
 import logoHeader from "@/assets/logo-header.png";
 
@@ -24,6 +25,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { data: menuData } = useAppMenu('header_menu');
+  const { data: pages } = useAppPages('mobile');
 
   const allItems = menuData?.items || [
     { icon: "Home", label: "Início", path: "/" },
@@ -53,6 +55,14 @@ const Header = () => {
 
   const profileItem = allItems.find((item) => item.icon === "User") || { icon: "User", label: "Perfil", path: "/perfil" };
 
+  // Filter out items whose page is hidden in the management panel
+  const isPathVisible = (path: string) => {
+    if (!pages || pages.length === 0) return true;
+    const page = pages.find((p) => p.path === path);
+    return page ? page.is_visible !== false : true;
+  };
+  const visibleMainItems = mainItems.filter((item) => isPathVisible(item.path));
+
   const handleLogout = async () => {
     setIsOpen(false);
     await supabase.auth.signOut();
@@ -78,7 +88,7 @@ const Header = () => {
 
             {/* Main menu items */}
             <nav className="p-4 flex-1 overflow-y-auto">
-              {mainItems.map((item) => {
+              {visibleMainItems.map((item) => {
                 const IconComponent = iconMap[item.icon] || Home;
                 return (
                   <Link

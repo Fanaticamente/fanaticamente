@@ -1,5 +1,6 @@
 import { Home, Thermometer, Trophy, Newspaper } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useAppPages } from "@/hooks/useAppPages";
 
 const navItems = [
   { icon: Home, label: "Início", path: "/" },
@@ -9,11 +10,19 @@ const navItems = [
 ];
 
 const BottomNav = () => {
+  const { data: pages } = useAppPages('mobile');
+
+  const visibleItems = navItems.filter((item) => {
+    if (!pages || pages.length === 0) return true;
+    const page = pages.find((p) => p.path === item.path);
+    return page ? page.is_visible !== false : true;
+  });
+
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 pb-[env(safe-area-inset-bottom)] transform-gpu will-change-transform">
       <nav className="glass-dark rounded-[32px] mx-auto max-w-md">
         <div className="flex items-center justify-around py-3 px-2">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const IconComponent = item.icon;
           return (
             <NavLink
