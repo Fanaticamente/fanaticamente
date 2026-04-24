@@ -115,7 +115,7 @@ Exemplos de direção:
 
 PARÁGRAFO 4 — PARÁGRAFO FINAL OBRIGATÓRIO DE SEGURANÇA
 Encerrar sempre com este parágrafo exato:
-"Este conteúdo é apenas uma reflexão geral e lúdica sobre emoções/afetos, sem caráter pessoal ou de diagnóstico. Não substitui acompanhamento profissional nem o processo individual de compreender sentimentos com um especialista."
+"💡 Este conteúdo é apenas uma reflexão geral e lúdica sobre emoções, sem caráter pessoal ou diagnóstico. Não substitui acompanhamento profissional nem o processo individual de compreender sentimentos com um especialista."
 REGRAS DO PARÁGRAFO FINAL
 • esse parágrafo é obrigatório em toda resposta;
 • ele deve aparecer sempre no último parágrafo;
