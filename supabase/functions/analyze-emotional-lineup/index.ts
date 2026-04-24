@@ -193,8 +193,8 @@ Escreva a devolutiva para esta escalação emocional.`;
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        max_tokens: 600,
-        temperature: 0.9,
+        max_tokens: 1500,
+        temperature: 0.75,
       }),
     });
 
