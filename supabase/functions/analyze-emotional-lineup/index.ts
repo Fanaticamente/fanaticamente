@@ -188,13 +188,13 @@ Escreva a devolutiva para esta escalação emocional.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        max_tokens: 1500,
-        temperature: 0.75,
+        max_tokens: 1200,
+        temperature: 0.6,
       }),
     });
 
