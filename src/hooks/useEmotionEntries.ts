@@ -49,7 +49,8 @@ export const useEmotionEntries = () => {
       if (error) throw error;
       return data as EmotionEntry | null;
     },
-    enabled: !!user,
+    // TEMP: desabilitado para permitir múltiplos preenchimentos por dia durante testes
+    enabled: false,
   });
 
   const { data: recentEntriesDB = [], isLoading: loadingRecentDB } = useQuery({
