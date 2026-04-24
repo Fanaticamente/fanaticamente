@@ -265,21 +265,16 @@ const EmotionTacticalBoard = () => {
       if (error) throw error;
       return data as any;
     },
-    enabled: !!user,
+    // TEMP: desabilitado para permitir múltiplas escalações por dia durante testes
+    enabled: false,
   });
 
   /* For anonymous users: fetch from localStorage */
   const [anonLineup, setAnonLineup] = useState<any>(null);
   useEffect(() => {
+    // TEMP: bloqueio diário desabilitado para testes — sempre limpa estado anônimo.
     if (!user) {
-      try {
-        const stored = localStorage.getItem(ANON_LINEUP_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (parsed.entry_date === today) setAnonLineup(parsed);
-          else localStorage.removeItem(ANON_LINEUP_KEY);
-        }
-      } catch {}
+      try { localStorage.removeItem(ANON_LINEUP_KEY); } catch {}
     }
   }, [user, today]);
 
