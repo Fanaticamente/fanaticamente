@@ -61,14 +61,14 @@ export const useMatchExpectations = (userClubId: string | null) => {
       if (error) throw error;
       return data as MatchExpectation | null;
     },
-    enabled: !!user && !!upcomingMatch,
+    // TEMP: desabilitado para permitir múltiplos preenchimentos durante testes
+    enabled: false,
   });
 
   // For anonymous users, check localStorage
   const anonExpKey = `anon-match-expectation-${upcomingMatch?.id}`;
-  const anonExpExists = !user && upcomingMatch ? (() => {
-    try { return !!localStorage.getItem(anonExpKey); } catch { return false; }
-  })() : false;
+  // TEMP: bloqueio de localStorage desabilitado para testes
+  const anonExpExists = false;
 
   const saveExpectation = useMutation({
     mutationFn: async (data: {
