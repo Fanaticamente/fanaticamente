@@ -195,22 +195,26 @@ const pulseStyle = `
 
 /* ── Helper: split analysis into body + philosophical quote ── */
 const splitAnalysis = (text: string) => {
+  // Extract the mandatory safety disclaimer (paragraph that starts with the lightbulb emoji)
   const lines = text.split("\n").filter((l) => l.trim());
-  // Look for the philosophical quote — typically contains em-dash and quotes
-  for (let i = lines.length - 1; i >= 0; i--) {
-    const line = lines[i];
-    if (line.includes("—") || line.includes("–")) {
-      // Check if previous line is part of the quote too
-      let quoteStart = i;
-      if (i > 0 && (lines[i - 1].startsWith('"') || lines[i - 1].startsWith('"') || lines[i - 1].startsWith(">"))) {
-        quoteStart = i - 1;
-      }
-      const body = lines.slice(0, quoteStart).join("\n\n");
-      const quote = lines.slice(quoteStart).join("\n");
-      return { body, quote };
+  let disclaimer: string | null = null;
+  const bodyLines: string[] = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (
+      !disclaimer &&
+      (trimmed.startsWith("💡") ||
+        /^este conteúdo é apenas/i.test(trimmed))
+    ) {
+      disclaimer = trimmed.replace(/^💡\s*/, "");
+      continue;
     }
+    bodyLines.push(line);
   }
-  return { body: text, quote: null };
+  return {
+    body: bodyLines.join("\n\n").trim(),
+    disclaimer,
+  };
 };
 
 /* ── Component ── */
