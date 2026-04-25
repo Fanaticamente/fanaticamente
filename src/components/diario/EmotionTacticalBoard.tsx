@@ -693,17 +693,12 @@ const EmotionTacticalBoard = () => {
             {analysisData.body}
           </div>
 
-          {/* Philosophical quote with "Para refletir" subtitle */}
-          {analysisData.quote && (
+          {/* Mandatory safety disclaimer — small, muted, observation style */}
+          {analysisData.disclaimer && (
             <div className="mt-4 pt-3 border-t border-border">
-              <div className="flex items-center gap-1.5 mb-2">
-                <CloudLightning className="w-4 h-4 text-primary" />
-                <span className="text-sm font-bold text-primary uppercase tracking-wide">
-                  💭 Para refletir
-                </span>
-              </div>
-              <p className="text-card-foreground text-base italic leading-relaxed">
-                {analysisData.quote}
+              <p className="text-xs leading-relaxed text-muted-foreground/80 flex gap-1.5">
+                <span aria-hidden>💡</span>
+                <span>{analysisData.disclaimer}</span>
               </p>
             </div>
           )}
