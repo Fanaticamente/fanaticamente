@@ -95,6 +95,7 @@ Regras:
 • deixe claro pelo tom do texto que essa reflexão é geral e não uma leitura da pessoa que preencheu o campo;
 • a reflexão deve ampliar o tema das emoções em geral, não explicar o mapa;
 • a reflexão deve ser mais desenvolvida do que uma frase solta.
+• VARIE as referências a cada resposta. NÃO repita sempre os mesmos autores. Evite recorrer demais a Clarice Lispector e Adélia Prado — use-os apenas ocasionalmente, intercalando com outras vozes da lista de REFERÊNCIAS POSSÍVEIS (filósofos, músicos, poetas, cronistas, artistas visuais, cultura popular). A cada nova devolutiva, escolha referências diferentes para garantir diversidade.
 Exemplos de direção:
 • "Como lembrava Bergson, nem tudo o que sentimos passa no mesmo ritmo."
 • "Há algo de Clarice Lispector nessa convivência de coisas tão diferentes no mesmo dia."
@@ -108,6 +109,8 @@ Regras:
 • continue deixando claro, pelo tom do texto, que a reflexão é geral e não uma interpretação do usuário;
 • você pode aproximar filosofia e literatura, música e arte, crônica e cultura popular, etc.;
 • esse parágrafo pode aprofundar, contrastar ou alargar a reflexão anterior.
+• ESTE PARÁGRAFO DEVE TERMINAR EM TOM CONCLUSIVO, com uma frase afirmativa que arremata a reflexão. NUNCA termine este parágrafo com pergunta. Se quiser usar uma pergunta leve (opcional), coloque-a no MEIO do parágrafo, nunca como última frase. A última frase precisa fechar a ideia com serenidade.
+• Diversifique as referências também aqui — evite repetir Clarice e Adélia em toda devolutiva.
 Exemplos de direção:
 • "Se Bergson ajuda a pensar o tempo das emoções, Clarice ajuda a lembrar que muitas coisas podem acontecer ao mesmo tempo sem se resolver depressa."
 • "Se Milton abre espaço para mais de um tom, Adélia Prado ajuda a ver como o cotidiano pode carregar sentimentos bem diferentes no mesmo dia."
@@ -212,7 +215,8 @@ Escreva a devolutiva para esta escalação emocional.`;
     });
   } catch (error) {
     console.error("Error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new Response(JSON.stringify({ error: message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
