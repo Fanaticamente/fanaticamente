@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { 
   Users, UserCheck, Calendar, Settings, LogOut, Search, Filter, 
-  Shield, Sun, Moon, LayoutDashboard, DollarSign, ClipboardList, Bell
+  Shield, Sun, Moon, LayoutDashboard, DollarSign, ClipboardList, Bell, Crown
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import adminLogoLight from "@/assets/admin-logo-light.png";
@@ -15,8 +15,9 @@ import AdminProfessionalsManagement from "@/components/admin/AdminProfessionalsM
 import AdminAppointmentsTable from "@/components/admin/AdminAppointmentsTable";
 import AdminNotifications from "@/components/admin/AdminNotifications";
 import AdminCouponManager from "@/components/admin/AdminCouponManager";
+import AdminSubscriptionsManager from "@/components/admin/AdminSubscriptionsManager";
 
-type TabType = "dashboard" | "financeiro" | "financeiro-cupons" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "notificacoes" | "configuracoes";
+type TabType = "dashboard" | "financeiro" | "financeiro-cupons" | "financeiro-assinaturas" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "notificacoes" | "configuracoes";
 
 const AdminDashboard = () => {
   const { user, signOut, hasRole, loading } = useAuth();
@@ -24,7 +25,7 @@ const AdminDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Valid tabs
-  const validTabs: TabType[] = ["dashboard", "financeiro", "financeiro-cupons", "usuarios", "gestao", "profissionais", "agendamentos", "notificacoes", "configuracoes"];
+  const validTabs: TabType[] = ["dashboard", "financeiro", "financeiro-cupons", "financeiro-assinaturas", "usuarios", "gestao", "profissionais", "agendamentos", "notificacoes", "configuracoes"];
   
   // Get tab from URL or default
   const getTabFromUrl = (): TabType => {
@@ -104,6 +105,7 @@ const AdminDashboard = () => {
     { id: "financeiro", label: "Financeiro", icon: DollarSign, subItems: [
       { id: "financeiro", label: "Visão Geral" },
       { id: "financeiro-cupons", label: "Gerenciador de Cupons" },
+      { id: "financeiro-assinaturas", label: "Gerenciador de Assinaturas" },
     ]},
     { id: "usuarios", label: "Usuários", icon: Users },
     { id: "gestao", label: "Gestão", icon: ClipboardList },
@@ -235,6 +237,11 @@ const AdminDashboard = () => {
         {/* Cupons Tab */}
         {activeTab === "financeiro-cupons" && (
           <AdminCouponManager themeStyles={themeStyles} isDarkMode={isDarkMode} />
+        )}
+
+        {/* Assinaturas Tab */}
+        {activeTab === "financeiro-assinaturas" && (
+          <AdminSubscriptionsManager themeStyles={themeStyles} />
         )}
 
         {/* Usuários Tab */}

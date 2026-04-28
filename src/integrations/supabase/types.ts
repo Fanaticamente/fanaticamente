@@ -1565,6 +1565,93 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          discount: number | null
+          features: Json
+          id: string
+          is_active: boolean
+          is_popular: boolean
+          name: string
+          order_index: number
+          original_price: number | null
+          period: string
+          plan_id: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          discount?: number | null
+          features?: Json
+          id?: string
+          is_active?: boolean
+          is_popular?: boolean
+          name: string
+          order_index?: number
+          original_price?: number | null
+          period: string
+          plan_id: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          discount?: number | null
+          features?: Json
+          id?: string
+          is_active?: boolean
+          is_popular?: boolean
+          name?: string
+          order_index?: number
+          original_price?: number | null
+          period?: string
+          plan_id?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscription_settings: {
+        Row: {
+          created_at: string
+          free_period_banner_enabled: boolean
+          free_period_banner_text: string
+          id: string
+          onboarding_subscription_subtitle: string
+          onboarding_subscription_text: string
+          reactivation_warning_enabled: boolean
+          reactivation_warning_text: string
+          subscriptions_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          free_period_banner_enabled?: boolean
+          free_period_banner_text?: string
+          id?: string
+          onboarding_subscription_subtitle?: string
+          onboarding_subscription_text?: string
+          reactivation_warning_enabled?: boolean
+          reactivation_warning_text?: string
+          subscriptions_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          free_period_banner_enabled?: boolean
+          free_period_banner_text?: string
+          id?: string
+          onboarding_subscription_subtitle?: string
+          onboarding_subscription_text?: string
+          reactivation_warning_enabled?: boolean
+          reactivation_warning_text?: string
+          subscriptions_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       therapeutic_plans: {
         Row: {
           created_at: string
