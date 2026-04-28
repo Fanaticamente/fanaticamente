@@ -11,7 +11,6 @@ import StepSpecialties from "./StepSpecialties";
 import StepPricing from "./StepPricing";
 import StepPaymentMethod from "./StepPaymentMethod";
 import StepSubscription from "./StepSubscription";
-import { useSubscriptionSettings } from "@/hooks/useSubscriptionConfig";
 
 export interface OnboardingData {
   imageUrl: string;
@@ -71,8 +70,6 @@ const loadDraft = (fallbackCrpFront: string, fallbackCrpBack: string): { step: n
 
 const OnboardingWizard = ({ professionalId, existingData, onComplete }: OnboardingWizardProps) => {
   const { user } = useAuth();
-  const { data: subSettings } = useSubscriptionSettings();
-  const subscriptionsEnabled = subSettings?.subscriptions_enabled !== false;
 
   const [initialized] = useState(() => {
     const draft = loadDraft(existingData?.crpDocumentFrontUrl ?? "", existingData?.crpDocumentBackUrl ?? "");
