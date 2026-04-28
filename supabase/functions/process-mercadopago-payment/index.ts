@@ -6,22 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const PLANS: Record<string, { name: string; amount: number; months: number }> = {
-  monthly: {
-    name: "Plano Mensal",
-    amount: 1.00,
-    months: 1,
-  },
-  semiannual: {
-    name: "Plano Semestral",
-    amount: 1079.90,
-    months: 6,
-  },
-  annual: {
-    name: "Plano Anual",
-    amount: 2038.90,
-    months: 12,
-  },
+const PLAN_MONTHS: Record<string, number> = {
+  monthly: 1,
+  semiannual: 6,
+  annual: 12,
 };
 
 const logStep = (step: string, details?: unknown) => {
@@ -73,14 +61,27 @@ serve(async (req) => {
     const { planId, token, paymentMethodId, issuerId, installments, email, deviceId, clientIp, couponCode } = await req.json();
     logStep("Request received", { planId, paymentMethodId, issuerId, installments, hasToken: !!token, hasDeviceId: !!deviceId, couponCode });
 
-    if (!planId || !PLANS[planId]) {
+    if (!planId || !PLAN_MONTHS[planId]) {
       throw new Error("Invalid plan ID");
     }
     if (!token) {
       throw new Error("Card token is required");
     }
 
-    const plan = PLANS[planId];
+    // Load plan from DB (admin-editable source of truth)
+    const { data: planRow, error: planErr } = await supabaseClient
+      .from("subscription_plans")
+      .select("plan_id, name, price, is_active")
+      .eq("plan_id", planId)
+      .maybeSingle();
+    if (planErr || !planRow) throw new Error("Plan not found");
+    if (!planRow.is_active) throw new Error("Este plano não está mais disponível");
+    const plan = {
+      name: `Plano ${planRow.name}`,
+      amount: Number(planRow.price),
+      months: PLAN_MONTHS[planId],
+    };
+    logStep("Plan loaded from DB", plan);
 
     // Get authenticated user
     const authHeader = req.headers.get("Authorization")!;
