@@ -17,6 +17,7 @@ import SubscriptionManager from "@/components/professional/SubscriptionManager";
 import AppointmentDetailsDialog from "@/components/professional/AppointmentDetailsDialog";
 import AdminMessagesAlert from "@/components/professional/AdminMessagesAlert";
 import ApprovalPendingBanner from "@/components/professional/ApprovalPendingBanner";
+import SubscriptionPolicyBanner from "@/components/professional/SubscriptionPolicyBanner";
 import WeeklyAvailabilityManager from "@/components/professional/WeeklyAvailabilityManager";
 import ProfessionalMetricsTab from "@/components/professional/ProfessionalMetricsTab";
 import RejectAppointmentDialog from "@/components/professional/RejectAppointmentDialog";
@@ -775,6 +776,9 @@ const ProfessionalDashboard = () => {
       {professional && (
         <AdminMessagesAlert professionalId={professional.id} />
       )}
+
+      {/* Subscription policy banner (free period / reactivation warning) */}
+      {professional && <SubscriptionPolicyBanner />}
 
       {/* Approval Status Banner - shown on all tabs; hide only on assinatura tab when pending_approval (shown inside SubscriptionManager) */}
       {professional && !(activeTab === 'assinatura' && professional.approval_status === 'pending_approval') && (
