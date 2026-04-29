@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Shield, Code, Lock, ArrowLeft } from "lucide-react";
+import { Shield, Code, Lock, ArrowLeft, Megaphone } from "lucide-react";
 
 const AdminAccess = () => {
   const [email, setEmail] = useState("");
@@ -22,6 +22,11 @@ const AdminAccess = () => {
 
     if (hasRole("developer")) {
       navigate("/desenvolvedor");
+      return;
+    }
+
+    if (hasRole("marketing")) {
+      navigate("/marketing");
       return;
     }
 
@@ -69,6 +74,10 @@ const AdminAccess = () => {
             <div className="flex items-center gap-2 px-3 py-2 bg-secondary/10 rounded-lg">
               <Code className="w-4 h-4 text-secondary" />
               <span className="text-secondary text-sm font-medium">Dev</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 rounded-lg">
+              <Megaphone className="w-4 h-4 text-emerald-500" />
+              <span className="text-emerald-500 text-sm font-medium">Marketing</span>
             </div>
           </div>
 
