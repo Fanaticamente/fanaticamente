@@ -275,25 +275,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
     }
 
     try {
-      if (!user) throw new Error("Not authenticated");
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${side}-${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('crp-documents')
-        .upload(fileName, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      // Get signed URL for private bucket
-      const { data: signedData, error: signedError } = await supabase.storage
-        .from('crp-documents')
-        .createSignedUrl(fileName, 60 * 60 * 24 * 365); // 1 year
-
-      if (signedError) throw signedError;
-
-      const documentUrl = signedData.signedUrl;
+      const { url: documentUrl } = await uploadProfessionalFile(file, side === 'front' ? 'crp-front' : 'crp-back');
 
       // Save to professionals table
       const updateField = side === 'front' ? 'crp_document_front_url' : 'crp_document_back_url';
@@ -317,8 +299,10 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
     } finally {
       if (side === 'front') {
         setIsUploadingCrpFront(false);
+        if (crpFrontInputRef.current) crpFrontInputRef.current.value = "";
       } else {
         setIsUploadingCrpBack(false);
+        if (crpBackInputRef.current) crpBackInputRef.current.value = "";
       }
     }
   };
