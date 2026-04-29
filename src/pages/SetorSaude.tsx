@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
-import { Heart, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useHealthNews, useHealthNewsItem } from "@/hooks/useHealthNews";
 import HealthNewsCard from "@/components/setor-saude/HealthNewsCard";
 import HealthNewsReader from "@/components/setor-saude/HealthNewsReader";
+import setorSaudeIcon from "@/assets/setor-saude-icon.png";
 
 const SetorSaude = () => {
   const { data: news, isLoading } = useHealthNews(50);
@@ -37,7 +38,11 @@ const SetorSaude = () => {
         <div className="px-4 mb-6">
           <div className="flex items-center justify-between pb-3 mb-3 border-b-2 border-emerald-700">
             <div className="flex items-center gap-2">
-              <Heart className="w-7 h-7 text-emerald-700" fill="currentColor" />
+              <img
+                src={setorSaudeIcon}
+                alt="Setor Saúde"
+                className="w-9 h-9 object-contain"
+              />
               <h1 className="text-4xl font-display font-bold tracking-tight text-emerald-700">
                 Setor Saúde
               </h1>
@@ -57,7 +62,11 @@ const SetorSaude = () => {
 
         {!isLoading && (!news || news.length === 0) && (
           <div className="text-center py-16 px-4">
-            <Heart className="w-12 h-12 mx-auto text-emerald-200 mb-3" />
+            <img
+              src={setorSaudeIcon}
+              alt=""
+              className="w-14 h-14 mx-auto mb-3 opacity-30"
+            />
             <p className="text-gray-500 text-base font-medium">Em breve, novos conteúdos por aqui</p>
             <p className="text-sm text-gray-400 mt-1">
               Nossa equipe está preparando matérias incríveis sobre saúde e bem-estar
