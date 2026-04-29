@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useModuleConfig } from "@/hooks/useModuleConfig";
+import { useFeaturedHealthNews } from "@/hooks/useHealthNews";
 
 interface SlideConfig {
   image: string;
@@ -17,6 +18,8 @@ interface SlideConfig {
   titleSubtitleGap?: number;
   titleLineHeight?: number;
   subtitleLineHeight?: number;
+  isHealthNews?: boolean;
+  healthBadge?: string;
 }
 
 const HeroCarousel = () => {
@@ -24,13 +27,28 @@ const HeroCarousel = () => {
   const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
   const [isPaused, setIsPaused] = useState(false);
   const moduleQuery = useModuleConfig("hero_carousel");
+  const { data: featuredHealth } = useFeaturedHealthNews();
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
   const dbSlides = (moduleQuery.data?.config as { slides?: SlideConfig[] } | undefined)?.slides;
-  
-  // Only show slides from database - wait for data to load
-  const slides: SlideConfig[] = dbSlides ?? [];
+
+  // Build health-news slides from Setor Saúde featured posts
+  const healthSlides: SlideConfig[] = (featuredHealth ?? [])
+    .filter((n) => !!n.cover_image_url)
+    .map((n) => ({
+      image: n.cover_image_url as string,
+      title: n.title,
+      subtitle: n.subtitle ?? n.excerpt ?? undefined,
+      cta: "Ler matéria",
+      ctaLink: `/setor-saude?artigo=${n.id}`,
+      showOverlay: true,
+      isHealthNews: true,
+      healthBadge: "Setor Saúde",
+    }));
+
+  // Merge: CMS slides first, then health-news featured slides
+  const slides: SlideConfig[] = [...(dbSlides ?? []), ...healthSlides];
   const isLoading = moduleQuery.isLoading || slides.length === 0;
 
   // Reset state when slides change
@@ -146,6 +164,14 @@ const HeroCarousel = () => {
 
           {/* Content */}
           <div className="relative h-full flex flex-col justify-end p-6 pb-16">
+            {slide.isHealthNews && (
+              <div className="inline-flex items-center gap-1.5 self-start mb-3 px-3 py-1 rounded-full bg-emerald-500/90 backdrop-blur-sm">
+                <Heart className="w-3.5 h-3.5 text-white fill-white" />
+                <span className="text-white text-xs font-bold uppercase tracking-wide">
+                  {slide.healthBadge ?? "Setor Saúde"}
+                </span>
+              </div>
+            )}
             <h2 
               className={`${getFontClass(slide.titleFont)} text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight`}
               style={{ 
