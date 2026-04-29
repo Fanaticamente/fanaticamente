@@ -90,7 +90,7 @@ const SubscriptionPlans = ({ professionalId, onSubscribe }: SubscriptionPlansPro
           <button
             onClick={handleFreeActivation}
             disabled={activatingFree}
-            className="w-full h-12 px-4 inline-flex items-center justify-center bg-therapy text-therapy-foreground rounded-xl text-sm font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform disabled:opacity-50"
+            className="w-full h-12 px-3 inline-flex items-center justify-center bg-therapy text-therapy-foreground rounded-xl text-[11px] font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform disabled:opacity-50 whitespace-nowrap text-center leading-none"
           >
             {activatingFree ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ativar meu perfil gratuitamente"}
           </button>
