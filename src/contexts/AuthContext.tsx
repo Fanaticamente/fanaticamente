@@ -176,13 +176,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             (async () => {
               try {
                 await fetchUserRoles(session.user.id);
-                // Check for pending profile updates
-                await updatePendingProfileData(session.user.id);
-                // Register with OneSignal
-                registerOneSignalUser(session.user.id);
               } finally {
                 setRolesLoading(false);
               }
+              // Run side-effects AFTER releasing the loading flag so the UI
+              // can redirect immediately. The professional record is created
+              // asynchronously; the dashboard already retries if missing.
+              updatePendingProfileData(session.user.id).catch((e) =>
+                console.error("[Auth] pending profile update error:", e)
+              );
+              registerOneSignalUser(session.user.id);
             })();
           }, 0);
         } else {

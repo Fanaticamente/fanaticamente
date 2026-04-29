@@ -30,24 +30,52 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
 
     setIsUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `professionals/${professionalId}-${Date.now()}.${fileExt}`;
+      // Make sure the user is authenticated; the avatars bucket policy
+      // requires `auth.role() = 'authenticated'`.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        toast.error("Sua sessão expirou. Faça login novamente.");
+        return;
+      }
+
+      // Pick a safe extension from the MIME type to avoid weird camera filenames.
+      const mimeToExt: Record<string, string> = {
+        "image/jpeg": "jpg",
+        "image/jpg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/heic": "jpg",
+        "image/heif": "jpg",
+      };
+      const ext = mimeToExt[file.type] || (file.name.split(".").pop() || "jpg").toLowerCase();
+      const safeId = professionalId || session.user.id;
+      const fileName = `professionals/${safeId}-${Date.now()}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(fileName, file, { upsert: true });
-      if (uploadError) throw uploadError;
+        .upload(fileName, file, {
+          upsert: true,
+          contentType: file.type || "image/jpeg",
+          cacheControl: "3600",
+        });
+      if (uploadError) {
+        console.error("[StepPhoto] Storage upload failed:", uploadError);
+        toast.error(`Erro ao enviar imagem: ${uploadError.message}`);
+        return;
+      }
 
       const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(fileName);
 
       // Don't save to DB yet — will be saved when onboarding completes
       onUpdate(publicUrl);
       toast.success("Foto enviada com sucesso!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Upload error:", error);
-      toast.error("Erro ao enviar imagem");
+      toast.error(`Erro ao enviar imagem: ${error?.message || "tente novamente"}`);
     } finally {
       setIsUploading(false);
+      // Reset the input so the same file can be re-selected after an error.
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
