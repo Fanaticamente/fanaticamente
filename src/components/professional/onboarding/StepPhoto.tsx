@@ -1,8 +1,7 @@
 import { useState, useRef } from "react";
 import { Upload, Camera, Info } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { uploadProfessionalFile } from "@/lib/professionalUploads";
 
 interface StepPhotoProps {
   professionalId: string;
@@ -11,7 +10,6 @@ interface StepPhotoProps {
 }
 
 const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
-  const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -30,44 +28,9 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
 
     setIsUploading(true);
     try {
-      // Make sure the user is authenticated; the avatars bucket policy
-      // requires `auth.role() = 'authenticated'`.
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        toast.error("Sua sessão expirou. Faça login novamente.");
-        return;
-      }
-
-      // Pick a safe extension from the MIME type to avoid weird camera filenames.
-      const mimeToExt: Record<string, string> = {
-        "image/jpeg": "jpg",
-        "image/jpg": "jpg",
-        "image/png": "png",
-        "image/webp": "webp",
-        "image/heic": "jpg",
-        "image/heif": "jpg",
-      };
-      const ext = mimeToExt[file.type] || (file.name.split(".").pop() || "jpg").toLowerCase();
-      const safeId = professionalId || session.user.id;
-      const fileName = `professionals/${safeId}-${Date.now()}.${ext}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(fileName, file, {
-          upsert: true,
-          contentType: file.type || "image/jpeg",
-          cacheControl: "3600",
-        });
-      if (uploadError) {
-        console.error("[StepPhoto] Storage upload failed:", uploadError);
-        toast.error(`Erro ao enviar imagem: ${uploadError.message}`);
-        return;
-      }
-
-      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(fileName);
-
+      const { url } = await uploadProfessionalFile(file, "avatar");
       // Don't save to DB yet — will be saved when onboarding completes
-      onUpdate(publicUrl);
+      onUpdate(url);
       toast.success("Foto enviada com sucesso!");
     } catch (error: any) {
       console.error("Upload error:", error);
