@@ -118,8 +118,8 @@ const AdminDashboard = () => {
   return (
     <div className={`min-h-screen ${themeStyles.bg}`}>
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 bottom-0 w-64 ${themeStyles.sidebar} border-r ${themeStyles.border} hidden md:block`}>
-        <div className="p-6 flex items-center justify-between">
+      <aside className={`fixed left-0 top-0 bottom-0 w-64 ${themeStyles.sidebar} border-r ${themeStyles.border} hidden md:flex flex-col`}>
+        <div className="p-6 flex items-center justify-between flex-shrink-0">
           <img 
             src={isDarkMode ? adminLogoDark : adminLogoLight} 
             alt="Fanatica Mente" 
@@ -136,9 +136,9 @@ const AdminDashboard = () => {
             )}
           </button>
         </div>
-        <p className={`px-6 -mt-3 mb-4 ${themeStyles.textMuted} text-sm`}>Painel Administrativo</p>
+        <p className={`px-6 -mt-3 mb-4 ${themeStyles.textMuted} text-sm flex-shrink-0`}>Painel Administrativo</p>
 
-        <nav className="px-4 space-y-1">
+        <nav className="px-4 space-y-1 flex-1 overflow-y-auto min-h-0">
           {navItems.map((item) => {
             const isParentActive = item.subItems
               ? item.subItems.some(sub => sub.id === activeTab)
@@ -179,7 +179,7 @@ const AdminDashboard = () => {
           })}
         </nav>
 
-        <div className={`absolute bottom-0 left-0 right-0 p-4 border-t ${themeStyles.border}`}>
+        <div className={`flex-shrink-0 p-4 border-t ${themeStyles.border} ${themeStyles.sidebar}`}>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
               <Shield className="w-5 h-5 text-secondary" />
