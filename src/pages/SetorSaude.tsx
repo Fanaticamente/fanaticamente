@@ -41,7 +41,7 @@ const SetorSaude = () => {
               <img
                 src={setorSaudeIcon}
                 alt="Setor Saúde"
-                className="h-10 w-auto object-contain"
+                className="h-14 w-auto object-contain"
               />
               <h1 className="text-4xl font-display font-bold tracking-tight text-emerald-700">
                 Setor Saúde
