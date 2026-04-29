@@ -6,6 +6,7 @@ import { useAppMenu } from "@/hooks/useAppContent";
 import { useAppPages } from "@/hooks/useAppPages";
 import { supabase } from "@/integrations/supabase/client";
 import logoHeader from "@/assets/logo-header.png";
+import setorSaudeIconWhite from "@/assets/setor-saude-icon-white.png";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Home,
@@ -99,6 +100,7 @@ const Header = () => {
             <nav className="p-4 flex-1 overflow-y-auto">
               {visibleMainItems.map((item) => {
                 const IconComponent = iconMap[item.icon] || Home;
+                const isSetorSaude = item.path === "/setor-saude";
                 return (
                   <Link
                     key={item.path}
@@ -106,7 +108,15 @@ const Header = () => {
                     onClick={() => setIsOpen(false)}
                     className="flex items-center gap-4 p-4 rounded-xl hover:bg-muted transition-colors group"
                   >
-                    <IconComponent className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+                    {isSetorSaude ? (
+                      <img
+                        src={setorSaudeIconWhite}
+                        alt=""
+                        className="h-6 w-6 object-contain group-hover:scale-110 transition-transform"
+                      />
+                    ) : (
+                      <IconComponent className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+                    )}
                     <span className="text-card-foreground font-medium">{item.label}</span>
                   </Link>
                 );
