@@ -138,7 +138,7 @@ const AdminDashboard = () => {
         </div>
         <p className={`px-6 -mt-3 mb-4 ${themeStyles.textMuted} text-sm flex-shrink-0`}>Painel Administrativo</p>
 
-        <nav className="px-4 space-y-1 flex-1 overflow-y-auto min-h-0">
+        <nav className="px-4 space-y-1 flex-1 overflow-y-auto min-h-0 pb-4">
           {navItems.map((item) => {
             const isParentActive = item.subItems
               ? item.subItems.some(sub => sub.id === activeTab)
