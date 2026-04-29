@@ -1,8 +1,7 @@
 import { useRef, useState } from "react";
 import { FileText, CheckCircle, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { uploadProfessionalFile } from "@/lib/professionalUploads";
 import type { OnboardingData } from "./OnboardingWizard";
 
 interface StepDocumentsProps {
@@ -18,7 +17,6 @@ const formatCRP = (value: string): string => {
 };
 
 const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) => {
-  const { user } = useAuth();
   const [isUploadingFront, setIsUploadingFront] = useState(false);
   const [isUploadingBack, setIsUploadingBack] = useState(false);
   const frontRef = useRef<HTMLInputElement>(null);
@@ -36,38 +34,7 @@ const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) =
 
     side === "front" ? setIsUploadingFront(true) : setIsUploadingBack(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        toast.error("Sua sessão expirou. Faça login novamente.");
-        return;
-      }
-      const mimeToExt: Record<string, string> = {
-        "image/jpeg": "jpg",
-        "image/jpg": "jpg",
-        "image/png": "png",
-        "image/webp": "webp",
-        "image/heic": "jpg",
-        "image/heif": "jpg",
-        "application/pdf": "pdf",
-      };
-      const ext = mimeToExt[file.type] || (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
-      const path = `${session.user.id}/${side}-${Date.now()}.${ext}`;
-
-      const { error } = await supabase.storage.from("crp-documents").upload(path, file, {
-        upsert: true,
-        contentType: file.type || "application/octet-stream",
-        cacheControl: "3600",
-      });
-      if (error) {
-        console.error("[StepDocuments] Storage upload failed:", error);
-        toast.error(`Erro ao enviar documento: ${error.message}`);
-        return;
-      }
-
-      const { data: signed, error: sErr } = await supabase.storage.from("crp-documents").createSignedUrl(path, 60 * 60 * 24 * 365);
-      if (sErr) throw sErr;
-
-      const url = signed.signedUrl;
+      const { url } = await uploadProfessionalFile(file, side === "front" ? "crp-front" : "crp-back");
 
       // Don't save to DB yet — will be saved when onboarding completes
       onUpdate(side === "front" ? { crpDocumentFrontUrl: url } : { crpDocumentBackUrl: url });
