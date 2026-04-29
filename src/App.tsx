@@ -31,7 +31,6 @@ import { useGlobalSessionCompletion } from "@/hooks/useGlobalSessionCompletion";
 import { useDisableServiceWorkerOnManagerRoutes } from "@/hooks/useDisableServiceWorkerOnManagerRoutes";
 import { useViewportHeightSync } from "@/hooks/useViewportHeightSync";
 import SessionCompletedDialog from "@/components/user/SessionCompletedDialog";
-import { useSplashScreen } from "@/components/SplashScreen";
 import MobileBrowserBlock from "@/components/MobileBrowserBlock";
 import Index from "./pages/Index";
 import Terapeutas from "./pages/Terapeutas";
@@ -109,14 +108,12 @@ const AppProviders = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => {
-  const { SplashElement } = useSplashScreen();
   useViewportHeightSync();
 
   return (
   <QueryClientProvider client={queryClient}>
     <MobileBrowserBlock>
     <TooltipProvider>
-      {SplashElement}
       {isEmbedMode() ? (
         <AuthProvider>
           <RadioProvider>
