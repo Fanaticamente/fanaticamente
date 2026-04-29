@@ -871,6 +871,63 @@ export type Database = {
         }
         Relationships: []
       }
+      health_news: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          category: string
+          content: string
+          cover_image_url: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          image_caption: string | null
+          image_credits: string | null
+          is_featured_home: boolean
+          is_published: boolean
+          published_at: string | null
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          category?: string
+          content: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_caption?: string | null
+          image_credits?: string | null
+          is_featured_home?: boolean
+          is_published?: boolean
+          published_at?: string | null
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          category?: string
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_caption?: string | null
+          image_credits?: string | null
+          is_featured_home?: boolean
+          is_published?: boolean
+          published_at?: string | null
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lesson_activities: {
         Row: {
           activity_type: string
@@ -2032,7 +2089,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "user" | "professional" | "developer" | "admin"
+      app_role: "user" | "professional" | "developer" | "admin" | "marketing"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2160,7 +2217,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["user", "professional", "developer", "admin"],
+      app_role: ["user", "professional", "developer", "admin", "marketing"],
     },
   },
 } as const

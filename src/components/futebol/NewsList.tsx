@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useFootballNews } from "@/hooks/useFootballNews";
+import { useHealthNews } from "@/hooks/useHealthNews";
+import HealthNewsCard from "@/components/setor-saude/HealthNewsCard";
 import NewsCard from "./NewsCard";
 import FeaturedNewsCarousel from "./FeaturedNewsCarousel";
 import { Loader2, RefreshCw } from "lucide-react";
@@ -15,6 +17,7 @@ interface NewsListProps {
 
 const NewsList = ({ selectedCategory, selectedClub, accentColor }: NewsListProps) => {
   const { data: news, isLoading, error, refetch, isFetching, forceScrape } = useFootballNews(selectedClub);
+  const { data: healthNews } = useHealthNews(20);
   const [isForceRefreshing, setIsForceRefreshing] = useState(false);
 
   const handleForceRefresh = async () => {
@@ -97,6 +100,11 @@ const NewsList = ({ selectedCategory, selectedClub, accentColor }: NewsListProps
   // Rest goes to the list
   const otherNews = filteredNews.slice(3);
 
+  // Health news always appear in football feed (general & per-club),
+  // unless a specific category filter (other than "Todos"/"Futebol") is active.
+  const shouldShowHealth = selectedCategory === "Todos" || selectedCategory === "Futebol";
+  const healthItems = shouldShowHealth ? (healthNews || []) : [];
+
   // Show empty state if club filter returns no results
   if (filteredNews.length === 0 && selectedClub) {
     return (
@@ -124,6 +132,22 @@ const NewsList = ({ selectedCategory, selectedClub, accentColor }: NewsListProps
       {featuredNews.length > 0 && (
         <div className="px-4">
           <FeaturedNewsCarousel news={featuredNews} accentColor={accentColor} />
+        </div>
+      )}
+
+      {/* Setor Saúde — apareceu novas matérias */}
+      {healthItems.length > 0 && (
+        <div className="px-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-display text-xl text-emerald-700 flex items-center gap-2">
+              ❤ Setor Saúde
+            </h3>
+          </div>
+          <div className="space-y-3">
+            {healthItems.slice(0, 3).map((item) => (
+              <HealthNewsCard key={item.id} news={item} />
+            ))}
+          </div>
         </div>
       )}
 

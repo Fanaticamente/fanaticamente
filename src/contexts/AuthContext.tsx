@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { clearUserVideoProgress } from "@/hooks/useVideoProgress";
 
 
-type AppRole = "user" | "professional" | "developer" | "admin";
+type AppRole = "user" | "professional" | "developer" | "admin" | "marketing";
 
 interface AuthContextType {
   user: User | null;

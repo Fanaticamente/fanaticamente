@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, Settings, ShoppingBag, Thermometer, Shirt, LogOut, Tv } from "lucide-react";
+import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, Settings, ShoppingBag, Thermometer, Shirt, LogOut, Tv, Heart } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAppMenu } from "@/hooks/useAppContent";
 import { useAppPages } from "@/hooks/useAppPages";
@@ -19,6 +19,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Thermometer,
   Shirt,
   Tv,
+  Heart,
 };
 
 const Header = () => {
@@ -32,6 +33,7 @@ const Header = () => {
     { icon: "Users", label: "Terapeutas", path: "/terapeutas" },
     { icon: "BookOpen", label: "FanatiClass", path: "/cursos" },
     { icon: "Radio", label: "Alambrado FM", path: "/radio" },
+    { icon: "Heart", label: "Setor Saúde", path: "/setor-saude" },
     { icon: "Newspaper", label: "Notícias", path: "/futebol" },
     { icon: "Shirt", label: "FanaticaShop", path: "/loja" },
     { icon: "Tv", label: "FanatiCazé TV", path: "/fanaticaze-tv" },
@@ -51,6 +53,13 @@ const Header = () => {
   if (!hasCaze) {
     const shopIndex = mainItems.findIndex((i) => i.path === "/loja");
     mainItems.splice(shopIndex + 1, 0, { icon: "Tv", label: "FanatiCazé TV", path: "/fanaticaze-tv" });
+  }
+  // Ensure Setor Saúde is present above Notícias (futebol)
+  const hasSaude = mainItems.some((i) => i.path === "/setor-saude");
+  if (!hasSaude) {
+    const futebolIndex = mainItems.findIndex((i) => i.path === "/futebol");
+    const insertAt = futebolIndex >= 0 ? futebolIndex : mainItems.length;
+    mainItems.splice(insertAt, 0, { icon: "Heart", label: "Setor Saúde", path: "/setor-saude" });
   }
 
   const profileItem = allItems.find((item) => item.icon === "User") || { icon: "User", label: "Perfil", path: "/perfil" };

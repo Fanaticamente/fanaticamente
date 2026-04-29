@@ -75,6 +75,8 @@ import Notificacoes from "./pages/Notificacoes";
 import VerificarRecibo from "./pages/VerificarRecibo";
 import NotificationManagerPage from "./pages/NotificationManagerPage";
 import FanaticazeTV from "./pages/FanaticazeTV";
+import SetorSaude from "./pages/SetorSaude";
+import MarketingDashboard from "./pages/MarketingDashboard";
 
 const queryClient = new QueryClient();
 
@@ -135,6 +137,7 @@ const App = () => {
               <Route path="/loja/produto/:id" element={<ProductDetail />} />
               <Route path="/osmf" element={<OSMF />} />
               <Route path="/zona-mista" element={<ZonaMista />} />
+              <Route path="/setor-saude" element={<SetorSaude />} />
               <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
               <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
               <Route path="*" element={<NotFound />} />
@@ -173,6 +176,7 @@ const App = () => {
                 <Route path="/fanaticaze-tv" element={<DynamicProtectedRoute pageId="fanaticaze-tv"><FanaticazeTV /></DynamicProtectedRoute>} />
                 <Route path="/osmf" element={<DynamicProtectedRoute pageId="osmf"><OSMF /></DynamicProtectedRoute>} />
                 <Route path="/zona-mista" element={<DynamicProtectedRoute pageId="zona-mista"><ZonaMista /></DynamicProtectedRoute>} />
+                <Route path="/setor-saude" element={<DynamicProtectedRoute pageId="setor-saude"><SetorSaude /></DynamicProtectedRoute>} />
                 <Route path="/diario" element={<DynamicProtectedRoute pageId="diario"><Diario /></DynamicProtectedRoute>} />
                 <Route path="/perfil" element={<DynamicProtectedRoute pageId="perfil"><Perfil /></DynamicProtectedRoute>} />
                 <Route path="/meus-agendamentos" element={<DynamicProtectedRoute pageId="agendamentos"><MeusAgendamentos /></DynamicProtectedRoute>} />
@@ -207,6 +211,7 @@ const App = () => {
                 <Route path="/desenvolvedor/desktop" element={<ProtectedRoute><DesktopContentManager /></ProtectedRoute>} />
                 <Route path="/developer/notificacoes" element={<ProtectedRoute><NotificationManagerPage /></ProtectedRoute>} />
                 <Route path="/desenvolvedor/notificacoes" element={<ProtectedRoute><NotificationManagerPage /></ProtectedRoute>} />
+                <Route path="/marketing" element={<ProtectedRoute><MarketingDashboard /></ProtectedRoute>} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
