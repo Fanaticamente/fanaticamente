@@ -9,6 +9,7 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { uploadProfessionalFile } from "@/lib/professionalUploads";
 
 interface ProfileData {
   bio: string;
@@ -223,26 +224,16 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
 
     setIsUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${professionalId}-${Date.now()}.${fileExt}`;
-      const filePath = `professionals/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
+      const { url } = await uploadProfessionalFile(file, "avatar");
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = user?.id ?? session?.user?.id;
 
       // Salvar a URL no banco de dados imediatamente
-      if (user) {
+      if (userId) {
         const { error: updateError } = await supabase
           .from('profiles')
-          .update({ avatar_url: publicUrl })
-          .eq('user_id', user.id);
+          .update({ avatar_url: url })
+          .eq('user_id', userId);
 
         if (updateError) {
           console.error("Error updating avatar_url:", updateError);
@@ -251,13 +242,14 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
         }
       }
 
-      setFormData(prev => ({ ...prev, imageUrl: publicUrl }));
+      setFormData(prev => ({ ...prev, imageUrl: url }));
       toast.success("Imagem enviada e salva com sucesso!");
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Erro ao enviar imagem. Tente novamente.");
     } finally {
       setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -283,25 +275,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
     }
 
     try {
-      if (!user) throw new Error("Not authenticated");
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${side}-${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('crp-documents')
-        .upload(fileName, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      // Get signed URL for private bucket
-      const { data: signedData, error: signedError } = await supabase.storage
-        .from('crp-documents')
-        .createSignedUrl(fileName, 60 * 60 * 24 * 365); // 1 year
-
-      if (signedError) throw signedError;
-
-      const documentUrl = signedData.signedUrl;
+      const { url: documentUrl } = await uploadProfessionalFile(file, side === 'front' ? 'crp-front' : 'crp-back');
 
       // Save to professionals table
       const updateField = side === 'front' ? 'crp_document_front_url' : 'crp_document_back_url';
@@ -325,8 +299,10 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
     } finally {
       if (side === 'front') {
         setIsUploadingCrpFront(false);
+        if (crpFrontInputRef.current) crpFrontInputRef.current.value = "";
       } else {
         setIsUploadingCrpBack(false);
+        if (crpBackInputRef.current) crpBackInputRef.current.value = "";
       }
     }
   };
@@ -353,25 +329,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
     }
 
     try {
-      if (!user) throw new Error("Not authenticated");
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/degree-${side}-${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('crp-documents')
-        .upload(fileName, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      // Get signed URL for private bucket
-      const { data: signedData, error: signedError } = await supabase.storage
-        .from('crp-documents')
-        .createSignedUrl(fileName, 60 * 60 * 24 * 365); // 1 year
-
-      if (signedError) throw signedError;
-
-      const documentUrl = signedData.signedUrl;
+      const { url: documentUrl } = await uploadProfessionalFile(file, side === 'front' ? 'degree-front' : 'degree-back');
 
       // Save to professionals table
       const updateField = side === 'front' ? 'degree_document_front_url' : 'degree_document_back_url';
@@ -395,8 +353,10 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
     } finally {
       if (side === 'front') {
         setIsUploadingDegreeFront(false);
+        if (degreeFrontInputRef.current) degreeFrontInputRef.current.value = "";
       } else {
         setIsUploadingDegreeBack(false);
+        if (degreeBackInputRef.current) degreeBackInputRef.current.value = "";
       }
     }
   };
