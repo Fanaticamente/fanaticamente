@@ -609,34 +609,14 @@ const Auth = () => {
                         <label className="block text-card-foreground text-sm mb-2">
                           Nascimento
                         </label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button
-                              type="button"
-                              className={cn(dateInputClassName, "flex items-center justify-between text-left")}
-                            >
-                              <span className={signUpData.birthDate ? "" : "text-muted-foreground"}>
-                                {signUpData.birthDate
-                                  ? format(parse(signUpData.birthDate, "yyyy-MM-dd", new Date()), "dd/MM/yyyy")
-                                  : "dd/mm/aaaa"}
-                              </span>
-                              <CalendarIcon className="w-4 h-4 opacity-60" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 bg-background z-[100]" align="start">
-                            <Calendar
-                              mode="single"
-                              locale={ptBR}
-                              selected={signUpData.birthDate ? parse(signUpData.birthDate, "yyyy-MM-dd", new Date()) : undefined}
-                              onSelect={(d) => d && handleSignUpDataChange('birthDate', format(d, "yyyy-MM-dd"))}
-                              disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                              captionLayout="dropdown-buttons"
-                              fromYear={1900}
-                              toYear={new Date().getFullYear()}
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <input
+                          type="date"
+                          value={signUpData.birthDate}
+                          onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
+                          min="1900-01-01"
+                          max={format(new Date(), "yyyy-MM-dd")}
+                          className={dateInputClassName}
+                        />
                         {errors.birthDate && (
                           <p className="text-destructive text-xs mt-1">{errors.birthDate}</p>
                         )}
