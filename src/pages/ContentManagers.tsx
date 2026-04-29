@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Smartphone, Monitor, ArrowRight, Loader2, Settings, LogOut, ExternalLink, GraduationCap, ArrowLeft, Sun, Moon, Bell } from "lucide-react";
+import { Smartphone, Monitor, ArrowRight, Loader2, Settings, LogOut, ExternalLink, GraduationCap, ArrowLeft, Sun, Moon, Bell, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CourseManager from "@/components/admin/CourseManager";
 
@@ -196,6 +196,22 @@ const ContentManagers = () => {
             <p className="text-muted-foreground mb-6">Envie, configure templates, automatize disparos e visualize métricas completas do sistema de notificações.</p>
             <div className="flex items-center gap-2 text-secondary group-hover:gap-4 transition-all">
               <span className="font-medium">Acessar gerenciador</span>
+              <ArrowRight className="w-5 h-5" />
+            </div>
+          </div>
+
+          {/* Marketing & Content Manager Card (monitoring access for dev/admin) */}
+          <div 
+            onClick={() => navigate("/marketing")}
+            className="group cursor-pointer bg-card border border-border rounded-2xl p-8 hover:border-emerald-500/50 hover:shadow-xl transition-all duration-300"
+          >
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <Megaphone className="w-10 h-10 text-emerald-500" />
+            </div>
+            <h2 className="font-display text-2xl text-card-foreground mb-3">Marketing & Conteúdo</h2>
+            <p className="text-muted-foreground mb-6">Acompanhe e edite as notícias do Setor Saúde publicadas pela equipe de Marketing. Acesso de monitoramento para Dev/Admin.</p>
+            <div className="flex items-center gap-2 text-emerald-500 group-hover:gap-4 transition-all">
+              <span className="font-medium">Abrir painel</span>
               <ArrowRight className="w-5 h-5" />
             </div>
           </div>
