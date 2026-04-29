@@ -871,6 +871,63 @@ export type Database = {
         }
         Relationships: []
       }
+      health_news: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          category: string
+          content: string
+          cover_image_url: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          image_caption: string | null
+          image_credits: string | null
+          is_featured_home: boolean
+          is_published: boolean
+          published_at: string | null
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          category?: string
+          content: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_caption?: string | null
+          image_credits?: string | null
+          is_featured_home?: boolean
+          is_published?: boolean
+          published_at?: string | null
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          category?: string
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_caption?: string | null
+          image_credits?: string | null
+          is_featured_home?: boolean
+          is_published?: boolean
+          published_at?: string | null
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lesson_activities: {
         Row: {
           activity_type: string
