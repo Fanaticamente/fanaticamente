@@ -36,12 +36,33 @@ const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) =
 
     side === "front" ? setIsUploadingFront(true) : setIsUploadingBack(true);
     try {
-      if (!user) throw new Error("Not authenticated");
-      const ext = file.name.split(".").pop();
-      const path = `${user.id}/${side}-${Date.now()}.${ext}`;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        toast.error("Sua sessão expirou. Faça login novamente.");
+        return;
+      }
+      const mimeToExt: Record<string, string> = {
+        "image/jpeg": "jpg",
+        "image/jpg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/heic": "jpg",
+        "image/heif": "jpg",
+        "application/pdf": "pdf",
+      };
+      const ext = mimeToExt[file.type] || (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const path = `${session.user.id}/${side}-${Date.now()}.${ext}`;
 
-      const { error } = await supabase.storage.from("crp-documents").upload(path, file, { upsert: true });
-      if (error) throw error;
+      const { error } = await supabase.storage.from("crp-documents").upload(path, file, {
+        upsert: true,
+        contentType: file.type || "application/octet-stream",
+        cacheControl: "3600",
+      });
+      if (error) {
+        console.error("[StepDocuments] Storage upload failed:", error);
+        toast.error(`Erro ao enviar documento: ${error.message}`);
+        return;
+      }
 
       const { data: signed, error: sErr } = await supabase.storage.from("crp-documents").createSignedUrl(path, 60 * 60 * 24 * 365);
       if (sErr) throw sErr;
@@ -51,11 +72,13 @@ const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) =
       // Don't save to DB yet — will be saved when onboarding completes
       onUpdate(side === "front" ? { crpDocumentFrontUrl: url } : { crpDocumentBackUrl: url });
       toast.success(`CRP (${side === "front" ? "frente" : "verso"}) enviado!`);
-    } catch (e) {
-      console.error(e);
-      toast.error("Erro ao enviar documento");
+    } catch (e: any) {
+      console.error("[StepDocuments] Upload error:", e);
+      toast.error(`Erro ao enviar documento: ${e?.message || "tente novamente"}`);
     } finally {
       side === "front" ? setIsUploadingFront(false) : setIsUploadingBack(false);
+      if (frontRef.current) frontRef.current.value = "";
+      if (backRef.current) backRef.current.value = "";
     }
   };
 
