@@ -22,11 +22,7 @@ interface HealthNewsReaderProps {
 const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
   const [fontSizeLevel, setFontSizeLevel] = useState(0);
 
-  const fontSizeClasses = [
-    "prose-base",
-    "prose-lg",
-    "prose-xl",
-  ];
+  const fontSizePx = [16, 19, 22];
 
   const date = news.published_at ? new Date(news.published_at) : new Date(news.created_at);
   const formattedDate = date.toLocaleDateString("pt-BR", {
@@ -127,8 +123,8 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
             )}
 
             <article
-              className={`prose ${fontSizeClasses[fontSizeLevel]} max-w-none text-gray-900 text-justify hyphens-auto prose-headings:text-gray-900 prose-a:text-emerald-700 prose-strong:text-gray-900 prose-img:rounded-lg prose-p:text-justify [&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:text-[3.5rem] [&>p:first-of-type]:first-letter:font-bold [&>p:first-of-type]:first-letter:mr-2 [&>p:first-of-type]:first-letter:mt-1 [&>p:first-of-type]:first-letter:leading-[0.8] [&>p:first-of-type]:first-letter:text-black`}
-              style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+              className={`max-w-none text-gray-900 text-justify hyphens-auto leading-relaxed space-y-4 [&_a]:text-emerald-700 [&_a]:underline [&_strong]:text-gray-900 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_img]:rounded-lg [&_img]:my-4 [&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:text-[3.5rem] [&>p:first-of-type]:first-letter:font-bold [&>p:first-of-type]:first-letter:mr-2 [&>p:first-of-type]:first-letter:mt-1 [&>p:first-of-type]:first-letter:leading-[0.8] [&>p:first-of-type]:first-letter:text-black`}
+              style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: `${fontSizePx[fontSizeLevel]}px` }}
               dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
             />
 
