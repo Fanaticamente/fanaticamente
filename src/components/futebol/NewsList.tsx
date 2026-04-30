@@ -140,7 +140,8 @@ const NewsList = ({ selectedCategory, selectedClub, accentColor }: NewsListProps
         <div className="px-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-display text-xl text-emerald-700 flex items-center gap-2">
-              ❤ Setor Saúde
+              <SetorSaudeInlineIcon className="w-6 h-6" />
+              Setor Saúde
             </h3>
           </div>
           <div className="space-y-3">
