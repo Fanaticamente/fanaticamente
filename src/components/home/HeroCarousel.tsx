@@ -192,10 +192,10 @@ const HeroCarousel = () => {
             {slide.cta && slide.ctaLink && (
               <Link
                 to={slide.ctaLink}
-                className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-bold text-sm uppercase tracking-wide w-fit hover:scale-105 transition-transform shadow-lg text-center"
+                className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-bold text-sm uppercase tracking-wide w-fit hover:scale-105 transition-transform shadow-lg text-center leading-none"
               >
-                {slide.cta}
-                <ChevronRight className="w-5 h-5" />
+                <span className="leading-none">{slide.cta}</span>
+                <ChevronRight className="w-5 h-5 shrink-0" />
               </Link>
             )}
           </div>
