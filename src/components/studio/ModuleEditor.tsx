@@ -35,6 +35,8 @@ interface SlideConfig {
   subtitleLineHeight?: number;
   // Auto-managed slide bound to a featured health news item
   healthNewsId?: string;
+  _titleOverridden?: boolean;
+  _subtitleOverridden?: boolean;
 }
 
 // Dimensões reais dos módulos baseadas no layout do app (2x para retina)
@@ -254,7 +256,7 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
       if (field === "title") updated._titleOverridden = true;
       if (field === "subtitle") updated._subtitleOverridden = true;
     }
-    slides[index] = updated as SlideConfig;
+    slides[index] = updated as unknown as SlideConfig;
     setConfig({ ...config, slides: [...slides] });
   };
 
