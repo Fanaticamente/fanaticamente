@@ -130,7 +130,7 @@ const HeroCarousel = () => {
   return (
     <div 
       className="relative w-full overflow-hidden bg-background select-none" 
-      style={{ aspectRatio: '1/1', maxHeight: '1080px', WebkitUserSelect: 'none' }}
+      style={{ aspectRatio: '1/1', maxHeight: '1080px', WebkitUserSelect: 'none', touchAction: 'pan-y' }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -192,7 +192,7 @@ const HeroCarousel = () => {
             {slide.cta && slide.ctaLink && (
               <Link
                 to={slide.ctaLink}
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-bold text-sm uppercase tracking-wide w-fit hover:scale-105 transition-transform shadow-lg"
+                className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-bold text-sm uppercase tracking-wide w-fit hover:scale-105 transition-transform shadow-lg text-center"
               >
                 {slide.cta}
                 <ChevronRight className="w-5 h-5" />
