@@ -44,7 +44,7 @@ const HeroCarousel = () => {
       ctaLink: `/setor-saude?artigo=${n.id}`,
       showOverlay: true,
       isHealthNews: true,
-      healthBadge: "Setor Saúde",
+      healthBadge: "Saúde",
       titleFont: "font-sans",
       subtitleFont: "font-sans",
     }));
@@ -170,7 +170,7 @@ const HeroCarousel = () => {
               <div className="inline-flex items-center gap-1.5 self-start mb-3 px-3 py-1 rounded-full bg-emerald-500/90 backdrop-blur-sm">
                 <Heart className="w-3.5 h-3.5 text-white fill-white" />
                 <span className="text-white text-xs font-bold uppercase tracking-wide">
-                  {slide.healthBadge ?? "Setor Saúde"}
+                  {slide.healthBadge ?? "Saúde"}
                 </span>
               </div>
             )}
