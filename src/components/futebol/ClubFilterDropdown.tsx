@@ -3,6 +3,7 @@ import { brazilianClubs, BrazilianClub } from "@/data/brazilianClubs";
 import { ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import fanaticaLogoIcon from "@/assets/fanatica-logo-icon.png";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
 
 interface ClubFilterDropdownProps {
   selectedClub: string | null;
@@ -13,6 +14,9 @@ interface ClubFilterDropdownProps {
 const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFilterDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { data: moduleConfig } = useModuleConfig("football_page");
+  const showBadges = (moduleConfig?.config as Record<string, unknown> | undefined)?.show_badges !== false;
+  const hiddenBadges = (((moduleConfig?.config as Record<string, unknown> | undefined)?.hidden_badges) as string[] | undefined) || [];
 
   const serieAClubs = brazilianClubs.filter((club) => club.league === "serie_a");
   const serieBClubs = brazilianClubs.filter((club) => club.league === "serie_b");
@@ -38,16 +42,31 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
     setIsOpen(false);
   };
 
-  const ClubBadge = ({ club, size = "sm" }: { club: BrazilianClub; size?: "sm" | "md" }) => (
-    <div className={cn(
-      "rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200",
-      size === "sm" ? "w-8 h-8" : "w-10 h-10"
-    )}>
-      <span className="text-[9px] font-bold text-gray-700 text-center leading-tight px-0.5">
-        {club.shortName || club.name.slice(0, 3).toUpperCase()}
-      </span>
-    </div>
-  );
+  const ClubBadge = ({ club, size = "sm" }: { club: BrazilianClub; size?: "sm" | "md" }) => {
+    const dimensions = size === "sm" ? "w-8 h-8" : "w-10 h-10";
+    const showBadgeImage = showBadges && !hiddenBadges.includes(club.id);
+    return (
+      <div className={cn(
+        "rounded-full bg-white flex items-center justify-center overflow-hidden border border-gray-200",
+        dimensions
+      )}>
+        {showBadgeImage ? (
+          <img
+            src={club.badgeUrl}
+            alt={club.name}
+            className="w-full h-full object-contain p-0.5"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+          />
+        ) : (
+          <span className="text-[9px] font-bold text-gray-700 text-center leading-tight px-0.5">
+            {club.shortName || club.name.slice(0, 3).toUpperCase()}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
