@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { useHealthNews, useHealthNewsItem } from "@/hooks/useHealthNews";
 import HealthNewsCard from "@/components/setor-saude/HealthNewsCard";
 import HealthNewsReader from "@/components/setor-saude/HealthNewsReader";
-import setorSaudeIcon from "@/assets/setor-saude-icon.png";
+import { SetorSaudeInlineIcon } from "@/components/icons/SetorSaudeInlineIcon";
 
 const SetorSaude = () => {
   const { data: news, isLoading } = useHealthNews(50);
@@ -38,16 +38,11 @@ const SetorSaude = () => {
         <div className="px-4 mb-6">
           <div className="flex items-center justify-between pb-3 mb-3 border-b-2 border-emerald-700">
             <div className="flex items-center gap-2">
-              <img
-                src={setorSaudeIcon}
-                alt=""
+              <SetorSaudeInlineIcon
+                variant="green"
                 className="h-14 w-14 shrink-0 object-contain"
-                width={56}
-                height={56}
-                loading="eager"
-                decoding="sync"
-                fetchPriority="high"
                 aria-hidden
+                focusable="false"
               />
               <h1 className="text-4xl font-display font-bold tracking-tight text-emerald-700">
                 Setor Saúde
@@ -68,15 +63,11 @@ const SetorSaude = () => {
 
         {!isLoading && (!news || news.length === 0) && (
           <div className="text-center py-16 px-4">
-            <img
-              src={setorSaudeIcon}
-              alt=""
+            <SetorSaudeInlineIcon
+              variant="green"
               className="w-14 h-14 mx-auto mb-3 object-contain opacity-30"
-              width={56}
-              height={56}
-              loading="eager"
-              decoding="sync"
               aria-hidden
+              focusable="false"
             />
             <p className="text-gray-500 text-base font-medium">Em breve, novos conteúdos por aqui</p>
             <p className="text-sm text-gray-400 mt-1">
