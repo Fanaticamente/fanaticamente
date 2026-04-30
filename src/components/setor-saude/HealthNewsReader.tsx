@@ -141,7 +141,9 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
                   </>
                 )}
                 {" • "}
-                {formatDistanceToNow(date, { addSuffix: true, locale: ptBR })}
+                {formatDistanceToNow(date, { addSuffix: true, locale: ptBR })
+                  .replace(/^há cerca de /, "há ")
+                  .replace(/^cerca de /, "")}
               </p>
             </div>
           </div>

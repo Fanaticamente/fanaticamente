@@ -109,7 +109,7 @@ const FeaturedSlide = ({ news, onOpen, accentColor }: FeaturedSlideProps) => {
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
     locale: ptBR,
-  });
+  }).replace(/^há cerca de /, "há ").replace(/^cerca de /, "");
 
   const fixedTitle = fixTitleCapitalization(news.rewritten_title);
   const cleanedContent = cleanNewsContent(news.rewritten_content);
