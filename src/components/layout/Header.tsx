@@ -6,7 +6,7 @@ import { useAppMenu } from "@/hooks/useAppContent";
 import { useAppPages } from "@/hooks/useAppPages";
 import { supabase } from "@/integrations/supabase/client";
 import logoHeader from "@/assets/logo-header.png";
-import setorSaudeIconWhite from "@/assets/setor-saude-icon-white.png";
+import { SetorSaudeInlineIcon } from "@/components/icons/SetorSaudeInlineIcon";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Home,
@@ -118,16 +118,11 @@ const Header = () => {
                     className="flex items-center gap-4 p-4 rounded-xl hover:bg-muted transition-colors group"
                   >
                     {isSetorSaude ? (
-                      <img
-                        src={setorSaudeIconWhite}
-                        alt=""
+                      <SetorSaudeInlineIcon
+                        variant="white"
                         className="h-6 w-6 object-contain group-hover:scale-110 transition-transform"
-                        width={24}
-                        height={24}
-                        loading="eager"
-                        decoding="sync"
-                        fetchPriority="high"
                         aria-hidden
+                        focusable="false"
                       />
                     ) : (
                       <IconComponent className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
