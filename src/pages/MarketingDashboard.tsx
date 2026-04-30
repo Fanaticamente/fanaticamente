@@ -42,7 +42,6 @@ const MarketingDashboard = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [section, setSection] = useState<"news" | "carousel">("news");
-  const [editingModule, setEditingModule] = useState<AppModule | null>(null);
 
   const { data: items, isLoading } = useHealthNewsAdmin();
   const { data: modules } = useAppModules("home");
@@ -198,7 +197,7 @@ const MarketingDashboard = () => {
               <div className="dark bg-background text-foreground">
                 <ModuleEditor
                   module={heroModule}
-                  onClose={() => setEditingModule(null)}
+                  onClose={() => setSection("news")}
                 />
               </div>
             )}
