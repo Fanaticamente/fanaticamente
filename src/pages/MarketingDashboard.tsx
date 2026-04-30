@@ -12,8 +12,11 @@ import RichEditor from "@/components/marketing/RichEditor";
 import { toast } from "sonner";
 import {
   Loader2, Plus, Pencil, Trash2, Star, Eye, EyeOff, ArrowLeft,
-  LogOut, Megaphone, Image as ImageIcon, Calendar,
+  LogOut, Megaphone, Image as ImageIcon, Calendar, LayoutTemplate,
 } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useAppModules } from "@/hooks/useAppModules";
+import ModuleEditor from "@/components/studio/ModuleEditor";
 
 type Mode = "list" | "edit";
 
@@ -38,8 +41,14 @@ const MarketingDashboard = () => {
   const [editing, setEditing] = useState<Partial<HealthNewsItem> | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [section, setSection] = useState<"news" | "carousel">("news");
 
   const { data: items, isLoading } = useHealthNewsAdmin();
+  const { data: modules } = useAppModules("home");
+  const heroModule = useMemo(
+    () => modules?.find((m) => m.module_id === "hero_carousel") ?? null,
+    [modules]
+  );
 
   const allowed = useMemo(
     () => hasRole("marketing") || hasRole("admin") || hasRole("developer"),
@@ -156,7 +165,44 @@ const MarketingDashboard = () => {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-8">
-        {mode === "list" ? (
+        <Tabs value={section} onValueChange={(v) => setSection(v as "news" | "carousel")} className="mb-6">
+          <TabsList>
+            <TabsTrigger value="news">
+              <Megaphone className="w-4 h-4 mr-1" /> Matérias
+            </TabsTrigger>
+            <TabsTrigger value="carousel">
+              <LayoutTemplate className="w-4 h-4 mr-1" /> Carrossel Principal
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {section === "carousel" ? (
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Carrossel Principal da Home</h2>
+                <p className="text-xs text-gray-500">
+                  Banner rotativo no topo da página inicial. Recomendado: 750 × 960 px.
+                </p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => navigate("/")}>
+                <Eye className="w-4 h-4 mr-1" /> Ver na home
+              </Button>
+            </div>
+            {!heroModule ? (
+              <div className="py-16 flex justify-center">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+              </div>
+            ) : (
+              <div className="dark bg-background text-foreground">
+                <ModuleEditor
+                  module={heroModule}
+                  onClose={() => setSection("news")}
+                />
+              </div>
+            )}
+          </div>
+        ) : mode === "list" ? (
           <>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Matérias</h2>

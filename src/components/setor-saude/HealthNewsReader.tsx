@@ -75,11 +75,19 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
                 </div>
               </div>
 
-              <DrawerTitle className="text-2xl sm:text-3xl font-sans font-bold text-black leading-tight tracking-tight text-left">
+              <DrawerTitle
+                className="font-sans text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-black text-left"
+                style={{ lineHeight: 1.1, marginBottom: "8px" }}
+              >
                 {news.title}
               </DrawerTitle>
               {news.subtitle && (
-                <p className="mt-2 text-base text-gray-600 leading-snug text-left">{news.subtitle}</p>
+                <p
+                  className="font-sans text-lg sm:text-xl md:text-2xl text-gray-600 text-left"
+                  style={{ lineHeight: 1.4 }}
+                >
+                  {news.subtitle}
+                </p>
               )}
             </div>
 
