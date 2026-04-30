@@ -51,7 +51,7 @@ const HealthNewsCard = ({ news, variant = "list", defaultOpen = false, onClose }
                 <p className="text-gray-600 text-sm line-clamp-2 mb-3">{news.excerpt}</p>
               )}
               <div className="flex items-center justify-between text-xs text-gray-500">
-                <span className="font-medium text-emerald-700">{news.author_name || "Fanaticamente"}</span>
+                <span className="font-medium text-emerald-700">Fanaticamente</span>
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   {timeAgo}

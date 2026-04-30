@@ -131,15 +131,7 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
                 <div className="w-8 h-px bg-gray-400"></div>
               </div>
               <p className="text-xs text-gray-500 text-center mt-3 tracking-wide font-sans">
-                {news.author_name ? (
-                  <>
-                    por <span className="font-semibold text-gray-700">{news.author_name}</span>
-                  </>
-                ) : (
-                  <>
-                    publicado por <span className="font-semibold text-gray-700">Fanaticamente</span>
-                  </>
-                )}
+                por <span className="font-semibold text-gray-700">Fanaticamente</span>
                 {" • "}
                 {formatDistanceToNow(date, { addSuffix: true, locale: ptBR })
                   .replace(/^há cerca de /, "há ")
