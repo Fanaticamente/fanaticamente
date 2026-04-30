@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useFootballNews } from "@/hooks/useFootballNews";
 import { useHealthNews } from "@/hooks/useHealthNews";
 import HealthNewsCard from "@/components/setor-saude/HealthNewsCard";
+import { SetorSaudeInlineIcon } from "@/components/icons/SetorSaudeInlineIcon";
 import NewsCard from "./NewsCard";
 import FeaturedNewsCarousel from "./FeaturedNewsCarousel";
 import { Loader2, RefreshCw } from "lucide-react";
