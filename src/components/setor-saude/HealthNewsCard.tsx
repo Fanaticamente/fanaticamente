@@ -16,7 +16,9 @@ const HealthNewsCard = ({ news, variant = "list", defaultOpen = false, onClose }
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   const date = news.published_at ? new Date(news.published_at) : new Date(news.created_at);
-  const timeAgo = formatDistanceToNow(date, { addSuffix: true, locale: ptBR }).replace(/^cerca de /, "");
+  const timeAgo = formatDistanceToNow(date, { addSuffix: true, locale: ptBR })
+    .replace(/^cerca de /, "")
+    .replace(/^há cerca de /, "há ");
 
   const close = () => {
     setIsOpen(false);
@@ -82,10 +84,10 @@ const HealthNewsCard = ({ news, variant = "list", defaultOpen = false, onClose }
           <h4 className="font-sans font-bold text-gray-900 text-sm leading-tight line-clamp-2 mb-1">
             {news.title}
           </h4>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded">{news.category}</span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
+          <div className="flex items-center gap-2 text-xs text-gray-500 whitespace-nowrap overflow-hidden">
+            <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded truncate">{news.category}</span>
+            <span className="flex items-center gap-1 whitespace-nowrap">
+              <Clock className="w-3 h-3 flex-shrink-0" />
               {timeAgo}
             </span>
           </div>
