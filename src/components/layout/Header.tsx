@@ -90,7 +90,16 @@ const Header = () => {
           </SheetTrigger>
           <SheetContent side="left" className="w-80 bg-background border-border p-0 flex flex-col" style={{ paddingTop: 'max(0px, env(safe-area-inset-top, 0px))' }}>
             <div className="p-6 border-b border-border flex flex-col items-center">
-              <img src={logoHeader} alt="Logo" className="h-12 w-auto" />
+              <img
+                src={logoHeader}
+                alt="Logo"
+                className="h-12 w-auto"
+                width={48}
+                height={48}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
               <p className="text-muted-foreground text-sm mt-2">
                 Saúde mental para torcedores
               </p>
@@ -145,7 +154,16 @@ const Header = () => {
         </Sheet>
 
         <Link to="/" className="flex items-center">
-          <img src={logoHeader} alt="Logo" className="h-8 w-auto" />
+          <img
+            src={logoHeader}
+            alt="Logo"
+            className="h-8 w-auto"
+            width={32}
+            height={32}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+          />
         </Link>
 
         <button className="p-2 hover:bg-muted rounded-lg transition-colors">
