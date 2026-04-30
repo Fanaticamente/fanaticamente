@@ -42,6 +42,11 @@ const SetorSaude = () => {
                 src={setorSaudeIcon}
                 alt="Setor Saúde"
                 className="h-14 w-auto object-contain"
+                width={56}
+                height={56}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
               />
               <h1 className="text-4xl font-display font-bold tracking-tight text-emerald-700">
                 Setor Saúde
