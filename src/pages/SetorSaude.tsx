@@ -68,7 +68,16 @@ const SetorSaude = () => {
 
         {!isLoading && (!news || news.length === 0) && (
           <div className="text-center py-16 px-4">
-            <SetorSaudeIcon className="w-14 h-14 mx-auto mb-3 text-emerald-700 opacity-30" aria-hidden />
+            <img
+              src={setorSaudeIcon}
+              alt=""
+              className="w-14 h-14 mx-auto mb-3 object-contain opacity-30"
+              width={56}
+              height={56}
+              loading="eager"
+              decoding="sync"
+              aria-hidden
+            />
             <p className="text-gray-500 text-base font-medium">Em breve, novos conteúdos por aqui</p>
             <p className="text-sm text-gray-400 mt-1">
               Nossa equipe está preparando matérias incríveis sobre saúde e bem-estar
