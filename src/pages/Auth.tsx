@@ -867,15 +867,6 @@ const Auth = () => {
                     : "Já tem conta? Entre"}
                 </button>
               </div>
-
-          <button
-                type="button"
-                onClick={() => navigate("/")}
-                className="w-full mt-4 py-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm">Voltar</span>
-              </button>
             </div>
 
             {authMode === "user" && (
@@ -1282,15 +1273,6 @@ const Auth = () => {
                 : "Já tem conta? Entre"}
             </button>
           </div>
-
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="w-full mt-4 py-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm">Voltar</span>
-          </button>
         </div>
 
         {authMode === "user" && (
