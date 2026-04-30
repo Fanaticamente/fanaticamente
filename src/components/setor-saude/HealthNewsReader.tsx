@@ -48,10 +48,10 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
             <div className="flex-1 pr-2">
               <div className="flex items-center justify-between mb-3 pt-1">
                 <span
-                  className="text-xs tracking-[0.3em] uppercase text-emerald-700 font-semibold"
+                  className="text-xs tracking-[0.3em] uppercase text-emerald-700 font-semibold whitespace-nowrap truncate"
                   style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
                 >
-                  Setor Saúde • {news.category}
+                  {news.category}
                 </span>
                 <div className="flex items-center gap-3">
                   <span
