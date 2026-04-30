@@ -7,6 +7,10 @@ import { useAppPages } from "@/hooks/useAppPages";
 import { supabase } from "@/integrations/supabase/client";
 import logoHeader from "@/assets/logo-header.png";
 import { SetorSaudeInlineIcon } from "@/components/icons/SetorSaudeInlineIcon";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
+import { brazilianClubs } from "@/data/brazilianClubs";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Home,
@@ -28,6 +32,33 @@ const Header = () => {
   const navigate = useNavigate();
   const { data: menuData } = useAppMenu('header_menu');
   const { data: pages } = useAppPages('mobile');
+  const { user } = useAuth();
+  const { data: sidebarClubConfig } = useModuleConfig("sidebar_user_club");
+  const sidebarShowBadges =
+    (sidebarClubConfig?.config as Record<string, unknown> | undefined)?.show_badges !== false;
+  const sidebarHiddenBadges =
+    (((sidebarClubConfig?.config as Record<string, unknown> | undefined)?.hidden_badges) as string[] | undefined) || [];
+
+  const { data: userProfile } = useQuery({
+    queryKey: ["sidebar-user-profile", user?.id],
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("favorite_club_id, full_name")
+        .eq("id", user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const userClub = userProfile?.favorite_club_id
+    ? brazilianClubs.find((c) => c.id === userProfile.favorite_club_id)
+    : null;
+  const showUserClubBadge =
+    !!userClub && sidebarShowBadges && !sidebarHiddenBadges.includes(userClub.id);
 
   const allItems = menuData?.items || [
     { icon: "Home", label: "Início", path: "/" },
@@ -103,6 +134,23 @@ const Header = () => {
               <p className="text-muted-foreground text-sm mt-2">
                 Saúde mental para torcedores
               </p>
+              {showUserClubBadge && userClub && (
+                <div className="mt-4 flex flex-col items-center gap-1.5">
+                  <div className="w-14 h-14 rounded-full bg-white p-1.5 shadow-md flex items-center justify-center overflow-hidden">
+                    <img
+                      src={userClub.badgeUrl}
+                      alt={userClub.name}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  </div>
+                  <span className="text-card-foreground text-xs font-medium">
+                    {userClub.shortName || userClub.name}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Main menu items */}
