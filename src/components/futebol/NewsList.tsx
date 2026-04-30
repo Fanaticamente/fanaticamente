@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useFootballNews } from "@/hooks/useFootballNews";
 import { useHealthNews } from "@/hooks/useHealthNews";
 import HealthNewsCard from "@/components/setor-saude/HealthNewsCard";
+import { SetorSaudeInlineIcon } from "@/components/icons/SetorSaudeInlineIcon";
 import NewsCard from "./NewsCard";
 import FeaturedNewsCarousel from "./FeaturedNewsCarousel";
 import { Loader2, RefreshCw } from "lucide-react";
@@ -140,7 +141,8 @@ const NewsList = ({ selectedCategory, selectedClub, accentColor }: NewsListProps
         <div className="px-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-display text-xl text-emerald-700 flex items-center gap-2">
-              ❤ Setor Saúde
+              <SetorSaudeInlineIcon className="w-6 h-6" />
+              Setor Saúde
             </h3>
           </div>
           <div className="space-y-3">
