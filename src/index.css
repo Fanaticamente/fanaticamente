@@ -210,28 +210,6 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* Mobile: lock document scroll and let #root be the scroller.
-     This eliminates iOS rubber-band/overscroll at the top and bottom. */
-  @media (max-width: 768px) {
-    html, body {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      overflow: hidden !important;
-      overscroll-behavior: none;
-    }
-    #root {
-      position: absolute;
-      inset: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior-y: contain;
-    }
-  }
-
   /* Hide scrollbar on mobile */
   @media (max-width: 768px) {
     html,
