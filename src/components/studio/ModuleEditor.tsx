@@ -339,15 +339,29 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
                 {((config.slides || []) as SlideConfig[]).map((slide, index) => (
                   <div key={index} className="p-4 bg-muted rounded-xl space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Slide {index + 1}</span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => removeSlide(index)}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">Slide {index + 1}</span>
+                        {slide.healthNewsId && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold uppercase tracking-wide">
+                            <Heart className="w-3 h-3 fill-current" />
+                            Matéria destacada
+                          </span>
+                        )}
+                      </div>
+                      {!slide.healthNewsId ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => removeSlide(index)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground italic">
+                          Removido ao desmarcar destaque
+                        </span>
+                      )}
                     </div>
                     
                     <div>
