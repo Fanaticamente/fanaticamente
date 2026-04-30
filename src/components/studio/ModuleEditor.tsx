@@ -1,7 +1,7 @@
 // ModuleEditor.tsx - v2.1.0 - 2026-02-02
 // Features: Overlay toggle, spacing controls, Montserrat Arabic & Poppins fonts
 import { useState, useEffect } from "react";
-import { X, Save, Upload, Plus, Trash2, Link, ImageIcon, Type, Palette, Heart } from "lucide-react";
+import { X, Save, Upload, Plus, Trash2, Link, ImageIcon, Type, Palette, Heart, ArrowUp, ArrowDown } from "lucide-react";
 import { AppModule, useUpdateModule, useUpdateModuleConfig } from "@/hooks/useAppModules";
 import { useFeaturedHealthNews } from "@/hooks/useHealthNews";
 import { Button } from "@/components/ui/button";
@@ -241,6 +241,14 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
     setConfig({ ...config, slides: [...slides] });
   };
 
+  const moveSlide = (index: number, direction: -1 | 1) => {
+    const slides = [...((config.slides || []) as SlideConfig[])];
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= slides.length) return;
+    [slides[index], slides[newIndex]] = [slides[newIndex], slides[index]];
+    setConfig({ ...config, slides });
+  };
+
   const updateSlide = (index: number, field: string, value: string | number | boolean) => {
     const slides = (config.slides || []) as SlideConfig[];
     // Parse numeric and boolean values
@@ -348,20 +356,42 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
                           </span>
                         )}
                       </div>
-                      {!slide.healthNewsId ? (
+                      <div className="flex items-center gap-1">
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => removeSlide(index)}
-                          className="text-destructive"
+                          onClick={() => moveSlide(index, -1)}
+                          disabled={index === 0}
+                          title="Mover para cima"
+                          className="h-7 w-7 p-0"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <ArrowUp className="w-4 h-4" />
                         </Button>
-                      ) : (
-                        <span className="text-[10px] text-muted-foreground italic">
-                          Removido ao desmarcar destaque
-                        </span>
-                      )}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => moveSlide(index, 1)}
+                          disabled={index === ((config.slides || []) as SlideConfig[]).length - 1}
+                          title="Mover para baixo"
+                          className="h-7 w-7 p-0"
+                        >
+                          <ArrowDown className="w-4 h-4" />
+                        </Button>
+                        {!slide.healthNewsId ? (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => removeSlide(index)}
+                            className="text-destructive h-7 w-7 p-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        ) : (
+                          <span className="text-[10px] text-muted-foreground italic ml-1">
+                            Auto
+                          </span>
+                        )}
+                      </div>
                     </div>
                     
                     <div>
