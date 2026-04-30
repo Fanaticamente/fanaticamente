@@ -195,7 +195,7 @@ const MarketingDashboard = () => {
                 <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
               </div>
             ) : (
-              <div className="bg-[#0a0a0a] [&_*]:!text-white [&_label]:!text-white [&_input]:!bg-[#1a1a1a] [&_input]:!border-white/20 [&_textarea]:!bg-[#1a1a1a] [&_textarea]:!border-white/20 [&_button]:!text-white">
+              <div className="dark bg-background text-foreground">
                 <ModuleEditor
                   module={heroModule}
                   onClose={() => setEditingModule(null)}
