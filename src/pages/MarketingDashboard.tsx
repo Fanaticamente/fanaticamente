@@ -15,7 +15,7 @@ import {
   LogOut, Megaphone, Image as ImageIcon, Calendar, LayoutTemplate,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useAppModules, type AppModule } from "@/hooks/useAppModules";
+import { useAppModules } from "@/hooks/useAppModules";
 import ModuleEditor from "@/components/studio/ModuleEditor";
 
 type Mode = "list" | "edit";
