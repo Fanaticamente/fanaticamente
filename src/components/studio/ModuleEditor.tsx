@@ -1,8 +1,9 @@
 // ModuleEditor.tsx - v2.1.0 - 2026-02-02
 // Features: Overlay toggle, spacing controls, Montserrat Arabic & Poppins fonts
 import { useState, useEffect } from "react";
-import { X, Save, Upload, Plus, Trash2, Link, ImageIcon, Type, Palette } from "lucide-react";
+import { X, Save, Upload, Plus, Trash2, Link, ImageIcon, Type, Palette, Heart } from "lucide-react";
 import { AppModule, useUpdateModule, useUpdateModuleConfig } from "@/hooks/useAppModules";
+import { useFeaturedHealthNews } from "@/hooks/useHealthNews";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,10 @@ interface SlideConfig {
   titleSubtitleGap?: number;
   titleLineHeight?: number;
   subtitleLineHeight?: number;
+  // Auto-managed slide bound to a featured health news item
+  healthNewsId?: string;
+  _titleOverridden?: boolean;
+  _subtitleOverridden?: boolean;
 }
 
 // Dimensões reais dos módulos baseadas no layout do app (2x para retina)
@@ -71,6 +76,7 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
   
   const updateModule = useUpdateModule();
   const updateConfig = useUpdateModuleConfig();
+  const { data: featuredHealth } = useFeaturedHealthNews();
 
   const dimensions = module ? MODULE_DIMENSIONS[module.module_id] : null;
 
@@ -82,6 +88,63 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
       setConfig(typeof module.config === 'object' && module.config !== null ? module.config as Record<string, unknown> : {});
     }
   }, [module]);
+
+  // Auto-sync: ensure each featured health news has a slide in the carousel.
+  // - Adds a new auto-slide for newly featured news (with current default styling).
+  // - Refreshes image/title/subtitle defaults when the news content changes (only if not overridden).
+  // - Removes auto-slides whose news is no longer featured/published.
+  useEffect(() => {
+    if (!module || module.module_id !== "hero_carousel") return;
+    if (!featuredHealth) return;
+
+    const currentSlides = (config.slides || []) as SlideConfig[];
+    const featuredIds = new Set(featuredHealth.filter(n => !!n.cover_image_url).map(n => n.id));
+
+    // Filter out auto-slides whose news is no longer featured
+    const kept = currentSlides.filter(s => !s.healthNewsId || featuredIds.has(s.healthNewsId));
+
+    // Update existing auto-slides with latest news data (without overriding manual edits flagged via _overrides)
+    const updated = kept.map(s => {
+      if (!s.healthNewsId) return s;
+      const news = featuredHealth.find(n => n.id === s.healthNewsId);
+      if (!news) return s;
+      return {
+        ...s,
+        // Always sync image to the cover image (image is owned by the news article)
+        image: news.cover_image_url || s.image,
+        // Sync defaults only if the user hasn't customized them
+        title: s._titleOverridden ? s.title : (news.title || s.title),
+        subtitle: s._subtitleOverridden ? s.subtitle : (news.subtitle ?? news.excerpt ?? ""),
+      } as SlideConfig & { _titleOverridden?: boolean; _subtitleOverridden?: boolean };
+    });
+
+    // Add new auto-slides for newly featured news
+    const existingIds = new Set(updated.filter(s => s.healthNewsId).map(s => s.healthNewsId));
+    const additions: SlideConfig[] = featuredHealth
+      .filter(n => !!n.cover_image_url && !existingIds.has(n.id))
+      .map(n => ({
+        image: n.cover_image_url as string,
+        title: n.title,
+        subtitle: n.subtitle ?? n.excerpt ?? "",
+        titleColor: "#FFFFFF",
+        subtitleColor: "#FFFFFF",
+        titleFont: "font-sans",
+        subtitleFont: "font-sans",
+        showOverlay: true,
+        titleSubtitleGap: 8,
+        titleLineHeight: 1.1,
+        subtitleLineHeight: 1.4,
+        healthNewsId: n.id,
+      }));
+
+    const next = [...updated, ...additions];
+
+    // Only update state if something actually changed (avoid render loops)
+    if (JSON.stringify(next) !== JSON.stringify(currentSlides)) {
+      setConfig((prev) => ({ ...prev, slides: next }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [module?.id, featuredHealth]);
 
   if (!module) {
     return (
@@ -187,7 +250,13 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
     } else if (["titleSubtitleGap", "titleLineHeight", "subtitleLineHeight"].includes(field)) {
       parsedValue = typeof value === "string" ? parseFloat(value) : value;
     }
-    slides[index] = { ...slides[index], [field]: parsedValue };
+    const updated: Record<string, unknown> = { ...slides[index], [field]: parsedValue };
+    // Mark overrides for auto-managed slides so they don't get reset by the news sync
+    if (slides[index]?.healthNewsId) {
+      if (field === "title") updated._titleOverridden = true;
+      if (field === "subtitle") updated._subtitleOverridden = true;
+    }
+    slides[index] = updated as unknown as SlideConfig;
     setConfig({ ...config, slides: [...slides] });
   };
 
@@ -270,15 +339,29 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
                 {((config.slides || []) as SlideConfig[]).map((slide, index) => (
                   <div key={index} className="p-4 bg-muted rounded-xl space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Slide {index + 1}</span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => removeSlide(index)}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">Slide {index + 1}</span>
+                        {slide.healthNewsId && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold uppercase tracking-wide">
+                            <Heart className="w-3 h-3 fill-current" />
+                            Matéria destacada
+                          </span>
+                        )}
+                      </div>
+                      {!slide.healthNewsId ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => removeSlide(index)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground italic">
+                          Removido ao desmarcar destaque
+                        </span>
+                      )}
                     </div>
                     
                     <div>

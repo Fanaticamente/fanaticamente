@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { ChevronRight, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useModuleConfig } from "@/hooks/useModuleConfig";
-import { useFeaturedHealthNews } from "@/hooks/useHealthNews";
 
 interface SlideConfig {
   image: string;
@@ -20,6 +19,7 @@ interface SlideConfig {
   subtitleLineHeight?: number;
   isHealthNews?: boolean;
   healthBadge?: string;
+  healthNewsId?: string;
 }
 
 const HeroCarousel = () => {
@@ -27,30 +27,24 @@ const HeroCarousel = () => {
   const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
   const [isPaused, setIsPaused] = useState(false);
   const moduleQuery = useModuleConfig("hero_carousel");
-  const { data: featuredHealth } = useFeaturedHealthNews();
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
   const dbSlides = (moduleQuery.data?.config as { slides?: SlideConfig[] } | undefined)?.slides;
 
-  // Build health-news slides from Setor Saúde featured posts
-  const healthSlides: SlideConfig[] = (featuredHealth ?? [])
-    .filter((n) => !!n.cover_image_url)
-    .map((n) => ({
-      image: n.cover_image_url as string,
-      title: n.title,
-      subtitle: n.subtitle ?? n.excerpt ?? undefined,
-      cta: "Ler matéria",
-      ctaLink: `/setor-saude?artigo=${n.id}`,
-      showOverlay: true,
-      isHealthNews: true,
-      healthBadge: "Saúde",
-      titleFont: "font-sans",
-      subtitleFont: "font-sans",
-    }));
-
-  // Merge: CMS slides first, then health-news featured slides
-  const slides: SlideConfig[] = [...(dbSlides ?? []), ...healthSlides];
+  // Slides are managed entirely by the editor; auto-managed health-news slides
+  // (linked via healthNewsId) get a "Saúde" badge and "Ler matéria" CTA at render time.
+  const slides: SlideConfig[] = (dbSlides ?? []).map((s) =>
+    s.healthNewsId
+      ? {
+          ...s,
+          isHealthNews: true,
+          healthBadge: s.healthBadge ?? "Saúde",
+          cta: s.cta ?? "Ler matéria",
+          ctaLink: s.ctaLink ?? `/setor-saude?artigo=${s.healthNewsId}`,
+        }
+      : s
+  );
   const isLoading = moduleQuery.isLoading || slides.length === 0;
 
   // Reset state when slides change
