@@ -198,7 +198,8 @@
     height: 100%;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: auto;
+    overscroll-behavior-y: contain;
+    overscroll-behavior-x: contain;
   }
 
   body {
