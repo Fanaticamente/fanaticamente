@@ -79,7 +79,7 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
                 {news.title}
               </DrawerTitle>
               {news.subtitle && (
-                <p className="mt-2 text-base text-gray-600 leading-snug">{news.subtitle}</p>
+                <p className="mt-2 text-base text-gray-600 leading-snug text-left">{news.subtitle}</p>
               )}
             </div>
 
