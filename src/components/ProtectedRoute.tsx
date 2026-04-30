@@ -62,9 +62,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 export const DynamicProtectedRoute = ({ children, pageId }: ProtectedRouteProps & { pageId?: string }) => {
   const { data: pages, isLoading: pagesLoading } = useAppPages("all");
 
-  // If no pageId provided or pages still loading, render children directly (public)
+  // While pages config still loading, fall through to ProtectedRoute so we
+  // never flash protected content to logged-out users.
   if (!pageId || pagesLoading) {
-    return <>{children}</>;
+    return <ProtectedRoute>{children}</ProtectedRoute>;
   }
 
   const page = pages?.find((p) => p.page_id === pageId);
@@ -74,12 +75,12 @@ export const DynamicProtectedRoute = ({ children, pageId }: ProtectedRouteProps 
     return <Navigate to="/" replace />;
   }
 
-  // If page not found in DB or is_public is true, render without protection
-  if (!page || page.is_public !== false) {
+  // NEW POLICY: every dynamic page requires login by default.
+  // Only pages explicitly flagged is_public === true in app_pages stay open.
+  if (page?.is_public === true) {
     return <>{children}</>;
   }
 
-  // Page is private - require login
   return <ProtectedRoute>{children}</ProtectedRoute>;
 };
 
