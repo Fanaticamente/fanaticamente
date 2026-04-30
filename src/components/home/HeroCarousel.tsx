@@ -45,6 +45,8 @@ const HeroCarousel = () => {
       showOverlay: true,
       isHealthNews: true,
       healthBadge: "Setor Saúde",
+      titleFont: "font-sans",
+      subtitleFont: "font-sans",
     }));
 
   // Merge: CMS slides first, then health-news featured slides
@@ -173,7 +175,7 @@ const HeroCarousel = () => {
               </div>
             )}
             <h2 
-              className={`${getFontClass(slide.titleFont)} text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight`}
+              className={`${getFontClass(slide.titleFont)} ${slide.isHealthNews ? "text-3xl sm:text-4xl md:text-5xl" : "text-4xl sm:text-5xl md:text-6xl"} font-bold tracking-tight`}
               style={{ 
                 color: slide.titleColor || "#FFFFFF",
                 lineHeight: slide.titleLineHeight ?? 1.1,
@@ -183,7 +185,7 @@ const HeroCarousel = () => {
               {slide.title}
             </h2>
             <p 
-              className={`${getFontClass(slide.subtitleFont)} text-lg sm:text-xl md:text-2xl mb-6`}
+              className={`${getFontClass(slide.subtitleFont)} ${slide.isHealthNews ? "text-base sm:text-lg md:text-xl" : "text-lg sm:text-xl md:text-2xl"} mb-6`}
               style={{ 
                 color: slide.subtitleColor || "#FFFFFF", 
                 opacity: 0.8,
