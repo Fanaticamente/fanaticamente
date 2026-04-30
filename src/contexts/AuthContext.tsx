@@ -172,6 +172,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (session?.user) {
           setRolesLoading(true);
+          setRoles([]);
           setTimeout(() => {
             (async () => {
               try {
