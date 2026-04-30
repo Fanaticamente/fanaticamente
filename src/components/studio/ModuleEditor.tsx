@@ -653,7 +653,10 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
                   </div>
                 </div>
 
-                {(module.module_id === "therapists_page" || module.module_id === "ranking_page") && (
+                {(module.module_id === "therapists_page" ||
+                  module.module_id === "ranking_page" ||
+                  module.module_id === "football_page" ||
+                  module.module_id === "sidebar_user_club") && (
                   <ClubBadgeToggles
                     showBadges={config.show_badges !== false}
                     onShowBadgesChange={(val) => setConfig({ ...config, show_badges: val })}
