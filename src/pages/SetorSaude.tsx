@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { useHealthNews, useHealthNewsItem } from "@/hooks/useHealthNews";
 import HealthNewsCard from "@/components/setor-saude/HealthNewsCard";
 import HealthNewsReader from "@/components/setor-saude/HealthNewsReader";
-import SetorSaudeIcon from "@/components/icons/SetorSaudeIcon";
+import setorSaudeIcon from "@/assets/setor-saude-icon.png";
 
 const SetorSaude = () => {
   const { data: news, isLoading } = useHealthNews(50);
@@ -38,7 +38,17 @@ const SetorSaude = () => {
         <div className="px-4 mb-6">
           <div className="flex items-center justify-between pb-3 mb-3 border-b-2 border-emerald-700">
             <div className="flex items-center gap-2">
-              <SetorSaudeIcon className="h-14 w-14 shrink-0 text-emerald-700" />
+              <img
+                src={setorSaudeIcon}
+                alt=""
+                className="h-14 w-14 shrink-0 object-contain"
+                width={56}
+                height={56}
+                loading="eager"
+                decoding="sync"
+                fetchPriority="high"
+                aria-hidden
+              />
               <h1 className="text-4xl font-display font-bold tracking-tight text-emerald-700">
                 Setor Saúde
               </h1>
@@ -58,7 +68,16 @@ const SetorSaude = () => {
 
         {!isLoading && (!news || news.length === 0) && (
           <div className="text-center py-16 px-4">
-            <SetorSaudeIcon className="w-14 h-14 mx-auto mb-3 text-emerald-700 opacity-30" aria-hidden />
+            <img
+              src={setorSaudeIcon}
+              alt=""
+              className="w-14 h-14 mx-auto mb-3 object-contain opacity-30"
+              width={56}
+              height={56}
+              loading="eager"
+              decoding="sync"
+              aria-hidden
+            />
             <p className="text-gray-500 text-base font-medium">Em breve, novos conteúdos por aqui</p>
             <p className="text-sm text-gray-400 mt-1">
               Nossa equipe está preparando matérias incríveis sobre saúde e bem-estar
