@@ -119,7 +119,7 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
             )}
 
             <article
-              className={`prose ${fontSizeClasses[fontSizeLevel]} max-w-none text-gray-900 prose-headings:text-gray-900 prose-a:text-emerald-700 prose-strong:text-gray-900 prose-img:rounded-lg`}
+              className={`prose ${fontSizeClasses[fontSizeLevel]} max-w-none text-gray-900 text-justify hyphens-auto prose-headings:text-gray-900 prose-a:text-emerald-700 prose-strong:text-gray-900 prose-img:rounded-lg prose-p:text-justify [&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:text-[3.5rem] [&>p:first-of-type]:first-letter:font-bold [&>p:first-of-type]:first-letter:mr-2 [&>p:first-of-type]:first-letter:mt-1 [&>p:first-of-type]:first-letter:leading-[0.8] [&>p:first-of-type]:first-letter:text-black`}
               style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
               dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
             />
