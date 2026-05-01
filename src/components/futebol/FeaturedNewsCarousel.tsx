@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Clock, ChevronLeft, ChevronRight, Newspaper } from "lucide-react";
+import { Clock, ChevronLeft, ChevronRight, Newspaper, Heart } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -8,19 +8,26 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import type { FootballNewsItem } from "@/hooks/useFootballNews";
+import type { HealthNewsItem } from "@/hooks/useHealthNews";
 import NewsCard from "./NewsCard";
 import { fixTitleCapitalization } from "@/lib/fixTitleCapitalization";
+import HealthNewsReader from "@/components/setor-saude/HealthNewsReader";
+
+export type CarouselItemData =
+  | { kind: "football"; date: number; data: FootballNewsItem }
+  | { kind: "health"; date: number; data: HealthNewsItem };
 
 interface FeaturedNewsCarouselProps {
-  news: FootballNewsItem[];
+  items: CarouselItemData[];
   accentColor?: string | null;
 }
 
-const FeaturedNewsCarousel = ({ news, accentColor }: FeaturedNewsCarouselProps) => {
+const FeaturedNewsCarousel = ({ items, accentColor }: FeaturedNewsCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedNews, setSelectedNews] = useState<FootballNewsItem | null>(null);
+  const [selectedHealth, setSelectedHealth] = useState<HealthNewsItem | null>(null);
 
-  if (news.length === 0) return null;
+  if (items.length === 0) return null;
 
   return (
     <>
@@ -38,22 +45,31 @@ const FeaturedNewsCarousel = ({ news, accentColor }: FeaturedNewsCarouselProps) 
           }}
         >
           <CarouselContent>
-            {news.map((item) => (
-              <CarouselItem key={item.id}>
-                <FeaturedSlide 
-                  news={item} 
-                  onOpen={() => setSelectedNews(item)}
-                  accentColor={accentColor}
-                />
-              </CarouselItem>
-            ))}
+            {items.map((item) =>
+              item.kind === "football" ? (
+                <CarouselItem key={`f-${item.data.id}`}>
+                  <FeaturedSlide
+                    news={item.data}
+                    onOpen={() => setSelectedNews(item.data)}
+                    accentColor={accentColor}
+                  />
+                </CarouselItem>
+              ) : (
+                <CarouselItem key={`h-${item.data.id}`}>
+                  <FeaturedHealthSlide
+                    news={item.data}
+                    onOpen={() => setSelectedHealth(item.data)}
+                  />
+                </CarouselItem>
+              )
+            )}
           </CarouselContent>
         </Carousel>
 
         {/* Pagination dots */}
-        {news.length > 1 && (
+        {items.length > 1 && (
           <div className="flex justify-center gap-2 mt-4">
-            {news.map((_, index) => (
+            {items.map((_, index) => (
               <button
                 key={index}
                 className={`w-2 h-2 rounded-full transition-all ${
@@ -74,7 +90,76 @@ const FeaturedNewsCarousel = ({ news, accentColor }: FeaturedNewsCarouselProps) 
           onClose={() => setSelectedNews(null)} 
         />
       )}
+
+      {selectedHealth && (
+        <HealthNewsReader
+          news={selectedHealth}
+          isOpen={true}
+          onClose={() => setSelectedHealth(null)}
+        />
+      )}
     </>
+  );
+};
+
+interface FeaturedHealthSlideProps {
+  news: HealthNewsItem;
+  onOpen: () => void;
+}
+
+const FeaturedHealthSlide = ({ news, onOpen }: FeaturedHealthSlideProps) => {
+  const date = news.published_at ? new Date(news.published_at) : new Date(news.created_at);
+  const timeAgo = formatDistanceToNow(date, {
+    addSuffix: true,
+    locale: ptBR,
+  })
+    .replace(/^há cerca de /, "há ")
+    .replace(/^cerca de /, "");
+
+  const preview = news.excerpt || news.subtitle || "";
+
+  return (
+    <button onClick={onOpen} className="block w-full text-left">
+      <div className="bg-white rounded-2xl overflow-hidden relative group shadow-sm">
+        {news.cover_image_url && (
+          <div className="relative h-52 overflow-hidden">
+            <img
+              src={news.cover_image_url}
+              alt={news.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <span className="absolute top-3 left-3 px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-full uppercase flex items-center gap-1">
+              <Heart className="w-3 h-3" /> Setor Saúde
+            </span>
+          </div>
+        )}
+        <div className="p-4">
+          <h2 className="font-sans font-bold text-lg leading-tight text-gray-900 mb-2 line-clamp-2">
+            {news.title}
+          </h2>
+          {preview && (
+            <p className="text-gray-600 text-sm line-clamp-2 mb-3">{preview}</p>
+          )}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 text-gray-500 text-xs">
+              <span className="font-medium text-emerald-700">Fanaticamente</span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {timeAgo}
+              </span>
+            </div>
+            <span className="text-sm font-medium flex items-center gap-1 text-emerald-700">
+              <Newspaper className="w-4 h-4" />
+              Ler mais
+            </span>
+          </div>
+        </div>
+      </div>
+    </button>
   );
 };
 
