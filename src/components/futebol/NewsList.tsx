@@ -2,13 +2,18 @@ import { useState } from "react";
 import { useFootballNews } from "@/hooks/useFootballNews";
 import { useHealthNews } from "@/hooks/useHealthNews";
 import HealthNewsCard from "@/components/setor-saude/HealthNewsCard";
-import { SetorSaudeInlineIcon } from "@/components/icons/SetorSaudeInlineIcon";
 import NewsCard from "./NewsCard";
 import FeaturedNewsCarousel from "./FeaturedNewsCarousel";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { brazilianClubs } from "@/data/brazilianClubs";
+import type { FootballNewsItem } from "@/hooks/useFootballNews";
+import type { HealthNewsItem } from "@/hooks/useHealthNews";
+
+type FeedItem =
+  | { kind: "football"; date: number; data: FootballNewsItem }
+  | { kind: "health"; date: number; data: HealthNewsItem };
 
 interface NewsListProps {
   selectedCategory: string;
@@ -96,15 +101,32 @@ const NewsList = ({ selectedCategory, selectedClub, accentColor }: NewsListProps
       ? news
       : news.filter((item) => item.category === selectedCategory);
 
-  // First 3 articles go to the carousel (featured)
-  const featuredNews = filteredNews.slice(0, 3);
-  // Rest goes to the list
-  const otherNews = filteredNews.slice(3);
+  // Health news flow with football news — only on general feed (no club selected)
+  // and with general or "Futebol" category. They appear naturally in the timeline,
+  // sliding down as new football articles are published.
+  const shouldShowHealth =
+    !selectedClub && (selectedCategory === "Todos" || selectedCategory === "Futebol");
 
-  // Health news always appear in football feed (general & per-club),
-  // unless a specific category filter (other than "Todos"/"Futebol") is active.
-  const shouldShowHealth = selectedCategory === "Todos" || selectedCategory === "Futebol";
-  const healthItems = shouldShowHealth ? (healthNews || []) : [];
+  const footballFeed: FeedItem[] = filteredNews.map((n) => ({
+    kind: "football",
+    date: new Date(n.published_at).getTime(),
+    data: n,
+  }));
+
+  const healthFeed: FeedItem[] = shouldShowHealth
+    ? (healthNews || []).map((n) => ({
+        kind: "health",
+        date: new Date(n.published_at || n.created_at).getTime(),
+        data: n,
+      }))
+    : [];
+
+  // Merge by date desc — health news compete with football for the timeline.
+  const merged = [...footballFeed, ...healthFeed].sort((a, b) => b.date - a.date);
+
+  // First 3 items go to carousel; rest go to the list.
+  const featuredItems = merged.slice(0, 3);
+  const otherItems = merged.slice(3);
 
   // Show empty state if club filter returns no results
   if (filteredNews.length === 0 && selectedClub) {
@@ -129,32 +151,15 @@ const NewsList = ({ selectedCategory, selectedClub, accentColor }: NewsListProps
 
   return (
     <div className="space-y-6">
-      {/* Featured News Carousel - always shows the 3 most recent */}
-      {featuredNews.length > 0 && (
+      {/* Featured Carousel — top 3 most recent items (football OR health) */}
+      {featuredItems.length > 0 && (
         <div className="px-4">
-          <FeaturedNewsCarousel news={featuredNews} accentColor={accentColor} />
-        </div>
-      )}
-
-      {/* Setor Saúde — apareceu novas matérias */}
-      {healthItems.length > 0 && (
-        <div className="px-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-display text-xl text-emerald-700 flex items-center gap-2">
-              <SetorSaudeInlineIcon className="w-6 h-6" />
-              Setor Saúde
-            </h3>
-          </div>
-          <div className="space-y-3">
-            {healthItems.slice(0, 3).map((item) => (
-              <HealthNewsCard key={item.id} news={item} />
-            ))}
-          </div>
+          <FeaturedNewsCarousel items={featuredItems} accentColor={accentColor} />
         </div>
       )}
 
       {/* News List - older articles */}
-      {otherNews.length > 0 && (
+      {otherItems.length > 0 && (
         <div className="px-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display text-xl text-gray-800">
@@ -178,9 +183,13 @@ const NewsList = ({ selectedCategory, selectedClub, accentColor }: NewsListProps
           </div>
 
           <div className="space-y-3">
-            {otherNews.map((item) => (
-              <NewsCard key={item.id} news={item} accentColor={accentColor} />
-            ))}
+            {otherItems.map((item) =>
+              item.kind === "football" ? (
+                <NewsCard key={`f-${item.data.id}`} news={item.data} accentColor={accentColor} />
+              ) : (
+                <HealthNewsCard key={`h-${item.data.id}`} news={item.data} />
+              )
+            )}
           </div>
         </div>
       )}
