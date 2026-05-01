@@ -1,0 +1,1 @@
+UPDATE public.health_news SET published_at = now() WHERE id = '3cce3490-46d4-47ce-9952-1243e6d745c7';
