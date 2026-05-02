@@ -173,10 +173,8 @@ const HeroCarousel = () => {
     );
   }
 
-  // Render order: prev (exiting / trail) below, current (entering) on top
-  const renderOrder = prevSlide !== null && prevSlide !== currentSlide
-    ? [prevSlide, currentSlide]
-    : [currentSlide];
+  // Only render the current slide — no trail of the previous image
+  const renderOrder = [currentSlide];
 
   const baseDuration = Math.max(450, 900 / transitionIntensity); // ms
 
