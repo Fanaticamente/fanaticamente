@@ -222,10 +222,11 @@ const HeroCarousel = () => {
             }
           } else if (isPrev) {
             // exits in the opposite direction (current came from +dir, prev goes to -dir)
+            // keep it visible as a trail until the new slide covers it
             translatePct = -direction * 60;
             rotateDeg = -direction * 3 * transitionIntensity;
             blurPx = 10 * transitionIntensity;
-            opacity = 0;
+            opacity = 1;
           }
 
           return (
@@ -248,10 +249,8 @@ const HeroCarousel = () => {
                 <img
                   src={slide.image}
                   alt={slide.title || "Banner principal"}
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-                    imagesLoaded[index] ? "opacity-100" : "opacity-0"
-                  }`}
-                  loading={index === 0 ? "eager" : "lazy"}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="eager"
                   decoding="async"
                   draggable={false}
                   onLoad={() => handleImageLoad(index)}
