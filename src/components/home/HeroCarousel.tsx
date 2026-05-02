@@ -146,16 +146,6 @@ const HeroCarousel = () => {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Animated neon-pulse backdrop */}
-      <div
-        className="absolute inset-0 -z-0 opacity-60"
-        style={{
-          background:
-            "radial-gradient(ellipse at 30% 30%, hsl(var(--primary) / 0.25), transparent 60%), radial-gradient(ellipse at 70% 70%, hsl(160 84% 39% / 0.18), transparent 65%), #0a0a0a",
-          animation: "depthPulse 8s ease-in-out infinite",
-        }}
-      />
-
       {/* Depth Stack scene */}
       <div
         className="absolute inset-0 flex items-center justify-center"
@@ -298,21 +288,6 @@ const HeroCarousel = () => {
         })}
       </div>
 
-      {/* Dots Indicator */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-[200]">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentSlide(index)}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              index === currentSlide
-                ? "bg-primary w-8"
-                : "bg-foreground/30 w-2 hover:bg-foreground/50"
-            }`}
-            aria-label={`Ir para slide ${index + 1}`}
-          />
-        ))}
-      </div>
     </div>
   );
 };
