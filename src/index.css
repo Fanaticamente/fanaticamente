@@ -418,3 +418,24 @@
     filter: hue-rotate(20deg);
   }
 }
+
+@keyframes speedStreak {
+  0% {
+    opacity: 0;
+    transform: translateX(-20%) scaleX(0.6);
+  }
+  35% {
+    opacity: 0.9;
+    transform: translateX(0%) scaleX(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(20%) scaleX(0.6);
+  }
+}
+
+@keyframes glitchFlash {
+  0% { opacity: 0.9; }
+  50% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
