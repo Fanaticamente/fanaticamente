@@ -29,37 +29,12 @@ const FeaturedNewsCarousel = ({ items, accentColor }: FeaturedNewsCarouselProps)
 
   if (items.length === 0) return null;
 
-  const activeItem = items[currentIndex];
-  const activeImage =
-    activeItem?.kind === "football"
-      ? activeItem.data.image_url
-      : activeItem?.data.cover_image_url;
-
   return (
     <>
-      <div className="relative isolate overflow-hidden rounded-3xl py-3">
-        {/* Dynamic blurred backdrop — simulates ambient light */}
-        <div className="absolute inset-0 -z-10 overflow-hidden rounded-3xl">
-          {activeImage && (
-            <img
-              key={`bg-${currentIndex}`}
-              src={activeImage}
-              alt=""
-              aria-hidden
-              className="absolute inset-0 w-full h-full object-cover scale-125 blur-2xl opacity-50 transition-opacity duration-700"
-            />
-          )}
-          <div
-            className="absolute inset-0 opacity-60 transition-colors duration-700"
-            style={{
-              background: `radial-gradient(120% 80% at 50% 0%, ${accentColor || 'hsl(var(--primary))'}33 0%, transparent 60%), linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.85) 100%)`,
-            }}
-          />
-        </div>
-
+      <div className="relative">
         <Carousel
           opts={{
-            align: "center",
+            align: "start",
             loop: true,
           }}
           className="w-full"
@@ -69,29 +44,21 @@ const FeaturedNewsCarousel = ({ items, accentColor }: FeaturedNewsCarouselProps)
             });
           }}
         >
-          <CarouselContent className="-ml-3">
-            {items.map((item, index) =>
+          <CarouselContent>
+            {items.map((item) =>
               item.kind === "football" ? (
-                <CarouselItem
-                  key={`f-${item.data.id}`}
-                  className="pl-3 basis-[88%] sm:basis-[80%]"
-                >
+                <CarouselItem key={`f-${item.data.id}`}>
                   <FeaturedSlide
                     news={item.data}
                     onOpen={() => setSelectedNews(item.data)}
                     accentColor={accentColor}
-                    isActive={index === currentIndex}
                   />
                 </CarouselItem>
               ) : (
-                <CarouselItem
-                  key={`h-${item.data.id}`}
-                  className="pl-3 basis-[88%] sm:basis-[80%]"
-                >
+                <CarouselItem key={`h-${item.data.id}`}>
                   <FeaturedHealthSlide
                     news={item.data}
                     onOpen={() => setSelectedHealth(item.data)}
-                    isActive={index === currentIndex}
                   />
                 </CarouselItem>
               )
@@ -101,12 +68,12 @@ const FeaturedNewsCarousel = ({ items, accentColor }: FeaturedNewsCarouselProps)
 
         {/* Pagination dots */}
         {items.length > 1 && (
-          <div className="flex justify-center gap-2 mt-4 relative z-10">
+          <div className="flex justify-center gap-2 mt-4">
             {items.map((_, index) => (
               <button
                 key={index}
-                className={`h-2 rounded-full transition-all duration-500 ${
-                  index === currentIndex ? "w-6" : "w-2 bg-white/60 backdrop-blur-md border border-white/50 hover:bg-white/80"
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentIndex ? "w-6" : "bg-gray-300 hover:bg-gray-400"
                 }`}
                 style={index === currentIndex ? { backgroundColor: accentColor || 'hsl(var(--primary))' } : undefined}
                 aria-label={`Ir para slide ${index + 1}`}
@@ -138,10 +105,9 @@ const FeaturedNewsCarousel = ({ items, accentColor }: FeaturedNewsCarouselProps)
 interface FeaturedHealthSlideProps {
   news: HealthNewsItem;
   onOpen: () => void;
-  isActive?: boolean;
 }
 
-const FeaturedHealthSlide = ({ news, onOpen, isActive = true }: FeaturedHealthSlideProps) => {
+const FeaturedHealthSlide = ({ news, onOpen }: FeaturedHealthSlideProps) => {
   const date = news.published_at ? new Date(news.published_at) : new Date(news.created_at);
   const timeAgo = formatDistanceToNow(date, {
     addSuffix: true,
@@ -153,67 +119,31 @@ const FeaturedHealthSlide = ({ news, onOpen, isActive = true }: FeaturedHealthSl
   const preview = news.excerpt || news.subtitle || "";
 
   return (
-    <button
-      onClick={onOpen}
-      className={`block w-full text-left transition-all duration-500 ease-out ${
-        isActive ? "scale-100 opacity-100" : "scale-[0.9] opacity-60"
-      }`}
-    >
-      <div
-        className={`relative rounded-3xl overflow-hidden border border-white/60 transition-all duration-500 ${
-          isActive
-            ? "shadow-[0_20px_60px_-15px_rgba(16,185,129,0.45)]"
-            : "shadow-md"
-        }`}
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.55) 100%)",
-          backdropFilter: "blur(20px) saturate(180%)",
-          WebkitBackdropFilter: "blur(20px) saturate(180%)",
-        }}
-      >
-        {/* Dynamic light reflection */}
-        <div
-          className="pointer-events-none absolute -top-1/2 -left-1/4 w-[150%] h-[200%] opacity-40 transition-opacity duration-700"
-          style={{
-            background:
-              "linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.6) 50%, transparent 60%)",
-            transform: isActive ? "translateX(0)" : "translateX(-30%)",
-            transition: "transform 1.2s ease",
-          }}
-        />
-
+    <button onClick={onOpen} className="block w-full text-left">
+      <div className="bg-white rounded-2xl overflow-hidden relative group shadow-sm">
         {news.cover_image_url && (
-          <div className={`relative overflow-hidden transition-all duration-500 ${isActive ? "h-56" : "h-44"}`}>
+          <div className="relative h-52 overflow-hidden">
             <img
               src={news.cover_image_url}
               alt={news.title}
-              className="w-full h-full object-cover transition-transform duration-700"
-              style={{ transform: isActive ? "scale(1.02)" : "scale(1)" }}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-            <span className="absolute top-3 left-3 px-3 py-1 bg-emerald-600/90 backdrop-blur-md text-white text-xs font-bold rounded-full uppercase flex items-center gap-1 border border-white/30">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <span className="absolute top-3 left-3 px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-full uppercase flex items-center gap-1">
               <Heart className="w-3 h-3" /> Setor Saúde
             </span>
           </div>
         )}
-        <div className="p-4 relative">
+        <div className="p-4">
           <h2 className="font-sans font-bold text-lg leading-tight text-gray-900 mb-2 line-clamp-2">
             {news.title}
           </h2>
-          <div
-            className="grid transition-all duration-500 ease-out"
-            style={{ gridTemplateRows: isActive ? "1fr" : "0fr" }}
-          >
-            <div className="overflow-hidden">
-              {preview && (
-                <p className="text-gray-700 text-sm line-clamp-3 mb-3">{preview}</p>
-              )}
-            </div>
-          </div>
+          {preview && (
+            <p className="text-gray-600 text-sm line-clamp-2 mb-3">{preview}</p>
+          )}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-gray-500 text-xs">
               <span className="font-medium text-emerald-700">Fanaticamente</span>
@@ -222,12 +152,10 @@ const FeaturedHealthSlide = ({ news, onOpen, isActive = true }: FeaturedHealthSl
                 {timeAgo}
               </span>
             </div>
-            {isActive && (
-              <span className="text-sm font-medium flex items-center gap-1 text-emerald-700 animate-fade-in">
-                <Newspaper className="w-4 h-4" />
-                Ler mais
-              </span>
-            )}
+            <span className="text-sm font-medium flex items-center gap-1 text-emerald-700">
+              <Newspaper className="w-4 h-4" />
+              Ler mais
+            </span>
           </div>
         </div>
       </div>
@@ -239,7 +167,6 @@ interface FeaturedSlideProps {
   news: FootballNewsItem;
   onOpen: () => void;
   accentColor?: string | null;
-  isActive?: boolean;
 }
 
 // Clean content to remove photo credits and metadata mixed in text
@@ -263,7 +190,7 @@ const cleanNewsContent = (content: string): string => {
 };
 
 
-const FeaturedSlide = ({ news, onOpen, accentColor, isActive = true }: FeaturedSlideProps) => {
+const FeaturedSlide = ({ news, onOpen, accentColor }: FeaturedSlideProps) => {
   const timeAgo = formatDistanceToNow(new Date(news.published_at), {
     addSuffix: true,
     locale: ptBR,
@@ -276,72 +203,38 @@ const FeaturedSlide = ({ news, onOpen, accentColor, isActive = true }: FeaturedS
   return (
     <button
       onClick={onOpen}
-      className={`block w-full text-left transition-all duration-500 ease-out ${
-        isActive ? "scale-100 opacity-100" : "scale-[0.9] opacity-60"
-      }`}
+      className="block w-full text-left"
     >
-      <div
-        className={`relative rounded-3xl overflow-hidden border border-white/60 transition-all duration-500 ${
-          isActive
-            ? "shadow-[0_20px_60px_-15px_rgba(0,0,0,0.35)]"
-            : "shadow-md"
-        }`}
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.55) 100%)",
-          backdropFilter: "blur(20px) saturate(180%)",
-          WebkitBackdropFilter: "blur(20px) saturate(180%)",
-          boxShadow: isActive
-            ? `0 20px 60px -15px ${accentColor || 'rgba(0,0,0,0.4)'}66`
-            : undefined,
-        }}
-      >
-        {/* Dynamic light reflection */}
-        <div
-          className="pointer-events-none absolute -top-1/2 -left-1/4 w-[150%] h-[200%] opacity-40"
-          style={{
-            background:
-              "linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.6) 50%, transparent 60%)",
-            transform: isActive ? "translateX(0)" : "translateX(-30%)",
-            transition: "transform 1.2s ease",
-          }}
-        />
-
+      <div className="bg-white rounded-2xl overflow-hidden relative group shadow-sm">
         {news.image_url && (
-          <div className={`relative overflow-hidden transition-all duration-500 ${isActive ? "h-56" : "h-44"}`}>
+          <div className="relative h-52 overflow-hidden">
             <img
               src={news.image_url}
                alt={fixedTitle}
-               className="w-full h-full object-cover transition-transform duration-700"
-               style={{ transform: isActive ? "scale(1.02)" : "scale(1)" }}
+               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+            {/* Gradient overlay for better text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             
+            {/* Badge on image */}
             <span 
-              className="absolute top-3 left-3 px-3 py-1 text-white text-xs font-bold rounded-full uppercase backdrop-blur-md border border-white/30"
-              style={{ backgroundColor: `${accentColor || 'hsl(var(--primary))'}E6` }}
+              className="absolute top-3 left-3 px-3 py-1 text-white text-xs font-bold rounded-full uppercase"
+              style={{ backgroundColor: accentColor || 'hsl(var(--primary))' }}
             >
               Destaque
             </span>
           </div>
         )}
-        <div className="p-4 relative">
+        <div className="p-4">
            <h2 className="font-sans font-bold text-lg leading-tight text-gray-900 mb-2 transition-colors line-clamp-2">
             {fixedTitle}
           </h2>
-          <div
-            className="grid transition-all duration-500 ease-out"
-            style={{ gridTemplateRows: isActive ? "1fr" : "0fr" }}
-          >
-            <div className="overflow-hidden">
-              <p className="text-gray-700 text-sm line-clamp-3 mb-3">
-                {contentPreview}
-              </p>
-            </div>
-          </div>
+          <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+            {contentPreview}
+          </p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 text-gray-500 text-xs">
               <span className="font-medium" style={{ color: accentColor || 'hsl(var(--primary))' }}>Fanaticamente</span>
@@ -350,15 +243,10 @@ const FeaturedSlide = ({ news, onOpen, accentColor, isActive = true }: FeaturedS
                 {timeAgo}
               </span>
             </div>
-            {isActive && (
-              <span
-                className="text-sm font-medium flex items-center gap-1 animate-fade-in"
-                style={{ color: accentColor || 'hsl(var(--primary))' }}
-              >
-                <Newspaper className="w-4 h-4" />
-                Ler mais
-              </span>
-            )}
+            <span className="text-sm font-medium flex items-center gap-1" style={{ color: accentColor || 'hsl(var(--primary))' }}>
+              <Newspaper className="w-4 h-4" />
+              Ler mais
+            </span>
           </div>
         </div>
       </div>
