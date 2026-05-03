@@ -775,6 +775,8 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
                     onShowBadgesChange={(val) => setConfig({ ...config, show_badges: val })}
                     hiddenBadges={(config.hidden_badges as string[]) || []}
                     onHiddenBadgesChange={(badges) => setConfig({ ...config, hidden_badges: badges })}
+                    displayMode={(config.club_display_mode as "badge" | "flag") || "badge"}
+                    onDisplayModeChange={(mode) => setConfig({ ...config, club_display_mode: mode })}
                   />
                 )}
               </div>
