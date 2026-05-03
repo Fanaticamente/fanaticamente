@@ -11,6 +11,7 @@ import DesktopHeader from "./DesktopHeader";
 import BookingDrawer from "@/components/terapeutas/BookingDrawer";
 import terapeutasHeroGrass from "@/assets/terapeutas-hero-grass.png";
 import { getFirstAndLastName } from "@/lib/utils";
+import ClubMark from "@/components/clubs/ClubMark";
 interface TherapistData {
   id: string;
   name: string;
