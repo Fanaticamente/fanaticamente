@@ -7,6 +7,7 @@ import RankingInfoCard from "@/components/ranking/RankingInfoCard";
 import { supabase } from "@/integrations/supabase/client";
 import { brazilianClubs, getClubsByLeague } from "@/data/brazilianClubs";
 import { useModuleConfig } from "@/hooks/useModuleConfig";
+import ClubMark, { ClubDisplayMode } from "@/components/clubs/ClubMark";
 
 type LeagueTab = "serie_a" | "serie_b" | "serie_c";
 
@@ -21,6 +22,8 @@ const Ranking = () => {
   const { data: moduleConfig } = useModuleConfig("ranking_page");
   const showBadges = moduleConfig?.config?.show_badges !== false;
   const hiddenBadges = (moduleConfig?.config?.hidden_badges as string[]) || [];
+  const clubDisplayMode: ClubDisplayMode =
+    (moduleConfig?.config?.club_display_mode as ClubDisplayMode) || "badge";
 
   // Fetch completed appointments count per club using security definer function
   const { data: clubCounts = {} } = useQuery({
@@ -153,12 +156,9 @@ const Ranking = () => {
 
                     <div className="flex items-center gap-3 flex-1 ml-3 min-w-0">
                       {showBadges && !hiddenBadges.includes(club.id) && (
-                        <img
-                          src={club.badgeUrl}
-                          alt={club.name}
-                          className="w-8 h-8 object-contain flex-shrink-0"
-                          loading="lazy"
-                        />
+                        <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center">
+                          <ClubMark clubId={club.id} mode={clubDisplayMode} />
+                        </div>
                       )}
                       <span className="text-sm font-semibold text-gray-500 truncate">
                         {club.name}
