@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { useModuleConfig } from "@/hooks/useModuleConfig";
 import { brazilianClubs } from "@/data/brazilianClubs";
+import ClubFlag from "@/components/clubs/ClubFlag";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Home,
