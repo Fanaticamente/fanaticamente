@@ -88,6 +88,7 @@ const Terapeutas = () => {
   const { data: moduleConfig } = useModuleConfig("therapists_page");
   const showBadges = moduleConfig?.config?.show_badges !== false;
   const hiddenBadges = (moduleConfig?.config?.hidden_badges as string[]) || [];
+  const clubDisplayMode = ((moduleConfig?.config?.club_display_mode as string) || "badge") as "badge" | "flag";
   
   // Booking drawer state
   const [selectedTherapist, setSelectedTherapist] = useState<TherapistData | null>(null);
@@ -97,7 +98,7 @@ const Terapeutas = () => {
 
   // Render desktop version
   if (!isMobile) {
-    return <DesktopTerapeutasPage showBadges={showBadges} hiddenBadges={hiddenBadges} />;
+    return <DesktopTerapeutasPage showBadges={showBadges} hiddenBadges={hiddenBadges} clubDisplayMode={clubDisplayMode} />;
   }
 
   const fetchTherapistsForClub = async (clubId: string) => {
