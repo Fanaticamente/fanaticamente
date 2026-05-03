@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import DesktopTerapeutasPage from "@/components/desktop/DesktopTerapeutasPage";
 import { useModuleConfig } from "@/hooks/useModuleConfig";
+import ClubMark from "@/components/clubs/ClubMark";
 
 interface Professional {
   id: string;
@@ -88,6 +89,7 @@ const Terapeutas = () => {
   const { data: moduleConfig } = useModuleConfig("therapists_page");
   const showBadges = moduleConfig?.config?.show_badges !== false;
   const hiddenBadges = (moduleConfig?.config?.hidden_badges as string[]) || [];
+  const clubDisplayMode = ((moduleConfig?.config?.club_display_mode as string) || "badge") as "badge" | "flag";
   
   // Booking drawer state
   const [selectedTherapist, setSelectedTherapist] = useState<TherapistData | null>(null);
@@ -97,7 +99,7 @@ const Terapeutas = () => {
 
   // Render desktop version
   if (!isMobile) {
-    return <DesktopTerapeutasPage showBadges={showBadges} hiddenBadges={hiddenBadges} />;
+    return <DesktopTerapeutasPage showBadges={showBadges} hiddenBadges={hiddenBadges} clubDisplayMode={clubDisplayMode} />;
   }
 
   const fetchTherapistsForClub = async (clubId: string) => {
@@ -247,14 +249,9 @@ const Terapeutas = () => {
                 >
                   {showBadges && !hiddenBadges.includes(club.id) && (
                     <div className="w-14 h-14 mx-auto mb-2 rounded-full bg-white p-1.5 shadow-md group-hover:shadow-lg transition-shadow overflow-hidden flex items-center justify-center">
-                      <img
-                        src={club.badgeUrl}
-                        alt={club.name}
-                        className={club.id === "coritiba" ? "w-12 h-12 object-contain" : "w-10 h-10 object-contain"}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${club.shortName}`;
-                        }}
-                      />
+                      <div className="w-11 h-11 flex items-center justify-center">
+                        <ClubMark clubId={club.id} mode={clubDisplayMode} />
+                      </div>
                     </div>
                   )}
                   <p className="text-card-foreground font-medium text-xs group-hover:text-primary transition-colors">
@@ -277,14 +274,9 @@ const Terapeutas = () => {
             >
               {showBadges && selectedClub && !hiddenBadges.includes(selectedClub.id) && (
                 <div className="w-16 h-16 rounded-full bg-white p-2 shadow-lg overflow-hidden flex items-center justify-center">
-                  <img
-                    src={selectedClub.badgeUrl}
-                    alt={selectedClub.name}
-                    className={selectedClub.id === "coritiba" ? "w-13 h-13 object-contain" : "w-11 h-11 object-contain"}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = `https://via.placeholder.com/64?text=${selectedClub.shortName}`;
-                    }}
-                  />
+                  <div className="w-12 h-12 flex items-center justify-center">
+                    <ClubMark clubId={selectedClub.id} mode={clubDisplayMode} />
+                  </div>
                 </div>
               )}
               <div>

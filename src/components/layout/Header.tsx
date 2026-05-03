@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { useModuleConfig } from "@/hooks/useModuleConfig";
 import { brazilianClubs } from "@/data/brazilianClubs";
+import ClubFlag from "@/components/clubs/ClubFlag";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Home,
@@ -38,6 +39,8 @@ const Header = () => {
     (sidebarClubConfig?.config as Record<string, unknown> | undefined)?.show_badges !== false;
   const sidebarHiddenBadges =
     (((sidebarClubConfig?.config as Record<string, unknown> | undefined)?.hidden_badges) as string[] | undefined) || [];
+  const sidebarClubDisplayMode =
+    (((sidebarClubConfig?.config as Record<string, unknown> | undefined)?.club_display_mode) as "badge" | "flag") || "badge";
 
   const { data: userProfile } = useQuery({
     queryKey: ["sidebar-user-profile", user?.id],
@@ -137,14 +140,18 @@ const Header = () => {
               {showUserClubBadge && userClub && (
                 <div className="mt-4 flex flex-col items-center gap-1.5">
                   <div className="w-14 h-14 rounded-full bg-white p-1.5 shadow-md flex items-center justify-center overflow-hidden">
-                    <img
-                      src={userClub.badgeUrl}
-                      alt={userClub.name}
-                      className="w-full h-full object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
+                    {sidebarClubDisplayMode === "flag" ? (
+                      <ClubFlag clubId={userClub.id} className="w-full h-full" />
+                    ) : (
+                      <img
+                        src={userClub.badgeUrl}
+                        alt={userClub.name}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    )}
                   </div>
                   <span className="text-card-foreground text-xs font-medium">
                     {userClub.shortName || userClub.name}

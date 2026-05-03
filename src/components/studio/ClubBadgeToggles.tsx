@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Shield } from "lucide-react";
+import { ChevronDown, ChevronRight, Shield, Flag } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { brazilianClubs } from "@/data/brazilianClubs";
+import ClubMark, { ClubDisplayMode } from "@/components/clubs/ClubMark";
 
 interface ClubBadgeTogglesProps {
   showBadges: boolean;
   onShowBadgesChange: (val: boolean) => void;
   hiddenBadges: string[];
   onHiddenBadgesChange: (badges: string[]) => void;
+  displayMode?: ClubDisplayMode;
+  onDisplayModeChange?: (mode: ClubDisplayMode) => void;
 }
 
 const leagueLabels: Record<string, string> = {
@@ -22,6 +25,8 @@ const ClubBadgeToggles = ({
   onShowBadgesChange,
   hiddenBadges,
   onHiddenBadgesChange,
+  displayMode = "badge",
+  onDisplayModeChange,
 }: ClubBadgeTogglesProps) => {
   const [expandedLeague, setExpandedLeague] = useState<string | null>(null);
 
@@ -40,9 +45,9 @@ const ClubBadgeToggles = ({
       {/* Master toggle */}
       <div className="flex items-center justify-between">
         <div>
-          <Label>Exibir escudos dos clubes</Label>
+          <Label>Exibir identidade dos clubes</Label>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Mostra os escudos junto aos nomes dos clubes
+            Mostra escudo ou bandeirinha junto aos nomes dos clubes
           </p>
         </div>
         <Switch
@@ -51,11 +56,45 @@ const ClubBadgeToggles = ({
         />
       </div>
 
+      {/* Display mode selector */}
+      {showBadges && onDisplayModeChange && (
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => onDisplayModeChange("badge")}
+            className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${
+              displayMode === "badge"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
+            }`}
+          >
+            <Shield className="w-3.5 h-3.5" />
+            Escudos
+          </button>
+          <button
+            type="button"
+            onClick={() => onDisplayModeChange("flag")}
+            className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${
+              displayMode === "flag"
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
+            }`}
+          >
+            <Flag className="w-3.5 h-3.5" />
+            Bandeirinhas
+          </button>
+        </div>
+      )}
+
       {/* Per-club toggles */}
       {showBadges && (
         <div className="border border-border rounded-lg overflow-hidden">
           <div className="px-3 py-2 bg-muted/50 flex items-center gap-2">
-            <Shield className="w-3.5 h-3.5 text-muted-foreground" />
+            {displayMode === "flag" ? (
+              <Flag className="w-3.5 h-3.5 text-muted-foreground" />
+            ) : (
+              <Shield className="w-3.5 h-3.5 text-muted-foreground" />
+            )}
             <span className="text-xs font-medium text-muted-foreground">
               Visibilidade individual por clube
             </span>
@@ -96,11 +135,9 @@ const ClubBadgeToggles = ({
                           key={club.id}
                           className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/30 transition-colors"
                         >
-                          <img
-                            src={club.badgeUrl}
-                            alt={club.name}
-                            className="w-6 h-6 object-contain flex-shrink-0"
-                          />
+                          <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                            <ClubMark clubId={club.id} mode={displayMode} />
+                          </div>
                           <span className={`text-xs flex-1 truncate ${isHidden ? "text-muted-foreground line-through" : "text-card-foreground"}`}>
                             {club.name}
                           </span>

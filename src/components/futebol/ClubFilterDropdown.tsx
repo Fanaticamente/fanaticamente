@@ -4,6 +4,7 @@ import { ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import fanaticaLogoIcon from "@/assets/fanatica-logo-icon.png";
 import { useModuleConfig } from "@/hooks/useModuleConfig";
+import ClubMark, { ClubDisplayMode } from "@/components/clubs/ClubMark";
 
 interface ClubFilterDropdownProps {
   selectedClub: string | null;
@@ -17,6 +18,7 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
   const { data: moduleConfig } = useModuleConfig("football_page");
   const showBadges = (moduleConfig?.config as Record<string, unknown> | undefined)?.show_badges !== false;
   const hiddenBadges = (((moduleConfig?.config as Record<string, unknown> | undefined)?.hidden_badges) as string[] | undefined) || [];
+  const clubDisplayMode = (((moduleConfig?.config as Record<string, unknown> | undefined)?.club_display_mode) as ClubDisplayMode) || "badge";
 
   const serieAClubs = brazilianClubs.filter((club) => club.league === "serie_a");
   const serieBClubs = brazilianClubs.filter((club) => club.league === "serie_b");
@@ -51,14 +53,9 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
         dimensions
       )}>
         {showBadgeImage ? (
-          <img
-            src={club.badgeUrl}
-            alt={club.name}
-            className="w-full h-full object-contain p-0.5"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
-          />
+          <div className="w-full h-full flex items-center justify-center p-0.5">
+            <ClubMark clubId={club.id} mode={clubDisplayMode} />
+          </div>
         ) : (
           <span className="text-[9px] font-bold text-gray-700 text-center leading-tight px-0.5">
             {club.shortName || club.name.slice(0, 3).toUpperCase()}
