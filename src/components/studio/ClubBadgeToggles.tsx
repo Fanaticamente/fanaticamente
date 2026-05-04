@@ -40,51 +40,73 @@ const ClubBadgeToggles = ({
 
   const leagues = ["serie_a", "serie_b", "serie_c"] as const;
 
+  // Independent visibility: one for shields, one for flags.
+  // Internally we still expose a single `show_badges` (anything visible)
+  // plus `club_display_mode` that picks which one to render when something is shown.
+  const shieldsOn = showBadges && displayMode === "badge";
+  const flagsOn = showBadges && displayMode === "flag";
+
+  const setShields = (on: boolean) => {
+    if (on) {
+      onDisplayModeChange?.("badge");
+      onShowBadgesChange(true);
+    } else if (flagsOn) {
+      // keep flags on
+      onDisplayModeChange?.("flag");
+      onShowBadgesChange(true);
+    } else {
+      onShowBadgesChange(false);
+    }
+  };
+
+  const setFlags = (on: boolean) => {
+    if (on) {
+      onDisplayModeChange?.("flag");
+      onShowBadgesChange(true);
+    } else if (shieldsOn) {
+      onDisplayModeChange?.("badge");
+      onShowBadgesChange(true);
+    } else {
+      onShowBadgesChange(false);
+    }
+  };
+
   return (
     <div className="space-y-3">
-      {/* Master toggle */}
-      <div className="flex items-center justify-between">
-        <div>
-          <Label>Exibir identidade dos clubes</Label>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Mostra escudo ou bandeirinha junto aos nomes dos clubes
-          </p>
+      {/* Independent visibility toggles */}
+      <div className="space-y-2 border border-border rounded-lg p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-muted-foreground" />
+            <div>
+              <Label className="text-sm">Exibir escudos</Label>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Mostra os escudos oficiais dos clubes
+              </p>
+            </div>
+          </div>
+          <Switch checked={shieldsOn} onCheckedChange={setShields} />
         </div>
-        <Switch
-          checked={showBadges}
-          onCheckedChange={onShowBadgesChange}
-        />
-      </div>
 
-      {/* Display mode selector */}
-      {showBadges && onDisplayModeChange && (
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => onDisplayModeChange("badge")}
-            className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${
-              displayMode === "badge"
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
-            }`}
-          >
-            <Shield className="w-3.5 h-3.5" />
-            Escudos
-          </button>
-          <button
-            type="button"
-            onClick={() => onDisplayModeChange("flag")}
-            className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${
-              displayMode === "flag"
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50"
-            }`}
-          >
-            <Flag className="w-3.5 h-3.5" />
-            Bandeirinhas
-          </button>
+        <div className="flex items-center justify-between pt-2 border-t border-border">
+          <div className="flex items-center gap-2">
+            <Flag className="w-4 h-4 text-muted-foreground" />
+            <div>
+              <Label className="text-sm">Exibir bandeirinhas</Label>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Mostra bandeirinhas únicas com as cores de cada clube
+              </p>
+            </div>
+          </div>
+          <Switch checked={flagsOn} onCheckedChange={setFlags} />
         </div>
-      )}
+
+        {!shieldsOn && !flagsOn && (
+          <p className="text-[11px] text-muted-foreground italic">
+            Nenhuma identidade visual será exibida ao lado dos clubes.
+          </p>
+        )}
+      </div>
 
       {/* Per-club toggles */}
       {showBadges && (
