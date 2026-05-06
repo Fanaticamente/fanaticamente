@@ -285,9 +285,14 @@ const Auth = () => {
     if (signUpData.birthDate) {
       const birthDate = new Date(signUpData.birthDate);
       const today = new Date();
-      const age = today.getFullYear() - birthDate.getFullYear();
-      if (age < 13) {
-        newErrors.birthDate = "Você deve ter pelo menos 13 anos";
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      const minAge = authMode === "professional" ? 18 : 16;
+      if (age < minAge) {
+        newErrors.birthDate = `Você deve ter pelo menos ${minAge} anos`;
       }
     }
 
