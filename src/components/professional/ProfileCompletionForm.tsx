@@ -904,6 +904,26 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
         </div>
       </div>
 
+      {/* Experience Years */}
+      <div>
+        <label className="block text-card-foreground text-sm font-medium mb-2">
+          Anos de Experiência
+        </label>
+        <input
+          type="number"
+          value={formData.experienceYears}
+          onChange={(e) => setFormData(prev => ({ ...prev, experienceYears: e.target.value }))}
+          className={inputClassName}
+          placeholder="Ex: 5"
+          min="0"
+          max="70"
+          step="1"
+        />
+        <p className="text-muted-foreground text-xs mt-1">
+          Esse valor será exibido no seu card de apresentação para os torcedores.
+        </p>
+      </div>
+
       {/* Show Price Toggle */}
       <div className="flex items-center gap-3">
         <input
