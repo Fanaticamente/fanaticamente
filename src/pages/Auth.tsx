@@ -149,6 +149,9 @@ const Auth = () => {
       if (isAdmin || isDeveloper) return;
 
       if (authMode === "professional" && !isProfessional) {
+        // Skip enforcement if a fresh professional signup is in progress
+        // (the professional role is assigned asynchronously after signup)
+        if (sessionStorage.getItem("pendingProfileUpdate")) return;
         await supabase.auth.signOut();
         setRoleValidated(false);
         setEmail("");
@@ -190,6 +193,11 @@ const Auth = () => {
 
         // If on professional mode but user is not a professional
         if (authMode === "professional" && !isProfessional) {
+          // Skip if a fresh professional signup is in progress
+          if (sessionStorage.getItem("pendingProfileUpdate")) {
+            setRoleValidated(true);
+            return;
+          }
           await supabase.auth.signOut();
           setRoleValidated(false);
           setEmail("");
@@ -523,7 +531,7 @@ const Auth = () => {
               </button>
               <button
                 type="button"
-                onClick={() => { setAuthMode("professional"); setIsLogin(true); setErrors({}); }}
+                onClick={() => { setAuthMode("professional"); setErrors({}); }}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
                   authMode === "professional"
                     ? "bg-therapy text-therapy-foreground"
@@ -919,7 +927,7 @@ const Auth = () => {
           </button>
           <button
             type="button"
-            onClick={() => { setAuthMode("professional"); setIsLogin(true); setErrors({}); }}
+            onClick={() => { setAuthMode("professional"); setErrors({}); }}
             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
               authMode === "professional"
                 ? "bg-therapy text-therapy-foreground"
