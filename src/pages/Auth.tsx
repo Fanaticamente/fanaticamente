@@ -519,7 +519,7 @@ const Auth = () => {
                 }`}
               >
                 <User className="w-5 h-5" />
-                Torcedor
+                Torcedor(a)
               </button>
               <button
                 type="button"
@@ -915,7 +915,7 @@ const Auth = () => {
             }`}
           >
             <User className="w-5 h-5" />
-            Torcedor
+            Torcedor(a)
           </button>
           <button
             type="button"
