@@ -630,7 +630,14 @@ const Auth = () => {
                           value={signUpData.birthDate}
                           onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
                           min="1900-01-01"
-                          max={format(new Date(), "yyyy-MM-dd")}
+                          max={format(
+                            new Date(
+                              new Date().getFullYear() - (authMode === "professional" ? 18 : 16),
+                              new Date().getMonth(),
+                              new Date().getDate()
+                            ),
+                            "yyyy-MM-dd"
+                          )}
                           className={dateInputClassName}
                         />
                         {errors.birthDate && (
@@ -1028,7 +1035,14 @@ const Auth = () => {
                       value={signUpData.birthDate}
                       onChange={(e) => handleSignUpDataChange('birthDate', e.target.value)}
                       min="1900-01-01"
-                      max={format(new Date(), "yyyy-MM-dd")}
+                      max={format(
+                        new Date(
+                          new Date().getFullYear() - (authMode === "professional" ? 18 : 16),
+                          new Date().getMonth(),
+                          new Date().getDate()
+                        ),
+                        "yyyy-MM-dd"
+                      )}
                       className={dateInputClassName}
                     />
                     {errors.birthDate && (
