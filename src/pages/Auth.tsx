@@ -131,7 +131,18 @@ const Auth = () => {
         // Profissionais logando no modo torcedor vão para a home
         navigate(authMode === "professional" ? "/profissional" : "/");
       } else {
-        navigate("/");
+        // Fresh professional signup: role is being assigned async by edge function.
+        // Route to professional dashboard so the onboarding wizard kicks in.
+        let pendingIsProfessional = false;
+        try {
+          const raw = sessionStorage.getItem("pendingProfileUpdate") || localStorage.getItem("pendingProfileUpdate");
+          if (raw) pendingIsProfessional = !!JSON.parse(raw)?.is_professional;
+        } catch {}
+        if (authMode === "professional" || pendingIsProfessional) {
+          navigate("/profissional");
+        } else {
+          navigate("/");
+        }
       }
     }
   }, [user, hasRole, navigate, roleValidated, loading]);
