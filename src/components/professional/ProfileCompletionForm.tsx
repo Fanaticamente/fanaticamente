@@ -26,6 +26,7 @@ interface ProfileData {
   degreeDocumentFrontUrl: string;
   degreeDocumentBackUrl: string;
   socioConsciente: boolean;
+  experienceYears: string;
 }
 
 const DEGREE_BASE_OPTIONS = [
@@ -60,6 +61,7 @@ interface ExistingProfileData {
   degreeDocumentFrontUrl?: string;
   degreeDocumentBackUrl?: string;
   socioConsciente?: boolean;
+  experienceYears?: number | string;
 }
 
 interface ProfileCompletionFormProps {
@@ -155,7 +157,8 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
       crpDocumentBackUrl: existingData?.crpDocumentBackUrl ?? draft?.crpDocumentBackUrl ?? "",
       degreeDocumentFrontUrl: existingData?.degreeDocumentFrontUrl ?? draft?.degreeDocumentFrontUrl ?? "",
       degreeDocumentBackUrl: existingData?.degreeDocumentBackUrl ?? draft?.degreeDocumentBackUrl ?? "",
-      socioConsciente: draft?.socioConsciente ?? existingData?.socioConsciente ?? false
+      socioConsciente: draft?.socioConsciente ?? existingData?.socioConsciente ?? false,
+      experienceYears: draft?.experienceYears ?? (existingData?.experienceYears != null ? String(existingData.experienceYears) : "")
     };
   }, [existingData, loadDraftFromStorage]);
 
@@ -448,7 +451,8 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
           degree: combinedDegree,
           specialties: formData.specialties,
           hourly_rate: formData.sessionPrice ? parseFloat(formData.sessionPrice) : null,
-          socio_consciente: formData.socioConsciente
+          socio_consciente: formData.socioConsciente,
+          experience_years: formData.experienceYears ? parseInt(formData.experienceYears, 10) : 0
         })
         .eq('id', professionalId);
 
