@@ -508,29 +508,32 @@ const Auth = () => {
             </div>
 
             {/* Mode Selector */}
-            {authMode === "user" && (
-              <div className="flex gap-2 mb-4">
-                <button
-                  type="button"
-                  onClick={() => setAuthMode("user")}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all bg-primary text-primary-foreground"
-                >
-                  <User className="w-5 h-5" />
-                  Torcedor
-                </button>
-              </div>
-            )}
-            {authMode === "professional" && (
-              <div className="flex gap-2 mb-4">
-                <button
-                  type="button"
-                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all bg-therapy text-therapy-foreground"
-                >
-                  <Brain className="w-5 h-5" />
-                  Psicólogo(a)
-                </button>
-              </div>
-            )}
+            <div className="flex gap-2 mb-4">
+              <button
+                type="button"
+                onClick={() => { setAuthMode("user"); setErrors({}); }}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
+                  authMode === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card border border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <User className="w-5 h-5" />
+                Torcedor
+              </button>
+              <button
+                type="button"
+                onClick={() => { setAuthMode("professional"); setIsLogin(true); setErrors({}); }}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
+                  authMode === "professional"
+                    ? "bg-therapy text-therapy-foreground"
+                    : "bg-card border border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Brain className="w-5 h-5" />
+                Psicólogo(a)
+              </button>
+            </div>
 
             <div className={`bg-card border rounded-2xl p-6 transition-colors ${
               authMode === "professional" ? "border-therapy" : "border-border"
@@ -878,21 +881,6 @@ const Auth = () => {
               </button>
             </div>
 
-            {authMode === "user" && (
-              <div className="mt-6 text-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAuthMode("professional");
-                    setIsLogin(true);
-                    setErrors({});
-                  }}
-                  className="text-sm text-primary underline hover:text-primary/80 transition-colors"
-                >
-                  Área do(a) profissional parceiro(a)
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -916,29 +904,32 @@ const Auth = () => {
         </div>
 
         {/* Mode Selector */}
-        {authMode === "user" && (
-          <div className="flex gap-2 mb-6">
-            <button
-              type="button"
-              onClick={() => setAuthMode("user")}
-              className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all bg-primary text-primary-foreground"
-            >
-              <User className="w-5 h-5" />
-              Torcedor
-            </button>
-          </div>
-        )}
-        {authMode === "professional" && (
-          <div className="flex gap-2 mb-6">
-            <button
-              type="button"
-              className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all bg-therapy text-therapy-foreground"
-            >
-              <Brain className="w-5 h-5" />
-              Psicólogo(a)
-            </button>
-          </div>
-        )}
+        <div className="flex gap-2 mb-6">
+          <button
+            type="button"
+            onClick={() => { setAuthMode("user"); setErrors({}); }}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
+              authMode === "user"
+                ? "bg-primary text-primary-foreground"
+                : "bg-card border border-border text-muted-foreground"
+            }`}
+          >
+            <User className="w-5 h-5" />
+            Torcedor
+          </button>
+          <button
+            type="button"
+            onClick={() => { setAuthMode("professional"); setIsLogin(true); setErrors({}); }}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
+              authMode === "professional"
+                ? "bg-therapy text-therapy-foreground"
+                : "bg-card border border-border text-muted-foreground"
+            }`}
+          >
+            <Brain className="w-5 h-5" />
+            Psicólogo(a)
+          </button>
+        </div>
 
         <div className={`bg-card border rounded-2xl p-6 transition-colors ${
           authMode === "professional" ? "border-therapy" : "border-border"
@@ -1293,21 +1284,6 @@ const Auth = () => {
           </button>
         </div>
 
-        {authMode === "user" && (
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMode("professional");
-                setIsLogin(true);
-                setErrors({});
-              }}
-              className="text-sm text-primary underline hover:text-primary/80 transition-colors"
-            >
-              Área do(a) profissional parceiro(a)
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
