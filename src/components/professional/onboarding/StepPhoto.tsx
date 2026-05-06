@@ -2,6 +2,8 @@ import { useState, useRef } from "react";
 import { Upload, Camera, Info } from "lucide-react";
 import { toast } from "sonner";
 import { uploadProfessionalFile } from "@/lib/professionalUploads";
+import photoExampleFemale from "@/assets/onboarding-photo-example-female.png";
+import photoExampleMale from "@/assets/onboarding-photo-example-male.png";
 
 interface StepPhotoProps {
   professionalId: string;
@@ -94,8 +96,31 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
             <p>• Foto profissional com fundo neutro</p>
             <p>• Rosto visível e boa iluminação</p>
             <p>• Formato vertical (7:9) • Máx. 5MB</p>
+            <p>• Recomendamos utilizar uma foto trajando a camisa do seu time de coração — esse detalhe fortalece a identificação com a torcida e potencializa as chances de o seu perfil ser escolhido para novos agendamentos.</p>
           </div>
         </div>
+      </div>
+
+      <div className="mt-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-lg overflow-hidden border border-border bg-muted/30">
+            <img
+              src={photoExampleFemale}
+              alt="Exemplo de foto profissional feminina vestindo camisa do time"
+              className="w-full aspect-[7/9] object-cover object-top"
+            />
+          </div>
+          <div className="rounded-lg overflow-hidden border border-border bg-muted/30">
+            <img
+              src={photoExampleMale}
+              alt="Exemplo de foto profissional masculina vestindo camisa do time"
+              className="w-full aspect-[7/9] object-cover object-top"
+            />
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground text-center mt-2 italic">
+          Exemplos de poses e enquadramento ideais — vestindo a camisa do time do coração para criar identificação com a torcida.
+        </p>
       </div>
     </div>
   );
