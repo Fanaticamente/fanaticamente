@@ -927,7 +927,7 @@ const Auth = () => {
           </button>
           <button
             type="button"
-            onClick={() => { setAuthMode("professional"); setIsLogin(true); setErrors({}); }}
+            onClick={() => { setAuthMode("professional"); setErrors({}); }}
             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
               authMode === "professional"
                 ? "bg-therapy text-therapy-foreground"
