@@ -25,6 +25,7 @@ interface SlideConfig {
 const HeroCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [streak, setStreak] = useState(false);
   const moduleQuery = useModuleConfig("hero_carousel");
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
@@ -57,6 +58,13 @@ const HeroCarousel = () => {
   useEffect(() => {
     setCurrentSlide(0);
   }, [moduleQuery.data]);
+
+  // Trigger speed-streak flash on every slide change
+  useEffect(() => {
+    setStreak(true);
+    const t = window.setTimeout(() => setStreak(false), 600);
+    return () => window.clearTimeout(t);
+  }, [currentSlide]);
 
   useEffect(() => {
     if (slides.length <= 1 || isPaused) return;
@@ -141,6 +149,16 @@ const HeroCarousel = () => {
                 decoding="async"
                 draggable={false}
               />
+              {isCurrent && streak && (
+                <div
+                  className="pointer-events-none absolute inset-0 mix-blend-screen"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.18) 40%, hsl(var(--primary) / 0.32) 50%, hsl(var(--primary) / 0.18) 60%, transparent 100%)",
+                    animation: "speedStreak 600ms ease-out forwards",
+                  }}
+                />
+              )}
               {slide.showOverlay !== false && (
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
               )}
