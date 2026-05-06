@@ -1027,7 +1027,8 @@ const ProfessionalDashboard = () => {
                     crpDocumentBackUrl: professional.crp_document_back_url || "",
                     degreeDocumentFrontUrl: professional.degree_document_front_url || "",
                     degreeDocumentBackUrl: professional.degree_document_back_url || "",
-                    socioConsciente: professional.socio_consciente || false
+                    socioConsciente: professional.socio_consciente || false,
+                    experienceYears: professional.experience_years ?? ""
                   }}
                   onComplete={() => {
                     toast.success("Perfil atualizado!");
