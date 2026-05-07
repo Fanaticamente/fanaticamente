@@ -215,7 +215,7 @@ export const brazilianClubs: BrazilianClub[] = [
     id: "mirassol",
     name: "Mirassol",
     shortName: "MIR",
-    primaryColor: "#FFD700",
+    primaryColor: "#B8860B",
     secondaryColor: "#000000",
     badgeUrl: mirassolBadge,
     league: "serie_a",
