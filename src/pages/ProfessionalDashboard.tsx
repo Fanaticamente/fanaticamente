@@ -1178,11 +1178,19 @@ const ProfessionalDashboard = () => {
                         setSelectedAppointment(apt);
                       }}
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-therapy/20 flex items-center justify-center">
-                            <User className="w-6 h-6 text-therapy" />
-                          </div>
+                       <div className="flex items-start justify-between">
+                         <div className="flex items-center gap-4">
+                           {apt.profiles?.avatar_url ? (
+                             <img
+                               src={apt.profiles.avatar_url}
+                               alt={apt.profiles?.full_name || 'Paciente'}
+                               className="w-12 h-12 rounded-full object-cover border border-border"
+                             />
+                           ) : (
+                             <div className="w-12 h-12 rounded-full bg-therapy/20 flex items-center justify-center">
+                               <User className="w-6 h-6 text-therapy" />
+                             </div>
+                           )}
                           <div>
                             <h3 className="font-medium text-card-foreground">
                               {apt.profiles?.full_name || 'Paciente'}
