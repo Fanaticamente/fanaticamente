@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, Copy, Check, Play, Square, Cake, MapPin, RefreshCw, CheckCircle } from "lucide-react";
+import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, Copy, Check, Play, Square, Cake, MapPin, RefreshCw, CheckCircle, MessageCircle, Upload } from "lucide-react";
 import { format, parseISO, subMinutes, differenceInYears } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ interface AppointmentDetailsDialogProps {
     status: string;
     notes: string | null;
     consultation_link: string | null;
+    receipt_url?: string | null;
     profiles: {
       full_name: string | null;
       avatar_url: string | null;
@@ -335,9 +336,17 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
             </h4>
             <div className="bg-muted/50 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-therapy/20 flex items-center justify-center">
-                  <User className="w-5 h-5 text-therapy" />
-                </div>
+                {appointment.profiles?.avatar_url ? (
+                  <img
+                    src={appointment.profiles.avatar_url}
+                    alt={appointment.profiles?.full_name || 'Paciente'}
+                    className="w-10 h-10 rounded-full object-cover border border-border"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-therapy/20 flex items-center justify-center">
+                    <User className="w-5 h-5 text-therapy" />
+                  </div>
+                )}
                 <div>
                   <p className="font-medium text-card-foreground">
                     {appointment.profiles?.full_name || "Paciente"}
@@ -364,7 +373,17 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
               {appointment.profiles?.phone && (
                 <div className="flex items-center gap-3 text-sm">
                   <Phone className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-card-foreground">{appointment.profiles.phone}</span>
+                  <span className="text-card-foreground flex-1">{appointment.profiles.phone}</span>
+                  <a
+                    href={`https://wa.me/${appointment.profiles.phone.replace(/\D/g, '').replace(/^(\d{10,11})$/, '55$1')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-green-500/15 text-green-600 hover:bg-green-500/25 transition-colors text-xs font-medium"
+                    title="Iniciar conversa no WhatsApp"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    WhatsApp
+                  </a>
                 </div>
               )}
               
@@ -376,6 +395,24 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
               )}
             </div>
           </div>
+
+          {/* Receipt link inside details */}
+          {appointment.receipt_url && (
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                Comprovante de Pagamento
+              </h4>
+              <a
+                href={appointment.receipt_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 p-3 bg-muted/50 rounded-xl text-therapy hover:bg-muted transition-colors text-sm font-medium"
+              >
+                <Upload className="w-4 h-4" />
+                Ver Comprovante de Pagamento
+              </a>
+            </div>
+          )}
 
           {/* Appointment Info */}
           <div className="space-y-3">
