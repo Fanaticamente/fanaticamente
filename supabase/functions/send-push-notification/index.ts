@@ -47,7 +47,11 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
+    const internalSecret = req.headers.get("x-internal-secret");
+    const expectedInternal = Deno.env.get("INTERNAL_DISPATCH_SECRET");
+    const isInternal = !!(expectedInternal && internalSecret && internalSecret === expectedInternal);
+
+    if (!isInternal && !authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
     }
 
@@ -56,28 +60,27 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const supabaseUser = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData } = await supabaseUser.auth.getClaims(token);
-    if (!claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
-    }
-
-    const userId = claimsData.claims.sub;
-
-    const { data: rolesData } = await supabaseAdmin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
-
-    const hasPermission = rolesData?.some((r: { role: string }) => ["admin", "developer"].includes(r.role));
-    if (!hasPermission) {
-      return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: corsHeaders });
+    let userId: string | null = null;
+    if (!isInternal) {
+      const supabaseUser = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+        { global: { headers: { Authorization: authHeader! } } }
+      );
+      const token = authHeader!.replace("Bearer ", "");
+      const { data: claimsData } = await supabaseUser.auth.getClaims(token);
+      if (!claimsData?.claims) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+      }
+      userId = claimsData.claims.sub;
+      const { data: rolesData } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      const hasPermission = rolesData?.some((r: { role: string }) => ["admin", "developer"].includes(r.role));
+      if (!hasPermission) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: corsHeaders });
+      }
     }
 
     const body = await req.json();

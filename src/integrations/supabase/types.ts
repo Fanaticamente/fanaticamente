@@ -1064,6 +1064,36 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          scheduled_for: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          scheduled_for?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          scheduled_for?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       notification_logs: {
         Row: {
           automation_id: string | null
@@ -1119,6 +1149,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notification_rule_runs: {
+        Row: {
+          event_id: string | null
+          fired_at: string
+          id: string
+          rule_id: string
+          user_id: string
+        }
+        Insert: {
+          event_id?: string | null
+          fired_at?: string
+          id?: string
+          rule_id: string
+          user_id: string
+        }
+        Update: {
+          event_id?: string | null
+          fired_at?: string
+          id?: string
+          rule_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_rules: {
+        Row: {
+          audience: string
+          body_template: string
+          cooldown_hours: number
+          created_at: string
+          created_by: string | null
+          event_type: string
+          id: string
+          is_active: boolean
+          link_template: string | null
+          name: string
+          quiet_hours_end: number | null
+          quiet_hours_start: number | null
+          title_template: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          audience?: string
+          body_template: string
+          cooldown_hours?: number
+          created_at?: string
+          created_by?: string | null
+          event_type: string
+          id?: string
+          is_active?: boolean
+          link_template?: string | null
+          name: string
+          quiet_hours_end?: number | null
+          quiet_hours_start?: number | null
+          title_template: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          body_template?: string
+          cooldown_hours?: number
+          created_at?: string
+          created_by?: string | null
+          event_type?: string
+          id?: string
+          is_active?: boolean
+          link_template?: string | null
+          name?: string
+          quiet_hours_end?: number | null
+          quiet_hours_start?: number | null
+          title_template?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       notification_templates: {
         Row: {
