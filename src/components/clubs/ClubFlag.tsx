@@ -12,6 +12,16 @@ import jerseyCorinthians from "@/assets/jerseys/corinthians.png";
 import jerseyCoritiba from "@/assets/jerseys/coritiba.png";
 import jerseyCruzeiro from "@/assets/jerseys/cruzeiro.png";
 import jerseyFlamengo from "@/assets/jerseys/flamengo.png";
+import jerseyFluminense from "@/assets/jerseys/fluminense.png";
+import jerseyGremio from "@/assets/jerseys/gremio.png";
+import jerseyInternacional from "@/assets/jerseys/internacional.png";
+import jerseyMirassol from "@/assets/jerseys/mirassol.png";
+import jerseyPalmeiras from "@/assets/jerseys/palmeiras.png";
+import jerseyRemo from "@/assets/jerseys/remo.png";
+import jerseySantos from "@/assets/jerseys/santos.png";
+import jerseySaoPaulo from "@/assets/jerseys/sao-paulo.png";
+import jerseyVasco from "@/assets/jerseys/vasco.png";
+import jerseyVitoria from "@/assets/jerseys/vitoria.png";
 
 const JERSEY_IMAGES: Record<string, string> = {
   "athletico-pr": jerseyAthleticoPr,
@@ -24,6 +34,16 @@ const JERSEY_IMAGES: Record<string, string> = {
   "coritiba": jerseyCoritiba,
   "cruzeiro": jerseyCruzeiro,
   "flamengo": jerseyFlamengo,
+  "fluminense": jerseyFluminense,
+  "gremio": jerseyGremio,
+  "internacional": jerseyInternacional,
+  "mirassol": jerseyMirassol,
+  "palmeiras": jerseyPalmeiras,
+  "remo": jerseyRemo,
+  "santos": jerseySantos,
+  "sao-paulo": jerseySaoPaulo,
+  "vasco": jerseyVasco,
+  "vitoria": jerseyVitoria,
 };
 
 // 14 pattern types — drawn inside a wavy flag clip path
