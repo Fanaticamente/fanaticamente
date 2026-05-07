@@ -1,6 +1,31 @@
 import { brazilianClubs } from "@/data/brazilianClubs";
 import { cn } from "@/lib/utils";
 
+// Custom jersey images per club (override the generated flag pattern)
+import jerseyAthleticoPr from "@/assets/jerseys/athletico-pr.png";
+import jerseyAtleticoMg from "@/assets/jerseys/atletico-mg.png";
+import jerseyBahia from "@/assets/jerseys/bahia.png";
+import jerseyBotafogo from "@/assets/jerseys/botafogo.png";
+import jerseyBragantino from "@/assets/jerseys/bragantino.png";
+import jerseyChapecoense from "@/assets/jerseys/chapecoense.png";
+import jerseyCorinthians from "@/assets/jerseys/corinthians.png";
+import jerseyCoritiba from "@/assets/jerseys/coritiba.png";
+import jerseyCruzeiro from "@/assets/jerseys/cruzeiro.png";
+import jerseyFlamengo from "@/assets/jerseys/flamengo.png";
+
+const JERSEY_IMAGES: Record<string, string> = {
+  "athletico-pr": jerseyAthleticoPr,
+  "atletico-mg": jerseyAtleticoMg,
+  "bahia": jerseyBahia,
+  "botafogo": jerseyBotafogo,
+  "bragantino": jerseyBragantino,
+  "chapecoense": jerseyChapecoense,
+  "corinthians": jerseyCorinthians,
+  "coritiba": jerseyCoritiba,
+  "cruzeiro": jerseyCruzeiro,
+  "flamengo": jerseyFlamengo,
+};
+
 // 14 pattern types — drawn inside a wavy flag clip path
 type PatternId =
   | "vstripe3"
@@ -120,6 +145,19 @@ interface ClubFlagProps {
 const ClubFlag = ({ clubId, className, rounded = false }: ClubFlagProps) => {
   const club = brazilianClubs.find((c) => c.id === clubId);
   if (!club) return null;
+
+  // If we have a custom jersey image for this club, use it instead of the generated flag
+  const jersey = JERSEY_IMAGES[clubId];
+  if (jersey) {
+    return (
+      <img
+        src={jersey}
+        alt={`Camisa ${club.name}`}
+        className={cn("block w-full h-full object-contain", rounded && "rounded-md", className)}
+      />
+    );
+  }
+
   const spec = FLAG_MAP[clubId] || { pattern: "vstripe3" as PatternId, variant: "ab" as ColorVariant };
   const { a, b } = resolveColors(club.primaryColor, club.secondaryColor, spec.variant);
 
