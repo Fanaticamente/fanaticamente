@@ -4,16 +4,17 @@ import {
   BookTemplate, Zap, History, BarChart3, Plus, Trash2, Edit3,
   Play, Pause, Clock, ArrowRight, RefreshCw, Filter, Search,
   TrendingUp, MessageSquare, Smartphone, Globe, ChevronRight,
-  X, Save, Eye, Copy, Calendar, Target, Shield
+  X, Save, Eye, Copy, Calendar, Target, Shield, Sparkles
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { brazilianClubs } from "@/data/brazilianClubs";
+import SmartRulesTab from "./SmartRulesTab";
 
 type NotifType = "info" | "appointment" | "course" | "payment" | "warning" | "promo";
-type TabId = "send" | "templates" | "automations" | "history" | "metrics";
+type TabId = "send" | "rules" | "templates" | "automations" | "history" | "metrics";
 
 interface Template {
   id: string;
@@ -80,6 +81,7 @@ const triggerEvents = [
 
 const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "send", label: "Enviar", icon: Send },
+  { id: "rules", label: "Regras Inteligentes", icon: Sparkles },
   { id: "templates", label: "Templates", icon: BookTemplate },
   { id: "automations", label: "Automações", icon: Zap },
   { id: "history", label: "Histórico", icon: History },
