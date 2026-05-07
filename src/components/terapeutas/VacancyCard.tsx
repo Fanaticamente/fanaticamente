@@ -74,9 +74,9 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
         </div>
 
         <p className="text-sm text-gray-600 leading-relaxed mb-4">
-          Esta é uma posição disponível para psicólogos(as) que desejam atender a torcida do{" "}
-          <span className="font-semibold" style={{ color: clubColor }}>{clubName}</span>. Cadastre-se
-          para integrar nosso corpo clínico e oferecer cuidado especializado a esta comunidade.
+          Esta é uma posição disponível para psicólogos(as) torcedores(as) do{" "}
+          <span className="font-semibold" style={{ color: clubColor }}>{clubName}</span> que desejam
+          atender a torcida. Cadastre-se para integrar o time!
         </p>
 
         <button
