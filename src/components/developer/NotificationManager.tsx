@@ -1200,6 +1200,7 @@ const NotificationManager = () => {
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-8 py-6">
         {activeTab === "send" && <SendTab />}
+        {activeTab === "rules" && <SmartRulesTab />}
         {activeTab === "templates" && <TemplatesTab />}
         {activeTab === "automations" && <AutomationsTab />}
         {activeTab === "history" && <HistoryTab />}
