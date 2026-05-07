@@ -55,7 +55,7 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
               className="font-sans text-lg sm:text-xl font-bold uppercase"
               style={{ color: clubColor }}
             >
-              VAGA ABERTA
+              VAGA DISPONÍVEL
             </h3>
             <p className="text-gray-400 text-sm">CRP ---</p>
             <p className="text-gray-400 text-sm mb-2 sm:mb-3">Psicólogo(a)</p>
@@ -72,6 +72,12 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
             </div>
           </div>
         </div>
+
+        <p className="text-sm text-gray-600 leading-relaxed mb-4">
+          Esta é uma posição disponível para psicólogos(as) que desejam atender a torcida do{" "}
+          <span className="font-semibold" style={{ color: clubColor }}>{clubName}</span>. Cadastre-se
+          para integrar nosso corpo clínico e oferecer cuidado especializado a esta comunidade.
+        </p>
 
         <button
           onClick={handleCadastre}
