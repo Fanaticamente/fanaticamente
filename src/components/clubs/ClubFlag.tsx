@@ -2,26 +2,26 @@ import { brazilianClubs } from "@/data/brazilianClubs";
 import { cn } from "@/lib/utils";
 
 // Custom jersey images per club (override the generated flag pattern)
-import jerseyAthleticoPr from "@/assets/jerseys/athletico-pr.png";
-import jerseyAtleticoMg from "@/assets/jerseys/atletico-mg.png";
-import jerseyBahia from "@/assets/jerseys/bahia.png";
-import jerseyBotafogo from "@/assets/jerseys/botafogo.png";
-import jerseyBragantino from "@/assets/jerseys/bragantino.png";
-import jerseyChapecoense from "@/assets/jerseys/chapecoense.png";
-import jerseyCorinthians from "@/assets/jerseys/corinthians.png";
-import jerseyCoritiba from "@/assets/jerseys/coritiba.png";
-import jerseyCruzeiro from "@/assets/jerseys/cruzeiro.png";
-import jerseyFlamengo from "@/assets/jerseys/flamengo.png";
-import jerseyFluminense from "@/assets/jerseys/fluminense.png";
-import jerseyGremio from "@/assets/jerseys/gremio.png";
-import jerseyInternacional from "@/assets/jerseys/internacional.png";
-import jerseyMirassol from "@/assets/jerseys/mirassol.png";
-import jerseyPalmeiras from "@/assets/jerseys/palmeiras.png";
-import jerseyRemo from "@/assets/jerseys/remo.png";
-import jerseySantos from "@/assets/jerseys/santos.png";
-import jerseySaoPaulo from "@/assets/jerseys/sao-paulo.png";
-import jerseyVasco from "@/assets/jerseys/vasco.png";
-import jerseyVitoria from "@/assets/jerseys/vitoria.png";
+import jerseyAthleticoPr from "@/assets/jerseys/athletico-pr.webp";
+import jerseyAtleticoMg from "@/assets/jerseys/atletico-mg.webp";
+import jerseyBahia from "@/assets/jerseys/bahia.webp";
+import jerseyBotafogo from "@/assets/jerseys/botafogo.webp";
+import jerseyBragantino from "@/assets/jerseys/bragantino.webp";
+import jerseyChapecoense from "@/assets/jerseys/chapecoense.webp";
+import jerseyCorinthians from "@/assets/jerseys/corinthians.webp";
+import jerseyCoritiba from "@/assets/jerseys/coritiba.webp";
+import jerseyCruzeiro from "@/assets/jerseys/cruzeiro.webp";
+import jerseyFlamengo from "@/assets/jerseys/flamengo.webp";
+import jerseyFluminense from "@/assets/jerseys/fluminense.webp";
+import jerseyGremio from "@/assets/jerseys/gremio.webp";
+import jerseyInternacional from "@/assets/jerseys/internacional.webp";
+import jerseyMirassol from "@/assets/jerseys/mirassol.webp";
+import jerseyPalmeiras from "@/assets/jerseys/palmeiras.webp";
+import jerseyRemo from "@/assets/jerseys/remo.webp";
+import jerseySantos from "@/assets/jerseys/santos.webp";
+import jerseySaoPaulo from "@/assets/jerseys/sao-paulo.webp";
+import jerseyVasco from "@/assets/jerseys/vasco.webp";
+import jerseyVitoria from "@/assets/jerseys/vitoria.webp";
 
 const JERSEY_IMAGES: Record<string, string> = {
   "athletico-pr": jerseyAthleticoPr,
