@@ -173,6 +173,9 @@ const ClubFlag = ({ clubId, className, rounded = false }: ClubFlagProps) => {
       <img
         src={jersey}
         alt={`Camisa ${club.name}`}
+        loading="eager"
+        decoding="async"
+        fetchPriority="high"
         className={cn("block w-full h-full object-contain", rounded && "rounded-md", className)}
       />
     );
