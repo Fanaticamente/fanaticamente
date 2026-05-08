@@ -22,6 +22,16 @@ import jerseySantos from "@/assets/jerseys/santos.webp";
 import jerseySaoPaulo from "@/assets/jerseys/sao-paulo.webp";
 import jerseyVasco from "@/assets/jerseys/vasco.webp";
 import jerseyVitoria from "@/assets/jerseys/vitoria.webp";
+// Série B
+import jerseyAmericaMg from "@/assets/jerseys/america-mg.webp";
+import jerseyAthletic from "@/assets/jerseys/athletic.webp";
+import jerseyAtleticoGo from "@/assets/jerseys/atletico-go.webp";
+import jerseyAvai from "@/assets/jerseys/avai.webp";
+import jerseyBotafogoSp from "@/assets/jerseys/botafogo-sp.webp";
+import jerseyCeara from "@/assets/jerseys/ceara.webp";
+import jerseyCrb from "@/assets/jerseys/crb.webp";
+import jerseyCriciuma from "@/assets/jerseys/criciuma.webp";
+import jerseyCuiaba from "@/assets/jerseys/cuiaba.webp";
 
 const JERSEY_IMAGES: Record<string, string> = {
   "athletico-pr": jerseyAthleticoPr,
@@ -44,6 +54,15 @@ const JERSEY_IMAGES: Record<string, string> = {
   "sao-paulo": jerseySaoPaulo,
   "vasco": jerseyVasco,
   "vitoria": jerseyVitoria,
+  "america-mg": jerseyAmericaMg,
+  "athletic": jerseyAthletic,
+  "atletico-go": jerseyAtleticoGo,
+  "avai": jerseyAvai,
+  "botafogo-sp": jerseyBotafogoSp,
+  "ceara": jerseyCeara,
+  "crb": jerseyCrb,
+  "criciuma": jerseyCriciuma,
+  "cuiaba": jerseyCuiaba,
 };
 
 // 14 pattern types — drawn inside a wavy flag clip path
