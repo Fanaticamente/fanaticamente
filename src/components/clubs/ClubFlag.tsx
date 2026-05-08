@@ -33,6 +33,15 @@ import jerseyCrb from "@/assets/jerseys/crb.webp";
 import jerseyCriciuma from "@/assets/jerseys/criciuma.webp";
 import jerseyCuiaba from "@/assets/jerseys/cuiaba.webp";
 import jerseyFortaleza from "@/assets/jerseys/fortaleza.webp";
+import jerseyGoias from "@/assets/jerseys/goias.webp";
+import jerseyJuventude from "@/assets/jerseys/juventude.webp";
+import jerseyLondrina from "@/assets/jerseys/londrina.webp";
+import jerseyNautico from "@/assets/jerseys/nautico.webp";
+import jerseyNovorizontino from "@/assets/jerseys/novorizontino.webp";
+import jerseyOperarioPr from "@/assets/jerseys/operario-pr.webp";
+import jerseyPontePreta from "@/assets/jerseys/ponte-preta.webp";
+import jerseySaoBernardo from "@/assets/jerseys/sao-bernardo.webp";
+import jerseySport from "@/assets/jerseys/sport.webp";
 
 const JERSEY_IMAGES: Record<string, string> = {
   "athletico-pr": jerseyAthleticoPr,
@@ -65,6 +74,15 @@ const JERSEY_IMAGES: Record<string, string> = {
   "criciuma": jerseyCriciuma,
   "cuiaba": jerseyCuiaba,
   "fortaleza": jerseyFortaleza,
+  "goias": jerseyGoias,
+  "juventude": jerseyJuventude,
+  "londrina": jerseyLondrina,
+  "nautico": jerseyNautico,
+  "novorizontino": jerseyNovorizontino,
+  "operario-pr": jerseyOperarioPr,
+  "ponte-preta": jerseyPontePreta,
+  "sao-bernardo": jerseySaoBernardo,
+  "sport": jerseySport,
 };
 
 // 14 pattern types — drawn inside a wavy flag clip path
