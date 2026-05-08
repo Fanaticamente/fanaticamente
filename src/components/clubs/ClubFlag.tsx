@@ -32,6 +32,7 @@ import jerseyCeara from "@/assets/jerseys/ceara.webp";
 import jerseyCrb from "@/assets/jerseys/crb.webp";
 import jerseyCriciuma from "@/assets/jerseys/criciuma.webp";
 import jerseyCuiaba from "@/assets/jerseys/cuiaba.webp";
+import jerseyFortaleza from "@/assets/jerseys/fortaleza.webp";
 
 const JERSEY_IMAGES: Record<string, string> = {
   "athletico-pr": jerseyAthleticoPr,
@@ -63,6 +64,7 @@ const JERSEY_IMAGES: Record<string, string> = {
   "crb": jerseyCrb,
   "criciuma": jerseyCriciuma,
   "cuiaba": jerseyCuiaba,
+  "fortaleza": jerseyFortaleza,
 };
 
 // 14 pattern types — drawn inside a wavy flag clip path
