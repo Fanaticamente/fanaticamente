@@ -577,6 +577,7 @@ const EmotionTacticalBoard = () => {
                     src={emotion.img}
                     alt={getLabel(emotion, gender)}
                     className="w-[4.75rem] h-[4.75rem] object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                    style={{ transform: `scale(${emotion.scale ?? 1})` }}
                   />
                   <span className="text-[10px] text-white font-bold -mt-1 whitespace-nowrap drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                     {getLabel(emotion, gender)}
@@ -619,7 +620,7 @@ const EmotionTacticalBoard = () => {
                       onClick={() => handlePickEmotion(em.id)}
                       className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs border transition-all bg-card text-card-foreground border-border hover:border-secondary/50 hover:bg-secondary/5"
                     >
-                      <img src={em.img} alt="" className="w-14 h-14 object-contain flex-shrink-0" />
+                      <img src={em.img} alt="" className="w-14 h-14 object-contain flex-shrink-0" style={{ transform: `scale(${em.scale ?? 1})` }} />
                       <span className="text-xs font-medium truncate">{getLabel(em, gender)}</span>
                     </button>
                   ))}
@@ -632,7 +633,7 @@ const EmotionTacticalBoard = () => {
                       onClick={() => handlePickEmotion(em.id)}
                       className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs border transition-all bg-card text-card-foreground border-border hover:border-destructive/50 hover:bg-destructive/5"
                     >
-                      <img src={em.img} alt="" className="w-14 h-14 object-contain flex-shrink-0" />
+                      <img src={em.img} alt="" className="w-14 h-14 object-contain flex-shrink-0" style={{ transform: `scale(${em.scale ?? 1})` }} />
                       <span className="text-xs font-medium truncate">{getLabel(em, gender)}</span>
                     </button>
                   ))}
