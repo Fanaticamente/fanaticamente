@@ -53,6 +53,15 @@ import jerseyCaxias from "@/assets/jerseys/caxias.webp";
 import jerseyConfianca from "@/assets/jerseys/confianca.webp";
 import jerseyFerroviaria from "@/assets/jerseys/ferroviaria.webp";
 import jerseyFigueirense from "@/assets/jerseys/figueirense.webp";
+import jerseyFloresta from "@/assets/jerseys/floresta.webp";
+import jerseyGuarani from "@/assets/jerseys/guarani.webp";
+import jerseyInterDeLimeira from "@/assets/jerseys/inter-de-limeira.webp";
+import jerseyItabaiana from "@/assets/jerseys/itabaiana.webp";
+import jerseyItuano from "@/assets/jerseys/ituano.webp";
+import jerseyMaranhao from "@/assets/jerseys/maranhao.webp";
+import jerseyMaringa from "@/assets/jerseys/maringa.webp";
+import jerseyPaysandu from "@/assets/jerseys/paysandu.webp";
+import jerseySantaCruz from "@/assets/jerseys/santa-cruz.webp";
 
 const JERSEY_IMAGES: Record<string, string> = {
   "athletico-pr": jerseyAthleticoPr,
@@ -104,6 +113,15 @@ const JERSEY_IMAGES: Record<string, string> = {
   "confianca": jerseyConfianca,
   "ferroviaria": jerseyFerroviaria,
   "figueirense": jerseyFigueirense,
+  "floresta": jerseyFloresta,
+  "guarani": jerseyGuarani,
+  "inter-de-limeira": jerseyInterDeLimeira,
+  "itabaiana": jerseyItabaiana,
+  "ituano": jerseyItuano,
+  "maranhao": jerseyMaranhao,
+  "maringa": jerseyMaringa,
+  "paysandu": jerseyPaysandu,
+  "santa-cruz": jerseySantaCruz,
 };
 
 // 14 pattern types — drawn inside a wavy flag clip path
