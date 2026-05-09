@@ -36,19 +36,20 @@ interface EmotionDef {
   img: string;
   labelM: string;
   labelF: string;
+  scale?: number;
 }
 
 const positiveEmotions: EmotionDef[] = [
   { id: "alegre", img: emojiAlegre, labelM: "Alegre", labelF: "Alegre" },
-  { id: "euforico", img: emojiEuforico, labelM: "Eufórico", labelF: "Eufórica" },
+  { id: "euforico", img: emojiEuforico, labelM: "Eufórico", labelF: "Eufórica", scale: 1.32 },
   { id: "feliz", img: emojiFeliz, labelM: "Feliz", labelF: "Feliz" },
   { id: "confiante", img: emojiConfiante, labelM: "Confiante", labelF: "Confiante" },
   { id: "empolgado", img: emojiEmpolgado, labelM: "Empolgado", labelF: "Empolgada" },
   { id: "orgulhoso", img: emojiOrgulhoso, labelM: "Orgulhoso", labelF: "Orgulhosa" },
   { id: "esperancoso", img: emojiEsperancoso, labelM: "Esperançoso", labelF: "Esperançosa" },
-  { id: "grato", img: emojiGrato, labelM: "Grato", labelF: "Grata" },
+  { id: "grato", img: emojiGrato, labelM: "Grato", labelF: "Grata", scale: 1.26 },
   { id: "aliviado", img: emojiAliviado, labelM: "Aliviado", labelF: "Aliviada" },
-  { id: "inspirado", img: emojiInspirado, labelM: "Inspirado", labelF: "Inspirada" },
+  { id: "inspirado", img: emojiInspirado, labelM: "Inspirado", labelF: "Inspirada", scale: 1.34 },
   { id: "motivado", img: emojiMotivado, labelM: "Motivado", labelF: "Motivada" },
 ];
 
