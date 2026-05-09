@@ -43,6 +43,16 @@ import jerseyPontePreta from "@/assets/jerseys/ponte-preta.webp";
 import jerseySaoBernardo from "@/assets/jerseys/sao-bernardo.webp";
 import jerseySport from "@/assets/jerseys/sport.webp";
 import jerseyVilaNova from "@/assets/jerseys/vila-nova.webp";
+// Série C
+import jerseyAmazonas from "@/assets/jerseys/amazonas.webp";
+import jerseyAnapolis from "@/assets/jerseys/anapolis.webp";
+import jerseyBarraSc from "@/assets/jerseys/barra-sc.webp";
+import jerseyBotafogoPb from "@/assets/jerseys/botafogo-pb.webp";
+import jerseyBrusque from "@/assets/jerseys/brusque.webp";
+import jerseyCaxias from "@/assets/jerseys/caxias.webp";
+import jerseyConfianca from "@/assets/jerseys/confianca.webp";
+import jerseyFerroviaria from "@/assets/jerseys/ferroviaria.webp";
+import jerseyFigueirense from "@/assets/jerseys/figueirense.webp";
 
 const JERSEY_IMAGES: Record<string, string> = {
   "athletico-pr": jerseyAthleticoPr,
@@ -85,6 +95,15 @@ const JERSEY_IMAGES: Record<string, string> = {
   "sao-bernardo": jerseySaoBernardo,
   "sport": jerseySport,
   "vila-nova": jerseyVilaNova,
+  "amazonas": jerseyAmazonas,
+  "anapolis": jerseyAnapolis,
+  "barra-sc": jerseyBarraSc,
+  "botafogo-pb": jerseyBotafogoPb,
+  "brusque": jerseyBrusque,
+  "caxias": jerseyCaxias,
+  "confianca": jerseyConfianca,
+  "ferroviaria": jerseyFerroviaria,
+  "figueirense": jerseyFigueirense,
 };
 
 // 14 pattern types — drawn inside a wavy flag clip path
