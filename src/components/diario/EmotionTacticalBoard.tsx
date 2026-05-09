@@ -577,7 +577,7 @@ const EmotionTacticalBoard = () => {
                     alt={getLabel(emotion, gender)}
                     className="w-16 h-16 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
                   />
-                  <span className="text-[9px] text-white font-bold mt-0.5 bg-black/60 px-1.5 py-0.5 rounded whitespace-nowrap">
+                  <span className="text-[10px] text-white font-bold mt-1 whitespace-nowrap drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                     {getLabel(emotion, gender)}
                   </span>
                 </>
