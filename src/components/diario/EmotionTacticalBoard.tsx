@@ -572,12 +572,11 @@ const EmotionTacticalBoard = () => {
             >
               {emotion ? (
                 <>
-                  <div
-                    className="w-11 h-11 rounded-full flex items-center justify-center border-2 shadow-md overflow-hidden bg-white/90"
-                    style={{ borderColor: teamColor }}
-                  >
-                    <img src={emotion.img} alt={getLabel(emotion, gender)} className="w-10 h-10 object-contain" />
-                  </div>
+                  <img
+                    src={emotion.img}
+                    alt={getLabel(emotion, gender)}
+                    className="w-16 h-16 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                  />
                   <span className="text-[9px] text-white font-bold mt-0.5 bg-black/60 px-1.5 py-0.5 rounded whitespace-nowrap">
                     {getLabel(emotion, gender)}
                   </span>
@@ -619,7 +618,7 @@ const EmotionTacticalBoard = () => {
                       onClick={() => handlePickEmotion(em.id)}
                       className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs border transition-all bg-card text-card-foreground border-border hover:border-secondary/50 hover:bg-secondary/5"
                     >
-                      <img src={em.img} alt="" className="w-7 h-7 object-contain flex-shrink-0" />
+                      <img src={em.img} alt="" className="w-11 h-11 object-contain flex-shrink-0" />
                       <span className="text-xs font-medium truncate">{getLabel(em, gender)}</span>
                     </button>
                   ))}
@@ -632,7 +631,7 @@ const EmotionTacticalBoard = () => {
                       onClick={() => handlePickEmotion(em.id)}
                       className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs border transition-all bg-card text-card-foreground border-border hover:border-destructive/50 hover:bg-destructive/5"
                     >
-                      <img src={em.img} alt="" className="w-7 h-7 object-contain flex-shrink-0" />
+                      <img src={em.img} alt="" className="w-11 h-11 object-contain flex-shrink-0" />
                       <span className="text-xs font-medium truncate">{getLabel(em, gender)}</span>
                     </button>
                   ))}
