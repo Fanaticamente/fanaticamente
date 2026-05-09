@@ -575,7 +575,7 @@ const EmotionTacticalBoard = () => {
                   <img
                     src={emotion.img}
                     alt={getLabel(emotion, gender)}
-                    className="w-16 h-16 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                    className="w-[4.75rem] h-[4.75rem] object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
                   />
                   <span className="text-[10px] text-white font-bold -mt-1 whitespace-nowrap drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                     {getLabel(emotion, gender)}
@@ -602,7 +602,7 @@ const EmotionTacticalBoard = () => {
 
         {pickerSlot && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="bg-card rounded-2xl p-4 mx-4 max-h-[85%] overflow-y-auto w-full max-w-xs shadow-2xl border border-border">
+            <div className="bg-card rounded-2xl p-4 mx-4 max-h-[85%] overflow-y-auto w-full max-w-sm shadow-2xl border border-border">
               <div className="flex items-center justify-between mb-3">
                 <span className="font-bold text-card-foreground text-sm">⚽ Emoções</span>
                 <button onClick={() => setPickerSlot(null)} className="p-1 rounded-full hover:bg-muted">
@@ -618,7 +618,7 @@ const EmotionTacticalBoard = () => {
                       onClick={() => handlePickEmotion(em.id)}
                       className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs border transition-all bg-card text-card-foreground border-border hover:border-secondary/50 hover:bg-secondary/5"
                     >
-                      <img src={em.img} alt="" className="w-11 h-11 object-contain flex-shrink-0" />
+                      <img src={em.img} alt="" className="w-14 h-14 object-contain flex-shrink-0" />
                       <span className="text-xs font-medium truncate">{getLabel(em, gender)}</span>
                     </button>
                   ))}
@@ -631,7 +631,7 @@ const EmotionTacticalBoard = () => {
                       onClick={() => handlePickEmotion(em.id)}
                       className="flex items-center gap-1.5 w-full px-2 py-1.5 rounded-lg text-xs border transition-all bg-card text-card-foreground border-border hover:border-destructive/50 hover:bg-destructive/5"
                     >
-                      <img src={em.img} alt="" className="w-11 h-11 object-contain flex-shrink-0" />
+                      <img src={em.img} alt="" className="w-14 h-14 object-contain flex-shrink-0" />
                       <span className="text-xs font-medium truncate">{getLabel(em, gender)}</span>
                     </button>
                   ))}
