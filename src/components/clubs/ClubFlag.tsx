@@ -62,6 +62,8 @@ import jerseyMaranhao from "@/assets/jerseys/maranhao.webp";
 import jerseyMaringa from "@/assets/jerseys/maringa.webp";
 import jerseyPaysandu from "@/assets/jerseys/paysandu.webp";
 import jerseySantaCruz from "@/assets/jerseys/santa-cruz.webp";
+import jerseyVoltaRedonda from "@/assets/jerseys/volta-redonda.webp";
+import jerseyYpirangaRs from "@/assets/jerseys/ypiranga-rs.webp";
 
 const JERSEY_IMAGES: Record<string, string> = {
   "athletico-pr": jerseyAthleticoPr,
@@ -122,6 +124,8 @@ const JERSEY_IMAGES: Record<string, string> = {
   "maringa": jerseyMaringa,
   "paysandu": jerseyPaysandu,
   "santa-cruz": jerseySantaCruz,
+  "volta-redonda": jerseyVoltaRedonda,
+  "ypiranga-rs": jerseyYpirangaRs,
 };
 
 // 14 pattern types — drawn inside a wavy flag clip path
