@@ -557,13 +557,14 @@ const EmotionTacticalBoard = () => {
         {currentSlots.map((slot) => {
           const emotion = assignments[slot.id] ? getEmotion(assignments[slot.id]) : null;
           const isActive = slot.id === activeSlotId && !pickerSlot;
+          const safeSlotX = slot.x >= 86 ? 82 : slot.x;
           return (
             <button
               key={slot.id}
               onClick={() => handleSlotClick(slot.id)}
               className="absolute flex flex-col items-center"
               style={{
-                left: `${slot.x}%`,
+                left: `${safeSlotX}%`,
                 top: `${slot.y}%`,
                 transform: "translate(-50%, -50%)",
                 ...(isActive
