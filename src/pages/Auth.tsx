@@ -163,6 +163,21 @@ const Auth = () => {
         // Skip enforcement if a fresh professional signup is in progress
         // (the professional role is assigned asynchronously after signup)
         if (sessionStorage.getItem("pendingProfileUpdate")) return;
+        // Definitive check: maybe the role wasn't fetched correctly. Verify
+        // against the professionals table before signing the user out.
+        const { data: profRow } = await supabase
+          .from("professionals")
+          .select("user_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (profRow) {
+          // Auto-recover the missing role and proceed.
+          await supabase
+            .from("user_roles")
+            .upsert({ user_id: user.id, role: "professional" }, { onConflict: "user_id,role" });
+          window.location.reload();
+          return;
+        }
         await supabase.auth.signOut();
         setRoleValidated(false);
         setEmail("");
@@ -207,6 +222,19 @@ const Auth = () => {
           // Skip if a fresh professional signup is in progress
           if (sessionStorage.getItem("pendingProfileUpdate")) {
             setRoleValidated(true);
+            return;
+          }
+          // Definitive check via professionals table before logging out.
+          const { data: profRow } = await supabase
+            .from("professionals")
+            .select("user_id")
+            .eq("user_id", user.id)
+            .maybeSingle();
+          if (profRow) {
+            await supabase
+              .from("user_roles")
+              .upsert({ user_id: user.id, role: "professional" }, { onConflict: "user_id,role" });
+            window.location.reload();
             return;
           }
           await supabase.auth.signOut();

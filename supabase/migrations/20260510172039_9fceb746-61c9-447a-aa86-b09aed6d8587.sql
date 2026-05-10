@@ -1,0 +1,1 @@
+CREATE POLICY "Users can self-assign professional role if professional record exists" ON public.user_roles FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id AND role = 'professional'::app_role AND EXISTS (SELECT 1 FROM public.professionals p WHERE p.user_id = auth.uid()));
