@@ -29,14 +29,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const loading = authLoading || rolesLoading;
 
   const fetchUserRoles = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
+    // Retry up to 3 times to avoid transient network failures wiping the roles
+    // (which would falsely treat a professional as a regular user and log them out).
+    let lastError: unknown = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
 
-    if (!error && data) {
-      setRoles(data.map((r) => r.role as AppRole));
+      if (!error && data) {
+        setRoles(data.map((r) => r.role as AppRole));
+        return true;
+      }
+      lastError = error;
+      await new Promise((r) => setTimeout(r, 300 * (attempt + 1)));
     }
+    console.error("[Auth] Failed to fetch user roles after retries:", lastError);
+    return false;
   };
 
   // Function to complete professional signup via edge function
