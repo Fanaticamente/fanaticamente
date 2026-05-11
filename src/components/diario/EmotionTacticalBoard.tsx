@@ -557,14 +557,14 @@ const EmotionTacticalBoard = () => {
         {currentSlots.map((slot) => {
           const emotion = assignments[slot.id] ? getEmotion(assignments[slot.id]) : null;
           const isActive = slot.id === activeSlotId && !pickerSlot;
-          const safeSlotX = slot.x >= 86 ? 82 : slot.x;
           return (
             <button
               key={slot.id}
+              type="button"
               onClick={() => handleSlotClick(slot.id)}
-              className="absolute flex flex-col items-center"
+              className="absolute flex w-20 flex-col items-center overflow-visible"
               style={{
-                left: `${safeSlotX}%`,
+                left: `${slot.x}%`,
                 top: `${slot.y}%`,
                 transform: "translate(-50%, -50%)",
                 ...(isActive
@@ -577,7 +577,7 @@ const EmotionTacticalBoard = () => {
                   <img
                     src={emotion.img}
                     alt={getLabel(emotion, gender)}
-                    className="w-16 h-16 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                    className="h-16 w-16 max-w-none shrink-0 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
                     style={{ transform: `scale(${emotion.scale ?? 1})` }}
                   />
                   <span className="text-[10px] text-white font-bold -mt-1 whitespace-nowrap drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
