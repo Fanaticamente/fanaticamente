@@ -520,7 +520,7 @@ const EmotionTacticalBoard = () => {
       </div>
 
       <div
-        className="relative w-full rounded-xl overflow-hidden border-2 border-border"
+        className="relative w-full rounded-xl border-2 border-border"
         style={{
           aspectRatio: "3/4",
           background:
@@ -557,15 +557,13 @@ const EmotionTacticalBoard = () => {
         {currentSlots.map((slot) => {
           const emotion = assignments[slot.id] ? getEmotion(assignments[slot.id]) : null;
           const isActive = slot.id === activeSlotId && !pickerSlot;
-          // Clamp edges so emojis (with translate -50%) don't get clipped by overflow-hidden
-          const safeSlotX = slot.x >= 86 ? 84 : slot.x <= 14 ? 16 : slot.x;
           return (
             <button
               key={slot.id}
               onClick={() => handleSlotClick(slot.id)}
               className="absolute flex flex-col items-center"
               style={{
-                left: `${safeSlotX}%`,
+                left: `${slot.x}%`,
                 top: `${slot.y}%`,
                 transform: "translate(-50%, -50%)",
                 ...(isActive
