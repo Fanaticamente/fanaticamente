@@ -670,10 +670,9 @@ const Auth = () => {
                       <label className="block text-card-foreground text-sm mb-2">
                         Senha
                       </label>
-                      <input
-                        type="password"
+                      <PasswordInput
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={setPassword}
                         className={inputClassName}
                         placeholder="••••••••"
                       />
