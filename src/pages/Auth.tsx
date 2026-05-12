@@ -1315,15 +1315,30 @@ const Auth = () => {
                   <label className="block text-card-foreground text-sm mb-2">
                     Senha *
                   </label>
-                  <input
-                    type="password"
+                  <PasswordInput
                     value={signUpData.password}
-                    onChange={(e) => handleSignUpDataChange('password', e.target.value)}
+                    onChange={(v) => handleSignUpDataChange('password', v)}
                     className={inputClassName}
                     placeholder="Mínimo 6 caracteres"
                   />
                   {errors.password && (
                     <p className="text-destructive text-sm mt-1">{errors.password}</p>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <label className="block text-card-foreground text-sm mb-2">
+                    Confirmar Senha *
+                  </label>
+                  <PasswordInput
+                    value={signUpConfirmPassword}
+                    onChange={setSignUpConfirmPassword}
+                    className={inputClassName}
+                    placeholder="Repita a senha"
+                  />
+                  {errors.confirmPassword && (
+                    <p className="text-destructive text-sm mt-1">{errors.confirmPassword}</p>
                   )}
                 </div>
 
