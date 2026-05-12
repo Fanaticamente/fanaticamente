@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Briefcase, User, ChevronDown, Brain, ArrowLeft, Calendar as CalendarIcon } from "lucide-react";
+import { Briefcase, User, ChevronDown, Brain, ArrowLeft, Calendar as CalendarIcon, Eye, EyeOff } from "lucide-react";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { allBrazilianClubs } from "@/data/allBrazilianClubs";
@@ -54,6 +54,44 @@ const passwordSchema = z.string().min(6, "Senha deve ter no mínimo 6 caracteres
 
 type AuthMode = "user" | "professional";
 
+// Reusable password input with eye toggle
+const PasswordInput = ({
+  value,
+  onChange,
+  placeholder,
+  className,
+  id,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  className: string;
+  id?: string;
+}) => {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <input
+        id={id}
+        type={show ? "text" : "password"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`${className} pr-12`}
+        placeholder={placeholder}
+      />
+      <button
+        type="button"
+        onClick={() => setShow((s) => !s)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+        aria-label={show ? "Ocultar senha" : "Mostrar senha"}
+        tabIndex={-1}
+      >
+        {show ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+      </button>
+    </div>
+  );
+};
+
 interface SignUpData {
   fullName: string;
   crp: string;
@@ -82,6 +120,7 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(!initialSignup);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [signUpConfirmPassword, setSignUpConfirmPassword] = useState("");
   const [signUpData, setSignUpData] = useState<SignUpData>({
     fullName: "",
     crp: "",
@@ -363,6 +402,10 @@ const Auth = () => {
       }
     }
 
+    if (signUpData.password !== signUpConfirmPassword) {
+      newErrors.confirmPassword = "As senhas não coincidem";
+    }
+
     // Validate terms acceptance
     if (!acceptedTerms) {
       newErrors.terms = "Você deve aceitar os termos e política de privacidade";
@@ -627,10 +670,9 @@ const Auth = () => {
                       <label className="block text-card-foreground text-sm mb-2">
                         Senha
                       </label>
-                      <input
-                        type="password"
+                      <PasswordInput
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={setPassword}
                         className={inputClassName}
                         placeholder="••••••••"
                       />
@@ -849,15 +891,30 @@ const Auth = () => {
                       <label className="block text-card-foreground text-sm mb-2">
                         Senha *
                       </label>
-                      <input
-                        type="password"
+                      <PasswordInput
                         value={signUpData.password}
-                        onChange={(e) => handleSignUpDataChange('password', e.target.value)}
+                        onChange={(v) => handleSignUpDataChange('password', v)}
                         className={inputClassName}
                         placeholder="Mínimo 6 caracteres"
                       />
                       {errors.password && (
                         <p className="text-destructive text-sm mt-1">{errors.password}</p>
+                      )}
+                    </div>
+
+                    {/* Confirm Password */}
+                    <div>
+                      <label className="block text-card-foreground text-sm mb-2">
+                        Confirmar Senha *
+                      </label>
+                      <PasswordInput
+                        value={signUpConfirmPassword}
+                        onChange={setSignUpConfirmPassword}
+                        className={inputClassName}
+                        placeholder="Repita a senha"
+                      />
+                      {errors.confirmPassword && (
+                        <p className="text-destructive text-sm mt-1">{errors.confirmPassword}</p>
                       )}
                     </div>
 
@@ -1031,10 +1088,9 @@ const Auth = () => {
                   <label className="block text-card-foreground text-sm mb-2">
                     Senha
                   </label>
-                  <input
-                    type="password"
+                  <PasswordInput
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={setPassword}
                     className={inputClassName}
                     placeholder="••••••••"
                   />
@@ -1259,15 +1315,30 @@ const Auth = () => {
                   <label className="block text-card-foreground text-sm mb-2">
                     Senha *
                   </label>
-                  <input
-                    type="password"
+                  <PasswordInput
                     value={signUpData.password}
-                    onChange={(e) => handleSignUpDataChange('password', e.target.value)}
+                    onChange={(v) => handleSignUpDataChange('password', v)}
                     className={inputClassName}
                     placeholder="Mínimo 6 caracteres"
                   />
                   {errors.password && (
                     <p className="text-destructive text-sm mt-1">{errors.password}</p>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <label className="block text-card-foreground text-sm mb-2">
+                    Confirmar Senha *
+                  </label>
+                  <PasswordInput
+                    value={signUpConfirmPassword}
+                    onChange={setSignUpConfirmPassword}
+                    className={inputClassName}
+                    placeholder="Repita a senha"
+                  />
+                  {errors.confirmPassword && (
+                    <p className="text-destructive text-sm mt-1">{errors.confirmPassword}</p>
                   )}
                 </div>
 
