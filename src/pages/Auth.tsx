@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -113,7 +113,9 @@ const sortedClubs = [...allBrazilianClubs].sort((a, b) =>
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
-  const initialMode = searchParams.get("mode") === "professional" ? "professional" : "user";
+  const location = useLocation();
+  const isProfessionalRoute = location.pathname.startsWith("/profissional/auth");
+  const initialMode = isProfessionalRoute || searchParams.get("mode") === "professional" ? "professional" : "user";
   const initialSignup = searchParams.get("signup") === "true";
   
   const [authMode, setAuthMode] = useState<AuthMode>(initialMode);
@@ -603,6 +605,7 @@ const Auth = () => {
             </div>
 
             {/* Mode Selector */}
+            {!isProfessionalRoute && (
             <div className="flex gap-2 mb-4">
               <button
                 type="button"
@@ -629,6 +632,7 @@ const Auth = () => {
                 Psicólogo(a)
               </button>
             </div>
+            )}
 
             <div className={`bg-card border rounded-2xl p-6 transition-colors ${
               authMode === "professional" ? "border-therapy" : "border-border"
@@ -1020,6 +1024,7 @@ const Auth = () => {
         </div>
 
         {/* Mode Selector */}
+        {!isProfessionalRoute && (
         <div className="flex gap-2 mb-6">
           <button
             type="button"
@@ -1046,6 +1051,7 @@ const Auth = () => {
             Psicólogo(a)
           </button>
         </div>
+        )}
 
         <div className={`bg-card border rounded-2xl p-6 transition-colors ${
           authMode === "professional" ? "border-therapy" : "border-border"

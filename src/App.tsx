@@ -156,6 +156,7 @@ const App = () => {
               <Routes>
                 {/* Always public routes */}
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/profissional/auth" element={<Auth />} />
                 <Route path="/admin-access" element={<AdminAccess />} />
                 <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
                 <Route path="/setup-test" element={<SetupTestUsers />} />
