@@ -605,6 +605,7 @@ const Auth = () => {
             </div>
 
             {/* Mode Selector */}
+            {!isProfessionalRoute && (
             <div className="flex gap-2 mb-4">
               <button
                 type="button"
@@ -631,6 +632,7 @@ const Auth = () => {
                 Psicólogo(a)
               </button>
             </div>
+            )}
 
             <div className={`bg-card border rounded-2xl p-6 transition-colors ${
               authMode === "professional" ? "border-therapy" : "border-border"
@@ -1022,6 +1024,7 @@ const Auth = () => {
         </div>
 
         {/* Mode Selector */}
+        {!isProfessionalRoute && (
         <div className="flex gap-2 mb-6">
           <button
             type="button"
@@ -1048,6 +1051,7 @@ const Auth = () => {
             Psicólogo(a)
           </button>
         </div>
+        )}
 
         <div className={`bg-card border rounded-2xl p-6 transition-colors ${
           authMode === "professional" ? "border-therapy" : "border-border"
