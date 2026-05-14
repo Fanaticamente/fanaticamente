@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { clearUserVideoProgress } from "@/hooks/useVideoProgress";
+import { AccountType, encodeAuthEmail, getAccountTypeForAuth } from "@/lib/appMode";
 
 
 type AppRole = "user" | "professional" | "developer" | "admin" | "marketing";
@@ -11,8 +12,17 @@ interface AuthContextType {
   session: Session | null;
   roles: AppRole[];
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string,
+    accountType?: AccountType
+  ) => Promise<{ error: Error | null }>;
+  signIn: (
+    email: string,
+    password: string,
+    accountType?: AccountType
+  ) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   hasRole: (role: AppRole) => boolean;
 }
@@ -280,16 +290,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    fullName: string,
+    accountType?: AccountType
+  ) => {
     const redirectUrl = `${window.location.origin}/`;
+    const type = accountType ?? getAccountTypeForAuth();
+    // ISOLAMENTO: contas torcedor e profissional são SEPARADAS mesmo com o mesmo
+    // e-mail visível. Internamente codificamos com sub-addressing ("+fan"/"+pro")
+    // para criar duas contas distintas no Supabase Auth.
+    const internalEmail = encodeAuthEmail(email, type);
 
     const { error } = await supabase.auth.signUp({
-      email,
+      email: internalEmail,
       password,
       options: {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
+          // Guardamos o e-mail "real" exibido ao usuário, separado do e-mail
+          // interno usado pela autenticação.
+          display_email: email.trim().toLowerCase(),
+          account_type: type,
         },
       },
     });
@@ -297,13 +321,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error: error as Error | null };
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (
+    email: string,
+    password: string,
+    accountType?: AccountType
+  ) => {
+    const type = accountType ?? getAccountTypeForAuth();
+    const internalEmail = encodeAuthEmail(email, type);
+    const rawEmail = email.trim().toLowerCase();
+
     // Resilient sign-in: some mobile networks / stale service workers cause
     // the very first fetch to fail with "TypeError: Failed to fetch" even
     // though the credentials are valid. Retry once before surfacing the
     // network error, and translate it into a friendlier message.
-    const attempt = () =>
-      supabase.auth.signInWithPassword({ email, password });
+    const attempt = (mail: string) =>
+      supabase.auth.signInWithPassword({ email: mail, password });
 
     const isNetworkError = (err: unknown) => {
       if (!err) return false;
@@ -316,11 +348,58 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       );
     };
 
+    // Retorna true se a sessão recém-criada é COMPATÍVEL com este app.
+    // - App/contexto torcedor: usuário NÃO pode ter role 'professional'
+    // - App/contexto profissional: usuário PRECISA ter role 'professional'
+    // (admin/developer sempre passam para preservar acesso de suporte)
+    const sessionMatchesAccountType = async (userId: string): Promise<boolean> => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      const roles = (data ?? []).map((r: any) => r.role as string);
+      if (roles.includes("admin") || roles.includes("developer")) return true;
+      if (type === "pro") return roles.includes("professional");
+      // type === 'fan'
+      return !roles.includes("professional");
+    };
+
     try {
-      let { error } = await attempt();
+      // 1) Tenta o e-mail codificado (cadastro novo, isolado por app)
+      let { error } = await attempt(internalEmail);
       if (error && isNetworkError(error)) {
         await new Promise((r) => setTimeout(r, 600));
-        ({ error } = await attempt());
+        ({ error } = await attempt(internalEmail));
+      }
+
+      // 2) FALLBACK LEGADO: se a primeira tentativa falhou por credencial inválida,
+      //    tenta o e-mail bruto (contas criadas ANTES do isolamento por app).
+      //    Só aceita o login se as roles do usuário forem compatíveis com o app
+      //    atual; caso contrário, força logout e devolve erro explicativo.
+      if (error && !isNetworkError(error)) {
+        const legacy = await attempt(rawEmail);
+        if (!legacy.error) {
+          const { data: sess } = await supabase.auth.getSession();
+          const uid = sess.session?.user?.id;
+          if (uid && (await sessionMatchesAccountType(uid))) {
+            return { error: null };
+          }
+          // Conta legada existe mas pertence ao OUTRO app. Encerra a sessão e
+          // orienta o usuário a se cadastrar (com o mesmo e-mail) neste app.
+          await supabase.auth.signOut();
+          return {
+            error: new Error(
+              type === "pro"
+                ? "Este e-mail está cadastrado como Torcedor. Crie uma conta Profissional usando o mesmo e-mail."
+                : "Este e-mail está cadastrado como Profissional. Crie uma conta Torcedor usando o mesmo e-mail."
+            ),
+          };
+        }
+      }
+
+      if (error && isNetworkError(error)) {
+        await new Promise((r) => setTimeout(r, 600));
+        ({ error } = await attempt(internalEmail));
       }
       if (error && isNetworkError(error)) {
         return {
@@ -335,7 +414,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Retry once on raw thrown TypeError
         try {
           await new Promise((r) => setTimeout(r, 600));
-          const { error } = await attempt();
+          const { error } = await attempt(internalEmail);
           if (error && isNetworkError(error)) {
             return {
               error: new Error(
