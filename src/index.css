@@ -155,7 +155,7 @@
     --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-    --primary: 160 84% 39%;
+    --primary: 108 80% 27%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 10%;
@@ -167,7 +167,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 160 84% 39%;
+    --ring: 108 80% 27%;
     color-scheme: light;
   }
 
@@ -185,6 +185,52 @@
     font-family: 'Nunito', sans-serif !important;
     font-weight: 800;
   }
+
+  /* Unify all green/emerald shades to brand green #237B0E in professional area */
+  .professional-theme .text-green-400,
+  .professional-theme .text-green-500,
+  .professional-theme .text-green-600,
+  .professional-theme .text-green-700,
+  .professional-theme .text-emerald-400,
+  .professional-theme .text-emerald-500,
+  .professional-theme .text-emerald-600,
+  .professional-theme .text-emerald-700 {
+    color: #237B0E !important;
+  }
+  .professional-theme .text-green-600\/70,
+  .professional-theme .text-green-500\/70 {
+    color: rgb(35 123 14 / 0.7) !important;
+  }
+  .professional-theme .bg-green-400,
+  .professional-theme .bg-green-500,
+  .professional-theme .bg-green-600,
+  .professional-theme .bg-emerald-400,
+  .professional-theme .bg-emerald-500,
+  .professional-theme .bg-emerald-600 {
+    background-color: #237B0E !important;
+  }
+  .professional-theme .bg-green-500\/5,
+  .professional-theme .bg-emerald-500\/5 { background-color: rgb(35 123 14 / 0.05) !important; }
+  .professional-theme .bg-green-500\/10,
+  .professional-theme .bg-emerald-500\/10 { background-color: rgb(35 123 14 / 0.1) !important; }
+  .professional-theme .bg-green-500\/15,
+  .professional-theme .bg-emerald-500\/15 { background-color: rgb(35 123 14 / 0.15) !important; }
+  .professional-theme .bg-green-500\/20,
+  .professional-theme .bg-emerald-500\/20 { background-color: rgb(35 123 14 / 0.2) !important; }
+  .professional-theme .bg-green-500\/25,
+  .professional-theme .bg-emerald-500\/25 { background-color: rgb(35 123 14 / 0.25) !important; }
+  .professional-theme .bg-green-500\/30,
+  .professional-theme .bg-emerald-500\/30 { background-color: rgb(35 123 14 / 0.3) !important; }
+  .professional-theme .hover\:bg-green-500\/25:hover { background-color: rgb(35 123 14 / 0.25) !important; }
+  .professional-theme .hover\:bg-green-500\/30:hover { background-color: rgb(35 123 14 / 0.3) !important; }
+  .professional-theme .border-green-500,
+  .professional-theme .border-emerald-500 { border-color: #237B0E !important; }
+  .professional-theme .border-green-500\/30,
+  .professional-theme .border-emerald-500\/30 { border-color: rgb(35 123 14 / 0.3) !important; }
+  .professional-theme .accent-emerald-500,
+  .professional-theme .accent-green-500 { accent-color: #237B0E !important; }
+  .professional-theme .focus\:ring-emerald-500:focus,
+  .professional-theme .focus\:ring-green-500:focus { --tw-ring-color: #237B0E !important; }
 }
 
 @layer base {
