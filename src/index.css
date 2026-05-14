@@ -186,51 +186,65 @@
     font-weight: 800;
   }
 
-  /* Unify all green/emerald shades to brand green #237B0E in professional area */
-  .professional-theme .text-green-400,
-  .professional-theme .text-green-500,
-  .professional-theme .text-green-600,
-  .professional-theme .text-green-700,
-  .professional-theme .text-emerald-400,
-  .professional-theme .text-emerald-500,
-  .professional-theme .text-emerald-600,
-  .professional-theme .text-emerald-700 {
-    color: #237B0E !important;
-  }
-  .professional-theme .text-green-600\/70,
-  .professional-theme .text-green-500\/70 {
-    color: rgb(35 123 14 / 0.7) !important;
-  }
-  .professional-theme .bg-green-400,
-  .professional-theme .bg-green-500,
-  .professional-theme .bg-green-600,
-  .professional-theme .bg-emerald-400,
-  .professional-theme .bg-emerald-500,
-  .professional-theme .bg-emerald-600 {
+  /* Unify ALL green/emerald shades to brand green #237B0E across the whole app.
+     Lighter shades (50-300) use low-opacity tints; darker shades (600+) use the base. */
+
+  /* TEXT */
+  [class*="text-green-"],
+  [class*="text-emerald-"] { color: #237B0E !important; }
+  .text-green-300, .text-emerald-300 { color: rgb(35 123 14 / 0.55) !important; }
+  .text-green-300\/80, .text-emerald-300\/80 { color: rgb(35 123 14 / 0.5) !important; }
+  .text-green-600\/70, .text-green-500\/70,
+  .text-emerald-600\/70, .text-emerald-500\/70 { color: rgb(35 123 14 / 0.7) !important; }
+  .text-emerald-500\/30 { color: rgb(35 123 14 / 0.3) !important; }
+
+  /* BACKGROUNDS - solid */
+  .bg-green-400, .bg-green-500, .bg-green-600, .bg-green-700, .bg-green-800,
+  .bg-emerald-400, .bg-emerald-500, .bg-emerald-600, .bg-emerald-700, .bg-emerald-800 {
     background-color: #237B0E !important;
   }
-  .professional-theme .bg-green-500\/5,
-  .professional-theme .bg-emerald-500\/5 { background-color: rgb(35 123 14 / 0.05) !important; }
-  .professional-theme .bg-green-500\/10,
-  .professional-theme .bg-emerald-500\/10 { background-color: rgb(35 123 14 / 0.1) !important; }
-  .professional-theme .bg-green-500\/15,
-  .professional-theme .bg-emerald-500\/15 { background-color: rgb(35 123 14 / 0.15) !important; }
-  .professional-theme .bg-green-500\/20,
-  .professional-theme .bg-emerald-500\/20 { background-color: rgb(35 123 14 / 0.2) !important; }
-  .professional-theme .bg-green-500\/25,
-  .professional-theme .bg-emerald-500\/25 { background-color: rgb(35 123 14 / 0.25) !important; }
-  .professional-theme .bg-green-500\/30,
-  .professional-theme .bg-emerald-500\/30 { background-color: rgb(35 123 14 / 0.3) !important; }
-  .professional-theme .hover\:bg-green-500\/25:hover { background-color: rgb(35 123 14 / 0.25) !important; }
-  .professional-theme .hover\:bg-green-500\/30:hover { background-color: rgb(35 123 14 / 0.3) !important; }
-  .professional-theme .border-green-500,
-  .professional-theme .border-emerald-500 { border-color: #237B0E !important; }
-  .professional-theme .border-green-500\/30,
-  .professional-theme .border-emerald-500\/30 { border-color: rgb(35 123 14 / 0.3) !important; }
-  .professional-theme .accent-emerald-500,
-  .professional-theme .accent-green-500 { accent-color: #237B0E !important; }
-  .professional-theme .focus\:ring-emerald-500:focus,
-  .professional-theme .focus\:ring-green-500:focus { --tw-ring-color: #237B0E !important; }
+  .bg-green-100, .bg-emerald-100 { background-color: rgb(35 123 14 / 0.12) !important; }
+  .bg-emerald-50, .bg-emerald-50\/50, .bg-emerald-50\/60 { background-color: rgb(35 123 14 / 0.06) !important; }
+  .bg-green-950\/30 { background-color: rgb(35 123 14 / 0.15) !important; }
+
+  /* BACKGROUNDS - opacity variants */
+  .bg-green-400\/15, .bg-emerald-400\/15 { background-color: rgb(35 123 14 / 0.15) !important; }
+  .bg-green-500\/5, .bg-emerald-500\/5 { background-color: rgb(35 123 14 / 0.05) !important; }
+  .bg-green-500\/10, .bg-emerald-500\/10 { background-color: rgb(35 123 14 / 0.1) !important; }
+  .bg-green-500\/15, .bg-emerald-500\/15 { background-color: rgb(35 123 14 / 0.15) !important; }
+  .bg-green-500\/20, .bg-emerald-500\/20, .bg-emerald-600\/20 { background-color: rgb(35 123 14 / 0.2) !important; }
+  .bg-green-500\/25, .bg-emerald-500\/25 { background-color: rgb(35 123 14 / 0.25) !important; }
+  .bg-green-500\/30, .bg-emerald-500\/30 { background-color: rgb(35 123 14 / 0.3) !important; }
+  .bg-emerald-500\/90, .bg-emerald-600\/90 { background-color: rgb(35 123 14 / 0.9) !important; }
+
+  /* HOVERS */
+  .hover\:bg-green-500\/25:hover { background-color: rgb(35 123 14 / 0.25) !important; }
+  .hover\:bg-green-500\/30:hover { background-color: rgb(35 123 14 / 0.3) !important; }
+  [class*="hover:bg-green-"]:hover,
+  [class*="hover:bg-emerald-"]:hover { background-color: #237B0E !important; }
+  [class*="hover:text-green-"]:hover,
+  [class*="hover:text-emerald-"]:hover { color: #237B0E !important; }
+
+  /* BORDERS */
+  [class*="border-green-"],
+  [class*="border-emerald-"] { border-color: #237B0E !important; }
+  .border-green-500\/30, .border-emerald-500\/30 { border-color: rgb(35 123 14 / 0.3) !important; }
+  .border-emerald-500\/40 { border-color: rgb(35 123 14 / 0.4) !important; }
+  .border-green-500\/50, .border-emerald-500\/50, .border-emerald-600\/50 { border-color: rgb(35 123 14 / 0.5) !important; }
+  .border-emerald-200 { border-color: rgb(35 123 14 / 0.25) !important; }
+  .border-emerald-300 { border-color: rgb(35 123 14 / 0.4) !important; }
+
+  /* RING / ACCENT / FILL / STROKE */
+  [class*="ring-green-"], [class*="ring-emerald-"] { --tw-ring-color: #237B0E !important; }
+  .focus\:ring-emerald-500:focus, .focus\:ring-green-500:focus { --tw-ring-color: #237B0E !important; }
+  .accent-emerald-500, .accent-green-500 { accent-color: #237B0E !important; }
+  [class*="fill-green-"], [class*="fill-emerald-"] { fill: #237B0E !important; }
+  [class*="stroke-green-"], [class*="stroke-emerald-"] { stroke: #237B0E !important; }
+
+  /* GRADIENTS */
+  [class*="from-green-"], [class*="from-emerald-"] { --tw-gradient-from: #237B0E !important; --tw-gradient-to: rgb(35 123 14 / 0) !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
+  [class*="via-green-"], [class*="via-emerald-"] { --tw-gradient-stops: var(--tw-gradient-from), #237B0E, var(--tw-gradient-to, rgb(35 123 14 / 0)) !important; }
+  [class*="to-green-"], [class*="to-emerald-"] { --tw-gradient-to: #237B0E !important; }
 }
 
 @layer base {
