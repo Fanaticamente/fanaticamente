@@ -7,23 +7,33 @@ const SplashScreen = ({ onFinish }: { onFinish: () => void }) => {
 
   useEffect(() => {
     const dissolveTimer = setTimeout(() => setDissolving(true), 2000);
-    return () => clearTimeout(dissolveTimer);
-  }, []);
+    // Hard fallback: if for any reason the dissolve animation never fires
+    // onAnimationComplete (tab backgrounded, framer-motion glitch, image
+    // failed to load, etc.), force-finish after 5s so the user is never
+    // trapped on a black screen.
+    const hardTimer = setTimeout(() => onFinish(), 5000);
+    return () => {
+      clearTimeout(dissolveTimer);
+      clearTimeout(hardTimer);
+    };
+  }, [onFinish]);
 
   return (
     <motion.div
-      className="fixed inset-0 z-[9999] bg-[#0a0a0a]"
+      className="fixed inset-0 z-[9999] bg-[#0a0a0a] cursor-pointer"
       initial={{ opacity: 1 }}
       animate={{ opacity: dissolving ? 0 : 1 }}
       transition={{ duration: 0.8, ease: "easeInOut" }}
       onAnimationComplete={() => {
         if (dissolving) onFinish();
       }}
+      onClick={() => onFinish()}
     >
       <img
         src={splashImage}
         alt="Fanaticamente"
         className="h-full w-full object-cover"
+        onError={() => onFinish()}
       />
     </motion.div>
   );
