@@ -36,7 +36,18 @@ const DesktopHeroCarousel = () => {
 
   // Get slides from database config or use defaults
   const config = moduleConfig?.config as { slides?: Slide[] } | undefined;
-  const slides: Slide[] = config?.slides?.length ? config.slides : defaultSlides;
+  const rawSlides: Slide[] = config?.slides?.length ? config.slides : defaultSlides;
+
+  // Cache-busting: tie image URLs to the module's updated_at so stale
+  // service workers / browsers can't serve previous slide images.
+  const updatedAt = (moduleConfig as unknown as { updated_at?: string } | undefined)?.updated_at;
+  const cacheBust = updatedAt ? new Date(updatedAt).getTime() : 0;
+  const slides: Slide[] = rawSlides.map((s) => {
+    if (!s.image || !cacheBust) return s;
+    if (s.image.startsWith("data:") || s.image.startsWith("blob:")) return s;
+    const sep = s.image.includes("?") ? "&" : "?";
+    return { ...s, image: `${s.image}${sep}v=${cacheBust}` };
+  });
 
   useEffect(() => {
     if (!isAutoPlaying) return;
