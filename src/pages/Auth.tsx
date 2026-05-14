@@ -431,7 +431,11 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await signIn(email, password);
+        const { error } = await signIn(
+          email,
+          password,
+          authMode === "professional" ? "pro" : "fan"
+        );
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
             toast.error("Conta inválida ou não cadastrada. Revise os dados ou cadastre-se.");
@@ -468,14 +472,19 @@ const Auth = () => {
         const { error } = await signUp(
           signUpData.email,
           signUpData.password,
-          signUpData.fullName
+          signUpData.fullName,
+          authMode === "professional" ? "pro" : "fan"
         );
 
         if (error) {
           // Clean up sensitive data on error
           sessionStorage.removeItem("pendingProfileUpdate");
           if (error.message.includes("already registered")) {
-            toast.error("Este email já está cadastrado");
+            toast.error(
+              authMode === "professional"
+                ? "Este e-mail já tem uma conta Profissional cadastrada. Faça login."
+                : "Este e-mail já tem uma conta Torcedor cadastrada. Faça login."
+            );
           } else {
             toast.error(error.message);
           }
