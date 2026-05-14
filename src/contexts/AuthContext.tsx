@@ -227,9 +227,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setAuthLoading(false);
+    }).catch((e) => {
+      // Network failure during getSession() (common on iOS PWA/Capacitor when
+      // resuming from background). Don't trap the user in an infinite spinner.
+      console.error("[Auth] getSession failed:", e);
+      setRolesLoading(false);
+      setAuthLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Safety net: under no circumstances should the auth loading flags stay
+    // true forever. If something hangs (no network, suspended worker, etc.)
+    // force-release after 8s so ProtectedRoute can redirect to /auth instead
+    // of showing the "Carregando..." spinner indefinitely.
+    const safetyTimeout = window.setTimeout(() => {
+      setAuthLoading((current) => {
+        if (current) console.warn("[Auth] authLoading safety timeout reached");
+        return false;
+      });
+      setRolesLoading((current) => {
+        if (current) console.warn("[Auth] rolesLoading safety timeout reached");
+        return false;
+      });
+    }, 8000);
+
+    return () => {
+      subscription.unsubscribe();
+      window.clearTimeout(safetyTimeout);
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
