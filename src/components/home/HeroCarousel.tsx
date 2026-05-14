@@ -32,17 +32,28 @@ const HeroCarousel = () => {
 
   const dbSlides = (moduleQuery.data?.config as { slides?: SlideConfig[] } | undefined)?.slides;
 
-  const slides: SlideConfig[] = (dbSlides ?? []).map((s) =>
-    s.healthNewsId
+  // Cache-busting: append a version stamp tied to the module row's updated_at
+  // so stale service workers / browser caches can't keep serving old images.
+  const updatedAt = (moduleQuery.data as unknown as { updated_at?: string } | undefined)?.updated_at;
+  const cacheBust = updatedAt ? new Date(updatedAt).getTime() : 0;
+  const withVersion = (url: string) => {
+    if (!url || !cacheBust) return url;
+    if (url.startsWith("data:") || url.startsWith("blob:")) return url;
+    return url.includes("?") ? `${url}&v=${cacheBust}` : `${url}?v=${cacheBust}`;
+  };
+
+  const slides: SlideConfig[] = (dbSlides ?? []).map((s) => {
+    const base = { ...s, image: withVersion(s.image) };
+    return s.healthNewsId
       ? {
-          ...s,
+          ...base,
           isHealthNews: true,
           healthBadge: s.healthBadge ?? "Saúde",
           cta: s.cta ?? "Ler matéria",
           ctaLink: s.ctaLink ?? `/setor-saude?artigo=${s.healthNewsId}`,
         }
-      : s
-  );
+      : base;
+  });
   const isLoading = moduleQuery.isLoading || slides.length === 0;
 
   // Preload all images once slides load
