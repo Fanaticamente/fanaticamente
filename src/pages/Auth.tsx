@@ -168,9 +168,10 @@ const Auth = () => {
       } else if (hasRole("developer")) {
         navigate("/desenvolvedor");
       } else if (hasRole("professional")) {
-        // Profissionais logando no modo profissional vão para o painel
-        // Profissionais logando no modo torcedor vão para a home
-        navigate(authMode === "professional" ? "/profissional" : "/");
+        // Profissional SEMPRE entra no painel profissional após login,
+        // independente da rota usada (/auth ou /profissional/auth).
+        // Trocar para o modo torcedor deve ser uma ação explícita do usuário.
+        navigate("/profissional");
       } else {
         // Fresh professional signup: role is being assigned async by edge function.
         // Route to professional dashboard so the onboarding wizard kicks in.
