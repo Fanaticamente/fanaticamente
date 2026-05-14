@@ -21,6 +21,21 @@ const isProfessionalRoute = (pathname: string): boolean => {
   );
 };
 
+// Rotas onde profissional logado NÃO deve permanecer (são exclusivas do ambiente torcedor).
+// Rotas administrativas/de suporte ficam fora dessa lista.
+const FAN_ONLY_ROUTES = [
+  "/", "/futebol", "/quiz", "/radio", "/ranking", "/loja", "/zona-mista",
+  "/setor-saude", "/diario", "/fanaticaze-tv", "/osmf", "/terapeutas",
+  "/terapeuta", "/cursos", "/curso",
+];
+
+const isFanOnlyRoute = (pathname: string): boolean => {
+  if (pathname === "/") return true;
+  return FAN_ONLY_ROUTES.some(
+    (route) => route !== "/" && (pathname === route || pathname.startsWith(route + "/"))
+  );
+};
+
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading, hasRole } = useAuth();
   const location = useLocation();
@@ -50,6 +65,16 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
+  // Hard guard: profissional não pode acessar rotas do ambiente torcedor.
+  if (hasRole("professional") && isFanOnlyRoute(location.pathname)) {
+    return <Navigate to="/profissional" replace />;
+  }
+
+  // Hard guard: torcedor (sem role professional) não pode acessar rotas exclusivas profissionais.
+  if (isProfessionalRoute(location.pathname) && !hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
+    return <Navigate to="/" replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -61,6 +86,14 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
  */
 export const DynamicProtectedRoute = ({ children, pageId }: ProtectedRouteProps & { pageId?: string }) => {
   const { data: pages, isLoading: pagesLoading } = useAppPages("all");
+  const { user, hasRole } = useAuth();
+  const location = useLocation();
+
+  // GUARD GLOBAL: profissional logado nunca permanece em rota do ambiente torcedor,
+  // independente de a página ser pública ou privada.
+  if (user && hasRole("professional") && isFanOnlyRoute(location.pathname)) {
+    return <Navigate to="/profissional" replace />;
+  }
 
   // If no pageId provided or pages still loading, render children directly (public)
   if (!pageId || pagesLoading) {
