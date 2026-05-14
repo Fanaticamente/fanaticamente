@@ -209,7 +209,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    // Timeout duro para getSession: se localStorage/IndexedDB estiver corrompido
+    // (sintoma "funciona em aba anônima, não no normal"), getSession pode pendurar.
+    const sessionPromise = supabase.auth.getSession();
+    const timeoutPromise = new Promise<{ data: { session: null }; timedOut: true }>((resolve) => {
+      window.setTimeout(() => resolve({ data: { session: null }, timedOut: true }), 5000);
+    });
+
+    Promise.race([sessionPromise, timeoutPromise]).then(async (result: any) => {
+      if (result?.timedOut) {
+        console.warn("[Auth] getSession timeout — limpando tokens corrompidos");
+        try {
+          const keys: string[] = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && (k.startsWith("sb-") || k.includes("supabase.auth"))) keys.push(k);
+          }
+          keys.forEach((k) => localStorage.removeItem(k));
+        } catch {}
+        setSession(null);
+        setUser(null);
+        setRolesLoading(false);
+        setAuthLoading(false);
+        return;
+      }
+      const session = result?.data?.session ?? null;
       setSession(session);
       setUser(session?.user ?? null);
 
