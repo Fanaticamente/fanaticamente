@@ -298,12 +298,62 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    // Resilient sign-in: some mobile networks / stale service workers cause
+    // the very first fetch to fail with "TypeError: Failed to fetch" even
+    // though the credentials are valid. Retry once before surfacing the
+    // network error, and translate it into a friendlier message.
+    const attempt = () =>
+      supabase.auth.signInWithPassword({ email, password });
 
-    return { error: error as Error | null };
+    const isNetworkError = (err: unknown) => {
+      if (!err) return false;
+      const msg = (err as Error)?.message?.toLowerCase?.() ?? "";
+      return (
+        err instanceof TypeError ||
+        msg.includes("failed to fetch") ||
+        msg.includes("networkerror") ||
+        msg.includes("load failed")
+      );
+    };
+
+    try {
+      let { error } = await attempt();
+      if (error && isNetworkError(error)) {
+        await new Promise((r) => setTimeout(r, 600));
+        ({ error } = await attempt());
+      }
+      if (error && isNetworkError(error)) {
+        return {
+          error: new Error(
+            "Sem conexão com o servidor. Verifique sua internet e tente novamente."
+          ),
+        };
+      }
+      return { error: error as Error | null };
+    } catch (e) {
+      if (isNetworkError(e)) {
+        // Retry once on raw thrown TypeError
+        try {
+          await new Promise((r) => setTimeout(r, 600));
+          const { error } = await attempt();
+          if (error && isNetworkError(error)) {
+            return {
+              error: new Error(
+                "Sem conexão com o servidor. Verifique sua internet e tente novamente."
+              ),
+            };
+          }
+          return { error: error as Error | null };
+        } catch (e2) {
+          return {
+            error: new Error(
+              "Sem conexão com o servidor. Verifique sua internet e tente novamente."
+            ),
+          };
+        }
+      }
+      return { error: e as Error };
+    }
   };
 
   const signOut = async () => {
