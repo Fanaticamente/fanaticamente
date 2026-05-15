@@ -190,8 +190,15 @@ Deno.serve(async (req) => {
       const fbData = await fbRes.json()
       if (fbRes.ok) {
         const cals = fbData.calendars || {}
-        for (const [calId, info] of Object.entries<any>(cals)) {
-          const busy = (info?.busy || []) as Array<{ start: string; end: string }>
+        for (const calId of chunk) {
+          // Prefer event details over freeBusy because Google Appointment Schedule
+          // blocks are returned as busy but are not real commitments.
+          const detailedBlocks = await fetchEventBlocks(accessToken, calId, professional_id, timeMin, timeMax)
+          if (detailedBlocks) {
+            blocks.push(...detailedBlocks)
+            continue
+          }
+          const busy = (cals[calId]?.busy || []) as Array<{ start: string; end: string }>
           for (const b of busy) {
             blocks.push({
               professional_id,
@@ -207,7 +214,8 @@ Deno.serve(async (req) => {
         console.error('freeBusy failed; falling back to events.list', fbData)
         if (hasInsufficientScope(fbData)) needsReconnect = true
         for (const calId of chunk) {
-          blocks.push(...await fetchEventBlocks(accessToken, calId, professional_id, timeMin, timeMax))
+          const detailedBlocks = await fetchEventBlocks(accessToken, calId, professional_id, timeMin, timeMax)
+          if (detailedBlocks) blocks.push(...detailedBlocks)
         }
       }
     }
