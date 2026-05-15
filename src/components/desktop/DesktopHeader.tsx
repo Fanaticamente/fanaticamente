@@ -62,8 +62,9 @@ const DesktopHeader = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-gray-800">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center">
+        <Link to="/" className="flex items-center gap-3" aria-label="Fanaticamente">
           <img src={logoHeader} alt="Fanaticamente" className="h-10 w-auto" />
+          <span className="font-semibold text-white text-xl leading-none">Fanaticamente</span>
         </Link>
 
         {/* Navigation Links */}
