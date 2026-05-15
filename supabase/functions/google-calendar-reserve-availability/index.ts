@@ -158,6 +158,10 @@ Deno.serve(async (req) => {
       return json({ ok: false, needs_reconnect: true, created: 0, skipped: 'calendar_validation_incomplete' }, 409)
     }
 
+    // Heavy work (delete + recreate) runs in background so the request returns
+    // before Google rate-limit retries push us past the gateway timeout. The
+    // frontend re-fetches the busy blocks shortly after.
+    const heavyWork = (async () => {
     // 1) Delete previous reservation events. We sweep ALL writable calendars
     // and combine three lookup strategies so legacy/untagged events created by
     // older versions are also removed:
@@ -289,7 +293,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    return json({ ok: true, created, deleted, skipped_conflicts })
+      console.log('reserve-availability done', { deleted, created, skipped_conflicts })
+    })().catch((e) => console.error('heavy work failed', e))
+    // @ts-ignore EdgeRuntime is available in Supabase functions runtime
+    if (typeof EdgeRuntime !== 'undefined' && (EdgeRuntime as any).waitUntil) {
+      // @ts-ignore
+      EdgeRuntime.waitUntil(heavyWork)
+    }
+    return json({ ok: true, started: true })
   } catch (e) {
     console.error('reserve-availability error', e)
     return json({ error: String(e) }, 500)
