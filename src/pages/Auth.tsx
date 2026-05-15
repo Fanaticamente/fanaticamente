@@ -17,6 +17,7 @@ import logoAuth from "@/assets/logo-auth.png";
 import { useIsMobile } from "@/hooks/use-mobile";
 import heroCover from "@/assets/desktop/hero-cover.png";
 import authBgGramado from "@/assets/auth-bg-gramado.jpg";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 
 
 // Mask functions
@@ -985,6 +986,17 @@ const Auth = () => {
                 </button>
               </form>
 
+              {authMode === "user" && (
+                <div className="mt-4">
+                  <div className="flex items-center gap-3 my-4">
+                    <div className="h-px flex-1 bg-gray-300" />
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide">ou</span>
+                    <div className="h-px flex-1 bg-gray-300" />
+                  </div>
+                  <GoogleSignInButton />
+                </div>
+              )}
+
               <div className="mt-6 text-center">
                 <button
                   onClick={() => {
@@ -1410,6 +1422,17 @@ const Auth = () => {
                 : "Criar conta"}
             </button>
           </form>
+
+          {authMode === "user" && (
+            <div className="mt-4">
+              <div className="flex items-center gap-3 my-4">
+                <div className="h-px flex-1 bg-gray-300" />
+                <span className="text-xs text-muted-foreground uppercase tracking-wide">ou</span>
+                <div className="h-px flex-1 bg-gray-300" />
+              </div>
+              <GoogleSignInButton />
+            </div>
+          )}
 
           <div className="mt-6 text-center">
             <button
