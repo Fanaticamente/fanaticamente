@@ -30,6 +30,22 @@ const SESSION_MIN = 50
 const RES_TAG_KEY = 'app'
 const RES_TAG_VAL = 'fanaticamente_reservation'
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+// Google Calendar limits ~600 queries/min/user. We rate-limit our writes to
+// stay well under that and retry on transient quota errors.
+async function gfetch(url: string, init: RequestInit, attempt = 0): Promise<Response> {
+  const res = await fetch(url, init)
+  if (res.status === 403 || res.status === 429) {
+    const text = await res.clone().text().catch(() => '')
+    if (/rateLimitExceeded|userRateLimitExceeded|Quota exceeded/i.test(text) && attempt < 5) {
+      await sleep(500 * Math.pow(2, attempt))
+      return gfetch(url, init, attempt + 1)
+    }
+  }
+  return res
+}
+
 function hasInsufficientScope(details: any) {
   return details?.error?.status === 'PERMISSION_DENIED'
     || details?.error?.reason === 'insufficientPermissions'
@@ -199,10 +215,11 @@ Deno.serve(async (req) => {
             const titled = (ev.summary || '').trim() === RES_SUMMARY
             if (!tagged && !titled) continue
             seen.add(ev.id)
-            const delRes = await fetch(
+            const delRes = await gfetch(
               `https://www.googleapis.com/calendar/v3/calendars/${encCid}/events/${encodeURIComponent(ev.id)}`,
               { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
             )
+            await sleep(120)
             if (delRes.ok || delRes.status === 410) {
               deleted++
             } else {
@@ -256,7 +273,7 @@ Deno.serve(async (req) => {
             extendedProperties: { private: { [RES_TAG_KEY]: RES_TAG_VAL, day: String(av.day_of_week), time } },
             reminders: { useDefault: false },
           }
-          const evRes = await fetch(
+          const evRes = await gfetch(
             `https://www.googleapis.com/calendar/v3/calendars/${calId}/events`,
             {
               method: 'POST',
@@ -269,6 +286,7 @@ Deno.serve(async (req) => {
             const err = await evRes.json().catch(() => ({}))
             console.error('create reservation failed', err)
           }
+          await sleep(120)
         }
       }
     }
