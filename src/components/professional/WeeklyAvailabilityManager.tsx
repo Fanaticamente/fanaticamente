@@ -74,7 +74,7 @@ const WeeklyAvailabilityManager = ({
 
   useEffect(() => {
     fetchAvailabilities();
-    fetchGcalBlocks();
+    reloadGcalBlocks();
   }, [professionalId]);
 
   // Realtime: refresh GCal blocks whenever they change in the DB
@@ -143,10 +143,14 @@ const WeeklyAvailabilityManager = ({
   // Push current weekly availability as recurring "Reservado — Fanaticamente"
   // events to the professional's dedicated Google Calendar. Best-effort: if the
   // calendar isn't connected or the call fails, the in-app slots still work.
-  const syncReservationsToGoogle = async () => {
+  const syncReservationsToGoogle = async (dayOfWeek?: number, timeSlots?: string[]) => {
     try {
       const { data } = await supabase.functions.invoke('google-calendar-reserve-availability', {
-        body: { professional_id: professionalId },
+        body: {
+          professional_id: professionalId,
+          wait: true,
+          ...(typeof dayOfWeek === 'number' ? { day_of_week: dayOfWeek, time_slots: timeSlots || [] } : {}),
+        },
       });
       if ((data as CalendarSyncResult)?.needs_reconnect) {
         setCalendarNeedsReconnect(true);
@@ -155,25 +159,17 @@ const WeeklyAvailabilityManager = ({
       if ((data as any)?.skipped_conflicts > 0) {
         toast.info("Horários com compromisso no Google não foram reservados.");
       }
-      fetchGcalBlocks();
+      await reloadGcalBlocks();
     } catch (e) {
       console.warn('reserve-availability failed', e);
+      toast.error("Não foi possível atualizar o Google Calendar agora.");
     }
   };
 
   // Após salvar, dispara reserva no Google e re-sincroniza algumas vezes
   // para refletir o estado final (a função reserve roda em background).
-  const runFullSyncAfterSave = async () => {
-    await syncReservationsToGoogle();
-    setTimeout(() => { reloadGcalBlocks(); }, 6000);
-    setTimeout(async () => {
-      try {
-        await supabase.functions.invoke('google-calendar-sync-now', {
-          body: { professional_id: professionalId, force: true },
-        });
-      } catch (_) { /* best-effort */ }
-      await reloadGcalBlocks();
-    }, 15000);
+  const runFullSyncAfterSave = async (dayOfWeek?: number, timeSlots?: string[]) => {
+    await syncReservationsToGoogle(dayOfWeek, timeSlots);
   };
 
   const syncCalendarBeforeSaving = async (): Promise<CalendarValidationResult> => {
@@ -236,13 +232,13 @@ const WeeklyAvailabilityManager = ({
 
       if (error) throw error;
 
-      toast.success("Disponibilidade adicionada!");
       setShowAddSlot(false);
       setSelectedDay(null);
       setSelectedTimes([]);
       fetchAvailabilities();
       onUpdate();
-      runFullSyncAfterSave();
+      await runFullSyncAfterSave(selectedDay, [...selectedTimes].sort());
+      toast.success("Disponibilidade adicionada e sincronizada!");
     } catch (error) {
       console.error("Error adding availability:", error);
       toast.error("Erro ao salvar disponibilidade");
@@ -260,11 +256,12 @@ const WeeklyAvailabilityManager = ({
 
       if (error) throw error;
 
-      toast.success("Disponibilidade removida!");
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
-      runFullSyncAfterSave();
+      const removedAvailability = availabilities.find((a) => a.id === id);
+      await runFullSyncAfterSave(removedAvailability?.day_of_week, []);
+      toast.success("Disponibilidade removida e sincronizada!");
     } catch (error) {
       console.error("Error deleting availability:", error);
       toast.error("Erro ao remover disponibilidade");
@@ -300,11 +297,11 @@ const WeeklyAvailabilityManager = ({
 
       if (error) throw error;
 
-      toast.success("Horários atualizados!");
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
-      runFullSyncAfterSave();
+      await runFullSyncAfterSave(editingAvailability.day_of_week, [...editTimes].sort());
+      toast.success("Horários atualizados e sincronizados!");
     } catch (error) {
       console.error("Error updating availability:", error);
       toast.error("Erro ao atualizar horários");

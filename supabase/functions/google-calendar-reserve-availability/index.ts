@@ -29,6 +29,7 @@ const RECURRENCE_WEEKS = 12
 const SESSION_MIN = 50
 const RES_TAG_KEY = 'app'
 const RES_TAG_VAL = 'fanaticamente_reservation'
+const RES_SUMMARY = 'Reservado — Fanaticamente'
 const SP_OFFSET_HOURS = 3
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -152,12 +153,65 @@ function overlaps(startMs: number, endMs: number, blocks: Array<{ start: string;
   return blocks.some((b) => new Date(b.start).getTime() < endMs && new Date(b.end).getTime() > startMs)
 }
 
+function saoPauloDateString(date: Date) {
+  return new Date(date.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000).toISOString().slice(0, 10)
+}
+
+function saoPauloTimeString(date: Date) {
+  const spDate = new Date(date.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000)
+  return `${String(spDate.getUTCHours()).padStart(2, '0')}:${String(spDate.getUTCMinutes()).padStart(2, '0')}`
+}
+
+function saoPauloDayOfWeek(date: Date) {
+  return new Date(date.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000).getUTCDay()
+}
+
+function reservationKey(day: string | number, time: string, date: string) {
+  return `${day}|${time}|${date}`
+}
+
+async function listReservationEvents(accessToken: string, calendarId: string, timeMin: string, timeMax: string) {
+  const encCid = encodeURIComponent(calendarId)
+  const seen = new Set<string>()
+  const events: Array<any> = []
+  const queries = [
+    new URLSearchParams({ privateExtendedProperty: `${RES_TAG_KEY}=${RES_TAG_VAL}`, maxResults: '2500', singleEvents: 'true', showDeleted: 'false', timeMin, timeMax }),
+    new URLSearchParams({ q: RES_SUMMARY, maxResults: '2500', singleEvents: 'true', showDeleted: 'false', timeMin, timeMax }),
+  ]
+  for (const baseParams of queries) {
+    let pageToken: string | undefined
+    do {
+      const params = new URLSearchParams(baseParams)
+      if (pageToken) params.set('pageToken', pageToken)
+      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encCid}/events?${params}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(`list reservations failed: ${JSON.stringify(data)}`)
+      for (const ev of ((data.items || []) as Array<any>)) {
+        if (!ev.id || seen.has(ev.id)) continue
+        const tagged = ev.extendedProperties?.private?.[RES_TAG_KEY] === RES_TAG_VAL
+        const titled = (ev.summary || '').trim() === RES_SUMMARY
+        if (!tagged && !titled) continue
+        seen.add(ev.id)
+        events.push(ev)
+      }
+      pageToken = data.nextPageToken
+    } while (pageToken)
+  }
+  return events
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
-    const { professional_id } = await req.json().catch(() => ({}))
+    const { professional_id, wait, day_of_week, time_slots } = await req.json().catch(() => ({}))
     if (!professional_id) return json({ error: 'professional_id required' }, 400)
+    const scopedDay = Number.isInteger(day_of_week) ? Number(day_of_week) : null
+    const scopedTimes = scopedDay !== null && Array.isArray(time_slots)
+      ? (time_slots as unknown[]).filter((t): t is string => typeof t === 'string')
+      : null
 
     const admin = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -199,7 +253,9 @@ Deno.serve(async (req) => {
           .filter((c) => !c.hidden && !c.deleted && c.selected !== false)
           .map((c) => c.id as string)
       : [calendarId, 'primary']
-    const { blocks: busyBlocks, needsReconnect: freeBusyNeedsReconnect } = await fetchBusyBlocks(accessToken, Array.from(new Set(busyCalendarIds)), timeMin, timeMax)
+    const { blocks: busyBlocks, needsReconnect: freeBusyNeedsReconnect } = scopedTimes
+      ? { blocks: [], needsReconnect: false }
+      : await fetchBusyBlocks(accessToken, Array.from(new Set(busyCalendarIds)), timeMin, timeMax)
     if (listNeedsReconnect || freeBusyNeedsReconnect) {
       return json({ ok: false, needs_reconnect: true, created: 0, skipped: 'calendar_validation_incomplete' }, 409)
     }
@@ -208,97 +264,33 @@ Deno.serve(async (req) => {
     // before Google rate-limit retries push us past the gateway timeout. The
     // frontend re-fetches the busy blocks shortly after.
     const heavyWork = (async () => {
-    // 1) Delete previous reservation events. We sweep ALL writable calendars
-    // and combine three lookup strategies so legacy/untagged events created by
-    // older versions are also removed:
-    //   a) privateExtendedProperty tag (current events)
-    //   b) free-text search by summary "Reservado — Fanaticamente"
-    //   c) summary fallback when q misses (matched in-memory)
-    const cleanupCalendarIds = Array.from(new Set([
-      calendarId,
-      ...(listCalendarsRes.ok
-        ? ((listCalendarsData.items || []) as Array<any>)
-            .filter((c) => !c.hidden && !c.deleted && (c.accessRole === 'owner' || c.accessRole === 'writer'))
-            .map((c) => c.id as string)
-        : []),
-    ]))
-    const RES_SUMMARY = 'Reservado — Fanaticamente'
-    let deleted = 0
-    for (const cid of cleanupCalendarIds) {
-      const encCid = encodeURIComponent(cid)
-      const seen = new Set<string>()
-      const queries: Array<URLSearchParams> = [
-        new URLSearchParams({
-          privateExtendedProperty: `${RES_TAG_KEY}=${RES_TAG_VAL}`,
-          maxResults: '2500',
-          singleEvents: 'true',
-          showDeleted: 'false',
-          timeMin,
-          timeMax,
-        }),
-        new URLSearchParams({
-          q: RES_SUMMARY,
-          maxResults: '2500',
-          singleEvents: 'true',
-          showDeleted: 'false',
-          timeMin,
-          timeMax,
-        }),
-      ]
-      for (const baseParams of queries) {
-        let pageToken: string | undefined
-        do {
-          const params = new URLSearchParams(baseParams)
-          if (pageToken) params.set('pageToken', pageToken)
-          const listRes = await fetch(
-            `https://www.googleapis.com/calendar/v3/calendars/${encCid}/events?${params}`,
-            { headers: { Authorization: `Bearer ${accessToken}` } },
-          )
-          const listData = await listRes.json()
-          if (!listRes.ok) {
-            console.error('list reservations failed', { cid, listData })
-            break
-          }
-          for (const ev of ((listData.items || []) as Array<any>)) {
-            if (!ev.id || seen.has(ev.id)) continue
-            const tagged = ev.extendedProperties?.private?.[RES_TAG_KEY] === RES_TAG_VAL
-            const titled = (ev.summary || '').trim() === RES_SUMMARY
-            if (!tagged && !titled) continue
-            seen.add(ev.id)
-            const delRes = await gfetch(
-              `https://www.googleapis.com/calendar/v3/calendars/${encCid}/events/${encodeURIComponent(ev.id)}`,
-              { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
-            )
-            if (delRes.ok || delRes.status === 410) {
-              deleted++
-            } else {
-              const errBody = await delRes.text().catch(() => '')
-              console.error('delete reservation failed', {
-                cid,
-                id: ev.id,
-                status: delRes.status,
-                organizer: ev.organizer?.email,
-                creator: ev.creator?.email,
-                body: errBody.slice(0, 300),
-              })
-            }
-          }
-          pageToken = listData.nextPageToken
-        } while (pageToken)
-      }
+    const existingReservations = await listReservationEvents(accessToken, calendarId, timeMin, timeMax)
+    const existingByKey = new Map<string, any>()
+    for (const ev of existingReservations) {
+      const startValue = ev.start?.dateTime || ev.start?.date
+      if (!startValue) continue
+      const startDate = new Date(startValue)
+      const day = ev.extendedProperties?.private?.day || String(saoPauloDayOfWeek(startDate))
+      if (scopedDay !== null && Number(day) !== scopedDay) continue
+      const time = ev.extendedProperties?.private?.time || saoPauloTimeString(startDate)
+      existingByKey.set(reservationKey(day, time, saoPauloDateString(startDate)), ev)
     }
+    const desiredKeys = new Set<string>()
+    let deleted = 0
 
     // 2) Load weekly availability and create real dated hold events per slot.
     // Each occurrence is checked against Google busy blocks before creation, so
     // a private appointment on 18/05 14:00 blocks only that exact date.
-    const { data: avs } = await admin
-      .from('professional_weekly_availability')
-      .select('day_of_week, time_slots')
-      .eq('professional_id', professional_id)
+    const { data: avsFromDb } = scopedTimes
+      ? { data: [{ day_of_week: scopedDay, time_slots: scopedTimes }] }
+      : await admin
+          .from('professional_weekly_availability')
+          .select('day_of_week, time_slots')
+          .eq('professional_id', professional_id)
 
     let created = 0
     let skipped_conflicts = 0
-    for (const av of (avs || [])) {
+    for (const av of (avsFromDb || [])) {
       for (const time of (av.time_slots || []) as string[]) {
         const [hh, mm] = time.split(':').map(Number)
         const firstStart = nextOccurrence(av.day_of_week, hh, mm)
@@ -311,6 +303,9 @@ Deno.serve(async (req) => {
             skipped_conflicts++
             continue
           }
+          const key = reservationKey(av.day_of_week, time, saoPauloDateString(start))
+          desiredKeys.add(key)
+          if (existingByKey.has(key)) continue
           const startISO = localISO(start, hh, mm)
           const endMinutes = hh * 60 + mm + SESSION_MIN
           const endISO = localISO(end, Math.floor(endMinutes / 60) % 24, endMinutes % 60)
@@ -340,12 +335,29 @@ Deno.serve(async (req) => {
       }
     }
 
+    for (const [key, ev] of existingByKey) {
+      if (desiredKeys.has(key) || !ev.id) continue
+      const delRes = await gfetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${calId}/events/${encodeURIComponent(ev.id)}`,
+        { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
+      )
+      if (delRes.ok || delRes.status === 410) deleted++
+      else console.error('delete stale reservation failed', { id: ev.id, status: delRes.status })
+    }
+
       console.log('reserve-availability done', { deleted, created, skipped_conflicts })
-    })().catch((e) => console.error('heavy work failed', e))
+      return { deleted, created, skipped_conflicts }
+    })()
+    if (wait) {
+      const result = await heavyWork
+      return json({ ok: true, ...result })
+    }
     // @ts-ignore EdgeRuntime is available in Supabase functions runtime
     if (typeof EdgeRuntime !== 'undefined' && (EdgeRuntime as any).waitUntil) {
       // @ts-ignore
-      EdgeRuntime.waitUntil(heavyWork)
+      EdgeRuntime.waitUntil(heavyWork.catch((e) => console.error('heavy work failed', e)))
+    } else {
+      heavyWork.catch((e) => console.error('heavy work failed', e))
     }
     return json({ ok: true, started: true })
   } catch (e) {

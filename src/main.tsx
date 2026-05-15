@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-// PWA: verifica atualizações imediatamente ao abrir o app
+// PWA: registra o app offline sem forçar atualização/reload automático
 import { registerSW } from "virtual:pwa-register";
 
 // Auto-recovery: se a inicialização do app travar em navegador normal
@@ -146,25 +146,12 @@ if (isEmbedMode() || isManagerRoute() || isServiceWorkerDisabledByManager()) {
     return true;
   };
 
-  const updateSW = registerSW({
-    // Força verificação imediata de atualizações ao abrir o app
-    immediate: true,
+  registerSW({
+    immediate: false,
     onNeedRefresh() {
-      if (!isSafeToRefresh()) {
-        // Schedule a retry after a delay to catch the update when safe
-        setTimeout(() => {
-          if (!alreadyRefreshing && isSafeToRefresh()) {
-            alreadyRefreshing = true;
-            console.log("[PWA] Nova versão disponível, atualizando automaticamente...");
-            updateSW(true);
-          }
-        }, 5 * 60 * 1000); // retry in 5 minutes
-        return;
-      }
       if (alreadyRefreshing) return;
       alreadyRefreshing = true;
-      console.log("[PWA] Nova versão disponível, atualizando automaticamente...");
-      updateSW(true);
+      console.log("[PWA] Nova versão disponível; atualização automática desativada.");
     },
     onOfflineReady() {
       console.log("[PWA] App pronto para uso offline");

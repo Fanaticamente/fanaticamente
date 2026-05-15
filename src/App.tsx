@@ -78,7 +78,14 @@ import FanaticazeTV from "./pages/FanaticazeTV";
 import SetorSaude from "./pages/SetorSaude";
 import MarketingDashboard from "./pages/MarketingDashboard";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
+  },
+});
 
 const isEmbedMode = () => {
   try {
