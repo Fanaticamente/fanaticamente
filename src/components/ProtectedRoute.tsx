@@ -70,9 +70,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   //
   // 1) APP DOS PROFISSIONAIS (VITE_APP_MODE=professional): qualquer rota torcedor
   //    redireciona para /profissional. E sem role professional → bloqueia totalmente.
-  // 2) APP DOS TORCEDORES (VITE_APP_MODE=fan): qualquer rota profissional redireciona
-  //    para /. Mesmo profissionais usando o app torcedor enxergam APENAS o ambiente
-  //    torcedor (eles têm role 'user' por padrão e podem usar o app livremente).
+  // 2) APP DOS TORCEDORES (VITE_APP_MODE=fan): sessão profissional é incompatível
+  //    com este app e não deve renderizar ambiente torcedor.
   // 3) WEB UNIFICADO (default): mantém o isolamento estrito por role —
   //    profissional sempre é jogado para /profissional, torcedor não acessa
   //    rotas profissionais.
@@ -84,6 +83,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       return <Navigate to="/profissional" replace />;
     }
   } else if (isFanApp) {
+    if (hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
+      return <Navigate to="/auth" replace />;
+    }
     if (isProfessionalRoute(location.pathname)) {
       return <Navigate to="/" replace />;
     }
