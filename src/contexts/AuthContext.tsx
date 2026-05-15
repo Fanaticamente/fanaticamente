@@ -38,11 +38,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loading = authLoading || rolesLoading;
 
+  const hasPendingProfessionalSignup = () => {
+    try {
+      const raw = sessionStorage.getItem("pendingProfileUpdate") || localStorage.getItem("pendingProfileUpdate");
+      return raw ? !!JSON.parse(raw)?.is_professional : false;
+    } catch {
+      return false;
+    }
+  };
+
   const sessionIsCompatibleWithApp = (nextRoles: AppRole[]) => {
     const hasSupportAccess = nextRoles.includes("admin") || nextRoles.includes("developer");
     if (hasSupportAccess) return true;
     if (isFanApp) return !nextRoles.includes("professional");
-    if (isProfessionalApp) return nextRoles.includes("professional");
+    if (isProfessionalApp) return nextRoles.includes("professional") || hasPendingProfessionalSignup();
     return true;
   };
 
