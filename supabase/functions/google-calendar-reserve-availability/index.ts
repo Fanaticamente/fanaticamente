@@ -106,7 +106,15 @@ async function fetchBusyBlocks(accessToken: string, calendarIds: string[], timeM
       if (hasInsufficientScope(data)) needsReconnect = true
       continue
     }
-    for (const info of Object.values<any>(data.calendars || {})) {
+    for (const id of chunk) {
+      // Prefer event details over freeBusy because Google Appointment Schedule
+      // blocks are returned as busy but are not real commitments.
+      const detailedBlocks = await fetchBusyEventBlocks(accessToken, id, timeMin, timeMax)
+      if (detailedBlocks) {
+        blocks.push(...detailedBlocks)
+        continue
+      }
+      const info = data.calendars?.[id]
       blocks.push(...((info?.busy || []) as Array<{ start: string; end: string }>))
     }
   }
