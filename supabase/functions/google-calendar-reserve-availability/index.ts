@@ -312,7 +312,8 @@ Deno.serve(async (req) => {
             continue
           }
           const startISO = localISO(start, hh, mm)
-          const endISO = localISO(end, end.getHours(), end.getMinutes())
+          const endMinutes = hh * 60 + mm + SESSION_MIN
+          const endISO = localISO(end, Math.floor(endMinutes / 60) % 24, endMinutes % 60)
           const eventBody = {
             summary: 'Reservado — Fanaticamente',
             description: 'Horário disponibilizado para sessões pelo aplicativo Fanaticamente. Para bloquear este horário nesta data, crie um compromisso pessoal sobreposto neste horário em qualquer agenda.',
