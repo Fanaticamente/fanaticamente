@@ -170,6 +170,27 @@ function reservationKey(day: string | number, time: string, date: string) {
   return `${day}|${time}|${date}`
 }
 
+// Google event IDs must be base32hex (chars 0-9a-v), length 5-1024.
+// Build a deterministic id from the professional + slot key so duplicate
+// POSTs return 409 instead of creating a second event.
+async function deterministicEventId(professionalId: string, key: string): Promise<string> {
+  const data = new TextEncoder().encode(`${professionalId}|${key}`)
+  const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', data))
+  // base32hex encode
+  const alphabet = '0123456789abcdefghijklmnopqrstuv'
+  let bits = 0, value = 0, out = ''
+  for (const b of hash) {
+    value = (value << 8) | b
+    bits += 8
+    while (bits >= 5) {
+      out += alphabet[(value >>> (bits - 5)) & 0x1f]
+      bits -= 5
+    }
+  }
+  if (bits > 0) out += alphabet[(value << (5 - bits)) & 0x1f]
+  return `fan${out}`.slice(0, 60)
+}
+
 async function listReservationEvents(accessToken: string, calendarId: string, timeMin: string, timeMax: string) {
   const encCid = encodeURIComponent(calendarId)
   const seen = new Set<string>()
@@ -310,6 +331,7 @@ Deno.serve(async (req) => {
           const endMinutes = hh * 60 + mm + SESSION_MIN
           const endISO = localISO(end, Math.floor(endMinutes / 60) % 24, endMinutes % 60)
           const eventBody = {
+            id: await deterministicEventId(professional_id, key),
             summary: 'Reservado — Fanaticamente',
             description: 'Horário disponibilizado para sessões pelo aplicativo Fanaticamente. Para bloquear este horário nesta data, crie um compromisso pessoal sobreposto neste horário em qualquer agenda.',
             start: { dateTime: startISO, timeZone: 'America/Sao_Paulo' },
@@ -327,6 +349,9 @@ Deno.serve(async (req) => {
             },
           )
           if (evRes.ok) created++
+          else if (evRes.status === 409) {
+            // Already exists with the same deterministic id — treat as success.
+          }
           else {
             const err = await evRes.json().catch(() => ({}))
             console.error('create reservation failed', err)
