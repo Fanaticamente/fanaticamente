@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Plus, Trash2, Pencil, X, Loader2, CalendarOff } from "lucide-react";
+import { Calendar, Plus, Trash2, Pencil, X, Loader2, CalendarOff, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import GoogleCalendarConnectCard from "./GoogleCalendarConnectCard";
@@ -16,6 +16,12 @@ interface GcalBlock {
   end_time: string;
   summary: string | null;
   is_all_day: boolean;
+}
+
+interface CalendarSyncResult {
+  ok?: boolean;
+  needs_reconnect?: boolean;
+  blocked_slots?: Array<{ day_of_week: number; time: string; date: string }>;
 }
 
 interface WeeklyAvailabilityManagerProps {
@@ -51,6 +57,8 @@ const WeeklyAvailabilityManager = ({
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [gcalBlocks, setGcalBlocks] = useState<GcalBlock[]>([]);
   const [syncingBlocks, setSyncingBlocks] = useState(false);
+  const [calendarNeedsReconnect, setCalendarNeedsReconnect] = useState(false);
+  const [serverBlockedSlots, setServerBlockedSlots] = useState<Array<{ day_of_week: number; time: string; date: string }>>([]);
   // (lockdown removido — slots individuais são filtrados por gcalBlocks)
   
   // Edit mode state
@@ -86,9 +94,12 @@ const WeeklyAvailabilityManager = ({
     // Wait for the sync so the rows we read below are up-to-date
     setSyncingBlocks(true);
     try {
-      await supabase.functions.invoke('google-calendar-sync-now', {
+      const { data } = await supabase.functions.invoke('google-calendar-sync-now', {
         body: { professional_id: professionalId, force: true },
       });
+      const result = data as CalendarSyncResult | null;
+      setCalendarNeedsReconnect(!!result?.needs_reconnect);
+      setServerBlockedSlots(result?.blocked_slots || []);
     } catch (_) { /* best-effort */ }
     finally { setSyncingBlocks(false); }
     await reloadGcalBlocks();
@@ -131,6 +142,10 @@ const WeeklyAvailabilityManager = ({
       const { data } = await supabase.functions.invoke('google-calendar-reserve-availability', {
         body: { professional_id: professionalId },
       });
+      if ((data as CalendarSyncResult)?.needs_reconnect) {
+        setCalendarNeedsReconnect(true);
+        toast.error("Reconecte o Google Calendar para validar todos os seus compromissos.");
+      }
       if ((data as any)?.skipped_conflicts > 0) {
         toast.info("Horários com compromisso no Google não foram reservados.");
       }
@@ -143,9 +158,12 @@ const WeeklyAvailabilityManager = ({
   const syncCalendarBeforeSaving = async () => {
     setSyncingBlocks(true);
     try {
-      await supabase.functions.invoke('google-calendar-sync-now', {
+      const { data: syncData } = await supabase.functions.invoke('google-calendar-sync-now', {
         body: { professional_id: professionalId, force: true },
       });
+      const syncResult = syncData as CalendarSyncResult | null;
+      setCalendarNeedsReconnect(!!syncResult?.needs_reconnect);
+      setServerBlockedSlots(syncResult?.blocked_slots || []);
       const { data } = await supabase
         .from('google_calendar_blocks')
         .select('start_time, end_time, summary, is_all_day')
