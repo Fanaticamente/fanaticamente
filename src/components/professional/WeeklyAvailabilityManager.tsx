@@ -427,19 +427,26 @@ const WeeklyAvailabilityManager = ({
                 Horários para {getDayLabel(selectedDay)}
               </label>
               <div className="grid grid-cols-5 gap-2">
-                {TIME_SLOTS.map((time) => (
-                  <button
-                    key={time}
-                    onClick={() => toggleTime(time)}
-                    className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                      selectedTimes.includes(time)
-                        ? "bg-therapy text-therapy-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    }`}
-                  >
-                    {time}
-                  </button>
-                ))}
+                {TIME_SLOTS.map((time) => {
+                  const blocked = isSlotBlockedByGcal(selectedDay, time);
+                  return (
+                    <button
+                      key={time}
+                      onClick={() => toggleTime(time)}
+                      disabled={blocked || syncingBlocks}
+                      title={blocked ? `Ocupado no Google Calendar em ${getDayDateLabel(selectedDay)}` : undefined}
+                      className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed ${
+                        blocked
+                          ? "bg-muted text-muted-foreground line-through opacity-60"
+                          : selectedTimes.includes(time)
+                            ? "bg-therapy text-therapy-foreground"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {time}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
