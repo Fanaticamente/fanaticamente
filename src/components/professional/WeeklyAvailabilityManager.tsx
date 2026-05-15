@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Plus, Trash2, Pencil, X, Loader2, CalendarOff } from "lucide-react";
+import { Calendar, Plus, Trash2, Pencil, X, Loader2, CalendarOff, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import GoogleCalendarConnectCard from "./GoogleCalendarConnectCard";
@@ -16,6 +16,18 @@ interface GcalBlock {
   end_time: string;
   summary: string | null;
   is_all_day: boolean;
+}
+
+interface CalendarSyncResult {
+  ok?: boolean;
+  needs_reconnect?: boolean;
+  blocked_slots?: Array<{ day_of_week: number; time: string; date: string }>;
+}
+
+interface CalendarValidationResult {
+  blocks: GcalBlock[];
+  blockedSlots: Array<{ day_of_week: number; time: string; date: string }>;
+  needsReconnect: boolean;
 }
 
 interface WeeklyAvailabilityManagerProps {
@@ -51,6 +63,8 @@ const WeeklyAvailabilityManager = ({
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [gcalBlocks, setGcalBlocks] = useState<GcalBlock[]>([]);
   const [syncingBlocks, setSyncingBlocks] = useState(false);
+  const [calendarNeedsReconnect, setCalendarNeedsReconnect] = useState(false);
+  const [serverBlockedSlots, setServerBlockedSlots] = useState<Array<{ day_of_week: number; time: string; date: string }>>([]);
   // (lockdown removido — slots individuais são filtrados por gcalBlocks)
   
   // Edit mode state
@@ -86,9 +100,12 @@ const WeeklyAvailabilityManager = ({
     // Wait for the sync so the rows we read below are up-to-date
     setSyncingBlocks(true);
     try {
-      await supabase.functions.invoke('google-calendar-sync-now', {
+      const { data } = await supabase.functions.invoke('google-calendar-sync-now', {
         body: { professional_id: professionalId, force: true },
       });
+      const result = data as CalendarSyncResult | null;
+      setCalendarNeedsReconnect(!!result?.needs_reconnect);
+      setServerBlockedSlots(result?.blocked_slots || []);
     } catch (_) { /* best-effort */ }
     finally { setSyncingBlocks(false); }
     await reloadGcalBlocks();
@@ -131,6 +148,10 @@ const WeeklyAvailabilityManager = ({
       const { data } = await supabase.functions.invoke('google-calendar-reserve-availability', {
         body: { professional_id: professionalId },
       });
+      if ((data as CalendarSyncResult)?.needs_reconnect) {
+        setCalendarNeedsReconnect(true);
+        toast.error("Reconecte o Google Calendar para validar todos os seus compromissos.");
+      }
       if ((data as any)?.skipped_conflicts > 0) {
         toast.info("Horários com compromisso no Google não foram reservados.");
       }
@@ -140,12 +161,15 @@ const WeeklyAvailabilityManager = ({
     }
   };
 
-  const syncCalendarBeforeSaving = async () => {
+  const syncCalendarBeforeSaving = async (): Promise<CalendarValidationResult> => {
     setSyncingBlocks(true);
     try {
-      await supabase.functions.invoke('google-calendar-sync-now', {
+      const { data: syncData } = await supabase.functions.invoke('google-calendar-sync-now', {
         body: { professional_id: professionalId, force: true },
       });
+      const syncResult = syncData as CalendarSyncResult | null;
+      setCalendarNeedsReconnect(!!syncResult?.needs_reconnect);
+      setServerBlockedSlots(syncResult?.blocked_slots || []);
       const { data } = await supabase
         .from('google_calendar_blocks')
         .select('start_time, end_time, summary, is_all_day')
@@ -155,7 +179,7 @@ const WeeklyAvailabilityManager = ({
         .limit(500);
       const blocks = (data || []) as GcalBlock[];
       setGcalBlocks(blocks);
-      return blocks;
+      return { blocks, blockedSlots: syncResult?.blocked_slots || [], needsReconnect: !!syncResult?.needs_reconnect };
     } finally {
       setSyncingBlocks(false);
     }
@@ -176,8 +200,12 @@ const WeeklyAvailabilityManager = ({
 
     setSaving(true);
     try {
-      const freshBlocks = await syncCalendarBeforeSaving();
-      const blockedTimes = filterBlockedTimes(selectedDay, selectedTimes, freshBlocks);
+      const { blocks: freshBlocks, blockedSlots: freshBlockedSlots, needsReconnect } = await syncCalendarBeforeSaving();
+      if (needsReconnect) {
+        toast.error("Reconecte o Google Calendar antes de alterar horários.");
+        return;
+      }
+      const blockedTimes = filterBlockedTimes(selectedDay, selectedTimes, freshBlocks, freshBlockedSlots);
       if (blockedTimes.length > 0) {
         toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
         return;
@@ -236,8 +264,12 @@ const WeeklyAvailabilityManager = ({
 
     setSavingEdit(true);
     try {
-      const freshBlocks = await syncCalendarBeforeSaving();
-      const blockedTimes = filterBlockedTimes(editingAvailability.day_of_week, editTimes, freshBlocks);
+      const { blocks: freshBlocks, blockedSlots: freshBlockedSlots, needsReconnect } = await syncCalendarBeforeSaving();
+      if (needsReconnect) {
+        toast.error("Reconecte o Google Calendar antes de alterar horários.");
+        return;
+      }
+      const blockedTimes = filterBlockedTimes(editingAvailability.day_of_week, editTimes, freshBlocks, freshBlockedSlots);
       if (blockedTimes.length > 0) {
         toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
         return;
@@ -264,6 +296,10 @@ const WeeklyAvailabilityManager = ({
   };
 
   const toggleTime = (time: string) => {
+    if (calendarNeedsReconnect) {
+      toast.error("Reconecte o Google Calendar antes de selecionar horários.");
+      return;
+    }
     if (selectedDay !== null && isSlotBlockedByGcal(selectedDay, time)) {
       toast.error("Este horário já está ocupado no Google Calendar.");
       return;
@@ -276,6 +312,10 @@ const WeeklyAvailabilityManager = ({
   };
 
   const toggleEditTime = (time: string) => {
+    if (calendarNeedsReconnect) {
+      toast.error("Reconecte o Google Calendar antes de selecionar horários.");
+      return;
+    }
     if (editingAvailability && isSlotBlockedByGcal(editingAvailability.day_of_week, time)) {
       toast.error("Este horário já está ocupado no Google Calendar.");
       return;
@@ -315,9 +355,13 @@ const WeeklyAvailabilityManager = ({
     return getNextOccurrenceDate(dayOfWeek).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
   };
 
+  const isSlotBlockedByServer = (dayOfWeek: number, time: string, blockedSlots = serverBlockedSlots) =>
+    blockedSlots.some((slot) => slot.day_of_week === dayOfWeek && slot.time === time);
+
   // Returns true if the next occurrence of (dayOfWeek, time) overlaps any
   // Google Calendar busy block (50min session window).
-  const isSlotBlockedByGcal = (dayOfWeek: number, time: string, blocks = gcalBlocks) => {
+  const isSlotBlockedByGcal = (dayOfWeek: number, time: string, blocks = gcalBlocks, blockedSlots = serverBlockedSlots) => {
+    if (isSlotBlockedByServer(dayOfWeek, time, blockedSlots)) return true;
     const target = getNextOccurrenceDate(dayOfWeek, time);
     const slotEnd = target.getTime() + 50 * 60 * 1000;
     return blocks.some((b) => {
@@ -327,8 +371,8 @@ const WeeklyAvailabilityManager = ({
     });
   };
 
-  const filterBlockedTimes = (dayOfWeek: number, times: string[], blocks = gcalBlocks) =>
-    times.filter((time) => isSlotBlockedByGcal(dayOfWeek, time, blocks));
+  const filterBlockedTimes = (dayOfWeek: number, times: string[], blocks = gcalBlocks, blockedSlots = serverBlockedSlots) =>
+    times.filter((time) => isSlotBlockedByGcal(dayOfWeek, time, blocks, blockedSlots));
 
   // Get days that are not yet configured
   const availableDays = DAYS_OF_WEEK.filter(
@@ -375,6 +419,18 @@ const WeeklyAvailabilityManager = ({
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {calendarNeedsReconnect && (
+        <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-medium text-card-foreground">Reconecte o Google Calendar</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Sua conexão atual não permite ler todas as agendas. Até reconectar, o app só consegue validar parte dos compromissos.
+            </p>
           </div>
         </div>
       )}
