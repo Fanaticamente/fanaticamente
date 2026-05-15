@@ -29,6 +29,7 @@ const RECURRENCE_WEEKS = 12
 const SESSION_MIN = 50
 const RES_TAG_KEY = 'app'
 const RES_TAG_VAL = 'fanaticamente_reservation'
+const SP_OFFSET_HOURS = 3
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -122,24 +123,28 @@ async function fetchBusyBlocks(accessToken: string, calendarIds: string[], timeM
 }
 
 function nextOccurrence(dayOfWeek: number, hh: number, mm: number): Date {
-  // Compute the next date (>= today) where local weekday == dayOfWeek
   const now = new Date()
-  const nowDow = now.getDay()
-  let diff = (dayOfWeek - nowDow + 7) % 7
-  const candidate = new Date(now)
-  candidate.setDate(now.getDate() + diff)
-  candidate.setHours(hh, mm, 0, 0)
-  if (candidate.getTime() <= now.getTime() && diff === 0) {
-    candidate.setDate(candidate.getDate() + 7)
-  }
-  return candidate
+  const spNow = new Date(now.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000)
+  const diff = (dayOfWeek - spNow.getUTCDay() + 7) % 7
+  const target = new Date(Date.UTC(
+    spNow.getUTCFullYear(),
+    spNow.getUTCMonth(),
+    spNow.getUTCDate() + diff,
+    hh + SP_OFFSET_HOURS,
+    mm,
+    0,
+    0,
+  ))
+  if (target.getTime() <= now.getTime()) target.setUTCDate(target.getUTCDate() + 7)
+  return target
 }
 
 function localISO(date: Date, hh: number, mm: number): string {
   // Returns YYYY-MM-DDTHH:MM:00 (no timezone — sent with timeZone field)
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
+  const spDate = new Date(date.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000)
+  const y = spDate.getUTCFullYear()
+  const m = String(spDate.getUTCMonth() + 1).padStart(2, '0')
+  const d = String(spDate.getUTCDate()).padStart(2, '0')
   return `${y}-${m}-${d}T${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:00`
 }
 
