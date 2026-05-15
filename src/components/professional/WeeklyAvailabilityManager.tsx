@@ -486,7 +486,7 @@ const WeeklyAvailabilityManager = ({
                   return (
                     <span
                       key={time}
-                      title={blocked ? (calendarSyncLocked ? 'Reconecte o Google Calendar para validar este horário' : 'Bloqueado pelo Google Calendar nesta semana') : undefined}
+                      title={blocked ? 'Bloqueado pelo Google Calendar nesta semana' : undefined}
                       className={
                         blocked
                           ? "px-3 py-1 bg-muted text-muted-foreground text-sm rounded-full line-through opacity-70"
