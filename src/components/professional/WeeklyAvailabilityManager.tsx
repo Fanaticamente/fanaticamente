@@ -84,11 +84,13 @@ const WeeklyAvailabilityManager = ({
 
   const fetchGcalBlocks = async () => {
     // Wait for the sync so the rows we read below are up-to-date
+    setSyncingBlocks(true);
     try {
       await supabase.functions.invoke('google-calendar-sync-now', {
         body: { professional_id: professionalId, force: true },
       });
     } catch (_) { /* best-effort */ }
+    finally { setSyncingBlocks(false); }
     await reloadGcalBlocks();
   };
 
@@ -99,7 +101,7 @@ const WeeklyAvailabilityManager = ({
       .eq('professional_id', professionalId)
       .gte('start_time', new Date().toISOString())
       .order('start_time', { ascending: true })
-      .limit(20);
+      .limit(500);
     if (data) setGcalBlocks(data);
   };
 
