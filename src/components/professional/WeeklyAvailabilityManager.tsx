@@ -54,12 +54,36 @@ const WeeklyAvailabilityManager = ({
     fetchGcalBlocks();
   }, [professionalId]);
 
-  const fetchGcalBlocks = async () => {
-    // Trigger a fresh sync (best-effort, server throttled)
-    supabase.functions.invoke('google-calendar-sync-now', {
-      body: { professional_id: professionalId, force: true },
-    }).catch(() => {});
+  // Realtime: refresh GCal blocks whenever they change in the DB
+  useEffect(() => {
+    if (!professionalId) return;
+    const channel = supabase
+      .channel(`gcal-blocks-panel-${professionalId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'google_calendar_blocks',
+          filter: `professional_id=eq.${professionalId}`,
+        },
+        () => { reloadGcalBlocks(); },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [professionalId]);
 
+  const fetchGcalBlocks = async () => {
+    // Wait for the sync so the rows we read below are up-to-date
+    try {
+      await supabase.functions.invoke('google-calendar-sync-now', {
+        body: { professional_id: professionalId, force: true },
+      });
+    } catch (_) { /* best-effort */ }
+    await reloadGcalBlocks();
+  };
+
+  const reloadGcalBlocks = async () => {
     const { data } = await supabase
       .from('google_calendar_blocks')
       .select('start_time, end_time, summary, is_all_day')
