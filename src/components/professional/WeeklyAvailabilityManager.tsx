@@ -24,6 +24,12 @@ interface CalendarSyncResult {
   blocked_slots?: Array<{ day_of_week: number; time: string; date: string }>;
 }
 
+interface CalendarValidationResult {
+  blocks: GcalBlock[];
+  blockedSlots: Array<{ day_of_week: number; time: string; date: string }>;
+  needsReconnect: boolean;
+}
+
 interface WeeklyAvailabilityManagerProps {
   professionalId: string;
   onUpdate: () => void;
@@ -155,7 +161,7 @@ const WeeklyAvailabilityManager = ({
     }
   };
 
-  const syncCalendarBeforeSaving = async () => {
+  const syncCalendarBeforeSaving = async (): Promise<CalendarValidationResult> => {
     setSyncingBlocks(true);
     try {
       const { data: syncData } = await supabase.functions.invoke('google-calendar-sync-now', {
@@ -173,7 +179,7 @@ const WeeklyAvailabilityManager = ({
         .limit(500);
       const blocks = (data || []) as GcalBlock[];
       setGcalBlocks(blocks);
-      return { blocks, blockedSlots: syncResult?.blocked_slots || [] };
+      return { blocks, blockedSlots: syncResult?.blocked_slots || [], needsReconnect: !!syncResult?.needs_reconnect };
     } finally {
       setSyncingBlocks(false);
     }
@@ -194,8 +200,8 @@ const WeeklyAvailabilityManager = ({
 
     setSaving(true);
     try {
-      const { blocks: freshBlocks, blockedSlots: freshBlockedSlots } = await syncCalendarBeforeSaving();
-      if (calendarNeedsReconnect) {
+      const { blocks: freshBlocks, blockedSlots: freshBlockedSlots, needsReconnect } = await syncCalendarBeforeSaving();
+      if (needsReconnect) {
         toast.error("Reconecte o Google Calendar antes de alterar horários.");
         return;
       }
@@ -258,8 +264,8 @@ const WeeklyAvailabilityManager = ({
 
     setSavingEdit(true);
     try {
-      const { blocks: freshBlocks, blockedSlots: freshBlockedSlots } = await syncCalendarBeforeSaving();
-      if (calendarNeedsReconnect) {
+      const { blocks: freshBlocks, blockedSlots: freshBlockedSlots, needsReconnect } = await syncCalendarBeforeSaving();
+      if (needsReconnect) {
         toast.error("Reconecte o Google Calendar antes de alterar horários.");
         return;
       }
