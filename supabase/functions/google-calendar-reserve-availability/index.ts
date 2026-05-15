@@ -116,7 +116,22 @@ Deno.serve(async (req) => {
       }).eq('professional_id', professional_id)
     }
 
-    const calId = encodeURIComponent(conn.calendar_id || 'primary')
+    const calendarId = conn.calendar_id || 'primary'
+    const calId = encodeURIComponent(calendarId)
+
+    const timeMin = new Date().toISOString()
+    const timeMax = new Date(Date.now() + RECURRENCE_WEEKS * 7 * 24 * 60 * 60 * 1000).toISOString()
+    const listCalendarsRes = await fetch(
+      'https://www.googleapis.com/calendar/v3/users/me/calendarList?maxResults=250',
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    )
+    const listCalendarsData = await listCalendarsRes.json()
+    const busyCalendarIds = listCalendarsRes.ok
+      ? ((listCalendarsData.items || []) as Array<any>)
+          .filter((c) => !c.hidden && !c.deleted && c.selected !== false)
+          .map((c) => c.id as string)
+      : [calendarId, 'primary']
+    const busyBlocks = await fetchBusyBlocks(accessToken, Array.from(new Set(busyCalendarIds)), timeMin, timeMax)
 
     // 1) List & delete previous reservation events on the dedicated calendar
     const params = new URLSearchParams({
@@ -148,6 +163,7 @@ Deno.serve(async (req) => {
       .eq('professional_id', professional_id)
 
     let created = 0
+    let skipped_conflicts = 0
     for (const av of (avs || [])) {
       for (const time of (av.time_slots || []) as string[]) {
         const [hh, mm] = time.split(':').map(Number)
@@ -155,6 +171,12 @@ Deno.serve(async (req) => {
         const endMin = hh * 60 + mm + SESSION_MIN
         const eh = Math.floor(endMin / 60) % 24
         const em = endMin % 60
+        const occurrenceEnd = new Date(start)
+        occurrenceEnd.setMinutes(occurrenceEnd.getMinutes() + SESSION_MIN)
+        if (overlaps(start.getTime(), occurrenceEnd.getTime(), busyBlocks)) {
+          skipped_conflicts++
+          continue
+        }
         const startISO = localISO(start, hh, mm)
         const endISO = localISO(start, eh, em)
         const rrule = `RRULE:FREQ=WEEKLY;BYDAY=${DOW_RRULE[av.day_of_week]};COUNT=${RECURRENCE_WEEKS}`
@@ -185,7 +207,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    return json({ ok: true, created })
+    return json({ ok: true, created, skipped_conflicts })
   } catch (e) {
     console.error('reserve-availability error', e)
     return json({ error: String(e) }, 500)
