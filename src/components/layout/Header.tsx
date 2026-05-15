@@ -209,10 +209,10 @@ const Header = () => {
           </SheetContent>
         </Sheet>
 
-        <Link to="/" className="flex items-center">
+        <Link to="/" className="flex items-center gap-2" aria-label="Fanaticamente">
           <img
             src={logoHeader}
-            alt="Logo"
+            alt="Fanaticamente"
             className="h-8 w-auto"
             width={32}
             height={32}
@@ -220,6 +220,7 @@ const Header = () => {
             decoding="async"
             fetchPriority="high"
           />
+          <span className="text-card-foreground font-semibold text-base leading-none">Fanaticamente</span>
         </Link>
 
         <button className="p-2 hover:bg-muted rounded-lg transition-colors">
