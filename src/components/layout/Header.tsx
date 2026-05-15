@@ -126,7 +126,7 @@ const Header = () => {
             <div className="p-6 border-b border-border flex flex-col items-center">
               <img
                 src={logoHeader}
-                alt="Logo"
+                alt="Fanaticamente"
                 className="h-12 w-auto"
                 width={48}
                 height={48}
