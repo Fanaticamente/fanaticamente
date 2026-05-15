@@ -139,6 +139,7 @@ const App = () => {
               <Route path="/zona-mista" element={<ZonaMista />} />
               <Route path="/setor-saude" element={<SetorSaude />} />
               <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
