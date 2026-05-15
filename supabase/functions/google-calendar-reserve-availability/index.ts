@@ -25,7 +25,7 @@ async function refreshAccessToken(refreshToken: string) {
   return { access_token: data.access_token as string, expires_in: data.expires_in as number }
 }
 
-const RECURRENCE_WEEKS = 26
+const RECURRENCE_WEEKS = 12
 const SESSION_MIN = 50
 const RES_TAG_KEY = 'app'
 const RES_TAG_VAL = 'fanaticamente_reservation'
