@@ -143,10 +143,14 @@ const WeeklyAvailabilityManager = ({
   // Push current weekly availability as recurring "Reservado — Fanaticamente"
   // events to the professional's dedicated Google Calendar. Best-effort: if the
   // calendar isn't connected or the call fails, the in-app slots still work.
-  const syncReservationsToGoogle = async () => {
+  const syncReservationsToGoogle = async (dayOfWeek?: number, timeSlots?: string[]) => {
     try {
       const { data } = await supabase.functions.invoke('google-calendar-reserve-availability', {
-        body: { professional_id: professionalId, wait: true },
+        body: {
+          professional_id: professionalId,
+          wait: true,
+          ...(typeof dayOfWeek === 'number' ? { day_of_week: dayOfWeek, time_slots: timeSlots || [] } : {}),
+        },
       });
       if ((data as CalendarSyncResult)?.needs_reconnect) {
         setCalendarNeedsReconnect(true);
@@ -164,8 +168,8 @@ const WeeklyAvailabilityManager = ({
 
   // Após salvar, dispara reserva no Google e re-sincroniza algumas vezes
   // para refletir o estado final (a função reserve roda em background).
-  const runFullSyncAfterSave = async () => {
-    await syncReservationsToGoogle();
+  const runFullSyncAfterSave = async (dayOfWeek?: number, timeSlots?: string[]) => {
+    await syncReservationsToGoogle(dayOfWeek, timeSlots);
   };
 
   const syncCalendarBeforeSaving = async (): Promise<CalendarValidationResult> => {
