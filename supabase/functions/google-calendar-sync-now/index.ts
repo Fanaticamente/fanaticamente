@@ -204,6 +204,8 @@ Deno.serve(async (req) => {
       }
     }
 
+    const blockedSlots = await getBlockedWeeklySlots(admin, professional_id, blocks)
+
     await admin.from('google_calendar_blocks').delete().eq('professional_id', professional_id)
 
     if (blocks.length > 0) {
@@ -215,7 +217,12 @@ Deno.serve(async (req) => {
       last_synced_at: new Date().toISOString(),
     }).eq('professional_id', professional_id)
 
-    return json({ ok: !needsReconnect, needs_reconnect: needsReconnect, count: blocks.length })
+    return json({
+      ok: !needsReconnect,
+      needs_reconnect: needsReconnect,
+      count: blocks.length,
+      blocked_slots: blockedSlots,
+    })
   } catch (e) {
     console.error('sync-now error', e)
     return json({ error: String(e) }, 500)
