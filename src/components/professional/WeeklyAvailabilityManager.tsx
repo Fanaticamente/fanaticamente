@@ -338,8 +338,8 @@ const WeeklyAvailabilityManager = ({
 
   // Returns true if the next occurrence of (dayOfWeek, time) overlaps any
   // Google Calendar busy block (50min session window).
-  const isSlotBlockedByGcal = (dayOfWeek: number, time: string, blocks = gcalBlocks) => {
-    if (isSlotBlockedByServer(dayOfWeek, time)) return true;
+  const isSlotBlockedByGcal = (dayOfWeek: number, time: string, blocks = gcalBlocks, blockedSlots = serverBlockedSlots) => {
+    if (isSlotBlockedByServer(dayOfWeek, time, blockedSlots)) return true;
     const target = getNextOccurrenceDate(dayOfWeek, time);
     const slotEnd = target.getTime() + 50 * 60 * 1000;
     return blocks.some((b) => {
@@ -349,8 +349,8 @@ const WeeklyAvailabilityManager = ({
     });
   };
 
-  const filterBlockedTimes = (dayOfWeek: number, times: string[], blocks = gcalBlocks) =>
-    times.filter((time) => isSlotBlockedByGcal(dayOfWeek, time, blocks));
+  const filterBlockedTimes = (dayOfWeek: number, times: string[], blocks = gcalBlocks, blockedSlots = serverBlockedSlots) =>
+    times.filter((time) => isSlotBlockedByGcal(dayOfWeek, time, blocks, blockedSlots));
 
   // Get days that are not yet configured
   const availableDays = DAYS_OF_WEEK.filter(
