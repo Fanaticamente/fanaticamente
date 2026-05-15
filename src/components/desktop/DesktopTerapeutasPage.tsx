@@ -439,7 +439,7 @@ const DesktopTerapeutasPage = ({
       <footer className="bg-gray-900 text-white py-12 mt-16">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <p className="text-gray-400">
-            © 2025 Fanaticamente. Todos os direitos reservados.
+            Fanaticamente
           </p>
         </div>
       </footer>
