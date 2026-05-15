@@ -30,9 +30,6 @@ const SESSION_MIN = 50
 const RES_TAG_KEY = 'app'
 const RES_TAG_VAL = 'fanaticamente_reservation'
 
-// Day-of-week map (DB stores 0=Sunday..6=Saturday)
-const DOW_RRULE = ['SU','MO','TU','WE','TH','FR','SA']
-
 async function fetchBusyBlocks(accessToken: string, calendarIds: string[], timeMin: string, timeMax: string) {
   const blocks: Array<{ start: string; end: string }> = []
   for (let i = 0; i < calendarIds.length; i += 50) {
