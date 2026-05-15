@@ -39,14 +39,27 @@ function shouldIgnoreCalendarBlock(ev: any) {
     || eventType === 'appointmentschedule'
 }
 
+const SP_OFFSET_HOURS = 3
+
 function nextOccurrence(dayOfWeek: number, hh: number, mm: number): Date {
   const now = new Date()
-  const target = new Date(now)
-  const diff = (dayOfWeek - now.getDay() + 7) % 7
-  target.setDate(now.getDate() + diff)
-  target.setHours(hh, mm, 0, 0)
-  if (target.getTime() <= now.getTime()) target.setDate(target.getDate() + 7)
+  const spNow = new Date(now.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000)
+  const diff = (dayOfWeek - spNow.getUTCDay() + 7) % 7
+  const target = new Date(Date.UTC(
+    spNow.getUTCFullYear(),
+    spNow.getUTCMonth(),
+    spNow.getUTCDate() + diff,
+    hh + SP_OFFSET_HOURS,
+    mm,
+    0,
+    0,
+  ))
+  if (target.getTime() <= now.getTime()) target.setUTCDate(target.getUTCDate() + 7)
   return target
+}
+
+function saoPauloDateString(date: Date) {
+  return new Date(date.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000).toISOString().slice(0, 10)
 }
 
 function overlaps(startMs: number, endMs: number, blocks: Array<{ start_time: string; end_time: string }>) {
@@ -65,7 +78,7 @@ async function getBlockedWeeklySlots(admin: any, professionalId: string, blocks:
       const start = nextOccurrence(av.day_of_week, hh, mm)
       const end = new Date(start.getTime() + 50 * 60 * 1000)
       if (overlaps(start.getTime(), end.getTime(), blocks)) {
-        blocked.push({ day_of_week: av.day_of_week, time, date: start.toISOString().slice(0, 10) })
+        blocked.push({ day_of_week: av.day_of_week, time, date: saoPauloDateString(start) })
       }
     }
   }
