@@ -21,6 +21,14 @@ async function refreshAccessToken(refreshToken: string) {
   return { access_token: data.access_token as string, expires_in: data.expires_in as number }
 }
 
+function shouldIgnoreCalendarBlock(ev: any) {
+  const summary = String(ev?.summary || '').trim().toLowerCase()
+  const eventType = String(ev?.eventType || '').toLowerCase()
+  return summary === 'reservado — fanaticamente'
+    || summary === 'horários para agendamento'
+    || eventType === 'appointmentschedule'
+}
+
 async function fetchEventBlocks(accessToken: string, calendarId: string, professionalId: string, timeMin: string, timeMax: string) {
   const params = new URLSearchParams({
     timeMin,
@@ -39,7 +47,7 @@ async function fetchEventBlocks(accessToken: string, calendarId: string, profess
     return []
   }
   return ((evData.items || []) as Array<any>)
-    .filter((ev) => ev.status !== 'cancelled' && ev.transparency !== 'transparent' && (ev.start?.dateTime || ev.start?.date))
+    .filter((ev) => ev.status !== 'cancelled' && ev.transparency !== 'transparent' && !shouldIgnoreCalendarBlock(ev) && (ev.start?.dateTime || ev.start?.date))
     .map((ev) => {
       const isAllDay = !!ev.start.date
       return {
