@@ -238,7 +238,7 @@ const WeeklyAvailabilityManager = ({
       setSelectedTimes([]);
       fetchAvailabilities();
       onUpdate();
-      runFullSyncAfterSave(selectedDay, selectedTimes.sort());
+      runFullSyncAfterSave(selectedDay, [...selectedTimes].sort());
     } catch (error) {
       console.error("Error adding availability:", error);
       toast.error("Erro ao salvar disponibilidade");
@@ -301,7 +301,7 @@ const WeeklyAvailabilityManager = ({
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
-      runFullSyncAfterSave(editingAvailability.day_of_week, editTimes.sort());
+      runFullSyncAfterSave(editingAvailability.day_of_week, [...editTimes].sort());
     } catch (error) {
       console.error("Error updating availability:", error);
       toast.error("Erro ao atualizar horários");
