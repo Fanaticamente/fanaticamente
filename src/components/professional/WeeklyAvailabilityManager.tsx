@@ -74,7 +74,7 @@ const WeeklyAvailabilityManager = ({
 
   useEffect(() => {
     fetchAvailabilities();
-    fetchGcalBlocks();
+    reloadGcalBlocks();
   }, [professionalId]);
 
   // Realtime: refresh GCal blocks whenever they change in the DB
@@ -146,7 +146,7 @@ const WeeklyAvailabilityManager = ({
   const syncReservationsToGoogle = async () => {
     try {
       const { data } = await supabase.functions.invoke('google-calendar-reserve-availability', {
-        body: { professional_id: professionalId },
+        body: { professional_id: professionalId, wait: true },
       });
       if ((data as CalendarSyncResult)?.needs_reconnect) {
         setCalendarNeedsReconnect(true);
@@ -155,9 +155,10 @@ const WeeklyAvailabilityManager = ({
       if ((data as any)?.skipped_conflicts > 0) {
         toast.info("Horários com compromisso no Google não foram reservados.");
       }
-      fetchGcalBlocks();
+      await reloadGcalBlocks();
     } catch (e) {
       console.warn('reserve-availability failed', e);
+      toast.error("Não foi possível atualizar o Google Calendar agora.");
     }
   };
 
@@ -165,15 +166,6 @@ const WeeklyAvailabilityManager = ({
   // para refletir o estado final (a função reserve roda em background).
   const runFullSyncAfterSave = async () => {
     await syncReservationsToGoogle();
-    setTimeout(() => { reloadGcalBlocks(); }, 6000);
-    setTimeout(async () => {
-      try {
-        await supabase.functions.invoke('google-calendar-sync-now', {
-          body: { professional_id: professionalId, force: true },
-        });
-      } catch (_) { /* best-effort */ }
-      await reloadGcalBlocks();
-    }, 15000);
   };
 
   const syncCalendarBeforeSaving = async (): Promise<CalendarValidationResult> => {
