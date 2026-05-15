@@ -31,6 +31,39 @@ function hasInsufficientScope(details: any) {
     || JSON.stringify(details || {}).includes('ACCESS_TOKEN_SCOPE_INSUFFICIENT')
 }
 
+function nextOccurrence(dayOfWeek: number, hh: number, mm: number): Date {
+  const now = new Date()
+  const target = new Date(now)
+  const diff = (dayOfWeek - now.getDay() + 7) % 7
+  target.setDate(now.getDate() + diff)
+  target.setHours(hh, mm, 0, 0)
+  if (target.getTime() <= now.getTime()) target.setDate(target.getDate() + 7)
+  return target
+}
+
+function overlaps(startMs: number, endMs: number, blocks: Array<{ start_time: string; end_time: string }>) {
+  return blocks.some((b) => new Date(b.start_time).getTime() < endMs && new Date(b.end_time).getTime() > startMs)
+}
+
+async function getBlockedWeeklySlots(admin: any, professionalId: string, blocks: Array<{ start_time: string; end_time: string }>) {
+  const { data: avs } = await admin
+    .from('professional_weekly_availability')
+    .select('day_of_week, time_slots')
+    .eq('professional_id', professionalId)
+  const blocked: Array<{ day_of_week: number; time: string; date: string }> = []
+  for (const av of (avs || [])) {
+    for (const time of (av.time_slots || []) as string[]) {
+      const [hh, mm] = time.split(':').map(Number)
+      const start = nextOccurrence(av.day_of_week, hh, mm)
+      const end = new Date(start.getTime() + 50 * 60 * 1000)
+      if (overlaps(start.getTime(), end.getTime(), blocks)) {
+        blocked.push({ day_of_week: av.day_of_week, time, date: start.toISOString().slice(0, 10) })
+      }
+    }
+  }
+  return blocked
+}
+
 async function fetchEventBlocks(accessToken: string, calendarId: string, professionalId: string, timeMin: string, timeMax: string) {
   const params = new URLSearchParams({
     timeMin,
