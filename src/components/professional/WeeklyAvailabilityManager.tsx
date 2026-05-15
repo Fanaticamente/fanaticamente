@@ -11,6 +11,13 @@ interface WeeklyAvailability {
   time_slots: string[];
 }
 
+interface GcalBlock {
+  start_time: string;
+  end_time: string;
+  summary: string | null;
+  is_all_day: boolean;
+}
+
 interface WeeklyAvailabilityManagerProps {
   professionalId: string;
   onUpdate: () => void;
@@ -42,7 +49,8 @@ const WeeklyAvailabilityManager = ({
   const [showAddSlot, setShowAddSlot] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
-  const [gcalBlocks, setGcalBlocks] = useState<Array<{ start_time: string; end_time: string; summary: string | null; is_all_day: boolean }>>([]);
+  const [gcalBlocks, setGcalBlocks] = useState<GcalBlock[]>([]);
+  const [syncingBlocks, setSyncingBlocks] = useState(false);
   // (lockdown removido — slots individuais são filtrados por gcalBlocks)
   
   // Edit mode state
@@ -76,11 +84,13 @@ const WeeklyAvailabilityManager = ({
 
   const fetchGcalBlocks = async () => {
     // Wait for the sync so the rows we read below are up-to-date
+    setSyncingBlocks(true);
     try {
       await supabase.functions.invoke('google-calendar-sync-now', {
         body: { professional_id: professionalId, force: true },
       });
     } catch (_) { /* best-effort */ }
+    finally { setSyncingBlocks(false); }
     await reloadGcalBlocks();
   };
 
@@ -91,7 +101,7 @@ const WeeklyAvailabilityManager = ({
       .eq('professional_id', professionalId)
       .gte('start_time', new Date().toISOString())
       .order('start_time', { ascending: true })
-      .limit(20);
+      .limit(500);
     if (data) setGcalBlocks(data);
   };
 
@@ -118,11 +128,36 @@ const WeeklyAvailabilityManager = ({
   // calendar isn't connected or the call fails, the in-app slots still work.
   const syncReservationsToGoogle = async () => {
     try {
-      await supabase.functions.invoke('google-calendar-reserve-availability', {
+      const { data } = await supabase.functions.invoke('google-calendar-reserve-availability', {
         body: { professional_id: professionalId },
       });
+      if ((data as any)?.skipped_conflicts > 0) {
+        toast.info("Horários com compromisso no Google não foram reservados.");
+      }
+      fetchGcalBlocks();
     } catch (e) {
       console.warn('reserve-availability failed', e);
+    }
+  };
+
+  const syncCalendarBeforeSaving = async () => {
+    setSyncingBlocks(true);
+    try {
+      await supabase.functions.invoke('google-calendar-sync-now', {
+        body: { professional_id: professionalId, force: true },
+      });
+      const { data } = await supabase
+        .from('google_calendar_blocks')
+        .select('start_time, end_time, summary, is_all_day')
+        .eq('professional_id', professionalId)
+        .gte('start_time', new Date().toISOString())
+        .order('start_time', { ascending: true })
+        .limit(500);
+      const blocks = (data || []) as GcalBlock[];
+      setGcalBlocks(blocks);
+      return blocks;
+    } finally {
+      setSyncingBlocks(false);
     }
   };
 
@@ -141,6 +176,13 @@ const WeeklyAvailabilityManager = ({
 
     setSaving(true);
     try {
+      const freshBlocks = await syncCalendarBeforeSaving();
+      const blockedTimes = filterBlockedTimes(selectedDay, selectedTimes, freshBlocks);
+      if (blockedTimes.length > 0) {
+        toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
+        return;
+      }
+
       const { error } = await supabase
         .from("professional_weekly_availability")
         .insert({
@@ -194,6 +236,13 @@ const WeeklyAvailabilityManager = ({
 
     setSavingEdit(true);
     try {
+      const freshBlocks = await syncCalendarBeforeSaving();
+      const blockedTimes = filterBlockedTimes(editingAvailability.day_of_week, editTimes, freshBlocks);
+      if (blockedTimes.length > 0) {
+        toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
+        return;
+      }
+
       const { error } = await supabase
         .from("professional_weekly_availability")
         .update({ time_slots: editTimes.sort() })
@@ -215,6 +264,10 @@ const WeeklyAvailabilityManager = ({
   };
 
   const toggleTime = (time: string) => {
+    if (selectedDay !== null && isSlotBlockedByGcal(selectedDay, time)) {
+      toast.error("Este horário já está ocupado no Google Calendar.");
+      return;
+    }
     if (selectedTimes.includes(time)) {
       setSelectedTimes(selectedTimes.filter(t => t !== time));
     } else {
@@ -223,6 +276,10 @@ const WeeklyAvailabilityManager = ({
   };
 
   const toggleEditTime = (time: string) => {
+    if (editingAvailability && isSlotBlockedByGcal(editingAvailability.day_of_week, time)) {
+      toast.error("Este horário já está ocupado no Google Calendar.");
+      return;
+    }
     if (editTimes.includes(time)) {
       setEditTimes(editTimes.filter(t => t !== time));
     } else {
@@ -243,23 +300,35 @@ const WeeklyAvailabilityManager = ({
     return DAYS_OF_WEEK.find(d => d.value === dayOfWeek)?.abbr || "";
   };
 
-  // Returns true if the next occurrence of (dayOfWeek, time) overlaps any
-  // Google Calendar busy block (50min session window).
-  const isSlotBlockedByGcal = (dayOfWeek: number, time: string) => {
+  const getNextOccurrenceDate = (dayOfWeek: number, time = "00:00") => {
     const [h, m] = time.split(':').map(Number);
     const now = new Date();
     const target = new Date(now);
     const diff = (dayOfWeek - now.getDay() + 7) % 7;
     target.setDate(now.getDate() + diff);
-    target.setHours(h, m, 0, 0);
+    target.setHours(h || 0, m || 0, 0, 0);
     if (target.getTime() <= now.getTime()) target.setDate(target.getDate() + 7);
+    return target;
+  };
+
+  const getDayDateLabel = (dayOfWeek: number) => {
+    return getNextOccurrenceDate(dayOfWeek).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  };
+
+  // Returns true if the next occurrence of (dayOfWeek, time) overlaps any
+  // Google Calendar busy block (50min session window).
+  const isSlotBlockedByGcal = (dayOfWeek: number, time: string, blocks = gcalBlocks) => {
+    const target = getNextOccurrenceDate(dayOfWeek, time);
     const slotEnd = target.getTime() + 50 * 60 * 1000;
-    return gcalBlocks.some((b) => {
+    return blocks.some((b) => {
       const bs = new Date(b.start_time).getTime();
       const be = new Date(b.end_time).getTime();
       return bs < slotEnd && be > target.getTime();
     });
   };
+
+  const filterBlockedTimes = (dayOfWeek: number, times: string[], blocks = gcalBlocks) =>
+    times.filter((time) => isSlotBlockedByGcal(dayOfWeek, time, blocks));
 
   // Get days that are not yet configured
   const availableDays = DAYS_OF_WEEK.filter(
@@ -358,19 +427,26 @@ const WeeklyAvailabilityManager = ({
                 Horários para {getDayLabel(selectedDay)}
               </label>
               <div className="grid grid-cols-5 gap-2">
-                {TIME_SLOTS.map((time) => (
-                  <button
-                    key={time}
-                    onClick={() => toggleTime(time)}
-                    className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                      selectedTimes.includes(time)
-                        ? "bg-therapy text-therapy-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    }`}
-                  >
-                    {time}
-                  </button>
-                ))}
+                {TIME_SLOTS.map((time) => {
+                  const blocked = isSlotBlockedByGcal(selectedDay, time);
+                  return (
+                    <button
+                      key={time}
+                      onClick={() => toggleTime(time)}
+                      disabled={blocked || syncingBlocks}
+                      title={blocked ? `Ocupado no Google Calendar em ${getDayDateLabel(selectedDay)}` : undefined}
+                      className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed ${
+                        blocked
+                          ? "bg-muted text-muted-foreground line-through opacity-60"
+                          : selectedTimes.includes(time)
+                            ? "bg-therapy text-therapy-foreground"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {time}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -379,10 +455,10 @@ const WeeklyAvailabilityManager = ({
           <div className="flex gap-2">
             <button
               onClick={handleAddAvailability}
-              disabled={saving || selectedDay === null || selectedTimes.length === 0}
+              disabled={saving || syncingBlocks || selectedDay === null || selectedTimes.length === 0}
               className="flex-1 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {(saving || syncingBlocks) && <Loader2 className="w-4 h-4 animate-spin" />}
               Salvar
             </button>
             <button
@@ -407,9 +483,14 @@ const WeeklyAvailabilityManager = ({
               <span className="w-10 h-10 rounded-lg bg-therapy/20 text-therapy font-bold flex items-center justify-center text-sm">
                 {getDayAbbr(editingAvailability.day_of_week)}
               </span>
-              <h3 className="font-medium text-card-foreground">
-                Editar {getDayLabel(editingAvailability.day_of_week)}
-              </h3>
+                  <div>
+                    <h3 className="font-medium text-card-foreground">
+                      Editar {getDayLabel(editingAvailability.day_of_week)}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Próxima data: {getDayDateLabel(editingAvailability.day_of_week)}
+                    </p>
+                  </div>
             </div>
             <button
               onClick={() => setEditingAvailability(null)}
@@ -425,19 +506,26 @@ const WeeklyAvailabilityManager = ({
               Selecione os horários
             </label>
             <div className="grid grid-cols-5 gap-2">
-              {TIME_SLOTS.map((time) => (
-                <button
-                  key={time}
-                  onClick={() => toggleEditTime(time)}
-                  className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                    editTimes.includes(time)
-                      ? "bg-therapy text-therapy-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {time}
-                </button>
-              ))}
+              {TIME_SLOTS.map((time) => {
+                const blocked = isSlotBlockedByGcal(editingAvailability.day_of_week, time);
+                return (
+                  <button
+                    key={time}
+                    onClick={() => toggleEditTime(time)}
+                    disabled={blocked || syncingBlocks}
+                    title={blocked ? `Ocupado no Google Calendar em ${getDayDateLabel(editingAvailability.day_of_week)}` : undefined}
+                    className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed ${
+                      blocked
+                        ? "bg-muted text-muted-foreground line-through opacity-60"
+                        : editTimes.includes(time)
+                          ? "bg-therapy text-therapy-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {time}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -445,10 +533,10 @@ const WeeklyAvailabilityManager = ({
           <div className="flex gap-2">
             <button
               onClick={handleUpdateAvailability}
-              disabled={savingEdit || editTimes.length === 0}
+              disabled={savingEdit || syncingBlocks || editTimes.length === 0}
               className="flex-1 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {savingEdit && <Loader2 className="w-4 h-4 animate-spin" />}
+              {(savingEdit || syncingBlocks) && <Loader2 className="w-4 h-4 animate-spin" />}
               Salvar Alterações
             </button>
             <button
@@ -485,9 +573,14 @@ const WeeklyAvailabilityManager = ({
                   <span className="w-10 h-10 rounded-lg bg-therapy/20 text-therapy font-bold flex items-center justify-center text-sm">
                     {getDayAbbr(availability.day_of_week)}
                   </span>
-                  <h3 className="font-medium text-card-foreground">
-                    {getDayLabel(availability.day_of_week)}
-                  </h3>
+                  <div>
+                    <h3 className="font-medium text-card-foreground">
+                      {getDayLabel(availability.day_of_week)}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Próxima data: {getDayDateLabel(availability.day_of_week)}
+                    </p>
+                  </div>
                 </div>
                 <button 
                   onClick={() => openEditMode(availability)}

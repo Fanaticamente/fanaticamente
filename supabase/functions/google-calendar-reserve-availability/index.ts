@@ -30,8 +30,31 @@ const SESSION_MIN = 50
 const RES_TAG_KEY = 'app'
 const RES_TAG_VAL = 'fanaticamente_reservation'
 
-// Day-of-week map (DB stores 0=Sunday..6=Saturday)
-const DOW_RRULE = ['SU','MO','TU','WE','TH','FR','SA']
+async function fetchBusyBlocks(accessToken: string, calendarIds: string[], timeMin: string, timeMax: string) {
+  const blocks: Array<{ start: string; end: string }> = []
+  for (let i = 0; i < calendarIds.length; i += 50) {
+    const chunk = calendarIds.slice(i, i + 50)
+    const res = await fetch('https://www.googleapis.com/calendar/v3/freeBusy', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        timeMin,
+        timeMax,
+        timeZone: 'America/Sao_Paulo',
+        items: chunk.map((id) => ({ id })),
+      }),
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      console.error('freeBusy validation failed', data)
+      continue
+    }
+    for (const info of Object.values<any>(data.calendars || {})) {
+      blocks.push(...((info?.busy || []) as Array<{ start: string; end: string }>))
+    }
+  }
+  return blocks
+}
 
 function nextOccurrence(dayOfWeek: number, hh: number, mm: number): Date {
   // Compute the next date (>= today) where local weekday == dayOfWeek
@@ -53,6 +76,10 @@ function localISO(date: Date, hh: number, mm: number): string {
   const m = String(date.getMonth() + 1).padStart(2, '0')
   const d = String(date.getDate()).padStart(2, '0')
   return `${y}-${m}-${d}T${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:00`
+}
+
+function overlaps(startMs: number, endMs: number, blocks: Array<{ start: string; end: string }>) {
+  return blocks.some((b) => new Date(b.start).getTime() < endMs && new Date(b.end).getTime() > startMs)
 }
 
 Deno.serve(async (req) => {
@@ -86,76 +113,102 @@ Deno.serve(async (req) => {
       }).eq('professional_id', professional_id)
     }
 
-    const calId = encodeURIComponent(conn.calendar_id || 'primary')
+    const calendarId = conn.calendar_id || 'primary'
+    const calId = encodeURIComponent(calendarId)
 
-    // 1) List & delete previous reservation events on the dedicated calendar
-    const params = new URLSearchParams({
-      privateExtendedProperty: `${RES_TAG_KEY}=${RES_TAG_VAL}`,
-      maxResults: '2500',
-      showDeleted: 'false',
-    })
-    const listRes = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${calId}/events?${params}`,
+    const timeMin = new Date().toISOString()
+    const timeMax = new Date(Date.now() + RECURRENCE_WEEKS * 7 * 24 * 60 * 60 * 1000).toISOString()
+    const listCalendarsRes = await fetch(
+      'https://www.googleapis.com/calendar/v3/users/me/calendarList?maxResults=250',
       { headers: { Authorization: `Bearer ${accessToken}` } },
     )
-    const listData = await listRes.json()
-    if (listRes.ok) {
-      const items = (listData.items || []) as Array<any>
-      for (const ev of items) {
+    const listCalendarsData = await listCalendarsRes.json()
+    const busyCalendarIds = listCalendarsRes.ok
+      ? ((listCalendarsData.items || []) as Array<any>)
+          .filter((c) => !c.hidden && !c.deleted && c.selected !== false)
+          .map((c) => c.id as string)
+      : [calendarId, 'primary']
+    const busyBlocks = await fetchBusyBlocks(accessToken, Array.from(new Set(busyCalendarIds)), timeMin, timeMax)
+
+    // 1) List & delete previous reservation events on the dedicated calendar
+    let pageToken: string | undefined
+    do {
+      const params = new URLSearchParams({
+        privateExtendedProperty: `${RES_TAG_KEY}=${RES_TAG_VAL}`,
+        maxResults: '2500',
+        showDeleted: 'false',
+      })
+      if (pageToken) params.set('pageToken', pageToken)
+      const listRes = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${calId}/events?${params}`,
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      )
+      const listData = await listRes.json()
+      if (!listRes.ok) {
+        console.error('list reservations failed', listData)
+        break
+      }
+      for (const ev of ((listData.items || []) as Array<any>)) {
         await fetch(
           `https://www.googleapis.com/calendar/v3/calendars/${calId}/events/${encodeURIComponent(ev.id)}`,
           { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
         )
       }
-    } else {
-      console.error('list reservations failed', listData)
-    }
+      pageToken = listData.nextPageToken
+    } while (pageToken)
 
-    // 2) Load weekly availability and create one recurring event per slot
+    // 2) Load weekly availability and create real dated hold events per slot.
+    // Each occurrence is checked against Google busy blocks before creation, so
+    // a private appointment on 18/05 14:00 blocks only that exact date.
     const { data: avs } = await admin
       .from('professional_weekly_availability')
       .select('day_of_week, time_slots')
       .eq('professional_id', professional_id)
 
     let created = 0
+    let skipped_conflicts = 0
     for (const av of (avs || [])) {
       for (const time of (av.time_slots || []) as string[]) {
         const [hh, mm] = time.split(':').map(Number)
-        const start = nextOccurrence(av.day_of_week, hh, mm)
-        const endMin = hh * 60 + mm + SESSION_MIN
-        const eh = Math.floor(endMin / 60) % 24
-        const em = endMin % 60
-        const startISO = localISO(start, hh, mm)
-        const endISO = localISO(start, eh, em)
-        const rrule = `RRULE:FREQ=WEEKLY;BYDAY=${DOW_RRULE[av.day_of_week]};COUNT=${RECURRENCE_WEEKS}`
-        const eventBody = {
-          summary: 'Reservado — Fanaticamente',
-          description: 'Horário disponibilizado para sessões pelo aplicativo Fanaticamente. Para bloquear este horário em uma semana específica, crie um compromisso pessoal sobreposto neste horário em qualquer agenda.',
-          start: { dateTime: startISO, timeZone: 'America/Sao_Paulo' },
-          end: { dateTime: endISO, timeZone: 'America/Sao_Paulo' },
-          recurrence: [rrule],
-          transparency: 'transparent',
-          extendedProperties: { private: { [RES_TAG_KEY]: RES_TAG_VAL } },
-          reminders: { useDefault: false },
-        }
-        const evRes = await fetch(
-          `https://www.googleapis.com/calendar/v3/calendars/${calId}/events`,
-          {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify(eventBody),
-          },
-        )
-        if (evRes.ok) {
-          created++
-        } else {
-          const err = await evRes.json().catch(() => ({}))
-          console.error('create reservation failed', err)
+        const firstStart = nextOccurrence(av.day_of_week, hh, mm)
+        for (let week = 0; week < RECURRENCE_WEEKS; week++) {
+          const start = new Date(firstStart)
+          start.setDate(firstStart.getDate() + week * 7)
+          const end = new Date(start)
+          end.setMinutes(end.getMinutes() + SESSION_MIN)
+          if (overlaps(start.getTime(), end.getTime(), busyBlocks)) {
+            skipped_conflicts++
+            continue
+          }
+          const startISO = localISO(start, hh, mm)
+          const endISO = localISO(end, end.getHours(), end.getMinutes())
+          const eventBody = {
+            summary: 'Reservado — Fanaticamente',
+            description: 'Horário disponibilizado para sessões pelo aplicativo Fanaticamente. Para bloquear este horário nesta data, crie um compromisso pessoal sobreposto neste horário em qualquer agenda.',
+            start: { dateTime: startISO, timeZone: 'America/Sao_Paulo' },
+            end: { dateTime: endISO, timeZone: 'America/Sao_Paulo' },
+            transparency: 'transparent',
+            extendedProperties: { private: { [RES_TAG_KEY]: RES_TAG_VAL, day: String(av.day_of_week), time } },
+            reminders: { useDefault: false },
+          }
+          const evRes = await fetch(
+            `https://www.googleapis.com/calendar/v3/calendars/${calId}/events`,
+            {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify(eventBody),
+            },
+          )
+          if (evRes.ok) created++
+          else {
+            const err = await evRes.json().catch(() => ({}))
+            console.error('create reservation failed', err)
+          }
         }
       }
     }
 
-    return json({ ok: true, created })
+    return json({ ok: true, created, skipped_conflicts })
   } catch (e) {
     console.error('reserve-availability error', e)
     return json({ error: String(e) }, 500)

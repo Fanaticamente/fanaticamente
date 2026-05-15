@@ -129,12 +129,9 @@ Deno.serve(async (req) => {
       calIds = Array.from(new Set([conn.calendar_id || 'primary', 'primary'].filter(Boolean)))
     }
 
-    // Exclude the dedicated "Fanaticamente — Sessões" calendar from busy lookup —
-    // its events ARE the app-side reservations and would otherwise self-block.
-    const dedicatedId = conn.calendar_id as string | null
-    if (dedicatedId) {
-      calIds = calIds.filter((id) => id !== dedicatedId)
-    }
+    // Keep the dedicated "Fanaticamente — Sessões" calendar in the busy lookup.
+    // App reservations are created as transparent/free events, so freeBusy ignores
+    // them, while manual private events created over those holds still block slots.
 
     // Use freebusy (max 50 calendars per request) to aggregate busy intervals
     const blocks: Array<any> = []
