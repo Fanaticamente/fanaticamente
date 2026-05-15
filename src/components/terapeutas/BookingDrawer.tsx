@@ -128,6 +128,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
   // Profile step state
   const [weeklyAvailability, setWeeklyAvailability] = useState<WeeklyAvailability[]>([]);
   const [bookedAppointments, setBookedAppointments] = useState<Appointment[]>([]);
+  const [gcalBlocks, setGcalBlocks] = useState<Array<{ start_time: string; end_time: string; is_all_day: boolean }>>([]);
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -164,6 +165,11 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
     const fetchAvailability = async () => {
       setLoadingAvailability(true);
       try {
+        // Trigger a fresh Google Calendar sync for this professional (best-effort, throttled server-side)
+        supabase.functions.invoke('google-calendar-sync-now', {
+          body: { professional_id: therapist.id },
+        }).catch(() => {});
+
         const { data: availabilityData } = await supabase
           .from('professional_weekly_availability')
           .select('day_of_week, time_slots')
@@ -183,6 +189,13 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
         if (appointmentsData) {
           setBookedAppointments(appointmentsData);
         }
+
+        // Fetch Google Calendar busy blocks for this professional (next 60 days)
+        const { data: blocksData } = await supabase
+          .from('google_calendar_blocks')
+          .select('start_time, end_time, is_all_day')
+          .eq('professional_id', therapist.id);
+        if (blocksData) setGcalBlocks(blocksData);
 
         // Fetch payment info
         const { data: paymentData } = await supabase
