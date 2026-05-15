@@ -36,6 +36,14 @@ const DesktopFooter = () => {
             <span className="font-semibold text-gray-800">© 2025 Fanaticamente</span>
             <span className="text-gray-500"> | Fanaticamente Tecnologia e Serviços Ltda - CNPJ 56.605.156/0001-50</span>
           </p>
+          <p className="mt-3 text-sm">
+            <a
+              href="/privacy-policy"
+              className="text-gray-700 underline hover:text-gray-900"
+            >
+              Política de Privacidade
+            </a>
+          </p>
         </div>
       </div>
     </footer>
