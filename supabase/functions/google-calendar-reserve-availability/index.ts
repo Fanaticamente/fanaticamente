@@ -287,6 +287,7 @@ Deno.serve(async (req) => {
     const heavyWork = (async () => {
     const existingReservations = await listReservationEvents(accessToken, calendarId, timeMin, timeMax)
     const existingByKey = new Map<string, any>()
+    const duplicates: any[] = []
     for (const ev of existingReservations) {
       const startValue = ev.start?.dateTime || ev.start?.date
       if (!startValue) continue
@@ -294,7 +295,20 @@ Deno.serve(async (req) => {
       const day = ev.extendedProperties?.private?.day || String(saoPauloDayOfWeek(startDate))
       if (scopedDay !== null && Number(day) !== scopedDay) continue
       const time = ev.extendedProperties?.private?.time || saoPauloTimeString(startDate)
-      existingByKey.set(reservationKey(day, time, saoPauloDateString(startDate)), ev)
+      const k = reservationKey(day, time, saoPauloDateString(startDate))
+      if (existingByKey.has(k)) {
+        duplicates.push(ev)
+      } else {
+        existingByKey.set(k, ev)
+      }
+    }
+    // Remove duplicates left from previous runs
+    for (const ev of duplicates) {
+      if (!ev.id) continue
+      await gfetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${calId}/events/${encodeURIComponent(ev.id)}`,
+        { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
+      )
     }
     const desiredKeys = new Set<string>()
     let deleted = 0
