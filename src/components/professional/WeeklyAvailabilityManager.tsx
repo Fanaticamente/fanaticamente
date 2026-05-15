@@ -176,6 +176,13 @@ const WeeklyAvailabilityManager = ({
 
     setSaving(true);
     try {
+      const freshBlocks = await syncCalendarBeforeSaving();
+      const blockedTimes = filterBlockedTimes(selectedDay, selectedTimes, freshBlocks);
+      if (blockedTimes.length > 0) {
+        toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
+        return;
+      }
+
       const { error } = await supabase
         .from("professional_weekly_availability")
         .insert({
@@ -229,6 +236,13 @@ const WeeklyAvailabilityManager = ({
 
     setSavingEdit(true);
     try {
+      const freshBlocks = await syncCalendarBeforeSaving();
+      const blockedTimes = filterBlockedTimes(editingAvailability.day_of_week, editTimes, freshBlocks);
+      if (blockedTimes.length > 0) {
+        toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
+        return;
+      }
+
       const { error } = await supabase
         .from("professional_weekly_availability")
         .update({ time_slots: editTimes.sort() })
