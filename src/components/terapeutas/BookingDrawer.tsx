@@ -302,6 +302,18 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
     return allSlots.filter(slot => {
       if (bookedTimes.includes(slot)) return false;
 
+      // Exclude slots that overlap with a Google Calendar block (50 min session)
+      const [sh, sm] = slot.split(':').map(Number);
+      const slotStart = new Date(date);
+      slotStart.setHours(sh, sm, 0, 0);
+      const slotEnd = new Date(slotStart.getTime() + 50 * 60 * 1000);
+      const conflict = gcalBlocks.some((b) => {
+        const bs = new Date(b.start_time).getTime();
+        const be = new Date(b.end_time).getTime();
+        return bs < slotEnd.getTime() && be > slotStart.getTime();
+      });
+      if (conflict) return false;
+
       if (dateStr === todayStr) {
         const [hours, minutes] = slot.split(':').map(Number);
         const slotTime = new Date(date);
