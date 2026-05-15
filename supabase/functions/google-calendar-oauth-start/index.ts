@@ -34,12 +34,13 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}))
     const returnUrl: string = body.returnUrl || ''
+    const platform: string = body.platform === 'native' ? 'native' : 'web'
 
     const clientId = Deno.env.get('GOOGLE_CALENDAR_CLIENT_ID')!
     const redirectUri = `${Deno.env.get('SUPABASE_URL')}/functions/v1/google-calendar-oauth-callback`
 
     // State carries user id + return URL, signed via simple base64 + secret check on callback (refetched by user_id)
-    const state = btoa(JSON.stringify({ uid: userId, r: returnUrl, t: Date.now() }))
+    const state = btoa(JSON.stringify({ uid: userId, r: returnUrl, t: Date.now(), p: platform }))
 
     const params = new URLSearchParams({
       client_id: clientId,
