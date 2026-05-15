@@ -165,10 +165,14 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
     const fetchAvailability = async () => {
       setLoadingAvailability(true);
       try {
-        // Trigger a fresh Google Calendar sync for this professional (best-effort, throttled server-side)
-        supabase.functions.invoke('google-calendar-sync-now', {
-          body: { professional_id: therapist.id },
-        }).catch(() => {});
+        // Trigger a fresh Google Calendar sync and WAIT for it to finish so
+        // the blocks below reflect the latest busy times (force=true to bypass
+        // server-side throttling whenever the booking flow is opened).
+        try {
+          await supabase.functions.invoke('google-calendar-sync-now', {
+            body: { professional_id: therapist.id, force: true },
+          });
+        } catch (_) { /* best-effort */ }
 
         const { data: availabilityData } = await supabase
           .from('professional_weekly_availability')
