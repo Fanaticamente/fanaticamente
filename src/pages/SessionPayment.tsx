@@ -329,7 +329,7 @@ const SessionPayment = () => {
 
       if (uploadError) throw uploadError;
 
-      const { error: appointmentError } = await supabase
+      const { data: createdApt, error: appointmentError } = await supabase
         .from('appointments')
         .insert({
           user_id: user.id,
@@ -338,9 +338,18 @@ const SessionPayment = () => {
           scheduled_time: scheduledTime,
           status: 'pending',
           receipt_url: fileName,
-        });
+        })
+        .select('id')
+        .single();
 
       if (appointmentError) throw appointmentError;
+
+      // Push event to professional's Google Calendar (best-effort)
+      if (createdApt?.id) {
+        supabase.functions.invoke('google-calendar-create-event', {
+          body: { appointment_id: createdApt.id },
+        }).catch((err) => console.warn('gcal create-event failed', err));
+      }
 
       toast.success("Agendamento enviado! O profissional irá verificar o comprovante.");
       navigate(`/pagamento/confirmacao/${id}?date=${scheduledDate}&time=${scheduledTime}`);
