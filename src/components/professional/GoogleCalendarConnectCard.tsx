@@ -113,8 +113,14 @@ const GoogleCalendarConnectCard = ({ professionalId }: Props) => {
   const runSync = async (showToast = true) => {
     setWorking(true);
     try {
-      const { error } = await supabase.functions.invoke("google-calendar-sync");
+      const { data, error } = await supabase.functions.invoke("google-calendar-sync-now", {
+        body: { professional_id: professionalId, force: true },
+      });
       if (error) throw error;
+      if ((data as any)?.needs_reconnect) {
+        if (showToast) toast.error("Reconecte o Google Calendar para considerar todas as suas agendas.");
+        return;
+      }
       if (showToast) toast.success("Agenda sincronizada");
       fetchConnection();
     } catch (e) {
