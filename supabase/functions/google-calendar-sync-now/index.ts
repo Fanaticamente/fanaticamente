@@ -25,6 +25,44 @@ function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 }
 
+function hasInsufficientScope(details: any) {
+  return details?.error?.status === 'PERMISSION_DENIED'
+    || details?.error?.reason === 'insufficientPermissions'
+    || JSON.stringify(details || {}).includes('ACCESS_TOKEN_SCOPE_INSUFFICIENT')
+}
+
+async function fetchEventBlocks(accessToken: string, calendarId: string, professionalId: string, timeMin: string, timeMax: string) {
+  const params = new URLSearchParams({
+    timeMin,
+    timeMax,
+    singleEvents: 'true',
+    orderBy: 'startTime',
+    maxResults: '2500',
+    showDeleted: 'false',
+  })
+  const evRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  const evData = await evRes.json()
+  if (!evRes.ok) {
+    console.error('events fallback failed', { calendarId, evData })
+    return []
+  }
+  return ((evData.items || []) as Array<any>)
+    .filter((ev) => ev.status !== 'cancelled' && ev.transparency !== 'transparent' && (ev.start?.dateTime || ev.start?.date))
+    .map((ev) => {
+      const isAllDay = !!ev.start.date
+      return {
+        professional_id: professionalId,
+        google_event_id: `${calendarId}|${ev.id}`,
+        start_time: isAllDay ? `${ev.start.date}T00:00:00-03:00` : ev.start.dateTime,
+        end_time: isAllDay ? `${ev.end.date}T00:00:00-03:00` : ev.end.dateTime,
+        summary: ev.summary || null,
+        is_all_day: isAllDay,
+      }
+    })
+}
+
 // Public sync: accepts { professional_id } and refreshes google_calendar_blocks
 // for that professional. Throttled to once per 60s per professional.
 Deno.serve(async (req) => {
@@ -74,15 +112,22 @@ Deno.serve(async (req) => {
       { headers: { Authorization: `Bearer ${accessToken}` } },
     )
     const listData = await listRes.json()
-    if (!listRes.ok) {
-      console.error('calendarList failed', listData)
-      return json({ error: 'google_api', details: listData }, 500)
+    let calIds: string[] = []
+    let needsReconnect = false
+    if (listRes.ok) {
+      const calendars = (listData.items || []) as Array<any>
+      // Skip calendars the user explicitly hid or marked as not affecting busy
+      calIds = calendars
+        .filter((c) => !c.hidden && !c.deleted && c.selected !== false)
+        .map((c) => c.id as string)
+    } else {
+      // Older professional connections may only have event-level permission, not
+      // calendar-list/freebusy permission. Do not fail the sync: fall back to the
+      // connected calendar (usually primary) so private commitments still block slots.
+      console.error('calendarList failed; falling back to connected calendar', listData)
+      needsReconnect = hasInsufficientScope(listData)
+      calIds = Array.from(new Set([conn.calendar_id || 'primary', 'primary'].filter(Boolean)))
     }
-    const calendars = (listData.items || []) as Array<any>
-    // Skip calendars the user explicitly hid or marked as not affecting busy
-    const calIds: string[] = calendars
-      .filter((c) => !c.hidden && !c.deleted && c.selected !== false)
-      .map((c) => c.id as string)
 
     // Use freebusy (max 50 calendars per request) to aggregate busy intervals
     const blocks: Array<any> = []
@@ -98,22 +143,26 @@ Deno.serve(async (req) => {
         }),
       })
       const fbData = await fbRes.json()
-      if (!fbRes.ok) {
-        console.error('freeBusy failed', fbData)
-        continue
-      }
-      const cals = fbData.calendars || {}
-      for (const [calId, info] of Object.entries<any>(cals)) {
-        const busy = (info?.busy || []) as Array<{ start: string; end: string }>
-        for (const b of busy) {
-          blocks.push({
-            professional_id,
-            google_event_id: `${calId}|${b.start}`,
-            start_time: b.start,
-            end_time: b.end,
-            summary: null,
-            is_all_day: false,
-          })
+      if (fbRes.ok) {
+        const cals = fbData.calendars || {}
+        for (const [calId, info] of Object.entries<any>(cals)) {
+          const busy = (info?.busy || []) as Array<{ start: string; end: string }>
+          for (const b of busy) {
+            blocks.push({
+              professional_id,
+              google_event_id: `${calId}|${b.start}|${b.end}`,
+              start_time: b.start,
+              end_time: b.end,
+              summary: null,
+              is_all_day: false,
+            })
+          }
+        }
+      } else {
+        console.error('freeBusy failed; falling back to events.list', fbData)
+        if (hasInsufficientScope(fbData)) needsReconnect = true
+        for (const calId of chunk) {
+          blocks.push(...await fetchEventBlocks(accessToken, calId, professional_id, timeMin, timeMax))
         }
       }
     }
@@ -129,7 +178,7 @@ Deno.serve(async (req) => {
       last_synced_at: new Date().toISOString(),
     }).eq('professional_id', professional_id)
 
-    return json({ ok: true, count: blocks.length })
+    return json({ ok: !needsReconnect, needs_reconnect: needsReconnect, count: blocks.length })
   } catch (e) {
     console.error('sync-now error', e)
     return json({ error: String(e) }, 500)
