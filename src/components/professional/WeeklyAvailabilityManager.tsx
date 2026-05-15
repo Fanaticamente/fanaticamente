@@ -43,7 +43,7 @@ const WeeklyAvailabilityManager = ({
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [gcalBlocks, setGcalBlocks] = useState<Array<{ start_time: string; end_time: string; summary: string | null; is_all_day: boolean }>>([]);
-  const [calendarSyncLocked, setCalendarSyncLocked] = useState(false);
+  // (lockdown removido — slots individuais são filtrados por gcalBlocks)
   
   // Edit mode state
   const [editingAvailability, setEditingAvailability] = useState<WeeklyAvailability | null>(null);
@@ -77,10 +77,9 @@ const WeeklyAvailabilityManager = ({
   const fetchGcalBlocks = async () => {
     // Wait for the sync so the rows we read below are up-to-date
     try {
-      const { data } = await supabase.functions.invoke('google-calendar-sync-now', {
+      await supabase.functions.invoke('google-calendar-sync-now', {
         body: { professional_id: professionalId, force: true },
       });
-      setCalendarSyncLocked(!!(data as any)?.needs_reconnect);
     } catch (_) { /* best-effort */ }
     await reloadGcalBlocks();
   };
@@ -231,7 +230,6 @@ const WeeklyAvailabilityManager = ({
   // Returns true if the next occurrence of (dayOfWeek, time) overlaps any
   // Google Calendar busy block (50min session window).
   const isSlotBlockedByGcal = (dayOfWeek: number, time: string) => {
-    if (calendarSyncLocked) return true;
     const [h, m] = time.split(':').map(Number);
     const now = new Date();
     const target = new Date(now);
