@@ -455,10 +455,10 @@ const WeeklyAvailabilityManager = ({
           <div className="flex gap-2">
             <button
               onClick={handleAddAvailability}
-              disabled={saving || selectedDay === null || selectedTimes.length === 0}
+              disabled={saving || syncingBlocks || selectedDay === null || selectedTimes.length === 0}
               className="flex-1 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {(saving || syncingBlocks) && <Loader2 className="w-4 h-4 animate-spin" />}
               Salvar
             </button>
             <button
@@ -533,10 +533,10 @@ const WeeklyAvailabilityManager = ({
           <div className="flex gap-2">
             <button
               onClick={handleUpdateAvailability}
-              disabled={savingEdit || editTimes.length === 0}
+              disabled={savingEdit || syncingBlocks || editTimes.length === 0}
               className="flex-1 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {savingEdit && <Loader2 className="w-4 h-4 animate-spin" />}
+              {(savingEdit || syncingBlocks) && <Loader2 className="w-4 h-4 animate-spin" />}
               Salvar Alterações
             </button>
             <button
