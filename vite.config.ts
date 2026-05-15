@@ -23,8 +23,8 @@ export default defineConfig(({ mode }) => ({
       registerType: "prompt",
       includeAssets: ["favicon.ico", "robots.txt"],
       manifest: {
-        name: "Fanática - Saúde Mental para Torcedores",
-        short_name: "Fanática",
+        name: "Fanaticamente - Saúde Mental para Torcedores",
+        short_name: "Fanaticamente",
         description: "Plataforma de saúde mental especializada para torcedores de futebol",
         theme_color: "#0a0a0a",
         background_color: "#0a0a0a",
