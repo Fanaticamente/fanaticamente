@@ -29,6 +29,7 @@ const RECURRENCE_WEEKS = 12
 const SESSION_MIN = 50
 const RES_TAG_KEY = 'app'
 const RES_TAG_VAL = 'fanaticamente_reservation'
+const SP_OFFSET_HOURS = 3
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -52,6 +53,39 @@ function hasInsufficientScope(details: any) {
     || JSON.stringify(details || {}).includes('ACCESS_TOKEN_SCOPE_INSUFFICIENT')
 }
 
+function shouldIgnoreCalendarBlock(ev: any) {
+  const summary = String(ev?.summary || '').trim().toLowerCase()
+  const eventType = String(ev?.eventType || '').toLowerCase()
+  return summary === 'reservado — fanaticamente'
+    || summary === 'horários para agendamento'
+    || eventType === 'appointmentschedule'
+}
+
+async function fetchBusyEventBlocks(accessToken: string, calendarId: string, timeMin: string, timeMax: string) {
+  const params = new URLSearchParams({
+    timeMin,
+    timeMax,
+    singleEvents: 'true',
+    orderBy: 'startTime',
+    maxResults: '2500',
+    showDeleted: 'false',
+  })
+  const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  const data = await res.json()
+  if (!res.ok) {
+    console.error('events validation failed', { calendarId, data })
+    return null
+  }
+  return ((data.items || []) as Array<any>)
+    .filter((ev) => ev.status !== 'cancelled' && ev.transparency !== 'transparent' && !shouldIgnoreCalendarBlock(ev) && (ev.start?.dateTime || ev.start?.date))
+    .map((ev) => ({
+      start: ev.start.dateTime || `${ev.start.date}T00:00:00-03:00`,
+      end: ev.end.dateTime || `${ev.end.date}T00:00:00-03:00`,
+    }))
+}
+
 async function fetchBusyBlocks(accessToken: string, calendarIds: string[], timeMin: string, timeMax: string) {
   const blocks: Array<{ start: string; end: string }> = []
   let needsReconnect = false
@@ -73,7 +107,15 @@ async function fetchBusyBlocks(accessToken: string, calendarIds: string[], timeM
       if (hasInsufficientScope(data)) needsReconnect = true
       continue
     }
-    for (const info of Object.values<any>(data.calendars || {})) {
+    for (const id of chunk) {
+      // Prefer event details over freeBusy because Google Appointment Schedule
+      // blocks are returned as busy but are not real commitments.
+      const detailedBlocks = await fetchBusyEventBlocks(accessToken, id, timeMin, timeMax)
+      if (detailedBlocks) {
+        blocks.push(...detailedBlocks)
+        continue
+      }
+      const info = data.calendars?.[id]
       blocks.push(...((info?.busy || []) as Array<{ start: string; end: string }>))
     }
   }
@@ -81,24 +123,28 @@ async function fetchBusyBlocks(accessToken: string, calendarIds: string[], timeM
 }
 
 function nextOccurrence(dayOfWeek: number, hh: number, mm: number): Date {
-  // Compute the next date (>= today) where local weekday == dayOfWeek
   const now = new Date()
-  const nowDow = now.getDay()
-  let diff = (dayOfWeek - nowDow + 7) % 7
-  const candidate = new Date(now)
-  candidate.setDate(now.getDate() + diff)
-  candidate.setHours(hh, mm, 0, 0)
-  if (candidate.getTime() <= now.getTime() && diff === 0) {
-    candidate.setDate(candidate.getDate() + 7)
-  }
-  return candidate
+  const spNow = new Date(now.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000)
+  const diff = (dayOfWeek - spNow.getUTCDay() + 7) % 7
+  const target = new Date(Date.UTC(
+    spNow.getUTCFullYear(),
+    spNow.getUTCMonth(),
+    spNow.getUTCDate() + diff,
+    hh + SP_OFFSET_HOURS,
+    mm,
+    0,
+    0,
+  ))
+  if (target.getTime() <= now.getTime()) target.setUTCDate(target.getUTCDate() + 7)
+  return target
 }
 
 function localISO(date: Date, hh: number, mm: number): string {
   // Returns YYYY-MM-DDTHH:MM:00 (no timezone — sent with timeZone field)
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
+  const spDate = new Date(date.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000)
+  const y = spDate.getUTCFullYear()
+  const m = String(spDate.getUTCMonth() + 1).padStart(2, '0')
+  const d = String(spDate.getUTCDate()).padStart(2, '0')
   return `${y}-${m}-${d}T${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:00`
 }
 
@@ -266,7 +312,8 @@ Deno.serve(async (req) => {
             continue
           }
           const startISO = localISO(start, hh, mm)
-          const endISO = localISO(end, end.getHours(), end.getMinutes())
+          const endMinutes = hh * 60 + mm + SESSION_MIN
+          const endISO = localISO(end, Math.floor(endMinutes / 60) % 24, endMinutes % 60)
           const eventBody = {
             summary: 'Reservado — Fanaticamente',
             description: 'Horário disponibilizado para sessões pelo aplicativo Fanaticamente. Para bloquear este horário nesta data, crie um compromisso pessoal sobreposto neste horário em qualquer agenda.',

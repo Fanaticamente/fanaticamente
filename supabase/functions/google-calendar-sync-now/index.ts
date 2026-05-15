@@ -31,14 +31,35 @@ function hasInsufficientScope(details: any) {
     || JSON.stringify(details || {}).includes('ACCESS_TOKEN_SCOPE_INSUFFICIENT')
 }
 
+function shouldIgnoreCalendarBlock(ev: any) {
+  const summary = String(ev?.summary || '').trim().toLowerCase()
+  const eventType = String(ev?.eventType || '').toLowerCase()
+  return summary === 'reservado — fanaticamente'
+    || summary === 'horários para agendamento'
+    || eventType === 'appointmentschedule'
+}
+
+const SP_OFFSET_HOURS = 3
+
 function nextOccurrence(dayOfWeek: number, hh: number, mm: number): Date {
   const now = new Date()
-  const target = new Date(now)
-  const diff = (dayOfWeek - now.getDay() + 7) % 7
-  target.setDate(now.getDate() + diff)
-  target.setHours(hh, mm, 0, 0)
-  if (target.getTime() <= now.getTime()) target.setDate(target.getDate() + 7)
+  const spNow = new Date(now.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000)
+  const diff = (dayOfWeek - spNow.getUTCDay() + 7) % 7
+  const target = new Date(Date.UTC(
+    spNow.getUTCFullYear(),
+    spNow.getUTCMonth(),
+    spNow.getUTCDate() + diff,
+    hh + SP_OFFSET_HOURS,
+    mm,
+    0,
+    0,
+  ))
+  if (target.getTime() <= now.getTime()) target.setUTCDate(target.getUTCDate() + 7)
   return target
+}
+
+function saoPauloDateString(date: Date) {
+  return new Date(date.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000).toISOString().slice(0, 10)
 }
 
 function overlaps(startMs: number, endMs: number, blocks: Array<{ start_time: string; end_time: string }>) {
@@ -57,7 +78,7 @@ async function getBlockedWeeklySlots(admin: any, professionalId: string, blocks:
       const start = nextOccurrence(av.day_of_week, hh, mm)
       const end = new Date(start.getTime() + 50 * 60 * 1000)
       if (overlaps(start.getTime(), end.getTime(), blocks)) {
-        blocked.push({ day_of_week: av.day_of_week, time, date: start.toISOString().slice(0, 10) })
+        blocked.push({ day_of_week: av.day_of_week, time, date: saoPauloDateString(start) })
       }
     }
   }
@@ -79,10 +100,10 @@ async function fetchEventBlocks(accessToken: string, calendarId: string, profess
   const evData = await evRes.json()
   if (!evRes.ok) {
     console.error('events fallback failed', { calendarId, evData })
-    return []
+    return null
   }
   return ((evData.items || []) as Array<any>)
-    .filter((ev) => ev.status !== 'cancelled' && ev.transparency !== 'transparent' && (ev.start?.dateTime || ev.start?.date))
+    .filter((ev) => ev.status !== 'cancelled' && ev.transparency !== 'transparent' && !shouldIgnoreCalendarBlock(ev) && (ev.start?.dateTime || ev.start?.date))
     .map((ev) => {
       const isAllDay = !!ev.start.date
       return {
@@ -182,8 +203,15 @@ Deno.serve(async (req) => {
       const fbData = await fbRes.json()
       if (fbRes.ok) {
         const cals = fbData.calendars || {}
-        for (const [calId, info] of Object.entries<any>(cals)) {
-          const busy = (info?.busy || []) as Array<{ start: string; end: string }>
+        for (const calId of chunk) {
+          // Prefer event details over freeBusy because Google Appointment Schedule
+          // blocks are returned as busy but are not real commitments.
+          const detailedBlocks = await fetchEventBlocks(accessToken, calId, professional_id, timeMin, timeMax)
+          if (detailedBlocks) {
+            blocks.push(...detailedBlocks)
+            continue
+          }
+          const busy = (cals[calId]?.busy || []) as Array<{ start: string; end: string }>
           for (const b of busy) {
             blocks.push({
               professional_id,
@@ -199,7 +227,8 @@ Deno.serve(async (req) => {
         console.error('freeBusy failed; falling back to events.list', fbData)
         if (hasInsufficientScope(fbData)) needsReconnect = true
         for (const calId of chunk) {
-          blocks.push(...await fetchEventBlocks(accessToken, calId, professional_id, timeMin, timeMax))
+          const detailedBlocks = await fetchEventBlocks(accessToken, calId, professional_id, timeMin, timeMax)
+          if (detailedBlocks) blocks.push(...detailedBlocks)
         }
       }
     }
