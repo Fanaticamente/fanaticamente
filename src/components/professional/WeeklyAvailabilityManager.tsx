@@ -54,12 +54,36 @@ const WeeklyAvailabilityManager = ({
     fetchGcalBlocks();
   }, [professionalId]);
 
-  const fetchGcalBlocks = async () => {
-    // Trigger a fresh sync (best-effort, server throttled)
-    supabase.functions.invoke('google-calendar-sync-now', {
-      body: { professional_id: professionalId, force: true },
-    }).catch(() => {});
+  // Realtime: refresh GCal blocks whenever they change in the DB
+  useEffect(() => {
+    if (!professionalId) return;
+    const channel = supabase
+      .channel(`gcal-blocks-panel-${professionalId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'google_calendar_blocks',
+          filter: `professional_id=eq.${professionalId}`,
+        },
+        () => { reloadGcalBlocks(); },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [professionalId]);
 
+  const fetchGcalBlocks = async () => {
+    // Wait for the sync so the rows we read below are up-to-date
+    try {
+      await supabase.functions.invoke('google-calendar-sync-now', {
+        body: { professional_id: professionalId, force: true },
+      });
+    } catch (_) { /* best-effort */ }
+    await reloadGcalBlocks();
+  };
+
+  const reloadGcalBlocks = async () => {
     const { data } = await supabase
       .from('google_calendar_blocks')
       .select('start_time, end_time, summary, is_all_day')
@@ -200,6 +224,24 @@ const WeeklyAvailabilityManager = ({
 
   const getDayAbbr = (dayOfWeek: number) => {
     return DAYS_OF_WEEK.find(d => d.value === dayOfWeek)?.abbr || "";
+  };
+
+  // Returns true if the next occurrence of (dayOfWeek, time) overlaps any
+  // Google Calendar busy block (50min session window).
+  const isSlotBlockedByGcal = (dayOfWeek: number, time: string) => {
+    const [h, m] = time.split(':').map(Number);
+    const now = new Date();
+    const target = new Date(now);
+    const diff = (dayOfWeek - now.getDay() + 7) % 7;
+    target.setDate(now.getDate() + diff);
+    target.setHours(h, m, 0, 0);
+    if (target.getTime() <= now.getTime()) target.setDate(target.getDate() + 7);
+    const slotEnd = target.getTime() + 50 * 60 * 1000;
+    return gcalBlocks.some((b) => {
+      const bs = new Date(b.start_time).getTime();
+      const be = new Date(b.end_time).getTime();
+      return bs < slotEnd && be > target.getTime();
+    });
   };
 
   // Get days that are not yet configured
@@ -438,14 +480,22 @@ const WeeklyAvailabilityManager = ({
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {availability.time_slots.map((time) => (
-                  <span
-                    key={time}
-                    className="px-3 py-1 bg-therapy/20 text-therapy text-sm rounded-full"
-                  >
-                    {time}
-                  </span>
-                ))}
+                {availability.time_slots.map((time) => {
+                  const blocked = isSlotBlockedByGcal(availability.day_of_week, time);
+                  return (
+                    <span
+                      key={time}
+                      title={blocked ? 'Bloqueado pelo Google Calendar nesta semana' : undefined}
+                      className={
+                        blocked
+                          ? "px-3 py-1 bg-muted text-muted-foreground text-sm rounded-full line-through opacity-70"
+                          : "px-3 py-1 bg-therapy/20 text-therapy text-sm rounded-full"
+                      }
+                    >
+                      {time}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           ))
