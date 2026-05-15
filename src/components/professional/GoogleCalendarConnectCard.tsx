@@ -40,7 +40,35 @@ const GoogleCalendarConnectCard = ({ professionalId }: Props) => {
       }
     };
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+
+    // Native deep link listener — when the system browser redirects to
+    // fanaticamente://calendar-connected, close the in-app browser and refresh.
+    let removeAppListener: (() => void) | null = null;
+    const Cap = (window as any).Capacitor;
+    if (Cap?.isNativePlatform?.()) {
+      (async () => {
+        try {
+          const { App } = await import("@capacitor/app");
+          const { Browser } = await import("@capacitor/browser");
+          const sub = await App.addListener("appUrlOpen", async (event: { url: string }) => {
+            if (event.url?.includes("calendar-connected")) {
+              try { await Browser.close(); } catch {}
+              toast.success("Google Calendar conectado!");
+              fetchConnection();
+              runSync(false);
+            }
+          });
+          removeAppListener = () => sub.remove();
+        } catch (e) {
+          console.warn("Capacitor App listener unavailable", e);
+        }
+      })();
+    }
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      removeAppListener?.();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [professionalId]);
 
@@ -53,7 +81,7 @@ const GoogleCalendarConnectCard = ({ professionalId }: Props) => {
     const popup = isNative || isMobile ? null : window.open("about:blank", "google-oauth", "width=520,height=640");
     try {
       const { data, error } = await supabase.functions.invoke("google-calendar-oauth-start", {
-        body: { returnUrl: window.location.href },
+        body: { returnUrl: window.location.href, platform: isNative ? "native" : "web" },
       });
       if (error) throw error;
       const url = (data as any)?.url;
