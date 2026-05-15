@@ -156,7 +156,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
-    const { professional_id } = await req.json().catch(() => ({}))
+    const { professional_id, wait } = await req.json().catch(() => ({}))
     if (!professional_id) return json({ error: 'professional_id required' }, 400)
 
     const admin = createClient(
@@ -341,11 +341,16 @@ Deno.serve(async (req) => {
     }
 
       console.log('reserve-availability done', { deleted, created, skipped_conflicts })
-    })().catch((e) => console.error('heavy work failed', e))
+      return { deleted, created, skipped_conflicts }
+    })()
+    if (wait) {
+      const result = await heavyWork
+      return json({ ok: true, ...result })
+    }
     // @ts-ignore EdgeRuntime is available in Supabase functions runtime
     if (typeof EdgeRuntime !== 'undefined' && (EdgeRuntime as any).waitUntil) {
       // @ts-ignore
-      EdgeRuntime.waitUntil(heavyWork)
+      EdgeRuntime.waitUntil(heavyWork.catch((e) => console.error('heavy work failed', e)))
     }
     return json({ ok: true, started: true })
   } catch (e) {
