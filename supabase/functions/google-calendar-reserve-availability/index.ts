@@ -271,6 +271,7 @@ Deno.serve(async (req) => {
       if (!startValue) continue
       const startDate = new Date(startValue)
       const day = ev.extendedProperties?.private?.day || String(saoPauloDayOfWeek(startDate))
+      if (scopedDay !== null && Number(day) !== scopedDay) continue
       const time = ev.extendedProperties?.private?.time || saoPauloTimeString(startDate)
       existingByKey.set(reservationKey(day, time, saoPauloDateString(startDate)), ev)
     }
@@ -280,14 +281,16 @@ Deno.serve(async (req) => {
     // 2) Load weekly availability and create real dated hold events per slot.
     // Each occurrence is checked against Google busy blocks before creation, so
     // a private appointment on 18/05 14:00 blocks only that exact date.
-    const { data: avs } = await admin
-      .from('professional_weekly_availability')
-      .select('day_of_week, time_slots')
-      .eq('professional_id', professional_id)
+    const { data: avsFromDb } = scopedTimes
+      ? { data: [{ day_of_week: scopedDay, time_slots: scopedTimes }] }
+      : await admin
+          .from('professional_weekly_availability')
+          .select('day_of_week, time_slots')
+          .eq('professional_id', professional_id)
 
     let created = 0
     let skipped_conflicts = 0
-    for (const av of (avs || [])) {
+    for (const av of (avsFromDb || [])) {
       for (const time of (av.time_slots || []) as string[]) {
         const [hh, mm] = time.split(':').map(Number)
         const firstStart = nextOccurrence(av.day_of_week, hh, mm)
