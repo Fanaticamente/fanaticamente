@@ -25,10 +25,26 @@ async function refreshAccessToken(refreshToken: string) {
   return { access_token: data.access_token as string, expires_in: data.expires_in as number }
 }
 
-const RECURRENCE_WEEKS = 26
+const RECURRENCE_WEEKS = 12
 const SESSION_MIN = 50
 const RES_TAG_KEY = 'app'
 const RES_TAG_VAL = 'fanaticamente_reservation'
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+// Google Calendar limits ~600 queries/min/user. We rate-limit our writes to
+// stay well under that and retry on transient quota errors.
+async function gfetch(url: string, init: RequestInit, attempt = 0): Promise<Response> {
+  const res = await fetch(url, init)
+  if (res.status === 403 || res.status === 429) {
+    const text = await res.clone().text().catch(() => '')
+    if (/rateLimitExceeded|userRateLimitExceeded|Quota exceeded/i.test(text) && attempt < 5) {
+      await sleep(500 * Math.pow(2, attempt))
+      return gfetch(url, init, attempt + 1)
+    }
+  }
+  return res
+}
 
 function hasInsufficientScope(details: any) {
   return details?.error?.status === 'PERMISSION_DENIED'
@@ -142,32 +158,89 @@ Deno.serve(async (req) => {
       return json({ ok: false, needs_reconnect: true, created: 0, skipped: 'calendar_validation_incomplete' }, 409)
     }
 
-    // 1) List & delete previous reservation events on the dedicated calendar
-    let pageToken: string | undefined
-    do {
-      const params = new URLSearchParams({
-        privateExtendedProperty: `${RES_TAG_KEY}=${RES_TAG_VAL}`,
-        maxResults: '2500',
-        showDeleted: 'false',
-      })
-      if (pageToken) params.set('pageToken', pageToken)
-      const listRes = await fetch(
-        `https://www.googleapis.com/calendar/v3/calendars/${calId}/events?${params}`,
-        { headers: { Authorization: `Bearer ${accessToken}` } },
-      )
-      const listData = await listRes.json()
-      if (!listRes.ok) {
-        console.error('list reservations failed', listData)
-        break
+    // Heavy work (delete + recreate) runs in background so the request returns
+    // before Google rate-limit retries push us past the gateway timeout. The
+    // frontend re-fetches the busy blocks shortly after.
+    const heavyWork = (async () => {
+    // 1) Delete previous reservation events. We sweep ALL writable calendars
+    // and combine three lookup strategies so legacy/untagged events created by
+    // older versions are also removed:
+    //   a) privateExtendedProperty tag (current events)
+    //   b) free-text search by summary "Reservado — Fanaticamente"
+    //   c) summary fallback when q misses (matched in-memory)
+    const cleanupCalendarIds = Array.from(new Set([
+      calendarId,
+      ...(listCalendarsRes.ok
+        ? ((listCalendarsData.items || []) as Array<any>)
+            .filter((c) => !c.hidden && !c.deleted && (c.accessRole === 'owner' || c.accessRole === 'writer'))
+            .map((c) => c.id as string)
+        : []),
+    ]))
+    const RES_SUMMARY = 'Reservado — Fanaticamente'
+    let deleted = 0
+    for (const cid of cleanupCalendarIds) {
+      const encCid = encodeURIComponent(cid)
+      const seen = new Set<string>()
+      const queries: Array<URLSearchParams> = [
+        new URLSearchParams({
+          privateExtendedProperty: `${RES_TAG_KEY}=${RES_TAG_VAL}`,
+          maxResults: '2500',
+          singleEvents: 'true',
+          showDeleted: 'false',
+          timeMin,
+          timeMax,
+        }),
+        new URLSearchParams({
+          q: RES_SUMMARY,
+          maxResults: '2500',
+          singleEvents: 'true',
+          showDeleted: 'false',
+          timeMin,
+          timeMax,
+        }),
+      ]
+      for (const baseParams of queries) {
+        let pageToken: string | undefined
+        do {
+          const params = new URLSearchParams(baseParams)
+          if (pageToken) params.set('pageToken', pageToken)
+          const listRes = await fetch(
+            `https://www.googleapis.com/calendar/v3/calendars/${encCid}/events?${params}`,
+            { headers: { Authorization: `Bearer ${accessToken}` } },
+          )
+          const listData = await listRes.json()
+          if (!listRes.ok) {
+            console.error('list reservations failed', { cid, listData })
+            break
+          }
+          for (const ev of ((listData.items || []) as Array<any>)) {
+            if (!ev.id || seen.has(ev.id)) continue
+            const tagged = ev.extendedProperties?.private?.[RES_TAG_KEY] === RES_TAG_VAL
+            const titled = (ev.summary || '').trim() === RES_SUMMARY
+            if (!tagged && !titled) continue
+            seen.add(ev.id)
+            const delRes = await gfetch(
+              `https://www.googleapis.com/calendar/v3/calendars/${encCid}/events/${encodeURIComponent(ev.id)}`,
+              { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
+            )
+            if (delRes.ok || delRes.status === 410) {
+              deleted++
+            } else {
+              const errBody = await delRes.text().catch(() => '')
+              console.error('delete reservation failed', {
+                cid,
+                id: ev.id,
+                status: delRes.status,
+                organizer: ev.organizer?.email,
+                creator: ev.creator?.email,
+                body: errBody.slice(0, 300),
+              })
+            }
+          }
+          pageToken = listData.nextPageToken
+        } while (pageToken)
       }
-      for (const ev of ((listData.items || []) as Array<any>)) {
-        await fetch(
-          `https://www.googleapis.com/calendar/v3/calendars/${calId}/events/${encodeURIComponent(ev.id)}`,
-          { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
-        )
-      }
-      pageToken = listData.nextPageToken
-    } while (pageToken)
+    }
 
     // 2) Load weekly availability and create real dated hold events per slot.
     // Each occurrence is checked against Google busy blocks before creation, so
@@ -203,7 +276,7 @@ Deno.serve(async (req) => {
             extendedProperties: { private: { [RES_TAG_KEY]: RES_TAG_VAL, day: String(av.day_of_week), time } },
             reminders: { useDefault: false },
           }
-          const evRes = await fetch(
+          const evRes = await gfetch(
             `https://www.googleapis.com/calendar/v3/calendars/${calId}/events`,
             {
               method: 'POST',
@@ -220,7 +293,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    return json({ ok: true, created, skipped_conflicts })
+      console.log('reserve-availability done', { deleted, created, skipped_conflicts })
+    })().catch((e) => console.error('heavy work failed', e))
+    // @ts-ignore EdgeRuntime is available in Supabase functions runtime
+    if (typeof EdgeRuntime !== 'undefined' && (EdgeRuntime as any).waitUntil) {
+      // @ts-ignore
+      EdgeRuntime.waitUntil(heavyWork)
+    }
+    return json({ ok: true, started: true })
   } catch (e) {
     console.error('reserve-availability error', e)
     return json({ error: String(e) }, 500)
