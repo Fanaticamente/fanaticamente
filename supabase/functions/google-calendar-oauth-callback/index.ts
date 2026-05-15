@@ -9,6 +9,13 @@ function htmlResponse(body: string, status = 200) {
   return new Response(body, { status, headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' } })
 }
 
+function redirectResponse(location: string) {
+  return new Response(null, {
+    status: 302,
+    headers: { ...corsHeaders, Location: location, 'Cache-Control': 'no-store' },
+  })
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
@@ -116,32 +123,12 @@ Deno.serve(async (req) => {
     const returnUrl = state.r || '/'
     const isNative = state.p === 'native'
     // Deep link back to the native app (iOS + Android) so the system browser closes
-    // and the app auto-refreshes the connection state.
+    // and the app auto-refreshes the connection state. For web, redirect to returnUrl
+    // with a query flag so the app can show a toast / refetch.
     const deepLink = `fanaticamente://calendar-connected?email=${encodeURIComponent(googleEmail)}`
-    const redirectTarget = isNative ? deepLink : returnUrl
-    return htmlResponse(`<!doctype html><html><head><meta charset="utf-8"><title>Conectado</title>
-<meta http-equiv="refresh" content="0; url=${redirectTarget}">
-</head>
-<body style="font-family:system-ui;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;padding:24px">
-<div>
-  <h1 style="color:#10b981">✓ Google Calendar conectado</h1>
-  <p>Conta: <strong>${googleEmail}</strong></p>
-  <p>Retornando ao app...</p>
-  <script>
-    try {
-      if (${JSON.stringify(isNative)}) {
-        // Native: deep link back to app. Replace + assign for iOS Safari reliability.
-        location.replace(${JSON.stringify(deepLink)});
-        setTimeout(() => { location.href = ${JSON.stringify(deepLink)}; }, 100);
-      } else if (window.opener) {
-        window.opener.postMessage({ type: 'google-calendar-connected', email: ${JSON.stringify(googleEmail)} }, '*');
-        window.close();
-      } else {
-        setTimeout(() => location.href = ${JSON.stringify(returnUrl)}, 1500);
-      }
-    } catch(e) {}
-  </script>
-</div></body></html>`)
+    const sep = returnUrl.includes('?') ? '&' : '?'
+    const webTarget = `${returnUrl}${sep}gcal=connected&email=${encodeURIComponent(googleEmail)}`
+    return redirectResponse(isNative ? deepLink : webTarget)
   } catch (e) {
     console.error('callback error', e)
     return htmlResponse(`<h1>Erro interno</h1><pre>${String(e)}</pre>`, 500)
