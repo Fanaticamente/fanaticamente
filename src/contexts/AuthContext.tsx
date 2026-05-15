@@ -370,8 +370,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     // Retorna true se a sessão recém-criada é COMPATÍVEL com este app.
-    // - App/contexto torcedor: usuário NÃO pode ter role 'professional'
-    // - App/contexto profissional: usuário PRECISA ter role 'professional'
+      // - App/contexto torcedor: usuário NÃO pode ter role 'professional'
+      // - App/contexto profissional: usuário PRECISA ter role 'professional'
     // (admin/developer sempre passam para preservar acesso de suporte)
     const sessionMatchesAccountType = async (userId: string): Promise<boolean> => {
       const { data } = await supabase
@@ -380,9 +380,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq("user_id", userId);
       const roles = (data ?? []).map((r: any) => r.role as string);
       if (roles.includes("admin") || roles.includes("developer")) return true;
-      if (type === "pro") return roles.includes("professional");
-      // type === 'fan'
-      return !roles.includes("professional");
+      return type === "pro" ? roles.includes("professional") : !roles.includes("professional");
     };
 
     try {
