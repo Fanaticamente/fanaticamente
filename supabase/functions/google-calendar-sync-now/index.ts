@@ -31,6 +31,14 @@ function hasInsufficientScope(details: any) {
     || JSON.stringify(details || {}).includes('ACCESS_TOKEN_SCOPE_INSUFFICIENT')
 }
 
+function shouldIgnoreCalendarBlock(ev: any) {
+  const summary = String(ev?.summary || '').trim().toLowerCase()
+  const eventType = String(ev?.eventType || '').toLowerCase()
+  return summary === 'reservado — fanaticamente'
+    || summary === 'horários para agendamento'
+    || eventType === 'appointmentschedule'
+}
+
 function nextOccurrence(dayOfWeek: number, hh: number, mm: number): Date {
   const now = new Date()
   const target = new Date(now)
@@ -79,10 +87,10 @@ async function fetchEventBlocks(accessToken: string, calendarId: string, profess
   const evData = await evRes.json()
   if (!evRes.ok) {
     console.error('events fallback failed', { calendarId, evData })
-    return []
+    return null
   }
   return ((evData.items || []) as Array<any>)
-    .filter((ev) => ev.status !== 'cancelled' && ev.transparency !== 'transparent' && (ev.start?.dateTime || ev.start?.date))
+    .filter((ev) => ev.status !== 'cancelled' && ev.transparency !== 'transparent' && !shouldIgnoreCalendarBlock(ev) && (ev.start?.dateTime || ev.start?.date))
     .map((ev) => {
       const isAllDay = !!ev.start.date
       return {
