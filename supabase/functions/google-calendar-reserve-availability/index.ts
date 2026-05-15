@@ -258,85 +258,18 @@ Deno.serve(async (req) => {
     // before Google rate-limit retries push us past the gateway timeout. The
     // frontend re-fetches the busy blocks shortly after.
     const heavyWork = (async () => {
-    // 1) Delete previous reservation events. We sweep ALL writable calendars
-    // and combine three lookup strategies so legacy/untagged events created by
-    // older versions are also removed:
-    //   a) privateExtendedProperty tag (current events)
-    //   b) free-text search by summary "Reservado — Fanaticamente"
-    //   c) summary fallback when q misses (matched in-memory)
-    const cleanupCalendarIds = Array.from(new Set([
-      calendarId,
-      ...(listCalendarsRes.ok
-        ? ((listCalendarsData.items || []) as Array<any>)
-            .filter((c) => !c.hidden && !c.deleted && (c.accessRole === 'owner' || c.accessRole === 'writer'))
-            .map((c) => c.id as string)
-        : []),
-    ]))
-    const RES_SUMMARY = 'Reservado — Fanaticamente'
-    let deleted = 0
-    for (const cid of cleanupCalendarIds) {
-      const encCid = encodeURIComponent(cid)
-      const seen = new Set<string>()
-      const queries: Array<URLSearchParams> = [
-        new URLSearchParams({
-          privateExtendedProperty: `${RES_TAG_KEY}=${RES_TAG_VAL}`,
-          maxResults: '2500',
-          singleEvents: 'true',
-          showDeleted: 'false',
-          timeMin,
-          timeMax,
-        }),
-        new URLSearchParams({
-          q: RES_SUMMARY,
-          maxResults: '2500',
-          singleEvents: 'true',
-          showDeleted: 'false',
-          timeMin,
-          timeMax,
-        }),
-      ]
-      for (const baseParams of queries) {
-        let pageToken: string | undefined
-        do {
-          const params = new URLSearchParams(baseParams)
-          if (pageToken) params.set('pageToken', pageToken)
-          const listRes = await fetch(
-            `https://www.googleapis.com/calendar/v3/calendars/${encCid}/events?${params}`,
-            { headers: { Authorization: `Bearer ${accessToken}` } },
-          )
-          const listData = await listRes.json()
-          if (!listRes.ok) {
-            console.error('list reservations failed', { cid, listData })
-            break
-          }
-          for (const ev of ((listData.items || []) as Array<any>)) {
-            if (!ev.id || seen.has(ev.id)) continue
-            const tagged = ev.extendedProperties?.private?.[RES_TAG_KEY] === RES_TAG_VAL
-            const titled = (ev.summary || '').trim() === RES_SUMMARY
-            if (!tagged && !titled) continue
-            seen.add(ev.id)
-            const delRes = await gfetch(
-              `https://www.googleapis.com/calendar/v3/calendars/${encCid}/events/${encodeURIComponent(ev.id)}`,
-              { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
-            )
-            if (delRes.ok || delRes.status === 410) {
-              deleted++
-            } else {
-              const errBody = await delRes.text().catch(() => '')
-              console.error('delete reservation failed', {
-                cid,
-                id: ev.id,
-                status: delRes.status,
-                organizer: ev.organizer?.email,
-                creator: ev.creator?.email,
-                body: errBody.slice(0, 300),
-              })
-            }
-          }
-          pageToken = listData.nextPageToken
-        } while (pageToken)
-      }
+    const existingReservations = await listReservationEvents(accessToken, calendarId, timeMin, timeMax)
+    const existingByKey = new Map<string, any>()
+    for (const ev of existingReservations) {
+      const startValue = ev.start?.dateTime || ev.start?.date
+      if (!startValue) continue
+      const startDate = new Date(startValue)
+      const day = ev.extendedProperties?.private?.day || String(saoPauloDayOfWeek(startDate))
+      const time = ev.extendedProperties?.private?.time || saoPauloTimeString(startDate)
+      existingByKey.set(reservationKey(day, time, saoPauloDateString(startDate)), ev)
     }
+    const desiredKeys = new Set<string>()
+    let deleted = 0
 
     // 2) Load weekly availability and create real dated hold events per slot.
     // Each occurrence is checked against Google busy blocks before creation, so
@@ -361,6 +294,9 @@ Deno.serve(async (req) => {
             skipped_conflicts++
             continue
           }
+          const key = reservationKey(av.day_of_week, time, saoPauloDateString(start))
+          desiredKeys.add(key)
+          if (existingByKey.has(key)) continue
           const startISO = localISO(start, hh, mm)
           const endMinutes = hh * 60 + mm + SESSION_MIN
           const endISO = localISO(end, Math.floor(endMinutes / 60) % 24, endMinutes % 60)
@@ -388,6 +324,16 @@ Deno.serve(async (req) => {
           }
         }
       }
+    }
+
+    for (const [key, ev] of existingByKey) {
+      if (desiredKeys.has(key) || !ev.id) continue
+      const delRes = await gfetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${calId}/events/${encodeURIComponent(ev.id)}`,
+        { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
+      )
+      if (delRes.ok || delRes.status === 410) deleted++
+      else console.error('delete stale reservation failed', { id: ev.id, status: delRes.status })
     }
 
       console.log('reserve-availability done', { deleted, created, skipped_conflicts })
