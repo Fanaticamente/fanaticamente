@@ -157,6 +157,11 @@ function saoPauloDateString(date: Date) {
   return new Date(date.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000).toISOString().slice(0, 10)
 }
 
+function saoPauloTimeString(date: Date) {
+  const spDate = new Date(date.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000)
+  return `${String(spDate.getUTCHours()).padStart(2, '0')}:${String(spDate.getUTCMinutes()).padStart(2, '0')}`
+}
+
 function reservationKey(day: string | number, time: string, date: string) {
   return `${day}|${time}|${date}`
 }
