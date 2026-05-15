@@ -11,6 +11,13 @@ interface WeeklyAvailability {
   time_slots: string[];
 }
 
+interface GcalBlock {
+  start_time: string;
+  end_time: string;
+  summary: string | null;
+  is_all_day: boolean;
+}
+
 interface WeeklyAvailabilityManagerProps {
   professionalId: string;
   onUpdate: () => void;
@@ -42,7 +49,8 @@ const WeeklyAvailabilityManager = ({
   const [showAddSlot, setShowAddSlot] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
-  const [gcalBlocks, setGcalBlocks] = useState<Array<{ start_time: string; end_time: string; summary: string | null; is_all_day: boolean }>>([]);
+  const [gcalBlocks, setGcalBlocks] = useState<GcalBlock[]>([]);
+  const [syncingBlocks, setSyncingBlocks] = useState(false);
   // (lockdown removido — slots individuais são filtrados por gcalBlocks)
   
   // Edit mode state
