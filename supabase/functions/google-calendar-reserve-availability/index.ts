@@ -30,8 +30,15 @@ const SESSION_MIN = 50
 const RES_TAG_KEY = 'app'
 const RES_TAG_VAL = 'fanaticamente_reservation'
 
+function hasInsufficientScope(details: any) {
+  return details?.error?.status === 'PERMISSION_DENIED'
+    || details?.error?.reason === 'insufficientPermissions'
+    || JSON.stringify(details || {}).includes('ACCESS_TOKEN_SCOPE_INSUFFICIENT')
+}
+
 async function fetchBusyBlocks(accessToken: string, calendarIds: string[], timeMin: string, timeMax: string) {
   const blocks: Array<{ start: string; end: string }> = []
+  let needsReconnect = false
   for (let i = 0; i < calendarIds.length; i += 50) {
     const chunk = calendarIds.slice(i, i + 50)
     const res = await fetch('https://www.googleapis.com/calendar/v3/freeBusy', {
@@ -47,13 +54,14 @@ async function fetchBusyBlocks(accessToken: string, calendarIds: string[], timeM
     const data = await res.json()
     if (!res.ok) {
       console.error('freeBusy validation failed', data)
+      if (hasInsufficientScope(data)) needsReconnect = true
       continue
     }
     for (const info of Object.values<any>(data.calendars || {})) {
       blocks.push(...((info?.busy || []) as Array<{ start: string; end: string }>))
     }
   }
-  return blocks
+  return { blocks, needsReconnect }
 }
 
 function nextOccurrence(dayOfWeek: number, hh: number, mm: number): Date {
@@ -123,12 +131,16 @@ Deno.serve(async (req) => {
       { headers: { Authorization: `Bearer ${accessToken}` } },
     )
     const listCalendarsData = await listCalendarsRes.json()
+    const listNeedsReconnect = !listCalendarsRes.ok && hasInsufficientScope(listCalendarsData)
     const busyCalendarIds = listCalendarsRes.ok
       ? ((listCalendarsData.items || []) as Array<any>)
           .filter((c) => !c.hidden && !c.deleted && c.selected !== false)
           .map((c) => c.id as string)
       : [calendarId, 'primary']
-    const busyBlocks = await fetchBusyBlocks(accessToken, Array.from(new Set(busyCalendarIds)), timeMin, timeMax)
+    const { blocks: busyBlocks, needsReconnect: freeBusyNeedsReconnect } = await fetchBusyBlocks(accessToken, Array.from(new Set(busyCalendarIds)), timeMin, timeMax)
+    if (listNeedsReconnect || freeBusyNeedsReconnect) {
+      return json({ ok: false, needs_reconnect: true, created: 0, skipped: 'calendar_validation_incomplete' }, 409)
+    }
 
     // 1) List & delete previous reservation events on the dedicated calendar
     let pageToken: string | undefined
