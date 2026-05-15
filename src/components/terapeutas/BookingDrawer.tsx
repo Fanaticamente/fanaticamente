@@ -40,6 +40,11 @@ interface Appointment {
   status: string;
 }
 
+interface CalendarSyncResult {
+  ok?: boolean;
+  needs_reconnect?: boolean;
+}
+
 interface ProfessionalPaymentInfo {
   stripe_account_status: string | null;
   pix_key: string | null;
@@ -129,6 +134,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
   const [weeklyAvailability, setWeeklyAvailability] = useState<WeeklyAvailability[]>([]);
   const [bookedAppointments, setBookedAppointments] = useState<Appointment[]>([]);
   const [gcalBlocks, setGcalBlocks] = useState<Array<{ start_time: string; end_time: string; is_all_day: boolean }>>([]);
+  const [calendarNeedsReconnect, setCalendarNeedsReconnect] = useState(false);
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -170,9 +176,10 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
         // the blocks below reflect the latest busy times (force=true to bypass
         // server-side throttling whenever the booking flow is opened).
         try {
-          await supabase.functions.invoke('google-calendar-sync-now', {
+          const { data } = await supabase.functions.invoke('google-calendar-sync-now', {
             body: { professional_id: therapist.id, force: true },
           });
+          setCalendarNeedsReconnect(!!(data as CalendarSyncResult | null)?.needs_reconnect);
         } catch (_) { /* best-effort */ }
 
         const { data: availabilityData } = await supabase
@@ -316,6 +323,8 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
 
   const getAvailableTimesForDate = (date: Date) => {
+    if (calendarNeedsReconnect) return [];
+
     const now = new Date();
     const todayStr = format(now, "yyyy-MM-dd");
     const dateStr = format(date, "yyyy-MM-dd");
