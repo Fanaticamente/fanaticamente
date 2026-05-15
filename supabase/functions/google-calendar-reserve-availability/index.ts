@@ -162,6 +162,10 @@ function saoPauloTimeString(date: Date) {
   return `${String(spDate.getUTCHours()).padStart(2, '0')}:${String(spDate.getUTCMinutes()).padStart(2, '0')}`
 }
 
+function saoPauloDayOfWeek(date: Date) {
+  return new Date(date.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000).getUTCDay()
+}
+
 function reservationKey(day: string | number, time: string, date: string) {
   return `${day}|${time}|${date}`
 }
