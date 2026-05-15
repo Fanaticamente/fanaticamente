@@ -195,6 +195,10 @@ const WeeklyAvailabilityManager = ({
     setSaving(true);
     try {
       const { blocks: freshBlocks, blockedSlots: freshBlockedSlots } = await syncCalendarBeforeSaving();
+      if (calendarNeedsReconnect) {
+        toast.error("Reconecte o Google Calendar antes de alterar horários.");
+        return;
+      }
       const blockedTimes = filterBlockedTimes(selectedDay, selectedTimes, freshBlocks, freshBlockedSlots);
       if (blockedTimes.length > 0) {
         toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
@@ -255,6 +259,10 @@ const WeeklyAvailabilityManager = ({
     setSavingEdit(true);
     try {
       const { blocks: freshBlocks, blockedSlots: freshBlockedSlots } = await syncCalendarBeforeSaving();
+      if (calendarNeedsReconnect) {
+        toast.error("Reconecte o Google Calendar antes de alterar horários.");
+        return;
+      }
       const blockedTimes = filterBlockedTimes(editingAvailability.day_of_week, editTimes, freshBlocks, freshBlockedSlots);
       if (blockedTimes.length > 0) {
         toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
@@ -282,6 +290,10 @@ const WeeklyAvailabilityManager = ({
   };
 
   const toggleTime = (time: string) => {
+    if (calendarNeedsReconnect) {
+      toast.error("Reconecte o Google Calendar antes de selecionar horários.");
+      return;
+    }
     if (selectedDay !== null && isSlotBlockedByGcal(selectedDay, time)) {
       toast.error("Este horário já está ocupado no Google Calendar.");
       return;
@@ -294,6 +306,10 @@ const WeeklyAvailabilityManager = ({
   };
 
   const toggleEditTime = (time: string) => {
+    if (calendarNeedsReconnect) {
+      toast.error("Reconecte o Google Calendar antes de selecionar horários.");
+      return;
+    }
     if (editingAvailability && isSlotBlockedByGcal(editingAvailability.day_of_week, time)) {
       toast.error("Este horário já está ocupado no Google Calendar.");
       return;
