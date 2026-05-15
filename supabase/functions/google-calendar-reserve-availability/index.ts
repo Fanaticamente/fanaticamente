@@ -203,8 +203,19 @@ Deno.serve(async (req) => {
               `https://www.googleapis.com/calendar/v3/calendars/${encCid}/events/${encodeURIComponent(ev.id)}`,
               { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
             )
-            if (delRes.ok || delRes.status === 410) deleted++
-            else console.error('delete reservation failed', { cid, id: ev.id, status: delRes.status })
+            if (delRes.ok || delRes.status === 410) {
+              deleted++
+            } else {
+              const errBody = await delRes.text().catch(() => '')
+              console.error('delete reservation failed', {
+                cid,
+                id: ev.id,
+                status: delRes.status,
+                organizer: ev.organizer?.email,
+                creator: ev.creator?.email,
+                body: errBody.slice(0, 300),
+              })
+            }
           }
           pageToken = listData.nextPageToken
         } while (pageToken)
