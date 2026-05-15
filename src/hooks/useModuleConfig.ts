@@ -58,7 +58,7 @@ export const useModuleConfig = (moduleId: string) => {
     initialDataUpdatedAt: cached?.updatedAt,
     staleTime: 30 * 1000, // Consider stale after 30s so refetches happen often
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnWindowFocus: true, // Refetch when user returns to tab/app
+    refetchOnWindowFocus: false, // Refetch when user returns to tab/app
     refetchOnReconnect: true,
     refetchOnMount: "always", // Always refetch on component mount
   });

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Plus, Trash2, Pencil, X, Loader2, CalendarOff, AlertCircle } from "lucide-react";
+import { Calendar, Plus, Pencil, X, Loader2, CalendarOff, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import GoogleCalendarConnectCard from "./GoogleCalendarConnectCard";
@@ -161,6 +161,21 @@ const WeeklyAvailabilityManager = ({
     }
   };
 
+  // Após salvar, dispara reserva no Google e re-sincroniza algumas vezes
+  // para refletir o estado final (a função reserve roda em background).
+  const runFullSyncAfterSave = async () => {
+    await syncReservationsToGoogle();
+    setTimeout(() => { reloadGcalBlocks(); }, 6000);
+    setTimeout(async () => {
+      try {
+        await supabase.functions.invoke('google-calendar-sync-now', {
+          body: { professional_id: professionalId, force: true },
+        });
+      } catch (_) { /* best-effort */ }
+      await reloadGcalBlocks();
+    }, 15000);
+  };
+
   const syncCalendarBeforeSaving = async (): Promise<CalendarValidationResult> => {
     setSyncingBlocks(true);
     try {
@@ -227,7 +242,7 @@ const WeeklyAvailabilityManager = ({
       setSelectedTimes([]);
       fetchAvailabilities();
       onUpdate();
-      syncReservationsToGoogle();
+      runFullSyncAfterSave();
     } catch (error) {
       console.error("Error adding availability:", error);
       toast.error("Erro ao salvar disponibilidade");
@@ -249,7 +264,7 @@ const WeeklyAvailabilityManager = ({
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
-      syncReservationsToGoogle();
+      runFullSyncAfterSave();
     } catch (error) {
       console.error("Error deleting availability:", error);
       toast.error("Erro ao remover disponibilidade");
@@ -257,8 +272,11 @@ const WeeklyAvailabilityManager = ({
   };
 
   const handleUpdateAvailability = async () => {
-    if (!editingAvailability || editTimes.length === 0) {
-      toast.error("Selecione pelo menos um horário");
+    if (!editingAvailability) return;
+
+    // Sem horários → profissional não atende neste dia. Remove o dia inteiro.
+    if (editTimes.length === 0) {
+      await handleDeleteAvailability(editingAvailability.id);
       return;
     }
 
@@ -286,7 +304,7 @@ const WeeklyAvailabilityManager = ({
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
-      syncReservationsToGoogle();
+      runFullSyncAfterSave();
     } catch (error) {
       console.error("Error updating availability:", error);
       toast.error("Erro ao atualizar horários");
@@ -589,18 +607,11 @@ const WeeklyAvailabilityManager = ({
           <div className="flex gap-2">
             <button
               onClick={handleUpdateAvailability}
-              disabled={savingEdit || syncingBlocks || editTimes.length === 0}
-              className="flex-1 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+              disabled={savingEdit || syncingBlocks}
+              className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {(savingEdit || syncingBlocks) && <Loader2 className="w-4 h-4 animate-spin" />}
               Salvar Alterações
-            </button>
-            <button
-              onClick={() => handleDeleteAvailability(editingAvailability.id)}
-              className="py-3 px-4 bg-destructive/10 text-destructive rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-destructive/20 transition-colors"
-            >
-              <Trash2 className="w-4 h-4" />
-              Excluir
             </button>
           </div>
         </div>
