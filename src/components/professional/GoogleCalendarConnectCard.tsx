@@ -46,9 +46,11 @@ const GoogleCalendarConnectCard = ({ professionalId }: Props) => {
 
   const handleConnect = async () => {
     setWorking(true);
+    const Cap = (window as any).Capacitor;
+    const isNative = !!Cap?.isNativePlatform?.();
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     // Open popup synchronously (required for mobile/Safari popup blockers)
-    const popup = isMobile ? null : window.open("about:blank", "google-oauth", "width=520,height=640");
+    const popup = isNative || isMobile ? null : window.open("about:blank", "google-oauth", "width=520,height=640");
     try {
       const { data, error } = await supabase.functions.invoke("google-calendar-oauth-start", {
         body: { returnUrl: window.location.href },
@@ -56,8 +58,17 @@ const GoogleCalendarConnectCard = ({ professionalId }: Props) => {
       if (error) throw error;
       const url = (data as any)?.url;
       if (!url) throw new Error("URL não recebida");
-      if (isMobile || !popup) {
-        // Same-tab navigation on mobile — callback will redirect back via state.r
+      if (isNative) {
+        // Capacitor WebView is blocked by Google (disallowed_useragent).
+        // Open in system browser (Chrome Custom Tabs / SFSafariViewController).
+        const { Browser } = await import("@capacitor/browser");
+        const finishedHandler = await Browser.addListener("browserFinished", () => {
+          fetchConnection();
+          finishedHandler.remove();
+        });
+        await Browser.open({ url, presentationStyle: "popover" });
+      } else if (isMobile || !popup) {
+        // Same-tab navigation on mobile browsers — callback redirects back via state.r
         window.location.href = url;
       } else {
         popup.location.href = url;
