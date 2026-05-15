@@ -480,14 +480,22 @@ const WeeklyAvailabilityManager = ({
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {availability.time_slots.map((time) => (
-                  <span
-                    key={time}
-                    className="px-3 py-1 bg-therapy/20 text-therapy text-sm rounded-full"
-                  >
-                    {time}
-                  </span>
-                ))}
+                {availability.time_slots.map((time) => {
+                  const blocked = isSlotBlockedByGcal(availability.day_of_week, time);
+                  return (
+                    <span
+                      key={time}
+                      title={blocked ? 'Bloqueado pelo Google Calendar nesta semana' : undefined}
+                      className={
+                        blocked
+                          ? "px-3 py-1 bg-muted text-muted-foreground text-sm rounded-full line-through opacity-70"
+                          : "px-3 py-1 bg-therapy/20 text-therapy text-sm rounded-full"
+                      }
+                    >
+                      {time}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           ))
