@@ -29,6 +29,7 @@ const RECURRENCE_WEEKS = 12
 const SESSION_MIN = 50
 const RES_TAG_KEY = 'app'
 const RES_TAG_VAL = 'fanaticamente_reservation'
+const RES_SUMMARY = 'Reservado — Fanaticamente'
 const SP_OFFSET_HOURS = 3
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -150,6 +151,46 @@ function localISO(date: Date, hh: number, mm: number): string {
 
 function overlaps(startMs: number, endMs: number, blocks: Array<{ start: string; end: string }>) {
   return blocks.some((b) => new Date(b.start).getTime() < endMs && new Date(b.end).getTime() > startMs)
+}
+
+function saoPauloDateString(date: Date) {
+  return new Date(date.getTime() - SP_OFFSET_HOURS * 60 * 60 * 1000).toISOString().slice(0, 10)
+}
+
+function reservationKey(day: string | number, time: string, date: string) {
+  return `${day}|${time}|${date}`
+}
+
+async function listReservationEvents(accessToken: string, calendarId: string, timeMin: string, timeMax: string) {
+  const encCid = encodeURIComponent(calendarId)
+  const seen = new Set<string>()
+  const events: Array<any> = []
+  const queries = [
+    new URLSearchParams({ privateExtendedProperty: `${RES_TAG_KEY}=${RES_TAG_VAL}`, maxResults: '2500', singleEvents: 'true', showDeleted: 'false', timeMin, timeMax }),
+    new URLSearchParams({ q: RES_SUMMARY, maxResults: '2500', singleEvents: 'true', showDeleted: 'false', timeMin, timeMax }),
+  ]
+  for (const baseParams of queries) {
+    let pageToken: string | undefined
+    do {
+      const params = new URLSearchParams(baseParams)
+      if (pageToken) params.set('pageToken', pageToken)
+      const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encCid}/events?${params}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(`list reservations failed: ${JSON.stringify(data)}`)
+      for (const ev of ((data.items || []) as Array<any>)) {
+        if (!ev.id || seen.has(ev.id)) continue
+        const tagged = ev.extendedProperties?.private?.[RES_TAG_KEY] === RES_TAG_VAL
+        const titled = (ev.summary || '').trim() === RES_SUMMARY
+        if (!tagged && !titled) continue
+        seen.add(ev.id)
+        events.push(ev)
+      }
+      pageToken = data.nextPageToken
+    } while (pageToken)
+  }
+  return events
 }
 
 Deno.serve(async (req) => {
