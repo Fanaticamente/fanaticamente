@@ -219,7 +219,6 @@ Deno.serve(async (req) => {
               `https://www.googleapis.com/calendar/v3/calendars/${encCid}/events/${encodeURIComponent(ev.id)}`,
               { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
             )
-            await sleep(120)
             if (delRes.ok || delRes.status === 410) {
               deleted++
             } else {
@@ -286,7 +285,6 @@ Deno.serve(async (req) => {
             const err = await evRes.json().catch(() => ({}))
             console.error('create reservation failed', err)
           }
-          await sleep(120)
         }
       }
     }
