@@ -483,9 +483,14 @@ const WeeklyAvailabilityManager = ({
               <span className="w-10 h-10 rounded-lg bg-therapy/20 text-therapy font-bold flex items-center justify-center text-sm">
                 {getDayAbbr(editingAvailability.day_of_week)}
               </span>
-              <h3 className="font-medium text-card-foreground">
-                Editar {getDayLabel(editingAvailability.day_of_week)}
-              </h3>
+                  <div>
+                    <h3 className="font-medium text-card-foreground">
+                      Editar {getDayLabel(editingAvailability.day_of_week)}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Próxima data: {getDayDateLabel(editingAvailability.day_of_week)}
+                    </p>
+                  </div>
             </div>
             <button
               onClick={() => setEditingAvailability(null)}
@@ -568,9 +573,14 @@ const WeeklyAvailabilityManager = ({
                   <span className="w-10 h-10 rounded-lg bg-therapy/20 text-therapy font-bold flex items-center justify-center text-sm">
                     {getDayAbbr(availability.day_of_week)}
                   </span>
-                  <h3 className="font-medium text-card-foreground">
-                    {getDayLabel(availability.day_of_week)}
-                  </h3>
+                  <div>
+                    <h3 className="font-medium text-card-foreground">
+                      {getDayLabel(availability.day_of_week)}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Próxima data: {getDayDateLabel(availability.day_of_week)}
+                    </p>
+                  </div>
                 </div>
                 <button 
                   onClick={() => openEditMode(availability)}
