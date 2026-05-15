@@ -206,8 +206,12 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
-    const { professional_id, wait } = await req.json().catch(() => ({}))
+    const { professional_id, wait, day_of_week, time_slots } = await req.json().catch(() => ({}))
     if (!professional_id) return json({ error: 'professional_id required' }, 400)
+    const scopedDay = Number.isInteger(day_of_week) ? Number(day_of_week) : null
+    const scopedTimes = scopedDay !== null && Array.isArray(time_slots)
+      ? (time_slots as unknown[]).filter((t): t is string => typeof t === 'string')
+      : null
 
     const admin = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -249,7 +253,9 @@ Deno.serve(async (req) => {
           .filter((c) => !c.hidden && !c.deleted && c.selected !== false)
           .map((c) => c.id as string)
       : [calendarId, 'primary']
-    const { blocks: busyBlocks, needsReconnect: freeBusyNeedsReconnect } = await fetchBusyBlocks(accessToken, Array.from(new Set(busyCalendarIds)), timeMin, timeMax)
+    const { blocks: busyBlocks, needsReconnect: freeBusyNeedsReconnect } = scopedTimes
+      ? { blocks: [], needsReconnect: false }
+      : await fetchBusyBlocks(accessToken, Array.from(new Set(busyCalendarIds)), timeMin, timeMax)
     if (listNeedsReconnect || freeBusyNeedsReconnect) {
       return json({ ok: false, needs_reconnect: true, created: 0, skipped: 'calendar_validation_incomplete' }, 409)
     }
