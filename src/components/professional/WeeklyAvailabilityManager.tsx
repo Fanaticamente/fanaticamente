@@ -232,13 +232,13 @@ const WeeklyAvailabilityManager = ({
 
       if (error) throw error;
 
-      toast.success("Disponibilidade adicionada!");
       setShowAddSlot(false);
       setSelectedDay(null);
       setSelectedTimes([]);
       fetchAvailabilities();
       onUpdate();
-      runFullSyncAfterSave(selectedDay, [...selectedTimes].sort());
+      await runFullSyncAfterSave(selectedDay, [...selectedTimes].sort());
+      toast.success("Disponibilidade adicionada e sincronizada!");
     } catch (error) {
       console.error("Error adding availability:", error);
       toast.error("Erro ao salvar disponibilidade");
@@ -256,12 +256,12 @@ const WeeklyAvailabilityManager = ({
 
       if (error) throw error;
 
-      toast.success("Disponibilidade removida!");
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
       const removedAvailability = availabilities.find((a) => a.id === id);
-      runFullSyncAfterSave(removedAvailability?.day_of_week, []);
+      await runFullSyncAfterSave(removedAvailability?.day_of_week, []);
+      toast.success("Disponibilidade removida e sincronizada!");
     } catch (error) {
       console.error("Error deleting availability:", error);
       toast.error("Erro ao remover disponibilidade");
@@ -297,11 +297,11 @@ const WeeklyAvailabilityManager = ({
 
       if (error) throw error;
 
-      toast.success("Horários atualizados!");
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
-      runFullSyncAfterSave(editingAvailability.day_of_week, [...editTimes].sort());
+      await runFullSyncAfterSave(editingAvailability.day_of_week, [...editTimes].sort());
+      toast.success("Horários atualizados e sincronizados!");
     } catch (error) {
       console.error("Error updating availability:", error);
       toast.error("Erro ao atualizar horários");
