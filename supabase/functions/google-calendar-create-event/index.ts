@@ -63,7 +63,10 @@ Deno.serve(async (req) => {
       .eq('id', apt.professional_id)
       .maybeSingle()
     if (!prof) return json({ error: 'professional not found' }, 404)
-    if (prof.user_id !== userId) return json({ error: 'forbidden' }, 403)
+    // Allow either the professional or the patient (who created the booking) to push the event
+    if (prof.user_id !== userId && apt.user_id !== userId) {
+      return json({ error: 'forbidden' }, 403)
+    }
 
     const { data: conn } = await admin
       .from('professional_google_calendar')
