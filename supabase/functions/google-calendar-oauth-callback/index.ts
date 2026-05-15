@@ -102,9 +102,9 @@ Deno.serve(async (req) => {
       return htmlResponse('<h1>Sem refresh token</h1><p>Tente desconectar a conta no Google e conectar novamente com prompt=consent.</p>', 400)
     }
 
-    // Find or create a dedicated "FanatiCamente — Sessões" calendar so the
+    // Find or create a dedicated "Fanaticamente — Sessões" calendar so the
     // professional's personal events stay separate from app-created sessions.
-    const DEDICATED_NAME = 'FanatiCamente — Sessões'
+    const DEDICATED_NAME = 'Fanaticamente — Sessões'
     let dedicatedCalendarId: string | null = null
     try {
       const listRes = await fetch(
@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
           headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             summary: DEDICATED_NAME,
-            description: 'Sessões agendadas pelo app FanatiCamente.',
+            description: 'Sessões agendadas pelo app Fanaticamente.',
             timeZone: 'America/Sao_Paulo',
           }),
         })
