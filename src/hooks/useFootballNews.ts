@@ -137,7 +137,7 @@ export const useFootballNews = (selectedClub?: string | null) => {
     queryFn: fetchNews,
     staleTime: 30 * 1000,
     refetchInterval: 2 * 60 * 1000,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     refetchOnReconnect: true,
   });
 

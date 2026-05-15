@@ -58,7 +58,7 @@ export const useHealthNews = (limit = 50) => {
       return (data || []) as HealthNewsItem[];
     },
     staleTime: 30 * 1000,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
   });
 };
 
