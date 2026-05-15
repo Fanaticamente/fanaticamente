@@ -333,9 +333,13 @@ const WeeklyAvailabilityManager = ({
     return getNextOccurrenceDate(dayOfWeek).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
   };
 
+  const isSlotBlockedByServer = (dayOfWeek: number, time: string, blockedSlots = serverBlockedSlots) =>
+    blockedSlots.some((slot) => slot.day_of_week === dayOfWeek && slot.time === time);
+
   // Returns true if the next occurrence of (dayOfWeek, time) overlaps any
   // Google Calendar busy block (50min session window).
   const isSlotBlockedByGcal = (dayOfWeek: number, time: string, blocks = gcalBlocks) => {
+    if (isSlotBlockedByServer(dayOfWeek, time)) return true;
     const target = getNextOccurrenceDate(dayOfWeek, time);
     const slotEnd = target.getTime() + 50 * 60 * 1000;
     return blocks.some((b) => {
@@ -393,6 +397,18 @@ const WeeklyAvailabilityManager = ({
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {calendarNeedsReconnect && (
+        <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-medium text-card-foreground">Reconecte o Google Calendar</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Sua conexão atual não permite ler todas as agendas. Até reconectar, o app só consegue validar parte dos compromissos.
+            </p>
           </div>
         </div>
       )}
