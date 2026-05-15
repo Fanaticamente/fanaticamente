@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Calendar, Plus, Trash2, Pencil, X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import GoogleCalendarConnectCard from "./GoogleCalendarConnectCard";
 
 interface WeeklyAvailability {
   id: string;
@@ -198,6 +199,9 @@ const WeeklyAvailabilityManager = ({
 
   return (
     <div className="space-y-6">
+      {/* Google Calendar integration */}
+      <GoogleCalendarConnectCard professionalId={professionalId} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="font-display text-2xl text-card-foreground">
