@@ -501,19 +501,26 @@ const WeeklyAvailabilityManager = ({
               Selecione os horários
             </label>
             <div className="grid grid-cols-5 gap-2">
-              {TIME_SLOTS.map((time) => (
-                <button
-                  key={time}
-                  onClick={() => toggleEditTime(time)}
-                  className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                    editTimes.includes(time)
-                      ? "bg-therapy text-therapy-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {time}
-                </button>
-              ))}
+              {TIME_SLOTS.map((time) => {
+                const blocked = isSlotBlockedByGcal(editingAvailability.day_of_week, time);
+                return (
+                  <button
+                    key={time}
+                    onClick={() => toggleEditTime(time)}
+                    disabled={blocked || syncingBlocks}
+                    title={blocked ? `Ocupado no Google Calendar em ${getDayDateLabel(editingAvailability.day_of_week)}` : undefined}
+                    className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed ${
+                      blocked
+                        ? "bg-muted text-muted-foreground line-through opacity-60"
+                        : editTimes.includes(time)
+                          ? "bg-therapy text-therapy-foreground"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    {time}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
