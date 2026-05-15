@@ -262,6 +262,7 @@ export type Database = {
           created_at: string
           dispute_created_at: string | null
           dispute_reason: string | null
+          google_event_id: string | null
           id: string
           notes: string | null
           professional_id: string
@@ -284,6 +285,7 @@ export type Database = {
           created_at?: string
           dispute_created_at?: string | null
           dispute_reason?: string | null
+          google_event_id?: string | null
           id?: string
           notes?: string | null
           professional_id: string
@@ -306,6 +308,7 @@ export type Database = {
           created_at?: string
           dispute_created_at?: string | null
           dispute_reason?: string | null
+          google_event_id?: string | null
           id?: string
           notes?: string | null
           professional_id?: string
@@ -958,6 +961,42 @@ export type Database = {
         }
         Relationships: []
       }
+      google_calendar_blocks: {
+        Row: {
+          created_at: string
+          end_time: string
+          google_event_id: string
+          id: string
+          is_all_day: boolean
+          professional_id: string
+          start_time: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          google_event_id: string
+          id?: string
+          is_all_day?: boolean
+          professional_id: string
+          start_time: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          google_event_id?: string
+          id?: string
+          is_all_day?: boolean
+          professional_id?: string
+          start_time?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       health_news: {
         Row: {
           author_id: string | null
@@ -1440,6 +1479,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      professional_google_calendar: {
+        Row: {
+          access_token: string
+          calendar_id: string
+          created_at: string
+          google_email: string
+          id: string
+          is_active: boolean
+          last_synced_at: string | null
+          professional_id: string
+          refresh_token: string
+          sync_token: string | null
+          token_expires_at: string
+          updated_at: string
+          webhook_channel_id: string | null
+          webhook_expires_at: string | null
+          webhook_resource_id: string | null
+          webhook_token: string | null
+        }
+        Insert: {
+          access_token: string
+          calendar_id?: string
+          created_at?: string
+          google_email: string
+          id?: string
+          is_active?: boolean
+          last_synced_at?: string | null
+          professional_id: string
+          refresh_token: string
+          sync_token?: string | null
+          token_expires_at: string
+          updated_at?: string
+          webhook_channel_id?: string | null
+          webhook_expires_at?: string | null
+          webhook_resource_id?: string | null
+          webhook_token?: string | null
+        }
+        Update: {
+          access_token?: string
+          calendar_id?: string
+          created_at?: string
+          google_email?: string
+          id?: string
+          is_active?: boolean
+          last_synced_at?: string | null
+          professional_id?: string
+          refresh_token?: string
+          sync_token?: string | null
+          token_expires_at?: string
+          updated_at?: string
+          webhook_channel_id?: string | null
+          webhook_expires_at?: string | null
+          webhook_resource_id?: string | null
+          webhook_token?: string | null
+        }
+        Relationships: []
       }
       professional_weekly_availability: {
         Row: {

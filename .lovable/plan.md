@@ -1,41 +1,93 @@
+# Integração Google Calendar — Profissionais
 
+Integração bidirecional em tempo real entre a agenda interna do FanatiCamente e o Google Calendar pessoal de cada profissional, com sincronização via webhooks.
 
-## Adicionar 3 campos de imagem separados no gerenciador de cursos
+## Pré-requisitos (você precisa fazer)
 
-Atualmente o curso possui apenas um campo `thumbnail_url` que e reutilizado em diferentes contextos (hero, cards, grid), sendo cortado conforme a proporcao de cada area. A proposta e criar 3 campos de upload independentes, cada um com suas dimensoes recomendadas.
+1. Acessar [Google Cloud Console](https://console.cloud.google.com) e criar um projeto (ex.: "FanatiCamente Calendar")
+2. **Ativar APIs**: Google Calendar API
+3. **Tela de consentimento OAuth**:
+   - Tipo: Externo
+   - Domínios autorizados: `fanaticamente.com`, `lovable.app`
+   - Escopos: `calendar.events`, `calendar.readonly`, `userinfo.email`
+4. **Credenciais → OAuth Client ID** (tipo Web application):
+   - Authorized redirect URIs: `https://jehgvrskdyijirecznii.supabase.co/functions/v1/google-calendar-oauth-callback`
+5. Copiar **Client ID** e **Client Secret** — eu vou te pedir como secrets
+6. Publicar o app (modo Production) — leva ~1-2 semanas de revisão. Enquanto isso, em modo Test, só funciona para até 100 e-mails que você cadastrar como testers
 
-### 1. Criar novas colunas no banco de dados
+## Etapas de implementação
 
-Adicionar 2 novas colunas na tabela `courses`:
-- `hero_image_url` (text, nullable) -- imagem para o hero em destaque (proporcao ~4:5, 800x1000px)
-- `grid_image_url` (text, nullable) -- imagem para o grid "Todos os cursos" (proporcao 16:9, 1280x720px)
+### Etapa 1 — Backend (Database)
 
-A coluna `thumbnail_url` existente sera mantida como a imagem principal dos cards horizontais (800x1200px, proporcao 2:3).
+Nova tabela `professional_google_calendar`:
+- `professional_id`, `google_email`, `access_token` (criptografado), `refresh_token` (criptografado)
+- `token_expires_at`, `calendar_id` (default `primary`)
+- `sync_token` (para sync incremental Google), `webhook_channel_id`, `webhook_resource_id`, `webhook_expires_at`
+- `is_active`, timestamps
+- RLS: profissional só vê/edita o próprio registro
 
-### 2. Atualizar o formulario de curso (CourseManager.tsx)
+Adicionar coluna `google_event_id` em `appointments` (para mapear evento ↔ agendamento).
 
-Substituir o campo unico de thumbnail por 3 campos de upload separados:
+Nova tabela `google_calendar_blocks`:
+- Eventos pessoais do Google que bloqueiam horários no app (cache local atualizado por webhook)
+- `professional_id`, `google_event_id`, `start_time`, `end_time`, `summary`
 
-- **Thumbnail do Curso** -- 800x1200px (2:3, retrato). Usada nos cards horizontais.
-- **Imagem Hero** -- 800x1000px (~4:5). Usada na secao em destaque.
-- **Imagem Grid** -- 1280x720px (16:9, paisagem). Usada no grid "Todos os cursos".
+### Etapa 2 — Edge Functions
 
-Cada campo tera seu proprio botao de upload e preview.
+1. **`google-calendar-oauth-start`** — gera URL de autorização Google com `state` assinado
+2. **`google-calendar-oauth-callback`** — recebe code, troca por tokens, salva, registra webhook channel, faz primeiro sync
+3. **`google-calendar-webhook`** (verify_jwt=false) — recebe push notifications do Google, faz sync incremental usando `sync_token`, atualiza `google_calendar_blocks`
+4. **`google-calendar-sync`** — refresh manual + renovação de webhook channel (chamada por cron)
+5. **`google-calendar-disconnect`** — revoga tokens, deleta webhook channel
+6. **Hook em criação de appointment**: ao confirmar agendamento, criar evento no Google Calendar do profissional (com link Meet opcional)
+7. **Hook em cancelamento**: deletar evento do Google
 
-### 3. Atualizar as paginas de exibicao (Cursos.tsx e CursoDetalhe.tsx)
+### Etapa 3 — Cron job (renovação webhooks)
 
-- **Hero em destaque**: usar `hero_image_url` (fallback para `thumbnail_url`)
-- **Cards horizontais (2:3)**: continuar usando `thumbnail_url`
-- **Grid "Todos os cursos" (16:9)**: usar `grid_image_url` (fallback para `thumbnail_url`)
-- **Poster do video**: usar `grid_image_url` ou `thumbnail_url` como fallback
+Webhooks do Google expiram em **7 dias** (máx). Cron diário roda `google-calendar-sync` para todos profissionais com `webhook_expires_at < now() + 2 days` e renova o canal.
 
-### 4. Atualizar tipos e hooks
+### Etapa 4 — UI (frontend)
 
-Atualizar o hook `useCourses.ts` para incluir os novos campos `hero_image_url` e `grid_image_url` nas operacoes de criacao e atualizacao.
+Em `WeeklyAvailabilityManager.tsx` adicionar card no topo:
+- Estado **desconectado**: botão "Conectar Google Calendar" (logo Google) + texto explicativo
+- Estado **conectado**: badge verde "Sincronizado com `email@gmail.com`", última sync, botão "Desconectar"
+- Tooltip explicando: eventos do Google bloqueiam horários, agendamentos novos aparecem na sua agenda Google
 
-### Detalhes tecnicos
+Indicador visual nos slots da grade semanal: horários bloqueados pelo Google aparecem com ícone de calendário Google e cor diferenciada (não editável).
 
-- Migration SQL: `ALTER TABLE courses ADD COLUMN hero_image_url text, ADD COLUMN grid_image_url text;`
-- Upload usa o bucket `course-assets` existente na pasta `thumbnails/`
-- Fallback chain garante compatibilidade com cursos existentes que so possuem `thumbnail_url`
+Hook `useGoogleCalendar(professionalId)` para ler estado da conexão + bloqueios, com realtime subscription na tabela `google_calendar_blocks`.
 
+### Etapa 5 — Verificação de disponibilidade
+
+Atualizar a lógica que calcula slots disponíveis (consumida pelo `BookingDrawer` etc.) para considerar `google_calendar_blocks` além das regras semanais e dos `appointments`. Slot fica indisponível se há overlap com qualquer bloco Google.
+
+## Detalhes técnicos
+
+- **Tokens**: armazenados em colunas `text` na tabela com RLS estrita (apenas service_role pode ler em edge functions). Sem necessidade de criptografia adicional pois RLS bloqueia acesso client-side.
+- **Refresh token**: usado automaticamente pelas edge functions quando `access_token` expira (1h)
+- **Sync incremental**: usar `syncToken` da Google Calendar API — só traz mudanças desde última sync, muito eficiente
+- **Webhook validation**: validar header `X-Goog-Channel-Token` (segredo aleatório guardado por canal) para garantir que o webhook é legítimo
+- **Rate limits Google**: 1.000.000 queries/dia/projeto, mais que suficiente
+- **Time zone**: usar `America/Sao_Paulo` em todos eventos criados pelo app
+- **Tipo de evento criado**: usar `summary` "FanatiCamente — Sessão" e `description` com link da sessão; se cliente quiser privacidade, esconder nome do paciente
+
+## Secrets necessários
+
+- `GOOGLE_CALENDAR_CLIENT_ID`
+- `GOOGLE_CALENDAR_CLIENT_SECRET`
+- `GOOGLE_CALENDAR_WEBHOOK_TOKEN` (gerado por mim, validação extra dos webhooks)
+
+## Ordem de execução proposta
+
+1. Você cria credenciais no Google Cloud (aviso quando estiver pronto)
+2. Me passa Client ID + Secret via secrets
+3. Implemento DB + edge functions OAuth + UI de conectar/desconectar
+4. Testamos OAuth com sua conta primeiro
+5. Implemento webhooks + sync incremental + bloqueios na disponibilidade
+6. Implemento criação automática de evento ao confirmar agendamento
+7. Configuramos cron de renovação de canais
+8. Publicação do app no Google (você submete para revisão)
+
+Posso começar agora pela parte que **não depende** das credenciais do Google (DB schema + UI placeholder + estrutura das edge functions). Aí quando você tiver Client ID/Secret, plugamos e testamos.
+
+**Quer que eu comece já pela parte independente?**
