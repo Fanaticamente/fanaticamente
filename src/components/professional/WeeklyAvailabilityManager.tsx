@@ -43,7 +43,7 @@ const WeeklyAvailabilityManager = ({
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
   const [gcalBlocks, setGcalBlocks] = useState<Array<{ start_time: string; end_time: string; summary: string | null; is_all_day: boolean }>>([]);
-  const [calendarSyncLocked, setCalendarSyncLocked] = useState(false);
+  // (lockdown removido — slots individuais são filtrados por gcalBlocks)
   
   // Edit mode state
   const [editingAvailability, setEditingAvailability] = useState<WeeklyAvailability | null>(null);
@@ -77,10 +77,9 @@ const WeeklyAvailabilityManager = ({
   const fetchGcalBlocks = async () => {
     // Wait for the sync so the rows we read below are up-to-date
     try {
-      const { data } = await supabase.functions.invoke('google-calendar-sync-now', {
+      await supabase.functions.invoke('google-calendar-sync-now', {
         body: { professional_id: professionalId, force: true },
       });
-      setCalendarSyncLocked(!!(data as any)?.needs_reconnect);
     } catch (_) { /* best-effort */ }
     await reloadGcalBlocks();
   };
@@ -111,6 +110,19 @@ const WeeklyAvailabilityManager = ({
       toast.error("Erro ao carregar disponibilidades");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Push current weekly availability as recurring "Reservado — Fanaticamente"
+  // events to the professional's dedicated Google Calendar. Best-effort: if the
+  // calendar isn't connected or the call fails, the in-app slots still work.
+  const syncReservationsToGoogle = async () => {
+    try {
+      await supabase.functions.invoke('google-calendar-reserve-availability', {
+        body: { professional_id: professionalId },
+      });
+    } catch (e) {
+      console.warn('reserve-availability failed', e);
     }
   };
 
@@ -145,6 +157,7 @@ const WeeklyAvailabilityManager = ({
       setSelectedTimes([]);
       fetchAvailabilities();
       onUpdate();
+      syncReservationsToGoogle();
     } catch (error) {
       console.error("Error adding availability:", error);
       toast.error("Erro ao salvar disponibilidade");
@@ -166,6 +179,7 @@ const WeeklyAvailabilityManager = ({
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
+      syncReservationsToGoogle();
     } catch (error) {
       console.error("Error deleting availability:", error);
       toast.error("Erro ao remover disponibilidade");
@@ -191,6 +205,7 @@ const WeeklyAvailabilityManager = ({
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
+      syncReservationsToGoogle();
     } catch (error) {
       console.error("Error updating availability:", error);
       toast.error("Erro ao atualizar horários");
@@ -231,7 +246,6 @@ const WeeklyAvailabilityManager = ({
   // Returns true if the next occurrence of (dayOfWeek, time) overlaps any
   // Google Calendar busy block (50min session window).
   const isSlotBlockedByGcal = (dayOfWeek: number, time: string) => {
-    if (calendarSyncLocked) return true;
     const [h, m] = time.split(':').map(Number);
     const now = new Date();
     const target = new Date(now);
@@ -488,7 +502,7 @@ const WeeklyAvailabilityManager = ({
                   return (
                     <span
                       key={time}
-                      title={blocked ? (calendarSyncLocked ? 'Reconecte o Google Calendar para validar este horário' : 'Bloqueado pelo Google Calendar nesta semana') : undefined}
+                      title={blocked ? 'Bloqueado pelo Google Calendar nesta semana' : undefined}
                       className={
                         blocked
                           ? "px-3 py-1 bg-muted text-muted-foreground text-sm rounded-full line-through opacity-70"

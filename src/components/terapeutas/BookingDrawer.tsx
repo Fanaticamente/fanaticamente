@@ -134,7 +134,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
-  const [calendarSyncLocked, setCalendarSyncLocked] = useState(false);
+  // (lockdown removido — slots individuais são filtrados por gcalBlocks)
 
   // Payment step state
   const [step, setStep] = useState<BookingStep>("profile");
@@ -170,10 +170,9 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
         // the blocks below reflect the latest busy times (force=true to bypass
         // server-side throttling whenever the booking flow is opened).
         try {
-          const { data: syncData } = await supabase.functions.invoke('google-calendar-sync-now', {
+          await supabase.functions.invoke('google-calendar-sync-now', {
             body: { professional_id: therapist.id, force: true },
           });
-          setCalendarSyncLocked(!!(syncData as any)?.needs_reconnect);
         } catch (_) { /* best-effort */ }
 
         const { data: availabilityData } = await supabase
@@ -322,7 +321,6 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
     const dateStr = format(date, "yyyy-MM-dd");
 
     if (dateStr < todayStr) return [];
-    if (calendarSyncLocked) return [];
 
     const dayOfWeek = date.getDay();
     const availability = weeklyAvailability.find(a => a.day_of_week === dayOfWeek);
