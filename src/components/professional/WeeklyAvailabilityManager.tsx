@@ -128,11 +128,36 @@ const WeeklyAvailabilityManager = ({
   // calendar isn't connected or the call fails, the in-app slots still work.
   const syncReservationsToGoogle = async () => {
     try {
-      await supabase.functions.invoke('google-calendar-reserve-availability', {
+      const { data } = await supabase.functions.invoke('google-calendar-reserve-availability', {
         body: { professional_id: professionalId },
       });
+      if ((data as any)?.skipped_conflicts > 0) {
+        toast.info("Horários com compromisso no Google não foram reservados.");
+      }
+      fetchGcalBlocks();
     } catch (e) {
       console.warn('reserve-availability failed', e);
+    }
+  };
+
+  const syncCalendarBeforeSaving = async () => {
+    setSyncingBlocks(true);
+    try {
+      await supabase.functions.invoke('google-calendar-sync-now', {
+        body: { professional_id: professionalId, force: true },
+      });
+      const { data } = await supabase
+        .from('google_calendar_blocks')
+        .select('start_time, end_time, summary, is_all_day')
+        .eq('professional_id', professionalId)
+        .gte('start_time', new Date().toISOString())
+        .order('start_time', { ascending: true })
+        .limit(500);
+      const blocks = (data || []) as GcalBlock[];
+      setGcalBlocks(blocks);
+      return blocks;
+    } finally {
+      setSyncingBlocks(false);
     }
   };
 
