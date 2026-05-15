@@ -264,6 +264,10 @@ const WeeklyAvailabilityManager = ({
   };
 
   const toggleTime = (time: string) => {
+    if (selectedDay !== null && isSlotBlockedByGcal(selectedDay, time)) {
+      toast.error("Este horário já está ocupado no Google Calendar.");
+      return;
+    }
     if (selectedTimes.includes(time)) {
       setSelectedTimes(selectedTimes.filter(t => t !== time));
     } else {
@@ -272,6 +276,10 @@ const WeeklyAvailabilityManager = ({
   };
 
   const toggleEditTime = (time: string) => {
+    if (editingAvailability && isSlotBlockedByGcal(editingAvailability.day_of_week, time)) {
+      toast.error("Este horário já está ocupado no Google Calendar.");
+      return;
+    }
     if (editTimes.includes(time)) {
       setEditTimes(editTimes.filter(t => t !== time));
     } else {
