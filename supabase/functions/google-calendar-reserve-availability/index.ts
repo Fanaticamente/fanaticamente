@@ -52,6 +52,39 @@ function hasInsufficientScope(details: any) {
     || JSON.stringify(details || {}).includes('ACCESS_TOKEN_SCOPE_INSUFFICIENT')
 }
 
+function shouldIgnoreCalendarBlock(ev: any) {
+  const summary = String(ev?.summary || '').trim().toLowerCase()
+  const eventType = String(ev?.eventType || '').toLowerCase()
+  return summary === 'reservado — fanaticamente'
+    || summary === 'horários para agendamento'
+    || eventType === 'appointmentschedule'
+}
+
+async function fetchBusyEventBlocks(accessToken: string, calendarId: string, timeMin: string, timeMax: string) {
+  const params = new URLSearchParams({
+    timeMin,
+    timeMax,
+    singleEvents: 'true',
+    orderBy: 'startTime',
+    maxResults: '2500',
+    showDeleted: 'false',
+  })
+  const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  const data = await res.json()
+  if (!res.ok) {
+    console.error('events validation failed', { calendarId, data })
+    return null
+  }
+  return ((data.items || []) as Array<any>)
+    .filter((ev) => ev.status !== 'cancelled' && ev.transparency !== 'transparent' && !shouldIgnoreCalendarBlock(ev) && (ev.start?.dateTime || ev.start?.date))
+    .map((ev) => ({
+      start: ev.start.dateTime || `${ev.start.date}T00:00:00-03:00`,
+      end: ev.end.dateTime || `${ev.end.date}T00:00:00-03:00`,
+    }))
+}
+
 async function fetchBusyBlocks(accessToken: string, calendarIds: string[], timeMin: string, timeMax: string) {
   const blocks: Array<{ start: string; end: string }> = []
   let needsReconnect = false
