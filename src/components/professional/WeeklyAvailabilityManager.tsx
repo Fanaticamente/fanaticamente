@@ -173,7 +173,7 @@ const WeeklyAvailabilityManager = ({
         .limit(500);
       const blocks = (data || []) as GcalBlock[];
       setGcalBlocks(blocks);
-      return blocks;
+      return { blocks, blockedSlots: syncResult?.blocked_slots || [] };
     } finally {
       setSyncingBlocks(false);
     }
@@ -194,8 +194,8 @@ const WeeklyAvailabilityManager = ({
 
     setSaving(true);
     try {
-      const freshBlocks = await syncCalendarBeforeSaving();
-      const blockedTimes = filterBlockedTimes(selectedDay, selectedTimes, freshBlocks);
+      const { blocks: freshBlocks, blockedSlots: freshBlockedSlots } = await syncCalendarBeforeSaving();
+      const blockedTimes = filterBlockedTimes(selectedDay, selectedTimes, freshBlocks, freshBlockedSlots);
       if (blockedTimes.length > 0) {
         toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
         return;
@@ -254,8 +254,8 @@ const WeeklyAvailabilityManager = ({
 
     setSavingEdit(true);
     try {
-      const freshBlocks = await syncCalendarBeforeSaving();
-      const blockedTimes = filterBlockedTimes(editingAvailability.day_of_week, editTimes, freshBlocks);
+      const { blocks: freshBlocks, blockedSlots: freshBlockedSlots } = await syncCalendarBeforeSaving();
+      const blockedTimes = filterBlockedTimes(editingAvailability.day_of_week, editTimes, freshBlocks, freshBlockedSlots);
       if (blockedTimes.length > 0) {
         toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
         return;
