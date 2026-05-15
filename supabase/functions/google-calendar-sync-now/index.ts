@@ -66,42 +66,59 @@ Deno.serve(async (req) => {
 
     const timeMin = new Date().toISOString()
     const timeMax = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString()
-    const calId = encodeURIComponent(conn.calendar_id || 'primary')
-    const params = new URLSearchParams({
-      timeMin, timeMax,
-      singleEvents: 'true',
-      orderBy: 'startTime',
-      maxResults: '2500',
-      showDeleted: 'false',
-    })
 
-    const evRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calId}/events?${params}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-    const evData = await evRes.json()
-    if (!evRes.ok) {
-      console.error('events fetch failed', evData)
-      return json({ error: 'google_api', details: evData }, 500)
+    // List ALL calendars the professional has subscribed in Google so busy
+    // times across personal + work + dedicated calendars all block app slots.
+    const listRes = await fetch(
+      'https://www.googleapis.com/calendar/v3/users/me/calendarList?maxResults=250',
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    )
+    const listData = await listRes.json()
+    if (!listRes.ok) {
+      console.error('calendarList failed', listData)
+      return json({ error: 'google_api', details: listData }, 500)
+    }
+    const calendars = (listData.items || []) as Array<any>
+    // Skip calendars the user explicitly hid or marked as not affecting busy
+    const calIds: string[] = calendars
+      .filter((c) => !c.hidden && !c.deleted && c.selected !== false)
+      .map((c) => c.id as string)
+
+    // Use freebusy (max 50 calendars per request) to aggregate busy intervals
+    const blocks: Array<any> = []
+    for (let i = 0; i < calIds.length; i += 50) {
+      const chunk = calIds.slice(i, i + 50)
+      const fbRes = await fetch('https://www.googleapis.com/calendar/v3/freeBusy', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          timeMin, timeMax,
+          timeZone: 'America/Sao_Paulo',
+          items: chunk.map((id) => ({ id })),
+        }),
+      })
+      const fbData = await fbRes.json()
+      if (!fbRes.ok) {
+        console.error('freeBusy failed', fbData)
+        continue
+      }
+      const cals = fbData.calendars || {}
+      for (const [calId, info] of Object.entries<any>(cals)) {
+        const busy = (info?.busy || []) as Array<{ start: string; end: string }>
+        for (const b of busy) {
+          blocks.push({
+            professional_id,
+            google_event_id: `${calId}|${b.start}`,
+            start_time: b.start,
+            end_time: b.end,
+            summary: null,
+            is_all_day: false,
+          })
+        }
+      }
     }
 
-    const items = (evData.items || []) as Array<any>
     await admin.from('google_calendar_blocks').delete().eq('professional_id', professional_id)
-
-    const blocks = items
-      .filter((ev) => ev.status !== 'cancelled' && (ev.start?.dateTime || ev.start?.date))
-      .map((ev) => {
-        const isAllDay = !!ev.start.date
-        const start = isAllDay ? `${ev.start.date}T00:00:00Z` : ev.start.dateTime
-        const end = isAllDay ? `${ev.end.date}T00:00:00Z` : ev.end.dateTime
-        return {
-          professional_id,
-          google_event_id: ev.id,
-          start_time: start,
-          end_time: end,
-          summary: ev.summary || null,
-          is_all_day: isAllDay,
-        }
-      })
 
     if (blocks.length > 0) {
       const { error: insErr } = await admin.from('google_calendar_blocks').insert(blocks)
