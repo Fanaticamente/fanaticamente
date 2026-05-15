@@ -351,6 +351,8 @@ Deno.serve(async (req) => {
     if (typeof EdgeRuntime !== 'undefined' && (EdgeRuntime as any).waitUntil) {
       // @ts-ignore
       EdgeRuntime.waitUntil(heavyWork.catch((e) => console.error('heavy work failed', e)))
+    } else {
+      heavyWork.catch((e) => console.error('heavy work failed', e))
     }
     return json({ ok: true, started: true })
   } catch (e) {
