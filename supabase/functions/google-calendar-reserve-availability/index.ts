@@ -33,6 +33,32 @@ const RES_TAG_VAL = 'fanaticamente_reservation'
 // Day-of-week map (DB stores 0=Sunday..6=Saturday)
 const DOW_RRULE = ['SU','MO','TU','WE','TH','FR','SA']
 
+async function fetchBusyBlocks(accessToken: string, calendarIds: string[], timeMin: string, timeMax: string) {
+  const blocks: Array<{ start: string; end: string }> = []
+  for (let i = 0; i < calendarIds.length; i += 50) {
+    const chunk = calendarIds.slice(i, i + 50)
+    const res = await fetch('https://www.googleapis.com/calendar/v3/freeBusy', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        timeMin,
+        timeMax,
+        timeZone: 'America/Sao_Paulo',
+        items: chunk.map((id) => ({ id })),
+      }),
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      console.error('freeBusy validation failed', data)
+      continue
+    }
+    for (const info of Object.values<any>(data.calendars || {})) {
+      blocks.push(...((info?.busy || []) as Array<{ start: string; end: string }>))
+    }
+  }
+  return blocks
+}
+
 function nextOccurrence(dayOfWeek: number, hh: number, mm: number): Date {
   // Compute the next date (>= today) where local weekday == dayOfWeek
   const now = new Date()
@@ -53,6 +79,10 @@ function localISO(date: Date, hh: number, mm: number): string {
   const m = String(date.getMonth() + 1).padStart(2, '0')
   const d = String(date.getDate()).padStart(2, '0')
   return `${y}-${m}-${d}T${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:00`
+}
+
+function overlaps(startMs: number, endMs: number, blocks: Array<{ start: string; end: string }>) {
+  return blocks.some((b) => new Date(b.start).getTime() < endMs && new Date(b.end).getTime() > startMs)
 }
 
 Deno.serve(async (req) => {
