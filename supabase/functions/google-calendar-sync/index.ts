@@ -21,6 +21,38 @@ async function refreshAccessToken(refreshToken: string) {
   return { access_token: data.access_token as string, expires_in: data.expires_in as number }
 }
 
+async function fetchEventBlocks(accessToken: string, calendarId: string, professionalId: string, timeMin: string, timeMax: string) {
+  const params = new URLSearchParams({
+    timeMin,
+    timeMax,
+    singleEvents: 'true',
+    orderBy: 'startTime',
+    maxResults: '2500',
+    showDeleted: 'false',
+  })
+  const evRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  const evData = await evRes.json()
+  if (!evRes.ok) {
+    console.error('events fetch failed', { calendarId, evData })
+    return []
+  }
+  return ((evData.items || []) as Array<any>)
+    .filter((ev) => ev.status !== 'cancelled' && ev.transparency !== 'transparent' && (ev.start?.dateTime || ev.start?.date))
+    .map((ev) => {
+      const isAllDay = !!ev.start.date
+      return {
+        professional_id: professionalId,
+        google_event_id: `${calendarId}|${ev.id}`,
+        start_time: isAllDay ? `${ev.start.date}T00:00:00-03:00` : ev.start.dateTime,
+        end_time: isAllDay ? `${ev.end.date}T00:00:00-03:00` : ev.end.dateTime,
+        summary: ev.summary || null,
+        is_all_day: isAllDay,
+      }
+    })
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
@@ -74,43 +106,10 @@ Deno.serve(async (req) => {
     const timeMin = new Date().toISOString()
     const timeMax = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString()
 
-    const calId = encodeURIComponent(conn.calendar_id || 'primary')
-    const params = new URLSearchParams({
-      timeMin, timeMax,
-      singleEvents: 'true',
-      orderBy: 'startTime',
-      maxResults: '2500',
-      showDeleted: 'false',
-    })
-
-    const evRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calId}/events?${params}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-    const evData = await evRes.json()
-    if (!evRes.ok) {
-      console.error('events fetch failed', evData)
-      return new Response(JSON.stringify({ error: 'google_api', details: evData }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
-    }
-
-    const items = (evData.items || []) as Array<any>
     // Replace blocks for this professional in the window
     await admin.from('google_calendar_blocks').delete().eq('professional_id', prof.id)
 
-    const blocks = items
-      .filter((ev) => ev.status !== 'cancelled' && (ev.start?.dateTime || ev.start?.date))
-      .map((ev) => {
-        const isAllDay = !!ev.start.date
-        const start = isAllDay ? `${ev.start.date}T00:00:00Z` : ev.start.dateTime
-        const end = isAllDay ? `${ev.end.date}T00:00:00Z` : ev.end.dateTime
-        return {
-          professional_id: prof.id,
-          google_event_id: ev.id,
-          start_time: start,
-          end_time: end,
-          summary: ev.summary || null,
-          is_all_day: isAllDay,
-        }
-      })
+    const blocks = await fetchEventBlocks(accessToken, conn.calendar_id || 'primary', prof.id, timeMin, timeMax)
 
     if (blocks.length > 0) {
       const { error: insErr } = await admin.from('google_calendar_blocks').insert(blocks)
