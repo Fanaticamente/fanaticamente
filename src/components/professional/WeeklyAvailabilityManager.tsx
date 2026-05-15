@@ -226,6 +226,24 @@ const WeeklyAvailabilityManager = ({
     return DAYS_OF_WEEK.find(d => d.value === dayOfWeek)?.abbr || "";
   };
 
+  // Returns true if the next occurrence of (dayOfWeek, time) overlaps any
+  // Google Calendar busy block (50min session window).
+  const isSlotBlockedByGcal = (dayOfWeek: number, time: string) => {
+    const [h, m] = time.split(':').map(Number);
+    const now = new Date();
+    const target = new Date(now);
+    const diff = (dayOfWeek - now.getDay() + 7) % 7;
+    target.setDate(now.getDate() + diff);
+    target.setHours(h, m, 0, 0);
+    if (target.getTime() <= now.getTime()) target.setDate(target.getDate() + 7);
+    const slotEnd = target.getTime() + 50 * 60 * 1000;
+    return gcalBlocks.some((b) => {
+      const bs = new Date(b.start_time).getTime();
+      const be = new Date(b.end_time).getTime();
+      return bs < slotEnd && be > target.getTime();
+    });
+  };
+
   // Get days that are not yet configured
   const availableDays = DAYS_OF_WEEK.filter(
     day => !availabilities.some(a => a.day_of_week === day.value)
