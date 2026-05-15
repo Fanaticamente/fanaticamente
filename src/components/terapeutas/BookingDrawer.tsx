@@ -284,6 +284,32 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
     };
   }, [therapist, open, selectedDate, selectedTime, toastHook]);
 
+  // Realtime subscription for Google Calendar busy blocks — keeps slot
+  // availability accurate when the professional adds/removes events on Google.
+  useEffect(() => {
+    if (!therapist || !open) return;
+    const channel = supabase
+      .channel(`gcal-blocks-drawer-${therapist.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'google_calendar_blocks',
+          filter: `professional_id=eq.${therapist.id}`,
+        },
+        async () => {
+          const { data } = await supabase
+            .from('google_calendar_blocks')
+            .select('start_time, end_time, is_all_day')
+            .eq('professional_id', therapist.id);
+          if (data) setGcalBlocks(data);
+        },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [therapist, open]);
+
   if (!therapist) return null;
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
