@@ -46,6 +46,9 @@ const GoogleCalendarConnectCard = ({ professionalId }: Props) => {
 
   const handleConnect = async () => {
     setWorking(true);
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    // Open popup synchronously (required for mobile/Safari popup blockers)
+    const popup = isMobile ? null : window.open("about:blank", "google-oauth", "width=520,height=640");
     try {
       const { data, error } = await supabase.functions.invoke("google-calendar-oauth-start", {
         body: { returnUrl: window.location.href },
@@ -53,9 +56,15 @@ const GoogleCalendarConnectCard = ({ professionalId }: Props) => {
       if (error) throw error;
       const url = (data as any)?.url;
       if (!url) throw new Error("URL não recebida");
-      window.open(url, "google-oauth", "width=520,height=640");
+      if (isMobile || !popup) {
+        // Same-tab navigation on mobile — callback will redirect back via state.r
+        window.location.href = url;
+      } else {
+        popup.location.href = url;
+      }
     } catch (e: any) {
       console.error(e);
+      if (popup) popup.close();
       toast.error("Erro ao iniciar conexão");
     } finally {
       setWorking(false);
