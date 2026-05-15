@@ -271,7 +271,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setRolesLoading(true);
         try {
           const nextRoles = await fetchUserRoles(session.user.id);
-          if (nextRoles && await enforceAppSessionBoundary(nextRoles)) return;
+          if (nextRoles && await enforceAppSessionBoundary(nextRoles)) {
+            setAuthLoading(false);
+            return;
+          }
           // Register with OneSignal on session restore
           setTimeout(() => registerOneSignalUser(session.user.id), 2000);
         } finally {
