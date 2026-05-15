@@ -113,6 +113,19 @@ const WeeklyAvailabilityManager = ({
     }
   };
 
+  // Push current weekly availability as recurring "Reservado — Fanaticamente"
+  // events to the professional's dedicated Google Calendar. Best-effort: if the
+  // calendar isn't connected or the call fails, the in-app slots still work.
+  const syncReservationsToGoogle = async () => {
+    try {
+      await supabase.functions.invoke('google-calendar-reserve-availability', {
+        body: { professional_id: professionalId },
+      });
+    } catch (e) {
+      console.warn('reserve-availability failed', e);
+    }
+  };
+
   const handleAddAvailability = async () => {
     if (selectedDay === null || selectedTimes.length === 0) {
       toast.error("Selecione um dia e pelo menos um horário");
@@ -144,6 +157,7 @@ const WeeklyAvailabilityManager = ({
       setSelectedTimes([]);
       fetchAvailabilities();
       onUpdate();
+      syncReservationsToGoogle();
     } catch (error) {
       console.error("Error adding availability:", error);
       toast.error("Erro ao salvar disponibilidade");
@@ -165,6 +179,7 @@ const WeeklyAvailabilityManager = ({
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
+      syncReservationsToGoogle();
     } catch (error) {
       console.error("Error deleting availability:", error);
       toast.error("Erro ao remover disponibilidade");
@@ -190,6 +205,7 @@ const WeeklyAvailabilityManager = ({
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
+      syncReservationsToGoogle();
     } catch (error) {
       console.error("Error updating availability:", error);
       toast.error("Erro ao atualizar horários");
