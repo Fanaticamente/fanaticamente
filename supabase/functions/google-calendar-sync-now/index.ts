@@ -25,6 +25,12 @@ function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 }
 
+function hasInsufficientScope(details: any) {
+  return details?.error?.status === 'PERMISSION_DENIED'
+    || details?.error?.reason === 'insufficientPermissions'
+    || JSON.stringify(details || {}).includes('ACCESS_TOKEN_SCOPE_INSUFFICIENT')
+}
+
 async function fetchEventBlocks(accessToken: string, calendarId: string, professionalId: string, timeMin: string, timeMax: string) {
   const params = new URLSearchParams({
     timeMin,
@@ -107,6 +113,7 @@ Deno.serve(async (req) => {
     )
     const listData = await listRes.json()
     let calIds: string[] = []
+    let needsReconnect = false
     if (listRes.ok) {
       const calendars = (listData.items || []) as Array<any>
       // Skip calendars the user explicitly hid or marked as not affecting busy
@@ -118,6 +125,7 @@ Deno.serve(async (req) => {
       // calendar-list/freebusy permission. Do not fail the sync: fall back to the
       // connected calendar (usually primary) so private commitments still block slots.
       console.error('calendarList failed; falling back to connected calendar', listData)
+      needsReconnect = hasInsufficientScope(listData)
       calIds = Array.from(new Set([conn.calendar_id || 'primary', 'primary'].filter(Boolean)))
     }
 
@@ -152,6 +160,7 @@ Deno.serve(async (req) => {
         }
       } else {
         console.error('freeBusy failed; falling back to events.list', fbData)
+        if (hasInsufficientScope(fbData)) needsReconnect = true
         for (const calId of chunk) {
           blocks.push(...await fetchEventBlocks(accessToken, calId, professional_id, timeMin, timeMax))
         }
@@ -169,7 +178,7 @@ Deno.serve(async (req) => {
       last_synced_at: new Date().toISOString(),
     }).eq('professional_id', professional_id)
 
-    return json({ ok: true, count: blocks.length })
+    return json({ ok: !needsReconnect, needs_reconnect: needsReconnect, count: blocks.length })
   } catch (e) {
     console.error('sync-now error', e)
     return json({ error: String(e) }, 500)
