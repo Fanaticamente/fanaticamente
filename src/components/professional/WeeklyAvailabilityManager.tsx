@@ -278,23 +278,35 @@ const WeeklyAvailabilityManager = ({
     return DAYS_OF_WEEK.find(d => d.value === dayOfWeek)?.abbr || "";
   };
 
-  // Returns true if the next occurrence of (dayOfWeek, time) overlaps any
-  // Google Calendar busy block (50min session window).
-  const isSlotBlockedByGcal = (dayOfWeek: number, time: string) => {
+  const getNextOccurrenceDate = (dayOfWeek: number, time = "00:00") => {
     const [h, m] = time.split(':').map(Number);
     const now = new Date();
     const target = new Date(now);
     const diff = (dayOfWeek - now.getDay() + 7) % 7;
     target.setDate(now.getDate() + diff);
-    target.setHours(h, m, 0, 0);
+    target.setHours(h || 0, m || 0, 0, 0);
     if (target.getTime() <= now.getTime()) target.setDate(target.getDate() + 7);
+    return target;
+  };
+
+  const getDayDateLabel = (dayOfWeek: number) => {
+    return getNextOccurrenceDate(dayOfWeek).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  };
+
+  // Returns true if the next occurrence of (dayOfWeek, time) overlaps any
+  // Google Calendar busy block (50min session window).
+  const isSlotBlockedByGcal = (dayOfWeek: number, time: string, blocks = gcalBlocks) => {
+    const target = getNextOccurrenceDate(dayOfWeek, time);
     const slotEnd = target.getTime() + 50 * 60 * 1000;
-    return gcalBlocks.some((b) => {
+    return blocks.some((b) => {
       const bs = new Date(b.start_time).getTime();
       const be = new Date(b.end_time).getTime();
       return bs < slotEnd && be > target.getTime();
     });
   };
+
+  const filterBlockedTimes = (dayOfWeek: number, times: string[], blocks = gcalBlocks) =>
+    times.filter((time) => isSlotBlockedByGcal(dayOfWeek, time, blocks));
 
   // Get days that are not yet configured
   const availableDays = DAYS_OF_WEEK.filter(
