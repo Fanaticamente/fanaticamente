@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, Plus, Trash2, Pencil, X, Loader2 } from "lucide-react";
+import { Calendar, Plus, Trash2, Pencil, X, Loader2, CalendarOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import GoogleCalendarConnectCard from "./GoogleCalendarConnectCard";
@@ -42,6 +42,7 @@ const WeeklyAvailabilityManager = ({
   const [showAddSlot, setShowAddSlot] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
+  const [gcalBlocks, setGcalBlocks] = useState<Array<{ start_time: string; end_time: string; summary: string | null; is_all_day: boolean }>>([]);
   
   // Edit mode state
   const [editingAvailability, setEditingAvailability] = useState<WeeklyAvailability | null>(null);
@@ -50,7 +51,24 @@ const WeeklyAvailabilityManager = ({
 
   useEffect(() => {
     fetchAvailabilities();
+    fetchGcalBlocks();
   }, [professionalId]);
+
+  const fetchGcalBlocks = async () => {
+    // Trigger a fresh sync (best-effort, server throttled)
+    supabase.functions.invoke('google-calendar-sync-now', {
+      body: { professional_id: professionalId, force: true },
+    }).catch(() => {});
+
+    const { data } = await supabase
+      .from('google_calendar_blocks')
+      .select('start_time, end_time, summary, is_all_day')
+      .eq('professional_id', professionalId)
+      .gte('start_time', new Date().toISOString())
+      .order('start_time', { ascending: true })
+      .limit(20);
+    if (data) setGcalBlocks(data);
+  };
 
   const fetchAvailabilities = async () => {
     try {
