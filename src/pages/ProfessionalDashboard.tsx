@@ -549,7 +549,18 @@ const ProfessionalDashboard = () => {
         .eq('id', appointmentId);
 
       if (error) throw error;
-      
+
+      // Push to Google Calendar when confirmed (best-effort)
+      if (newStatus === 'confirmed') {
+        try {
+          await supabase.functions.invoke('google-calendar-create-event', {
+            body: { appointment_id: appointmentId },
+          });
+        } catch (e) {
+          console.warn('google-calendar-create-event failed', e);
+        }
+      }
+
       toast.success(newStatus === 'confirmed' ? 'Agendamento confirmado!' : 'Agendamento recusado');
       fetchAppointments();
     } catch (error) {
