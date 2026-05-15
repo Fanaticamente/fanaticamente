@@ -11,7 +11,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@capacitor/app": "^8",
     "@capacitor/browser": "^8.0.3",
     "@capacitor/core": "^8.3.4",
     "@hookform/resolvers": "^3.10.0",
