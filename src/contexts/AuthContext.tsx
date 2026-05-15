@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { clearUserVideoProgress } from "@/hooks/useVideoProgress";
-import { AccountType, encodeAuthEmail, getAccountTypeForAuth } from "@/lib/appMode";
+import { AccountType, encodeAuthEmail, getAccountTypeForAuth, isFanApp, isProfessionalApp } from "@/lib/appMode";
 
 
 type AppRole = "user" | "professional" | "developer" | "admin" | "marketing";
@@ -38,6 +38,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loading = authLoading || rolesLoading;
 
+  const sessionIsCompatibleWithApp = (nextRoles: AppRole[]) => {
+    const hasSupportAccess = nextRoles.includes("admin") || nextRoles.includes("developer");
+    if (hasSupportAccess) return true;
+    if (isFanApp) return !nextRoles.includes("professional");
+    if (isProfessionalApp) return nextRoles.includes("professional");
+    return true;
+  };
+
   const fetchUserRoles = async (userId: string) => {
     // Retry up to 3 times to avoid transient network failures wiping the roles
     // (which would falsely treat a professional as a regular user and log them out).
@@ -49,14 +57,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq("user_id", userId);
 
       if (!error && data) {
-        setRoles(data.map((r) => r.role as AppRole));
-        return true;
+        const nextRoles = data.map((r) => r.role as AppRole);
+        setRoles(nextRoles);
+        return nextRoles;
       }
       lastError = error;
       await new Promise((r) => setTimeout(r, 300 * (attempt + 1)));
     }
     console.error("[Auth] Failed to fetch user roles after retries:", lastError);
-    return false;
+    return null;
+  };
+
+  const enforceAppSessionBoundary = async (nextRoles: AppRole[]) => {
+    if (sessionIsCompatibleWithApp(nextRoles)) return false;
+    console.warn("[Auth] Sessão incompatível com este app; encerrando para impedir troca de ambiente.");
+    await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
+    setRoles([]);
+    return true;
   };
 
   // Function to complete professional signup via edge function
