@@ -33,8 +33,7 @@ const DesktopFooter = () => {
         {/* Copyright */}
         <div className="text-center">
           <p className="text-gray-600 text-sm">
-            <span className="font-semibold text-gray-800">© 2025 Fanaticamente</span>
-            <span className="text-gray-500"> | Fanaticamente Tecnologia e Serviços Ltda - CNPJ 56.605.156/0001-50</span>
+            <span className="font-semibold text-gray-800">Fanaticamente</span>
           </p>
           <p className="mt-3 text-sm">
             <a
