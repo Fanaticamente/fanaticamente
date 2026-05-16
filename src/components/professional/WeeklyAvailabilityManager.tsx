@@ -347,9 +347,6 @@ const WeeklyAvailabilityManager = ({
     });
   };
 
-  const filterBlockedTimes = (dayOfWeek: number, times: string[], blocks = gcalBlocks, blockedSlots = serverBlockedSlots) =>
-    times.filter((time) => isSlotBlockedByGcal(dayOfWeek, time, blocks, blockedSlots));
-
   // Get days that are not yet configured
   const availableDays = DAYS_OF_WEEK.filter(
     day => !availabilities.some(a => a.day_of_week === day.value)
