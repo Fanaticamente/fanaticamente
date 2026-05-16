@@ -47,7 +47,10 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get('Authorization')
-    const isSystemBackfill = req.headers.get('x-system-backfill') === 'calendar-primary-migration'
+    const internalSecret = Deno.env.get('INTERNAL_DISPATCH_SECRET')
+    const isSystemBackfill = !!internalSecret
+      && req.headers.get('x-system-backfill') === 'calendar-primary-migration'
+      && req.headers.get('x-internal-dispatch-secret') === internalSecret
     if (!isSystemBackfill && !authHeader?.startsWith('Bearer ')) return json({ error: 'Unauthorized' }, 401)
 
     let userId: string | null = null
