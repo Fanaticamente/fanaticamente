@@ -434,7 +434,7 @@ const WeeklyAvailabilityManager = ({
                     <button
                       key={time}
                       onClick={() => toggleTime(time)}
-                      disabled={blocked || syncingBlocks}
+                      disabled={syncingBlocks}
                       title={blocked ? `Ocupado no Google Calendar em ${getDayDateLabel(selectedDay)}` : undefined}
                       className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed ${
                         blocked
@@ -530,7 +530,7 @@ const WeeklyAvailabilityManager = ({
                           <button
                             key={time}
                             onClick={() => toggleEditTime(time)}
-                            disabled={blocked || syncingBlocks}
+                            disabled={syncingBlocks}
                             title={blocked ? `Ocupado no Google Calendar em ${getDayDateLabel(availability.day_of_week)}` : undefined}
                             className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed ${
                               blocked
