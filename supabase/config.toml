@@ -116,3 +116,6 @@ verify_jwt = false
 
 [functions.google-calendar-create-event]
 verify_jwt = false
+
+[functions.google-calendar-delete-event]
+verify_jwt = false

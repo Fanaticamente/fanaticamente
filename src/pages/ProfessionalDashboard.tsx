@@ -561,6 +561,17 @@ const ProfessionalDashboard = () => {
         }
       }
 
+      // Remove from Google Calendar when rejected/cancelled (best-effort)
+      if (['cancelled', 'cancelado', 'rejected', 'rejeitado'].includes(newStatus)) {
+        try {
+          await supabase.functions.invoke('google-calendar-delete-event', {
+            body: { appointment_id: appointmentId },
+          });
+        } catch (e) {
+          console.warn('google-calendar-delete-event failed', e);
+        }
+      }
+
       toast.success(newStatus === 'confirmed' ? 'Agendamento confirmado!' : 'Agendamento recusado');
       fetchAppointments();
     } catch (error) {
