@@ -102,38 +102,6 @@ Deno.serve(async (req) => {
       return htmlResponse('<h1>Sem refresh token</h1><p>Tente desconectar a conta no Google e conectar novamente com prompt=consent.</p>', 400)
     }
 
-    // Find or create a dedicated "Fanaticamente — Sessões" calendar so the
-    // professional's personal events stay separate from app-created sessions.
-    const DEDICATED_NAME = 'Fanaticamente — Sessões'
-    let dedicatedCalendarId: string | null = null
-    try {
-      const listRes = await fetch(
-        'https://www.googleapis.com/calendar/v3/users/me/calendarList?minAccessRole=owner&maxResults=250',
-        { headers: { Authorization: `Bearer ${access_token}` } },
-      )
-      const listData = await listRes.json()
-      if (listRes.ok) {
-        const found = (listData.items || []).find((c: any) => c.summary === DEDICATED_NAME)
-        if (found) dedicatedCalendarId = found.id as string
-      }
-      if (!dedicatedCalendarId) {
-        const createRes = await fetch('https://www.googleapis.com/calendar/v3/calendars', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            summary: DEDICATED_NAME,
-            description: 'Sessões agendadas pelo app Fanaticamente.',
-            timeZone: 'America/Sao_Paulo',
-          }),
-        })
-        const createData = await createRes.json()
-        if (createRes.ok) dedicatedCalendarId = createData.id as string
-        else console.error('dedicated calendar create failed', createData)
-      }
-    } catch (e) {
-      console.error('dedicated calendar setup error', e)
-    }
-
     const { error: upsertErr } = await admin
       .from('professional_google_calendar')
       .upsert({
@@ -142,7 +110,7 @@ Deno.serve(async (req) => {
         access_token,
         refresh_token: finalRefresh,
         token_expires_at: expiresAt,
-        calendar_id: dedicatedCalendarId || 'primary',
+        calendar_id: 'primary',
         is_active: true,
         last_synced_at: new Date().toISOString(),
       }, { onConflict: 'professional_id' })
