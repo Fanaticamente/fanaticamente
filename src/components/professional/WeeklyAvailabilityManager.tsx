@@ -24,12 +24,6 @@ interface CalendarSyncResult {
   blocked_slots?: Array<{ day_of_week: number; time: string; date: string }>;
 }
 
-interface CalendarValidationResult {
-  blocks: GcalBlock[];
-  blockedSlots: Array<{ day_of_week: number; time: string; date: string }>;
-  needsReconnect: boolean;
-}
-
 interface WeeklyAvailabilityManagerProps {
   professionalId: string;
   onUpdate: () => void;
@@ -172,7 +166,7 @@ const WeeklyAvailabilityManager = ({
     await syncReservationsToGoogle(dayOfWeek, timeSlots);
   };
 
-  const syncCalendarBeforeSaving = async (): Promise<CalendarValidationResult> => {
+  const syncCalendarBeforeSaving = async () => {
     setSyncingBlocks(true);
     try {
       const { data: syncData } = await supabase.functions.invoke('google-calendar-sync-now', {
@@ -190,7 +184,6 @@ const WeeklyAvailabilityManager = ({
         .limit(500);
       const blocks = (data || []) as GcalBlock[];
       setGcalBlocks(blocks);
-      return { blocks, blockedSlots: syncResult?.blocked_slots || [], needsReconnect: !!syncResult?.needs_reconnect };
     } finally {
       setSyncingBlocks(false);
     }
@@ -211,27 +204,15 @@ const WeeklyAvailabilityManager = ({
 
     setSaving(true);
     try {
-      const { blocks: freshBlocks, blockedSlots: freshBlockedSlots, needsReconnect } = await syncCalendarBeforeSaving();
-      if (needsReconnect) {
-        toast.error("Reconecte o Google Calendar antes de alterar horários.");
-        return;
-      }
-      const blockedTimes = filterBlockedTimes(selectedDay, selectedTimes, freshBlocks, freshBlockedSlots);
-      const cleanTimes = selectedTimes.filter((t) => !blockedTimes.includes(t));
-      if (blockedTimes.length > 0) {
-        toast.info(`Horários ocupados no Google Calendar foram ignorados: ${blockedTimes.join(', ')}`);
-      }
-      if (cleanTimes.length === 0) {
-        toast.error("Nenhum horário disponível para salvar.");
-        return;
-      }
+      await syncCalendarBeforeSaving();
+      const cleanTimes = [...selectedTimes].sort();
 
       const { error } = await supabase
         .from("professional_weekly_availability")
         .insert({
           professional_id: professionalId,
           day_of_week: selectedDay,
-          time_slots: cleanTimes.sort()
+          time_slots: cleanTimes
         });
 
       if (error) throw error;
@@ -241,7 +222,7 @@ const WeeklyAvailabilityManager = ({
       setSelectedTimes([]);
       fetchAvailabilities();
       onUpdate();
-      await runFullSyncAfterSave(selectedDay, [...cleanTimes].sort());
+      await runFullSyncAfterSave(selectedDay, cleanTimes);
       toast.success("Disponibilidade adicionada e sincronizada!");
     } catch (error) {
       console.error("Error adding availability:", error);
