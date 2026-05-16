@@ -26,7 +26,6 @@ import ProtectedRoute, { DynamicProtectedRoute } from "@/components/ProtectedRou
 import GlobalRadioPlayer from "@/components/radio/GlobalRadioPlayer";
 
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
-import { useRouteRestoration } from "@/hooks/useRouteRestoration";
 import { useGlobalSessionCompletion } from "@/hooks/useGlobalSessionCompletion";
 import { useDisableServiceWorkerOnManagerRoutes } from "@/hooks/useDisableServiceWorkerOnManagerRoutes";
 import { useViewportHeightSync } from "@/hooks/useViewportHeightSync";
@@ -99,7 +98,6 @@ const isEmbedMode = () => {
 const AppProviders = ({ children }: { children: React.ReactNode }) => {
   useDisableServiceWorkerOnManagerRoutes();
   useRealtimeSubscriptions();
-  useRouteRestoration();
   const { completedAppointment, clearCompletedAppointment } = useGlobalSessionCompletion();
 
   return (
