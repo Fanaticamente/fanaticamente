@@ -217,8 +217,12 @@ const WeeklyAvailabilityManager = ({
         return;
       }
       const blockedTimes = filterBlockedTimes(selectedDay, selectedTimes, freshBlocks, freshBlockedSlots);
+      const cleanTimes = selectedTimes.filter((t) => !blockedTimes.includes(t));
       if (blockedTimes.length > 0) {
-        toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
+        toast.info(`Horários ocupados no Google Calendar foram ignorados: ${blockedTimes.join(', ')}`);
+      }
+      if (cleanTimes.length === 0) {
+        toast.error("Nenhum horário disponível para salvar.");
         return;
       }
 
@@ -227,7 +231,7 @@ const WeeklyAvailabilityManager = ({
         .insert({
           professional_id: professionalId,
           day_of_week: selectedDay,
-          time_slots: selectedTimes.sort()
+          time_slots: cleanTimes.sort()
         });
 
       if (error) throw error;
@@ -237,7 +241,7 @@ const WeeklyAvailabilityManager = ({
       setSelectedTimes([]);
       fetchAvailabilities();
       onUpdate();
-      await runFullSyncAfterSave(selectedDay, [...selectedTimes].sort());
+      await runFullSyncAfterSave(selectedDay, [...cleanTimes].sort());
       toast.success("Disponibilidade adicionada e sincronizada!");
     } catch (error) {
       console.error("Error adding availability:", error);
@@ -285,14 +289,18 @@ const WeeklyAvailabilityManager = ({
         return;
       }
       const blockedTimes = filterBlockedTimes(editingAvailability.day_of_week, editTimes, freshBlocks, freshBlockedSlots);
+      const cleanTimes = editTimes.filter((t) => !blockedTimes.includes(t));
       if (blockedTimes.length > 0) {
-        toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
+        toast.info(`Horários ocupados no Google Calendar foram ignorados: ${blockedTimes.join(', ')}`);
+      }
+      if (cleanTimes.length === 0) {
+        await handleDeleteAvailability(editingAvailability.id);
         return;
       }
 
       const { error } = await supabase
         .from("professional_weekly_availability")
-        .update({ time_slots: editTimes.sort() })
+        .update({ time_slots: cleanTimes.sort() })
         .eq("id", editingAvailability.id);
 
       if (error) throw error;
@@ -300,7 +308,7 @@ const WeeklyAvailabilityManager = ({
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
-      await runFullSyncAfterSave(editingAvailability.day_of_week, [...editTimes].sort());
+      await runFullSyncAfterSave(editingAvailability.day_of_week, [...cleanTimes].sort());
       toast.success("Horários atualizados e sincronizados!");
     } catch (error) {
       console.error("Error updating availability:", error);
@@ -515,74 +523,6 @@ const WeeklyAvailabilityManager = ({
         </div>
       )}
 
-      {/* Edit Availability Modal */}
-      {editingAvailability && (
-        <div className="bg-card border border-border rounded-xl p-4 animate-fade-in">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <span className="w-10 h-10 rounded-lg bg-therapy/20 text-therapy font-bold flex items-center justify-center text-sm">
-                {getDayAbbr(editingAvailability.day_of_week)}
-              </span>
-                  <div>
-                    <h3 className="font-medium text-card-foreground">
-                      Editar {getDayLabel(editingAvailability.day_of_week)}
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      Próxima data: {getDayDateLabel(editingAvailability.day_of_week)}
-                    </p>
-                  </div>
-            </div>
-            <button
-              onClick={() => setEditingAvailability(null)}
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
-            >
-              <X className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </div>
-
-          {/* Time Selection for Edit */}
-          <div className="mb-4">
-            <label className="block text-muted-foreground text-sm mb-2">
-              Selecione os horários
-            </label>
-            <div className="grid grid-cols-5 gap-2">
-              {TIME_SLOTS.map((time) => {
-                const blocked = isSlotBlockedByGcal(editingAvailability.day_of_week, time);
-                return (
-                  <button
-                    key={time}
-                    onClick={() => toggleEditTime(time)}
-                    disabled={blocked || syncingBlocks}
-                    title={blocked ? `Ocupado no Google Calendar em ${getDayDateLabel(editingAvailability.day_of_week)}` : undefined}
-                    className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed ${
-                      blocked
-                        ? "bg-muted text-muted-foreground line-through opacity-60"
-                        : editTimes.includes(time)
-                          ? "bg-therapy text-therapy-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    }`}
-                  >
-                    {time}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-2">
-            <button
-              onClick={handleUpdateAvailability}
-              disabled={savingEdit || syncingBlocks}
-              className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {(savingEdit || syncingBlocks) && <Loader2 className="w-4 h-4 animate-spin" />}
-              Salvar Alterações
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Current Availabilities */}
       <div className="space-y-4">
         {availabilities.length === 0 ? (
@@ -596,7 +536,78 @@ const WeeklyAvailabilityManager = ({
             </p>
           </div>
         ) : (
-          availabilities.map((availability) => (
+          availabilities.map((availability) => {
+            const isEditing = editingAvailability?.id === availability.id;
+            if (isEditing) {
+              return (
+                <div
+                  key={availability.id}
+                  className="bg-card border border-border rounded-xl p-4 animate-fade-in"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="w-10 h-10 rounded-lg bg-therapy/20 text-therapy font-bold flex items-center justify-center text-sm">
+                        {getDayAbbr(availability.day_of_week)}
+                      </span>
+                      <div>
+                        <h3 className="font-medium text-card-foreground">
+                          Editar {getDayLabel(availability.day_of_week)}
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          Próxima data: {getDayDateLabel(availability.day_of_week)}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setEditingAvailability(null)}
+                      className="p-2 hover:bg-muted rounded-lg transition-colors"
+                    >
+                      <X className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-muted-foreground text-sm mb-2">
+                      Selecione os horários
+                    </label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {TIME_SLOTS.map((time) => {
+                        const blocked = isSlotBlockedByGcal(availability.day_of_week, time);
+                        return (
+                          <button
+                            key={time}
+                            onClick={() => toggleEditTime(time)}
+                            disabled={blocked || syncingBlocks}
+                            title={blocked ? `Ocupado no Google Calendar em ${getDayDateLabel(availability.day_of_week)}` : undefined}
+                            className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed ${
+                              blocked
+                                ? "bg-muted text-muted-foreground line-through opacity-60"
+                                : editTimes.includes(time)
+                                  ? "bg-therapy text-therapy-foreground"
+                                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                            }`}
+                          >
+                            {time}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleUpdateAvailability}
+                      disabled={savingEdit || syncingBlocks}
+                      className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {(savingEdit || syncingBlocks) && <Loader2 className="w-4 h-4 animate-spin" />}
+                      Salvar Alterações
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+            return (
             <div
               key={availability.id}
               className="bg-card border border-border rounded-xl p-4"
@@ -641,7 +652,8 @@ const WeeklyAvailabilityManager = ({
                 })}
               </div>
             </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
