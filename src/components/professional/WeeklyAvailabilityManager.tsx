@@ -217,8 +217,12 @@ const WeeklyAvailabilityManager = ({
         return;
       }
       const blockedTimes = filterBlockedTimes(selectedDay, selectedTimes, freshBlocks, freshBlockedSlots);
+      const cleanTimes = selectedTimes.filter((t) => !blockedTimes.includes(t));
       if (blockedTimes.length > 0) {
-        toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
+        toast.info(`Horários ocupados no Google Calendar foram ignorados: ${blockedTimes.join(', ')}`);
+      }
+      if (cleanTimes.length === 0) {
+        toast.error("Nenhum horário disponível para salvar.");
         return;
       }
 
@@ -227,7 +231,7 @@ const WeeklyAvailabilityManager = ({
         .insert({
           professional_id: professionalId,
           day_of_week: selectedDay,
-          time_slots: selectedTimes.sort()
+          time_slots: cleanTimes.sort()
         });
 
       if (error) throw error;
@@ -237,7 +241,7 @@ const WeeklyAvailabilityManager = ({
       setSelectedTimes([]);
       fetchAvailabilities();
       onUpdate();
-      await runFullSyncAfterSave(selectedDay, [...selectedTimes].sort());
+      await runFullSyncAfterSave(selectedDay, [...cleanTimes].sort());
       toast.success("Disponibilidade adicionada e sincronizada!");
     } catch (error) {
       console.error("Error adding availability:", error);
@@ -285,14 +289,18 @@ const WeeklyAvailabilityManager = ({
         return;
       }
       const blockedTimes = filterBlockedTimes(editingAvailability.day_of_week, editTimes, freshBlocks, freshBlockedSlots);
+      const cleanTimes = editTimes.filter((t) => !blockedTimes.includes(t));
       if (blockedTimes.length > 0) {
-        toast.error(`Horário indisponível no Google Calendar: ${blockedTimes.join(', ')}`);
+        toast.info(`Horários ocupados no Google Calendar foram ignorados: ${blockedTimes.join(', ')}`);
+      }
+      if (cleanTimes.length === 0) {
+        await handleDeleteAvailability(editingAvailability.id);
         return;
       }
 
       const { error } = await supabase
         .from("professional_weekly_availability")
-        .update({ time_slots: editTimes.sort() })
+        .update({ time_slots: cleanTimes.sort() })
         .eq("id", editingAvailability.id);
 
       if (error) throw error;
@@ -300,7 +308,7 @@ const WeeklyAvailabilityManager = ({
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
-      await runFullSyncAfterSave(editingAvailability.day_of_week, [...editTimes].sort());
+      await runFullSyncAfterSave(editingAvailability.day_of_week, [...cleanTimes].sort());
       toast.success("Horários atualizados e sincronizados!");
     } catch (error) {
       console.error("Error updating availability:", error);
