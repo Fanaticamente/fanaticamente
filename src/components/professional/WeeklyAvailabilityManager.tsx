@@ -264,24 +264,12 @@ const WeeklyAvailabilityManager = ({
 
     setSavingEdit(true);
     try {
-      const { blocks: freshBlocks, blockedSlots: freshBlockedSlots, needsReconnect } = await syncCalendarBeforeSaving();
-      if (needsReconnect) {
-        toast.error("Reconecte o Google Calendar antes de alterar horários.");
-        return;
-      }
-      const blockedTimes = filterBlockedTimes(editingAvailability.day_of_week, editTimes, freshBlocks, freshBlockedSlots);
-      const cleanTimes = editTimes.filter((t) => !blockedTimes.includes(t));
-      if (blockedTimes.length > 0) {
-        toast.info(`Horários ocupados no Google Calendar foram ignorados: ${blockedTimes.join(', ')}`);
-      }
-      if (cleanTimes.length === 0) {
-        await handleDeleteAvailability(editingAvailability.id);
-        return;
-      }
+      await syncCalendarBeforeSaving();
+      const cleanTimes = [...editTimes].sort();
 
       const { error } = await supabase
         .from("professional_weekly_availability")
-        .update({ time_slots: cleanTimes.sort() })
+        .update({ time_slots: cleanTimes })
         .eq("id", editingAvailability.id);
 
       if (error) throw error;
@@ -289,7 +277,7 @@ const WeeklyAvailabilityManager = ({
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
-      await runFullSyncAfterSave(editingAvailability.day_of_week, [...cleanTimes].sort());
+      await runFullSyncAfterSave(editingAvailability.day_of_week, cleanTimes);
       toast.success("Horários atualizados e sincronizados!");
     } catch (error) {
       console.error("Error updating availability:", error);
