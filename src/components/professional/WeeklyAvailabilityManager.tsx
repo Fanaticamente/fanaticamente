@@ -437,10 +437,10 @@ const WeeklyAvailabilityManager = ({
                       disabled={syncingBlocks}
                       title={blocked ? `Ocupado no Google Calendar em ${getDayDateLabel(selectedDay)}` : undefined}
                       className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed ${
-                        blocked
-                          ? "bg-muted text-muted-foreground line-through opacity-60"
-                          : selectedTimes.includes(time)
+                        selectedTimes.includes(time)
                             ? "bg-therapy text-therapy-foreground"
+                            : blocked
+                              ? "bg-muted text-muted-foreground line-through opacity-60"
                             : "bg-muted text-muted-foreground hover:bg-muted/80"
                       }`}
                     >
@@ -533,10 +533,10 @@ const WeeklyAvailabilityManager = ({
                             disabled={syncingBlocks}
                             title={blocked ? `Ocupado no Google Calendar em ${getDayDateLabel(availability.day_of_week)}` : undefined}
                             className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed ${
-                              blocked
-                                ? "bg-muted text-muted-foreground line-through opacity-60"
-                                : editTimes.includes(time)
+                              editTimes.includes(time)
                                   ? "bg-therapy text-therapy-foreground"
+                                  : blocked
+                                    ? "bg-muted text-muted-foreground line-through opacity-60"
                                   : "bg-muted text-muted-foreground hover:bg-muted/80"
                             }`}
                           >
