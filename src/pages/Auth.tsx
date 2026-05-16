@@ -217,7 +217,7 @@ const Auth = () => {
           await supabase
             .from("user_roles")
             .upsert({ user_id: user.id, role: "professional" }, { onConflict: "user_id,role" });
-          window.location.reload();
+          setRoleValidated(true);
           return;
         }
         await supabase.auth.signOut();
@@ -276,7 +276,7 @@ const Auth = () => {
             await supabase
               .from("user_roles")
               .upsert({ user_id: user.id, role: "professional" }, { onConflict: "user_id,role" });
-            window.location.reload();
+            setRoleValidated(true);
             return;
           }
           await supabase.auth.signOut();
