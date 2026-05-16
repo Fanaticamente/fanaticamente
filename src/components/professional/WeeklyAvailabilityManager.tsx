@@ -184,6 +184,8 @@ const WeeklyAvailabilityManager = ({
         .limit(500);
       const blocks = (data || []) as GcalBlock[];
       setGcalBlocks(blocks);
+    } catch (error) {
+      console.warn('calendar validation skipped before saving availability', error);
     } finally {
       setSyncingBlocks(false);
     }
