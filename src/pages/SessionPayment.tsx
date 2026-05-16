@@ -344,11 +344,18 @@ const SessionPayment = () => {
 
       if (appointmentError) throw appointmentError;
 
-      // Push event to professional's Google Calendar (best-effort)
+      // Push event to professional's Google Calendar (best-effort, awaited so it actually fires)
       if (createdApt?.id) {
-        supabase.functions.invoke('google-calendar-create-event', {
-          body: { appointment_id: createdApt.id },
-        }).catch((err) => console.warn('gcal create-event failed', err));
+        try {
+          await Promise.race([
+            supabase.functions.invoke('google-calendar-create-event', {
+              body: { appointment_id: createdApt.id },
+            }),
+            new Promise((resolve) => setTimeout(resolve, 6000)),
+          ]);
+        } catch (err) {
+          console.warn('gcal create-event failed', err);
+        }
       }
 
       toast.success("Agendamento enviado! O profissional irá verificar o comprovante.");
