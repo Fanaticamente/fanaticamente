@@ -6,7 +6,10 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker
     .getRegistrations()
     .then((registrations) => {
-      registrations.forEach((registration) => registration.unregister());
+      registrations.forEach((registration) => {
+        const scriptUrl = registration.active?.scriptURL || registration.installing?.scriptURL || registration.waiting?.scriptURL || "";
+        if (!scriptUrl.endsWith("/sw-push.js")) registration.unregister();
+      });
     })
     .catch(() => {
       // ignore
