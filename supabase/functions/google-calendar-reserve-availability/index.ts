@@ -54,11 +54,19 @@ function hasInsufficientScope(details: any) {
     || JSON.stringify(details || {}).includes('ACCESS_TOKEN_SCOPE_INSUFFICIENT')
 }
 
+function normalizeCalendarText(value: unknown) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+}
+
 function shouldIgnoreCalendarBlock(ev: any) {
-  const summary = String(ev?.summary || '').trim().toLowerCase()
-  const eventType = String(ev?.eventType || '').toLowerCase()
+  const summary = normalizeCalendarText(ev?.summary)
+  const eventType = normalizeCalendarText(ev?.eventType)
   return summary === 'reservado — fanaticamente'
-    || summary === 'horários para agendamento'
+    || summary.includes('horarios para agendamento')
     || eventType === 'appointmentschedule'
 }
 

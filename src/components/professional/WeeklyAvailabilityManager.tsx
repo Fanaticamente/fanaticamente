@@ -24,12 +24,6 @@ interface CalendarSyncResult {
   blocked_slots?: Array<{ day_of_week: number; time: string; date: string }>;
 }
 
-interface CalendarValidationResult {
-  blocks: GcalBlock[];
-  blockedSlots: Array<{ day_of_week: number; time: string; date: string }>;
-  needsReconnect: boolean;
-}
-
 interface WeeklyAvailabilityManagerProps {
   professionalId: string;
   onUpdate: () => void;
@@ -172,7 +166,7 @@ const WeeklyAvailabilityManager = ({
     await syncReservationsToGoogle(dayOfWeek, timeSlots);
   };
 
-  const syncCalendarBeforeSaving = async (): Promise<CalendarValidationResult> => {
+  const syncCalendarBeforeSaving = async () => {
     setSyncingBlocks(true);
     try {
       const { data: syncData } = await supabase.functions.invoke('google-calendar-sync-now', {
@@ -190,7 +184,8 @@ const WeeklyAvailabilityManager = ({
         .limit(500);
       const blocks = (data || []) as GcalBlock[];
       setGcalBlocks(blocks);
-      return { blocks, blockedSlots: syncResult?.blocked_slots || [], needsReconnect: !!syncResult?.needs_reconnect };
+    } catch (error) {
+      console.warn('calendar validation skipped before saving availability', error);
     } finally {
       setSyncingBlocks(false);
     }
@@ -211,27 +206,15 @@ const WeeklyAvailabilityManager = ({
 
     setSaving(true);
     try {
-      const { blocks: freshBlocks, blockedSlots: freshBlockedSlots, needsReconnect } = await syncCalendarBeforeSaving();
-      if (needsReconnect) {
-        toast.error("Reconecte o Google Calendar antes de alterar horários.");
-        return;
-      }
-      const blockedTimes = filterBlockedTimes(selectedDay, selectedTimes, freshBlocks, freshBlockedSlots);
-      const cleanTimes = selectedTimes.filter((t) => !blockedTimes.includes(t));
-      if (blockedTimes.length > 0) {
-        toast.info(`Horários ocupados no Google Calendar foram ignorados: ${blockedTimes.join(', ')}`);
-      }
-      if (cleanTimes.length === 0) {
-        toast.error("Nenhum horário disponível para salvar.");
-        return;
-      }
+      await syncCalendarBeforeSaving();
+      const cleanTimes = [...selectedTimes].sort();
 
       const { error } = await supabase
         .from("professional_weekly_availability")
         .insert({
           professional_id: professionalId,
           day_of_week: selectedDay,
-          time_slots: cleanTimes.sort()
+          time_slots: cleanTimes
         });
 
       if (error) throw error;
@@ -241,7 +224,7 @@ const WeeklyAvailabilityManager = ({
       setSelectedTimes([]);
       fetchAvailabilities();
       onUpdate();
-      await runFullSyncAfterSave(selectedDay, [...cleanTimes].sort());
+      await runFullSyncAfterSave(selectedDay, cleanTimes);
       toast.success("Disponibilidade adicionada e sincronizada!");
     } catch (error) {
       console.error("Error adding availability:", error);
@@ -283,24 +266,12 @@ const WeeklyAvailabilityManager = ({
 
     setSavingEdit(true);
     try {
-      const { blocks: freshBlocks, blockedSlots: freshBlockedSlots, needsReconnect } = await syncCalendarBeforeSaving();
-      if (needsReconnect) {
-        toast.error("Reconecte o Google Calendar antes de alterar horários.");
-        return;
-      }
-      const blockedTimes = filterBlockedTimes(editingAvailability.day_of_week, editTimes, freshBlocks, freshBlockedSlots);
-      const cleanTimes = editTimes.filter((t) => !blockedTimes.includes(t));
-      if (blockedTimes.length > 0) {
-        toast.info(`Horários ocupados no Google Calendar foram ignorados: ${blockedTimes.join(', ')}`);
-      }
-      if (cleanTimes.length === 0) {
-        await handleDeleteAvailability(editingAvailability.id);
-        return;
-      }
+      await syncCalendarBeforeSaving();
+      const cleanTimes = [...editTimes].sort();
 
       const { error } = await supabase
         .from("professional_weekly_availability")
-        .update({ time_slots: cleanTimes.sort() })
+        .update({ time_slots: cleanTimes })
         .eq("id", editingAvailability.id);
 
       if (error) throw error;
@@ -308,7 +279,7 @@ const WeeklyAvailabilityManager = ({
       setEditingAvailability(null);
       fetchAvailabilities();
       onUpdate();
-      await runFullSyncAfterSave(editingAvailability.day_of_week, [...cleanTimes].sort());
+      await runFullSyncAfterSave(editingAvailability.day_of_week, cleanTimes);
       toast.success("Horários atualizados e sincronizados!");
     } catch (error) {
       console.error("Error updating availability:", error);
@@ -319,14 +290,6 @@ const WeeklyAvailabilityManager = ({
   };
 
   const toggleTime = (time: string) => {
-    if (calendarNeedsReconnect) {
-      toast.error("Reconecte o Google Calendar antes de selecionar horários.");
-      return;
-    }
-    if (selectedDay !== null && isSlotBlockedByGcal(selectedDay, time)) {
-      toast.error("Este horário já está ocupado no Google Calendar.");
-      return;
-    }
     if (selectedTimes.includes(time)) {
       setSelectedTimes(selectedTimes.filter(t => t !== time));
     } else {
@@ -335,14 +298,6 @@ const WeeklyAvailabilityManager = ({
   };
 
   const toggleEditTime = (time: string) => {
-    if (calendarNeedsReconnect) {
-      toast.error("Reconecte o Google Calendar antes de selecionar horários.");
-      return;
-    }
-    if (editingAvailability && isSlotBlockedByGcal(editingAvailability.day_of_week, time)) {
-      toast.error("Este horário já está ocupado no Google Calendar.");
-      return;
-    }
     if (editTimes.includes(time)) {
       setEditTimes(editTimes.filter(t => t !== time));
     } else {
@@ -393,9 +348,6 @@ const WeeklyAvailabilityManager = ({
       return bs < slotEnd && be > target.getTime();
     });
   };
-
-  const filterBlockedTimes = (dayOfWeek: number, times: string[], blocks = gcalBlocks, blockedSlots = serverBlockedSlots) =>
-    times.filter((time) => isSlotBlockedByGcal(dayOfWeek, time, blocks, blockedSlots));
 
   // Get days that are not yet configured
   const availableDays = DAYS_OF_WEEK.filter(
@@ -481,13 +433,13 @@ const WeeklyAvailabilityManager = ({
                     <button
                       key={time}
                       onClick={() => toggleTime(time)}
-                      disabled={blocked || syncingBlocks}
+                      disabled={syncingBlocks}
                       title={blocked ? `Ocupado no Google Calendar em ${getDayDateLabel(selectedDay)}` : undefined}
                       className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed ${
-                        blocked
-                          ? "bg-muted text-muted-foreground line-through opacity-60"
-                          : selectedTimes.includes(time)
+                        selectedTimes.includes(time)
                             ? "bg-therapy text-therapy-foreground"
+                            : blocked
+                              ? "bg-muted text-muted-foreground line-through opacity-60"
                             : "bg-muted text-muted-foreground hover:bg-muted/80"
                       }`}
                     >
@@ -577,13 +529,13 @@ const WeeklyAvailabilityManager = ({
                           <button
                             key={time}
                             onClick={() => toggleEditTime(time)}
-                            disabled={blocked || syncingBlocks}
+                            disabled={syncingBlocks}
                             title={blocked ? `Ocupado no Google Calendar em ${getDayDateLabel(availability.day_of_week)}` : undefined}
                             className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed ${
-                              blocked
-                                ? "bg-muted text-muted-foreground line-through opacity-60"
-                                : editTimes.includes(time)
+                              editTimes.includes(time)
                                   ? "bg-therapy text-therapy-foreground"
+                                  : blocked
+                                    ? "bg-muted text-muted-foreground line-through opacity-60"
                                   : "bg-muted text-muted-foreground hover:bg-muted/80"
                             }`}
                           >

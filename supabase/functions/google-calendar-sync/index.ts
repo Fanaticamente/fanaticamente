@@ -21,11 +21,19 @@ async function refreshAccessToken(refreshToken: string) {
   return { access_token: data.access_token as string, expires_in: data.expires_in as number }
 }
 
+function normalizeCalendarText(value: unknown) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+}
+
 function shouldIgnoreCalendarBlock(ev: any) {
-  const summary = String(ev?.summary || '').trim().toLowerCase()
-  const eventType = String(ev?.eventType || '').toLowerCase()
+  const summary = normalizeCalendarText(ev?.summary)
+  const eventType = normalizeCalendarText(ev?.eventType)
   return summary === 'reservado — fanaticamente'
-    || summary === 'horários para agendamento'
+    || summary.includes('horarios para agendamento')
     || eventType === 'appointmentschedule'
 }
 
