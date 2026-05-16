@@ -25,22 +25,46 @@ function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 }
 
+async function deterministicEventId(appointmentId: string): Promise<string> {
+  const data = new TextEncoder().encode(`fanaticamente-appointment|${appointmentId}`)
+  const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', data))
+  const alphabet = '0123456789abcdefghijklmnopqrstuv'
+  let bits = 0, value = 0, out = ''
+  for (const b of hash) {
+    value = (value << 8) | b
+    bits += 8
+    while (bits >= 5) {
+      out += alphabet[(value >>> (bits - 5)) & 0x1f]
+      bits -= 5
+    }
+  }
+  if (bits > 0) out += alphabet[(value << (5 - bits)) & 0x1f]
+  return `fana${out}`.slice(0, 60)
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
     const authHeader = req.headers.get('Authorization')
-    if (!authHeader?.startsWith('Bearer ')) return json({ error: 'Unauthorized' }, 401)
+    const internalSecret = Deno.env.get('INTERNAL_DISPATCH_SECRET')
+    const isSystemBackfill = !!internalSecret
+      && req.headers.get('x-system-backfill') === 'calendar-primary-migration'
+      && req.headers.get('x-internal-dispatch-secret') === internalSecret
+    if (!isSystemBackfill && !authHeader?.startsWith('Bearer ')) return json({ error: 'Unauthorized' }, 401)
 
-    const userClient = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_ANON_KEY')!,
-      { global: { headers: { Authorization: authHeader } } }
-    )
-    const token = authHeader.replace('Bearer ', '')
-    const { data: claims, error: cErr } = await userClient.auth.getClaims(token)
-    if (cErr || !claims?.claims) return json({ error: 'Unauthorized' }, 401)
-    const userId = claims.claims.sub as string
+    let userId: string | null = null
+    if (!isSystemBackfill) {
+      const userClient = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        Deno.env.get('SUPABASE_ANON_KEY')!,
+        { global: { headers: { Authorization: authHeader! } } }
+      )
+      const token = authHeader!.replace('Bearer ', '')
+      const { data: claims, error: cErr } = await userClient.auth.getClaims(token)
+      if (cErr || !claims?.claims) return json({ error: 'Unauthorized' }, 401)
+      userId = claims.claims.sub as string
+    }
 
     const { appointment_id } = await req.json().catch(() => ({}))
     if (!appointment_id) return json({ error: 'appointment_id required' }, 400)
@@ -64,7 +88,7 @@ Deno.serve(async (req) => {
       .maybeSingle()
     if (!prof) return json({ error: 'professional not found' }, 404)
     // Allow either the professional or the patient (who created the booking) to push the event
-    if (prof.user_id !== userId && apt.user_id !== userId) {
+    if (!isSystemBackfill && prof.user_id !== userId && apt.user_id !== userId) {
       return json({ error: 'forbidden' }, 403)
     }
 
@@ -107,8 +131,10 @@ Deno.serve(async (req) => {
     const em = String(endMinTotal % 60).padStart(2, '0')
     const endLocal = `${date}T${eh}:${em}:00`
 
-    const calId = encodeURIComponent(conn.calendar_id || 'primary')
+    const calId = encodeURIComponent('primary')
+    const eventId = await deterministicEventId(apt.id as string)
     const eventBody: Record<string, unknown> = {
+      id: eventId,
       summary: `Sessão Fanaticamente — ${patientName}`,
       description: [
         `Paciente: ${patientName}`,
@@ -121,19 +147,37 @@ Deno.serve(async (req) => {
       reminders: { useDefault: true },
     }
 
-    let url = `https://www.googleapis.com/calendar/v3/calendars/${calId}/events`
-    let method: 'POST' | 'PATCH' = 'POST'
-    if (apt.google_event_id) {
-      url = `${url}/${encodeURIComponent(apt.google_event_id as string)}`
-      method = 'PATCH'
+    const createUrl = `https://www.googleapis.com/calendar/v3/calendars/${calId}/events`
+    const updateUrl = `${createUrl}/${encodeURIComponent((apt.google_event_id as string) || eventId)}`
+    const patchBody = { ...eventBody }
+    delete (patchBody as Record<string, unknown>).id
+
+    let evRes = await fetch(apt.google_event_id ? updateUrl : createUrl, {
+      method: apt.google_event_id ? 'PATCH' : 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(apt.google_event_id ? patchBody : eventBody),
+    })
+    let evData = await evRes.json()
+
+    // If the saved event belonged to an old/different calendar, create it again
+    // in the professional's main calendar instead of failing silently.
+    if (apt.google_event_id && (evRes.status === 404 || evRes.status === 410)) {
+      evRes = await fetch(createUrl, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventBody),
+      })
+      evData = await evRes.json()
     }
 
-    const evRes = await fetch(url, {
-      method,
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(eventBody),
-    })
-    const evData = await evRes.json()
+    if (!evRes.ok && evRes.status === 409) {
+      evRes = await fetch(updateUrl.replace(encodeURIComponent((apt.google_event_id as string) || eventId), encodeURIComponent(eventId)), {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(patchBody),
+      })
+      evData = await evRes.json()
+    }
     if (!evRes.ok) {
       console.error('event create failed', evData)
       return json({ error: 'google_api', details: evData }, 500)

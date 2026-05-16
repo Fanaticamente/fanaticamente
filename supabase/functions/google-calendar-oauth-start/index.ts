@@ -6,7 +6,9 @@ const corsHeaders = {
 }
 
 const SCOPES = [
-  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/calendar.events',
+  'https://www.googleapis.com/auth/calendar.calendarlist.readonly',
+  'https://www.googleapis.com/auth/calendar.freebusy',
   'https://www.googleapis.com/auth/userinfo.email',
 ].join(' ')
 
@@ -48,7 +50,7 @@ Deno.serve(async (req) => {
       scope: SCOPES,
       access_type: 'offline',
       prompt: 'consent',
-      include_granted_scopes: 'true',
+      include_granted_scopes: 'false',
       state,
     })
 
