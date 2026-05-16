@@ -87,20 +87,22 @@ Deno.serve(async (req) => {
       }).eq('professional_id', prof.id)
     }
 
-    const calId = encodeURIComponent(conn.calendar_id || 'primary')
     const evId = encodeURIComponent(apt.google_event_id as string)
-    const url = `https://www.googleapis.com/calendar/v3/calendars/${calId}/events/${evId}`
+    const calendarIds = Array.from(new Set(['primary', conn.calendar_id || 'primary']))
 
-    const evRes = await fetch(url, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
+    for (const calendarId of calendarIds) {
+      const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${evId}`
+      const evRes = await fetch(url, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
 
-    // 404/410 = already gone, treat as success
-    if (!evRes.ok && evRes.status !== 404 && evRes.status !== 410) {
-      const details = await evRes.text()
-      console.error('event delete failed', evRes.status, details)
-      return json({ error: 'google_api', status: evRes.status, details }, 500)
+      // 404/410 = already gone or not on this calendar, try the next possible calendar.
+      if (!evRes.ok && evRes.status !== 404 && evRes.status !== 410) {
+        const details = await evRes.text()
+        console.error('event delete failed', { calendarId, status: evRes.status, details })
+        return json({ error: 'google_api', status: evRes.status, details }, 500)
+      }
     }
 
     await admin.from('appointments').update({ google_event_id: null }).eq('id', apt.id)
