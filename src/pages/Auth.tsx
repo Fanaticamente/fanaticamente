@@ -1005,6 +1005,8 @@ const Auth = () => {
                 type="button"
                 onClick={() => navigate("/")}
                 className="w-full mt-4 py-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                hidden={authMode === "professional"}
+                style={authMode === "professional" ? { display: "none" } : undefined}
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm">Voltar</span>
@@ -1431,6 +1433,8 @@ const Auth = () => {
             type="button"
             onClick={() => navigate("/")}
             className="w-full mt-4 py-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            hidden={authMode === "professional"}
+            style={authMode === "professional" ? { display: "none" } : undefined}
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Voltar</span>
