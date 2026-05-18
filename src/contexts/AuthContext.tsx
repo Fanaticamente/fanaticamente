@@ -218,6 +218,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
 
+        // TOKEN_REFRESHED / USER_UPDATED fire whenever the app resumes from
+        // background (PWA on iOS/Android). Don't reset roles or trigger the
+        // "Carregando..." spinner — keep the existing UI as-is.
+        if (event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
+          setAuthLoading(false);
+          return;
+        }
+
         if (session?.user) {
           setRolesLoading(true);
           setRoles([]);
