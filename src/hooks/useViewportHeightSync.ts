@@ -39,15 +39,20 @@ export const useViewportHeightSync = () => {
     let frameId = 0;
     let timeoutId: number | undefined;
 
-    const scheduleSync = (allowShrink = false) => {
+    const scheduleSync = () => {
       window.cancelAnimationFrame(frameId);
-      frameId = window.requestAnimationFrame(() => syncViewportHeight(allowShrink));
+      frameId = window.requestAnimationFrame(() => syncViewportHeight(false));
+    };
+
+    const scheduleForcedSync = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(() => syncViewportHeight(true));
     };
 
     const scheduleDelayedSync = () => {
       scheduleSync();
       window.clearTimeout(timeoutId);
-      timeoutId = window.setTimeout(() => scheduleSync(true), 350);
+      timeoutId = window.setTimeout(scheduleForcedSync, 350);
     };
 
     syncViewportHeight();
