@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, useLocation, Link } from "react-router-do
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Briefcase, User, ChevronDown, Brain, ArrowLeft, Calendar as CalendarIcon, Eye, EyeOff } from "lucide-react";
+import { Briefcase, ChevronDown, Brain, ArrowLeft, Calendar as CalendarIcon, Eye, EyeOff } from "lucide-react";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { allBrazilianClubs } from "@/data/allBrazilianClubs";
@@ -115,7 +115,7 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const isProfessionalRoute = location.pathname.startsWith("/profissional/auth");
-  const initialMode = isProfessionalRoute || searchParams.get("mode") === "professional" ? "professional" : "user";
+  const initialMode: AuthMode = isProfessionalRoute ? "professional" : "user";
   const initialSignup = searchParams.get("signup") === "true";
   
   const [authMode, setAuthMode] = useState<AuthMode>(initialMode);
@@ -615,34 +615,7 @@ const Auth = () => {
             </div>
 
             {/* Mode Selector */}
-            {!isProfessionalRoute && (
-            <div className="flex gap-2 mb-4">
-              <button
-                type="button"
-                onClick={() => { setAuthMode("user"); setErrors({}); }}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
-                  authMode === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card border border-border text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <User className="w-5 h-5" />
-                Torcedor(a)
-              </button>
-              <button
-                type="button"
-                onClick={() => { setAuthMode("professional"); setErrors({}); }}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
-                  authMode === "professional"
-                    ? "bg-therapy text-therapy-foreground"
-                    : "bg-card border border-border text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Brain className="w-5 h-5" />
-                Psicólogo(a)
-              </button>
-            </div>
-            )}
+            {/* Acesso profissional vive exclusivamente em /profissional/auth */}
 
             <div className={`bg-card border rounded-2xl p-6 transition-colors ${
               authMode === "professional" ? "border-therapy" : "border-border"
@@ -1033,34 +1006,7 @@ const Auth = () => {
         </div>
 
         {/* Mode Selector */}
-        {!isProfessionalRoute && (
-        <div className="flex gap-2 mb-6">
-          <button
-            type="button"
-            onClick={() => { setAuthMode("user"); setErrors({}); }}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
-              authMode === "user"
-                ? "bg-primary text-primary-foreground"
-                : "bg-card border border-border text-muted-foreground"
-            }`}
-          >
-            <User className="w-5 h-5" />
-            Torcedor(a)
-          </button>
-          <button
-            type="button"
-            onClick={() => { setAuthMode("professional"); setErrors({}); }}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all ${
-              authMode === "professional"
-                ? "bg-therapy text-therapy-foreground"
-                : "bg-card border border-border text-muted-foreground"
-            }`}
-          >
-            <Brain className="w-5 h-5" />
-            Psicólogo(a)
-          </button>
-        </div>
-        )}
+        {/* Acesso profissional vive exclusivamente em /profissional/auth */}
 
         <div className={`bg-card border rounded-2xl p-6 transition-colors ${
           authMode === "professional" ? "border-therapy" : "border-border"
