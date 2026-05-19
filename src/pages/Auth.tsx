@@ -115,7 +115,7 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const isProfessionalRoute = location.pathname.startsWith("/profissional/auth");
-  const initialMode = isProfessionalRoute || searchParams.get("mode") === "professional" ? "professional" : "user";
+  const initialMode: AuthMode = isProfessionalRoute ? "professional" : "user";
   const initialSignup = searchParams.get("signup") === "true";
   
   const [authMode, setAuthMode] = useState<AuthMode>(initialMode);
