@@ -41,7 +41,7 @@ const ProfessionalDesktopLayout = ({ children, title, subtitle }: ProfessionalDe
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/");
+    navigate("/profissional/auth", { replace: true });
   };
 
   const isActive = (item: typeof navItems[0]) => {
