@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, useLocation, Link } from "react-router-do
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Briefcase, User, ChevronDown, Brain, ArrowLeft, Calendar as CalendarIcon, Eye, EyeOff } from "lucide-react";
+import { Briefcase, ChevronDown, Brain, ArrowLeft, Calendar as CalendarIcon, Eye, EyeOff } from "lucide-react";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { allBrazilianClubs } from "@/data/allBrazilianClubs";
