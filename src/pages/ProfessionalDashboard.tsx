@@ -236,7 +236,7 @@ const ProfessionalDashboard = () => {
 
     // Fire-and-forget: avoid rendering intermediate "redirecionando" screens.
     void signOut();
-    navigate("/auth?mode=professional", { replace: true });
+    navigate("/profissional/auth", { replace: true });
   }, [setupError, signOut, navigate]);
 
   const fetchProfessionalData = async () => {
@@ -647,7 +647,7 @@ const ProfessionalDashboard = () => {
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/auth");
+    navigate("/profissional/auth", { replace: true });
   };
 
   const handleProfileComplete = () => {
@@ -679,7 +679,7 @@ const ProfessionalDashboard = () => {
                 // ignore
               }
               void signOut();
-              navigate("/auth", { replace: true });
+              navigate("/profissional/auth", { replace: true });
             }}
             className="mt-8 text-sm text-gray-400 underline"
           >
