@@ -516,58 +516,6 @@ const Auth = () => {
 
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    if (!isMobile || typeof document === "undefined" || typeof window === "undefined") {
-      return;
-    }
-
-    const html = document.documentElement;
-    const body = document.body;
-    const previousStyles = {
-      htmlOverflow: html.style.overflow,
-      htmlHeight: html.style.height,
-      htmlOverscroll: html.style.overscrollBehavior,
-      bodyOverflow: body.style.overflow,
-      bodyHeight: body.style.height,
-      bodyOverscroll: body.style.overscrollBehavior,
-    };
-
-    const resetWindowScroll = () => {
-      window.requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-      });
-    };
-
-    html.style.overflow = "hidden";
-    html.style.height = "var(--app-height, 100dvh)";
-    html.style.overscrollBehavior = "none";
-
-    body.style.overflow = "hidden";
-    body.style.height = "var(--app-height, 100dvh)";
-    body.style.overscrollBehavior = "none";
-
-    const viewport = window.visualViewport;
-
-    resetWindowScroll();
-    document.addEventListener("focusout", resetWindowScroll);
-    viewport?.addEventListener("resize", resetWindowScroll);
-    viewport?.addEventListener("scroll", resetWindowScroll);
-
-    return () => {
-      document.removeEventListener("focusout", resetWindowScroll);
-      viewport?.removeEventListener("resize", resetWindowScroll);
-      viewport?.removeEventListener("scroll", resetWindowScroll);
-
-      html.style.overflow = previousStyles.htmlOverflow;
-      html.style.height = previousStyles.htmlHeight;
-      html.style.overscrollBehavior = previousStyles.htmlOverscroll;
-
-      body.style.overflow = previousStyles.bodyOverflow;
-      body.style.height = previousStyles.bodyHeight;
-      body.style.overscrollBehavior = previousStyles.bodyOverscroll;
-    };
-  }, [isMobile]);
-
   // Desktop Layout
   if (!isMobile) {
     return (
