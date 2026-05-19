@@ -37,7 +37,7 @@ export const useViewportHeightSync = () => {
     if (typeof window === "undefined" || typeof document === "undefined") return;
 
     let frameId = 0;
-    let timeoutId: number | undefined;
+    let timeoutIds: number[] = [];
 
     const scheduleSync = () => {
       window.cancelAnimationFrame(frameId);
@@ -51,8 +51,8 @@ export const useViewportHeightSync = () => {
 
     const scheduleDelayedSync = () => {
       scheduleSync();
-      window.clearTimeout(timeoutId);
-      timeoutId = window.setTimeout(scheduleForcedSync, 350);
+      timeoutIds.forEach(window.clearTimeout);
+      timeoutIds = [150, 450, 900].map((delay) => window.setTimeout(scheduleForcedSync, delay));
     };
 
     syncViewportHeight();
@@ -63,7 +63,7 @@ export const useViewportHeightSync = () => {
 
     return () => {
       window.cancelAnimationFrame(frameId);
-      window.clearTimeout(timeoutId);
+      timeoutIds.forEach(window.clearTimeout);
 
       window.removeEventListener("resize", scheduleSync);
       window.removeEventListener("orientationchange", scheduleDelayedSync);
