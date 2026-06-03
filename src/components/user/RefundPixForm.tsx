@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle, Clock, Loader2, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -8,6 +8,8 @@ interface RefundPixFormProps {
   appointmentStatus: string;
   rejectionReason?: string | null;
   professionalHourlyRate?: number | null;
+  currentPixKey?: string | null;
+  currentPixKeyType?: string | null;
   onPixSaved: () => void;
 }
 
@@ -19,10 +21,14 @@ const PIX_KEY_TYPES = [
   { value: "random", label: "Chave Aleatória" }
 ];
 
-const RefundPixForm = ({ appointmentId, appointmentStatus, rejectionReason, professionalHourlyRate, onPixSaved }: RefundPixFormProps) => {
-  const [pixKey, setPixKey] = useState("");
-  const [pixKeyType, setPixKeyType] = useState("");
+const RefundPixForm = ({ appointmentId, appointmentStatus, rejectionReason, professionalHourlyRate, currentPixKey, currentPixKeyType, onPixSaved }: RefundPixFormProps) => {
+  const hasSavedKey = !!currentPixKey;
+  const [pixKey, setPixKey] = useState(currentPixKey || "");
+  const [pixKeyType, setPixKeyType] = useState(currentPixKeyType || "");
   const [isSaving, setIsSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(!hasSavedKey);
+
+  const keyTypeLabel = PIX_KEY_TYPES.find((t) => t.value === (currentPixKeyType || pixKeyType))?.label;
 
   const handleSavePixKey = async () => {
     if (!pixKey.trim() || !pixKeyType) {
@@ -50,6 +56,7 @@ const RefundPixForm = ({ appointmentId, appointmentStatus, rejectionReason, prof
       if (error) throw error;
 
       toast.success("Chave PIX enviada! O profissional realizará o ressarcimento em até 48h.");
+      setIsEditing(false);
       onPixSaved();
     } catch (error) {
       console.error("Error saving PIX key:", error);
@@ -58,6 +65,41 @@ const RefundPixForm = ({ appointmentId, appointmentStatus, rejectionReason, prof
       setIsSaving(false);
     }
   };
+
+  // Saved view: PIX already sent, awaiting refund
+  if (hasSavedKey && !isEditing) {
+    return (
+      <div className="mt-4 p-4 bg-orange-500/10 border border-orange-500/30 rounded-xl space-y-3">
+        <div className="flex items-start gap-3">
+          <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+            <Clock className="w-4 h-4 text-orange-500" />
+          </div>
+          <div className="flex-1">
+            <h4 className="font-medium text-orange-700 text-sm">Aguardando Reembolso</h4>
+            <p className="text-orange-600 text-xs mt-0.5">
+              Chave PIX enviada. O profissional tem até 48h para realizar o ressarcimento.
+            </p>
+          </div>
+        </div>
+
+        <div className="p-3 bg-background/60 rounded-lg space-y-1">
+          <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Chave PIX informada</p>
+          <p className="text-card-foreground text-sm font-mono break-all">{currentPixKey}</p>
+          {keyTypeLabel && (
+            <p className="text-xs text-muted-foreground">Tipo: {keyTypeLabel}</p>
+          )}
+        </div>
+
+        <button
+          onClick={() => setIsEditing(true)}
+          className="w-full py-2.5 bg-muted hover:bg-muted/80 text-card-foreground rounded-xl font-medium transition-colors flex items-center justify-center gap-2 text-sm"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Reenviar Chave
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4 p-4 bg-orange-500/10 border border-orange-500/30 rounded-xl space-y-3">
@@ -119,9 +161,22 @@ const RefundPixForm = ({ appointmentId, appointmentStatus, rejectionReason, prof
               Enviando...
             </>
           ) : (
-            "Enviar Chave PIX para Ressarcimento"
+            hasSavedKey ? "Atualizar Chave PIX" : "Enviar Chave PIX para Ressarcimento"
           )}
         </button>
+
+        {hasSavedKey && (
+          <button
+            onClick={() => {
+              setPixKey(currentPixKey || "");
+              setPixKeyType(currentPixKeyType || "");
+              setIsEditing(false);
+            }}
+            className="w-full py-2 text-muted-foreground text-xs hover:text-card-foreground transition-colors"
+          >
+            Cancelar
+          </button>
+        )}
 
         <p className="text-[10px] text-muted-foreground text-center">
           O profissional tem até 48h para realizar o ressarcimento via PIX.

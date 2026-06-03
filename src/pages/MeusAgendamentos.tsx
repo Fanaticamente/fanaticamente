@@ -207,7 +207,25 @@ const MeusAgendamentos = () => {
         className: "bg-orange-500/20 text-orange-500",
         icon: AlertCircle
       };
-    } else if (status === "cancelled" || status === "refund_pending" || status === "refund_sent" || status === "disputed") {
+    } else if (status === "refund_pending") {
+      return {
+        label: "Aguardando Reembolso",
+        className: "bg-orange-500/20 text-orange-500",
+        icon: Clock
+      };
+    } else if (status === "refund_sent") {
+      return {
+        label: "Reembolso Enviado",
+        className: "bg-blue-500/20 text-blue-500",
+        icon: CheckCircle
+      };
+    } else if (status === "disputed") {
+      return {
+        label: "Em Análise",
+        className: "bg-red-500/20 text-red-500",
+        icon: AlertCircle
+      };
+    } else if (status === "cancelled") {
       return {
         label: "Cancelada",
         className: "bg-red-500/20 text-red-500",
@@ -242,8 +260,13 @@ const MeusAgendamentos = () => {
         return true;
       }
 
-      // Keep refund_pending without PIX key in "Próximos" - user needs to provide PIX key
-      if (apt.status === 'refund_pending' && !apt.user_pix_key) {
+      // Keep refund_pending in "Próximos" until reembolso is sent
+      if (apt.status === 'refund_pending') {
+        return true;
+      }
+
+      // Keep refund_sent in "Próximos" so user can see the receipt and confirm
+      if (apt.status === 'refund_sent') {
         return true;
       }
 
@@ -262,11 +285,6 @@ const MeusAgendamentos = () => {
         return true;
       }
 
-      // refund_pending with PIX key goes to "Cancelados"
-      if (apt.status === 'refund_pending' && !!apt.user_pix_key) {
-        return true;
-      }
-
       // Safety: if for some reason status is still cancelled but PIX already exists, treat as cancelled bucket
       if (apt.status === 'cancelled' && !!apt.user_pix_key) {
         return true;
@@ -282,14 +300,14 @@ const MeusAgendamentos = () => {
     if (['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status)) return true;
     if (apt.status === 'completed' && !apt.rating) return true;
     if (apt.status === 'cancelled' && !apt.user_pix_key) return true;
-    if (apt.status === 'refund_pending' && !apt.user_pix_key) return true;
+    if (apt.status === 'refund_pending') return true;
+    if (apt.status === 'refund_sent') return true;
     return false;
   }).length;
 
   const realizadosCount = appointments.filter(apt => apt.status === 'completed' && !!apt.rating).length;
   const canceladosCount = appointments.filter(apt => {
     if (['refund_sent', 'disputed'].includes(apt.status)) return true;
-    if (apt.status === 'refund_pending' && !!apt.user_pix_key) return true;
     if (apt.status === 'cancelled' && !!apt.user_pix_key) return true;
     return false;
   }).length;
@@ -363,11 +381,11 @@ const MeusAgendamentos = () => {
         </button>
       </div>
 
-      {/* Refund Cards for cancelled/refund flow */}
-      {filter === "cancelados" && filteredAppointments.filter(apt => ['refund_pending', 'refund_sent', 'disputed'].includes(apt.status)).length > 0 && (
+      {/* Refund Cards for refund_sent / disputed (cancelados tab) */}
+      {filter === "cancelados" && filteredAppointments.filter(apt => ['refund_sent', 'disputed'].includes(apt.status)).length > 0 && (
         <div className="space-y-3 mb-4">
           {filteredAppointments
-            .filter(apt => ['refund_pending', 'refund_sent', 'disputed'].includes(apt.status))
+            .filter(apt => ['refund_sent', 'disputed'].includes(apt.status))
             .map(apt => (
               <RefundInfoCard 
                 key={apt.id} 
@@ -535,15 +553,24 @@ const MeusAgendamentos = () => {
                     </div>
                   )}
 
-                  {/* Refund PIX Form - keep rejected/cancelled visible until PIX is provided */}
-                  {['cancelled', 'refund_pending'].includes(apt.status) && !apt.user_pix_key && (
+                  {/* Refund PIX Form - rejected/cancelled flow */}
+                  {['cancelled', 'refund_pending'].includes(apt.status) && (
                     <RefundPixForm
                       appointmentId={apt.id}
                       appointmentStatus={apt.status}
                       rejectionReason={apt.rejection_reason}
                       professionalHourlyRate={apt.professional?.hourly_rate}
+                      currentPixKey={apt.user_pix_key}
+                      currentPixKeyType={apt.user_pix_key_type}
                       onPixSaved={fetchAppointments}
                     />
+                  )}
+
+                  {/* Refund Receipt - professional sent the PIX receipt */}
+                  {['refund_sent', 'disputed'].includes(apt.status) && filter !== 'cancelados' && (
+                    <div className="mt-4">
+                      <RefundInfoCard appointment={apt} onUpdate={fetchAppointments} />
+                    </div>
                   )}
 
                   {/* Reschedule button - available for pending, confirmed, link_sent statuses (not completed, cancelled, in_progress or refund_pending) */}
