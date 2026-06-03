@@ -265,6 +265,11 @@ const MeusAgendamentos = () => {
         return true;
       }
 
+      // Keep refund_sent in "Próximos" so user can see the receipt and confirm
+      if (apt.status === 'refund_sent') {
+        return true;
+      }
+
       // Keep payment_issue in "Próximos" so user can see it
       if (apt.status === 'payment_issue') {
         return true;
@@ -296,6 +301,7 @@ const MeusAgendamentos = () => {
     if (apt.status === 'completed' && !apt.rating) return true;
     if (apt.status === 'cancelled' && !apt.user_pix_key) return true;
     if (apt.status === 'refund_pending') return true;
+    if (apt.status === 'refund_sent') return true;
     return false;
   }).length;
 
