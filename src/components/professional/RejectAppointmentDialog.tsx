@@ -106,7 +106,7 @@ const RejectAppointmentDialog = ({ appointment, onClose, onRejected }: RejectApp
 
   return (
     <div 
-      className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div 
