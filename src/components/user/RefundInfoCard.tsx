@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/contexts/AuthContext";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface RefundInfoCardProps {
   appointment: {
@@ -47,6 +48,7 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
   const [isSubmittingDispute, setIsSubmittingDispute] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [showReceiptViewer, setShowReceiptViewer] = useState(false);
 
   // Load receipt URL if available
   useEffect(() => {
@@ -288,15 +290,25 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
             <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
               Comprovante de Ressarcimento
             </h4>
-            <a
-              href={receiptUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 bg-muted/50 rounded-xl text-primary hover:bg-muted transition-colors text-sm font-medium"
+            <button
+              type="button"
+              onClick={() => setShowReceiptViewer(true)}
+              className="w-full flex items-center gap-2 p-3 bg-muted/50 rounded-xl text-primary hover:bg-muted transition-colors text-sm font-medium"
             >
               <Upload className="w-4 h-4" />
               Ver Comprovante de Ressarcimento
-            </a>
+            </button>
+
+            <Dialog open={showReceiptViewer} onOpenChange={setShowReceiptViewer}>
+              <DialogContent className="w-[calc(100vw-1rem)] max-w-3xl h-[85vh] p-0 overflow-hidden z-[100]">
+                <DialogTitle className="sr-only">Comprovante de Ressarcimento</DialogTitle>
+                <iframe
+                  src={receiptUrl}
+                  title="Comprovante de Ressarcimento"
+                  className="w-full h-full bg-white rounded-2xl"
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         )}
 
