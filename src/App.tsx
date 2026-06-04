@@ -38,6 +38,7 @@ import SessionPayment from "./pages/SessionPayment";
 import PaymentConfirmation from "./pages/PaymentConfirmation";
 import Cursos from "./pages/Cursos";
 import CursoDetalhe from "./pages/CursoDetalhe";
+import MeusCursos from "./pages/MeusCursos";
 import Quiz from "./pages/Quiz";
 import Diario from "./pages/Diario";
 import Radio from "./pages/Radio";
@@ -175,6 +176,7 @@ const App = () => {
                 <Route path="/terapeuta/:id" element={<DynamicProtectedRoute pageId="terapeutas"><ProfessionalProfile /></DynamicProtectedRoute>} />
                 <Route path="/cursos" element={<DynamicProtectedRoute pageId="cursos"><Cursos /></DynamicProtectedRoute>} />
                 <Route path="/curso/:id" element={<DynamicProtectedRoute pageId="cursos"><CursoDetalhe /></DynamicProtectedRoute>} />
+                <Route path="/meus-cursos" element={<ProtectedRoute><MeusCursos /></ProtectedRoute>} />
                 <Route path="/quiz" element={<DynamicProtectedRoute pageId="quiz"><Quiz /></DynamicProtectedRoute>} />
                 <Route path="/radio" element={<DynamicProtectedRoute pageId="radio"><Radio /></DynamicProtectedRoute>} />
                 <Route path="/futebol" element={<DynamicProtectedRoute pageId="futebol"><Futebol /></DynamicProtectedRoute>} />
