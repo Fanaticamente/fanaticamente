@@ -284,25 +284,19 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
         </div>
 
         {receiptUrl && (
-          <div className="p-3 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-2">Comprovante:</p>
-            {receiptUrl.includes('.pdf') ? (
-              <a
-                href={receiptUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-primary hover:underline text-sm"
-              >
-                <Upload className="w-4 h-4" />
-                Abrir comprovante (PDF)
-              </a>
-            ) : (
-              <img
-                src={receiptUrl}
-                alt="Comprovante de ressarcimento"
-                className="w-full rounded-lg max-h-48 object-contain"
-              />
-            )}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              Comprovante de Ressarcimento
+            </h4>
+            <a
+              href={receiptUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 p-3 bg-muted/50 rounded-xl text-primary hover:bg-muted transition-colors text-sm font-medium"
+            >
+              <Upload className="w-4 h-4" />
+              Ver Comprovante de Ressarcimento
+            </a>
           </div>
         )}
 
