@@ -4,6 +4,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import HeroCarousel from "@/components/home/HeroCarousel";
+import QuickShortcuts from "@/components/home/QuickShortcuts";
 import TunnelCard from "@/components/home/TunnelCard";
 import TicketCard from "@/components/home/TicketCard";
 import QuizCard from "@/components/home/QuizCard";
@@ -31,6 +32,7 @@ const Index = () => {
           <Header />
           <main className="pt-14">
             <HeroCarousel />
+            <QuickShortcuts />
             <TunnelCard />
             <TicketCard />
             <QuizCard />
