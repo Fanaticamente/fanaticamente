@@ -12,7 +12,7 @@ const QuickShortcuts = () => {
         <span className="text-white text-sm font-semibold">Minhas Consultas</span>
       </Link>
       <Link
-        to="/cursos"
+        to="/meus-cursos"
         className="flex flex-col items-center justify-center gap-2 bg-neutral-900 border border-neutral-800 rounded-2xl py-5 active:scale-95 transition-transform"
       >
         <GraduationCap className="w-7 h-7 text-emerald-500" strokeWidth={2} />
