@@ -654,7 +654,10 @@ const MeusAgendamentos = () => {
     return (
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 py-4">
+        <header
+          className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 pb-4"
+          style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}
+        >
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/perfil")}
@@ -673,7 +676,10 @@ const MeusAgendamentos = () => {
           </div>
         </header>
 
-        <main className="pt-24 pb-8 px-4">
+        <main
+          className="pb-8 px-4"
+          style={{ paddingTop: "calc(env(safe-area-inset-top) + 6rem)" }}
+        >
           <AppointmentsContent />
         </main>
       </div>

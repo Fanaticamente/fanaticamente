@@ -302,11 +302,21 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
             <Dialog open={showReceiptViewer} onOpenChange={setShowReceiptViewer}>
               <DialogContent className="w-[calc(100vw-1rem)] max-w-3xl h-[85vh] p-0 overflow-hidden z-[100]">
                 <DialogTitle className="sr-only">Comprovante de Ressarcimento</DialogTitle>
-                <iframe
-                  src={receiptUrl}
-                  title="Comprovante de Ressarcimento"
-                  className="w-full h-full bg-white rounded-2xl"
-                />
+                {appointment.refund_receipt_url?.toLowerCase().endsWith(".pdf") ? (
+                  <iframe
+                    src={receiptUrl}
+                    title="Comprovante de Ressarcimento"
+                    className="w-full h-full bg-white rounded-2xl"
+                  />
+                ) : (
+                  <div className="w-full h-full overflow-auto bg-white rounded-2xl flex items-start justify-center p-2">
+                    <img
+                      src={receiptUrl}
+                      alt="Comprovante de Ressarcimento"
+                      className="max-w-full h-auto object-contain"
+                    />
+                  </div>
+                )}
               </DialogContent>
             </Dialog>
           </div>
