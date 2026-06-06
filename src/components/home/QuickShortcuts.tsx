@@ -9,9 +9,9 @@ type ShortcutProps = {
 };
 
 const ShortcutCard = ({ to, icon, title, subtitle }: ShortcutProps) => (
-    <Link
+  <Link
     to={to}
-    className="relative flex flex-col items-center justify-center gap-2 px-3 transition-all duration-200 active:scale-[0.98]"
+    className="relative flex flex-row items-center gap-2.5 px-3 transition-all duration-200 active:scale-[0.98]"
     style={{
       minHeight: 118,
       borderRadius: 24,
@@ -21,9 +21,9 @@ const ShortcutCard = ({ to, icon, title, subtitle }: ShortcutProps) => (
     }}
   >
     {icon}
-    <div className="flex flex-col items-center leading-tight min-w-0">
-      <span className="text-white text-[15px] font-bold tracking-tight whitespace-nowrap">{title}</span>
-      <span className="text-neutral-400 text-[11px] mt-0.5 whitespace-nowrap">{subtitle}</span>
+    <div className="flex flex-col leading-tight min-w-0">
+      <span className="text-white text-[13px] font-bold tracking-tight whitespace-nowrap">{title}</span>
+      <span className="text-neutral-400 text-[10px] mt-0.5 whitespace-nowrap">{subtitle}</span>
     </div>
   </Link>
 );
