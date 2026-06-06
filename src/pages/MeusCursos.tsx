@@ -334,6 +334,7 @@ const MeusCursos = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background">
+        <MeusCursosInfoCard />
         <Header />
         <header
           className="fixed left-0 right-0 z-40 bg-background border-b border-neutral-800 pb-3"
