@@ -39,7 +39,7 @@ const QuickShortcuts = () => {
       />
       <ShortcutCard
         to="/meus-cursos"
-        icon={<GraduationCap className="text-emerald-500 shrink-0" size={32} strokeWidth={2} />}
+        icon={<GraduationCap className="text-emerald-500 shrink-0" size={38} strokeWidth={2} />}
         title="Meus Cursos"
         subtitle="Continue sua jornada"
       />
