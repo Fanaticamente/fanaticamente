@@ -9,9 +9,9 @@ type ShortcutProps = {
 };
 
 const ShortcutCard = ({ to, icon, title, subtitle }: ShortcutProps) => (
-  <Link
+    <Link
     to={to}
-    className="relative flex items-center gap-2.5 px-3 transition-all duration-200 active:scale-[0.98]"
+    className="relative flex flex-col items-center justify-center gap-2 px-3 transition-all duration-200 active:scale-[0.98]"
     style={{
       minHeight: 118,
       borderRadius: 24,
