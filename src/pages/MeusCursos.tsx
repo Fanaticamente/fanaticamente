@@ -11,6 +11,7 @@ import { useCourses } from "@/hooks/useCourses";
 import { useUserCourseAccess } from "@/hooks/useUserCourseAccess";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
+import MeusCursosInfoCard from "@/components/courses/MeusCursosInfoCard";
 
 const ConsciousnessBadge = ({
   rankLabel,
@@ -32,7 +33,7 @@ const ConsciousnessBadge = ({
         <Sparkles className="w-7 h-7 text-white" strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs uppercase tracking-widest text-emerald-300/80 font-semibold">Nível de Consciência</p>
+          <p className="text-xs uppercase tracking-widest text-white font-semibold drop-shadow">Nível de Consciência</p>
         <h2 className="text-white text-xl font-bold mt-0.5 leading-tight">{rankLabel}</h2>
         <div className="mt-3">
           <Progress value={percent} className="h-2 bg-neutral-800 [&>div]:bg-gradient-to-r [&>div]:from-emerald-400 [&>div]:to-emerald-500" />
