@@ -369,6 +369,7 @@ const MeusCursos = () => {
 
   return (
     <UserDesktopLayout title="Meus Cursos" subtitle="Sua trilha de consciência">
+      <MeusCursosInfoCard />
       <Content />
     </UserDesktopLayout>
   );
