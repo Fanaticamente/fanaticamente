@@ -37,11 +37,11 @@ export interface MyCoursesData {
 }
 
 const RANKS: Array<{ label: string; min: number }> = [
-  { label: "Iniciante", min: 0 },
-  { label: "Curioso", min: 80 },
-  { label: "Engajado", min: 250 },
-  { label: "Consciente", min: 600 },
-  { label: "Fanático Consciente", min: 1500 },
+  { label: "Amador", min: 0 },
+  { label: "Base", min: 80 },
+  { label: "Profissional", min: 250 },
+  { label: "Craque", min: 600 },
+  { label: "Lendário", min: 1500 },
 ];
 
 const computeRank = (points: number) => {
@@ -86,7 +86,7 @@ export const useMyCoursesData = () => {
         hasMembership: false,
         consciousnessPercent: 0,
         consciousnessPoints: 0,
-        rankLabel: "Iniciante",
+        rankLabel: "Amador",
         pointsToNextRank: RANKS[1].min,
         nextRankLabel: RANKS[1].label,
       };
