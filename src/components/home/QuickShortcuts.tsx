@@ -21,9 +21,9 @@ const ShortcutCard = ({ to, icon, title, subtitle }: ShortcutProps) => (
     }}
   >
     {icon}
-    <div className="flex flex-col leading-tight min-w-0 flex-1">
-      <span className="text-white text-[13px] font-bold tracking-tight whitespace-nowrap">{title}</span>
-      <span className="text-neutral-400 text-[10px] mt-1 whitespace-nowrap">{subtitle}</span>
+    <div className="flex flex-col items-center leading-tight min-w-0">
+      <span className="text-white text-[15px] font-bold tracking-tight whitespace-nowrap">{title}</span>
+      <span className="text-neutral-400 text-[11px] mt-0.5 whitespace-nowrap">{subtitle}</span>
     </div>
   </Link>
 );
