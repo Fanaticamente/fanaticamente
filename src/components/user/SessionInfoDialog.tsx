@@ -1,4 +1,4 @@
-import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, ExternalLink } from "lucide-react";
+import { X, Calendar, Clock, User, Mail, Phone, Link, AlertCircle, ExternalLink, MessageCircle } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
@@ -114,7 +114,17 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
               {appointment.profile?.phone && (
                 <div className="flex items-center gap-3 text-sm">
                   <Phone className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-card-foreground">{appointment.profile.phone}</span>
+                  <span className="text-card-foreground flex-1">{appointment.profile.phone}</span>
+                  <a
+                    href={`https://wa.me/${appointment.profile.phone.replace(/\D/g, '').replace(/^(\d{10,11})$/, '55$1')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-green-500/15 text-green-600 hover:bg-green-500/25 transition-colors text-xs font-medium"
+                    title="Iniciar conversa no WhatsApp"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    WhatsApp
+                  </a>
                 </div>
               )}
 
