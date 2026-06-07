@@ -474,20 +474,11 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
   };
 
   const handleConfirmAppointment = async () => {
-    if (!user || !receiptFile) return;
+    if (!user) return;
 
     setUploadingReceipt(true);
 
     try {
-      const fileExt = receiptFile.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}-receipt.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('payment-receipts')
-        .upload(fileName, receiptFile);
-
-      if (uploadError) throw uploadError;
-
       const { data: createdApt, error: appointmentError } = await supabase
         .from('appointments')
         .insert({
@@ -496,7 +487,6 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
           scheduled_date: scheduledDateStr,
           scheduled_time: selectedTime,
           status: 'pending',
-          receipt_url: fileName,
         })
         .select('id')
         .single();
@@ -517,7 +507,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
         }
       }
 
-      toast.success("Agendamento enviado! O profissional irá verificar o comprovante.");
+      toast.success("Agendamento enviado! Aguarde a confirmação do profissional.");
       onOpenChange(false);
       navigate(`/pagamento/confirmacao/${therapist.id}?date=${scheduledDateStr}&time=${selectedTime}`);
     } catch (error) {
