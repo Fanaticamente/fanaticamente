@@ -139,7 +139,7 @@ const MeusAgendamentos = () => {
       // Fetch profiles for professionals
       const { data: profilesData } = await supabase
         .from("profiles")
-        .select("user_id, full_name, avatar_url")
+        .select("user_id, full_name, avatar_url, phone")
         .in("user_id", professionalUserIds);
 
       // Create maps for quick lookup
