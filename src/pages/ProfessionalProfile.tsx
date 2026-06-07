@@ -281,7 +281,7 @@ const ProfessionalProfile = () => {
     setSelectedTime(null);
   };
 
-  const handleSchedule = () => {
+  const handleSchedule = async () => {
     if (professional && currentUserId && professional.user_id === currentUserId) {
       toast({
         title: "Ação não permitida",
@@ -291,9 +291,50 @@ const ProfessionalProfile = () => {
       return;
     }
 
-    if (selectedDate && selectedTime) {
-      const dateStr = format(selectedDate, "yyyy-MM-dd");
-      navigate(`/pagamento/${id}?date=${dateStr}&time=${encodeURIComponent(selectedTime)}`);
+    if (!selectedDate || !selectedTime || !currentUserId || !id) return;
+
+    const dateStr = format(selectedDate, "yyyy-MM-dd");
+
+    try {
+      const { data: createdApt, error } = await supabase
+        .from("appointments")
+        .insert({
+          user_id: currentUserId,
+          professional_id: id,
+          scheduled_date: dateStr,
+          scheduled_time: selectedTime,
+          status: "pending",
+        })
+        .select("id")
+        .single();
+
+      if (error) throw error;
+
+      if (createdApt?.id) {
+        try {
+          await Promise.race([
+            supabase.functions.invoke("google-calendar-create-event", {
+              body: { appointment_id: createdApt.id },
+            }),
+            new Promise((resolve) => setTimeout(resolve, 6000)),
+          ]);
+        } catch (err) {
+          console.warn("gcal create-event failed", err);
+        }
+      }
+
+      toast({
+        title: "Agendamento enviado!",
+        description: "Aguarde a confirmação do profissional.",
+      });
+      navigate(`/pagamento/confirmacao/${id}?date=${dateStr}&time=${encodeURIComponent(selectedTime)}`);
+    } catch (err) {
+      console.error("Error creating appointment:", err);
+      toast({
+        title: "Erro ao agendar",
+        description: "Tente novamente.",
+        variant: "destructive",
+      });
     }
   };
 

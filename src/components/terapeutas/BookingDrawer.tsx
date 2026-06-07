@@ -474,20 +474,11 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
   };
 
   const handleConfirmAppointment = async () => {
-    if (!user || !receiptFile) return;
+    if (!user) return;
 
     setUploadingReceipt(true);
 
     try {
-      const fileExt = receiptFile.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}-receipt.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('payment-receipts')
-        .upload(fileName, receiptFile);
-
-      if (uploadError) throw uploadError;
-
       const { data: createdApt, error: appointmentError } = await supabase
         .from('appointments')
         .insert({
@@ -496,7 +487,6 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
           scheduled_date: scheduledDateStr,
           scheduled_time: selectedTime,
           status: 'pending',
-          receipt_url: fileName,
         })
         .select('id')
         .single();
@@ -517,7 +507,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
         }
       }
 
-      toast.success("Agendamento enviado! O profissional irá verificar o comprovante.");
+      toast.success("Agendamento enviado! Aguarde a confirmação do profissional.");
       onOpenChange(false);
       navigate(`/pagamento/confirmacao/${therapist.id}?date=${scheduledDateStr}&time=${selectedTime}`);
     } catch (error) {
@@ -905,225 +895,28 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
                 />
               </div>
 
-              {/* Payment Methods */}
-              {!paymentMethod && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                  <div
-                    className="px-4 py-3 flex items-center gap-3"
-                    style={{ backgroundColor: clubColor + '08' }}
-                  >
-                    <CreditCard className="w-5 h-5" style={{ color: clubColor }} />
-                    <span className="font-semibold text-gray-900">Forma de Pagamento</span>
-                  </div>
-
-                  <div className="p-4 space-y-2">
-                    {canProcessStripe && (
-                      <button
-                        onClick={() => {
-                          if (!termsAccepted) {
-                            toast.error("Aceite os termos para continuar");
-                            return;
-                          }
-                          setPaymentMethod("card");
-                        }}
-                        className="w-full p-3 rounded-xl border-2 flex items-center gap-3"
-                        style={{ borderColor: clubColor + '30' }}
-                      >
-                        <div
-                          className="w-12 h-12 rounded-xl flex items-center justify-center"
-                          style={{ backgroundColor: clubColor + '15' }}
-                        >
-                          <CreditCard className="w-5 h-5" style={{ color: clubColor }} />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-semibold text-gray-900 text-sm">Cartão de Crédito</p>
-                          <p className="text-xs text-gray-500">Visa, Mastercard, Elo</p>
-                        </div>
-                      </button>
-                    )}
-
-                    {hasPixKey && (
-                      <button
-                        onClick={() => {
-                          if (!termsAccepted) {
-                            toast.error("Aceite os termos para continuar");
-                            return;
-                          }
-                          setPaymentMethod("pix");
-                        }}
-                        className="w-full p-3 rounded-xl border-2 flex items-center gap-3"
-                        style={{ borderColor: clubColor + '30' }}
-                      >
-                        <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-emerald-50">
-                          <QrCode className="w-5 h-5 text-emerald-600" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-semibold text-gray-900 text-sm">PIX</p>
-                          <p className="text-xs text-gray-500">Pagamento instantâneo</p>
-                        </div>
-                      </button>
-                    )}
-
-                    {!canProcessStripe && !hasPixKey && (
-                      <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
-                        <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0" />
-                        <div>
-                          <p className="font-medium text-amber-800 text-sm">Pagamento Indisponível</p>
-                          <p className="text-xs text-amber-600 mt-1">
-                            Este profissional ainda não configurou formas de recebimento.
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Card Payment */}
-              {paymentMethod === "card" && (
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 animate-in fade-in">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-bold text-gray-900">Pagamento com Cartão</h3>
-                    <button onClick={() => setPaymentMethod(null)} className="text-sm text-gray-500">
-                      Voltar
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-2 p-3 bg-emerald-50 rounded-xl mb-4">
-                    <Shield className="w-4 h-4 text-emerald-600" />
-                    <p className="text-xs text-emerald-700">Checkout seguro via Stripe</p>
-                  </div>
-
-                  <button
-                    onClick={handleCardPayment}
-                    disabled={processing}
-                    className="w-full py-4 rounded-xl font-bold text-white uppercase tracking-wide shadow-lg disabled:opacity-70"
-                    style={{ backgroundColor: clubColor }}
-                  >
-                    {processing ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Redirecionando...
-                      </span>
-                    ) : (
-                      `Pagar R$ ${sessionPrice.toFixed(2).replace(".", ",")}`
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {/* PIX Payment */}
-              {paymentMethod === "pix" && pixCode && (
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 animate-in fade-in">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-bold text-gray-900">Pague com PIX</h3>
-                    <button onClick={() => setPaymentMethod(null)} className="text-sm text-gray-500">
-                      Voltar
-                    </button>
-                  </div>
-
-                  <div className="flex flex-col items-center">
-                    <div
-                      className="p-4 rounded-xl mb-4"
-                      style={{ backgroundColor: clubColor + '08' }}
-                    >
-                      <div className="bg-white p-2 rounded-lg">
-                        <QRCodeSVG value={pixCode} size={160} level="M" />
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleCopyPix}
-                      className={`
-                        flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm w-full justify-center mb-4
-                        ${pixCopied ? 'bg-emerald-500 text-white' : ''}
-                      `}
-                      style={{
-                        backgroundColor: pixCopied ? undefined : clubColor + '15',
-                        color: pixCopied ? undefined : clubColor
-                      }}
-                    >
-                      {pixCopied ? (
-                        <>
-                          <Check className="w-4 h-4" />
-                          Copiado!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          Copiar Código PIX
-                        </>
-                      )}
-                    </button>
-
-                    {!showReceiptUpload ? (
-                      <button
-                        onClick={() => setShowReceiptUpload(true)}
-                        className="w-full py-4 rounded-xl font-bold text-white uppercase tracking-wide shadow-lg"
-                        style={{ backgroundColor: clubColor }}
-                      >
-                        Já Fiz o Pagamento
-                      </button>
-                    ) : (
-                      <div className="w-full space-y-3">
-                        <p className="text-sm text-gray-600 text-center">
-                          Envie o comprovante
-                        </p>
-
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/*,application/pdf"
-                          onChange={handleFileChange}
-                          className="hidden"
-                        />
-
-                        {!receiptFile ? (
-                          <button
-                            onClick={() => fileInputRef.current?.click()}
-                            className="w-full p-6 border-2 border-dashed rounded-xl flex flex-col items-center gap-2"
-                            style={{ borderColor: clubColor + '50' }}
-                          >
-                            <Upload className="w-6 h-6" style={{ color: clubColor }} />
-                            <span className="text-gray-600 text-sm">Clique para enviar</span>
-                          </button>
-                        ) : (
-                          <div
-                            className="w-full p-3 rounded-xl flex items-center justify-between"
-                            style={{ backgroundColor: clubColor + '10' }}
-                          >
-                            <div className="flex items-center gap-2">
-                              <FileText className="w-5 h-5" style={{ color: clubColor }} />
-                              <span className="text-sm text-gray-800 truncate max-w-[180px]">
-                                {receiptFile.name}
-                              </span>
-                            </div>
-                            <button onClick={handleRemoveFile} className="p-1">
-                              <X className="w-4 h-4 text-gray-500" />
-                            </button>
-                          </div>
-                        )}
-
-                        <button
-                          onClick={handleConfirmAppointment}
-                          disabled={!receiptFile || uploadingReceipt}
-                          className="w-full py-4 rounded-xl font-bold text-white uppercase tracking-wide shadow-lg disabled:opacity-50"
-                          style={{ backgroundColor: clubColor }}
-                        >
-                          {uploadingReceipt ? (
-                            <span className="flex items-center justify-center gap-2">
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                              Enviando...
-                            </span>
-                          ) : (
-                            "Confirmar Agendamento"
-                          )}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+              {/* Confirm Appointment (no payment required) */}
+              <button
+                onClick={() => {
+                  if (!termsAccepted) {
+                    toast.error("Aceite os termos para continuar");
+                    return;
+                  }
+                  handleConfirmAppointment();
+                }}
+                disabled={uploadingReceipt}
+                className="w-full py-4 rounded-xl font-bold text-white uppercase tracking-wide shadow-lg disabled:opacity-70"
+                style={{ backgroundColor: clubColor }}
+              >
+                {uploadingReceipt ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Confirmando...
+                  </span>
+                ) : (
+                  "Confirmar Agendamento"
+                )}
+              </button>
             </div>
           )}
         </div>
