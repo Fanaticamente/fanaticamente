@@ -44,7 +44,7 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
             <div className="flex-1 pr-2">
               <div className="flex items-center justify-between mb-3 pt-1">
                 <span
-                  className="text-xs tracking-[0.3em] uppercase text-emerald-700 font-semibold whitespace-nowrap truncate"
+                  className="text-xs tracking-[0.3em] uppercase text-gray-600 whitespace-nowrap truncate"
                   style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
                 >
                   {news.category}
@@ -123,9 +123,9 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
             )}
 
             <article
-              className={`max-w-none text-gray-900 text-justify hyphens-auto leading-relaxed space-y-4 [&_a]:text-emerald-700 [&_a]:underline [&_strong]:text-gray-900 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_img]:rounded-lg [&_img]:my-4 [&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:text-[3.5rem] [&>p:first-of-type]:first-letter:font-bold [&>p:first-of-type]:first-letter:mr-2 [&>p:first-of-type]:first-letter:mt-1 [&>p:first-of-type]:first-letter:leading-[0.8] [&>p:first-of-type]:first-letter:text-black`}
+              className={`max-w-none text-gray-900 text-justify hyphens-auto leading-relaxed space-y-4 [&_*]:!text-inherit [&_a]:!text-gray-900 [&_a]:underline [&_strong]:!text-gray-900 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_img]:rounded-lg [&_img]:my-4 [&_*]:![background-color:transparent] [&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:text-[3.5rem] [&>p:first-of-type]:first-letter:font-bold [&>p:first-of-type]:first-letter:mr-2 [&>p:first-of-type]:first-letter:mt-1 [&>p:first-of-type]:first-letter:leading-[0.8] [&>p:first-of-type]:first-letter:!text-black`}
               style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: `${fontSizePx[fontSizeLevel]}px` }}
-              dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+              dangerouslySetInnerHTML={{ __html: sanitizedHtml.replace(/\s(color|background-color)\s*:\s*[^;"']+;?/gi, '') }}
             />
 
             <div className="pt-4 border-t border-gray-300">
