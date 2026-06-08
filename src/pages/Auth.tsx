@@ -17,6 +17,7 @@ import logoAuth from "@/assets/logo-auth.png";
 import { useIsMobile } from "@/hooks/use-mobile";
 import heroCover from "@/assets/desktop/hero-cover.png";
 import authBgGramado from "@/assets/auth-bg-gramado.jpg";
+import FanSignupWizard, { FanSignupData } from "@/components/auth/FanSignupWizard";
 
 
 // Mask functions
