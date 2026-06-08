@@ -17,7 +17,6 @@ import logoAuth from "@/assets/logo-auth.png";
 import { useIsMobile } from "@/hooks/use-mobile";
 import heroCover from "@/assets/desktop/hero-cover.png";
 import authBgGramado from "@/assets/auth-bg-gramado.jpg";
-import FanSignupWizard, { FanSignupData } from "@/components/auth/FanSignupWizard";
 
 
 // Mask functions
@@ -517,74 +516,6 @@ const Auth = () => {
 
   const isMobile = useIsMobile();
 
-  // Wizard adapter: build FanSignupData from current state and patch it.
-  const wizardData: FanSignupData = {
-    fullName: signUpData.fullName,
-    birthDate: signUpData.birthDate,
-    phone: signUpData.phone,
-    favoriteClub: signUpData.favoriteClub,
-    state: signUpData.state,
-    city: signUpData.city,
-    email: signUpData.email,
-    password: signUpData.password,
-    confirmPassword: signUpConfirmPassword,
-    acceptedTerms,
-  };
-
-  const updateWizard = (patch: Partial<FanSignupData>) => {
-    if ("confirmPassword" in patch) setSignUpConfirmPassword(patch.confirmPassword ?? "");
-    if ("acceptedTerms" in patch) setAcceptedTerms(!!patch.acceptedTerms);
-    const dataPatch: Partial<SignUpData> = {};
-    if ("fullName" in patch) dataPatch.fullName = patch.fullName ?? "";
-    if ("birthDate" in patch) dataPatch.birthDate = patch.birthDate ?? "";
-    if ("phone" in patch) dataPatch.phone = patch.phone ?? "";
-    if ("favoriteClub" in patch) dataPatch.favoriteClub = patch.favoriteClub ?? "";
-    if ("state" in patch) {
-      dataPatch.state = patch.state ?? "";
-      dataPatch.city = "";
-    }
-    if ("city" in patch) dataPatch.city = patch.city ?? "";
-    if ("email" in patch) dataPatch.email = patch.email ?? "";
-    if ("password" in patch) dataPatch.password = patch.password ?? "";
-    if (Object.keys(dataPatch).length > 0) {
-      setSignUpData((prev) => ({ ...prev, ...dataPatch }));
-    }
-  };
-
-  const handleWizardSubmit = async (): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      const profileData: any = {
-        birth_date: signUpData.birthDate,
-        favorite_club_id: signUpData.favoriteClub,
-        city: signUpData.city,
-        state: signUpData.state,
-        phone: signUpData.phone,
-      };
-      sessionStorage.setItem("pendingProfileUpdate", JSON.stringify(profileData));
-      const { error } = await signUp(
-        signUpData.email,
-        signUpData.password,
-        signUpData.fullName,
-        "fan"
-      );
-      if (error) {
-        sessionStorage.removeItem("pendingProfileUpdate");
-        if (error.message.includes("already registered")) {
-          toast.error("Este e-mail já tem uma conta Torcedor cadastrada. Faça login.");
-        } else {
-          toast.error(error.message);
-        }
-        return false;
-      }
-      setRoleValidated(true);
-      toast.success("Conta criada com sucesso!");
-      return true;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Desktop Layout
   if (!isMobile) {
     return (
@@ -1010,22 +941,6 @@ const Auth = () => {
   }
 
   // Mobile Layout (existing)
-  if (authMode === "user" && !isLogin) {
-    return (
-      <FanSignupWizard
-        data={wizardData}
-        update={updateWizard}
-        isLoading={isLoading}
-        onSubmit={handleWizardSubmit}
-        onSwitchToLogin={() => {
-          setIsLogin(true);
-          setErrors({});
-        }}
-        onExit={() => navigate("/")}
-      />
-    );
-  }
-
   return (
     <div className="bg-background flex min-h-[var(--app-height,100dvh)] items-start justify-center px-4 py-8">
       <div className="w-full max-w-md pb-8">
