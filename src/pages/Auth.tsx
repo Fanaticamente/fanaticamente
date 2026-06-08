@@ -1010,6 +1010,22 @@ const Auth = () => {
   }
 
   // Mobile Layout (existing)
+  if (authMode === "user" && !isLogin) {
+    return (
+      <FanSignupWizard
+        data={wizardData}
+        update={updateWizard}
+        isLoading={isLoading}
+        onSubmit={handleWizardSubmit}
+        onSwitchToLogin={() => {
+          setIsLogin(true);
+          setErrors({});
+        }}
+        onExit={() => navigate("/")}
+      />
+    );
+  }
+
   return (
     <div className="bg-background flex min-h-[var(--app-height,100dvh)] items-start justify-center px-4 py-8">
       <div className="w-full max-w-md pb-8">
