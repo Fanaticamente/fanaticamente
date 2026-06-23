@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { FileText, CheckCircle, ShieldCheck } from "lucide-react";
+import { FileText, CheckCircle, ShieldCheck, Camera, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { uploadProfessionalFile } from "@/lib/professionalUploads";
 import type { OnboardingData } from "./OnboardingWizard";
@@ -21,6 +21,8 @@ const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) =
   const [isUploadingBack, setIsUploadingBack] = useState(false);
   const frontRef = useRef<HTMLInputElement>(null);
   const backRef = useRef<HTMLInputElement>(null);
+  const frontCamRef = useRef<HTMLInputElement>(null);
+  const backCamRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (file: File, side: "front" | "back") => {
     if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
@@ -46,6 +48,8 @@ const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) =
       side === "front" ? setIsUploadingFront(false) : setIsUploadingBack(false);
       if (frontRef.current) frontRef.current.value = "";
       if (backRef.current) backRef.current.value = "";
+      if (frontCamRef.current) frontCamRef.current.value = "";
+      if (backCamRef.current) backCamRef.current.value = "";
     }
   };
 
@@ -75,6 +79,15 @@ const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) =
             )}
           </div>
           <input ref={frontRef} type="file" accept="image/*,application/pdf" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "front"); }} className="hidden" />
+          <input ref={frontCamRef} type="file" accept="image/*" capture="environment" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "front"); }} className="hidden" />
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <button type="button" onClick={() => frontCamRef.current?.click()} disabled={isUploadingFront} className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-therapy text-white text-xs font-medium hover:bg-therapy/90 disabled:opacity-50">
+              <Camera className="w-3.5 h-3.5" /> Câmera
+            </button>
+            <button type="button" onClick={() => frontRef.current?.click()} disabled={isUploadingFront} className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border border-border bg-background text-xs font-medium text-card-foreground hover:bg-muted disabled:opacity-50">
+              <ImageIcon className="w-3.5 h-3.5" /> Arquivo
+            </button>
+          </div>
         </div>
         <div>
           <label className="text-xs text-muted-foreground mb-2 block">Verso</label>
@@ -91,6 +104,15 @@ const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) =
             )}
           </div>
           <input ref={backRef} type="file" accept="image/*,application/pdf" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "back"); }} className="hidden" />
+          <input ref={backCamRef} type="file" accept="image/*" capture="environment" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "back"); }} className="hidden" />
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <button type="button" onClick={() => backCamRef.current?.click()} disabled={isUploadingBack} className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-therapy text-white text-xs font-medium hover:bg-therapy/90 disabled:opacity-50">
+              <Camera className="w-3.5 h-3.5" /> Câmera
+            </button>
+            <button type="button" onClick={() => backRef.current?.click()} disabled={isUploadingBack} className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border border-border bg-background text-xs font-medium text-card-foreground hover:bg-muted disabled:opacity-50">
+              <ImageIcon className="w-3.5 h-3.5" /> Arquivo
+            </button>
+          </div>
         </div>
       </div>
 

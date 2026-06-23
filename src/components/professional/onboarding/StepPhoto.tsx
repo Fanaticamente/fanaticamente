@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Upload, Camera, Info } from "lucide-react";
+import { Upload, Camera, Info, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { uploadProfessionalFile } from "@/lib/professionalUploads";
 import photoExampleFemale from "@/assets/onboarding-photo-example-female.png";
@@ -14,6 +14,7 @@ interface StepPhotoProps {
 const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,6 +42,7 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
       setIsUploading(false);
       // Reset the input so the same file can be re-selected after an error.
       if (fileInputRef.current) fileInputRef.current.value = "";
+      if (cameraInputRef.current) cameraInputRef.current.value = "";
     }
   };
 
@@ -75,18 +77,39 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
         onChange={handleUpload}
         className="hidden"
       />
+      {/* Dedicated camera input — `capture` opens the native camera on mobile.
+          Must stay in the synchronous click handler to preserve the user gesture. */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="user"
+        onChange={handleUpload}
+        className="hidden"
+      />
 
       {isUploading && <p className="text-therapy text-sm">Enviando...</p>}
 
-      {imageUrl && (
+      <div className="flex gap-2 justify-center mt-2">
+        <button
+          type="button"
+          onClick={() => cameraInputRef.current?.click()}
+          disabled={isUploading}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-therapy text-white text-sm font-medium hover:bg-therapy/90 disabled:opacity-50"
+        >
+          <Camera className="w-4 h-4" />
+          Tirar foto
+        </button>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="text-sm text-therapy underline"
+          disabled={isUploading}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-background text-sm font-medium text-card-foreground hover:bg-muted disabled:opacity-50"
         >
-          Trocar foto
+          <ImageIcon className="w-4 h-4" />
+          {imageUrl ? "Trocar foto" : "Galeria"}
         </button>
-      )}
+      </div>
 
       <div className="bg-muted/30 rounded-lg p-3 border border-border mt-4 text-left">
         <div className="flex items-start gap-2">
