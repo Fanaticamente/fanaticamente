@@ -1,12 +1,12 @@
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white px-4 py-4 flex items-center gap-3 border-b border-gray-200">
         <button
@@ -18,9 +18,8 @@ const PrivacyPolicy = () => {
         <h1 className="text-black font-bold text-lg">Política de Privacidade</h1>
       </header>
 
-      <ScrollArea className="h-[calc(100vh-64px)]">
-        <main className="p-6 pb-24 max-w-4xl mx-auto">
-          <div className="prose prose-sm max-w-none text-black">
+      <main className="px-4 py-5 sm:p-6 pb-28 max-w-4xl mx-auto w-full overflow-x-hidden overflow-y-auto h-[calc(100dvh-64px)]">
+        <div className={cn("prose prose-sm max-w-none text-black break-words", "overflow-x-hidden")}>
             <h1 className="text-2xl font-bold text-black mb-6">
               POLÍTICA DE PRIVACIDADE E TRATAMENTO DE DADOS DO FANATICAMENTE
             </h1>
@@ -316,9 +315,8 @@ const PrivacyPolicy = () => {
             <p className="text-center text-gray-500 text-sm mt-12 pt-6 border-t border-gray-200">
               Última atualização: 17 de março de 2026
             </p>
-          </div>
-        </main>
-      </ScrollArea>
+        </div>
+      </main>
     </div>
   );
 };
