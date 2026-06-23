@@ -6,9 +6,9 @@ const PrivacyPolicy = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-white flex flex-col overflow-x-hidden">
+    <div className="min-h-[100dvh] bg-white overflow-x-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white px-4 py-4 flex items-center gap-3 border-b border-gray-200 shrink-0">
+      <header className="sticky top-0 z-50 bg-white px-4 py-4 flex items-center gap-3 border-b border-gray-200">
         <button
           onClick={() => navigate(-1)}
           className="p-2 rounded-full bg-gray-100 text-black hover:bg-gray-200 transition-colors"
@@ -18,7 +18,7 @@ const PrivacyPolicy = () => {
         <h1 className="text-black font-bold text-lg">Política de Privacidade</h1>
       </header>
 
-      <ScrollArea className="flex-1 w-full" style={{ height: "calc(100dvh - 64px)" }}>
+      <ScrollArea className="h-[calc(100dvh-64px)] w-full">
         <main className="px-4 py-5 sm:p-6 pb-24 max-w-4xl mx-auto w-full overflow-x-hidden">
           <div className="prose prose-sm max-w-none text-black break-words overflow-x-hidden">
             <h1 className="text-2xl font-bold text-black mb-6">
