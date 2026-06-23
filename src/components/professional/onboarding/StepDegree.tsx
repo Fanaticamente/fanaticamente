@@ -26,9 +26,10 @@ interface StepDegreeProps {
   professionalId: string;
   data: OnboardingData;
   onUpdate: (partial: Partial<OnboardingData>) => void;
+  onBusyChange?: (busy: boolean) => void;
 }
 
-const StepDegree = ({ professionalId, data, onUpdate }: StepDegreeProps) => {
+const StepDegree = ({ professionalId, data, onUpdate, onBusyChange }: StepDegreeProps) => {
   const [isUploadingFront, setIsUploadingFront] = useState(false);
   const [isUploadingBack, setIsUploadingBack] = useState(false);
   const frontRef = useRef<HTMLInputElement>(null);
@@ -48,6 +49,7 @@ const StepDegree = ({ professionalId, data, onUpdate }: StepDegreeProps) => {
     }
 
     side === "front" ? setIsUploadingFront(true) : setIsUploadingBack(true);
+    onBusyChange?.(true);
     try {
       const { url } = await uploadProfessionalFile(file, side === "front" ? "degree-front" : "degree-back");
 
@@ -63,6 +65,7 @@ const StepDegree = ({ professionalId, data, onUpdate }: StepDegreeProps) => {
       toast.error(`Erro ao enviar diploma: ${e?.message || "tente novamente"}`);
     } finally {
       side === "front" ? setIsUploadingFront(false) : setIsUploadingBack(false);
+      onBusyChange?.(false);
       if (frontRef.current) frontRef.current.value = "";
       if (backRef.current) backRef.current.value = "";
     }

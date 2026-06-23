@@ -11,9 +11,10 @@ interface StepPhotoProps {
   professionalId: string;
   imageUrl: string;
   onUpdate: (url: string) => void;
+  onBusyChange?: (busy: boolean) => void;
 }
 
-const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
+const StepPhoto = ({ professionalId, imageUrl, onUpdate, onBusyChange }: StepPhotoProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -33,6 +34,7 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
     }
 
     setIsUploading(true);
+    onBusyChange?.(true);
     try {
       const { url } = await uploadProfessionalFile(file, "avatar");
       onUpdate(url);
@@ -46,6 +48,7 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
       toast.error(`Erro ao enviar imagem: ${error?.message || "tente novamente"}`);
     } finally {
       setIsUploading(false);
+      onBusyChange?.(false);
       // Reset the input so the same file can be re-selected after an error.
       if (fileInputRef.current) fileInputRef.current.value = "";
       if (cameraInputRef.current) cameraInputRef.current.value = "";

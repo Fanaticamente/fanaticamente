@@ -106,6 +106,11 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
     return baseFromExisting;
   });
   const [isSaving, setIsSaving] = useState(false);
+  // Tracks whether the current step is mid-upload (CRP/diploma/foto).
+  // Used to prevent the user from clicking "Continuar" before the file
+  // finishes uploading — which previously made the validation say
+  // "Envie a frente/verso" even though the document was on its way.
+  const [stepBusy, setStepBusy] = useState(false);
 
   // Persist draft to localStorage on every change
   useEffect(() => {
@@ -264,6 +269,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
             professionalId={professionalId}
             imageUrl={data.imageUrl}
             onUpdate={(url) => updateData({ imageUrl: url })}
+            onBusyChange={setStepBusy}
           />
         )}
         {currentStep === 1 && (
@@ -271,6 +277,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
             professionalId={professionalId}
             data={data}
             onUpdate={updateData}
+            onBusyChange={setStepBusy}
           />
         )}
         {currentStep === 2 && (
@@ -278,6 +285,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
             professionalId={professionalId}
             data={data}
             onUpdate={updateData}
+            onBusyChange={setStepBusy}
           />
         )}
         {currentStep === 3 && (
@@ -323,10 +331,10 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
           <button
             type="button"
             onClick={handleNext}
-            disabled={isSaving}
+            disabled={isSaving || stepBusy}
             className="flex-1 py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:scale-[1.02] transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            Continuar
+            {stepBusy ? "Enviando arquivo..." : "Continuar"}
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
