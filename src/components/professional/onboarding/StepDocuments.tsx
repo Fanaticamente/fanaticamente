@@ -124,17 +124,12 @@ const StepDocuments = ({ professionalId, data, onUpdate, onBusyChange }: StepDoc
         <ShieldCheck className="w-10 h-10 text-therapy mx-auto mb-2" />
         <h3 className="font-display text-xl text-card-foreground">Carteira do CRP</h3>
         <p className="text-sm text-muted-foreground mt-1">
-          Envie frente e verso da sua carteira de identificação profissional
+          Informe seu número do CRP. O envio das fotos da carteira é opcional neste momento.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        {renderSlot("front", "Frente", data.crpDocumentFrontUrl, isUploadingFront, frontRef)}
-        {renderSlot("back", "Verso", data.crpDocumentBackUrl, isUploadingBack, backRef)}
-      </div>
-
       {/* CRP number */}
-      <div className="mt-5">
+      <div>
         <label className="block text-sm text-card-foreground mb-2">
           Número do CRP <span className="text-destructive">*</span>
         </label>
@@ -150,9 +145,18 @@ const StepDocuments = ({ professionalId, data, onUpdate, onBusyChange }: StepDoc
         <p className="text-xs text-muted-foreground mt-1">Formato: XX/XXXXX (ex: 06/12345)</p>
       </div>
 
-      <p className="text-xs text-muted-foreground text-center mt-4">
-        Seus documentos serão analisados pela equipe administrativa para verificação.
-      </p>
+      <div className="mt-6">
+        <label className="text-xs text-muted-foreground mb-2 block">
+          Fotos da carteira (opcional)
+        </label>
+        <div className="grid grid-cols-2 gap-4">
+          {renderSlot("front", "Frente", data.crpDocumentFrontUrl, isUploadingFront, frontRef)}
+          {renderSlot("back", "Verso", data.crpDocumentBackUrl, isUploadingBack, backRef)}
+        </div>
+        <p className="text-xs text-muted-foreground text-center mt-4">
+          Você poderá enviar as fotos da carteira depois, na sua área de profissional.
+        </p>
+      </div>
     </div>
   );
 };
