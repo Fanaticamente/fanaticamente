@@ -124,7 +124,7 @@ const StepDocuments = ({ professionalId, data, onUpdate, onBusyChange }: StepDoc
         <ShieldCheck className="w-10 h-10 text-therapy mx-auto mb-2" />
         <h3 className="font-display text-xl text-card-foreground">Carteira do CRP</h3>
         <p className="text-sm text-muted-foreground mt-1">
-          Informe seu número do CRP. O envio das fotos da carteira é opcional neste momento.
+          Informe seu número do CRP.
         </p>
       </div>
 
@@ -145,18 +145,6 @@ const StepDocuments = ({ professionalId, data, onUpdate, onBusyChange }: StepDoc
         <p className="text-xs text-muted-foreground mt-1">Formato: XX/XXXXX (ex: 06/12345)</p>
       </div>
 
-      <div className="mt-6">
-        <label className="text-xs text-muted-foreground mb-2 block">
-          Fotos da carteira (opcional)
-        </label>
-        <div className="grid grid-cols-2 gap-4">
-          {renderSlot("front", "Frente", data.crpDocumentFrontUrl, isUploadingFront, frontRef)}
-          {renderSlot("back", "Verso", data.crpDocumentBackUrl, isUploadingBack, backRef)}
-        </div>
-        <p className="text-xs text-muted-foreground text-center mt-4">
-          Você poderá enviar as fotos da carteira depois, na sua área de profissional.
-        </p>
-      </div>
     </div>
   );
 };
