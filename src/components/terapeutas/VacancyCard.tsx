@@ -1,11 +1,14 @@
 import { MapPin, Star } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { Browser } from "@capacitor/browser";
+import { Capacitor } from "@capacitor/core";
 
 import silhouetteMale from "@/assets/silhouette-male.png";
 import silhouetteFemale from "@/assets/silhouette-female.png";
 
 const silhouetteImages = [silhouetteMale, silhouetteFemale, silhouetteMale, silhouetteFemale];
+
+const IOS_APP_URL = "https://apps.apple.com/br/app/fanaticawork-psic%C3%B3logos-as/id6769204005";
+const ANDROID_APP_URL = "https://play.google.com/store/apps/details?id=br.com.fanaticamente.fanaticawork&pcampaignid=web_share";
 
 interface VacancyCardProps {
   index: number;
@@ -15,14 +18,17 @@ interface VacancyCardProps {
 
 const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
   const imageUrl = silhouetteImages[index % 4];
-  const navigate = useNavigate();
-  const { user, signOut } = useAuth();
 
   const handleCadastre = async () => {
-    if (user) {
-      await signOut();
+    const ua = navigator.userAgent;
+    const isAndroid = /Android/i.test(ua);
+    const targetUrl = isAndroid ? ANDROID_APP_URL : IOS_APP_URL;
+
+    if (Capacitor.isNativePlatform()) {
+      await Browser.open({ url: targetUrl });
+    } else {
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
     }
-    navigate("/auth?mode=professional&signup=true");
   };
 
   return (
