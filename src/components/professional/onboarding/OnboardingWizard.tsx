@@ -49,7 +49,8 @@ const STEPS = [
 
 const STORAGE_KEY = "professional_onboarding_wizard";
 
-const DRAFT_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
+// Keep draft for a long time so the user can always resume where they stopped.
+const DRAFT_EXPIRY_MS = 90 * 24 * 60 * 60 * 1000; // 90 days
 
 const loadDraft = (fallbackCrpFront: string, fallbackCrpBack: string): { step: number; data: OnboardingData } | null => {
   try {
@@ -77,22 +78,32 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
   });
 
   const [currentStep, setCurrentStep] = useState(initialized?.step ?? 0);
-  const [data, setData] = useState<OnboardingData>(initialized?.data ?? {
-    imageUrl: "",
-    degreeBase: "",
-    degreeTitle: "",
-    degreeDocumentFrontUrl: "",
-    degreeDocumentBackUrl: "",
-    crp: "",
-    crpDocumentFrontUrl: existingData?.crpDocumentFrontUrl ?? "",
-    crpDocumentBackUrl: existingData?.crpDocumentBackUrl ?? "",
-    bio: "",
-    specialties: [],
-    sessionDuration: "50",
-    sessionPrice: "",
-    showPrice: true,
-    socioConsciente: false,
-    pixKey: "",
+  const [data, setData] = useState<OnboardingData>(() => {
+    // Split combined degree string ("Psicólogo, Mestre em Psicologia") into base + title
+    const rawDegree = (existingData as any)?.degree as string | undefined;
+    const [dbBase = "", dbTitle = ""] = rawDegree ? rawDegree.split(",").map((s) => s.trim()) : [];
+    const baseFromExisting: OnboardingData = {
+      imageUrl: existingData?.imageUrl ?? "",
+      degreeBase: (existingData as any)?.degreeBase ?? dbBase ?? "",
+      degreeTitle: (existingData as any)?.degreeTitle ?? dbTitle ?? "",
+      degreeDocumentFrontUrl: existingData?.degreeDocumentFrontUrl ?? "",
+      degreeDocumentBackUrl: existingData?.degreeDocumentBackUrl ?? "",
+      crp: (existingData as any)?.crp ?? "",
+      crpDocumentFrontUrl: existingData?.crpDocumentFrontUrl ?? "",
+      crpDocumentBackUrl: existingData?.crpDocumentBackUrl ?? "",
+      bio: (existingData as any)?.bio ?? "",
+      specialties: (existingData as any)?.specialties ?? [],
+      sessionDuration: "50",
+      sessionPrice: (existingData as any)?.sessionPrice ?? "",
+      showPrice: true,
+      socioConsciente: (existingData as any)?.socioConsciente ?? false,
+      pixKey: (existingData as any)?.pixKey ?? "",
+    };
+    // Draft (localStorage) wins over DB data when both exist, but DB fills the gaps
+    if (initialized?.data) {
+      return { ...baseFromExisting, ...initialized.data };
+    }
+    return baseFromExisting;
   });
   const [isSaving, setIsSaving] = useState(false);
 
