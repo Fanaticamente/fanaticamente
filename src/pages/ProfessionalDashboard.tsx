@@ -783,7 +783,10 @@ const ProfessionalDashboard = () => {
           specialties: professional.specialties || [],
           sessionPrice: professional.hourly_rate?.toString() || "",
           socioConsciente: professional.socio_consciente || false,
-        }}
+          crp: professional.crp || "",
+          degree: professional.degree || "",
+          pixKey: (professional as any).pix_key || "",
+        } as any}
         onComplete={() => {
           fetchProfessionalData();
         }}
