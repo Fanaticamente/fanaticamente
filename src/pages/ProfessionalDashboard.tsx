@@ -72,7 +72,7 @@ type AppointmentFilter = "proximos" | "realizados" | "cancelados" | "todos";
 
 const ProfessionalDashboard = () => {
   const isMobile = useIsMobile();
-  const { user, signOut, hasRole } = useAuth();
+  const { user, signOut, hasRole, loading: authLoading } = useAuth();
 
   // Force light theme for professional dashboard
   useLayoutEffect(() => {
@@ -192,9 +192,25 @@ const ProfessionalDashboard = () => {
   };
 
   useEffect(() => {
+    // Wait for auth/role data to finish loading before deciding redirects.
+    // Right after a fresh professional signup the role is assigned
+    // asynchronously by an edge function, so `hasRole("professional")` may be
+    // briefly false even though the user is a professional.
+    if (authLoading) return;
+
     if (!hasRole("professional")) {
-      navigate("/");
-      return;
+      // Allow the dashboard to mount if a pending professional signup is in
+      // progress (it will be completed inside fetchProfessionalData).
+      const hasPendingSignup =
+        !!sessionStorage.getItem("pendingProfileUpdate") ||
+        !!localStorage.getItem("pendingProfileUpdate");
+
+      if (!hasPendingSignup) {
+        // Never bounce a professional into the fan home — keep them in the
+        // professional flow.
+        navigate("/profissional/auth", { replace: true });
+        return;
+      }
     }
     fetchProfessionalData();
 
@@ -213,7 +229,7 @@ const ProfessionalDashboard = () => {
     }, 15000);
 
     return () => window.clearTimeout(timeout);
-  }, [hasRole, navigate, user]);
+  }, [hasRole, navigate, user, authLoading]);
 
   // If the user has a professional role but no professional record exists,
   // treat it as an invalid/non-registered account and send them back to login.
