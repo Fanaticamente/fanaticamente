@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { GraduationCap, CheckCircle, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { uploadProfessionalFile } from "@/lib/professionalUploads";
+import { supabase } from "@/integrations/supabase/client";
 import type { OnboardingData } from "./OnboardingWizard";
 
 const DEGREE_BASE_OPTIONS = [
@@ -50,8 +51,12 @@ const StepDegree = ({ professionalId, data, onUpdate }: StepDegreeProps) => {
     try {
       const { url } = await uploadProfessionalFile(file, side === "front" ? "degree-front" : "degree-back");
 
-      // Don't save to DB yet — will be saved when onboarding completes
       onUpdate(side === "front" ? { degreeDocumentFrontUrl: url } : { degreeDocumentBackUrl: url });
+      // Persist immediately so the user can resume from where they stopped
+      await supabase
+        .from("professionals")
+        .update(side === "front" ? { degree_document_front_url: url } : { degree_document_back_url: url })
+        .eq("id", professionalId);
       toast.success(`Diploma (${side === "front" ? "frente" : "verso"}) enviado!`);
     } catch (e: any) {
       console.error("[StepDegree] Upload error:", e);
