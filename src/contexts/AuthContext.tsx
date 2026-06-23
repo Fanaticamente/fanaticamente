@@ -337,8 +337,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     fullName: string,
     accountType?: AccountType
   ) => {
-    const redirectUrl = `${window.location.origin}/`;
     const type = accountType ?? getAccountTypeForAuth();
+    // After email confirmation, send pro signups straight to the professional
+    // dashboard (onboarding wizard) so they never land on the fan home — even
+    // when the confirmation link is opened on a different device/browser where
+    // sessionStorage is empty.
+    const redirectUrl = `${window.location.origin}${type === "pro" ? "/profissional" : "/"}`;
     // ISOLAMENTO: contas torcedor e profissional são SEPARADAS mesmo com o mesmo
     // e-mail visível. Internamente codificamos com sub-addressing ("+fan"/"+pro")
     // para criar duas contas distintas no Supabase Auth.
