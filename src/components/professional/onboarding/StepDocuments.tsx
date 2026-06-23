@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { FileText, CheckCircle, ShieldCheck, Camera, Image as ImageIcon } from "lucide-react";
+import { FileText, ShieldCheck, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { uploadProfessionalFile } from "@/lib/professionalUploads";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,8 +23,6 @@ const StepDocuments = ({ professionalId, data, onUpdate, onBusyChange }: StepDoc
   const [isUploadingBack, setIsUploadingBack] = useState(false);
   const frontRef = useRef<HTMLInputElement>(null);
   const backRef = useRef<HTMLInputElement>(null);
-  const frontCamRef = useRef<HTMLInputElement>(null);
-  const backCamRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (file: File, side: "front" | "back") => {
     if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
@@ -56,9 +54,68 @@ const StepDocuments = ({ professionalId, data, onUpdate, onBusyChange }: StepDoc
       onBusyChange?.(false);
       if (frontRef.current) frontRef.current.value = "";
       if (backRef.current) backRef.current.value = "";
-      if (frontCamRef.current) frontCamRef.current.value = "";
-      if (backCamRef.current) backCamRef.current.value = "";
     }
+  };
+
+  const renderSlot = (
+    side: "front" | "back",
+    label: string,
+    url: string,
+    isUploading: boolean,
+    inputRef: React.RefObject<HTMLInputElement>,
+  ) => {
+    const isPdf = url?.toLowerCase().includes(".pdf");
+    const hasFile = !!url;
+    return (
+      <div>
+        <label className="text-xs text-muted-foreground mb-2 block">{label}</label>
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={isUploading}
+          className={`relative w-full h-32 rounded-xl border-2 border-dashed overflow-hidden flex items-center justify-center transition-colors disabled:opacity-60 ${
+            hasFile
+              ? "border-therapy/60 bg-background"
+              : "border-muted-foreground/50 bg-muted/50 hover:border-therapy"
+          }`}
+          aria-label={hasFile ? `Trocar ${label.toLowerCase()} do CRP` : `Enviar ${label.toLowerCase()} do CRP`}
+        >
+          {isUploading ? (
+            <span className="text-sm text-therapy">Enviando...</span>
+          ) : hasFile ? (
+            isPdf ? (
+              <div className="flex flex-col items-center gap-1 text-therapy">
+                <FileText className="w-8 h-8" />
+                <span className="text-xs font-medium">PDF enviado</span>
+                <span className="text-[10px] text-muted-foreground">Toque para trocar</span>
+              </div>
+            ) : (
+              <>
+                <img src={url} alt={`${label} do CRP`} className="absolute inset-0 w-full h-full object-cover" />
+                <span className="absolute bottom-1 right-1 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded-md">
+                  Trocar
+                </span>
+              </>
+            )
+          ) : (
+            <div className="text-center p-2">
+              <Camera className="w-8 h-8 text-muted-foreground mx-auto mb-1" />
+              <span className="text-xs text-muted-foreground">Toque para enviar {label.toLowerCase()}</span>
+            </div>
+          )}
+        </button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*,application/pdf"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) handleUpload(f, side);
+          }}
+          className="hidden"
+        />
+      </div>
+    );
   };
 
   return (
@@ -72,56 +129,8 @@ const StepDocuments = ({ professionalId, data, onUpdate, onBusyChange }: StepDoc
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="text-xs text-muted-foreground mb-2 block">Frente</label>
-          <div
-            className="h-32 rounded-xl border-2 border-dashed border-muted-foreground/50 bg-muted/50 flex items-center justify-center cursor-pointer hover:border-therapy transition-colors"
-            onClick={() => frontRef.current?.click()}
-          >
-            {data.crpDocumentFrontUrl ? (
-              <div className="flex items-center gap-2 text-therapy"><CheckCircle className="w-5 h-5" /><span className="text-sm">Enviado</span></div>
-            ) : isUploadingFront ? (
-              <span className="text-sm text-therapy">Enviando...</span>
-            ) : (
-              <div className="text-center p-2"><FileText className="w-8 h-8 text-muted-foreground mx-auto mb-1" /><span className="text-xs text-muted-foreground">Enviar frente</span></div>
-            )}
-          </div>
-          <input ref={frontRef} type="file" accept="image/*,application/pdf" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "front"); }} className="hidden" />
-          <input ref={frontCamRef} type="file" accept="image/*" capture="environment" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "front"); }} className="hidden" />
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            <button type="button" onClick={() => frontCamRef.current?.click()} disabled={isUploadingFront} className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-therapy text-white text-xs font-medium hover:bg-therapy/90 disabled:opacity-50">
-              <Camera className="w-3.5 h-3.5" /> Câmera
-            </button>
-            <button type="button" onClick={() => frontRef.current?.click()} disabled={isUploadingFront} className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border border-border bg-background text-xs font-medium text-card-foreground hover:bg-muted disabled:opacity-50">
-              <ImageIcon className="w-3.5 h-3.5" /> Arquivo
-            </button>
-          </div>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-2 block">Verso</label>
-          <div
-            className="h-32 rounded-xl border-2 border-dashed border-muted-foreground/50 bg-muted/50 flex items-center justify-center cursor-pointer hover:border-therapy transition-colors"
-            onClick={() => backRef.current?.click()}
-          >
-            {data.crpDocumentBackUrl ? (
-              <div className="flex items-center gap-2 text-therapy"><CheckCircle className="w-5 h-5" /><span className="text-sm">Enviado</span></div>
-            ) : isUploadingBack ? (
-              <span className="text-sm text-therapy">Enviando...</span>
-            ) : (
-              <div className="text-center p-2"><FileText className="w-8 h-8 text-muted-foreground mx-auto mb-1" /><span className="text-xs text-muted-foreground">Enviar verso</span></div>
-            )}
-          </div>
-          <input ref={backRef} type="file" accept="image/*,application/pdf" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "back"); }} className="hidden" />
-          <input ref={backCamRef} type="file" accept="image/*" capture="environment" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f, "back"); }} className="hidden" />
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            <button type="button" onClick={() => backCamRef.current?.click()} disabled={isUploadingBack} className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg bg-therapy text-white text-xs font-medium hover:bg-therapy/90 disabled:opacity-50">
-              <Camera className="w-3.5 h-3.5" /> Câmera
-            </button>
-            <button type="button" onClick={() => backRef.current?.click()} disabled={isUploadingBack} className="flex items-center justify-center gap-1 px-2 py-2 rounded-lg border border-border bg-background text-xs font-medium text-card-foreground hover:bg-muted disabled:opacity-50">
-              <ImageIcon className="w-3.5 h-3.5" /> Arquivo
-            </button>
-          </div>
-        </div>
+        {renderSlot("front", "Frente", data.crpDocumentFrontUrl, isUploadingFront, frontRef)}
+        {renderSlot("back", "Verso", data.crpDocumentBackUrl, isUploadingBack, backRef)}
       </div>
 
       {/* CRP number */}
