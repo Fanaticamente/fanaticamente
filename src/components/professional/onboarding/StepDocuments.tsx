@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { FileText, CheckCircle, ShieldCheck, Camera, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { uploadProfessionalFile } from "@/lib/professionalUploads";
+import { supabase } from "@/integrations/supabase/client";
 import type { OnboardingData } from "./OnboardingWizard";
 
 interface StepDocumentsProps {
@@ -38,8 +39,12 @@ const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) =
     try {
       const { url } = await uploadProfessionalFile(file, side === "front" ? "crp-front" : "crp-back");
 
-      // Don't save to DB yet — will be saved when onboarding completes
       onUpdate(side === "front" ? { crpDocumentFrontUrl: url } : { crpDocumentBackUrl: url });
+      // Persist immediately so the user can resume from where they stopped
+      await supabase
+        .from("professionals")
+        .update(side === "front" ? { crp_document_front_url: url } : { crp_document_back_url: url })
+        .eq("id", professionalId);
       toast.success(`CRP (${side === "front" ? "frente" : "verso"}) enviado!`);
     } catch (e: any) {
       console.error("[StepDocuments] Upload error:", e);

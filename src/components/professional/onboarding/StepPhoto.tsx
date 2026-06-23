@@ -2,6 +2,8 @@ import { useState, useRef } from "react";
 import { Upload, Camera, Info, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { uploadProfessionalFile } from "@/lib/professionalUploads";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import photoExampleFemale from "@/assets/onboarding-photo-example-female.png";
 import photoExampleMale from "@/assets/onboarding-photo-example-male.png";
 
@@ -15,6 +17,7 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -32,8 +35,11 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate }: StepPhotoProps) => {
     setIsUploading(true);
     try {
       const { url } = await uploadProfessionalFile(file, "avatar");
-      // Don't save to DB yet — will be saved when onboarding completes
       onUpdate(url);
+      // Persist immediately so the user can resume from where they stopped
+      if (user) {
+        await supabase.from("profiles").update({ avatar_url: url }).eq("user_id", user.id);
+      }
       toast.success("Foto enviada com sucesso!");
     } catch (error: any) {
       console.error("Upload error:", error);
