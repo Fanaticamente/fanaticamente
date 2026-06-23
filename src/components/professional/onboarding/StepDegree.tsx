@@ -65,6 +65,7 @@ const StepDegree = ({ professionalId, data, onUpdate, onBusyChange }: StepDegree
       toast.error(`Erro ao enviar diploma: ${e?.message || "tente novamente"}`);
     } finally {
       side === "front" ? setIsUploadingFront(false) : setIsUploadingBack(false);
+      onBusyChange?.(false);
       if (frontRef.current) frontRef.current.value = "";
       if (backRef.current) backRef.current.value = "";
     }
