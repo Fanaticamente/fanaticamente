@@ -6,7 +6,7 @@ const PrivacyPolicy = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-[100dvh] bg-white overflow-x-hidden">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white px-4 py-4 flex items-center gap-3 border-b border-gray-200">
         <button
@@ -18,9 +18,8 @@ const PrivacyPolicy = () => {
         <h1 className="text-black font-bold text-lg">Política de Privacidade</h1>
       </header>
 
-      <ScrollArea className="h-[calc(100dvh-64px)] w-full">
-        <main className="px-4 py-5 sm:p-6 pb-24 max-w-4xl mx-auto w-full overflow-x-hidden">
-          <div className="prose prose-sm max-w-none text-black break-words overflow-x-hidden">
+      <main className="px-4 py-5 sm:p-6 pb-28 max-w-4xl mx-auto w-full overflow-x-hidden overflow-y-auto h-[calc(100dvh-64px)]">
+        <div className={cn("prose prose-sm max-w-none text-black break-words", "overflow-x-hidden")}>
             <h1 className="text-2xl font-bold text-black mb-6">
               POLÍTICA DE PRIVACIDADE E TRATAMENTO DE DADOS DO FANATICAMENTE
             </h1>
