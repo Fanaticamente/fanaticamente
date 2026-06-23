@@ -9,6 +9,7 @@ interface StepDocumentsProps {
   professionalId: string;
   data: OnboardingData;
   onUpdate: (partial: Partial<OnboardingData>) => void;
+  onBusyChange?: (busy: boolean) => void;
 }
 
 const formatCRP = (value: string): string => {
@@ -17,7 +18,7 @@ const formatCRP = (value: string): string => {
   return `${digits.slice(0, 2)}/${digits.slice(2, 8)}`;
 };
 
-const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) => {
+const StepDocuments = ({ professionalId, data, onUpdate, onBusyChange }: StepDocumentsProps) => {
   const [isUploadingFront, setIsUploadingFront] = useState(false);
   const [isUploadingBack, setIsUploadingBack] = useState(false);
   const frontRef = useRef<HTMLInputElement>(null);
@@ -36,6 +37,7 @@ const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) =
     }
 
     side === "front" ? setIsUploadingFront(true) : setIsUploadingBack(true);
+    onBusyChange?.(true);
     try {
       const { url } = await uploadProfessionalFile(file, side === "front" ? "crp-front" : "crp-back");
 
@@ -51,6 +53,7 @@ const StepDocuments = ({ professionalId, data, onUpdate }: StepDocumentsProps) =
       toast.error(`Erro ao enviar documento: ${e?.message || "tente novamente"}`);
     } finally {
       side === "front" ? setIsUploadingFront(false) : setIsUploadingBack(false);
+      onBusyChange?.(false);
       if (frontRef.current) frontRef.current.value = "";
       if (backRef.current) backRef.current.value = "";
       if (frontCamRef.current) frontCamRef.current.value = "";
