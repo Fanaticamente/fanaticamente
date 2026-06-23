@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +45,7 @@ const deleteReasons = [
 
 const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSettingsDialogProps) => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -372,11 +374,33 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
     setLoadingDelete(true);
     try {
       console.log("Account deletion requested:", { userId: user?.id, reason: deleteReason });
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error("Sessão expirada. Faça login novamente.");
+      }
+
+      const { data, error } = await supabase.functions.invoke("delete-own-account", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { reason: deleteReason },
+      });
+
+      if (error) throw error;
+      if (data && (data as any).error) throw new Error((data as any).error);
+
+      // Clear any local drafts for this user.
+      if (storageKey) {
+        try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
+      }
+
       await signOut();
-      
-      toast.success("Sua conta foi desativada. Entre em contato com o suporte para exclusão completa.");
+
+      toast.success("Sua conta foi excluída com sucesso.");
       setDeleteDialogOpen(false);
       setOpen(false);
+
+      // Redirect: professionals go to professional login; users go home.
+      navigate(isProfessional ? "/profissional/auth" : "/", { replace: true });
     } catch (error: any) {
       toast.error(error.message || "Erro ao excluir conta");
     } finally {
