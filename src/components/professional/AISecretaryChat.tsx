@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { RefreshCw, Send, ChevronDown, ChevronUp } from "lucide-react";
-import secretaryIcon from "@/assets/secretary-icon.png";
+import { RefreshCw, Send, ChevronDown, ChevronUp, Bot } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -167,9 +166,9 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
       <Card className="bg-primary/5 border-primary/20 mb-4">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <img src={secretaryIcon} alt="Assistente" className="w-7 h-7" style={{ filter: "invert(56%) sepia(43%) saturate(2061%) hue-rotate(118deg) brightness(97%) contrast(87%)" }} />
-            </div>
+          <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Bot className="w-7 h-7 text-primary" aria-hidden="true" />
+          </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-muted-foreground">
                 Não foi possível carregar o resumo.
@@ -196,7 +195,7 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
         {/* Header */}
         <div className="flex items-center gap-3 mb-3">
           <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <img src={secretaryIcon} alt="Assistente" className="w-7 h-7" style={{ filter: "invert(56%) sepia(43%) saturate(2061%) hue-rotate(118deg) brightness(97%) contrast(87%)" }} />
+            <Bot className="w-7 h-7 text-primary" aria-hidden="true" />
           </div>
           <div className="flex-1 min-w-0">
             <span className="text-sm font-bold text-primary uppercase tracking-wide">
