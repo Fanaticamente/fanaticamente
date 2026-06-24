@@ -3,6 +3,8 @@ import { Calendar, Plus, Pencil, X, Loader2, CalendarOff, AlertCircle } from "lu
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import GoogleCalendarConnectCard from "./GoogleCalendarConnectCard";
+import { useAuth } from "@/contexts/AuthContext";
+import { isGoogleCalendarAllowed } from "@/config/featureFlags";
 
 interface WeeklyAvailability {
   id: string;
