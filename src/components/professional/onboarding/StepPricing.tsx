@@ -102,7 +102,7 @@ const StepPricing = ({ data, onUpdate }: StepPricingProps) => {
           </DialogHeader>
           <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
             <p>O Sócio Consciente é um programa criado para ampliar e incentivar o acesso de sócios-torcedores dos clubes ao cuidado com a saúde mental.</p>
-            <p>Ao optar por atender pelo programa, você mantém integralmente sua autonomia profissional. A adesão consiste em conceder uma redução de 15% sobre o valor habitualmente praticado.</p>
+            <p>Ao optar por atender pelo programa, você mantém integralmente sua autonomia profissional. A adesão consiste em conceder uma redução de 20% sobre o valor habitualmente praticado.</p>
           </div>
         </DialogContent>
       </Dialog>
