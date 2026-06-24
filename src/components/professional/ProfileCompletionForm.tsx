@@ -984,7 +984,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
               Ao optar por atender pelo programa, você mantém integralmente sua autonomia profissional e seu valor de referência. A adesão consiste em conceder, de forma voluntária, uma condição específica aos torcedores elegíveis, aplicada ao valor da sessão como incentivo ao acesso e à continuidade do cuidado, correspondente a uma redução de 20% sobre o valor habitualmente praticado.
             </p>
             <p>
-              Além de promover a saúde e o cuidado aos sócios torcedores dos clubes, o programa também contribui com os profissionais que desejam ampliar seu alcance de forma ética, considerando que os clubes reúnem milhares de associados continuamente incentivados a cuidar da saúde mental.
+              Além de promover a saúde e o cuidado aos sócios torcedores dos clubes, o programa também contribui com os profissionais que desejam ampliar seu alcance de novos pacientes de forma ética, considerando que os clubes reúnem milhares de associados continuamente incentivados a cuidar da saúde mental.
             </p>
             <p className="text-xs text-gray-500 italic border-t border-gray-200 pt-3 mt-2">
               Ao selecionar a caixa de seleção do programa, você declara estar ciente e de acordo com os termos acima, comprometendo-se a atender pelo Sócio Consciente.
