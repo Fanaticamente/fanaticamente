@@ -11,6 +11,7 @@ import StepSpecialties from "./StepSpecialties";
 import StepPricing from "./StepPricing";
 import StepPaymentMethod from "./StepPaymentMethod";
 import StepSubscription from "./StepSubscription";
+import { SHOW_PAYMENT_METHOD_CARDS } from "@/config/featureFlags";
 
 export interface OnboardingData {
   imageUrl: string;
@@ -36,7 +37,9 @@ interface OnboardingWizardProps {
   onComplete: () => void;
 }
 
-const STEPS = [
+// Passo "payment" (Recebimento) é ocultado por feature flag.
+// Para reativar, mude SHOW_PAYMENT_METHOD_CARDS em src/config/featureFlags.ts.
+const ALL_STEPS = [
   { id: "photo", label: "Foto" },
   { id: "degree", label: "Formação" },
   { id: "documents", label: "Documentos" },
@@ -46,6 +49,7 @@ const STEPS = [
   { id: "payment", label: "Recebimento" },
   { id: "subscription", label: "Plano" },
 ];
+const STEPS = ALL_STEPS.filter((s) => s.id !== "payment" || SHOW_PAYMENT_METHOD_CARDS);
 
 const STORAGE_KEY = "professional_onboarding_wizard";
 
