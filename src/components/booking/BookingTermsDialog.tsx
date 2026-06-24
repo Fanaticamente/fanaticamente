@@ -68,17 +68,17 @@ const BookingTermsDialog = ({ accepted, onAcceptChange, clubColor = "#10b981" }:
                   <div>
                     <h3 className="font-semibold text-white mb-2">Os Profissionais</h3>
                     <p>
-                      Cada profissional atua com total autonomia. Não existe vínculo empregatício com a Fanaticamente. Eles utilizam nossa plataforma como ferramenta de divulgação e gestão de agenda.
+                      Cada profissional atua com total autonomia. Não existe vínculo empregatício com a Fanaticamente, tampouco vínculo com os clubes de futebol — além de profissionais, eles também são torcedores. Eles utilizam nossa plataforma como ferramenta de divulgação e gestão de agenda.
                     </p>
                   </div>
 
                   <div>
                     <h3 className="font-semibold text-white mb-2">Sobre os Pagamentos</h3>
                     <p className="mb-2">
-                      <strong className="text-white">Importante:</strong> Os valores pagos vão diretamente para o(a) profissional escolhido(a). A Fanaticamente não recebe, processa ou retém nenhum valor das sessões.
+                      <strong className="text-white">Importante:</strong> A Fanaticamente não recebe, processa ou retém nenhum valor das sessões.
                     </p>
                     <p>
-                      O QR Code ou link de pagamento é gerado usando exclusivamente a chave PIX do(a) profissional. Todo o valor é transferido diretamente a ele(a).
+                      A forma de pagamento (PIX, transferência, dinheiro, cartão etc.), bem como valores, prazos e condições, deve ser acordada diretamente entre profissional e paciente. A plataforma não intermedia esses pagamentos.
                     </p>
                   </div>
 
