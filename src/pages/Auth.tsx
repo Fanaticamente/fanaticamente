@@ -956,9 +956,7 @@ const Auth = () => {
         {/* Mode Selector */}
         {/* Acesso profissional vive exclusivamente em /profissional/auth */}
 
-        <div className={`bg-card border rounded-2xl p-6 transition-colors ${
-          authMode === "professional" ? "border-therapy" : "border-border"
-        }`}>
+        <div className="bg-transparent border-0 rounded-none p-0 transition-colors">
           {authMode === "professional" && (
             <div className="mb-6 p-4 bg-therapy/10 border border-therapy/30 rounded-xl">
               <p className="text-therapy text-sm font-medium flex items-center gap-2">
