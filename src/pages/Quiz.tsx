@@ -14,6 +14,37 @@ interface Question {
   }[];
 }
 
+const CategoryButton = ({
+  icon,
+  title,
+  description,
+  onClick,
+}: {
+  icon: string;
+  title: string;
+  description: string;
+  onClick: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    className="w-full bg-card border border-border rounded-2xl p-6 text-left hover:border-primary transition-colors group min-h-[140px]"
+  >
+    <div className="flex items-center gap-4 h-full">
+      <span className="text-4xl">{icon}</span>
+      <div className="flex-1">
+        <h2 className="font-display text-2xl text-card-foreground group-hover:text-primary transition-colors">
+          {title}
+        </h2>
+        <p className="text-muted-foreground text-sm min-h-[2.5rem]">
+          {description}
+        </p>
+      </div>
+      <ChevronRight className="w-6 h-6 text-primary" />
+    </div>
+  </button>
+);
+
+
 const questionsHomens: Question[] = [
   {
     id: 1,
