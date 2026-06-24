@@ -389,7 +389,7 @@ const SessionPayment = () => {
 
   const basePrice = professional.hourly_rate || 150;
   const isSocioConsciente = professional.socio_consciente && socioDiscountApplied;
-  const discountAmount = isSocioConsciente ? basePrice * 0.15 : 0;
+  const discountAmount = isSocioConsciente ? basePrice * 0.20 : 0;
   const sessionPrice = basePrice - discountAmount;
   const txid = `SESS${(id ?? "").replace(/-/g, "").slice(0, 8)}${scheduledDate.replace(/-/g, "").slice(2)}${scheduledTime.replace(":", "")}`;
 
@@ -513,7 +513,7 @@ const SessionPayment = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-900 text-sm">Sócio Consciente</h3>
-                    <p className="text-xs text-gray-500">Informe sua matrícula para 15% de desconto</p>
+                    <p className="text-xs text-gray-500">Informe sua matrícula para 20% de desconto</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -577,7 +577,7 @@ const SessionPayment = () => {
               </div>
               {isSocioConsciente && (
                 <div className="mt-2 flex items-center justify-between">
-                  <span className="text-xs text-emerald-600 font-semibold">⚽ Desconto Sócio Consciente (15%)</span>
+                  <span className="text-xs text-emerald-600 font-semibold">⚽ Desconto Sócio Consciente (20%)</span>
                   <span className="text-sm font-bold text-emerald-600">
                     - R$ {discountAmount.toFixed(2).replace(".", ",")}
                   </span>

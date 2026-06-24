@@ -953,7 +953,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
               ⚽ Programa Sócio Consciente
             </label>
             <p className="text-muted-foreground text-xs mt-1">
-              O programa aplica uma redução de 15% no valor praticado como incentivo aos sócios-torcedores.
+              O programa aplica uma redução de 20% no valor praticado como incentivo aos sócios-torcedores.
             </p>
             <button
               type="button"
@@ -981,10 +981,10 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
               O Sócio Consciente é um programa criado para ampliar e incentivar o acesso de sócios-torcedores dos clubes ao cuidado com a saúde mental, por meio de parcerias com profissionais comprometidos com uma prática ética e responsável.
             </p>
             <p>
-              Ao optar por atender pelo programa, você mantém integralmente sua autonomia profissional e seu valor de referência. A adesão consiste em conceder, de forma voluntária, uma condição específica aos torcedores elegíveis, aplicada ao valor da sessão como incentivo ao acesso e à continuidade do cuidado, correspondente a uma redução de 15% sobre o valor habitualmente praticado.
+              Ao optar por atender pelo programa, você mantém integralmente sua autonomia profissional e seu valor de referência. A adesão consiste em conceder, de forma voluntária, uma condição específica aos torcedores elegíveis, aplicada ao valor da sessão como incentivo ao acesso e à continuidade do cuidado, correspondente a uma redução de 20% sobre o valor habitualmente praticado.
             </p>
             <p>
-              Além de beneficiar os sócios-torcedores, o programa também favorece profissionais que desejam ampliar seu alcance de forma ética, considerando que os clubes reúnem milhares de associados continuamente incentivados a cuidar da saúde mental.
+              Além de promover a saúde e o cuidado aos sócios torcedores dos clubes, o programa também contribui com os profissionais que desejam ampliar seu alcance de forma ética, considerando que os clubes reúnem milhares de associados continuamente incentivados a cuidar da saúde mental.
             </p>
             <p className="text-xs text-gray-500 italic border-t border-gray-200 pt-3 mt-2">
               Ao selecionar a caixa de seleção do programa, você declara estar ciente e de acordo com os termos acima, comprometendo-se a atender pelo Sócio Consciente.

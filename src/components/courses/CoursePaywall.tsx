@@ -16,7 +16,7 @@ type PaywallStep = "options" | "card" | "pix";
 type PurchaseType = "course" | "membership";
 
 const MEMBERSHIP_PRICE = 49.90;
-const SOCIO_DISCOUNT = 0.15;
+const SOCIO_DISCOUNT = 0.20;
 
 const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
   const { user } = useAuth();
