@@ -14,6 +14,37 @@ interface Question {
   }[];
 }
 
+const CategoryButton = ({
+  icon,
+  title,
+  description,
+  onClick,
+}: {
+  icon: string;
+  title: string;
+  description: string;
+  onClick: () => void;
+}) => (
+  <button
+    onClick={onClick}
+    className="w-full bg-card border border-border rounded-2xl p-6 text-left hover:border-primary transition-colors group min-h-[140px]"
+  >
+    <div className="flex items-center gap-4 h-full">
+      <span className="text-4xl">{icon}</span>
+      <div className="flex-1">
+        <h2 className="font-display text-2xl text-card-foreground group-hover:text-primary transition-colors">
+          {title}
+        </h2>
+        <p className="text-muted-foreground text-sm min-h-[2.5rem]">
+          {description}
+        </p>
+      </div>
+      <ChevronRight className="w-6 h-6 text-primary" />
+    </div>
+  </button>
+);
+
+
 const questionsHomens: Question[] = [
   {
     id: 1,
@@ -693,59 +724,27 @@ const Quiz = () => {
             </p>
 
             <div className="space-y-4">
-              <button
+              <CategoryButton
+                icon="👨"
+                title="Papo de Arquibancada"
+                description="Cenários focados em comunicação masculina"
                 onClick={() => setCategory("homens")}
-                className="w-full bg-card border border-border rounded-2xl p-6 text-left hover:border-primary transition-colors group"
-              >
-                <div className="flex items-center gap-4">
-                  <span className="text-4xl">👨</span>
-                  <div className="flex-1">
-                    <h2 className="font-display text-2xl text-card-foreground group-hover:text-primary transition-colors">
-                      Papo de Arquibancada
-                    </h2>
-                    <p className="text-muted-foreground text-sm">
-                      Cenários focados em comunicação masculina
-                    </p>
-                  </div>
-                  <ChevronRight className="w-6 h-6 text-primary" />
-                </div>
-              </button>
+              />
 
-              <button
+              <CategoryButton
+                icon="👩"
+                title="Torcida Delas"
+                description="Cenários focados em comunicação feminina"
                 onClick={() => setCategory("mulheres")}
-                className="w-full bg-card border border-border rounded-2xl p-6 text-left hover:border-primary transition-colors group"
-              >
-                <div className="flex items-center gap-4">
-                  <span className="text-4xl">👩</span>
-                  <div className="flex-1">
-                    <h2 className="font-display text-2xl text-card-foreground group-hover:text-primary transition-colors">
-                      Torcida Delas
-                    </h2>
-                    <p className="text-muted-foreground text-sm">
-                      Cenários focados em comunicação feminina
-                    </p>
-                  </div>
-                  <ChevronRight className="w-6 h-6 text-primary" />
-                </div>
-              </button>
+              />
 
-              <button
+              <CategoryButton
+                icon="🎰"
+                title="Bet vs Consequências"
+                description="Cenários focados no vício em apostas"
                 onClick={() => setCategory("ludopatia")}
-                className="w-full bg-card border border-border rounded-2xl p-6 text-left hover:border-primary transition-colors group"
-              >
-                <div className="flex items-center gap-4">
-                  <span className="text-4xl">🎰</span>
-                  <div className="flex-1">
-                    <h2 className="font-display text-2xl text-card-foreground group-hover:text-primary transition-colors">
-                      Bet vs Consequências
-                    </h2>
-                    <p className="text-muted-foreground text-sm">
-                      Cenários focados no vício em apostas
-                    </p>
-                  </div>
-                  <ChevronRight className="w-6 h-6 text-primary" />
-                </div>
-              </button>
+              />
+
             </div>
           </div>
         )}
