@@ -218,7 +218,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
   };
 
   const isLastStep = currentStep === STEPS.length - 1;
-  const isSubscriptionStep = currentStep === 7;
+  const isSubscriptionStep = STEPS[currentStep]?.id === "subscription";
   const progress = ((currentStep + 1) / STEPS.length) * 100;
 
   return (
