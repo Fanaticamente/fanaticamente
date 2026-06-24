@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Search, Filter, MapPin, Users, Clock, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,60 @@ const DesktopTerapeutasPage = ({
   // Booking drawer state
   const [selectedTherapist, setSelectedTherapist] = useState<TherapistData | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const clubs = getClubsByLeague(selectedLeague);
+  const [clubsWithProfessionals, setClubsWithProfessionals] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const fetchClubsWithProfessionals = async () => {
+      const { data: professionals, error: profError } = await supabase
+        .from('professionals_public')
+        .select('user_id')
+        .eq('approval_status', 'approved');
+
+      if (profError || !professionals?.length) {
+        setClubsWithProfessionals(new Set());
+        return;
+      }
+
+      const userIds = professionals.map(p => p.user_id).filter((id): id is string => Boolean(id));
+      if (userIds.length === 0) {
+        setClubsWithProfessionals(new Set());
+        return;
+      }
+
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('favorite_club_id')
+        .in('user_id', userIds)
+        .not('favorite_club_id', 'is', null);
+
+      if (profileError) {
+        console.error('Erro ao buscar clubes com profissionais:', profileError);
+        setClubsWithProfessionals(new Set());
+        return;
+      }
+
+      const clubIds = new Set(
+        (profiles || [])
+          .map(p => p.favorite_club_id)
+          .filter((id): id is string => Boolean(id))
+      );
+      setClubsWithProfessionals(clubIds);
+    };
+
+    fetchClubsWithProfessionals();
+  }, []);
+
+  const clubs = useMemo(() => {
+    const leagueClubs = getClubsByLeague(selectedLeague);
+    return [...leagueClubs].sort((a, b) => {
+      const aHasProfessionals = clubsWithProfessionals.has(a.id) ? 1 : 0;
+      const bHasProfessionals = clubsWithProfessionals.has(b.id) ? 1 : 0;
+      if (aHasProfessionals !== bHasProfessionals) {
+        return bHasProfessionals - aHasProfessionals;
+      }
+      return a.name.localeCompare(b.name, 'pt-BR');
+    });
+  }, [selectedLeague, clubsWithProfessionals]);
 
   const fetchTherapistsForClub = async (club: BrazilianClub) => {
     setLoading(true);
