@@ -421,14 +421,19 @@ const questionsMulheres: Question[] = [
 ];
 
 const Quiz = () => {
-  const [category, setCategory] = useState<"homens" | "mulheres" | null>(null);
+  const [category, setCategory] = useState<"homens" | "mulheres" | "ludopatia" | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
 
-  const questions = category === "homens" ? questionsHomens : questionsMulheres;
+  const questions =
+    category === "homens"
+      ? questionsHomens
+      : category === "mulheres"
+      ? questionsMulheres
+      : questionsLudopatia;
   const question = questions[currentQuestion];
 
   const handleOptionSelect = (optionId: string) => {
@@ -515,6 +520,24 @@ const Quiz = () => {
                     </h2>
                     <p className="text-muted-foreground text-sm">
                       Cenários focados em comunicação feminina
+                    </p>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-primary" />
+                </div>
+              </button>
+
+              <button
+                onClick={() => setCategory("ludopatia")}
+                className="w-full bg-card border border-border rounded-2xl p-6 text-left hover:border-primary transition-colors group"
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-4xl">🎰</span>
+                  <div className="flex-1">
+                    <h2 className="font-display text-2xl text-card-foreground group-hover:text-primary transition-colors">
+                      Bet vs Consequências
+                    </h2>
+                    <p className="text-muted-foreground text-sm">
+                      Cenários focados no vício em apostas
                     </p>
                   </div>
                   <ChevronRight className="w-6 h-6 text-primary" />
