@@ -545,7 +545,11 @@ const Auth = () => {
     body.style.height = "100%";
     body.style.overscrollBehavior = "none";
 
+    const preventTouchMove = (event: TouchEvent) => event.preventDefault();
+    document.addEventListener("touchmove", preventTouchMove, { passive: false });
+
     return () => {
+      document.removeEventListener("touchmove", preventTouchMove);
       documentElement.style.overflow = previousHtmlStyles.overflow;
       documentElement.style.height = previousHtmlStyles.height;
       documentElement.style.overscrollBehavior = previousHtmlStyles.overscrollBehavior;
