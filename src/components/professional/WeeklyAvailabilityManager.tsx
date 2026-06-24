@@ -51,6 +51,8 @@ const WeeklyAvailabilityManager = ({
   professionalId, 
   onUpdate 
 }: WeeklyAvailabilityManagerProps) => {
+  const { user } = useAuth();
+  const canUseGoogleCalendar = isGoogleCalendarAllowed(user?.email);
   const [availabilities, setAvailabilities] = useState<WeeklyAvailability[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -366,8 +368,11 @@ const WeeklyAvailabilityManager = ({
 
   return (
     <div className="space-y-6">
-      {/* Google Calendar integration */}
-      <GoogleCalendarConnectCard professionalId={professionalId} />
+      {/* Google Calendar integration — temporariamente restrito por allowlist.
+          Ajustar em src/config/featureFlags.ts (GOOGLE_CALENDAR_ALLOWLIST). */}
+      {canUseGoogleCalendar && (
+        <GoogleCalendarConnectCard professionalId={professionalId} />
+      )}
 
       {calendarNeedsReconnect && (
         <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 flex items-start gap-3">
