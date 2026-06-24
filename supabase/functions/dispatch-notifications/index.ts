@@ -24,13 +24,23 @@ function inQuietHours(start: number | null, end: number | null): boolean {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // Require internal dispatch secret (called from cron / trusted server)
+  const internalSecretEnv = Deno.env.get("INTERNAL_DISPATCH_SECRET") || "";
+  const providedSecret = req.headers.get("x-internal-secret") || "";
+  if (!internalSecretEnv || providedSecret !== internalSecretEnv) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
   const sendUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-push-notification`;
-  const internalSecret = Deno.env.get("INTERNAL_DISPATCH_SECRET") || "";
+  const internalSecret = internalSecretEnv;
 
   // Fetch unprocessed events (limit 200 per run)
   const { data: events, error } = await supabase

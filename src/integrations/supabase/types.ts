@@ -2427,6 +2427,16 @@ export type Database = {
           read_ct: number
         }[]
       }
+      verify_receipt_by_number: {
+        Args: { p_receipt_number: number }
+        Returns: {
+          created_at: string
+          professional_crp: string
+          professional_name: string
+          receipt_number: number
+          service_description: string
+        }[]
+      }
     }
     Enums: {
       app_role: "user" | "professional" | "developer" | "admin" | "marketing"

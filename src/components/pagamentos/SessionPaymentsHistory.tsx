@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, CheckCircle2, Clock, AlertCircle, ExternalLink, Receipt, BookOpen, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import DOMPurify from "dompurify";
 
 type PaymentItem = {
   id: string;
@@ -376,7 +377,8 @@ const SessionPaymentsHistory = () => {
                 onClick={() => {
                   const printWindow = window.open("", "_blank");
                   if (printWindow) {
-                    printWindow.document.write(viewingReceipt);
+                    const safeHtml = DOMPurify.sanitize(viewingReceipt || "", { USE_PROFILES: { html: true } });
+                    printWindow.document.write(safeHtml);
                     printWindow.document.close();
                     printWindow.print();
                   }

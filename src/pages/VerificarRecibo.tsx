@@ -22,18 +22,17 @@ const VerificarRecibo = () => {
         return;
       }
 
-      const { data, error } = await supabase
-        .from("session_receipts")
-        .select("receipt_number, receipt_data, created_at")
-        .eq("receipt_number", receiptNumber)
-        .maybeSingle();
+      const { data, error } = await (supabase as any).rpc("verify_receipt_by_number", {
+        p_receipt_number: receiptNumber,
+      });
 
-      if (error || !data) {
+      if (error || !data || (Array.isArray(data) && data.length === 0)) {
         setStatus("invalid");
         return;
       }
 
-      setReceiptData(data);
+      const row = Array.isArray(data) ? data[0] : data;
+      setReceiptData(row);
       setStatus("valid");
     };
 
