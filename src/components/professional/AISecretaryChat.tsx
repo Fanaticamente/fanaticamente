@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { RefreshCw, Send, ChevronDown, ChevronUp, Bot } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import DOMPurify from "dompurify";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -232,15 +231,7 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
                       : "bg-background border border-border rounded-bl-md"
                   }`}
                 >
-                  <p
-                    className="whitespace-pre-line"
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(
-                        msg.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'),
-                        { ALLOWED_TAGS: ['strong', 'em', 'br'], ALLOWED_ATTR: [] }
-                      ),
-                    }}
-                  />
+                  <p className="whitespace-pre-line" dangerouslySetInnerHTML={{ __html: msg.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
                 </div>
               </div>
             ))

@@ -66,14 +66,8 @@ serve(async (req) => {
     const body = await req.json();
     const { userIds, search } = body;
 
-    // Mode 1: search by email (admin/developer only)
+    // Mode 1: search by email (partial match)
     if (search && typeof search === "string") {
-      if (!adminRole) {
-        return new Response(
-          JSON.stringify({ error: "Only admins can search users by email" }),
-          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
       const { data: authUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers({ perPage: 500 });
       if (listError) throw listError;
 
@@ -97,22 +91,10 @@ serve(async (req) => {
       );
     }
 
-    // For professionals (non-admin), restrict batch lookup to their own patients
-    let allowedIds: Set<string> | null = null;
-    if (!adminRole && professional) {
-      const { data: appts } = await supabaseAdmin
-        .from("appointments")
-        .select("user_id")
-        .eq("professional_id", professional.id)
-        .in("user_id", userIds);
-      allowedIds = new Set((appts || []).map((a: any) => a.user_id));
-    }
-
     // Fetch emails from auth.users using admin client
     const emails: Record<string, string> = {};
     
     for (const userId of userIds) {
-      if (allowedIds && !allowedIds.has(userId)) continue;
       const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
       if (!userError && userData?.user?.email) {
         emails[userId] = userData.user.email;
