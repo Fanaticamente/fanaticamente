@@ -166,9 +166,9 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
       <Card className="bg-primary/5 border-primary/20 mb-4">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <img src={secretaryIcon} alt="Assistente" className="w-7 h-7" style={{ filter: "invert(56%) sepia(43%) saturate(2061%) hue-rotate(118deg) brightness(97%) contrast(87%)" }} />
-            </div>
+          <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Bot className="w-7 h-7 text-primary" aria-hidden="true" />
+          </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-muted-foreground">
                 Não foi possível carregar o resumo.
