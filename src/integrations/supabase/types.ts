@@ -50,13 +50,6 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "admin_messages_professional_id_fkey"
-            columns: ["professional_id"]
-            isOneToOne: false
-            referencedRelation: "professionals_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       app_content: {
@@ -334,13 +327,6 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "appointments_professional_id_fkey"
-            columns: ["professional_id"]
-            isOneToOne: false
-            referencedRelation: "professionals_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       case_reviews: {
@@ -388,13 +374,6 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "case_reviews_professional_id_fkey"
-            columns: ["professional_id"]
-            isOneToOne: false
-            referencedRelation: "professionals_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       clinical_notes: {
@@ -428,13 +407,6 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clinical_notes_professional_id_fkey"
-            columns: ["professional_id"]
-            isOneToOne: false
-            referencedRelation: "professionals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -482,13 +454,6 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clinical_observations_professional_id_fkey"
-            columns: ["professional_id"]
-            isOneToOne: false
-            referencedRelation: "professionals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1471,13 +1436,6 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "professional_availability_professional_id_fkey"
-            columns: ["professional_id"]
-            isOneToOne: false
-            referencedRelation: "professionals_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       professional_google_calendar: {
@@ -1568,13 +1526,6 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "professional_weekly_availability_professional_id_fkey"
-            columns: ["professional_id"]
-            isOneToOne: false
-            referencedRelation: "professionals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1801,13 +1752,6 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "receipt_templates_professional_id_fkey"
-            columns: ["professional_id"]
-            isOneToOne: true
-            referencedRelation: "professionals_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       reference_library: {
@@ -1847,13 +1791,6 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reference_library_professional_id_fkey"
-            columns: ["professional_id"]
-            isOneToOne: false
-            referencedRelation: "professionals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1902,13 +1839,6 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "session_receipts_professional_id_fkey"
-            columns: ["professional_id"]
-            isOneToOne: false
-            referencedRelation: "professionals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2058,13 +1988,6 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "therapeutic_plans_professional_id_fkey"
-            columns: ["professional_id"]
-            isOneToOne: false
-            referencedRelation: "professionals_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2311,11 +2234,14 @@ export type Database = {
       professionals_public: {
         Row: {
           approval_status: string | null
+          avatar_url: string | null
           bio: string | null
           created_at: string | null
           crp: string | null
           degree: string | null
           experience_years: number | null
+          favorite_club_id: string | null
+          full_name: string | null
           google_calendar_url: string | null
           hourly_rate: number | null
           id: string | null
@@ -2326,42 +2252,6 @@ export type Database = {
           specialties: string[] | null
           updated_at: string | null
           user_id: string | null
-        }
-        Insert: {
-          approval_status?: string | null
-          bio?: string | null
-          created_at?: string | null
-          crp?: string | null
-          degree?: string | null
-          experience_years?: number | null
-          google_calendar_url?: string | null
-          hourly_rate?: number | null
-          id?: string | null
-          is_active?: boolean | null
-          is_verified?: boolean | null
-          location?: string | null
-          socio_consciente?: boolean | null
-          specialties?: string[] | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          approval_status?: string | null
-          bio?: string | null
-          created_at?: string | null
-          crp?: string | null
-          degree?: string | null
-          experience_years?: number | null
-          google_calendar_url?: string | null
-          hourly_rate?: number | null
-          id?: string | null
-          is_active?: boolean | null
-          is_verified?: boolean | null
-          location?: string | null
-          socio_consciente?: boolean | null
-          specialties?: string[] | null
-          updated_at?: string | null
-          user_id?: string | null
         }
         Relationships: []
       }
@@ -2379,11 +2269,14 @@ export type Database = {
         Args: never
         Returns: {
           approval_status: string
+          avatar_url: string
           bio: string
           created_at: string
           crp: string
           degree: string
           experience_years: number
+          favorite_club_id: string
+          full_name: string
           google_calendar_url: string
           hourly_rate: number
           id: string
