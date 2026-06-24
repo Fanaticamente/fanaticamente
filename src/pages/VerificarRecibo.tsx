@@ -22,7 +22,7 @@ const VerificarRecibo = () => {
         return;
       }
 
-      const { data, error } = await supabase.rpc("verify_receipt_by_number", {
+      const { data, error } = await (supabase as any).rpc("verify_receipt_by_number", {
         p_receipt_number: receiptNumber,
       });
 
