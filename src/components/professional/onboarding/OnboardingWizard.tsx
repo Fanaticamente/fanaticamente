@@ -130,38 +130,32 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
   }, []);
 
   const validateStep = (step: number): boolean => {
-    switch (step) {
-      case 0: // Photo
+    const id = STEPS[step]?.id;
+    switch (id) {
+      case "photo":
         if (!data.imageUrl) { toast.error("Envie uma foto profissional para continuar"); return false; }
         return true;
-      case 1: // Degree
+      case "degree":
         if (!data.degreeBase) { toast.error("Selecione sua formação base"); return false; }
         if (data.degreeTitle && (!data.degreeDocumentFrontUrl || !data.degreeDocumentBackUrl)) {
           toast.error("Envie frente e verso do diploma de titulação");
           return false;
         }
         return true;
-      case 2: { // Documents — CRP number required; photos temporarily optional
+      case "documents": {
         const crpRegex = /^\d{2}\/\d{4,6}$/;
         if (!data.crp.trim()) { toast.error("Informe seu número do CRP"); return false; }
         if (!crpRegex.test(data.crp.trim())) { toast.error("Formato de CRP inválido. Use XX/XXXXX (ex: 06/12345)"); return false; }
-        // Photo upload of the CRP card is temporarily optional — validation will
-        // be reintroduced once the Android upload issue is fully resolved.
         return true;
       }
-      case 3: // Bio
+      case "bio":
         if (!data.bio.trim() || data.bio.length < 50) { toast.error("A bio deve ter pelo menos 50 caracteres"); return false; }
         return true;
-      case 4: // Specialties
+      case "specialties":
         if (data.specialties.length === 0) { toast.error("Selecione pelo menos uma especialidade"); return false; }
         return true;
-      case 5: // Pricing
+      default:
         return true;
-      case 6: // Payment method
-        return true;
-      case 7: // Subscription - handled by its own flow
-        return true;
-      default: return true;
     }
   };
 
