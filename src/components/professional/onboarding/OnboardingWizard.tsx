@@ -262,7 +262,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
 
       {/* Step Content */}
       <div className="bg-card border border-border rounded-2xl p-6 mb-6">
-        {currentStep === 0 && (
+        {STEPS[currentStep]?.id === "photo" && (
           <StepPhoto
             professionalId={professionalId}
             imageUrl={data.imageUrl}
@@ -270,7 +270,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
             onBusyChange={setStepBusy}
           />
         )}
-        {currentStep === 1 && (
+        {STEPS[currentStep]?.id === "degree" && (
           <StepDegree
             professionalId={professionalId}
             data={data}
@@ -278,7 +278,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
             onBusyChange={setStepBusy}
           />
         )}
-        {currentStep === 2 && (
+        {STEPS[currentStep]?.id === "documents" && (
           <StepDocuments
             professionalId={professionalId}
             data={data}
@@ -286,26 +286,26 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
             onBusyChange={setStepBusy}
           />
         )}
-        {currentStep === 3 && (
+        {STEPS[currentStep]?.id === "bio" && (
           <StepBio bio={data.bio} onUpdate={(bio) => updateData({ bio })} />
         )}
-        {currentStep === 4 && (
+        {STEPS[currentStep]?.id === "specialties" && (
           <StepSpecialties
             specialties={data.specialties}
             onUpdate={(specialties) => updateData({ specialties })}
           />
         )}
-        {currentStep === 5 && (
+        {STEPS[currentStep]?.id === "pricing" && (
           <StepPricing data={data} onUpdate={updateData} />
         )}
-        {currentStep === 6 && (
+        {STEPS[currentStep]?.id === "payment" && (
           <StepPaymentMethod
             professionalId={professionalId}
             pixKey={data.pixKey}
             onUpdate={(pixKey) => updateData({ pixKey })}
           />
         )}
-        {currentStep === 7 && (
+        {STEPS[currentStep]?.id === "subscription" && (
           <StepSubscription
             professionalId={professionalId}
             onSubscribed={handleSubscriptionComplete}
