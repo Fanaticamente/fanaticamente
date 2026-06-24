@@ -942,7 +942,7 @@ const Auth = () => {
 
   // Mobile Layout (existing)
   return (
-    <div className={`relative isolate min-h-[100dvh] bg-background flex flex-col items-center px-4 py-6 ${isLogin ? 'justify-center' : 'justify-start'}`}>
+    <div className={`relative isolate bg-background flex flex-col items-center px-4 py-6 ${isLogin ? 'h-[100dvh] overflow-hidden justify-center' : 'min-h-[100dvh] justify-start'}`}>
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 bg-background" />
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-6">
