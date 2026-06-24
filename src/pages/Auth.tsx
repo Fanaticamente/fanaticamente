@@ -516,6 +516,53 @@ const Auth = () => {
 
   const isMobile = useIsMobile();
 
+  useEffect(() => {
+    if (!isMobile || !isLogin) return;
+
+    const { body, documentElement } = document;
+    const previousBodyStyles = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      inset: body.style.inset,
+      width: body.style.width,
+      height: body.style.height,
+      overscrollBehavior: body.style.overscrollBehavior,
+    };
+    const previousHtmlStyles = {
+      overflow: documentElement.style.overflow,
+      height: documentElement.style.height,
+      overscrollBehavior: documentElement.style.overscrollBehavior,
+    };
+
+    window.scrollTo(0, 0);
+    documentElement.style.overflow = "hidden";
+    documentElement.style.height = "100%";
+    documentElement.style.overscrollBehavior = "none";
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.inset = "0";
+    body.style.width = "100%";
+    body.style.height = "100%";
+    body.style.overscrollBehavior = "none";
+
+    const preventTouchMove = (event: TouchEvent) => event.preventDefault();
+    document.addEventListener("touchmove", preventTouchMove, { passive: false });
+
+    return () => {
+      document.removeEventListener("touchmove", preventTouchMove);
+      documentElement.style.overflow = previousHtmlStyles.overflow;
+      documentElement.style.height = previousHtmlStyles.height;
+      documentElement.style.overscrollBehavior = previousHtmlStyles.overscrollBehavior;
+      body.style.overflow = previousBodyStyles.overflow;
+      body.style.position = previousBodyStyles.position;
+      body.style.inset = previousBodyStyles.inset;
+      body.style.width = previousBodyStyles.width;
+      body.style.height = previousBodyStyles.height;
+      body.style.overscrollBehavior = previousBodyStyles.overscrollBehavior;
+      window.scrollTo(0, 0);
+    };
+  }, [isMobile, isLogin]);
+
   // Desktop Layout
   if (!isMobile) {
     return (
@@ -942,7 +989,7 @@ const Auth = () => {
 
   // Mobile Layout (existing)
   return (
-    <div className={`relative isolate bg-background flex flex-col items-center px-4 py-6 ${isLogin ? 'h-[100dvh] overflow-hidden justify-center' : 'min-h-[100dvh] justify-start'}`}>
+    <div className={`relative isolate bg-background flex flex-col items-center px-4 py-6 ${isLogin ? 'fixed inset-0 h-[100svh] max-h-[100svh] overflow-hidden overscroll-none touch-none justify-center' : 'min-h-[100dvh] justify-start'}`}>
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 bg-background" />
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-6">
