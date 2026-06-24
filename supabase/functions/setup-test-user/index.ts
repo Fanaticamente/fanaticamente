@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
         is_verified: true,
         is_active: true,
         approval_status: "approved",
-        socio_consciente: true,
+        socio_consciente: false,
         subscription_type: "yearly",
         subscription_expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
       }, { onConflict: "user_id" });
