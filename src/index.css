@@ -168,6 +168,11 @@
     --border: 0 0% 90%;
     --input: 0 0% 90%;
     --ring: 108 80% 27%;
+    /* Unify all secondary green tokens with the brand green inside the professional system */
+    --therapy: 108 80% 27%;
+    --therapy-foreground: 0 0% 100%;
+    --stadium: 108 80% 27%;
+    --stadium-foreground: 0 0% 100%;
     color-scheme: light;
   }
 
