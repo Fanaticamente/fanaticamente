@@ -18,6 +18,9 @@ import ClubMark from "@/components/clubs/ClubMark";
 interface Professional {
   id: string;
   user_id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  favorite_club_id: string | null;
   crp: string;
   degree: string | null;
   experience_years: number | null;
@@ -100,34 +103,17 @@ const Terapeutas = () => {
     const fetchClubsWithProfessionals = async () => {
       const { data: professionals, error: profError } = await supabase
         .from('professionals_public')
-        .select('user_id')
-        .eq('approval_status', 'approved');
+        .select('favorite_club_id')
+        .eq('approval_status', 'approved')
+        .not('favorite_club_id', 'is', null);
 
       if (profError || !professionals?.length) {
         setClubsWithProfessionals(new Set());
         return;
       }
 
-      const userIds = professionals.map(p => p.user_id).filter((id): id is string => Boolean(id));
-      if (userIds.length === 0) {
-        setClubsWithProfessionals(new Set());
-        return;
-      }
-
-      const { data: profiles, error: profileError } = await supabase
-        .from('profiles')
-        .select('favorite_club_id')
-        .in('user_id', userIds)
-        .not('favorite_club_id', 'is', null);
-
-      if (profileError) {
-        console.error('Erro ao buscar clubes com profissionais:', profileError);
-        setClubsWithProfessionals(new Set());
-        return;
-      }
-
       const clubIds = new Set(
-        (profiles || [])
+        professionals
           .map(p => p.favorite_club_id)
           .filter((id): id is string => Boolean(id))
       );
@@ -161,7 +147,8 @@ const Terapeutas = () => {
       const { data: professionals, error } = await supabase
         .from('professionals_public')
         .select('*')
-        .eq('approval_status', 'approved');
+        .eq('approval_status', 'approved')
+        .eq('favorite_club_id', clubId);
 
       if (error) {
         console.error('Erro ao buscar profissionais:', error);
@@ -174,34 +161,20 @@ const Terapeutas = () => {
         return;
       }
 
-      const userIds = professionals.map(p => p.user_id);
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, avatar_url, favorite_club_id')
-        .in('user_id', userIds)
-        .eq('favorite_club_id', clubId);
-
-      if (profilesError) {
-        console.error('Erro ao buscar perfis:', profilesError);
-        setTherapists([]);
-        return;
-      }
-
       const therapistData: TherapistData[] = [];
       
-      for (const profile of (profiles || [])) {
-        const professional = professionals.find(p => p.user_id === profile.user_id);
-        if (professional) {
+      for (const professional of professionals) {
+        if (professional.id) {
           therapistData.push({
             id: professional.id,
-            name: profile.full_name || 'Profissional',
-            crp: professional.crp,
+            name: professional.full_name || 'Profissional',
+            crp: professional.crp || '--',
             degree: professional.degree || 'Psicólogo(a)',
             experience: professional.experience_years || 0,
             location: professional.location || 'Brasil',
             specialties: professional.specialties || [],
             verified: professional.is_verified || false,
-            imageUrl: profile.avatar_url || undefined,
+            imageUrl: professional.avatar_url || undefined,
             availableSlots: generateAvailableSlots(),
             hourlyRate: professional.hourly_rate || undefined,
             bio: professional.bio || undefined,
