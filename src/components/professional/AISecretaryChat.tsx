@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { RefreshCw, Send, ChevronDown, ChevronUp } from "lucide-react";
-import secretaryIcon from "@/assets/secretary-icon.png";
+import { RefreshCw, Send, ChevronDown, ChevronUp, Bot } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
