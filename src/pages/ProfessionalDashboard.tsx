@@ -13,6 +13,7 @@ import OnboardingWizard from "@/components/professional/onboarding/OnboardingWiz
 import SubscriptionPlans from "@/components/professional/SubscriptionPlans";
 import StripeConnectCard from "@/components/professional/StripeConnectCard";
 import PixPaymentCard from "@/components/professional/PixPaymentCard";
+import { SHOW_PAYMENT_METHOD_CARDS } from "@/config/featureFlags";
 import SubscriptionManager from "@/components/professional/SubscriptionManager";
 import AppointmentDetailsDialog from "@/components/professional/AppointmentDetailsDialog";
 import AdminMessagesAlert from "@/components/professional/AdminMessagesAlert";
@@ -1029,18 +1030,21 @@ const ProfessionalDashboard = () => {
                   </button>
                 </div>
                 
-                {/* Payment Cards - Always visible */}
-                <div className="space-y-4">
-                  <h3 className="font-display text-xl text-card-foreground">
-                    Métodos de Recebimento
-                  </h3>
-                  <PixPaymentCard 
-                    professionalId={professional.id}
-                    pixKey={(professional as any).pix_key || null} 
-                    onUpdate={fetchProfessionalData}
-                  />
-                  <StripeConnectCard professionalId={professional.id} />
-                </div>
+                {/* Payment Cards - temporariamente ocultos via feature flag.
+                    Reativar em src/config/featureFlags.ts (SHOW_PAYMENT_METHOD_CARDS = true). */}
+                {SHOW_PAYMENT_METHOD_CARDS && (
+                  <div className="space-y-4">
+                    <h3 className="font-display text-xl text-card-foreground">
+                      Métodos de Recebimento
+                    </h3>
+                    <PixPaymentCard 
+                      professionalId={professional.id}
+                      pixKey={(professional as any).pix_key || null} 
+                      onUpdate={fetchProfessionalData}
+                    />
+                    <StripeConnectCard professionalId={professional.id} />
+                  </div>
+                )}
               </>
             ) : (
               <>

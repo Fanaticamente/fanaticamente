@@ -11,6 +11,7 @@ import StepSpecialties from "./StepSpecialties";
 import StepPricing from "./StepPricing";
 import StepPaymentMethod from "./StepPaymentMethod";
 import StepSubscription from "./StepSubscription";
+import { SHOW_PAYMENT_METHOD_CARDS } from "@/config/featureFlags";
 
 export interface OnboardingData {
   imageUrl: string;
@@ -36,7 +37,9 @@ interface OnboardingWizardProps {
   onComplete: () => void;
 }
 
-const STEPS = [
+// Passo "payment" (Recebimento) é ocultado por feature flag.
+// Para reativar, mude SHOW_PAYMENT_METHOD_CARDS em src/config/featureFlags.ts.
+const ALL_STEPS = [
   { id: "photo", label: "Foto" },
   { id: "degree", label: "Formação" },
   { id: "documents", label: "Documentos" },
@@ -46,6 +49,7 @@ const STEPS = [
   { id: "payment", label: "Recebimento" },
   { id: "subscription", label: "Plano" },
 ];
+const STEPS = ALL_STEPS.filter((s) => s.id !== "payment" || SHOW_PAYMENT_METHOD_CARDS);
 
 const STORAGE_KEY = "professional_onboarding_wizard";
 
@@ -77,7 +81,11 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
     return draft;
   });
 
-  const [currentStep, setCurrentStep] = useState(initialized?.step ?? 0);
+  const [currentStep, setCurrentStep] = useState(() => {
+    const saved = initialized?.step ?? 0;
+    // Clamp to current STEPS length (in case the wizard was reshaped via feature flag).
+    return Math.min(Math.max(saved, 0), STEPS.length - 1);
+  });
   const [data, setData] = useState<OnboardingData>(() => {
     // Split combined degree string ("Psicólogo, Mestre em Psicologia") into base + title
     const rawDegree = (existingData as any)?.degree as string | undefined;
@@ -126,38 +134,32 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
   }, []);
 
   const validateStep = (step: number): boolean => {
-    switch (step) {
-      case 0: // Photo
+    const id = STEPS[step]?.id;
+    switch (id) {
+      case "photo":
         if (!data.imageUrl) { toast.error("Envie uma foto profissional para continuar"); return false; }
         return true;
-      case 1: // Degree
+      case "degree":
         if (!data.degreeBase) { toast.error("Selecione sua formação base"); return false; }
         if (data.degreeTitle && (!data.degreeDocumentFrontUrl || !data.degreeDocumentBackUrl)) {
           toast.error("Envie frente e verso do diploma de titulação");
           return false;
         }
         return true;
-      case 2: { // Documents — CRP number required; photos temporarily optional
+      case "documents": {
         const crpRegex = /^\d{2}\/\d{4,6}$/;
         if (!data.crp.trim()) { toast.error("Informe seu número do CRP"); return false; }
         if (!crpRegex.test(data.crp.trim())) { toast.error("Formato de CRP inválido. Use XX/XXXXX (ex: 06/12345)"); return false; }
-        // Photo upload of the CRP card is temporarily optional — validation will
-        // be reintroduced once the Android upload issue is fully resolved.
         return true;
       }
-      case 3: // Bio
+      case "bio":
         if (!data.bio.trim() || data.bio.length < 50) { toast.error("A bio deve ter pelo menos 50 caracteres"); return false; }
         return true;
-      case 4: // Specialties
+      case "specialties":
         if (data.specialties.length === 0) { toast.error("Selecione pelo menos uma especialidade"); return false; }
         return true;
-      case 5: // Pricing
+      default:
         return true;
-      case 6: // Payment method
-        return true;
-      case 7: // Subscription - handled by its own flow
-        return true;
-      default: return true;
     }
   };
 
@@ -220,7 +222,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
   };
 
   const isLastStep = currentStep === STEPS.length - 1;
-  const isSubscriptionStep = currentStep === 7;
+  const isSubscriptionStep = STEPS[currentStep]?.id === "subscription";
   const progress = ((currentStep + 1) / STEPS.length) * 100;
 
   return (
@@ -264,7 +266,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
 
       {/* Step Content */}
       <div className="bg-card border border-border rounded-2xl p-6 mb-6">
-        {currentStep === 0 && (
+        {STEPS[currentStep]?.id === "photo" && (
           <StepPhoto
             professionalId={professionalId}
             imageUrl={data.imageUrl}
@@ -272,7 +274,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
             onBusyChange={setStepBusy}
           />
         )}
-        {currentStep === 1 && (
+        {STEPS[currentStep]?.id === "degree" && (
           <StepDegree
             professionalId={professionalId}
             data={data}
@@ -280,7 +282,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
             onBusyChange={setStepBusy}
           />
         )}
-        {currentStep === 2 && (
+        {STEPS[currentStep]?.id === "documents" && (
           <StepDocuments
             professionalId={professionalId}
             data={data}
@@ -288,26 +290,26 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
             onBusyChange={setStepBusy}
           />
         )}
-        {currentStep === 3 && (
+        {STEPS[currentStep]?.id === "bio" && (
           <StepBio bio={data.bio} onUpdate={(bio) => updateData({ bio })} />
         )}
-        {currentStep === 4 && (
+        {STEPS[currentStep]?.id === "specialties" && (
           <StepSpecialties
             specialties={data.specialties}
             onUpdate={(specialties) => updateData({ specialties })}
           />
         )}
-        {currentStep === 5 && (
+        {STEPS[currentStep]?.id === "pricing" && (
           <StepPricing data={data} onUpdate={updateData} />
         )}
-        {currentStep === 6 && (
+        {STEPS[currentStep]?.id === "payment" && (
           <StepPaymentMethod
             professionalId={professionalId}
             pixKey={data.pixKey}
             onUpdate={(pixKey) => updateData({ pixKey })}
           />
         )}
-        {currentStep === 7 && (
+        {STEPS[currentStep]?.id === "subscription" && (
           <StepSubscription
             professionalId={professionalId}
             onSubscribed={handleSubscriptionComplete}
