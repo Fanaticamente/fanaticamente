@@ -392,7 +392,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
 
   const basePrice = therapist.hourlyRate || 150;
   const isSocioConsciente = therapist.socioConsciente && socioDiscountApplied;
-  const discountAmount = isSocioConsciente ? basePrice * 0.15 : 0;
+  const discountAmount = isSocioConsciente ? basePrice * 0.20 : 0;
   const sessionPrice = basePrice - discountAmount;
   const scheduledDateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
   const canProcessStripe = paymentInfo?.stripe_account_status === "active";

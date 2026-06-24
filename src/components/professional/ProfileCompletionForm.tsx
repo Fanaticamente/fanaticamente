@@ -953,7 +953,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
               ⚽ Programa Sócio Consciente
             </label>
             <p className="text-muted-foreground text-xs mt-1">
-              O programa aplica uma redução de 15% no valor praticado como incentivo aos sócios-torcedores.
+              O programa aplica uma redução de 20% no valor praticado como incentivo aos sócios-torcedores.
             </p>
             <button
               type="button"

@@ -77,7 +77,7 @@ const StepPricing = ({ data, onUpdate }: StepPricingProps) => {
                 ⚽ Programa Sócio Consciente
               </label>
               <p className="text-muted-foreground text-xs mt-1">
-                Redução de 15% para sócios-torcedores como incentivo ao cuidado com a saúde mental.
+                Redução de 20% para sócios-torcedores como incentivo ao cuidado com a saúde mental.
               </p>
               <button
                 type="button"
