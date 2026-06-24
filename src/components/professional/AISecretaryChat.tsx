@@ -195,7 +195,7 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
         {/* Header */}
         <div className="flex items-center gap-3 mb-3">
           <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <img src={secretaryIcon} alt="Assistente" className="w-7 h-7" style={{ filter: "invert(56%) sepia(43%) saturate(2061%) hue-rotate(118deg) brightness(97%) contrast(87%)" }} />
+            <Bot className="w-7 h-7 text-primary" aria-hidden="true" />
           </div>
           <div className="flex-1 min-w-0">
             <span className="text-sm font-bold text-primary uppercase tracking-wide">
