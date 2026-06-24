@@ -81,7 +81,11 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
     return draft;
   });
 
-  const [currentStep, setCurrentStep] = useState(initialized?.step ?? 0);
+  const [currentStep, setCurrentStep] = useState(() => {
+    const saved = initialized?.step ?? 0;
+    // Clamp to current STEPS length (in case the wizard was reshaped via feature flag).
+    return Math.min(Math.max(saved, 0), STEPS.length - 1);
+  });
   const [data, setData] = useState<OnboardingData>(() => {
     // Split combined degree string ("Psicólogo, Mestre em Psicologia") into base + title
     const rawDegree = (existingData as any)?.degree as string | undefined;
