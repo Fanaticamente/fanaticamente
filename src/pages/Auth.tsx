@@ -942,8 +942,8 @@ const Auth = () => {
 
   // Mobile Layout (existing)
   return (
-    <div className="bg-background flex items-start justify-center px-4 py-8">
-      <div className="w-full max-w-md pb-8">
+    <div className={`min-h-[100dvh] bg-background flex flex-col items-center px-4 py-6 ${isLogin ? 'justify-center' : 'justify-start'}`}>
+      <div className="w-full max-w-md">
         <div className="text-center mb-6">
           <img src={logoAuth} alt="Logo" className="h-40 w-auto mx-auto mb-1" />
           <p className={`text-muted-foreground ${authMode === "professional" ? "text-lg font-medium" : ""}`}>
