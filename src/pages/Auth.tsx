@@ -335,8 +335,13 @@ const Auth = () => {
       newErrors.fullName = "Nome completo é obrigatório";
     }
 
-    // CRP is collected later in the onboarding wizard (step 3 — Documentos)
     if (authMode === "professional") {
+      // CRP — obrigatório no cadastro (formato XX/XXXXX)
+      if (!signUpData.crp.trim()) {
+        newErrors.crp = "CRP é obrigatório";
+      } else if (!/^\d{2}\/\d{4,6}$/.test(signUpData.crp.trim())) {
+        newErrors.crp = "Formato inválido. Use XX/XXXXX";
+      }
       // Validate document type and number for professionals
       if (!signUpData.documentType) {
         newErrors.documentType = "Selecione CPF ou CNPJ";
@@ -344,7 +349,6 @@ const Auth = () => {
       if (!signUpData.documentNumber.trim()) {
         newErrors.documentNumber = "Número do documento é obrigatório";
       } else {
-        // Basic validation for CPF (11 digits) and CNPJ (14 digits)
         const cleanDoc = signUpData.documentNumber.replace(/\D/g, '');
         if (signUpData.documentType === 'cpf' && cleanDoc.length !== 11) {
           newErrors.documentNumber = "CPF deve ter 11 dígitos";
@@ -354,16 +358,20 @@ const Auth = () => {
       }
     }
 
-    // Validate phone (optional)
-    if (signUpData.phone.trim()) {
+    // Telefone — obrigatório
+    if (!signUpData.phone.trim()) {
+      newErrors.phone = "Telefone é obrigatório";
+    } else {
       const cleanPhone = signUpData.phone.replace(/\D/g, '');
       if (cleanPhone.length < 10 || cleanPhone.length > 11) {
         newErrors.phone = "Telefone inválido (DDD + número)";
       }
     }
 
-    // Validate birth date (optional)
-    if (signUpData.birthDate) {
+    // Data de nascimento — obrigatória
+    if (!signUpData.birthDate) {
+      newErrors.birthDate = "Data de nascimento é obrigatória";
+    } else {
       const birthDate = new Date(signUpData.birthDate);
       const today = new Date();
       let age = today.getFullYear() - birthDate.getFullYear();
@@ -460,8 +468,8 @@ const Auth = () => {
         };
 
         if (authMode === "professional") {
-          // CRP is collected later in the onboarding wizard
           profileData.is_professional = true;
+          profileData.crp = signUpData.crp.trim();
           profileData.document_type = signUpData.documentType;
           profileData.document_number = signUpData.documentNumber.replace(/\D/g, '');
         }
@@ -681,7 +689,7 @@ const Auth = () => {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-card-foreground text-sm mb-2">
-                          Nascimento
+                          Nascimento *
                         </label>
                         <input
                           type="date"
@@ -704,7 +712,7 @@ const Auth = () => {
                       </div>
                       <div>
                         <label className="block text-card-foreground text-sm mb-2">
-                          Telefone
+                          Telefone *
                         </label>
                         <input
                           type="tel"
@@ -722,7 +730,24 @@ const Auth = () => {
 
                     {/* Document Type Selection for Professionals */}
                     {authMode === "professional" && (
-                      <div className="grid grid-cols-2 gap-3">
+                      <>
+                        <div>
+                          <label className="block text-card-foreground text-sm mb-2">
+                            CRP *
+                          </label>
+                          <input
+                            type="text"
+                            value={signUpData.crp}
+                            onChange={(e) => handleSignUpDataChange('crp', e.target.value)}
+                            className={inputClassName}
+                            placeholder="XX/XXXXX"
+                            maxLength={10}
+                          />
+                          {errors.crp && (
+                            <p className="text-destructive text-xs mt-1">{errors.crp}</p>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-card-foreground text-sm mb-2">
                             Tipo de Documento *
@@ -765,7 +790,8 @@ const Auth = () => {
                             <p className="text-destructive text-xs mt-1">{errors.documentNumber}</p>
                           )}
                         </div>
-                      </div>
+                        </div>
+                      </>
                     )}
 
                     {/* Favorite Club */}
@@ -1068,7 +1094,7 @@ const Auth = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-card-foreground text-sm mb-2">
-                      Nascimento
+                      Nascimento *
                     </label>
                     <input
                       type="date"
@@ -1091,7 +1117,7 @@ const Auth = () => {
                   </div>
                   <div>
                     <label className="block text-card-foreground text-sm mb-2">
-                      Telefone
+                      Telefone *
                     </label>
                     <input
                       type="tel"
@@ -1110,6 +1136,22 @@ const Auth = () => {
                 {/* Document Type Selection for Professionals */}
                 {authMode === "professional" && (
                   <>
+                    <div>
+                      <label className="block text-card-foreground text-sm mb-2">
+                        CRP *
+                      </label>
+                      <input
+                        type="text"
+                        value={signUpData.crp}
+                        onChange={(e) => handleSignUpDataChange('crp', e.target.value)}
+                        className={inputClassName}
+                        placeholder="XX/XXXXX"
+                        maxLength={10}
+                      />
+                      {errors.crp && (
+                        <p className="text-destructive text-xs mt-1">{errors.crp}</p>
+                      )}
+                    </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-card-foreground text-sm mb-2">
