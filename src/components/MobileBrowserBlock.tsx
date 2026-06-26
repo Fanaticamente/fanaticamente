@@ -43,6 +43,20 @@ const MobileBrowserBlock = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
+    // Admin / Developer / Marketing area: always permitido em mobile para
+    // que a equipe possa acessar o painel de qualquer dispositivo.
+    const path = window.location.pathname;
+    const isAdminArea =
+      path.startsWith("/admin-access") ||
+      path.startsWith("/admin") ||
+      path.startsWith("/desenvolvedor") ||
+      path.startsWith("/marketing");
+    if (isAdminArea) {
+      setIsMobileBrowser(false);
+      setIsMounted(true);
+      return;
+    }
+
     const isTablet =
       /iPad/i.test(userAgent) ||
       (/Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1) ||
