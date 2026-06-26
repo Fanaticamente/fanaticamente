@@ -155,6 +155,29 @@ Deno.serve(async (req) => {
         });
       }
       console.log("complete-professional-signup: Professional record created");
+    } else {
+      // Update existing record with signup data (CRP + document)
+      const updateData: any = {};
+      if (crp) updateData.crp = crp;
+      if (payload.document_type) updateData.document_type = payload.document_type;
+      if (payload.document_number) updateData.document_number = payload.document_number;
+
+      if (Object.keys(updateData).length > 0) {
+        console.log("complete-professional-signup: Updating existing professional record", updateData);
+        const { error: updateError } = await service
+          .from("professionals")
+          .update(updateData)
+          .eq("user_id", user.id);
+
+        if (updateError) {
+          console.error("complete-professional-signup: Professional update failed", updateError);
+          return new Response(JSON.stringify({ error: "Failed to update professional", details: updateError.message }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        console.log("complete-professional-signup: Professional record updated");
+      }
     }
 
     // Ensure role exists
