@@ -1,10 +1,7 @@
 import { CheckCircle, MapPin, Star, Heart } from "lucide-react";
 import { getFirstAndLastName } from "@/lib/utils";
 
-import therapist1 from "@/assets/therapist-1.jpg";
-import therapist2 from "@/assets/therapist-2.jpg";
-import therapist3 from "@/assets/therapist-3.jpg";
-import therapist4 from "@/assets/therapist-4.jpg";
+import silhouetteMale from "@/assets/silhouette-male.png";
 
 interface AvailableSlot {
   date: Date;
@@ -35,10 +32,9 @@ interface TherapistCardProps {
   onSelect?: (therapist: Therapist) => void;
 }
 
-const therapistImages = [therapist1, therapist2, therapist3, therapist4];
-
 const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) => {
-  const imageUrl = therapist.imageUrl || therapistImages[(typeof therapist.id === 'number' ? therapist.id - 1 : 0) % 4];
+  const hasPhoto = Boolean(therapist.imageUrl);
+  const imageUrl = therapist.imageUrl || silhouetteMale;
 
   const handleClick = () => {
     if (onSelect) {
@@ -63,12 +59,12 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
           {/* Photo - Vertical Rectangle */}
           <div 
             className="w-20 h-28 sm:w-28 sm:h-36 rounded-xl overflow-hidden flex-shrink-0 border-2"
-            style={{ borderColor: clubColor + "60" }}
+            style={{ borderColor: clubColor + "60", backgroundColor: hasPhoto ? undefined : clubColor }}
           >
             <img 
               src={imageUrl} 
               alt={therapist.name}
-              className="w-full h-full object-cover object-top"
+              className={`w-full h-full ${hasPhoto ? "object-cover object-top" : "object-contain object-center"}`}
             />
           </div>
           
