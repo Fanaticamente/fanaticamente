@@ -43,16 +43,16 @@ Dentro de **Início** existem ainda as abas: **Agenda**, **Disponibilidade** e *
 Filtros: **Próximos**, **Realizados**, **Cancelados**, **Todos**.
 
 Fluxo de uma consulta:
-1. Paciente agenda e paga → aparece como **Pendente**.
-2. Profissional clica em **Confirmar** para aceitar, ou em **Recusar** informando o motivo (gera reembolso ao paciente).
-3. Depois de confirmada, o profissional usa **Enviar Link** para enviar o link da videochamada (Google Meet, Zoom, etc.).
+1. Paciente agenda normalmente → aparece como **Pendente**.
+2. Profissional clica em **Confirmar** para aceitar, ou em **Recusar** informando o motivo.
+3. Depois de confirmada, perto do horário agendado o profissional usa **Enviar Link** para enviar o link da videochamada (Google Meet, Zoom, etc.) ao paciente.
 4. No horário, clica em **Iniciar** para marcar início da sessão.
 5. Ao terminar, clica em **Encerrar** para finalizar — a consulta vai para Realizados e libera avaliação do paciente.
 
 Importante:
-- A plataforma NÃO faz a videochamada; o profissional fornece o link.
+- A plataforma NÃO recebe pagamentos do paciente; valores e reembolsos são tratados diretamente entre profissional e paciente, fora da plataforma.
+- A plataforma NÃO faz a videochamada; o profissional fornece o link próximo ao horário agendado.
 - Reagendamentos solicitados pelo paciente aparecem com aviso na própria consulta.
-- Pagamento vai 100% direto ao profissional (a plataforma não retém valores).
 
 ----------------------------------------
 3. DISPONIBILIDADE (aba dentro de Início)
