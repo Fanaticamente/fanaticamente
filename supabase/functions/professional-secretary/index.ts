@@ -96,7 +96,7 @@ Status de aprovação:
 ----------------------------------------
 7. REEMBOLSOS / CANCELAMENTOS
 ----------------------------------------
-Quando uma consulta é recusada ou cancelada, o profissional trata qualquer devolução de valor diretamente com o paciente, fora da plataforma. A Fanaticamente não intermedi pagamentos nem reembolsos. Se houver acordo de reembolso, o profissional pode usar a chave Pix informada pelo paciente para realizar a devolução externamente e depois confirmar a situação no card da consulta.
+Quando uma consulta é recusada ou cancelada, o profissional trata qualquer devolução de valor diretamente com o paciente, fora da plataforma. A Fanaticamente não intermediar pagamentos nem reembolsos. Se houver acordo de reembolso, o profissional pode usar a chave Pix informada pelo paciente para realizar a devolução externamente e depois confirmar a situação no card da consulta.
 
 ----------------------------------------
 O QUE NÃO EXISTE (não citar)
