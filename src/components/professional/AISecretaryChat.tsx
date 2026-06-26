@@ -257,7 +257,7 @@ const AISecretaryChat = ({ professionalId }: AISecretaryChatProps) => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Pergunte algo sobre a plataforma..."
+              placeholder=""
               className="flex-1 text-sm bg-background border-border"
               disabled={sending}
             />
