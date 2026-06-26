@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { 
   Users, UserCheck, Calendar, Settings, LogOut, Search, Filter, 
-  Shield, Sun, Moon, LayoutDashboard, DollarSign, ClipboardList, Bell, Crown
+  Shield, Sun, Moon, LayoutDashboard, DollarSign, ClipboardList, Bell, Crown, Menu, X
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import adminLogoLight from "@/assets/admin-logo-light.png";
@@ -36,6 +36,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<TabType>(getTabFromUrl);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // Sync activeTab when URL changes (e.g., browser back/forward)
   useEffect(() => {
@@ -49,6 +50,7 @@ const AdminDashboard = () => {
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
     setSearchParams({ tab }, { replace: true });
+    setMobileNavOpen(false);
   };
 
   // Wait for loading to complete before checking role
@@ -117,8 +119,47 @@ const AdminDashboard = () => {
 
   return (
     <div className={`min-h-screen ${themeStyles.bg}`}>
-      {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 h-dvh w-64 ${themeStyles.sidebar} border-r ${themeStyles.border} hidden overflow-y-auto overscroll-contain md:block`}>
+      {/* Mobile Topbar */}
+      <header className={`md:hidden sticky top-0 z-40 flex items-center justify-between px-4 h-14 ${themeStyles.sidebar} border-b ${themeStyles.border}`}>
+        <button
+          onClick={() => setMobileNavOpen(true)}
+          aria-label="Abrir menu"
+          className={`p-2 rounded-lg ${themeStyles.hoverBg}`}
+        >
+          <Menu className={`w-6 h-6 ${themeStyles.text}`} />
+        </button>
+        <img
+          src={isDarkMode ? adminLogoDark : adminLogoLight}
+          alt="Fanatica Mente"
+          className="h-7 object-contain"
+        />
+        <button
+          onClick={toggleTheme}
+          aria-label="Alternar tema"
+          className={`p-2 rounded-lg ${themeStyles.hoverBg}`}
+        >
+          {isDarkMode ? (
+            <Sun className="w-5 h-5 text-yellow-400" />
+          ) : (
+            <Moon className="w-5 h-5 text-gray-600" />
+          )}
+        </button>
+      </header>
+
+      {/* Mobile backdrop */}
+      {mobileNavOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-40 bg-black/50"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      )}
+
+      {/* Sidebar (drawer on mobile, fixed on desktop) */}
+      <aside
+        className={`fixed inset-y-0 left-0 h-dvh w-64 ${themeStyles.sidebar} border-r ${themeStyles.border} overflow-y-auto overscroll-contain z-50 transform transition-transform duration-200 md:translate-x-0 md:block ${
+          mobileNavOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
+      >
         <div className="min-h-full flex flex-col">
         <div className="p-6 flex items-center justify-between flex-shrink-0">
           <img 
@@ -126,16 +167,25 @@ const AdminDashboard = () => {
             alt="Fanatica Mente" 
             className="h-8 object-contain"
           />
-          <button
-            onClick={toggleTheme}
-            className={`p-2 rounded-lg ${themeStyles.hoverBg} transition-colors`}
-          >
-            {isDarkMode ? (
-              <Sun className="w-5 h-5 text-yellow-400" />
-            ) : (
-              <Moon className="w-5 h-5 text-gray-600" />
-            )}
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-lg ${themeStyles.hoverBg} transition-colors hidden md:inline-flex`}
+            >
+              {isDarkMode ? (
+                <Sun className="w-5 h-5 text-yellow-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-gray-600" />
+              )}
+            </button>
+            <button
+              onClick={() => setMobileNavOpen(false)}
+              aria-label="Fechar menu"
+              className={`md:hidden p-2 rounded-lg ${themeStyles.hoverBg}`}
+            >
+              <X className={`w-5 h-5 ${themeStyles.text}`} />
+            </button>
+          </div>
         </div>
         <p className={`px-6 -mt-3 mb-4 ${themeStyles.textMuted} text-sm flex-shrink-0`}>Painel Administrativo</p>
 
@@ -202,7 +252,7 @@ const AdminDashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="md:ml-64 p-6">
+      <main className="md:ml-64 p-4 md:p-6">
         {/* Search Bar - only show for tables */}
         {(activeTab === "usuarios" || activeTab === "profissionais" || activeTab === "agendamentos") && (
           <div className="flex items-center gap-4 mb-6">
