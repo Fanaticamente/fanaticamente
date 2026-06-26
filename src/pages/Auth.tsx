@@ -619,12 +619,7 @@ const Auth = () => {
                 <div className="mb-6 p-4 bg-therapy/10 border border-therapy/30 rounded-xl">
                   <p className="text-therapy text-sm font-medium flex items-center gap-2">
                     <Brain className="w-5 h-5 text-therapy" />
-                    Área exclusiva para profissionais de saúde mental parceiros.
-                  </p>
-                  <p className="text-muted-foreground text-xs mt-1">
-                    {isLogin 
-                      ? "Acesse seu painel para gerenciar consultas e disponibilidade."
-                      : "Cadastre-se para integrar o time de profissionais parceiros do Fanticamente."}
+                    Aplicativo exclusivo para psicólogos(as)
                   </p>
                 </div>
               )}
@@ -1009,12 +1004,7 @@ const Auth = () => {
             <div className="mb-6 p-4 bg-therapy/10 border border-therapy/30 rounded-xl">
               <p className="text-therapy text-sm font-medium flex items-center gap-2">
                 <Brain className="w-5 h-5 text-therapy" />
-                Área exclusiva para profissionais de saúde mental parceiros.
-              </p>
-              <p className="text-muted-foreground text-xs mt-1">
-                {isLogin 
-                  ? "Acesse seu painel para gerenciar consultas e disponibilidade."
-                  : "Cadastre-se para integrar o time de profissionais parceiros do Fanticamente."}
+                Aplicativo exclusivo para psicólogos(as)
               </p>
             </div>
           )}
