@@ -617,7 +617,7 @@ const Auth = () => {
             }`}>
               {authMode === "professional" && (
                 <div className="mb-6 p-4 bg-therapy/10 border border-therapy/30 rounded-xl">
-                  <p className="text-therapy text-sm font-medium flex items-center gap-2">
+                  <p className="text-therapy text-sm font-medium flex items-center justify-center gap-2 text-center">
                     <Brain className="w-5 h-5 text-therapy" />
                     Aplicativo exclusivo para psicólogos(as)
                   </p>
@@ -1002,7 +1002,7 @@ const Auth = () => {
         <div className="bg-transparent border-0 rounded-none p-0 transition-colors">
           {authMode === "professional" && (
             <div className="mb-6 p-4 bg-therapy/10 border border-therapy/30 rounded-xl">
-              <p className="text-therapy text-sm font-medium flex items-center gap-2">
+              <p className="text-therapy text-sm font-medium flex items-center justify-center gap-2 text-center">
                 <Brain className="w-5 h-5 text-therapy" />
                 Aplicativo exclusivo para psicólogos(as)
               </p>
