@@ -84,7 +84,7 @@ Importante:
 Editável pelo profissional:
 - Foto, nome, bio, especialidades, valor da sessão (hourly_rate).
 - Documentos: CRP (frente e verso) e diploma (frente e verso).
-- Chave Pix (para reembolsos diretos a pacientes, quando aplicável).
+- Chave Pix (para possíveis devoluções externas ao paciente, quando acordado fora da plataforma).
 - Cidade/estado e clube de coração.
 - Configurações da conta (e-mail, senha, exclusão de conta).
 
