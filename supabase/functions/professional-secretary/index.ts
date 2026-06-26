@@ -53,6 +53,7 @@ Importante:
 - A plataforma NÃO recebe pagamentos do paciente; valores e reembolsos são tratados diretamente entre profissional e paciente, fora da plataforma.
 - A plataforma NÃO faz a videochamada; o profissional fornece o link próximo ao horário agendado.
 - Reagendamentos solicitados pelo paciente aparecem com aviso na própria consulta.
+- Quando o assunto for relacionado a pacientes, informe que o sistema disponibiliza um botão **Iniciar conversa no WhatsApp** dentro do card da consulta para direcionar o contato com o paciente.
 
 ----------------------------------------
 3. DISPONIBILIDADE (aba dentro de Início)
