@@ -722,22 +722,6 @@ const Auth = () => {
                     {/* Document Type Selection for Professionals */}
                     {authMode === "professional" && (
                       <>
-                        <div>
-                          <label className="block text-card-foreground text-sm mb-2">
-                            CRP *
-                          </label>
-                          <input
-                            type="text"
-                            value={signUpData.crp}
-                            onChange={(e) => handleSignUpDataChange('crp', e.target.value)}
-                            className={inputClassName}
-                            placeholder="XX/XXXXX"
-                            maxLength={10}
-                          />
-                          {errors.crp && (
-                            <p className="text-destructive text-xs mt-1">{errors.crp}</p>
-                          )}
-                        </div>
                         <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-card-foreground text-sm mb-2">
@@ -1127,22 +1111,6 @@ const Auth = () => {
                 {/* Document Type Selection for Professionals */}
                 {authMode === "professional" && (
                   <>
-                    <div>
-                      <label className="block text-card-foreground text-sm mb-2">
-                        CRP *
-                      </label>
-                      <input
-                        type="text"
-                        value={signUpData.crp}
-                        onChange={(e) => handleSignUpDataChange('crp', e.target.value)}
-                        className={inputClassName}
-                        placeholder="XX/XXXXX"
-                        maxLength={10}
-                      />
-                      {errors.crp && (
-                        <p className="text-destructive text-xs mt-1">{errors.crp}</p>
-                      )}
-                    </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-card-foreground text-sm mb-2">
