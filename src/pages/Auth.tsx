@@ -94,7 +94,6 @@ const PasswordInput = ({
 
 interface SignUpData {
   fullName: string;
-  crp: string;
   birthDate: string;
   favoriteClub: string;
   state: string;
@@ -125,7 +124,6 @@ const Auth = () => {
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState("");
   const [signUpData, setSignUpData] = useState<SignUpData>({
     fullName: "",
-    crp: "",
     birthDate: "",
     favoriteClub: "",
     state: "",
@@ -336,12 +334,6 @@ const Auth = () => {
     }
 
     if (authMode === "professional") {
-      // CRP — obrigatório no cadastro (formato XX/XXXXX)
-      if (!signUpData.crp.trim()) {
-        newErrors.crp = "CRP é obrigatório";
-      } else if (!/^\d{2}\/\d{4,6}$/.test(signUpData.crp.trim())) {
-        newErrors.crp = "Formato inválido. Use XX/XXXXX";
-      }
       // Validate document type and number for professionals
       if (!signUpData.documentType) {
         newErrors.documentType = "Selecione CPF ou CNPJ";
@@ -469,7 +461,6 @@ const Auth = () => {
 
         if (authMode === "professional") {
           profileData.is_professional = true;
-          profileData.crp = signUpData.crp.trim();
           profileData.document_type = signUpData.documentType;
           profileData.document_number = signUpData.documentNumber.replace(/\D/g, '');
         }
