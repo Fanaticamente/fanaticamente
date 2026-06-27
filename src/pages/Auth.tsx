@@ -94,7 +94,6 @@ const PasswordInput = ({
 
 interface SignUpData {
   fullName: string;
-  crp: string;
   birthDate: string;
   favoriteClub: string;
   state: string;
@@ -125,7 +124,6 @@ const Auth = () => {
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState("");
   const [signUpData, setSignUpData] = useState<SignUpData>({
     fullName: "",
-    crp: "",
     birthDate: "",
     favoriteClub: "",
     state: "",
@@ -336,12 +334,6 @@ const Auth = () => {
     }
 
     if (authMode === "professional") {
-      // CRP — obrigatório no cadastro (formato XX/XXXXX)
-      if (!signUpData.crp.trim()) {
-        newErrors.crp = "CRP é obrigatório";
-      } else if (!/^\d{2}\/\d{4,6}$/.test(signUpData.crp.trim())) {
-        newErrors.crp = "Formato inválido. Use XX/XXXXX";
-      }
       // Validate document type and number for professionals
       if (!signUpData.documentType) {
         newErrors.documentType = "Selecione CPF ou CNPJ";
@@ -469,7 +461,6 @@ const Auth = () => {
 
         if (authMode === "professional") {
           profileData.is_professional = true;
-          profileData.crp = signUpData.crp.trim();
           profileData.document_type = signUpData.documentType;
           profileData.document_number = signUpData.documentNumber.replace(/\D/g, '');
         }
@@ -731,22 +722,6 @@ const Auth = () => {
                     {/* Document Type Selection for Professionals */}
                     {authMode === "professional" && (
                       <>
-                        <div>
-                          <label className="block text-card-foreground text-sm mb-2">
-                            CRP *
-                          </label>
-                          <input
-                            type="text"
-                            value={signUpData.crp}
-                            onChange={(e) => handleSignUpDataChange('crp', e.target.value)}
-                            className={inputClassName}
-                            placeholder="XX/XXXXX"
-                            maxLength={10}
-                          />
-                          {errors.crp && (
-                            <p className="text-destructive text-xs mt-1">{errors.crp}</p>
-                          )}
-                        </div>
                         <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-card-foreground text-sm mb-2">
@@ -1136,22 +1111,6 @@ const Auth = () => {
                 {/* Document Type Selection for Professionals */}
                 {authMode === "professional" && (
                   <>
-                    <div>
-                      <label className="block text-card-foreground text-sm mb-2">
-                        CRP *
-                      </label>
-                      <input
-                        type="text"
-                        value={signUpData.crp}
-                        onChange={(e) => handleSignUpDataChange('crp', e.target.value)}
-                        className={inputClassName}
-                        placeholder="XX/XXXXX"
-                        maxLength={10}
-                      />
-                      {errors.crp && (
-                        <p className="text-destructive text-xs mt-1">{errors.crp}</p>
-                      )}
-                    </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-card-foreground text-sm mb-2">
