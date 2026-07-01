@@ -218,15 +218,15 @@ const Auth = () => {
           setRoleValidated(true);
           return;
         }
+        // Sessão torcedor ativa no formulário profissional: desloga em silêncio
+        // e mantém o usuário no fluxo profissional para poder se cadastrar.
         await supabase.auth.signOut();
         setRoleValidated(false);
         setEmail("");
         setPassword("");
-        setAuthMode("user");
-        toast.error(
-          "Esta conta não é de um profissional. Você será direcionado para o login de Torcedor."
+        toast.info(
+          "Você estava conectado como Torcedor. Faça login ou cadastre-se como Profissional abaixo."
         );
-        navigate("/auth?mode=user", { replace: true });
         return;
       }
 
@@ -277,15 +277,17 @@ const Auth = () => {
             setRoleValidated(true);
             return;
           }
+          // Torcedor logado abrindo o cadastro/login profissional:
+          // NÃO redireciona para o modo torcedor. Apenas desloga em silêncio e
+          // mantém o formulário profissional visível, para que ele possa se
+          // cadastrar como profissional (mesmo usando o mesmo e-mail).
           await supabase.auth.signOut();
           setRoleValidated(false);
           setEmail("");
           setPassword("");
-          setAuthMode("user");
-          toast.error(
-            "Esta conta não é de um profissional. Você será direcionado para o login de Torcedor."
+          toast.info(
+            "Você estava conectado como Torcedor. Faça login ou cadastre-se como Profissional abaixo."
           );
-          navigate("/auth?mode=user", { replace: true });
           return;
         }
 
@@ -467,6 +469,14 @@ const Auth = () => {
 
         // Use sessionStorage instead of localStorage for sensitive data (shorter exposure window)
         sessionStorage.setItem("pendingProfileUpdate", JSON.stringify(profileData));
+
+        // ISOLAMENTO: garantir que não haja sessão de OUTRO tipo de conta ativa
+        // antes de cadastrar. Ex.: torcedor já logado tentando se cadastrar
+        // como profissional com o mesmo e-mail — sem isso, o signUp acontece
+        // sob a sessão errada e o app trata como se fosse a conta antiga.
+        try {
+          await supabase.auth.signOut();
+        } catch {}
 
         const { error } = await signUp(
           signUpData.email,
