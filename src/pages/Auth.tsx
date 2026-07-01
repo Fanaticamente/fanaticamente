@@ -218,15 +218,15 @@ const Auth = () => {
           setRoleValidated(true);
           return;
         }
+        // Sessão torcedor ativa no formulário profissional: desloga em silêncio
+        // e mantém o usuário no fluxo profissional para poder se cadastrar.
         await supabase.auth.signOut();
         setRoleValidated(false);
         setEmail("");
         setPassword("");
-        setAuthMode("user");
-        toast.error(
-          "Esta conta não é de um profissional. Você será direcionado para o login de Torcedor."
+        toast.info(
+          "Você estava conectado como Torcedor. Faça login ou cadastre-se como Profissional abaixo."
         );
-        navigate("/auth?mode=user", { replace: true });
         return;
       }
 
