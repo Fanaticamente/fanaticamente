@@ -202,17 +202,13 @@ const AdminDashboard = () => {
             return (
               <div key={item.id}>
                 <button
-                  onClick={() => {
-                    if (item.subItems && item.subItems.length > 0 && !validTabs.includes(item.id as TabType)) {
-                      handleTabChange(item.subItems[0].id as TabType);
-                    } else if (item.subItems && item.subItems.length > 0) {
-                      // For groups whose parent id is also a valid tab (e.g. financeiro),
-                      // keep current behavior; for pure groups (e.g. juridico) pick first sub.
-                      handleTabChange(item.id as TabType);
-                    } else {
-                      handleTabChange(item.id as TabType);
-                    }
-                  }}
+                  onClick={() =>
+                    handleTabChange(
+                      (item.subItems && item.subItems.length > 0
+                        ? item.subItems[0].id
+                        : item.id) as TabType,
+                    )
+                  }
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
                     isParentActive
                       ? "bg-secondary text-secondary-foreground"
