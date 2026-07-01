@@ -18,7 +18,7 @@ import AdminCouponManager from "@/components/admin/AdminCouponManager";
 import AdminSubscriptionsManager from "@/components/admin/AdminSubscriptionsManager";
 import AdminLegalManager from "@/components/admin/AdminLegalManager";
 
-type TabType = "dashboard" | "financeiro" | "financeiro-cupons" | "financeiro-assinaturas" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "notificacoes" | "juridico" | "juridico-documentos" | "configuracoes";
+type TabType = "dashboard" | "financeiro" | "financeiro-cupons" | "financeiro-assinaturas" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "notificacoes" | "juridico-documentos" | "configuracoes";
 
 const AdminDashboard = () => {
   const { user, signOut, hasRole, loading } = useAuth();
@@ -26,7 +26,7 @@ const AdminDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Valid tabs
-  const validTabs: TabType[] = ["dashboard", "financeiro", "financeiro-cupons", "financeiro-assinaturas", "usuarios", "gestao", "profissionais", "agendamentos", "notificacoes", "juridico", "juridico-documentos", "configuracoes"];
+  const validTabs: TabType[] = ["dashboard", "financeiro", "financeiro-cupons", "financeiro-assinaturas", "usuarios", "gestao", "profissionais", "agendamentos", "notificacoes", "juridico-documentos", "configuracoes"];
   
   // Get tab from URL or default
   const getTabFromUrl = (): TabType => {
@@ -115,7 +115,7 @@ const AdminDashboard = () => {
     { id: "profissionais", label: "Profissionais", icon: UserCheck },
     { id: "agendamentos", label: "Agendamentos", icon: Calendar },
     { id: "notificacoes", label: "Notificações", icon: Bell },
-    { id: "juridico", label: "Jurídico", icon: Scale, subItems: [
+    { id: "juridico-documentos", label: "Jurídico", icon: Scale, subItems: [
       { id: "juridico-documentos", label: "Política & Termos" },
     ]},
     { id: "configuracoes", label: "Configurações", icon: Settings },
