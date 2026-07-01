@@ -916,7 +916,7 @@ const Auth = () => {
                           </Link>
                           {" "}e os{" "}
                           <Link
-                            to="/politica-privacidade"
+                            to="/termos-de-uso"
                             target="_blank"
                             className="underline font-medium text-therapy"
                           >
@@ -1308,7 +1308,7 @@ const Auth = () => {
                       </Link>
                       {" "}e os{" "}
                       <Link
-                        to="/politica-privacidade"
+                        to="/termos-de-uso"
                         target="_blank"
                         className="underline font-medium text-therapy"
                       >
