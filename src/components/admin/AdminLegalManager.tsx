@@ -5,6 +5,15 @@ import { useLegalDocument, useUpdateLegalDocument, type LegalSlug } from "@/hook
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { DEFAULT_PRIVACY_POLICY_HTML, DEFAULT_TERMS_OF_USE_HTML } from "@/lib/legalDefaults";
+
+const DEFAULTS: Record<LegalSlug, string> = {
+  "privacy-policy": DEFAULT_PRIVACY_POLICY_HTML,
+  "terms-of-use": DEFAULT_TERMS_OF_USE_HTML,
+};
+
+const isEmptyHtml = (html: string) =>
+  !html || html.replace(/<[^>]+>/g, "").trim().length === 0;
 
 interface Props {
   themeStyles: {
@@ -27,7 +36,8 @@ const AdminLegalManager = ({ themeStyles }: Props) => {
   const [html, setHtml] = useState("");
 
   useEffect(() => {
-    setHtml(data?.content_html ?? "");
+    const stored = data?.content_html ?? "";
+    setHtml(isEmptyHtml(stored) ? DEFAULTS[activeSlug] : stored);
   }, [data?.slug, data?.content_html]);
 
   const handleSave = async () => {
