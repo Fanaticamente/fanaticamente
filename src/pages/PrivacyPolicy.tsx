@@ -295,13 +295,16 @@ const PrivacyPolicyFallback = () => (
               </p>
             </section>
 
-            <p className="text-center text-gray-500 text-sm mt-12 pt-6 border-t border-gray-200">
-              Última atualização: 17 de março de 2026
-            </p>
-        </div>
-      </main>
-    </div>
-  );
-};
+  </div>
+);
+
+const PrivacyPolicy = () => (
+  <LegalDocumentView
+    slug="privacy-policy"
+    title="Política de Privacidade"
+    fallback={<PrivacyPolicyFallback />}
+    fallbackDate="17 de março de 2026"
+  />
+);
 
 export default PrivacyPolicy;
