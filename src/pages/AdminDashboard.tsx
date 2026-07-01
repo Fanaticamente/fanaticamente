@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { 
   Users, UserCheck, Calendar, Settings, LogOut, Search, Filter, 
-  Shield, Sun, Moon, LayoutDashboard, DollarSign, ClipboardList, Bell, Crown, Menu, X
+  Shield, Sun, Moon, LayoutDashboard, DollarSign, ClipboardList, Bell, Crown, Menu, X, Scale
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import adminLogoLight from "@/assets/admin-logo-light.png";
@@ -16,8 +16,9 @@ import AdminAppointmentsTable from "@/components/admin/AdminAppointmentsTable";
 import AdminNotifications from "@/components/admin/AdminNotifications";
 import AdminCouponManager from "@/components/admin/AdminCouponManager";
 import AdminSubscriptionsManager from "@/components/admin/AdminSubscriptionsManager";
+import AdminLegalManager from "@/components/admin/AdminLegalManager";
 
-type TabType = "dashboard" | "financeiro" | "financeiro-cupons" | "financeiro-assinaturas" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "notificacoes" | "configuracoes";
+type TabType = "dashboard" | "financeiro" | "financeiro-cupons" | "financeiro-assinaturas" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "notificacoes" | "juridico" | "juridico-documentos" | "configuracoes";
 
 const AdminDashboard = () => {
   const { user, signOut, hasRole, loading } = useAuth();
@@ -25,7 +26,7 @@ const AdminDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Valid tabs
-  const validTabs: TabType[] = ["dashboard", "financeiro", "financeiro-cupons", "financeiro-assinaturas", "usuarios", "gestao", "profissionais", "agendamentos", "notificacoes", "configuracoes"];
+  const validTabs: TabType[] = ["dashboard", "financeiro", "financeiro-cupons", "financeiro-assinaturas", "usuarios", "gestao", "profissionais", "agendamentos", "notificacoes", "juridico", "juridico-documentos", "configuracoes"];
   
   // Get tab from URL or default
   const getTabFromUrl = (): TabType => {
@@ -114,6 +115,9 @@ const AdminDashboard = () => {
     { id: "profissionais", label: "Profissionais", icon: UserCheck },
     { id: "agendamentos", label: "Agendamentos", icon: Calendar },
     { id: "notificacoes", label: "Notificações", icon: Bell },
+    { id: "juridico", label: "Jurídico", icon: Scale, subItems: [
+      { id: "juridico-documentos", label: "Política & Termos" },
+    ]},
     { id: "configuracoes", label: "Configurações", icon: Settings },
   ];
 
@@ -319,6 +323,11 @@ const AdminDashboard = () => {
         {/* Notificações Tab */}
         {activeTab === "notificacoes" && (
           <AdminNotifications themeStyles={themeStyles} />
+        )}
+
+        {/* Jurídico Tab */}
+        {(activeTab === "juridico" || activeTab === "juridico-documentos") && (
+          <AdminLegalManager themeStyles={themeStyles} />
         )}
 
         {/* Configurações Tab */}
