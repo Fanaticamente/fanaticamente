@@ -38,7 +38,7 @@ const AdminLegalManager = ({ themeStyles }: Props) => {
   useEffect(() => {
     const stored = data?.content_html ?? "";
     setHtml(isEmptyHtml(stored) ? DEFAULTS[activeSlug] : stored);
-  }, [data?.slug, data?.content_html]);
+  }, [activeSlug, data?.content_html]);
 
   const handleSave = async () => {
     try {
