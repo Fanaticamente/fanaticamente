@@ -58,6 +58,7 @@ import ContentManagers from "./pages/ContentManagers";
 import DesktopContentManager from "./pages/DesktopContentManager";
 import SetupTestUsers from "./pages/SetupTestUsers";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfUse from "./pages/TermsOfUse";
 import NotFound from "./pages/NotFound";
 import FanaticaLab from "./pages/FanaticaLab";
 import ClinicalNotes from "./pages/fanatica-lab/ClinicalNotes";
@@ -146,6 +147,8 @@ const App = () => {
               <Route path="/setor-saude" element={<SetorSaude />} />
               <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/termos-de-uso" element={<TermsOfUse />} />
+              <Route path="/terms-of-use" element={<TermsOfUse />} />
               <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
@@ -167,6 +170,8 @@ const App = () => {
                 <Route path="/admin-access" element={<AdminAccess />} />
                 <Route path="/politica-privacidade" element={<PrivacyPolicy />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/termos-de-uso" element={<TermsOfUse />} />
+                <Route path="/terms-of-use" element={<TermsOfUse />} />
                 <Route path="/setup-test" element={<SetupTestUsers />} />
                 <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
                 
