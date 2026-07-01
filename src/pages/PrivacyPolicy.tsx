@@ -1,25 +1,8 @@
-import { ChevronLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import LegalDocumentView from "@/components/legal/LegalDocumentView";
 
-const PrivacyPolicy = () => {
-  const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white px-4 py-4 flex items-center gap-3 border-b border-gray-200">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-full bg-gray-100 text-black hover:bg-gray-200 transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <h1 className="text-black font-bold text-lg">Política de Privacidade</h1>
-      </header>
-
-      <main className="px-4 py-5 sm:p-6 pb-28 max-w-4xl mx-auto w-full overflow-x-hidden overflow-y-auto h-[calc(100dvh-64px)]">
-        <div className={cn("prose prose-sm max-w-none text-black break-words", "overflow-x-hidden")}>
+const PrivacyPolicyFallback = () => (
+  <div className={cn("prose prose-sm max-w-none text-black break-words", "overflow-x-hidden")}>
             <h1 className="text-2xl font-bold text-black mb-6">
               POLÍTICA DE PRIVACIDADE E TRATAMENTO DE DADOS DO FANATICAMENTE
             </h1>
