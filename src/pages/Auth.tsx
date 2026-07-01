@@ -470,6 +470,14 @@ const Auth = () => {
         // Use sessionStorage instead of localStorage for sensitive data (shorter exposure window)
         sessionStorage.setItem("pendingProfileUpdate", JSON.stringify(profileData));
 
+        // ISOLAMENTO: garantir que não haja sessão de OUTRO tipo de conta ativa
+        // antes de cadastrar. Ex.: torcedor já logado tentando se cadastrar
+        // como profissional com o mesmo e-mail — sem isso, o signUp acontece
+        // sob a sessão errada e o app trata como se fosse a conta antiga.
+        try {
+          await supabase.auth.signOut();
+        } catch {}
+
         const { error } = await signUp(
           signUpData.email,
           signUpData.password,
