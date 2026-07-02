@@ -1,5 +1,29 @@
-import { CheckCircle, MapPin, Star, Heart, X } from "lucide-react";
-import { useState } from "react";
+import {
+  ShieldCheck,
+  MapPin,
+  Star,
+  Heart,
+  X,
+  Zap,
+  ChevronRight,
+  Brain,
+  Frown,
+  Users,
+  HeartHandshake,
+  Flame,
+  ShieldAlert,
+  Smile,
+  Cloud,
+  Repeat,
+  Sparkles,
+  Trophy,
+  Activity,
+  Target,
+  Home,
+  Utensils,
+  Tag,
+} from "lucide-react";
+import { useState, type ComponentType } from "react";
 import { getFirstAndLastName } from "@/lib/utils";
 
 import silhouetteMale from "@/assets/silhouette-male.png";
@@ -30,10 +54,34 @@ interface TherapistCardProps {
   therapist: Therapist;
   clubColor: string;
   clubSecondaryColor?: string;
+  clubBadgeUrl?: string;
   onSelect?: (therapist: Therapist) => void;
 }
 
-const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) => {
+const SPECIALTY_ICONS: Record<string, ComponentType<{ className?: string }>> = {
+  "Ansiedade": Brain,
+  "Depressão": Frown,
+  "Terapia de Casais": HeartHandshake,
+  "Relacionamentos": Users,
+  "Estresse": Flame,
+  "Traumas": ShieldAlert,
+  "Burnout": Zap,
+  "Autoestima": Smile,
+  "Luto": Cloud,
+  "Fobias": ShieldAlert,
+  "TOC": Repeat,
+  "TDAH": Sparkles,
+  "Psicologia Esportiva": Trophy,
+  "Saúde Mental no Esporte": Activity,
+  "Performance": Target,
+  "Desenvolvimento Pessoal": Sparkles,
+  "Conflitos Familiares": Home,
+  "Transtornos Alimentares": Utensils,
+};
+
+const MAX_VISIBLE_SPECIALTIES = 3;
+
+const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: TherapistCardProps) => {
   const hasPhoto = Boolean(therapist.imageUrl);
   const imageUrl = therapist.imageUrl || silhouetteMale;
   const [photoOpen, setPhotoOpen] = useState(false);
@@ -44,115 +92,213 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
     }
   };
 
+  // Derived club-themed colors using CSS color-mix so it adapts to any club.
+  const accent = `color-mix(in oklab, ${clubColor}, white 55%)`;
+  const dark = `color-mix(in oklab, ${clubColor}, black 55%)`;
+  const darker = `color-mix(in oklab, ${clubColor}, black 70%)`;
+
+  const visible = therapist.specialties.slice(0, MAX_VISIBLE_SPECIALTIES);
+  const extraCount = Math.max(0, therapist.specialties.length - MAX_VISIBLE_SPECIALTIES);
+
   return (
     <>
-    <div 
+    <div
       onClick={handleClick}
-      className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all hover:scale-[1.01] cursor-pointer flex flex-col h-full"
-      style={{ borderColor: clubColor + "40" }}
+      className="mb-4 rounded-3xl overflow-hidden shadow-xl cursor-pointer transition-all hover:scale-[1.01] bg-white"
+      style={{ boxShadow: `0 10px 30px ${clubColor}30` }}
     >
-      {/* Header with club color accent */}
-      <div 
-        className="h-2"
-        style={{ backgroundColor: clubColor }}
-      />
-      
-      <div className="p-4 sm:p-6 flex flex-col flex-1 min-h-[420px] sm:min-h-[460px]">
-        <div className="flex gap-3 sm:gap-4 mb-3">
-          {/* Photo - Vertical Rectangle */}
-          <div 
+      {/* HERO – dark themed panel */}
+      <div
+        className="relative overflow-hidden"
+        style={{
+          background: `linear-gradient(135deg, ${darker} 0%, ${dark} 55%, ${clubColor} 100%)`,
+        }}
+      >
+        {/* Stadium dots pattern */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-40"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1.2px)",
+            backgroundSize: "10px 10px",
+            WebkitMaskImage:
+              "linear-gradient(to left, rgba(0,0,0,0.9), transparent 65%)",
+            maskImage:
+              "linear-gradient(to left, rgba(0,0,0,0.9), transparent 65%)",
+          }}
+        />
+        {/* Club badge watermark behind photo */}
+        {clubBadgeUrl && (
+          <img
+            src={clubBadgeUrl}
+            alt=""
+            aria-hidden
+            className="absolute -left-6 top-1/2 -translate-y-1/2 h-[110%] w-auto object-contain opacity-20 pointer-events-none select-none"
+          />
+        )}
+
+        <div className="relative flex gap-3 pl-3 pr-4 pt-4 pb-3 min-h-[260px] sm:min-h-[280px]">
+          {/* Photo – full-bleed left */}
+          <div
             onClick={(e) => {
               e.stopPropagation();
               if (hasPhoto) setPhotoOpen(true);
             }}
-            className="w-28 h-40 sm:w-36 sm:h-48 rounded-xl overflow-hidden flex-shrink-0 border-2 cursor-zoom-in"
-            style={{ borderColor: clubColor + "60", backgroundColor: hasPhoto ? undefined : clubColor }}
+            className="relative flex-shrink-0 self-end w-[44%] max-w-[190px] h-[260px] sm:h-[280px] cursor-zoom-in"
           >
-            <img 
-              src={imageUrl} 
+            <img
+              src={imageUrl}
               alt={therapist.name}
-              className={`w-full h-full ${hasPhoto ? "object-cover object-top" : "object-contain object-center"}`}
+              className={`absolute inset-0 w-full h-full ${
+                hasPhoto ? "object-cover object-top" : "object-contain object-bottom opacity-90"
+              }`}
+              style={{
+                WebkitMaskImage:
+                  "linear-gradient(to bottom, black 82%, transparent 100%)",
+                maskImage:
+                  "linear-gradient(to bottom, black 82%, transparent 100%)",
+              }}
             />
           </div>
-          
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1 sm:gap-2 mb-0.5">
-              <h3
-                className="font-sans text-lg sm:text-xl font-bold capitalize truncate"
-                style={{ color: clubColor }}
-              >
-                {getFirstAndLastName(therapist.name).toLowerCase()}
+
+          {/* Right content */}
+          <div className="flex-1 min-w-0 flex flex-col text-white">
+            {/* Name row */}
+            <div className="flex items-start gap-2">
+              <div
+                className="w-1 h-8 sm:h-9 rounded-sm mt-1 flex-shrink-0"
+                style={{ backgroundColor: accent }}
+              />
+              <h3 className="flex-1 min-w-0 font-display uppercase leading-[0.9] text-2xl sm:text-3xl tracking-wide break-words">
+                {getFirstAndLastName(therapist.name)}
               </h3>
               {therapist.verified && (
-                <CheckCircle 
-                  className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" 
-                  style={{ color: clubColor }}
+                <ShieldCheck
+                  className="w-6 h-6 flex-shrink-0 -mt-0.5"
+                  style={{ color: accent, fill: accent, stroke: darker }}
                 />
               )}
             </div>
-            <p className="text-gray-600 text-sm">CRP {therapist.crp}</p>
-            <p className="text-gray-600 text-sm mb-2 sm:mb-3">{therapist.degree}</p>
 
-            <div className="flex items-center gap-3 sm:gap-4 text-sm text-gray-600">
-              <span className="flex items-center gap-1">
-                <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: clubColor }} />
-                {therapist.experience} anos
+            {/* Role + CRP */}
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
+              <span
+                className="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider"
+                style={{ backgroundColor: accent, color: darker }}
+              >
+                Psicólogo
               </span>
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: clubColor }} />
-                {therapist.location}
+              <span className="text-xs text-white/85 font-semibold">
+                CRP {therapist.crp}
               </span>
             </div>
 
-            {(therapist.hourlyRate || therapist.socioConsciente) && (
-              <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-3">
-                {therapist.hourlyRate && (
-                  <div 
-                    className="inline-block px-3 py-1 rounded-full text-sm font-bold"
-                    style={{ backgroundColor: clubColor + "20", color: clubColor }}
-                  >
-                    R$ {therapist.hourlyRate.toFixed(2).replace('.', ',')}
-                  </div>
-                )}
-                {therapist.socioConsciente && (
-                  <div 
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border"
-                    style={{
-                      backgroundColor: clubColor + "15",
-                      color: clubColor,
-                      borderColor: clubColor + "30",
-                    }}
-                  >
-                    <Heart className="w-3.5 h-3.5" style={{ color: clubColor, fill: clubColor }} />
-                    Sócio Consciente
-                  </div>
-                )}
+            {/* Meta */}
+            <div className="mt-3 flex items-start gap-4 text-white">
+              <div className="flex items-center gap-1.5">
+                <Star className="w-4 h-4" style={{ color: accent, fill: accent }} />
+                <div className="leading-tight">
+                  <div className="text-sm font-bold">{therapist.experience} anos</div>
+                  <div className="text-[10px] text-white/70">de experiência</div>
+                </div>
               </div>
-            )}
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4" style={{ color: accent }} />
+                <div className="leading-tight">
+                  <div className="text-sm font-bold truncate max-w-[110px]">
+                    {therapist.location}
+                  </div>
+                  <div className="text-[10px] text-white/70">Atendimento online</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Price / Sócio */}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {therapist.hourlyRate && (
+                <div
+                  className="flex items-center gap-2 rounded-xl px-3 py-2"
+                  style={{
+                    border: `1.5px solid ${accent}`,
+                    backgroundColor: `${darker}80`,
+                  }}
+                >
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ border: `1.5px solid ${accent}` }}
+                  >
+                    <Zap className="w-4 h-4" style={{ color: accent, fill: accent }} />
+                  </div>
+                  <div className="leading-tight">
+                    <div className="text-[9px] uppercase tracking-wider text-white/70 font-semibold">
+                      Valor da sessão
+                    </div>
+                    <div
+                      className="font-display text-lg leading-none"
+                      style={{ color: accent }}
+                    >
+                      R$ {therapist.hourlyRate.toFixed(2).replace(".", ",")}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {therapist.socioConsciente && (
+                <div
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border"
+                  style={{
+                    backgroundColor: `${accent}20`,
+                    color: accent,
+                    borderColor: `${accent}60`,
+                  }}
+                >
+                  <Heart
+                    className="w-3.5 h-3.5"
+                    style={{ color: accent, fill: accent }}
+                  />
+                  Sócio Consciente
+                </div>
+              )}
+            </div>
           </div>
         </div>
+      </div>
 
-        <div className="flex flex-wrap gap-2 mb-4 mt-auto">
-          {therapist.specialties.map((specialty) => (
+      {/* Specialties strip */}
+      <div className="bg-white px-3 py-3 flex flex-wrap gap-1.5 border-t border-black/5">
+        {visible.map((specialty) => {
+          const Icon = SPECIALTY_ICONS[specialty] || Tag;
+          return (
             <span
               key={specialty}
-              className="px-3 py-1 text-xs rounded-full"
-              style={{ backgroundColor: clubColor + "20", color: clubColor }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-800 border border-gray-200 shadow-sm"
             >
+              <Icon className="w-3.5 h-3.5" />
               {specialty}
             </span>
-          ))}
-        </div>
+          );
+        })}
+        {extraCount > 0 && (
+          <span
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
+            style={{ backgroundColor: darker }}
+          >
+            <span className="font-bold" style={{ color: accent }}>+{extraCount}</span>
+            <span className="uppercase tracking-wider text-[10px]">Temas</span>
+          </span>
+        )}
+      </div>
 
+      {/* CTA */}
+      <div className="px-3 pb-3 -mt-1">
         <button
-          className="w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg"
-          style={{ 
-            backgroundColor: clubColor, 
-            color: "#fff",
-            boxShadow: `0 4px 14px ${clubColor}40`
+          className="w-full py-3 rounded-xl font-display uppercase tracking-widest text-lg text-white flex items-center justify-center gap-2 transition-all hover:brightness-110"
+          style={{
+            background: `linear-gradient(180deg, ${accent} 0%, ${clubColor} 100%)`,
+            boxShadow: `0 6px 18px ${clubColor}55`,
           }}
         >
           Ver Perfil
+          <ChevronRight className="w-5 h-5" />
         </button>
       </div>
     </div>
