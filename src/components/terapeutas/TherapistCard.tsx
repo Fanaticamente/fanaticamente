@@ -48,7 +48,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
     <>
     <div 
       onClick={handleClick}
-      className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all hover:scale-[1.01] cursor-pointer"
+      className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all hover:scale-[1.01] cursor-pointer flex flex-col h-full"
       style={{ borderColor: clubColor + "40" }}
     >
       {/* Header with club color accent */}
@@ -57,7 +57,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
         style={{ backgroundColor: clubColor }}
       />
       
-      <div className="p-4 sm:p-6">
+      <div className="p-4 sm:p-6 flex flex-col flex-1 min-h-[420px] sm:min-h-[460px]">
         <div className="flex gap-3 sm:gap-4 mb-3">
           {/* Photo - Vertical Rectangle */}
           <div 
@@ -104,16 +104,12 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
               </span>
             </div>
 
-            {/* Hourly Rate & Sócio Consciente */}
             {(therapist.hourlyRate || therapist.socioConsciente) && (
               <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-3">
                 {therapist.hourlyRate && (
                   <div 
                     className="inline-block px-3 py-1 rounded-full text-sm font-bold"
-                    style={{ 
-                      backgroundColor: clubColor + "20", 
-                      color: clubColor 
-                    }}
+                    style={{ backgroundColor: clubColor + "20", color: clubColor }}
                   >
                     R$ {therapist.hourlyRate.toFixed(2).replace('.', ',')}
                   </div>
@@ -136,24 +132,16 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          {therapist.specialties.slice(0, 3).map((specialty) => (
+        <div className="flex flex-wrap gap-2 mb-4 mt-auto">
+          {therapist.specialties.map((specialty) => (
             <span
               key={specialty}
               className="px-3 py-1 text-xs rounded-full"
-              style={{ 
-                backgroundColor: clubColor + "20", 
-                color: clubColor 
-              }}
+              style={{ backgroundColor: clubColor + "20", color: clubColor }}
             >
               {specialty}
             </span>
           ))}
-          {therapist.specialties.length > 3 && (
-            <span className="px-3 py-1 text-xs rounded-full bg-muted text-muted-foreground">
-              +{therapist.specialties.length - 3}
-            </span>
-          )}
         </div>
 
         <button
@@ -173,19 +161,20 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
         onClick={() => setPhotoOpen(false)}
         className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 animate-in fade-in"
       >
-        <button
-          onClick={(e) => { e.stopPropagation(); setPhotoOpen(false); }}
-          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
-          aria-label="Fechar"
-        >
-          <X className="w-5 h-5" />
-        </button>
-        <img
-          src={imageUrl}
-          alt={therapist.name}
-          onClick={(e) => e.stopPropagation()}
-          className="max-w-full max-h-full object-contain rounded-2xl"
-        />
+        <div className="relative max-w-full max-h-full" onClick={(e) => e.stopPropagation()}>
+          <img
+            src={imageUrl}
+            alt={therapist.name}
+            className="max-w-full max-h-[90vh] object-contain rounded-2xl block"
+          />
+          <button
+            onClick={() => setPhotoOpen(false)}
+            className="absolute top-2 right-2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white"
+            aria-label="Fechar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
       </div>
     )}
     </>
