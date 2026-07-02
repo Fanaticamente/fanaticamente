@@ -213,27 +213,27 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
             </div>
 
             {/* Meta */}
-            <div className="mt-3 flex items-start gap-4 text-white">
-              <div className="flex items-center gap-2">
+            <div className="mt-3 flex items-start gap-3 text-white">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <Star
-                  className="w-6 h-6 flex-shrink-0"
+                  className="w-5 h-5 flex-shrink-0"
                   style={{ color: accent, fill: accent }}
                 />
                 <div className="leading-tight whitespace-nowrap">
-                  <div className="text-sm font-bold">{therapist.experience} anos</div>
-                  <div className="text-[10px] text-white/70">de experiência</div>
+                  <div className="text-[12px] font-bold">{therapist.experience} anos</div>
+                  <div className="text-[9px] text-white/70">de experiência</div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <MapPin
-                  className="w-6 h-6 flex-shrink-0"
+                  className="w-5 h-5 flex-shrink-0"
                   style={{ color: accent }}
                 />
                 <div className="leading-tight whitespace-nowrap">
-                  <div className="text-sm font-bold truncate max-w-[120px]">
+                  <div className="text-[12px] font-bold truncate max-w-[90px]">
                     {therapist.location}
                   </div>
-                  <div className="text-[10px] text-white/70">Atendimento online</div>
+                  <div className="text-[9px] text-white/70">Atendimento online</div>
                 </div>
               </div>
             </div>
@@ -318,11 +318,11 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
       {/* CTA */}
       <div className="px-4 pb-3 pt-1 bg-white flex justify-center">
         <button
-          className="w-[85%] py-2.5 rounded-full font-display italic uppercase tracking-[0.12em] text-base text-white flex items-center justify-center gap-2 transition-all hover:brightness-110"
+          className="w-[85%] py-2.5 rounded-full font-display uppercase tracking-[0.12em] text-base flex items-center justify-center gap-2 transition-all hover:brightness-105"
           style={{
-            background: `linear-gradient(180deg, ${accent} 0%, ${clubColor} 60%, ${dark} 100%)`,
-            boxShadow: `0 4px 14px ${clubColor}55`,
-            fontStyle: "italic",
+            backgroundColor: accent,
+            color: darker,
+            boxShadow: `0 4px 14px ${clubColor}44`,
           }}
         >
           Ver Perfil
