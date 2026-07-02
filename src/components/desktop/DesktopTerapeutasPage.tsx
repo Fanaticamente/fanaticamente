@@ -12,6 +12,7 @@ import BookingDrawer from "@/components/terapeutas/BookingDrawer";
 import terapeutasHeroGrass from "@/assets/terapeutas-hero-grass.png";
 import { getFirstAndLastName } from "@/lib/utils";
 import ClubMark from "@/components/clubs/ClubMark";
+import DegreeBadge from "@/components/terapeutas/DegreeBadge";
 interface TherapistData {
   id: string;
   name: string;
@@ -399,6 +400,7 @@ const DesktopTerapeutasPage = ({
                               <Shield className="w-3 h-3 text-white" />
                             </div>
                           )}
+                          <DegreeBadge degree={therapist.degree} className="absolute -top-1 -right-1" />
                         </div>
 
                         {/* Info */}
