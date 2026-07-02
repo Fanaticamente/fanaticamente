@@ -335,6 +335,7 @@ const Terapeutas = () => {
                     therapist={{...therapist, clubNickname: selectedClub ? clubNicknames[selectedClub.id] : undefined}}
                     clubColor={selectedClub.primaryColor}
                     clubSecondaryColor={selectedClub.secondaryColor}
+                    clubBadgeUrl={selectedClub.badgeUrl}
                     onSelect={handleTherapistSelect}
                   />
                 ))}
