@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useState, type ComponentType } from "react";
 import { getFirstAndLastName } from "@/lib/utils";
+import DegreeBadge from "./DegreeBadge";
 
 import silhouetteMale from "@/assets/silhouette-male.png";
 
@@ -205,6 +206,7 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
                   />
                 </div>
               )}
+              <DegreeBadge degree={therapist.degree} />
             </div>
 
             {/* Role + CRP */}
