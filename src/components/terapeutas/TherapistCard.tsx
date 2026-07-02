@@ -162,40 +162,42 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
                 {therapist.location}
               </span>
             </div>
-
-            <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-3">
-              {therapist.hourlyRate && (
-                <div
-                  className="relative inline-block px-4 py-1 text-sm font-bold rounded-md"
-                  style={{ backgroundColor: clubColor + "20", color: clubColor }}
-                >
-                  <span
-                    className="absolute top-1/2 -left-1.5 -translate-y-1/2 w-3 h-3 rounded-full bg-white"
-                    aria-hidden
-                  />
-                  <span
-                    className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 rounded-full bg-white"
-                    aria-hidden
-                  />
-                  R$ {therapist.hourlyRate.toFixed(2).replace('.', ',')}
-                </div>
-              )}
-              {therapist.socioConsciente && (
-                <div
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border"
-                  style={{
-                    backgroundColor: clubColor + "15",
-                    color: clubColor,
-                    borderColor: clubColor + "30",
-                  }}
-                >
-                  <Heart className="w-3.5 h-3.5" style={{ color: clubColor, fill: clubColor }} />
-                  Sócio Consciente
-                </div>
-              )}
-            </div>
           </div>
         </div>
+
+        {(therapist.hourlyRate || therapist.socioConsciente) && (
+          <div className="flex items-center gap-2 mb-2 flex-nowrap">
+            {therapist.hourlyRate && (
+              <div
+                className="relative inline-flex items-center px-3 py-1 text-sm font-bold rounded-md whitespace-nowrap flex-shrink-0"
+                style={{ backgroundColor: clubColor + "20", color: clubColor }}
+              >
+                <span
+                  className="absolute top-1/2 -left-1.5 -translate-y-1/2 w-3 h-3 rounded-full bg-white"
+                  aria-hidden
+                />
+                <span
+                  className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 rounded-full bg-white"
+                  aria-hidden
+                />
+                R$ {therapist.hourlyRate.toFixed(2).replace('.', ',')}
+              </div>
+            )}
+            {therapist.socioConsciente && (
+              <div
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border whitespace-nowrap flex-shrink min-w-0"
+                style={{
+                  backgroundColor: clubColor + "15",
+                  color: clubColor,
+                  borderColor: clubColor + "30",
+                }}
+              >
+                <Heart className="w-3.5 h-3.5 flex-shrink-0" style={{ color: clubColor, fill: clubColor }} />
+                <span className="truncate">Sócio Consciente</span>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="mt-2 mb-2">
           <p className="text-xs font-semibold mb-1" style={{ color: clubColor }}>Especialidades</p>
