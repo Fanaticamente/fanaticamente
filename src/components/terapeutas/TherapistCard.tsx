@@ -172,7 +172,15 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
                 hasPhoto ? "object-cover object-top" : "object-contain object-bottom opacity-90"
               } rounded-2xl`}
             />
+            {/* Bottom gradient – photo emerges from the dark panel */}
+            <div
+              className="absolute inset-x-0 bottom-0 h-[55%] pointer-events-none rounded-b-2xl"
+              style={{
+                background: `linear-gradient(to top, ${darker} 0%, ${darker}cc 25%, ${dark}88 55%, transparent 100%)`,
+              }}
+            />
           </div>
+
 
           {/* Right content */}
           <div className="flex-1 min-w-0 flex flex-col text-white">
