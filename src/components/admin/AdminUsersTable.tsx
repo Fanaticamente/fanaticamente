@@ -79,9 +79,25 @@ const fetchUsersData = async (): Promise<User[]> => {
     rolesMap.set(r.user_id, [...existing, r.role]);
   });
 
+  const userIds = (profiles || []).map((profile) => profile.user_id);
+  let emailsMap = new Map<string, string>();
+  if (userIds.length > 0) {
+    try {
+      const { data: emailsData } = await supabase.functions.invoke("get-user-emails", {
+        body: { userIds },
+      });
+      if (emailsData?.emails) {
+        emailsMap = new Map(Object.entries(emailsData.emails));
+      }
+    } catch (error) {
+      console.error("Error fetching emails:", error);
+    }
+  }
+
   return (profiles || []).map(profile => ({
     ...profile,
     club: profile.favorite_club_id ? clubsMap.get(profile.favorite_club_id) : undefined,
+    email: emailsMap.get(profile.user_id),
     roles: rolesMap.get(profile.user_id) || ["user"]
   }));
 };
@@ -115,6 +131,7 @@ const AdminUsersTable = ({ themeStyles, searchTerm }: AdminUsersTableProps) => {
     const search = searchTerm.toLowerCase();
     return (
       user.full_name?.toLowerCase().includes(search) ||
+      user.email?.toLowerCase().includes(search) ||
       user.city?.toLowerCase().includes(search) ||
       user.state?.toLowerCase().includes(search) ||
       user.phone?.includes(search)

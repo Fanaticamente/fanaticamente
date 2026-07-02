@@ -37,6 +37,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
+import { getDisplayAuthEmail } from "@/lib/appMode";
 
 const Configuracoes = () => {
   const isMobile = useIsMobile();
@@ -46,6 +47,7 @@ const Configuracoes = () => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [showAccountDialog, setShowAccountDialog] = useState(false);
+  const displayEmail = getDisplayAuthEmail(user);
 
   const handleSignOut = async () => {
     await signOut();
@@ -74,7 +76,7 @@ const Configuracoes = () => {
               </div>
               <div>
                 <p className="font-medium text-foreground">Email</p>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
+                <p className="text-sm text-muted-foreground">{displayEmail}</p>
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground" />

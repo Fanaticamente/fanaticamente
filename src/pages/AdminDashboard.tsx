@@ -17,6 +17,7 @@ import AdminNotifications from "@/components/admin/AdminNotifications";
 import AdminCouponManager from "@/components/admin/AdminCouponManager";
 import AdminSubscriptionsManager from "@/components/admin/AdminSubscriptionsManager";
 import AdminLegalManager from "@/components/admin/AdminLegalManager";
+import { getDisplayAuthEmail } from "@/lib/appMode";
 
 type TabType = "dashboard" | "financeiro" | "financeiro-cupons" | "financeiro-assinaturas" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "notificacoes" | "juridico-documentos" | "configuracoes";
 
@@ -38,6 +39,7 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const displayEmail = getDisplayAuthEmail(user);
 
   // Sync activeTab when URL changes (e.g., browser back/forward)
   useEffect(() => {
@@ -247,7 +249,7 @@ const AdminDashboard = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className={`${themeStyles.text} text-sm font-medium truncate`}>Admin</p>
-              <p className={`${themeStyles.textMuted} text-xs truncate`}>{user?.email}</p>
+              <p className={`${themeStyles.textMuted} text-xs truncate`}>{displayEmail}</p>
             </div>
           </div>
           <button

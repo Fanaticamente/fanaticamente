@@ -6,6 +6,21 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const displayEmailFor = (user: { email?: string | null; user_metadata?: Record<string, unknown> | null }) => {
+  const metadataEmail = user.user_metadata?.display_email;
+  if (typeof metadataEmail === "string" && metadataEmail.trim()) {
+    return metadataEmail.trim().toLowerCase();
+  }
+
+  const email = (user.email || "").trim().toLowerCase();
+  const at = email.lastIndexOf("@");
+  if (at <= 0) return email;
+
+  const local = email.slice(0, at).replace(/\+(fan|pro)$/i, "");
+  const domain = email.slice(at + 1);
+  return `${local}@${domain}`;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -73,9 +88,10 @@ serve(async (req) => {
 
       const searchLower = search.toLowerCase();
       const matched = (authUsers?.users || [])
+        .map(u => ({ id: u.id, email: displayEmailFor(u) }))
         .filter(u => u.email && u.email.toLowerCase().includes(searchLower))
         .slice(0, 10)
-        .map(u => ({ id: u.id, email: u.email! }));
+        .map(u => ({ id: u.id, email: u.email }));
 
       return new Response(
         JSON.stringify({ users: matched }),
@@ -97,7 +113,7 @@ serve(async (req) => {
     for (const userId of userIds) {
       const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
       if (!userError && userData?.user?.email) {
-        emails[userId] = userData.user.email;
+        emails[userId] = displayEmailFor(userData.user);
       }
     }
 

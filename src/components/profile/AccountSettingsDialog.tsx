@@ -29,6 +29,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { allBrazilianClubs } from "@/data/allBrazilianClubs";
+import { encodeAuthEmail, getDisplayAuthEmail } from "@/lib/appMode";
 
 interface AccountSettingsDialogProps {
   trigger?: React.ReactNode;
@@ -46,6 +47,7 @@ const deleteReasons = [
 const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSettingsDialogProps) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const currentDisplayEmail = getDisplayAuthEmail(user);
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -152,10 +154,10 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
   }, [storageKey]);
 
   useEffect(() => {
-    if (user?.email) {
-      setEmail(user.email);
+    if (currentDisplayEmail) {
+      setEmail(currentDisplayEmail);
     }
-  }, [user]);
+  }, [currentDisplayEmail]);
 
   useEffect(() => {
     if (open && user) {
@@ -314,14 +316,24 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
   };
 
   const handleUpdateEmail = async () => {
-    if (!email || email === user?.email) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail || normalizedEmail === currentDisplayEmail) {
       toast.info("Digite um novo e-mail para atualizar");
       return;
     }
 
     setLoadingEmail(true);
     try {
-      const { error } = await supabase.auth.updateUser({ email });
+      const accountType = isProfessional ? "pro" : "fan";
+      const { error } = await supabase.auth.updateUser({
+        email: encodeAuthEmail(normalizedEmail, accountType),
+        data: {
+          ...(user?.user_metadata || {}),
+          display_email: normalizedEmail,
+          account_type: accountType,
+        },
+      });
       
       if (error) throw error;
       
@@ -663,7 +675,7 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
                 </div>
                 <Button
                   onClick={handleUpdateEmail}
-                  disabled={loadingEmail || email === user?.email}
+                  disabled={loadingEmail || email.trim().toLowerCase() === currentDisplayEmail}
                   className="w-full bg-therapy hover:bg-therapy/90 text-white"
                 >
                   {loadingEmail ? (
