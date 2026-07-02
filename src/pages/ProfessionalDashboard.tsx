@@ -9,7 +9,7 @@ import { format, addDays, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import ProfileCompletionForm from "@/components/professional/ProfileCompletionForm";
-import OnboardingWizard from "@/components/professional/onboarding/OnboardingWizard";
+import OnboardingWizard, { clearAllWizardDrafts } from "@/components/professional/onboarding/OnboardingWizard";
 import SubscriptionPlans from "@/components/professional/SubscriptionPlans";
 import StripeConnectCard from "@/components/professional/StripeConnectCard";
 import PixPaymentCard from "@/components/professional/PixPaymentCard";
@@ -244,7 +244,9 @@ const ProfessionalDashboard = () => {
     try {
       localStorage.removeItem("pendingProfileUpdate");
       sessionStorage.removeItem("pendingProfileUpdate");
-      localStorage.removeItem("professional_onboarding_wizard");
+      // Purge any wizard draft (legacy shared key + all per-user keys) so a
+      // half-finished registration from another account can't bleed into this device.
+      clearAllWizardDrafts();
       localStorage.removeItem("fanatica_last_route");
       sessionStorage.removeItem("fanatica_last_route");
     } catch {
@@ -691,7 +693,7 @@ const ProfessionalDashboard = () => {
               try {
                 localStorage.removeItem("pendingProfileUpdate");
                 sessionStorage.removeItem("pendingProfileUpdate");
-                localStorage.removeItem("professional_onboarding_wizard");
+                clearAllWizardDrafts();
                 localStorage.removeItem("fanatica_last_route");
                 sessionStorage.removeItem("fanatica_last_route");
               } catch {
