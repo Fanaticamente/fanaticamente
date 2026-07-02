@@ -90,6 +90,15 @@ const isFemaleName = (fullName: string) => {
     "jonas", "tobias", "matias", "isaias", "aoba",
   ]);
   if (maleExceptions.has(first)) return false;
+  const femaleOverrides = new Set([
+    "lais", "laís", "ines", "inês", "beatriz", "iris", "íris", "mercedes",
+    "isis", "ísis", "raquel", "isabel", "cris", "esther", "esther", "ruth",
+    "judith", "abigail", "carmen", "miriam", "myriam", "eunice", "janes",
+    "dolores", "solange", "heloise", "eloise", "eloá", "eloa", "agnes",
+    "damaris", "hagar", "noemi", "noemí", "rebeca", "sarai", "tamar",
+    "yasmin", "jasmin", "carol", "sol", "flor", "mel",
+  ]);
+  if (femaleOverrides.has(first)) return true;
   return /a$/.test(first);
 };
 
