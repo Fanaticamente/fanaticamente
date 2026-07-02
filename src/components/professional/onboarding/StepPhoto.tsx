@@ -124,11 +124,11 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate, onBusyChange }: StepPho
         <div className="flex items-start gap-2">
           <Info className="w-4 h-4 text-therapy mt-0.5 flex-shrink-0" />
           <div className="text-xs text-muted-foreground">
-            <p className="font-medium text-card-foreground mb-1">Dicas para uma boa foto:</p>
-            <p>• Foto profissional com fundo neutro</p>
+            <p className="font-medium text-card-foreground mb-1">Diretrizes para a foto:</p>
+            <p>• Foto profissional com fundo neutro ou personalizado</p>
             <p>• Rosto visível e boa iluminação</p>
             <p>• Formato vertical (7:9) • Máx. 5MB</p>
-            <p>• Recomendamos utilizar uma foto trajando a camisa do seu time de coração — esse detalhe fortalece a identificação com a torcida e potencializa as chances de o seu perfil ser escolhido para novos agendamentos.</p>
+            <p>• Escolha uma vestimenta que identifique sua torcida ou remeta às cores tradicionais do seu clube do coração — esse detalhe fortalece a identificação com a torcida e potencializa as chances de o seu perfil ser escolhido para novos agendamentos.</p>
           </div>
         </div>
       </div>
@@ -151,7 +151,7 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate, onBusyChange }: StepPho
           </div>
         </div>
         <p className="text-xs text-muted-foreground text-center mt-2 italic">
-          Exemplos de poses e enquadramento ideais — vestindo a camisa do time do coração para criar identificação com a torcida.
+          Exemplos de poses e enquadramento ideais — para criar identificação com a torcida.
         </p>
       </div>
     </div>
