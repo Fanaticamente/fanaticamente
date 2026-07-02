@@ -33,7 +33,7 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
 
   return (
     <div
-      className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all flex flex-col h-[520px] sm:h-[560px]"
+      className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all flex flex-col h-[460px] sm:h-[500px]"
       style={{ borderColor: clubColor + "40" }}
     >
       <div className="h-2" style={{ backgroundColor: clubColor }} />
