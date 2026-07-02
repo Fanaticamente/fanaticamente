@@ -1,5 +1,5 @@
 import { CheckCircle, MapPin, Star, Heart, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useLayoutEffect, useRef } from "react";
 import { getFirstAndLastName } from "@/lib/utils";
 
 import silhouetteMale from "@/assets/silhouette-male.png";
@@ -37,8 +37,39 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
   const hasPhoto = Boolean(therapist.imageUrl);
   const imageUrl = therapist.imageUrl || silhouetteMale;
   const [photoOpen, setPhotoOpen] = useState(false);
-  const visibleSpecialties = therapist.specialties.slice(0, 3);
-  const hiddenSpecialtiesCount = Math.max(therapist.specialties.length - visibleSpecialties.length, 0);
+  const specialtiesRef = useRef<HTMLDivElement>(null);
+  const [visibleCount, setVisibleCount] = useState(therapist.specialties.length);
+
+  useLayoutEffect(() => {
+    const container = specialtiesRef.current;
+    if (!container) return;
+
+    const measure = () => {
+      // Reset to try fitting all
+      let count = therapist.specialties.length;
+      setVisibleCount(count);
+
+      requestAnimationFrame(() => {
+        const el = specialtiesRef.current;
+        if (!el) return;
+        // If content overflows the container height, reduce count until it fits (leaving room for +N)
+        while (count > 0 && el.scrollHeight > el.clientHeight + 1) {
+          count -= 1;
+          setVisibleCount(count);
+          // Force sync layout read next frame — but since setState is async, break and rely on effect re-run
+          break;
+        }
+      });
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, [therapist.specialties, visibleCount]);
+
+  const visibleSpecialties = therapist.specialties.slice(0, visibleCount);
+  const hiddenSpecialtiesCount = therapist.specialties.length - visibleSpecialties.length;
 
   const handleClick = () => {
     if (onSelect) {
@@ -134,12 +165,12 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
           </div>
         </div>
 
-        <div className="mb-3 mt-2 h-[54px] overflow-hidden">
+        <div ref={specialtiesRef} className="mb-3 mt-2 h-[60px] overflow-hidden">
           <div className="flex flex-wrap gap-2">
             {visibleSpecialties.map((specialty) => (
               <span
                 key={specialty}
-                className="px-3 py-1 text-xs rounded-full"
+                className="px-3.5 py-1.5 text-sm rounded-full"
                 style={{ backgroundColor: clubColor + "20", color: clubColor }}
               >
                 {specialty}
@@ -147,7 +178,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
             ))}
             {hiddenSpecialtiesCount > 0 && (
               <span
-                className="px-3 py-1 text-xs rounded-full font-semibold"
+                className="px-3.5 py-1.5 text-sm rounded-full font-semibold"
                 style={{ backgroundColor: clubColor + "20", color: clubColor }}
               >
                 +{hiddenSpecialtiesCount}
