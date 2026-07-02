@@ -118,9 +118,14 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
     <>
     <div
       onClick={handleClick}
-      className="mb-4 rounded-3xl overflow-hidden shadow-xl cursor-pointer transition-all hover:scale-[1.01] bg-white"
-      style={{ boxShadow: `0 10px 30px ${clubColor}30` }}
+      className="mb-4 rounded-3xl overflow-hidden shadow-xl cursor-pointer transition-all hover:scale-[1.01]"
+      style={{
+        boxShadow: `0 10px 30px ${clubColor}30`,
+        backgroundColor: clubColor,
+        padding: "6px",
+      }}
     >
+    <div className="rounded-[18px] overflow-hidden bg-white">
       {/* HERO – dark themed panel */}
       <div
         className="relative overflow-hidden"
@@ -275,16 +280,16 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
       </div>
 
       {/* Specialties strip */}
-      <div className="bg-white px-4 pt-4 pb-3 flex flex-wrap gap-2 border-t border-black/5">
+      <div className="bg-white px-4 pt-3 pb-2 flex flex-wrap gap-2 justify-center border-t border-black/5">
         {visible.map((specialty) => {
           const Icon = SPECIALTY_ICONS[specialty] || Tag;
           return (
             <span
               key={specialty}
-              className="inline-flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full text-[13px] font-semibold bg-white text-gray-800 border border-gray-200 shadow-sm"
+              className="inline-flex items-center gap-1.5 pl-1 pr-2.5 py-0.5 rounded-full text-[12px] font-semibold bg-white text-gray-800 border border-gray-200 shadow-sm"
             >
-              <span className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center bg-white">
-                <Icon className="w-3.5 h-3.5 text-gray-700" />
+              <span className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center bg-white">
+                <Icon className="w-3 h-3 text-gray-700" />
               </span>
               {specialty}
             </span>
@@ -292,7 +297,7 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
         })}
         {extraCount > 0 && (
           <span
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-white"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold text-white"
             style={{ backgroundColor: "#111827" }}
           >
             <span className="font-bold" style={{ color: accent }}>+{extraCount}</span>
@@ -302,18 +307,20 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
       </div>
 
       {/* CTA */}
-      <div className="px-4 pb-4 pt-1">
+      <div className="px-4 pb-3 pt-1 bg-white flex justify-center">
         <button
-          className="w-full py-3.5 rounded-2xl font-display uppercase tracking-[0.15em] text-xl text-white flex items-center justify-center gap-2 transition-all hover:brightness-110"
+          className="w-[85%] py-2.5 rounded-full font-display italic uppercase tracking-[0.12em] text-base text-white flex items-center justify-center gap-2 transition-all hover:brightness-110"
           style={{
             background: `linear-gradient(180deg, ${accent} 0%, ${clubColor} 60%, ${dark} 100%)`,
-            boxShadow: `0 6px 18px ${clubColor}55`,
+            boxShadow: `0 4px 14px ${clubColor}55`,
+            fontStyle: "italic",
           }}
         >
           Ver Perfil
-          <ChevronRight className="w-6 h-6" />
+          <ChevronRight className="w-5 h-5" />
         </button>
       </div>
+    </div>
     </div>
     {photoOpen && hasPhoto && (
       <div
