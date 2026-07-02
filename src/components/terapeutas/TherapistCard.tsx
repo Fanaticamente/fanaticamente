@@ -166,19 +166,17 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
             <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-3">
               {therapist.hourlyRate && (
                 <div
-                  className="relative inline-block px-4 py-1 text-sm font-bold"
-                  style={{
-                    backgroundColor: clubColor + "20",
-                    color: clubColor,
-                    WebkitMaskImage:
-                      "radial-gradient(circle 5px at 0 50%, transparent 98%, #000 100%), radial-gradient(circle 5px at 100% 50%, transparent 98%, #000 100%)",
-                    WebkitMaskComposite: "source-in",
-                    maskImage:
-                      "radial-gradient(circle 5px at 0 50%, transparent 98%, #000 100%), radial-gradient(circle 5px at 100% 50%, transparent 98%, #000 100%)",
-                    maskComposite: "intersect",
-                    borderRadius: "8px",
-                  }}
+                  className="relative inline-block px-4 py-1 text-sm font-bold rounded-md"
+                  style={{ backgroundColor: clubColor + "20", color: clubColor }}
                 >
+                  <span
+                    className="absolute top-1/2 -left-1.5 -translate-y-1/2 w-3 h-3 rounded-full bg-white"
+                    aria-hidden
+                  />
+                  <span
+                    className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 rounded-full bg-white"
+                    aria-hidden
+                  />
                   R$ {therapist.hourlyRate.toFixed(2).replace('.', ',')}
                 </div>
               )}
