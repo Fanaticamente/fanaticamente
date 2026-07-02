@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import GoogleCalendarConnectCard from "./GoogleCalendarConnectCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { isGoogleCalendarAllowed } from "@/config/featureFlags";
+import { getDisplayAuthEmail } from "@/lib/appMode";
 
 interface WeeklyAvailability {
   id: string;
@@ -52,7 +53,7 @@ const WeeklyAvailabilityManager = ({
   onUpdate 
 }: WeeklyAvailabilityManagerProps) => {
   const { user } = useAuth();
-  const canUseGoogleCalendar = isGoogleCalendarAllowed(user?.email);
+  const canUseGoogleCalendar = isGoogleCalendarAllowed(getDisplayAuthEmail(user));
   const [availabilities, setAvailabilities] = useState<WeeklyAvailability[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

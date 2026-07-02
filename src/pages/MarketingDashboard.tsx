@@ -17,6 +17,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAppModules } from "@/hooks/useAppModules";
 import ModuleEditor from "@/components/studio/ModuleEditor";
+import { getDisplayAuthEmail } from "@/lib/appMode";
 
 type Mode = "list" | "edit";
 
@@ -45,6 +46,7 @@ const MarketingDashboard = () => {
 
   const { data: items, isLoading } = useHealthNewsAdmin();
   const { data: modules } = useAppModules("home");
+  const displayEmail = getDisplayAuthEmail(user);
   const heroModule = useMemo(
     () => modules?.find((m) => m.module_id === "hero_carousel") ?? null,
     [modules]
@@ -60,7 +62,7 @@ const MarketingDashboard = () => {
   }, [user, allowed, loading, navigate]);
 
   const handleNew = () => {
-    setEditing({ ...empty, author_name: user?.email?.split("@")[0] || "" });
+    setEditing({ ...empty, author_name: displayEmail.split("@")[0] || "" });
     setMode("edit");
   };
   const handleEdit = (i: HealthNewsItem) => { setEditing(i); setMode("edit"); };

@@ -7,6 +7,7 @@ import { format, parseISO, differenceInYears } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { decodeAuthEmail } from "@/lib/appMode";
 
 // Format phone for display
 const formatPhoneDisplay = (value: string | null): string => {
@@ -185,7 +186,7 @@ const UserDetailsDialog = ({
                 <Mail className="w-5 h-5 text-emerald-600" />
                 <div>
                   <span className="text-sm text-gray-500">E-mail</span>
-                  <p className="text-base text-gray-800">{user.email || "Não informado"}</p>
+                  <p className="text-base text-gray-800">{decodeAuthEmail(user.email) || "Não informado"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
