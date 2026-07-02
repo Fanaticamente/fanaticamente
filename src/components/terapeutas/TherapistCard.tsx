@@ -81,10 +81,24 @@ const SPECIALTY_ICONS: Record<string, ComponentType<{ className?: string }>> = {
 
 const MAX_VISIBLE_SPECIALTIES = 3;
 
+// Heuristic: infer gender from Brazilian Portuguese first name.
+const isFemaleName = (fullName: string) => {
+  const first = (fullName || "").trim().split(/\s+/)[0]?.toLowerCase() ?? "";
+  if (!first) return false;
+  const maleExceptions = new Set([
+    "luca", "costa", "silva", "andrea", "sasha", "elias", "dias",
+    "jonas", "tobias", "matias", "isaias", "aoba",
+  ]);
+  if (maleExceptions.has(first)) return false;
+  return /a$/.test(first);
+};
+
 const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: TherapistCardProps) => {
   const hasPhoto = Boolean(therapist.imageUrl);
   const imageUrl = therapist.imageUrl || silhouetteMale;
   const [photoOpen, setPhotoOpen] = useState(false);
+  const female = isFemaleName(therapist.name);
+  const roleLabel = female ? "Psicóloga" : "Psicólogo";
 
   const handleClick = () => {
     if (onSelect) {
@@ -127,15 +141,6 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
               "linear-gradient(to left, rgba(0,0,0,0.9), transparent 65%)",
           }}
         />
-        {/* Club badge watermark behind photo */}
-        {clubBadgeUrl && (
-          <img
-            src={clubBadgeUrl}
-            alt=""
-            aria-hidden
-            className="absolute -left-6 top-1/2 -translate-y-1/2 h-[110%] w-auto object-contain opacity-20 pointer-events-none select-none"
-          />
-        )}
 
         <div className="relative flex gap-3 pl-3 pr-4 pt-4 pb-3 min-h-[260px] sm:min-h-[280px]">
           {/* Photo – full-bleed left */}
@@ -144,39 +149,39 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
               e.stopPropagation();
               if (hasPhoto) setPhotoOpen(true);
             }}
-            className="relative flex-shrink-0 self-end w-[44%] max-w-[190px] h-[260px] sm:h-[280px] cursor-zoom-in"
+            className="relative flex-shrink-0 self-end w-[44%] max-w-[190px] h-[240px] sm:h-[260px] cursor-zoom-in rounded-2xl overflow-hidden"
           >
             <img
               src={imageUrl}
               alt={therapist.name}
               className={`absolute inset-0 w-full h-full ${
                 hasPhoto ? "object-cover object-top" : "object-contain object-bottom opacity-90"
-              }`}
-              style={{
-                WebkitMaskImage:
-                  "linear-gradient(to bottom, black 82%, transparent 100%)",
-                maskImage:
-                  "linear-gradient(to bottom, black 82%, transparent 100%)",
-              }}
+              } rounded-2xl`}
             />
           </div>
 
           {/* Right content */}
           <div className="flex-1 min-w-0 flex flex-col text-white">
             {/* Name row */}
-            <div className="flex items-start gap-2">
+            <div className="flex items-center gap-2">
               <div
-                className="w-1 h-8 sm:h-9 rounded-sm mt-1 flex-shrink-0"
+                className="w-1 h-7 sm:h-8 rounded-sm flex-shrink-0 self-center"
                 style={{ backgroundColor: accent }}
               />
               <h3 className="flex-1 min-w-0 font-display uppercase leading-[0.9] text-2xl sm:text-3xl tracking-wide break-words">
                 {getFirstAndLastName(therapist.name)}
               </h3>
               {therapist.verified && (
-                <ShieldCheck
-                  className="w-6 h-6 flex-shrink-0 -mt-0.5"
-                  style={{ color: accent, fill: accent, stroke: darker }}
-                />
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: accent }}
+                  aria-label="Verificado"
+                >
+                  <ShieldCheck
+                    className="w-4 h-4"
+                    style={{ color: darker, fill: "none", strokeWidth: 3 }}
+                  />
+                </div>
               )}
             </div>
 
@@ -186,7 +191,7 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
                 className="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider"
                 style={{ backgroundColor: accent, color: darker }}
               >
-                Psicólogo
+                {roleLabel}
               </span>
               <span className="text-xs text-white/85 font-semibold">
                 CRP {therapist.crp}
@@ -195,17 +200,23 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
 
             {/* Meta */}
             <div className="mt-3 flex items-start gap-4 text-white">
-              <div className="flex items-center gap-1.5">
-                <Star className="w-4 h-4" style={{ color: accent, fill: accent }} />
-                <div className="leading-tight">
+              <div className="flex items-center gap-2">
+                <Star
+                  className="w-6 h-6 flex-shrink-0"
+                  style={{ color: accent, fill: accent }}
+                />
+                <div className="leading-tight whitespace-nowrap">
                   <div className="text-sm font-bold">{therapist.experience} anos</div>
                   <div className="text-[10px] text-white/70">de experiência</div>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4" style={{ color: accent }} />
-                <div className="leading-tight">
-                  <div className="text-sm font-bold truncate max-w-[110px]">
+              <div className="flex items-center gap-2">
+                <MapPin
+                  className="w-6 h-6 flex-shrink-0"
+                  style={{ color: accent }}
+                />
+                <div className="leading-tight whitespace-nowrap">
+                  <div className="text-sm font-bold truncate max-w-[120px]">
                     {therapist.location}
                   </div>
                   <div className="text-[10px] text-white/70">Atendimento online</div>
@@ -264,23 +275,25 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
       </div>
 
       {/* Specialties strip */}
-      <div className="bg-white px-3 py-3 flex flex-wrap gap-1.5 border-t border-black/5">
+      <div className="bg-white px-4 pt-4 pb-3 flex flex-wrap gap-2 border-t border-black/5">
         {visible.map((specialty) => {
           const Icon = SPECIALTY_ICONS[specialty] || Tag;
           return (
             <span
               key={specialty}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white text-gray-800 border border-gray-200 shadow-sm"
+              className="inline-flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full text-[13px] font-semibold bg-white text-gray-800 border border-gray-200 shadow-sm"
             >
-              <Icon className="w-3.5 h-3.5" />
+              <span className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center bg-white">
+                <Icon className="w-3.5 h-3.5 text-gray-700" />
+              </span>
               {specialty}
             </span>
           );
         })}
         {extraCount > 0 && (
           <span
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
-            style={{ backgroundColor: darker }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-white"
+            style={{ backgroundColor: "#111827" }}
           >
             <span className="font-bold" style={{ color: accent }}>+{extraCount}</span>
             <span className="uppercase tracking-wider text-[10px]">Temas</span>
@@ -289,16 +302,16 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
       </div>
 
       {/* CTA */}
-      <div className="px-3 pb-3 -mt-1">
+      <div className="px-4 pb-4 pt-1">
         <button
-          className="w-full py-3 rounded-xl font-display uppercase tracking-widest text-lg text-white flex items-center justify-center gap-2 transition-all hover:brightness-110"
+          className="w-full py-3.5 rounded-2xl font-display uppercase tracking-[0.15em] text-xl text-white flex items-center justify-center gap-2 transition-all hover:brightness-110"
           style={{
-            background: `linear-gradient(180deg, ${accent} 0%, ${clubColor} 100%)`,
+            background: `linear-gradient(180deg, ${accent} 0%, ${clubColor} 60%, ${dark} 100%)`,
             boxShadow: `0 6px 18px ${clubColor}55`,
           }}
         >
           Ver Perfil
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-6 h-6" />
         </button>
       </div>
     </div>
