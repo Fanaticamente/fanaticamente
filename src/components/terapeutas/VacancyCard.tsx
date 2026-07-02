@@ -176,15 +176,17 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
         <div className="px-4 pb-3 pt-1 bg-white flex justify-center">
           <button
             onClick={handleCadastre}
-            className="w-[85%] py-2.5 rounded-full font-display uppercase tracking-[0.12em] text-base flex items-center justify-center gap-2 transition-all hover:brightness-105"
+            className="w-[85%] py-2.5 rounded-full font-display font-bold uppercase tracking-[0.12em] text-base flex items-center justify-center transition-all hover:brightness-105"
             style={{
               backgroundColor: accent,
               color: darker,
               boxShadow: `0 4px 14px ${clubColor}44`,
             }}
           >
-            Cadastre-se
-            <ChevronRight className="w-5 h-5" />
+            <span className="inline-flex items-center gap-1.5">
+              Cadastre-se
+              <ChevronRight className="w-5 h-5" />
+            </span>
           </button>
         </div>
       </div>
