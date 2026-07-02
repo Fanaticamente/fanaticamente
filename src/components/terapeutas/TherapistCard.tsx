@@ -50,7 +50,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
     <>
     <div 
       onClick={handleClick}
-      className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all hover:scale-[1.01] cursor-pointer"
+      className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all hover:scale-[1.01] cursor-pointer flex flex-col h-[360px] sm:h-[392px]"
       style={{ borderColor: clubColor + "40" }}
     >
       {/* Header with club color accent */}
@@ -59,7 +59,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
         style={{ backgroundColor: clubColor }}
       />
       
-      <div className="p-4 sm:p-6">
+      <div className="p-4 sm:p-6 flex flex-col flex-1 min-h-0">
         <div className="flex gap-3 sm:gap-4 mb-3">
           {/* Photo - Vertical Rectangle */}
           <div 
@@ -134,7 +134,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
           </div>
         </div>
 
-        <div className="mb-4 mt-3 min-h-[56px]">
+        <div className="mb-3 mt-2 h-[54px] overflow-hidden">
           <div className="flex flex-wrap gap-2">
             {visibleSpecialties.map((specialty) => (
               <span
@@ -157,7 +157,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
         </div>
 
         <button
-          className="w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg"
+          className="w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg mt-auto"
           style={{ 
             backgroundColor: clubColor, 
             color: "#fff",
