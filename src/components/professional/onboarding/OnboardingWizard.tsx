@@ -239,7 +239,7 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
         await supabase.from("profiles").update({ avatar_url: data.imageUrl }).eq("user_id", user.id);
       }
 
-      localStorage.removeItem(STORAGE_KEY);
+      if (storageKey) localStorage.removeItem(storageKey);
       toast.success("Cadastro profissional concluído! 🎉");
       onComplete();
     } catch (error) {
