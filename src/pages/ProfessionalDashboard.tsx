@@ -244,7 +244,14 @@ const ProfessionalDashboard = () => {
     try {
       localStorage.removeItem("pendingProfileUpdate");
       sessionStorage.removeItem("pendingProfileUpdate");
-      localStorage.removeItem("professional_onboarding_wizard");
+      // Purge any wizard draft (legacy shared key + all per-user keys) so a
+      // half-finished registration from another account can't bleed into this device.
+      try {
+        const { clearAllWizardDrafts } = await import("@/components/professional/onboarding/OnboardingWizard");
+        clearAllWizardDrafts();
+      } catch {
+        localStorage.removeItem("professional_onboarding_wizard");
+      }
       localStorage.removeItem("fanatica_last_route");
       sessionStorage.removeItem("fanatica_last_route");
     } catch {
@@ -691,7 +698,11 @@ const ProfessionalDashboard = () => {
               try {
                 localStorage.removeItem("pendingProfileUpdate");
                 sessionStorage.removeItem("pendingProfileUpdate");
-                localStorage.removeItem("professional_onboarding_wizard");
+                try {
+                  import("@/components/professional/onboarding/OnboardingWizard").then((m) => m.clearAllWizardDrafts());
+                } catch {
+                  localStorage.removeItem("professional_onboarding_wizard");
+                }
                 localStorage.removeItem("fanatica_last_route");
                 sessionStorage.removeItem("fanatica_last_route");
               } catch {
