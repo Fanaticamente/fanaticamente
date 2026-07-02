@@ -27,6 +27,7 @@ import RefundPendingCard from "@/components/professional/RefundPendingCard";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
 import ProfessionalDesktopLayout from "@/components/layout/ProfessionalDesktopLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { getDisplayAuthEmail } from "@/lib/appMode";
 
 interface Professional {
   id: string;
@@ -74,6 +75,7 @@ type AppointmentFilter = "proximos" | "realizados" | "cancelados" | "todos";
 const ProfessionalDashboard = () => {
   const isMobile = useIsMobile();
   const { user, signOut, hasRole, loading: authLoading } = useAuth();
+  const displayEmail = getDisplayAuthEmail(user);
 
   // Force light theme for professional dashboard
   useLayoutEffect(() => {
@@ -734,7 +736,7 @@ const ProfessionalDashboard = () => {
             Painel Profissional
           </h1>
           <p className="text-muted-foreground text-sm">
-            {profile?.full_name || user?.email} {club && `• ${club.name}`}
+            {profile?.full_name || displayEmail} {club && `• ${club.name}`}
           </p>
         </div>
         <div className="ml-auto">
@@ -768,7 +770,7 @@ const ProfessionalDashboard = () => {
               Painel Profissional
             </h1>
             <p className="text-muted-foreground text-xs sm:text-sm truncate">
-              {profile?.full_name || user?.email} {club && `• ${club.name}`}
+              {profile?.full_name || displayEmail} {club && `• ${club.name}`}
             </p>
           </div>
         </div>

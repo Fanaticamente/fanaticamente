@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import DesktopHeader from "@/components/desktop/DesktopHeader";
+import { getDisplayAuthEmail } from "@/lib/appMode";
 
 interface UserDesktopLayoutProps {
   children: React.ReactNode;
@@ -35,6 +36,7 @@ const UserDesktopLayout = ({ children, title, subtitle }: UserDesktopLayoutProps
   const navigate = useNavigate();
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const displayEmail = getDisplayAuthEmail(user);
 
   const { data: profile } = useQuery({
     queryKey: ["user-profile", user?.id],
@@ -94,7 +96,7 @@ const UserDesktopLayout = ({ children, title, subtitle }: UserDesktopLayoutProps
                   {profile?.full_name?.split(" ")[0] || "Torcedor"}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
-                  {user?.email}
+                  {displayEmail}
                 </p>
               </div>
             </div>

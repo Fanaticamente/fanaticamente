@@ -24,11 +24,13 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getDisplayAuthEmail } from "@/lib/appMode";
 
 const UserDropdownMenu = () => {
   const { user, signOut, hasRole } = useAuth();
   const navigate = useNavigate();
   const isProfessional = hasRole("professional");
+  const displayEmail = getDisplayAuthEmail(user);
 
   // Fetch user profile for avatar and name
   const { data: profile } = useQuery({
@@ -106,7 +108,7 @@ const UserDropdownMenu = () => {
             {profile?.full_name || "Usuário"}
           </p>
           <p className="text-xs text-gray-400 truncate">
-            {user?.email}
+            {displayEmail}
           </p>
           {isProfessional && (
             <span className="inline-block mt-1 text-xs bg-emerald-600/20 text-emerald-400 px-2 py-0.5 rounded-full">

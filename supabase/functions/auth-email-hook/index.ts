@@ -48,6 +48,17 @@ const FROM_DOMAIN = "fanaticamente.com" // Domain shown in From address (may be 
 // even if the project's domain has changed since the template was scaffolded.
 const SAMPLE_PROJECT_URL = "https://fanaticamente.lovable.app"
 const SAMPLE_EMAIL = "user@example.test"
+
+const displayEmailFor = (email?: string | null) => {
+  const clean = (email || '').trim().toLowerCase()
+  const at = clean.lastIndexOf('@')
+  if (at <= 0) return clean
+
+  const local = clean.slice(0, at).replace(/\+(fan|pro)$/i, '')
+  const domain = clean.slice(at + 1)
+  return `${local}@${domain}`
+}
+
 const SAMPLE_DATA: Record<string, object> = {
   signup: {
     siteName: SITE_NAME,
@@ -207,7 +218,10 @@ async function handleWebhook(req: Request): Promise<Response> {
   // The email action type is in payload.data.action_type (e.g., "signup", "recovery")
   // payload.type is the hook event type ("auth")
   const emailType = payload.data.action_type
-  console.log('Received auth event', { emailType, email: payload.data.email, run_id })
+  const recipientEmail = displayEmailFor(payload.data.email)
+  const oldEmail = displayEmailFor(payload.data.old_email)
+  const newEmail = displayEmailFor(payload.data.new_email)
+  console.log('Received auth event', { emailType, email: recipientEmail, run_id })
 
   const EmailTemplate = EMAIL_TEMPLATES[emailType]
   if (!EmailTemplate) {
@@ -222,12 +236,12 @@ async function handleWebhook(req: Request): Promise<Response> {
   const templateProps = {
     siteName: SITE_NAME,
     siteUrl: `https://${ROOT_DOMAIN}`,
-    recipient: payload.data.email,
+    recipient: recipientEmail,
     confirmationUrl: payload.data.url,
     token: payload.data.token,
-    email: payload.data.email,
-    oldEmail: payload.data.old_email,
-    newEmail: payload.data.new_email,
+    email: recipientEmail,
+    oldEmail,
+    newEmail,
   }
 
   // Render React Email to HTML and plain text
@@ -248,7 +262,7 @@ async function handleWebhook(req: Request): Promise<Response> {
   await supabase.from('email_send_log').insert({
     message_id: messageId,
     template_name: emailType,
-    recipient_email: payload.data.email,
+    recipient_email: recipientEmail,
     status: 'pending',
   })
 
@@ -257,7 +271,7 @@ async function handleWebhook(req: Request): Promise<Response> {
     payload: {
       run_id,
       message_id: messageId,
-      to: payload.data.email,
+      to: recipientEmail,
       from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
       sender_domain: SENDER_DOMAIN,
       subject: EMAIL_SUBJECTS[emailType] || 'Notification',
@@ -274,7 +288,7 @@ async function handleWebhook(req: Request): Promise<Response> {
     await supabase.from('email_send_log').insert({
       message_id: messageId,
       template_name: emailType,
-      recipient_email: payload.data.email,
+        recipient_email: recipientEmail,
       status: 'failed',
       error_message: 'Failed to enqueue email',
     })
@@ -284,7 +298,7 @@ async function handleWebhook(req: Request): Promise<Response> {
     })
   }
 
-  console.log('Auth email enqueued', { emailType, email: payload.data.email, run_id })
+  console.log('Auth email enqueued', { emailType, email: recipientEmail, run_id })
 
   return new Response(
     JSON.stringify({ success: true, queued: true }),

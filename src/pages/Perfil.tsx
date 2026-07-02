@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
 import { getClubById, BrazilianClub } from "@/data/brazilianClubs";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { getDisplayAuthEmail } from "@/lib/appMode";
 
 const Perfil = () => {
   const { user, roles, signOut, hasRole, loading } = useAuth();
@@ -20,6 +21,7 @@ const Perfil = () => {
   const [appointmentsCount, setAppointmentsCount] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [profileLoading, setProfileLoading] = useState(true);
+  const displayEmail = getDisplayAuthEmail(user);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -226,7 +228,7 @@ const Perfil = () => {
               {profile?.full_name || "Torcedor Fanático"}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {user?.email}
+              {displayEmail}
             </p>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               {roles.map((role) => (

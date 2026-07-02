@@ -55,6 +55,31 @@ export const encodeAuthEmail = (email: string, accountType: AccountType): string
 };
 
 /**
+ * Remove apenas os discriminadores internos usados pela plataforma.
+ * O usuário nunca deve ver o e-mail técnico com "+fan" ou "+pro".
+ */
+export const decodeAuthEmail = (email?: string | null): string => {
+  const trimmed = (email || "").trim().toLowerCase();
+  const at = trimmed.lastIndexOf("@");
+  if (at <= 0) return trimmed;
+
+  const local = trimmed.slice(0, at);
+  const domain = trimmed.slice(at + 1);
+  const cleanLocal = local.replace(/\+(fan|pro)$/i, "");
+  return `${cleanLocal}@${domain}`;
+};
+
+export const getDisplayAuthEmail = (
+  user?: { email?: string | null; user_metadata?: Record<string, unknown> | null } | null
+): string => {
+  const displayEmail = user?.user_metadata?.display_email;
+  if (typeof displayEmail === "string" && displayEmail.trim()) {
+    return displayEmail.trim().toLowerCase();
+  }
+  return decodeAuthEmail(user?.email);
+};
+
+/**
  * Determina o tipo de conta para a operação de auth atual.
  *
  * - App profissional standalone → sempre 'pro'
