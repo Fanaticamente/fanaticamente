@@ -1,4 +1,5 @@
-import { CheckCircle, MapPin, Star, Heart } from "lucide-react";
+import { CheckCircle, MapPin, Star, Heart, X } from "lucide-react";
+import { useState } from "react";
 import { getFirstAndLastName } from "@/lib/utils";
 
 import silhouetteMale from "@/assets/silhouette-male.png";
@@ -35,6 +36,7 @@ interface TherapistCardProps {
 const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) => {
   const hasPhoto = Boolean(therapist.imageUrl);
   const imageUrl = therapist.imageUrl || silhouetteMale;
+  const [photoOpen, setPhotoOpen] = useState(false);
 
   const handleClick = () => {
     if (onSelect) {
@@ -43,6 +45,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
   };
 
   return (
+    <>
     <div 
       onClick={handleClick}
       className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all hover:scale-[1.01] cursor-pointer"
@@ -58,7 +61,11 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
         <div className="flex gap-3 sm:gap-4 mb-3">
           {/* Photo - Vertical Rectangle */}
           <div 
-            className="w-20 h-28 sm:w-28 sm:h-36 rounded-xl overflow-hidden flex-shrink-0 border-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (hasPhoto) setPhotoOpen(true);
+            }}
+            className="w-28 h-40 sm:w-36 sm:h-48 rounded-xl overflow-hidden flex-shrink-0 border-2 cursor-zoom-in"
             style={{ borderColor: clubColor + "60", backgroundColor: hasPhoto ? undefined : clubColor }}
           >
             <img 
@@ -161,6 +168,27 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
         </button>
       </div>
     </div>
+    {photoOpen && hasPhoto && (
+      <div
+        onClick={() => setPhotoOpen(false)}
+        className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 animate-in fade-in"
+      >
+        <button
+          onClick={(e) => { e.stopPropagation(); setPhotoOpen(false); }}
+          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+          aria-label="Fechar"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        <img
+          src={imageUrl}
+          alt={therapist.name}
+          onClick={(e) => e.stopPropagation()}
+          className="max-w-full max-h-full object-contain rounded-2xl"
+        />
+      </div>
+    )}
+    </>
   );
 };
 
