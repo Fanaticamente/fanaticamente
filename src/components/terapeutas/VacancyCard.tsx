@@ -33,7 +33,7 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
 
   return (
     <div
-      className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all flex flex-col h-[460px] sm:h-[500px]"
+      className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all flex flex-col h-[360px] sm:h-[392px]"
       style={{ borderColor: clubColor + "40" }}
     >
       <div className="h-2" style={{ backgroundColor: clubColor }} />
@@ -79,7 +79,7 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
           </div>
         </div>
 
-        <p className="text-sm text-gray-600 leading-relaxed mb-4 flex-1 min-h-0 overflow-y-auto">
+        <p className="text-sm text-gray-600 leading-relaxed mb-4 flex-1 min-h-0 overflow-hidden">
           Esta é uma posição disponível para psicólogos(as) torcedores(as) do{" "}
           <span className="font-semibold" style={{ color: clubColor }}>{clubName}</span> que desejam
           atender a torcida. Cadastre-se para integrar o time!
@@ -87,7 +87,7 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
 
         <button
           onClick={handleCadastre}
-          className="w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg"
+          className="w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg mt-auto"
           style={{
             backgroundColor: clubColor,
             color: "#fff",

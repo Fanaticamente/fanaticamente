@@ -37,6 +37,8 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
   const hasPhoto = Boolean(therapist.imageUrl);
   const imageUrl = therapist.imageUrl || silhouetteMale;
   const [photoOpen, setPhotoOpen] = useState(false);
+  const visibleSpecialties = therapist.specialties.slice(0, 3);
+  const hiddenSpecialtiesCount = Math.max(therapist.specialties.length - visibleSpecialties.length, 0);
 
   const handleClick = () => {
     if (onSelect) {
@@ -48,7 +50,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
     <>
     <div 
       onClick={handleClick}
-      className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all hover:scale-[1.01] cursor-pointer flex flex-col h-[460px] sm:h-[500px]"
+      className="bg-white border-2 rounded-2xl overflow-hidden mb-4 transition-all hover:scale-[1.01] cursor-pointer flex flex-col h-[360px] sm:h-[392px]"
       style={{ borderColor: clubColor + "40" }}
     >
       {/* Header with club color accent */}
@@ -132,9 +134,9 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto mb-4 mt-3">
+        <div className="mb-3 mt-2 h-[54px] overflow-hidden">
           <div className="flex flex-wrap gap-2">
-            {therapist.specialties.map((specialty) => (
+            {visibleSpecialties.map((specialty) => (
               <span
                 key={specialty}
                 className="px-3 py-1 text-xs rounded-full"
@@ -143,11 +145,19 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
                 {specialty}
               </span>
             ))}
+            {hiddenSpecialtiesCount > 0 && (
+              <span
+                className="px-3 py-1 text-xs rounded-full font-semibold"
+                style={{ backgroundColor: clubColor + "20", color: clubColor }}
+              >
+                +{hiddenSpecialtiesCount}
+              </span>
+            )}
           </div>
         </div>
 
         <button
-          className="w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg"
+          className="w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all hover:scale-[1.02] hover:shadow-lg mt-auto"
           style={{ 
             backgroundColor: clubColor, 
             color: "#fff",
