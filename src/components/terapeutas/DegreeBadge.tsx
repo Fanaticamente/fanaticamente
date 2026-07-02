@@ -12,8 +12,8 @@ const getDegreeLevel = (degree: string): DegreeLevel => {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
-  if (normalized.includes("doutor")) return "gold";
-  if (normalized.includes("mestre")) return "silver";
+  if (normalized.includes("doutor") || normalized.includes("dr.") || normalized.includes("dra.") || normalized.includes("phd")) return "gold";
+  if (normalized.includes("mestre") || normalized.includes("me.") || normalized.includes("m.a.")) return "silver";
   return null;
 };
 
