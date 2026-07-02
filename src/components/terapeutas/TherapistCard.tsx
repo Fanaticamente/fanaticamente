@@ -57,7 +57,7 @@ const TherapistCard = ({ therapist, clubColor, onSelect }: TherapistCardProps) =
         style={{ backgroundColor: clubColor }}
       />
       
-      <div className="p-4 sm:p-6 flex flex-col flex-1">
+      <div className="p-4 sm:p-6 flex flex-col flex-1 min-h-[420px] sm:min-h-[460px]">
         <div className="flex gap-3 sm:gap-4 mb-3">
           {/* Photo - Vertical Rectangle */}
           <div 
