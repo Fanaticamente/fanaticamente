@@ -176,7 +176,7 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
             <div
               className="absolute inset-x-0 bottom-0 h-[55%] pointer-events-none rounded-b-2xl"
               style={{
-                background: `linear-gradient(to top, ${darker} 0%, ${darker}cc 25%, ${dark}88 55%, transparent 100%)`,
+                background: `linear-gradient(to top, ${darker} 0%, color-mix(in oklab, ${darker}, transparent 40%) 35%, color-mix(in oklab, ${dark}, transparent 70%) 65%, transparent 100%)`,
               }}
             />
           </div>
