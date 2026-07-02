@@ -51,33 +51,61 @@ const ALL_STEPS = [
 ];
 const STEPS = ALL_STEPS.filter((s) => s.id !== "payment" || SHOW_PAYMENT_METHOD_CARDS);
 
-const STORAGE_KEY = "professional_onboarding_wizard";
+const STORAGE_KEY_PREFIX = "professional_onboarding_wizard";
+const LEGACY_STORAGE_KEY = "professional_onboarding_wizard";
+
+export const getWizardStorageKey = (userId?: string | null) =>
+  userId ? `${STORAGE_KEY_PREFIX}:${userId}` : null;
+
+// Remove any wizard draft keys from localStorage (legacy + per-user).
+// Used when signing out / resetting a stuck session so no other account
+// can pick up a leftover draft on the same device.
+export const clearAllWizardDrafts = () => {
+  try {
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+    const toRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(`${STORAGE_KEY_PREFIX}:`)) toRemove.push(k);
+    }
+    toRemove.forEach((k) => localStorage.removeItem(k));
+  } catch {
+    // ignore
+  }
+};
 
 // Keep draft for a long time so the user can always resume where they stopped.
 const DRAFT_EXPIRY_MS = 90 * 24 * 60 * 60 * 1000; // 90 days
 
-const loadDraft = (fallbackCrpFront: string, fallbackCrpBack: string): { step: number; data: OnboardingData } | null => {
+const loadDraft = (storageKey: string | null): { step: number; data: OnboardingData } | null => {
+  if (!storageKey) return null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    // Always drop any legacy shared-key draft — it belongs to whichever
+    // account last used this device and must NOT bleed into the current one.
+    if (localStorage.getItem(LEGACY_STORAGE_KEY)) {
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
+    }
+    const raw = localStorage.getItem(storageKey);
     if (!raw) return null;
     const draft = JSON.parse(raw);
     const elapsed = Date.now() - (draft.savedAt ?? 0);
     if (elapsed > DRAFT_EXPIRY_MS) {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(storageKey);
       return null;
     }
     return { step: draft.step ?? 0, data: draft.data };
   } catch {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(storageKey);
     return null;
   }
 };
 
 const OnboardingWizard = ({ professionalId, existingData, onComplete }: OnboardingWizardProps) => {
   const { user } = useAuth();
+  const storageKey = getWizardStorageKey(user?.id);
 
   const [initialized] = useState(() => {
-    const draft = loadDraft(existingData?.crpDocumentFrontUrl ?? "", existingData?.crpDocumentBackUrl ?? "");
+    const draft = loadDraft(storageKey);
     return draft;
   });
 
@@ -122,12 +150,13 @@ const OnboardingWizard = ({ professionalId, existingData, onComplete }: Onboardi
 
   // Persist draft to localStorage on every change
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    if (!storageKey) return;
+    localStorage.setItem(storageKey, JSON.stringify({
       step: currentStep,
       data,
       savedAt: Date.now(),
     }));
-  }, [currentStep, data]);
+  }, [currentStep, data, storageKey]);
 
   const updateData = useCallback((partial: Partial<OnboardingData>) => {
     setData(prev => ({ ...prev, ...partial }));
