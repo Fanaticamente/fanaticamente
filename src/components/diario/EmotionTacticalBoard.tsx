@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import SpecialistCarousel from "./SpecialistCarousel";
 
 /* ── Emoji imports ── */
 import emojiAlegre from "@/assets/emojis/alegre.png";
@@ -706,6 +707,8 @@ const EmotionTacticalBoard = () => {
           )}
         </div>
       )}
+
+      {analysisData && <SpecialistCarousel />}
 
       {analyzingAI && !aiAnalysis && (
         <div className="mt-5 bg-muted border border-border rounded-2xl p-5 flex items-center justify-center gap-3">
