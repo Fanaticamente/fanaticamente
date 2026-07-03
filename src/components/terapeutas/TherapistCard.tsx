@@ -175,7 +175,7 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
             />
             {/* Bottom gradient – photo emerges from the dark panel */}
             <div
-              className="absolute inset-x-0 bottom-0 h-[55%] pointer-events-none rounded-b-2xl"
+              className="absolute inset-x-0 bottom-0 h-[30%] pointer-events-none rounded-b-2xl"
               style={{
                 background: `linear-gradient(to top, ${darker} 0%, color-mix(in oklab, ${darker}, transparent 40%) 35%, color-mix(in oklab, ${dark}, transparent 70%) 65%, transparent 100%)`,
               }}
@@ -298,8 +298,8 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
         </div>
       </div>
 
-      {/* Specialties strip */}
-      <div className="bg-white px-4 pt-3 pb-2 flex flex-wrap gap-2 justify-center border-t border-black/5">
+      {/* Specialties strip – overlaps hero and white area */}
+      <div className="relative z-10 -mt-4 mb-1 px-4 flex flex-nowrap gap-2 justify-center items-center">
         {visible.map((specialty) => {
           const Icon = SPECIALTY_ICONS[specialty] || Tag;
           return (
@@ -316,19 +316,18 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
         })}
         {extraCount > 0 && (
           <span
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold text-white"
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold text-white shadow-sm"
             style={{ backgroundColor: "#111827" }}
           >
             <span className="font-bold" style={{ color: accent }}>+{extraCount}</span>
-            <span className="uppercase tracking-wider text-[10px]">Temas</span>
           </span>
         )}
       </div>
 
       {/* CTA */}
-      <div className="px-4 pb-3 pt-1 bg-white flex justify-center">
+      <div className="px-4 pb-2 pt-1 bg-white flex justify-center">
         <button
-          className="w-[85%] py-2.5 rounded-full font-display font-bold uppercase tracking-[0.12em] text-base flex items-center justify-center transition-all hover:brightness-105"
+          className="w-[85%] py-2 rounded-full font-display font-bold uppercase tracking-[0.12em] text-base flex items-center justify-center transition-all hover:brightness-105"
           style={{
             backgroundColor: accent,
             color: darker,
