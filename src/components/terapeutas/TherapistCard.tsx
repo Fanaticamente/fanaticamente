@@ -24,6 +24,7 @@ import {
   Tag,
 } from "lucide-react";
 import { useState, type ComponentType } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { getFirstAndLastName } from "@/lib/utils";
 import DegreeBadge from "./DegreeBadge";
 
