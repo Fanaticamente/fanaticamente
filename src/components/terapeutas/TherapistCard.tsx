@@ -23,7 +23,7 @@ import {
   Utensils,
   Tag,
 } from "lucide-react";
-import { useState, type ComponentType } from "react";
+import { useState, useLayoutEffect, useRef, type ComponentType } from "react";
 import { getFirstAndLastName } from "@/lib/utils";
 import DegreeBadge from "./DegreeBadge";
 
@@ -82,6 +82,99 @@ const SPECIALTY_ICONS: Record<string, ComponentType<{ className?: string }>> = {
 
 const MAX_VISIBLE_SPECIALTIES = 3;
 
+const SpecialtiesStrip = ({
+  specialties,
+  accent,
+}: {
+  specialties: string[];
+  accent: string;
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [visibleCount, setVisibleCount] = useState(
+    Math.min(specialties.length, MAX_VISIBLE_SPECIALTIES),
+  );
+
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const compute = () => {
+      const containerWidth = el.clientWidth;
+      if (!containerWidth) return;
+      // Children: tag pills + optional +N pill (last)
+      const gap = 8; // gap-2
+      const children = Array.from(el.children) as HTMLElement[];
+      // Reset: measure all tag widths (temporarily show all)
+      const initialMax = Math.min(specialties.length, MAX_VISIBLE_SPECIALTIES);
+      // widths for pills[0..initialMax-1] and the extra pill (if any) at index initialMax
+      const widths = children.map((c) => c.getBoundingClientRect().width);
+      const hasExtraPill = children.length > initialMax;
+
+      let count = initialMax;
+      const fits = (n: number) => {
+        const needExtra = hasExtraPill || n < specialties.length;
+        let w = 0;
+        for (let i = 0; i < n; i++) w += widths[i];
+        if (needExtra) {
+          const extraW = hasExtraPill ? widths[initialMax] : 32;
+          w += extraW;
+        }
+        const totalGaps =
+          Math.max(0, n + (needExtra ? 1 : 0) - 1) * gap;
+        return w + totalGaps <= containerWidth;
+      };
+
+      while (count > 0 && !fits(count)) count--;
+      setVisibleCount(count);
+    };
+
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [specialties]);
+
+  const initialMax = Math.min(specialties.length, MAX_VISIBLE_SPECIALTIES);
+  const visible = specialties.slice(0, visibleCount);
+  const extraCount = specialties.length - visibleCount;
+
+  // Render initialMax pills for measurement, but hide the ones beyond visibleCount.
+  const measureList = specialties.slice(0, initialMax);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative z-10 -mt-4 mb-1 px-4 flex flex-nowrap gap-2 justify-center items-center overflow-hidden"
+    >
+      {measureList.map((specialty, i) => {
+        const Icon = SPECIALTY_ICONS[specialty] || Tag;
+        const hidden = i >= visibleCount;
+        return (
+          <span
+            key={specialty}
+            className="inline-flex items-center gap-1.5 pl-1 pr-2.5 py-0.5 rounded-full text-[12px] font-semibold bg-white text-gray-800 border border-gray-200 shadow-sm whitespace-nowrap flex-shrink-0"
+            style={hidden ? { position: "absolute", visibility: "hidden", pointerEvents: "none" } : undefined}
+            aria-hidden={hidden}
+          >
+            <span className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center bg-white flex-shrink-0">
+              <Icon className="w-3 h-3 text-gray-700" />
+            </span>
+            {specialty}
+          </span>
+        );
+      })}
+      {extraCount > 0 && (
+        <span
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold text-white shadow-sm whitespace-nowrap flex-shrink-0"
+          style={{ backgroundColor: "#111827" }}
+        >
+          <span className="font-bold" style={{ color: accent }}>+{extraCount}</span>
+        </span>
+      )}
+    </div>
+  );
+};
+
 // Heuristic: infer gender from Brazilian Portuguese first name.
 const isFemaleName = (fullName: string) => {
   const first = (fullName || "").trim().split(/\s+/)[0]?.toLowerCase() ?? "";
@@ -120,9 +213,6 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
   const accent = `color-mix(in oklab, ${clubColor}, white 55%)`;
   const dark = `color-mix(in oklab, ${clubColor}, black 55%)`;
   const darker = `color-mix(in oklab, ${clubColor}, black 70%)`;
-
-  const visible = therapist.specialties.slice(0, MAX_VISIBLE_SPECIALTIES);
-  const extraCount = Math.max(0, therapist.specialties.length - MAX_VISIBLE_SPECIALTIES);
 
   return (
     <>
@@ -299,30 +389,7 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
       </div>
 
       {/* Specialties strip – overlaps hero and white area */}
-      <div className="relative z-10 -mt-4 mb-1 px-4 flex flex-nowrap gap-2 justify-center items-center">
-        {visible.map((specialty) => {
-          const Icon = SPECIALTY_ICONS[specialty] || Tag;
-          return (
-            <span
-              key={specialty}
-              className="inline-flex items-center gap-1.5 pl-1 pr-2.5 py-0.5 rounded-full text-[12px] font-semibold bg-white text-gray-800 border border-gray-200 shadow-sm"
-            >
-              <span className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center bg-white">
-                <Icon className="w-3 h-3 text-gray-700" />
-              </span>
-              {specialty}
-            </span>
-          );
-        })}
-        {extraCount > 0 && (
-          <span
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-semibold text-white shadow-sm"
-            style={{ backgroundColor: "#111827" }}
-          >
-            <span className="font-bold" style={{ color: accent }}>+{extraCount}</span>
-          </span>
-        )}
-      </div>
+      <SpecialtiesStrip specialties={therapist.specialties} accent={accent} />
 
       {/* CTA */}
       <div className="px-4 pb-2 pt-1 bg-white flex justify-center">
