@@ -918,7 +918,7 @@ const Auth = () => {
                         <label htmlFor="accept-terms-desktop" className="text-sm text-therapy cursor-pointer leading-relaxed">
                           Li e aceito a{" "}
                           <Link
-                            to="/politica-privacidade"
+                            to={authMode === "professional" ? "/politica-privacidade-profissional" : "/politica-privacidade"}
                             target="_blank"
                             className="underline font-medium text-therapy"
                           >
@@ -1310,7 +1310,7 @@ const Auth = () => {
                     <label htmlFor="accept-terms" className="text-sm text-therapy cursor-pointer leading-relaxed">
                       Li e aceito a{" "}
                       <Link
-                        to="/politica-privacidade"
+                        to={authMode === "professional" ? "/politica-privacidade-profissional" : "/politica-privacidade"}
                         target="_blank"
                         className="underline font-medium text-therapy"
                       >
