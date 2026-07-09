@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
-import { Save, FileText, Scale } from "lucide-react";
+import { Save, FileText, Scale, Users, Stethoscope } from "lucide-react";
 import RichEditor from "@/components/marketing/RichEditor";
 import { useLegalDocument, useUpdateLegalDocument, type LegalSlug } from "@/hooks/useLegalDocument";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DEFAULT_PRIVACY_POLICY_HTML, DEFAULT_TERMS_OF_USE_HTML } from "@/lib/legalDefaults";
+import {
+  DEFAULT_PRIVACY_POLICY_USER_HTML,
+  DEFAULT_PRIVACY_POLICY_PROFESSIONAL_HTML,
+  DEFAULT_TERMS_OF_USE_HTML,
+} from "@/lib/legalDefaults";
 
 const DEFAULTS: Record<LegalSlug, string> = {
-  "privacy-policy": DEFAULT_PRIVACY_POLICY_HTML,
+  "privacy-policy": DEFAULT_PRIVACY_POLICY_USER_HTML,
+  "privacy-policy-professional": DEFAULT_PRIVACY_POLICY_PROFESSIONAL_HTML,
   "terms-of-use": DEFAULT_TERMS_OF_USE_HTML,
 };
 
@@ -25,7 +30,8 @@ interface Props {
 }
 
 const DOCS: { slug: LegalSlug; label: string; icon: typeof FileText }[] = [
-  { slug: "privacy-policy", label: "Política de Privacidade", icon: Scale },
+  { slug: "privacy-policy", label: "Política de Privacidade — Torcedor", icon: Users },
+  { slug: "privacy-policy-professional", label: "Política de Privacidade — Profissional", icon: Stethoscope },
   { slug: "terms-of-use", label: "Termos de Uso", icon: FileText },
 ];
 
