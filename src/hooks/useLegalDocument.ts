@@ -1,7 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type LegalSlug = "privacy-policy" | "terms-of-use";
+export type LegalSlug =
+  | "privacy-policy"
+  | "privacy-policy-professional"
+  | "terms-of-use";
 
 export interface LegalDocument {
   slug: LegalSlug;
