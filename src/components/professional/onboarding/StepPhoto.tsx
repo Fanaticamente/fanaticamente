@@ -128,7 +128,7 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate, onBusyChange }: StepPho
             <p>• Foto profissional com fundo neutro ou personalizado</p>
             <p>• Rosto visível e boa iluminação</p>
             <p>• Formato vertical (7:9) • Máx. 5MB</p>
-            <p>• Escolha uma vestimenta que identifique sua torcida ou remeta às cores tradicionais do seu clube do coração — esse detalhe fortalece a identificação com a torcida e potencializa as chances de o seu perfil ser escolhido para novos agendamentos.</p>
+            <p>• Escolha uma vestimenta que identifique sua torcida — esta identificação pode reduzir barreiras simbólicas no acesso ao cuidado em saúde mental.</p>
           </div>
         </div>
       </div>
