@@ -2,6 +2,9 @@ import { useState } from "react";
 import { MessageCircle, ChevronRight, RotateCcw, Trophy } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
+import resenhaLaEles from "@/assets/resenha-la-eles.png.asset.json";
+import resenhaLaElas from "@/assets/resenha-la-elas.png.asset.json";
+import resenhaBet from "@/assets/resenha-bet.png.asset.json";
 
 interface Question {
   id: number;
@@ -15,31 +18,26 @@ interface Question {
 }
 
 const CategoryButton = ({
-  icon,
-  title,
-  description,
+  image,
+  alt,
   onClick,
 }: {
-  icon: string;
-  title: string;
-  description: string;
+  image: string;
+  alt: string;
   onClick: () => void;
 }) => (
   <button
     onClick={onClick}
-    className="w-full bg-card border border-border rounded-2xl p-6 text-left hover:border-primary transition-colors group min-h-[140px]"
+    className="block relative w-full overflow-hidden rounded-2xl h-32 sm:h-40 group bg-muted"
   >
-    <div className="flex items-center gap-4 h-full">
-      <span className="text-4xl">{icon}</span>
-      <div className="flex-1">
-        <h2 className="font-display text-2xl text-card-foreground group-hover:text-primary transition-colors">
-          {title}
-        </h2>
-        <p className="text-muted-foreground text-sm min-h-[2.5rem]">
-          {description}
-        </p>
-      </div>
-      <ChevronRight className="w-6 h-6 text-primary" />
+    <img
+      src={image}
+      alt={alt}
+      className="absolute inset-0 w-full h-full object-cover"
+      loading="lazy"
+    />
+    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+      <ChevronRight className="w-6 h-6 text-primary-foreground" />
     </div>
   </button>
 );
@@ -725,23 +723,20 @@ const Quiz = () => {
 
             <div className="space-y-4">
               <CategoryButton
-                icon="👨"
-                title="Papo de Arquibancada"
-                description="Cenários focados em comunicação masculina"
+                image={resenhaLaEles.url}
+                alt="Lá Eles - Cenários focados na comunicação masculina"
                 onClick={() => setCategory("homens")}
               />
 
               <CategoryButton
-                icon="👩"
-                title="Torcida Delas"
-                description="Cenários focados em comunicação feminina"
+                image={resenhaLaElas.url}
+                alt="Lá Elas - Cenários focados na comunicação feminina"
                 onClick={() => setCategory("mulheres")}
               />
 
               <CategoryButton
-                icon="🎰"
-                title="Bet vs Consequências"
-                description="Cenários focados no vício em apostas"
+                image={resenhaBet.url}
+                alt="Bet vs Consequências - Cenários focados no vício em apostas"
                 onClick={() => setCategory("ludopatia")}
               />
 
