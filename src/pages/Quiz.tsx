@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { MessageCircle, ChevronRight, RotateCcw, Trophy } from "lucide-react";
+import { ChevronRight, RotateCcw, Trophy } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import resenhaLaEles from "@/assets/resenha-la-eles.png.asset.json";
 import resenhaLaElas from "@/assets/resenha-la-elas.png.asset.json";
 import resenhaBet from "@/assets/resenha-bet.png.asset.json";
+import resenhaFanaticaLogo from "@/assets/resenha-fanatica-logo.png.asset.json";
 
 interface Question {
   id: number;
@@ -705,16 +706,15 @@ const Quiz = () => {
       <main className="pt-20 px-4">
         {!category && (
           <div className="animate-fade-in">
-            <div className="text-center mb-8">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-quiz/20 flex items-center justify-center">
-                <MessageCircle className="w-10 h-10 text-quiz" />
-              </div>
-              <h1 className="font-display text-4xl text-primary mb-2">
-                Resenha Fanática
-              </h1>
-              <p className="text-muted-foreground">
-                Treine suas habilidades de escuta e comunicação
-              </p>
+            <div className="flex justify-center mb-8">
+              <img
+                src={resenhaFanaticaLogo.url}
+                alt="Resenha Fanática"
+                className="w-full max-w-md h-auto object-contain"
+                loading="eager"
+                decoding="sync"
+                fetchPriority="high"
+              />
             </div>
 
             <p className="text-card-foreground text-center mb-8">
