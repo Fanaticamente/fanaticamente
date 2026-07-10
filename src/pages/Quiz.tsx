@@ -36,8 +36,8 @@ const CategoryButton = ({
       className="absolute inset-0 w-full h-full object-cover"
       loading="lazy"
     />
-    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-      <ChevronRight className="w-6 h-6 text-primary-foreground" />
+    <div className="absolute right-4 top-1/2 -translate-y-1/2">
+      <ChevronRight className="w-6 h-6 text-primary drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] group-hover:translate-x-1 transition-transform" />
     </div>
   </button>
 );
