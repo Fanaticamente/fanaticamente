@@ -2,8 +2,8 @@ import { useState } from "react";
 import { ChevronRight, RotateCcw, Trophy } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
-import resenhaLaEles from "@/assets/resenha-la-eles.png.asset.json";
-import resenhaLaElas from "@/assets/resenha-la-elas.png.asset.json";
+import resenhaLaEles from "@/assets/resenha-deles-v2.png.asset.json";
+import resenhaLaElas from "@/assets/resenha-delas-v2.png.asset.json";
 import resenhaBet from "@/assets/resenha-bet.png.asset.json";
 import resenhaFanaticaLogo from "@/assets/resenha-fanatica-logo.png.asset.json";
 
@@ -706,11 +706,11 @@ const Quiz = () => {
       <main className="pt-20 px-4">
         {!category && (
           <div className="animate-fade-in">
-            <div className="flex justify-center mb-8">
+            <div className="flex justify-center mb-6">
               <img
                 src={resenhaFanaticaLogo.url}
                 alt="Resenha Fanática"
-                className="w-full max-w-md h-auto object-contain"
+                className="w-40 sm:w-48 h-auto object-contain"
                 loading="eager"
                 decoding="sync"
                 fetchPriority="high"
