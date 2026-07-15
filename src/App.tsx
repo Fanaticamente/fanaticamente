@@ -41,6 +41,7 @@ import CursoDetalhe from "./pages/CursoDetalhe";
 import MeusCursos from "./pages/MeusCursos";
 import Quiz from "./pages/Quiz";
 import Diario from "./pages/Diario";
+import MinhaTemporada from "./pages/MinhaTemporada";
 import Radio from "./pages/Radio";
 import Futebol from "./pages/Futebol";
 import Perfil from "./pages/Perfil";
@@ -198,6 +199,7 @@ const App = () => {
                 <Route path="/zona-mista" element={<DynamicProtectedRoute pageId="zona-mista"><ZonaMista /></DynamicProtectedRoute>} />
                 <Route path="/setor-saude" element={<DynamicProtectedRoute pageId="setor-saude"><SetorSaude /></DynamicProtectedRoute>} />
                 <Route path="/diario" element={<DynamicProtectedRoute pageId="diario"><Diario /></DynamicProtectedRoute>} />
+                <Route path="/minha-temporada" element={<DynamicProtectedRoute pageId="minha-temporada"><MinhaTemporada /></DynamicProtectedRoute>} />
                 <Route path="/perfil" element={<DynamicProtectedRoute pageId="perfil"><Perfil /></DynamicProtectedRoute>} />
                 <Route path="/meus-agendamentos" element={<DynamicProtectedRoute pageId="agendamentos"><MeusAgendamentos /></DynamicProtectedRoute>} />
                 <Route path="/perfil/agendamentos" element={<DynamicProtectedRoute pageId="agendamentos"><MeusAgendamentos /></DynamicProtectedRoute>} />
