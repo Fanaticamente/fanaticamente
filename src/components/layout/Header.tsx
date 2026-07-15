@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, Settings, ShoppingBag, Thermometer, Shirt, LogOut, Tv, Heart } from "lucide-react";
+import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, Settings, ShoppingBag, Thermometer, Shirt, LogOut, Tv, Heart, LayoutDashboard } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAppMenu } from "@/hooks/useAppContent";
 import { useAppPages } from "@/hooks/useAppPages";
@@ -26,6 +26,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Shirt,
   Tv,
   Heart,
+  LayoutDashboard,
 };
 
 const Header = () => {
