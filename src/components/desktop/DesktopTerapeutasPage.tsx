@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter, MapPin, Users, Clock, Shield } from "lucide-react";
+import { Search, Filter, Shirt, Users, Clock, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -408,8 +408,20 @@ const DesktopTerapeutasPage = ({
                           </h3>
                           <p className="text-sm text-gray-500 mb-2">{therapist.degree}</p>
                           <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                            <MapPin className="w-4 h-4" />
-                            <span>{therapist.location}</span>
+                            <Shirt className="w-4 h-4" />
+                            <span>
+                              {(() => {
+                                const first = (therapist.name || '').trim().split(/\s+/)[0]?.toLowerCase() ?? '';
+                                const female = /a$/.test(first);
+                                return female ? 'Torcedora' : 'Torcedor';
+                              })()}
+                            </span>
+                            {selectedClub?.name && (
+                              <>
+                                <span className="text-gray-300">•</span>
+                                <span>{selectedClub.name}</span>
+                              </>
+                            )}
                             <span className="text-gray-300">•</span>
                             <span>{therapist.experience} anos exp.</span>
                           </div>
