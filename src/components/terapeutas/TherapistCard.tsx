@@ -1,6 +1,6 @@
 import {
   ShieldCheck,
-  MapPin,
+  Shirt,
   Star,
   Heart,
   X,
