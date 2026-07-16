@@ -25,8 +25,6 @@ import {
 } from "lucide-react";
 import { useState, useLayoutEffect, useRef, type ComponentType } from "react";
 import { getFirstAndLastName } from "@/lib/utils";
-import DegreeBadge from "./DegreeBadge";
-
 import silhouetteMale from "@/assets/silhouette-male.png";
 
 interface AvailableSlot {
@@ -296,7 +294,6 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
                   />
                 </div>
               )}
-              <DegreeBadge degree={therapist.degree} />
             </div>
 
             {/* Role + CRP */}
