@@ -128,7 +128,7 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate, onBusyChange }: StepPho
           <Info className="w-4 h-4 text-therapy mt-0.5 flex-shrink-0" />
           <div className="text-xs text-muted-foreground">
             <p className="font-medium text-card-foreground mb-1">Diretrizes para a foto:</p>
-            <p>• Foto profissional com fundo neutro ou personalizado</p>
+            <p>• Foto profissional apenas com fundo neutro</p>
             <p>• Rosto visível e boa iluminação</p>
             <p>• Formato vertical (7:9) • Máx. 5MB</p>
             <p>• Siga o padrão de exemplo nas imagens abaixo.</p>
