@@ -336,6 +336,7 @@ const Terapeutas = () => {
                     clubColor={selectedClub.primaryColor}
                     clubSecondaryColor={selectedClub.secondaryColor}
                     clubBadgeUrl={selectedClub.badgeUrl}
+                    clubName={selectedClub.name}
                     onSelect={handleTherapistSelect}
                   />
                 ))}
