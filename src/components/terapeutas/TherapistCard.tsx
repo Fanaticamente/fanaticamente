@@ -195,7 +195,7 @@ const isFemaleName = (fullName: string) => {
   return /a$/.test(first);
 };
 
-const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: TherapistCardProps) => {
+const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, clubName, onSelect }: TherapistCardProps) => {
   const hasPhoto = Boolean(therapist.imageUrl);
   const imageUrl = therapist.imageUrl || silhouetteMale;
   const [photoOpen, setPhotoOpen] = useState(false);
@@ -323,15 +323,17 @@ const TherapistCard = ({ therapist, clubColor, clubBadgeUrl, onSelect }: Therapi
                 </div>
               </div>
               <div className="flex items-center gap-1.5 min-w-0">
-                <MapPin
+                <Shirt
                   className="w-5 h-5 flex-shrink-0"
                   style={{ color: accent }}
                 />
                 <div className="leading-tight whitespace-nowrap">
-                  <div className="text-[12px] font-bold truncate max-w-[90px]">
-                    {therapist.location}
+                  <div className="text-[12px] font-bold truncate max-w-[100px]">
+                    {female ? "Torcedora" : "Torcedor"}
                   </div>
-                  <div className="text-[9px] text-white/70">Atendimento online</div>
+                  <div className="text-[9px] text-white/70 truncate max-w-[100px]">
+                    {clubName || therapist.location}
+                  </div>
                 </div>
               </div>
             </div>
