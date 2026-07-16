@@ -4,8 +4,11 @@ import { toast } from "sonner";
 import { uploadProfessionalFile } from "@/lib/professionalUploads";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import photoExampleFemale from "@/assets/onboarding-photo-example-female.png";
-import photoExampleMale from "@/assets/onboarding-photo-example-male.png";
+import photoExampleFemaleAsset from "@/assets/onboarding-photo-example-female.png.asset.json";
+import photoExampleMaleAsset from "@/assets/onboarding-photo-example-male.png.asset.json";
+
+const photoExampleFemale = photoExampleFemaleAsset.url;
+const photoExampleMale = photoExampleMaleAsset.url;
 
 interface StepPhotoProps {
   professionalId: string;
@@ -128,7 +131,11 @@ const StepPhoto = ({ professionalId, imageUrl, onUpdate, onBusyChange }: StepPho
             <p>• Foto profissional com fundo neutro ou personalizado</p>
             <p>• Rosto visível e boa iluminação</p>
             <p>• Formato vertical (7:9) • Máx. 5MB</p>
-            <p>• Escolha uma vestimenta que identifique sua torcida — esta identificação pode reduzir barreiras simbólicas no acesso ao cuidado em saúde mental.</p>
+            <p>• Siga o padrão de exemplo nas imagens abaixo.</p>
+            <p>• Utilize uma vestimenta na cor predominante ou na cor padrão da equipe esportiva com a qual você se identifica.</p>
+            <p>• É vedado o uso da camiseta oficial do clube ou de qualquer uniforme oficial da equipe.</p>
+            <p>• A vestimenta deve apenas remeter às cores que representam a equipe esportiva escolhida.</p>
+            <p>• Caso você não possua uma vestimenta com essas características, sugerimos editar uma foto de sua preferência para adequá-la a esta diretriz, preservando uma aparência natural e profissional.</p>
           </div>
         </div>
       </div>
