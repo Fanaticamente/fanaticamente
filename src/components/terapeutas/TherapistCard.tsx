@@ -54,6 +54,7 @@ interface TherapistCardProps {
   clubColor: string;
   clubSecondaryColor?: string;
   clubBadgeUrl?: string;
+  clubName?: string;
   onSelect?: (therapist: Therapist) => void;
 }
 
