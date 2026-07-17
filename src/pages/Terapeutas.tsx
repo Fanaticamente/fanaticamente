@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Shirt } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import TherapistCard from "@/components/terapeutas/TherapistCard";
@@ -211,27 +211,56 @@ const Terapeutas = () => {
 
   return (
     <div 
-      className="min-h-screen transition-colors duration-500"
+      className="min-h-screen font-sans transition-colors duration-500"
       style={{ 
         backgroundColor: selectedClub 
           ? "#f5f5f5"
           : "hsl(var(--background))" 
       }}
     >
-      <Header />
+      {step === "club" && <Header />}
 
-      <main className="pt-20 px-4">
-        {step === "therapists" && (
+      {/* Full-width club header (mockup) */}
+      {step === "therapists" && selectedClub && (
+        <div
+          className="relative overflow-hidden pt-16 pb-8 px-4"
+          style={{ backgroundColor: selectedClub.primaryColor }}
+        >
+          {/* Star background pattern */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-20"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 20% 30%, rgba(255,255,255,0.9) 0 2px, transparent 3px), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.6) 0 1.5px, transparent 2.5px), radial-gradient(circle at 65% 70%, rgba(255,255,255,0.8) 0 2px, transparent 3px), radial-gradient(circle at 35% 85%, rgba(255,255,255,0.5) 0 1.5px, transparent 2.5px), radial-gradient(circle at 90% 55%, rgba(255,255,255,0.7) 0 2px, transparent 3px)",
+              backgroundSize: "180px 180px",
+            }}
+          />
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 mb-6 hover:underline transition-colors"
-            style={{ color: selectedClub?.primaryColor || "hsl(var(--primary))" }}
+            className="relative z-10 mb-4 text-white/90 hover:text-white"
+            aria-label="Voltar"
           >
-            <ChevronLeft className="w-5 h-5" />
-            Voltar
+            <ChevronLeft className="w-7 h-7" strokeWidth={2.5} />
           </button>
-        )}
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center flex-shrink-0">
+              <Shirt
+                className="w-11 h-11"
+                style={{ color: selectedClub.primaryColor, fill: selectedClub.primaryColor }}
+                strokeWidth={1.5}
+              />
+            </div>
+            <div className="min-w-0">
+              <h1 className="font-display italic text-3xl text-white leading-none tracking-wide uppercase">
+                {selectedClub.name}
+              </h1>
+              <p className="mt-1 text-white/85 text-sm">Especialistas para a torcida</p>
+            </div>
+          </div>
+        </div>
+      )}
 
+      <main className={step === "therapists" ? "px-4 pt-6" : "pt-20 px-4"}>
         {step === "club" && (
           <div className="animate-fade-in">
             <div className="text-center mb-6">
@@ -290,38 +319,12 @@ const Terapeutas = () => {
 
         {step === "therapists" && selectedClub && (
           <div className="animate-fade-in">
-            <div 
-              className="rounded-2xl p-6 mb-6 flex items-center gap-4"
-              style={{ 
-                background: `linear-gradient(135deg, ${selectedClub.primaryColor}20 0%, ${selectedClub.secondaryColor}10 100%)`,
-                borderLeft: `4px solid ${selectedClub.primaryColor}`
-              }}
-            >
-              {showBadges && selectedClub && !hiddenBadges.includes(selectedClub.id) && (
-                <div className="w-16 h-16 rounded-full bg-white p-2 shadow-lg overflow-hidden flex items-center justify-center">
-                  <div className="w-12 h-12 flex items-center justify-center">
-                    <ClubMark clubId={selectedClub.id} mode={clubDisplayMode} />
-                  </div>
-                </div>
-              )}
-              <div>
-                <h1 
-                  className="font-display text-3xl italic uppercase"
-                  style={{ color: selectedClub.primaryColor }}
-                >
-                  {selectedClub.name}
-                </h1>
-                <p className="text-muted-foreground">
-                  Especialistas para a torcida
-                </p>
-              </div>
-            </div>
-
-            <h2 
-              className="font-sans font-bold text-xl mb-4 text-gray-800"
-            >
+            <h2 className="font-sans font-bold text-2xl text-gray-900">
               Terapeutas Disponíveis
             </h2>
+            <p className="text-sm text-gray-500 mb-5">
+              Encontre o profissional ideal para você.
+            </p>
 
             {loading ? (
               <div className="flex justify-center py-12">
