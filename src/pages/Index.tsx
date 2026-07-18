@@ -1,4 +1,5 @@
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useEffect } from "react";
 
 // Mobile Components
 import BottomNav from "@/components/layout/BottomNav";
@@ -18,6 +19,18 @@ import DesktopFooter from "@/components/desktop/DesktopFooter";
 
 const Index = () => {
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (!isMobile) return;
+    const prevHtml = document.documentElement.style.backgroundColor;
+    const prevBody = document.body.style.backgroundColor;
+    document.documentElement.style.backgroundColor = "#ffffff";
+    document.body.style.backgroundColor = "#ffffff";
+    return () => {
+      document.documentElement.style.backgroundColor = prevHtml;
+      document.body.style.backgroundColor = prevBody;
+    };
+  }, [isMobile]);
 
   return (
     <>
