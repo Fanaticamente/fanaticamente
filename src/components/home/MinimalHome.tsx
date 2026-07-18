@@ -126,7 +126,7 @@ const MinimalHome = () => {
           }}
         />
         <div className="relative pt-2 pr-32">
-          <h1 className="text-3xl font-extrabold tracking-tight leading-tight">
+          <h1 className="font-sans text-3xl font-extrabold tracking-tight leading-tight normal-case">
             {greeting},{" "}
             <span className="text-emerald-600">{firstName}!</span>{" "}
             <span className="inline-block">👋</span>
@@ -143,7 +143,7 @@ const MinimalHome = () => {
           <HeartPulse className="w-4 h-4" />
           Check-in emocional
         </div>
-        <h2 className="mt-1.5 text-xl font-bold">Como você está hoje?</h2>
+        <h2 className="font-sans mt-1.5 text-xl font-bold normal-case">Como você está hoje?</h2>
         <p className="text-sm text-slate-500 mt-1">
           Sua resposta nos ajuda a cuidar de você melhor.
         </p>
@@ -230,7 +230,7 @@ const MinimalHome = () => {
 
       {/* Acesso rápido */}
       <section>
-        <h3 className="font-bold text-slate-900 mb-2 px-1">Acesso rápido</h3>
+        <h3 className="font-sans font-bold text-slate-900 mb-2 px-1 normal-case tracking-normal">Acesso rápido</h3>
         <div className="grid grid-cols-4 gap-2.5">
           {shortcuts.map((s) => {
             const Icon = s.icon;
@@ -258,7 +258,7 @@ const MinimalHome = () => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-emerald-600" />
-              <h3 className="font-bold">Sua jornada</h3>
+              <h3 className="font-sans font-bold normal-case tracking-normal">Sua jornada</h3>
             </div>
             <p className="text-sm text-slate-500 mt-1">
               Você completou {weekActivities} atividade{weekActivities === 1 ? "" : "s"} esta semana.
