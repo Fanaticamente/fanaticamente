@@ -21,7 +21,7 @@ const BottomNav = () => {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 pb-[env(safe-area-inset-bottom)] transform-gpu will-change-transform font-sans">
-      <nav className="glass-dark rounded-[32px] mx-auto max-w-md">
+      <nav className="bg-white/95 backdrop-blur-lg border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.08)] rounded-[32px] mx-auto max-w-md">
         <div className="flex items-center justify-around py-3 px-1">
           {visibleItems.map((item) => {
             const IconComponent = item.icon;
@@ -33,8 +33,8 @@ const BottomNav = () => {
                 className={({ isActive }) =>
                   `relative flex flex-col items-center gap-1 py-2 px-1 min-w-[56px] rounded-xl transition-all ${
                     isActive
-                      ? "text-white bg-white/10"
-                      : "text-muted-foreground hover:text-white"
+                      ? "text-emerald-600 bg-emerald-50"
+                      : "text-slate-400 hover:text-slate-600"
                   }`
                 }
               >
@@ -47,7 +47,7 @@ const BottomNav = () => {
                     />
                     <span className="text-[10.5px] font-medium">{item.label}</span>
                     {isActive && (
-                      <div className="absolute -bottom-0.5 w-6 h-1 bg-white rounded-full" />
+                      <div className="absolute -bottom-0.5 w-6 h-1 bg-emerald-600 rounded-full" />
                     )}
                   </>
                 )}
