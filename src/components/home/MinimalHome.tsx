@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, differenceInCalendarDays } from "date-fns";
-import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse } from "lucide-react";
+import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Radio, Newspaper, Trophy, BookOpen } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -17,11 +17,26 @@ const MOODS = [
   { id: "irritado", emoji: "😠", label: "Irritado",        bg: "bg-rose-100",    ring: "ring-rose-400" },
 ];
 
+const SUGGESTIONS = [
+  { emoji: "🫁", kicker: "Sugestão para você", title: "Respiração para ansiedade", subtitle: "Exercício de 2 min", path: "/diario", icon: Play },
+  { emoji: "🧠", kicker: "Curso em destaque", title: "Inteligência emocional no futebol", subtitle: "Assista agora", path: "/cursos", icon: BookOpen },
+  { emoji: "🩺", kicker: "Cuide de você", title: "Converse com um especialista", subtitle: "Terapeutas disponíveis", path: "/terapeutas", icon: Users },
+  { emoji: "📻", kicker: "Ao vivo", title: "Rádio Alambrado FM", subtitle: "Escute agora", path: "/radio", icon: Radio },
+  { emoji: "📰", kicker: "Fique por dentro", title: "Notícias do seu clube", subtitle: "Últimas atualizações", path: "/futebol", icon: Newspaper },
+  { emoji: "🏆", kicker: "Comunidade", title: "Ranking Brasileirão da mente", subtitle: "Veja como sua torcida está", path: "/ranking", icon: Trophy },
+];
+
 const MinimalHome = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
+  const [sugIdx, setSugIdx] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setSugIdx((i) => (i + 1) % SUGGESTIONS.length), 4500);
+    return () => clearInterval(t);
+  }, []);
 
   const { data: profile } = useQuery({
     queryKey: ["mh-profile", user?.id],
@@ -124,9 +139,9 @@ const MinimalHome = () => {
 
       {/* Check-in */}
       <section className="rounded-3xl bg-white border border-slate-200/70 shadow-sm p-5">
-        <div className="flex items-center gap-2 text-emerald-600 text-xs font-bold tracking-wider">
+        <div className="flex items-center gap-2 text-emerald-600 text-xs font-semibold">
           <HeartPulse className="w-4 h-4" />
-          CHECK-IN EMOCIONAL
+          Check-in emocional
         </div>
         <h2 className="mt-1.5 text-xl font-bold">Como você está hoje?</h2>
         <p className="text-sm text-slate-500 mt-1">
@@ -167,25 +182,51 @@ const MinimalHome = () => {
         )}
       </section>
 
-      {/* Sugestão */}
-      <button
-        onClick={() => navigate("/diario")}
-        className="w-full text-left rounded-3xl bg-white border border-slate-200/70 shadow-sm p-4 flex items-center gap-4"
-      >
-        <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0">
-          <span className="text-2xl">⚽</span>
+      {/* Sugestões carrossel */}
+      <section>
+        <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/70 shadow-sm">
+          <div
+            className="flex transition-transform duration-700 ease-out"
+            style={{ transform: `translateX(-${sugIdx * 100}%)` }}
+          >
+            {SUGGESTIONS.map((s) => {
+              const Icon = s.icon;
+              return (
+                <button
+                  key={s.path + s.title}
+                  onClick={() => navigate(s.path)}
+                  className="w-full shrink-0 text-left p-4 flex items-center gap-4"
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0">
+                    <span className="text-2xl">{s.emoji}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-semibold text-emerald-600">{s.kicker}</p>
+                    <p className="font-bold text-slate-900 truncate">{s.title}</p>
+                    <p className="text-xs text-slate-500 truncate">{s.subtitle}</p>
+                  </div>
+                  <div className="w-11 h-11 rounded-full border border-slate-200 flex items-center justify-center shrink-0">
+                    <Icon className="w-4 h-4 text-emerald-600" />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-bold tracking-wider text-emerald-600">
-            SUGESTÃO PARA VOCÊ
-          </p>
-          <p className="font-bold text-slate-900 truncate">Respiração para ansiedade</p>
-          <p className="text-xs text-slate-500">Exercício de 2 min</p>
+        <div className="mt-2 flex justify-center gap-1.5">
+          {SUGGESTIONS.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setSugIdx(i)}
+              className={cn(
+                "h-1.5 rounded-full transition-all",
+                i === sugIdx ? "w-5 bg-emerald-500" : "w-1.5 bg-slate-300"
+              )}
+              aria-label={`Ir para sugestão ${i + 1}`}
+            />
+          ))}
         </div>
-        <div className="w-11 h-11 rounded-full border border-slate-200 flex items-center justify-center shrink-0">
-          <Play className="w-4 h-4 text-emerald-600 fill-emerald-600" />
-        </div>
-      </button>
+      </section>
 
       {/* Acesso rápido */}
       <section>
