@@ -72,11 +72,11 @@ const BottomNav = () => {
       <nav
         className={`backdrop-blur-xl border rounded-full mx-auto transition-all duration-300 ease-out ${
           slim
-            ? "bg-white/20 border-white/20 shadow-sm scale-[0.82] opacity-80"
-            : "bg-white/80 border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.1)] scale-100 opacity-100"
+            ? "bg-white/15 border-white/15 shadow-sm scale-[0.82] opacity-70"
+            : "bg-white/75 border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.1)] scale-100 opacity-100"
         }`}
       >
-        <div className={`flex items-center justify-between transition-all duration-300 ${slim ? "gap-3 px-4 py-2" : "gap-6 px-7 py-3"}`}>
+        <div className={`flex items-center justify-between transition-all duration-300 ${slim ? "gap-4 px-5 py-2" : "gap-8 px-8 py-3"}`}>
           {visibleItems.map((item) => {
             const IconComponent = item.icon;
             return (
@@ -104,7 +104,7 @@ const BottomNav = () => {
                       strokeWidth={isActive ? 2.4 : 2}
                     />
                     {!slim && (
-                      <span className="text-[10px] font-medium leading-tight mt-0.5">
+                      <span className="text-[10px] font-medium leading-tight mt-0.5 whitespace-nowrap">
                         {item.label}
                       </span>
                     )}
