@@ -1,12 +1,31 @@
-import { Home, Heart, Users, User } from "lucide-react";
+import { Home, Heart, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useAppPages } from "@/hooks/useAppPages";
 
+const FootballIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 2v20" />
+    <path d="M2 12h20" />
+    <path d="M6.5 6.5l11 11" />
+    <path d="M17.5 6.5l-11 11" />
+    <path d="M12 7l3 5-3 5-3-5z" />
+  </svg>
+);
+
 const navItems = [
   { icon: Home, label: "Início", path: "/" },
   { icon: Heart, label: "Bem-estar", path: "/bem-estar" },
-  { icon: Users, label: "Comunidade", path: "/ranking" },
+  { icon: FootballIcon, label: "Comunidade", path: "/ranking" },
   { icon: User, label: "Você", path: "/perfil" },
 ];
 
@@ -53,11 +72,11 @@ const BottomNav = () => {
       <nav
         className={`backdrop-blur-xl border rounded-full mx-auto transition-all duration-300 ease-out ${
           slim
-            ? "bg-white/45 border-white/30 shadow-md scale-[0.82] opacity-80"
-            : "bg-white/95 border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.12)] scale-100 opacity-100"
+            ? "bg-white/20 border-white/20 shadow-sm scale-[0.82] opacity-80"
+            : "bg-white/80 border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.1)] scale-100 opacity-100"
         }`}
       >
-        <div className="flex items-center justify-around gap-1 px-3 py-2">
+        <div className={`flex items-center justify-between transition-all duration-300 ${slim ? "gap-3 px-4 py-2" : "gap-6 px-7 py-3"}`}>
           {visibleItems.map((item) => {
             const IconComponent = item.icon;
             return (
@@ -66,23 +85,30 @@ const BottomNav = () => {
                 to={item.path}
                 end={item.path === "/"}
                 className={({ isActive }) =>
-                  `relative flex items-center justify-center rounded-full transition-all ${
-                    slim ? "w-10 h-10" : "w-12 h-12"
+                  `relative flex flex-col items-center justify-center rounded-full transition-all ${
+                    slim ? "w-10 h-10" : "w-12 h-14"
                   } ${
                     isActive
-                      ? "text-emerald-600 bg-emerald-50"
+                      ? "text-emerald-600"
                       : "text-slate-500 hover:text-slate-700"
                   }`
                 }
                 aria-label={item.label}
               >
                 {({ isActive }) => (
-                  <IconComponent
-                    className={`transition-all ${slim ? "w-5 h-5" : "w-6 h-6"} ${
-                      isActive ? "scale-110" : ""
-                    }`}
-                    strokeWidth={isActive ? 2.4 : 2}
-                  />
+                  <>
+                    <IconComponent
+                      className={`transition-all ${slim ? "w-5 h-5" : "w-6 h-6"} ${
+                        isActive ? "scale-110" : ""
+                      }`}
+                      strokeWidth={isActive ? 2.4 : 2}
+                    />
+                    {!slim && (
+                      <span className="text-[10px] font-medium leading-tight mt-0.5">
+                        {item.label}
+                      </span>
+                    )}
+                  </>
                 )}
               </NavLink>
             );
