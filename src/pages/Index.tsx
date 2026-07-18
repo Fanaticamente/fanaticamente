@@ -1,9 +1,9 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Mobile Components
-import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import MinimalHome from "@/components/home/MinimalHome";
+import HomeFloatingActions from "@/components/home/HomeFloatingActions";
 
 // Desktop Components (Fanaticamente.com style)
 import DesktopHeader from "@/components/desktop/DesktopHeader";
@@ -22,11 +22,11 @@ const Index = () => {
   return (
     <>
       {isMobile ? (
-        <div className="min-h-screen bg-[#f7f8fa]">
-          <Header />
-          <main className="pt-16 px-4">
+        <div className="min-h-screen bg-[#f7f8fa] font-sans">
+          <HomeFloatingActions />
+          <main className="pt-4 px-4">
             <MinimalHome />
-            <div aria-hidden className="h-28" />
+            <div aria-hidden className="h-24" />
           </main>
           <BottomNav />
         </div>
