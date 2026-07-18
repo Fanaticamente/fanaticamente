@@ -4,6 +4,7 @@ import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, Shirt, Log
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import logoHeader from "@/assets/logo-header.png";
+import logoHeaderNew from "@/assets/logo-header-new.svg.asset.json";
 
 // Minimal floating icons for the home page (menu + search) — replaces the full Header bar.
 const HomeFloatingActions = () => {
@@ -82,7 +83,7 @@ const HomeFloatingActions = () => {
       </Sheet>
 
       <Link to="/" aria-label="Fanaticamente" className="flex items-center">
-        <img src={logoHeader} alt="Fanaticamente" className="h-8 w-auto" />
+        <img src={logoHeaderNew.url} alt="Fanaticamente" className="h-9 w-auto" />
       </Link>
 
       <button
