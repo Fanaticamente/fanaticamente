@@ -22,9 +22,9 @@ const Index = () => {
   return (
     <>
       {isMobile ? (
-        <div className="min-h-screen bg-[#f7f8fa] font-sans">
+        <div className="min-h-screen bg-white font-sans">
           <HomeFloatingActions />
-          <main className="pt-4 px-4">
+          <main className="pt-[calc(env(safe-area-inset-top)+72px)] px-4">
             <MinimalHome />
             <div aria-hidden className="h-24" />
           </main>
