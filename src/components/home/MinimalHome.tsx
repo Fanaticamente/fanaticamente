@@ -107,33 +107,16 @@ const MinimalHome = () => {
 
   return (
     <div className="font-sans text-slate-900 space-y-5 pb-4">
-      {/* Greeting + soccer ball */}
-      <section className="relative overflow-hidden">
-        <img
-          src={soccerBall}
-          alt=""
-          aria-hidden
-          className="absolute -top-6 -right-8 w-40 h-40 object-contain opacity-95 pointer-events-none select-none"
-        />
-        <div
-          aria-hidden
-          className="absolute -top-4 right-16 w-56 h-56 opacity-[0.06] pointer-events-none"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 1px 1px, #10b981 1.2px, transparent 1.2px)",
-            backgroundSize: "14px 14px",
-          }}
-        />
-        <div className="relative pt-2 pr-32">
-          <h1 className="font-sans text-3xl font-extrabold tracking-tight leading-tight normal-case">
-            {greeting},{" "}
-            <span className="text-emerald-600">{firstName}!</span>{" "}
-            <span className="inline-block">👋</span>
-          </h1>
-          <p className="mt-2 text-slate-500 text-[15px] leading-snug max-w-[16rem]">
-            Que tal cuidar da sua mente como você cuida do seu time?
-          </p>
-        </div>
+      {/* Greeting */}
+      <section className="pt-0">
+        <h1 className="font-sans text-2xl font-extrabold tracking-tight leading-none normal-case flex items-center gap-1 whitespace-nowrap">
+          {greeting},{" "}
+          <span className="text-emerald-600">{firstName}!</span>{" "}
+          <span className="inline-block">👋</span>
+        </h1>
+        <p className="mt-1.5 text-slate-500 text-[15px] leading-snug">
+          Saúde Mental agora é papo de arquibancada!
+        </p>
       </section>
 
       {/* Check-in */}
