@@ -24,11 +24,15 @@ const Index = () => {
     if (!isMobile) return;
     const prevHtml = document.documentElement.style.backgroundColor;
     const prevBody = document.body.style.backgroundColor;
+    const root = document.getElementById("root");
+    const prevRoot = root?.style.backgroundColor ?? "";
     document.documentElement.style.backgroundColor = "#ffffff";
     document.body.style.backgroundColor = "#ffffff";
+    if (root) root.style.backgroundColor = "#ffffff";
     return () => {
       document.documentElement.style.backgroundColor = prevHtml;
       document.body.style.backgroundColor = prevBody;
+      if (root) root.style.backgroundColor = prevRoot;
     };
   }, [isMobile]);
 
