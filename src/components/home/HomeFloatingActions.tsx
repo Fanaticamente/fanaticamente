@@ -29,13 +29,13 @@ const HomeFloatingActions = () => {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-3 py-2 pt-[calc(env(safe-area-inset-top)+8px)]"
+      className="fixed top-0 left-0 right-0 z-40 bg-white flex items-center justify-between px-3 py-2 pt-[calc(env(safe-area-inset-top)+8px)]"
     >
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button
             aria-label="Abrir menu"
-            className="w-10 h-10 rounded-full bg-white/90 backdrop-blur shadow-sm border border-slate-200 flex items-center justify-center text-slate-700"
+            className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-700"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -81,9 +81,13 @@ const HomeFloatingActions = () => {
         </SheetContent>
       </Sheet>
 
+      <Link to="/" aria-label="Fanaticamente" className="flex items-center">
+        <img src={logoHeader} alt="Fanaticamente" className="h-8 w-auto" />
+      </Link>
+
       <button
         aria-label="Buscar"
-        className="w-10 h-10 rounded-full bg-white/90 backdrop-blur shadow-sm border border-slate-200 flex items-center justify-center text-slate-700"
+        className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-700"
       >
         <Search className="w-5 h-5" />
       </button>
