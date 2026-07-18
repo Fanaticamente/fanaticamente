@@ -7,7 +7,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import soccerBall from "@/assets/home-soccer-ball.png";
 
 const MOODS = [
   { id: "muito_bem", emoji: "🙂", label: "Muito bem",     bg: "bg-emerald-100", ring: "ring-emerald-400" },
