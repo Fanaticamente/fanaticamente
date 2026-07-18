@@ -2,30 +2,13 @@ import { Home, Heart, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useAppPages } from "@/hooks/useAppPages";
+import { CommunityIcon } from "@/components/icons/CommunityIcon";
 
-const FootballIcon = ({ className }: { className?: string }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 2v20" />
-    <path d="M2 12h20" />
-    <path d="M6.5 6.5l11 11" />
-    <path d="M17.5 6.5l-11 11" />
-    <path d="M12 7l3 5-3 5-3-5z" />
-  </svg>
-);
 
 const navItems = [
   { icon: Home, label: "Início", path: "/" },
   { icon: Heart, label: "Bem-estar", path: "/bem-estar" },
-  { icon: FootballIcon, label: "Comunidade", path: "/ranking" },
+  { icon: CommunityIcon, label: "Comunidade", path: "/ranking" },
   { icon: User, label: "Você", path: "/perfil" },
 ];
 
