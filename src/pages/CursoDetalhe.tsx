@@ -125,7 +125,7 @@ const CursoDetalhe = () => {
       {/* Course Info */}
       <div className="px-1">
         <span className="text-white font-bold text-xs tracking-widest uppercase">FANATICLASS</span>
-        <h1 className="font-sans text-2xl text-white mt-1 mb-2">{course.title}</h1>
+        <h1 className="font-sans text-2xl text-slate-900 normal-case mt-1 mb-2">{course.title}</h1>
         
         <div className="flex items-center gap-3 text-sm text-slate-500 mb-4 flex-wrap">
           {course.instructor && <span>{course.instructor}</span>}
@@ -281,7 +281,7 @@ const CursoDetalhe = () => {
             {/* Activities Section */}
             {currentLesson && activities && activities.length > 0 && (
               <div className="mt-6 pt-4 border-t border-slate-200">
-                <h3 className="font-sans text-lg text-white mb-3 flex items-center gap-2">
+                <h3 className="font-sans text-lg text-slate-900 normal-case mb-3 flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-white" />
                   Atividades Complementares
                 </h3>

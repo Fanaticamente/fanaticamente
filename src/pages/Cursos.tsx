@@ -206,7 +206,7 @@ const Cursos = () => {
       ) : filteredCourses.length === 0 ? (
         <div className="text-center py-20">
           <Play className="w-16 h-16 text-slate-500/30 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-white mb-2">Nenhum curso disponível</h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">Nenhum curso disponível</h3>
           <p className="text-slate-500 text-sm">Em breve novos conteúdos serão adicionados.</p>
         </div>
       ) : (
@@ -223,7 +223,7 @@ const Cursos = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                 <div className={`absolute bottom-0 left-0 right-0 p-6 ${!isMobile ? "max-w-2xl" : ""}`}>
                   <span className="text-white font-bold text-xs tracking-widest uppercase mb-2 block">FANATICLASS</span>
-                  <h2 className="font-sans text-3xl text-white mb-2 leading-tight">
+                  <h2 className="font-sans text-3xl text-slate-900 normal-case mb-2 leading-tight">
                     {featuredCourse.title}
                   </h2>
                   <p className="text-slate-500 text-sm mb-4 line-clamp-2">
@@ -257,7 +257,7 @@ const Cursos = () => {
           {/* Continue Watching — aparece após o hero */}
           {continueWatching.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-sans text-xl text-white mb-4">CONTINUAR ASSISTINDO</h2>
+              <h2 className="font-sans text-xl text-slate-900 normal-case mb-4">CONTINUAR ASSISTINDO</h2>
               <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
                 {continueWatching.map((item) => (
                   <Link
@@ -304,7 +304,7 @@ const Cursos = () => {
           {/* Free Courses */}
           {freeCourses.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-sans text-xl text-white mb-4">
+              <h2 className="font-sans text-xl text-slate-900 normal-case mb-4">
                 🎓 Gratuitos
               </h2>
               <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
@@ -318,7 +318,7 @@ const Cursos = () => {
           {/* Premium Courses */}
           {premiumCourses.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-sans text-xl text-white mb-4">
+              <h2 className="font-sans text-xl text-slate-900 normal-case mb-4">
                 Conteúdo Premium
               </h2>
               <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
@@ -332,7 +332,7 @@ const Cursos = () => {
           {/* All Courses Grid */}
           {filteredCourses.length > 1 && (
             <div className="mb-8">
-              <h2 className="font-sans text-xl text-white mb-4">
+              <h2 className="font-sans text-xl text-slate-900 normal-case mb-4">
                 Todos os cursos
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
