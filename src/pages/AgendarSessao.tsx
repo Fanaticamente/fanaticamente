@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import BookingDrawer from "@/components/terapeutas/BookingDrawer";
 import BottomNav from "@/components/layout/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
-import { getAllClubs } from "@/data/brazilianClubs";
+import { getClubById } from "@/data/brazilianClubs";
 import { clubNicknames } from "@/data/clubNicknames";
 
 interface TherapistData {
@@ -55,7 +55,7 @@ const AgendarSessao = () => {
           socioConsciente: data.socio_consciente || false,
         });
         if (data.favorite_club_id) {
-          const club = getAllClubs().find((c) => c.id === data.favorite_club_id);
+          const club = getClubById(data.favorite_club_id);
           if (club) {
             setClubColor(club.primaryColor);
             setClubName(club.name);
