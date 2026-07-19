@@ -330,7 +330,7 @@ const CursoDetalhe = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-white">
-        <Header title={course?.title || "Curso"} />
+        <Header title={course?.title || "Curso"} hideSearch />
         <main className="pt-[calc(env(safe-area-inset-top)+64px)] px-4 pb-4">
           <div className="mb-4">
         <Link to="/cursos" className="flex items-center gap-1 text-slate-500 text-sm hover:text-slate-700 transition-colors">
