@@ -28,24 +28,45 @@ const Diario = () => {
   const DiarioContent = () => (
     <>
       <div className="text-center mb-6">
-        <h1 className="font-display text-4xl text-primary mb-2">
-          Termômetro Torcedor
+        <h1
+          className="font-sans text-2xl font-bold text-slate-900 mb-1"
+          style={{ textTransform: "none" }}
+        >
+          Campo das emoções
         </h1>
-        <p className="text-muted-foreground">
-          Como você está se sentindo hoje?
+        <p className="text-sm text-slate-500">
+          Escale seu time e gere uma reflexão.
         </p>
       </div>
 
-      <MatchExpectationCard userClubId={profile?.favorite_club_id ?? null} />
-      <EmotionTacticalBoard />
+      <div
+        style={{
+          ["--card" as any]: "0 0% 100%",
+          ["--card-foreground" as any]: "222 47% 11%",
+          ["--background" as any]: "0 0% 100%",
+          ["--foreground" as any]: "222 47% 11%",
+          ["--border" as any]: "214 32% 91%",
+          ["--muted" as any]: "210 40% 96%",
+          ["--muted-foreground" as any]: "215 16% 47%",
+          ["--primary" as any]: "160 84% 39%",
+          ["--primary-foreground" as any]: "0 0% 100%",
+          ["--secondary" as any]: "160 84% 39%",
+          ["--secondary-foreground" as any]: "0 0% 100%",
+          ["--accent" as any]: "160 84% 39%",
+          ["--accent-foreground" as any]: "0 0% 100%",
+        }}
+      >
+        <MatchExpectationCard userClubId={profile?.favorite_club_id ?? null} />
+        <EmotionTacticalBoard />
+      </div>
     </>
   );
 
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header title="Termômetro Torcedor" />
-        <main className="pt-20 px-4">
+      <div className="min-h-screen bg-white text-slate-900 font-sans normal-case">
+        <Header title="Campo das emoções" />
+        <main className="pt-[calc(env(safe-area-inset-top)+56px+16px)] px-4">
           <DiarioContent />
           <div aria-hidden className="h-28" />
         </main>
@@ -55,7 +76,7 @@ const Diario = () => {
   }
 
   return (
-    <UserDesktopLayout title="Termômetro Torcedor" subtitle="Acompanhe suas emoções dia a dia">
+    <UserDesktopLayout title="Campo das emoções" subtitle="Escale seu time e gere uma reflexão.">
       <DiarioContent />
     </UserDesktopLayout>
   );
