@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { ChevronLeft, Shirt } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import TherapistCard from "@/components/terapeutas/TherapistCard";
 import VacancyCard from "@/components/terapeutas/VacancyCard";
-import BookingDrawer from "@/components/terapeutas/BookingDrawer";
 import { getClubsByLeague, BrazilianClub } from "@/data/brazilianClubs";
 import { clubNicknames } from "@/data/clubNicknames";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,6 +83,7 @@ const leagueLabels: Record<League, string> = {
 
 const Terapeutas = () => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>("club");
   const [selectedLeague, setSelectedLeague] = useState<League>("serie_a");
   const [selectedClub, setSelectedClub] = useState<BrazilianClub | null>(null);
@@ -94,9 +95,6 @@ const Terapeutas = () => {
   const hiddenBadges = (moduleConfig?.config?.hidden_badges as string[]) || [];
   const clubDisplayMode = ((moduleConfig?.config?.club_display_mode as string) || "badge") as "badge" | "flag";
   
-  // Booking drawer state
-  const [selectedTherapist, setSelectedTherapist] = useState<TherapistData | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [clubsWithProfessionals, setClubsWithProfessionals] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -205,8 +203,7 @@ const Terapeutas = () => {
   };
 
   const handleTherapistSelect = (therapist: TherapistData) => {
-    setSelectedTherapist(therapist);
-    setDrawerOpen(true);
+    navigate(`/agendar/${therapist.id}`);
   };
 
   return (
@@ -377,15 +374,6 @@ const Terapeutas = () => {
       </main>
 
       <BottomNav />
-
-      {/* Booking Drawer */}
-      <BookingDrawer
-        therapist={selectedTherapist}
-        clubColor={selectedClub?.primaryColor || "#10b981"}
-        clubNickname={selectedClub ? clubNicknames[selectedClub.id] : undefined}
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-      />
     </div>
   );
 };
