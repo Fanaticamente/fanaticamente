@@ -98,7 +98,7 @@ const Comunidade = () => {
             {/* Brasileirão card */}
             <section className="bg-white rounded-3xl shadow-sm p-5 mb-5">
               <header className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900 !normal-case" style={{ textTransform: 'none' }}>Brasileirão da Saúde Mental</h3>
+                <h3 className="font-sans text-lg font-bold text-gray-900 normal-case">Brasileirão da Saúde Mental</h3>
                 <button onClick={() => setShowClubsFull(true)} className="text-emerald-600 text-sm font-semibold flex items-center gap-0.5">
                   Ver tabela <ChevronRight className="w-4 h-4" />
                 </button>
@@ -147,7 +147,7 @@ const Comunidade = () => {
             {/* Fan ranking card */}
             <section className="bg-white rounded-3xl shadow-sm p-5">
               <header className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900 !normal-case" style={{ textTransform: 'none' }}>Ranking de Torcedores</h3>
+                <h3 className="font-sans text-lg font-bold text-gray-900 normal-case">Ranking de Torcedores</h3>
                 <button onClick={() => setShowFansFull(true)} className="text-emerald-600 text-sm font-semibold flex items-center gap-0.5">
                   Ver todos <ChevronRight className="w-4 h-4" />
                 </button>
@@ -196,7 +196,7 @@ const Comunidade = () => {
       <Dialog open={showClubsFull} onOpenChange={setShowClubsFull}>
         <DialogContent className="max-w-lg w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto rounded-3xl p-0 bg-white font-sans">
           <DialogHeader className="p-5 pb-2 sticky top-0 bg-white z-10">
-            <DialogTitle className="text-lg font-bold text-gray-900 !normal-case text-left" style={{ textTransform: 'none' }}>Brasileirão da Saúde Mental</DialogTitle>
+            <DialogTitle className="font-sans text-lg font-bold text-gray-900 normal-case text-left">Brasileirão da Saúde Mental</DialogTitle>
             <div className="flex gap-2 mt-3">
               {leagueTabs.map((t) => (
                 <button
@@ -247,7 +247,7 @@ const Comunidade = () => {
       <Dialog open={showFansFull} onOpenChange={setShowFansFull}>
         <DialogContent className="max-w-lg w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto rounded-3xl p-0 bg-white font-sans">
           <DialogHeader className="p-5 pb-2 sticky top-0 bg-white z-10">
-            <DialogTitle className="text-lg font-bold text-gray-900 !normal-case text-left" style={{ textTransform: 'none' }}>Ranking de Torcedores</DialogTitle>
+            <DialogTitle className="font-sans text-lg font-bold text-gray-900 normal-case text-left">Ranking de Torcedores</DialogTitle>
           </DialogHeader>
           <div className="px-5 pb-6 divide-y divide-gray-100 bg-white">
             {fanRanking.map((f) => (
