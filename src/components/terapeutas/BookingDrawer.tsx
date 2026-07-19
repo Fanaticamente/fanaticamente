@@ -894,6 +894,58 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
             </div>
           )}
         </div>
+  );
+
+  if (asPage) {
+    if (!open) return null;
+    return (
+      <div className="min-h-screen bg-white font-sans">
+        <header className="fixed top-0 left-0 right-0 z-40 bg-white flex items-center justify-between px-3 py-2 pt-[calc(env(safe-area-inset-top)+8px)]">
+          <button
+            aria-label="Voltar"
+            onClick={handleHeaderBack}
+            className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-700"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h1 className="absolute left-1/2 -translate-x-1/2 max-w-[calc(100%-120px)] font-sans font-semibold text-base text-slate-900 truncate normal-case">
+            {headerTitle}
+          </h1>
+          <button
+            aria-label="Buscar"
+            className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-700"
+          >
+            <Search className="w-5 h-5" />
+          </button>
+        </header>
+        <div className="pt-[calc(env(safe-area-inset-top)+64px)] bg-white min-h-screen">
+          {bodyContent}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay
+          className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+        />
+        <DialogPrimitive.Content
+          className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-2xl shadow-2xl bg-white duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+        >
+          <div className="sticky top-0 z-10 px-4 py-4 flex items-center gap-3" style={{ backgroundColor: clubColor }}>
+            <button
+              onClick={handleHeaderBack}
+              className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
+            >
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+            <DialogTitle className="text-white font-bold text-xl font-sans normal-case">
+              {headerTitle}
+            </DialogTitle>
+          </div>
+          {bodyContent}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
