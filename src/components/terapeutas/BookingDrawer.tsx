@@ -681,13 +681,13 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                           {selectedTime && (
                             <button
                               onClick={handleSchedule}
-                              className="w-full mt-4 py-3 rounded-xl font-bold text-white uppercase tracking-wide shadow-lg animate-in fade-in slide-in-from-bottom-2"
+                              className="w-full mt-4 py-3 rounded-xl font-bold text-white tracking-wide shadow-lg animate-in fade-in slide-in-from-bottom-2 normal-case"
                               style={{
                                 backgroundColor: clubColor,
                                 boxShadow: `0 8px 24px ${clubColor}40`
                               }}
                             >
-                              Agendar Sessão
+                              Agendar sessão
                             </button>
                           )}
                         </div>
