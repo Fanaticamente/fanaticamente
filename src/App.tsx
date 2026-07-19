@@ -75,6 +75,7 @@ import Conecta from "./pages/Conecta";
 import OSMF from "./pages/OSMF";
 import ZonaMista from "./pages/ZonaMista";
 import Ranking from "./pages/Ranking";
+import Comunidade from "./pages/Comunidade";
 import Notificacoes from "./pages/Notificacoes";
 import VerificarRecibo from "./pages/VerificarRecibo";
 import NotificationManagerPage from "./pages/NotificationManagerPage";
