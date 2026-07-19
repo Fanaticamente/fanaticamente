@@ -1,33 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Zap, Shirt, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import Header from "@/components/layout/Header";
-import { useToast } from "@/hooks/use-toast";
-import { getFirstAndLastName } from "@/lib/utils";
 import BottomNav from "@/components/layout/BottomNav";
+import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-const isFemaleName = (fullName: string) => {
-  const first = (fullName || "").trim().split(/\s+/)[0]?.toLowerCase() ?? "";
-  if (!first) return false;
-  const maleExceptions = new Set(["luca","costa","silva","andrea","sasha","elias","dias","jonas","tobias","matias","isaias","aoba"]);
-  if (maleExceptions.has(first)) return false;
-  const femaleOverrides = new Set(["lais","laís","ines","inês","beatriz","iris","íris","mercedes","isis","ísis","raquel","isabel","cris","esther","ruth","judith","abigail","carmen","miriam","myriam","eunice","dolores","solange","heloise","eloise","eloá","eloa","agnes","damaris","noemi","noemí","rebeca","sarai","tamar","yasmin","jasmin","carol","sol","flor","mel"]);
-  if (femaleOverrides.has(first)) return true;
-  return /a$/.test(first);
-};
-
-const inferRoleLabel = (degree: string | null, female: boolean) => {
-  const d = (degree || "").toLowerCase();
-  if (d.includes("nutric")) return "Nutricionista";
-  if (d.includes("fisio")) return "Fisioterapeuta";
-  if (d.includes("psiqui")) return "Psiquiatra";
-  if (d.includes("terapeuta ocup")) return "Terapeuta Ocupacional";
-  return female ? "Psicóloga" : "Psicólogo";
-};
 
 interface Professional {
   id: string;
@@ -478,58 +457,9 @@ const ProfessionalProfile = () => {
           </div>
         )}
 
-        {/* SCHEDULING_PLACEHOLDER */}
-        <div style={{display:'none'}} />
-
-        {/* Bio Section */}
-        {professional.bio && (
-          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div 
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: clubColor + '15' }}
-              >
-                <User className="w-5 h-5" style={{ color: clubColor }} />
-              </div>
-              <h2 className="font-bold text-gray-900">Sobre Mim</h2>
-            </div>
-            <p className="text-gray-600 leading-relaxed">
-              {professional.bio}
-            </p>
-          </div>
-        )}
-
-        {/* Specialties Section */}
-        {professional.specialties && professional.specialties.length > 0 && (
-          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div 
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: clubColor + '15' }}
-              >
-                <Award className="w-5 h-5" style={{ color: clubColor }} />
-              </div>
-              <h2 className="font-bold text-gray-900">Especialidades</h2>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {professional.specialties.map((specialty) => (
-                <span
-                  key={specialty}
-                  className="px-4 py-2 text-sm font-medium rounded-full"
-                  style={{ 
-                    backgroundColor: clubColor + '12', 
-                    color: clubColor 
-                  }}
-                >
-                  {specialty}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Scheduling Section */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          {/* Section Header */}
           <div 
             className="px-5 py-4 flex items-center gap-3"
             style={{ backgroundColor: clubColor + '08' }}
@@ -541,8 +471,8 @@ const ProfessionalProfile = () => {
               <Calendar className="w-5 h-5" style={{ color: clubColor }} />
             </div>
             <div>
-              <h2 className="font-bold text-gray-900">Agende um horário</h2>
-              <p className="text-sm text-gray-500">Escolha o melhor dia e horário</p>
+              <h2 className="font-bold text-gray-900">Agendar Sessão</h2>
+              <p className="text-sm text-gray-500">Escolha o melhor horário</p>
             </div>
           </div>
 
@@ -665,6 +595,52 @@ const ProfessionalProfile = () => {
           </div>
         </div>
 
+        {/* Bio Section */}
+        {professional.bio && (
+          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div 
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: clubColor + '15' }}
+              >
+                <User className="w-5 h-5" style={{ color: clubColor }} />
+              </div>
+              <h2 className="font-bold text-gray-900">Sobre Mim</h2>
+            </div>
+            <p className="text-gray-600 leading-relaxed">
+              {professional.bio}
+            </p>
+          </div>
+        )}
+
+        {/* Specialties Section */}
+        {professional.specialties && professional.specialties.length > 0 && (
+          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div 
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: clubColor + '15' }}
+              >
+                <Award className="w-5 h-5" style={{ color: clubColor }} />
+              </div>
+              <h2 className="font-bold text-gray-900">Especialidades</h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {professional.specialties.map((specialty) => (
+                <span
+                  key={specialty}
+                  className="px-4 py-2 text-sm font-medium rounded-full"
+                  style={{ 
+                    backgroundColor: clubColor + '12', 
+                    color: clubColor 
+                  }}
+                >
+                  {specialty}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       {isMobile && <BottomNav />}
