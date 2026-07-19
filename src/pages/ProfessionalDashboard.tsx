@@ -1256,22 +1256,6 @@ const ProfessionalDashboard = () => {
                         </span>
                       </div>
                       
-                      {/* Receipt Section */}
-                      {apt.receipt_url && (
-                        <div className="mt-4 pt-4 border-t border-border">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewReceipt(apt.receipt_url);
-                            }}
-                            className="flex items-center gap-2 text-sm text-therapy hover:underline"
-                          >
-                            <Upload className="w-4 h-4" />
-                            Ver Comprovante de Pagamento
-                          </button>
-                        </div>
-                      )}
-                      
                       {/* Action Buttons for Pending - Confirm keeps status pending, just validates receipt */}
                       {apt.status === "pending" && (
                         <div className="mt-4 pt-4 border-t border-border flex gap-2">
