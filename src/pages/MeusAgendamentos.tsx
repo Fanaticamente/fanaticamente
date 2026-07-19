@@ -614,8 +614,8 @@ const MeusAgendamentos = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-white">
-        <Header title="Meus agendamentos" showBack onBack={() => navigate("/perfil")} />
-        <main className="pb-24 px-4 pt-4">
+        <Header title="Meus agendamentos" />
+        <main className="pb-24 px-4 pt-[calc(env(safe-area-inset-top)+64px)]">
           <p className="text-slate-500 text-sm mb-4">
             {appointments.length} consulta{appointments.length !== 1 ? "s" : ""}
           </p>
