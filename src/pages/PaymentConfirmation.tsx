@@ -148,27 +148,27 @@ const PaymentConfirmation = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+      <main className="flex-1 flex flex-col items-center justify-center px-5 py-5">
         {/* Success Icon */}
         <div
-          className="w-24 h-24 rounded-full flex items-center justify-center mb-5"
+          className="w-16 h-16 rounded-full flex items-center justify-center mb-3"
           style={{ backgroundColor: accentColor }}
         >
-          <CheckCircle className="w-14 h-14 text-white" />
+          <CheckCircle className="w-9 h-9 text-white" />
         </div>
 
-        <h1 className="text-2xl font-extrabold text-slate-900 text-center normal-case">
+        <h1 className="text-xl font-extrabold text-slate-900 text-center normal-case">
           Agendamento concluído
         </h1>
-        <p className="text-slate-500 text-center mt-1 mb-8">
+        <p className="text-sm text-slate-500 text-center mt-1 mb-4">
           Sua sessão foi agendada com sucesso
         </p>
 
         {/* Session Details Card */}
-        <div className="w-full max-w-sm bg-white rounded-2xl p-5 shadow-lg border border-slate-100 mb-6">
-          <div className="flex items-center gap-4 mb-5 pb-4 border-b border-slate-100">
+        <div className="w-full max-w-sm bg-white rounded-2xl p-4 shadow-lg border border-slate-100 mb-4">
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
             <div
-              className="w-16 h-16 rounded-full overflow-hidden border-2"
+              className="w-14 h-14 rounded-full overflow-hidden border-2 shrink-0"
               style={{ borderColor: accentColor }}
             >
               {profile?.avatar_url ? (
@@ -182,54 +182,54 @@ const PaymentConfirmation = () => {
                   className="w-full h-full flex items-center justify-center"
                   style={{ backgroundColor: accentColor + "20" }}
                 >
-                  <User className="w-8 h-8" style={{ color: accentColor }} />
+                  <User className="w-7 h-7" style={{ color: accentColor }} />
                 </div>
               )}
             </div>
             <div className="min-w-0">
-              <h3 className="font-sans font-bold text-slate-900 text-lg leading-tight">
+              <h3 className="font-sans font-bold text-slate-900 text-base leading-tight">
                 {professionalName}
               </h3>
-              <p className="text-sm text-slate-500">CRP {professional.crp}</p>
+              <p className="text-xs text-slate-500">CRP {professional.crp}</p>
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center"
+                className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
                 style={{ backgroundColor: accentColor + "15" }}
               >
-                <Calendar className="w-5 h-5" style={{ color: accentColor }} />
+                <Calendar className="w-4 h-4" style={{ color: accentColor }} />
               </div>
               <div>
-                <p className="text-sm text-slate-500">Data</p>
-                <p className="font-medium text-slate-900">{cardDate}</p>
+                <p className="text-xs text-slate-500">Data</p>
+                <p className="text-sm font-medium text-slate-900">{cardDate}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center"
+                className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
                 style={{ backgroundColor: accentColor + "15" }}
               >
-                <Clock className="w-5 h-5" style={{ color: accentColor }} />
+                <Clock className="w-4 h-4" style={{ color: accentColor }} />
               </div>
               <div>
-                <p className="text-sm text-slate-500">Horário</p>
-                <p className="font-medium text-slate-900">{scheduledTime}</p>
+                <p className="text-xs text-slate-500">Horário</p>
+                <p className="text-sm font-medium text-slate-900">{scheduledTime}</p>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-100">
+            <div className="pt-3 border-t border-slate-100">
               <div className="flex justify-between items-center">
-                <span className="text-slate-600">Valor a pagar</span>
-                <span className="text-xl font-bold" style={{ color: accentColor }}>
+                <span className="text-sm text-slate-600">Valor a pagar</span>
+                <span className="text-lg font-bold" style={{ color: accentColor }}>
                   R$ {sessionPrice.toFixed(2).replace(".", ",")}
                 </span>
               </div>
               {socioApplied && (
-                <div className="flex items-center gap-2 mt-2">
+                <div className="flex items-center gap-2 mt-1.5">
                   <Shield className="w-4 h-4" style={{ color: accentColor }} />
                   <span className="text-xs font-semibold" style={{ color: accentColor }}>
                     Parceria aplicada
@@ -241,7 +241,7 @@ const PaymentConfirmation = () => {
 
           <button
             onClick={handleDownload}
-            className="mt-5 w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 border-2 transition-all bg-white"
+            className="mt-4 w-full py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 border-2 transition-all bg-white text-sm"
             style={{ borderColor: accentColor, color: accentColor }}
           >
             <Download className="w-4 h-4" />
@@ -251,31 +251,31 @@ const PaymentConfirmation = () => {
 
         {/* Info Text */}
         <div
-          className="w-full max-w-sm p-4 rounded-xl mb-6 text-center"
+          className="w-full max-w-sm p-3 rounded-xl mb-4 text-center"
           style={{ backgroundColor: accentColor + "12" }}
         >
-          <p className="text-sm" style={{ color: accentColor }}>
+          <p className="text-xs" style={{ color: accentColor }}>
             Você receberá um lembrete por e-mail 24 horas antes da sua sessão
           </p>
         </div>
 
         {/* Action Buttons */}
-        <div className="w-full max-w-sm space-y-3">
+        <div className="w-full max-w-sm space-y-2.5">
           <button
             onClick={() => navigate("/meus-agendamentos")}
-            className="w-full py-4 rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-2 text-white"
+            className="w-full py-3 rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-2 text-white text-sm"
             style={{ backgroundColor: accentColor }}
           >
-            <CalendarCheck className="w-5 h-5" />
+            <CalendarCheck className="w-4 h-4" />
             Visualizar agendamentos
           </button>
 
           <button
             onClick={() => navigate("/")}
-            className="w-full py-4 rounded-xl font-bold transition-all border-2 flex items-center justify-center gap-2 bg-white"
+            className="w-full py-3 rounded-xl font-bold transition-all border-2 flex items-center justify-center gap-2 bg-white text-sm"
             style={{ borderColor: accentColor, color: accentColor }}
           >
-            <Home className="w-5 h-5" />
+            <Home className="w-4 h-4" />
             Voltar para o início
           </button>
         </div>
