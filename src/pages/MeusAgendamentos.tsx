@@ -179,65 +179,25 @@ const MeusAgendamentos = () => {
     const past = isPast(appointmentDate) && !isToday(appointmentDate);
 
     if (status === "in_progress") {
-      return {
-        label: "Em Atendimento",
-        className: "bg-blue-500/20 text-blue-500",
-        icon: Clock
-      };
+      return { label: "Em atendimento", className: "bg-blue-50 text-blue-600", icon: Clock };
     } else if (status === "link_sent") {
-      return {
-        label: "Link Recebido",
-        className: "bg-cyan-500/20 text-cyan-500",
-        icon: CheckCircle
-      };
+      return { label: "Link recebido", className: "bg-cyan-50 text-cyan-600", icon: CheckCircle };
     } else if (status === "confirmed") {
-      return {
-        label: past ? "Realizada" : "Confirmada",
-        className: "bg-green-500/20 text-green-500",
-        icon: CheckCircle
-      };
+      return { label: past ? "Realizada" : "Confirmada", className: "bg-emerald-50 text-emerald-600", icon: CheckCircle };
     } else if (status === "completed") {
-      return {
-        label: "Concluída",
-        className: "bg-purple-500/20 text-purple-500",
-        icon: CheckCircle
-      };
+      return { label: "Concluída", className: "bg-violet-50 text-violet-600", icon: CheckCircle };
     } else if (status === "payment_issue") {
-      return {
-        label: "Problema no Pagamento",
-        className: "bg-orange-500/20 text-orange-500",
-        icon: AlertCircle
-      };
+      return { label: "Problema no pagamento", className: "bg-orange-50 text-orange-600", icon: AlertCircle };
     } else if (status === "refund_pending") {
-      return {
-        label: "Aguardando Reembolso",
-        className: "bg-orange-500/20 text-orange-500",
-        icon: Clock
-      };
+      return { label: "Aguardando reembolso", className: "bg-orange-50 text-orange-600", icon: Clock };
     } else if (status === "refund_sent") {
-      return {
-        label: "Reembolso Enviado",
-        className: "bg-blue-500/20 text-blue-500",
-        icon: CheckCircle
-      };
+      return { label: "Reembolso enviado", className: "bg-blue-50 text-blue-600", icon: CheckCircle };
     } else if (status === "disputed") {
-      return {
-        label: "Em Análise",
-        className: "bg-red-500/20 text-red-500",
-        icon: AlertCircle
-      };
+      return { label: "Em análise", className: "bg-red-50 text-red-600", icon: AlertCircle };
     } else if (status === "cancelled") {
-      return {
-        label: "Cancelada",
-        className: "bg-red-500/20 text-red-500",
-        icon: XCircle
-      };
+      return { label: "Cancelada", className: "bg-red-50 text-red-600", icon: XCircle };
     } else {
-      return {
-        label: "Pendente",
-        className: "bg-yellow-500/20 text-yellow-500",
-        icon: AlertCircle
-      };
+      return { label: "Pendente", className: "bg-amber-50 text-amber-600", icon: AlertCircle };
     }
   };
 
