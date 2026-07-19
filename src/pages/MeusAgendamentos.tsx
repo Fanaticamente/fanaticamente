@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Loader2, Info, Star, RefreshCw } from "lucide-react";
+import { Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Loader2, Info, Star, RefreshCw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO, isPast, isToday, isBefore, addMinutes } from "date-fns";
@@ -11,6 +11,7 @@ import RescheduleDialog from "@/components/user/RescheduleDialog";
 import RefundInfoCard from "@/components/user/RefundInfoCard";
 import RefundPixForm from "@/components/user/RefundPixForm";
 import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
+import Header from "@/components/layout/Header";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Appointment {
