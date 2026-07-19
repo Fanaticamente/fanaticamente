@@ -109,7 +109,6 @@ const ProfessionalDashboard = () => {
   
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loadingAppointments, setLoadingAppointments] = useState(false);
-  const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<any | null>(null);
   const [rejectingAppointment, setRejectingAppointment] = useState<any | null>(null);
 
@@ -597,23 +596,6 @@ const ProfessionalDashboard = () => {
     } catch (error) {
       console.error('Error updating appointment:', error);
       toast.error('Erro ao atualizar agendamento');
-    }
-  };
-
-  const handleViewReceipt = async (receiptPath: string) => {
-    try {
-      const { data, error } = await supabase.storage
-        .from('payment-receipts')
-        .createSignedUrl(receiptPath, 3600); // 1 hour expiry
-
-      if (error) throw error;
-      
-      if (data?.signedUrl) {
-        setSelectedReceipt(data.signedUrl);
-      }
-    } catch (error) {
-      console.error('Error getting receipt:', error);
-      toast.error('Erro ao carregar comprovante');
     }
   };
 
