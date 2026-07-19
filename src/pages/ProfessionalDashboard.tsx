@@ -1309,38 +1309,6 @@ const ProfessionalDashboard = () => {
                   />
                 )}
 
-                {/* Receipt Modal */}
-                {selectedReceipt && (
-                  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedReceipt(null)}>
-                    <div className="bg-card rounded-2xl max-w-lg w-full max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-between p-4 border-b border-border">
-                        <h3 className="font-medium text-card-foreground">Comprovante de Pagamento</h3>
-                        <button onClick={() => setSelectedReceipt(null)} className="p-2 hover:bg-muted rounded-lg">
-                          <XCircle className="w-5 h-5 text-muted-foreground" />
-                        </button>
-                      </div>
-                      <div className="p-4">
-                        {selectedReceipt.includes('.pdf') ? (
-                          <a 
-                            href={selectedReceipt} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-therapy hover:underline"
-                          >
-                            <Upload className="w-5 h-5" />
-                            Abrir PDF em nova aba
-                          </a>
-                        ) : (
-                          <img 
-                            src={selectedReceipt} 
-                            alt="Comprovante" 
-                            className="w-full rounded-lg"
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 
