@@ -49,7 +49,7 @@ const PaymentConfirmation = () => {
           .from("professionals_public")
           .select("*")
           .eq("id", id)
-          .single();
+          .maybeSingle();
 
         if (professionalError || !professionalData) {
           navigate("/");
@@ -62,7 +62,7 @@ const PaymentConfirmation = () => {
           .from("profiles")
           .select("full_name, avatar_url, favorite_club_id")
           .eq("user_id", professionalData.user_id)
-          .single();
+          .maybeSingle();
 
         if (profileData) {
           setProfile(profileData);
@@ -72,7 +72,7 @@ const PaymentConfirmation = () => {
               .from("clubs")
               .select("*")
               .eq("id", profileData.favorite_club_id)
-              .single();
+              .maybeSingle();
 
             if (clubData) {
               setClub(clubData);
@@ -99,7 +99,7 @@ const PaymentConfirmation = () => {
     );
   }
 
-  if (!professional || !profile || !scheduledDate || !scheduledTime) {
+  if (!professional || !scheduledDate || !scheduledTime) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <p className="text-gray-500">Dados não encontrados</p>
@@ -153,7 +153,7 @@ const PaymentConfirmation = () => {
               )}
             </div>
             <div>
-              <h3 className="font-bold text-gray-800 text-xl font-sans capitalize">{getFirstAndLastName(profile.full_name || "").toLowerCase()}</h3>
+              <h3 className="font-bold text-gray-800 text-xl font-sans capitalize">{getFirstAndLastName(profile?.full_name || "").toLowerCase()}</h3>
               <p className="text-sm text-gray-500">CRP {professional.crp}</p>
             </div>
           </div>
