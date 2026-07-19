@@ -83,7 +83,7 @@ const CursoDetalhe = () => {
   const DetailContent = () => (
     <div className="max-w-4xl mx-auto">
       {/* Video Player / Locked Thumbnail */}
-      <div className="relative aspect-video bg-black rounded-2xl overflow-hidden mb-6">
+      <div className="relative aspect-video bg-black rounded-2xl overflow-hidden mb-4">
         {hasAccess && currentLesson?.video_url ? (
           <video
             key={currentLesson.id}
@@ -99,24 +99,41 @@ const CursoDetalhe = () => {
             {course.thumbnail_url ? (
               <img src={course.thumbnail_url} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
             ) : null}
+            <div className="absolute inset-0 bg-black/25" />
             <div className="relative z-10 flex flex-col items-center">
               {!hasAccess && course.is_premium ? (
                 <>
                   <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center mb-3">
                     <Lock className="w-8 h-8 text-slate-700" />
                   </div>
-                  <p className="text-slate-500 text-sm">Conteúdo bloqueado</p>
+                  <p className="text-white/90 text-sm">Conteúdo bloqueado</p>
                 </>
               ) : (
                 <>
-                  <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center mb-3">
-                    <Play className="w-8 h-8 text-gray-800 fill-current ml-1" />
+                  <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
+                    <Play className="w-8 h-8 text-white fill-current ml-1" />
                   </div>
-                  <p className="text-slate-500 text-sm">
-                    {currentLesson ? "Vídeo em breve" : "Selecione uma aula"}
-                  </p>
                 </>
               )}
+            </div>
+            {/* Meta chips */}
+            <div className="absolute bottom-3 left-3 right-3 z-10 flex gap-2 flex-wrap">
+              {course.instructor && (
+                <span className="px-3 py-1 rounded-full border border-emerald-400 text-emerald-300 text-[11px] font-semibold bg-black/30 backdrop-blur-sm">
+                  {course.instructor}
+                </span>
+              )}
+              <span className="px-3 py-1 rounded-full border border-emerald-400 text-emerald-300 text-[11px] font-semibold bg-black/30 backdrop-blur-sm inline-flex items-center gap-1">
+                <BookOpen className="w-3 h-3" /> {totalLessons} aulas
+              </span>
+              {course.total_duration && (
+                <span className="px-3 py-1 rounded-full border border-emerald-400 text-emerald-300 text-[11px] font-semibold bg-black/30 backdrop-blur-sm inline-flex items-center gap-1">
+                  <Clock className="w-3 h-3" /> {course.total_duration}
+                </span>
+              )}
+              <span className="px-3 py-1 rounded-full border border-emerald-400 text-emerald-300 text-[11px] font-semibold bg-black/30 backdrop-blur-sm">
+                {course.is_premium ? "Premium" : "Gratuito"}
+              </span>
             </div>
           </div>
         )}
@@ -124,29 +141,7 @@ const CursoDetalhe = () => {
 
       {/* Course Info */}
       <div className="px-1">
-        <span className="text-emerald-600 font-bold text-[11px] tracking-widest uppercase">FANATICLASS</span>
-        <h1 className="font-sans text-2xl text-slate-900 normal-case mt-1 mb-2">{course.title}</h1>
-        
-        <div className="flex items-center gap-3 text-sm text-slate-500 mb-4 flex-wrap">
-          {course.instructor && <span>{course.instructor}</span>}
-          {course.total_duration && (
-            <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" /> {course.total_duration}
-            </span>
-          )}
-          <span className="flex items-center gap-1">
-            <BookOpen className="w-3.5 h-3.5" /> {totalLessons} aulas
-          </span>
-          {course.is_premium ? (
-            <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1">
-              <Lock className="w-3 h-3" /> Premium
-            </span>
-          ) : (
-            <span className="bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full text-xs font-bold">
-              Gratuito
-            </span>
-          )}
-        </div>
+        <h1 className="font-sans font-bold text-xl text-slate-900 normal-case mb-3 mt-2">{course.title}</h1>
 
         {/* Paywall - show if premium and no access */}
         {course.is_premium && !hasAccess ? (
