@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Trophy, TrendingUp } from "lucide-react";
+import { ChevronRight, Trophy, TrendingUp, X } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { getClubsByLeague } from "@/data/brazilianClubs";
 import ClubMark from "@/components/clubs/ClubMark";
