@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import BookingDrawer from "@/components/terapeutas/BookingDrawer";
 import BottomNav from "@/components/layout/BottomNav";
@@ -25,14 +25,23 @@ interface TherapistData {
 const AgendarSessao = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [therapist, setTherapist] = useState<TherapistData | null>(null);
-  const [clubColor, setClubColor] = useState<string>("#10b981");
-  const [clubName, setClubName] = useState<string | undefined>(undefined);
-  const [clubNickname, setClubNickname] = useState<string | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const initial = (location.state ?? {}) as {
+    therapist?: TherapistData;
+    clubColor?: string;
+    clubName?: string;
+    clubNickname?: string;
+  };
+  const [therapist, setTherapist] = useState<TherapistData | null>(initial.therapist ?? null);
+  const [clubColor, setClubColor] = useState<string>(initial.clubColor ?? "#10b981");
+  const [clubName, setClubName] = useState<string | undefined>(initial.clubName);
+  const [clubNickname, setClubNickname] = useState<string | undefined>(initial.clubNickname);
+  const [loading, setLoading] = useState(!initial.therapist);
 
   useEffect(() => {
     if (!id) return;
+    // If we already have data from navigation state, skip the loader entirely
+    // and let the fetch below refresh silently in the background.
     (async () => {
       const { data } = await supabase
         .from("professionals_public")
