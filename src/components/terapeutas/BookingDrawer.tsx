@@ -571,8 +571,8 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <h2
-                        className="font-bold text-gray-900 text-[20px] leading-tight"
-                        style={{ textTransform: "capitalize" }}
+                        className="font-sans font-bold text-gray-900 text-[20px] leading-tight"
+                        style={{ textTransform: "capitalize", fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif", letterSpacing: 0 }}
                       >
                         {getFirstAndLastName(therapist.name).toLowerCase()}
                       </h2>
