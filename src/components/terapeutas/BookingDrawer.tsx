@@ -583,6 +583,39 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                 </div>
               </div>
 
+
+              {/* Bio */}
+              {therapist.bio && (
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="w-4 h-4" style={{ color: clubColor }} />
+                    <span className="font-semibold text-gray-900 text-sm">Sobre</span>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed">{therapist.bio}</p>
+                </div>
+              )}
+
+              {/* Specialties */}
+              {therapist.specialties.length > 0 && (
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Award className="w-4 h-4" style={{ color: clubColor }} />
+                    <span className="font-semibold text-gray-900 text-sm">Especialidades</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {therapist.specialties.map((specialty) => (
+                      <span
+                        key={specialty}
+                        className="px-3 py-1.5 text-xs font-medium rounded-full"
+                        style={{ backgroundColor: clubColor + '15', color: clubColor }}
+                      >
+                        {specialty}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Scheduling */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div
@@ -681,13 +714,13 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                           {selectedTime && (
                             <button
                               onClick={handleSchedule}
-                              className="w-full mt-4 py-3 rounded-xl font-bold text-white uppercase tracking-wide shadow-lg animate-in fade-in slide-in-from-bottom-2"
+                              className="w-full mt-4 py-3 rounded-xl font-bold text-white tracking-wide shadow-lg animate-in fade-in slide-in-from-bottom-2 normal-case"
                               style={{
                                 backgroundColor: clubColor,
                                 boxShadow: `0 8px 24px ${clubColor}40`
                               }}
                             >
-                              Agendar Sessão
+                              Agendar sessão
                             </button>
                           )}
                         </div>
@@ -703,38 +736,6 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                   )}
                 </div>
               </div>
-
-              {/* Bio */}
-              {therapist.bio && (
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                  <div className="flex items-center gap-2 mb-2">
-                    <User className="w-4 h-4" style={{ color: clubColor }} />
-                    <span className="font-semibold text-gray-900 text-sm">Sobre</span>
-                  </div>
-                  <p className="text-gray-600 text-sm leading-relaxed">{therapist.bio}</p>
-                </div>
-              )}
-
-              {/* Specialties */}
-              {therapist.specialties.length > 0 && (
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Award className="w-4 h-4" style={{ color: clubColor }} />
-                    <span className="font-semibold text-gray-900 text-sm">Especialidades</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {therapist.specialties.map((specialty) => (
-                      <span
-                        key={specialty}
-                        className="px-3 py-1.5 text-xs font-medium rounded-full"
-                        style={{ backgroundColor: clubColor + '15', color: clubColor }}
-                      >
-                        {specialty}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
             /* Payment Step */
