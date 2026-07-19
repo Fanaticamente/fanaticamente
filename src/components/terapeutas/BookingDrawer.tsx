@@ -264,7 +264,9 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            const newAppointment = payload.new as Appointment & { professional_id: string };
+            const newAppointment = payload.new as Appointment & { professional_id: string; user_id?: string };
+            // Ignore inserts made by the current user (their own booking).
+            if (currentUserId && newAppointment.user_id === currentUserId) return;
             if (['pending', 'confirmed', 'paid'].includes(newAppointment.status)) {
               setBookedAppointments(prev => [...prev, {
                 scheduled_date: newAppointment.scheduled_date,
@@ -293,7 +295,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [therapist, open, selectedDate, selectedTime, toastHook]);
+  }, [therapist, open, selectedDate, selectedTime, toastHook, currentUserId]);
 
   // Realtime subscription for Google Calendar busy blocks — keeps slot
   // availability accurate when the professional adds/removes events on Google.
