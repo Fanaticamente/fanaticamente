@@ -1,4 +1,4 @@
-import { ShieldCheck, Shirt, Star, ChevronRight, Bookmark, X } from "lucide-react";
+import { ShieldCheck, Shirt, Star, ChevronRight, Bookmark, X, Shield } from "lucide-react";
 import { useState } from "react";
 import { getFirstAndLastName } from "@/lib/utils";
 import silhouetteMale from "@/assets/silhouette-male.png";
@@ -176,6 +176,16 @@ const TherapistCard = ({ therapist, clubColor, clubName, onSelect }: TherapistCa
 
               {/* Specialties */}
               <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {therapist.socioConsciente && (
+                  <span
+                    className="px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap inline-flex items-center gap-1"
+                    style={{ backgroundColor: `${clubColor}15`, color: clubColor, border: `1px solid ${clubColor}40` }}
+                    title={`Sócio Consciente${therapist.clubNickname ? ` ${therapist.clubNickname}` : ''}`}
+                  >
+                    <Shield className="w-3 h-3" strokeWidth={2.5} />
+                    Sócio Consciente
+                  </span>
+                )}
                 {therapist.specialties.slice(0, 3).map((s) => (
                   <span
                     key={s}

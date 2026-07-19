@@ -824,15 +824,6 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                 </div>
 
                 <div className="p-4 space-y-3">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <Calendar className="w-5 h-5 flex-shrink-0" style={{ color: clubColor }} />
-                    <span className="text-gray-700 text-sm">
-                      {selectedDate && format(selectedDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}
-                    </span>
-                    <span className="text-gray-300 text-sm">•</span>
-                    <Clock className="w-5 h-5 flex-shrink-0" style={{ color: clubColor }} />
-                    <span className="text-gray-700 text-sm">{selectedTime}</span>
-                  </div>
                   {/* Sócio Consciente Input */}
                   {therapist.socioConsciente && (
                     <div 
@@ -902,7 +893,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
 
                       {socioAnswer === "yes" && socioDiscountApplied && (
                         <div
-                          className="mt-3 p-3 rounded-lg flex items-center justify-between"
+                          className="mt-3 p-3 rounded-lg flex items-center justify-center"
                           style={{ backgroundColor: clubColor + "12" }}
                         >
                           <div className="flex items-center gap-2">
@@ -911,27 +902,46 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                               Parceria aplicada
                             </p>
                           </div>
-                          <p className="text-lg font-bold" style={{ color: clubColor }}>
-                            R$ {sessionPrice.toFixed(2).replace(".", ",")}
-                          </p>
                         </div>
                       )}
                     </div>
                   )}
 
-                  {!therapist.socioConsciente && (
-                    <div
-                      className="mt-2 p-3 rounded-xl flex items-center justify-between"
-                      style={{ backgroundColor: clubColor + '10' }}
-                    >
-                      <span className="text-gray-600 font-medium text-sm">Valor</span>
-                      <span className="text-xl font-bold" style={{ color: clubColor }}>
-                        R$ {sessionPrice.toFixed(2).replace(".", ",")}
-                      </span>
-                    </div>
-                  )}
                 </div>
               </div>
+
+              {/* Review card — appears after socio choice (or immediately when program not available) */}
+              {(!therapist.socioConsciente || socioAnswer !== null) && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-3">
+                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                    Revise os detalhes
+                  </h4>
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <Calendar className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
+                    <span>
+                      {selectedDate && format(selectedDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}
+                    </span>
+                    <span className="text-gray-300">•</span>
+                    <Clock className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
+                    <span>{selectedTime}</span>
+                  </div>
+                  {isSocioConsciente && (
+                    <div className="flex items-center gap-2 text-xs text-gray-700">
+                      <Shield className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
+                      <span>Agendamento pelo programa Sócio Consciente{clubNickname ? ` ${clubNickname}` : ''}</span>
+                    </div>
+                  )}
+                  <div
+                    className="p-3 rounded-xl flex items-center justify-between"
+                    style={{ backgroundColor: clubColor + '10' }}
+                  >
+                    <span className="text-gray-600 font-medium text-sm">Valor</span>
+                    <span className="text-xl font-bold" style={{ color: clubColor }}>
+                      R$ {sessionPrice.toFixed(2).replace(".", ",")}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Terms */}
               <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
