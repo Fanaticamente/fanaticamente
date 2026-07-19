@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Zap, Shirt } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Zap, Shirt, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Header from "@/components/layout/Header";
 import { useToast } from "@/hooks/use-toast";
 import { getFirstAndLastName } from "@/lib/utils";
+import BottomNav from "@/components/layout/BottomNav";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const isFemaleName = (fullName: string) => {
   const first = (fullName || "").trim().split(/\s+/)[0]?.toLowerCase() ?? "";
