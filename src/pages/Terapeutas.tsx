@@ -214,8 +214,8 @@ const Terapeutas = () => {
       className="min-h-screen font-sans transition-colors duration-500"
       style={{ 
         backgroundColor: selectedClub 
-          ? "#f5f5f5"
-          : "hsl(var(--background))" 
+          ? "#ffffff"
+          : "#ffffff" 
       }}
     >
       {step === "club" && <Header />}
@@ -260,29 +260,34 @@ const Terapeutas = () => {
         </div>
       )}
 
-      <main className={step === "therapists" ? "px-4 pt-6" : "pt-20 px-4"}>
+      <main className={step === "therapists" ? "px-4 pt-6" : "pt-16 px-5"}>
         {step === "club" && (
-          <div className="animate-fade-in">
-            <div className="text-center mb-6">
-              <h1 className="font-display text-3xl text-primary italic mx-auto">
-                SELECIONE SEU TIME
-              </h1>
-              <p className="text-muted-foreground">
-                Escolha seu time do coração
-              </p>
+          <div className="animate-fade-in font-sans">
+            <div className="relative mb-6">
+              <div className="pr-24">
+                <h1 className="font-sans font-bold text-[28px] leading-tight text-gray-900 normal-case">
+                  Selecione <span className="text-emerald-500">seu time</span>
+                </h1>
+                <p className="mt-1 text-gray-500 text-[15px]">
+                  Escolha o time do coração
+                </p>
+              </div>
+              <div className="absolute top-0 right-0 w-20 h-20 rounded-full bg-emerald-50/60 flex items-center justify-center">
+                <Shirt className="w-12 h-12 text-emerald-500" strokeWidth={1.5} />
+              </div>
             </div>
 
             {/* League Tabs */}
-            <div className="flex gap-2 mb-6">
+            <div className="flex bg-white rounded-2xl p-1.5 mb-6 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
               {(Object.keys(leagueLabels) as League[]).map((league) => (
                 <button
                   key={league}
                   onClick={() => setSelectedLeague(league)}
                   className={cn(
-                    "flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all",
+                    "flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all",
                     selectedLeague === league
-                      ? "bg-primary text-primary-foreground shadow-lg"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      ? "bg-white text-emerald-500 shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+                      : "bg-transparent text-gray-400"
                   )}
                 >
                   {leagueLabels[league]}
@@ -291,28 +296,33 @@ const Terapeutas = () => {
             </div>
 
             {/* Clubs Grid */}
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-              {clubs.map((club) => (
-                <button
-                  key={club.id}
-                  onClick={() => handleClubSelect(club)}
-                  className="bg-card border-2 border-border rounded-xl p-3 text-center hover:scale-105 transition-all group"
-                  style={{
-                    "--hover-color": club.primaryColor,
-                  } as React.CSSProperties}
-                >
-                  {showBadges && !hiddenBadges.includes(club.id) && (
-                    <div className="w-14 h-14 mx-auto mb-2 rounded-full bg-white p-1.5 shadow-md group-hover:shadow-lg transition-shadow overflow-hidden flex items-center justify-center">
-                      <div className="w-11 h-11 flex items-center justify-center">
-                        <ClubMark clubId={club.id} mode={clubDisplayMode} />
+            <div className="grid grid-cols-3 gap-3">
+              {clubs.map((club) => {
+                const isSelected = selectedClub?.id === club.id;
+                return (
+                  <button
+                    key={club.id}
+                    onClick={() => handleClubSelect(club)}
+                    className="bg-white border border-gray-100 rounded-2xl p-4 text-center transition-all hover:shadow-md shadow-[0_2px_8px_rgba(0,0,0,0.04)] group"
+                  >
+                    {showBadges && !hiddenBadges.includes(club.id) && (
+                      <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-white border border-gray-100 flex items-center justify-center overflow-hidden">
+                        <div className="w-11 h-11 flex items-center justify-center">
+                          <ClubMark clubId={club.id} mode={clubDisplayMode} />
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  <p className="text-card-foreground font-medium text-xs group-hover:text-primary transition-colors">
-                    {club.name}
-                  </p>
-                </button>
-              ))}
+                    )}
+                    <p
+                      className={cn(
+                        "font-medium text-[13px] leading-tight normal-case",
+                        isSelected ? "text-emerald-500" : "text-gray-800"
+                      )}
+                    >
+                      {club.name}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
