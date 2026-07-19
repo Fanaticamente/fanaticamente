@@ -613,34 +613,12 @@ const MeusAgendamentos = () => {
   // Mobile Layout
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header
-          className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border px-4 pb-4"
-          style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}
-        >
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/perfil")}
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-muted-foreground" />
-            </button>
-            <div>
-              <h1 className="font-display text-xl text-card-foreground">
-                Meus Agendamentos
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                {appointments.length} consulta{appointments.length !== 1 ? "s" : ""}
-              </p>
-            </div>
-          </div>
-        </header>
-
-        <main
-          className="pb-8 px-4"
-          style={{ paddingTop: "calc(env(safe-area-inset-top) + 6rem)" }}
-        >
+      <div className="min-h-screen bg-white">
+        <Header title="Meus agendamentos" showBack onBack={() => navigate("/perfil")} />
+        <main className="pb-24 px-4 pt-4">
+          <p className="text-slate-500 text-sm mb-4">
+            {appointments.length} consulta{appointments.length !== 1 ? "s" : ""}
+          </p>
           <AppointmentsContent />
         </main>
       </div>
