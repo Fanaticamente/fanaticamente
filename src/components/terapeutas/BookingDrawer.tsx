@@ -817,18 +817,17 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                 </div>
 
                 <div className="p-4 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5" style={{ color: clubColor }} />
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <Calendar className="w-5 h-5 flex-shrink-0" style={{ color: clubColor }} />
                     <span className="text-gray-700 text-sm">
                       {selectedDate && format(selectedDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}
                     </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Clock className="w-5 h-5" style={{ color: clubColor }} />
+                    <span className="text-gray-300 text-sm">•</span>
+                    <Clock className="w-5 h-5 flex-shrink-0" style={{ color: clubColor }} />
                     <span className="text-gray-700 text-sm">{selectedTime}</span>
                   </div>
                   {/* Sócio Consciente Input */}
-                   {therapist.socioConsciente && !socioDiscountApplied && (
+                  {therapist.socioConsciente && (
                     <div 
                       className="p-3 rounded-xl border"
                       style={{ borderColor: clubColor + "30", backgroundColor: clubColor + "08" }}
@@ -837,70 +836,115 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                         <Shield className="w-5 h-5" style={{ color: clubColor }} />
                         <div>
                           <p className="font-bold text-gray-900 text-xs">Sócio Consciente{clubNickname ? ` ${clubNickname}` : ''}</p>
-                          <p className="text-[10px] text-gray-500">Informe sua matrícula</p>
+                          <p className="text-[10px] text-gray-500">É sócio do clube?</p>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          value={socioMatricula}
-                          onChange={(e) => setSocioMatricula(e.target.value)}
-                          placeholder="Nº da matrícula"
-                          maxLength={20}
-                          className="flex-1 px-3 py-2 bg-white border rounded-lg text-gray-800 text-sm focus:outline-none transition-colors"
-                          style={{ borderColor: clubColor + "30" }}
-                        />
-                        <button
-                          onClick={() => {
-                            if (!socioMatricula.trim() || socioMatricula.trim().length < 3) {
-                              toast.error("Informe uma matrícula válida");
-                              return;
-                            }
-                            setSocioDiscountApplied(true);
-                            // Toast removed per design request
-                          }}
-                          className="px-4 py-2 text-white rounded-lg font-semibold text-sm transition-colors"
-                          style={{ backgroundColor: clubColor }}
+                      <div className="grid grid-cols-2 gap-2">
+                        {(["yes", "no"] as const).map((opt) => {
+                          const active = socioAnswer === opt;
+                          return (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => {
+                                setSocioAnswer(opt);
+                                if (opt === "no") {
+                                  setSocioDiscountApplied(false);
+                                  setSocioMatricula("");
+                                }
+                              }}
+                              className="py-2 rounded-lg text-sm font-semibold border transition-colors"
+                              style={{
+                                borderColor: clubColor + (active ? "" : "40"),
+                                backgroundColor: active ? clubColor : "#fff",
+                                color: active ? "#fff" : clubColor,
+                              }}
+                            >
+                              {opt === "yes" ? "Sim" : "Não"}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {socioAnswer === "yes" && !socioDiscountApplied && (
+                        <div className="flex gap-2 mt-3">
+                          <input
+                            type="text"
+                            value={socioMatricula}
+                            onChange={(e) => setSocioMatricula(e.target.value)}
+                            placeholder="Nº da matrícula"
+                            maxLength={20}
+                            className="flex-1 px-3 py-2 bg-white border rounded-lg text-gray-800 text-sm focus:outline-none transition-colors"
+                            style={{ borderColor: clubColor + "30" }}
+                          />
+                          <button
+                            onClick={() => {
+                              if (!socioMatricula.trim() || socioMatricula.trim().length < 3) {
+                                toast.error("Informe uma matrícula válida");
+                                return;
+                              }
+                              setSocioDiscountApplied(true);
+                            }}
+                            className="px-4 py-2 text-white rounded-lg font-semibold text-sm transition-colors"
+                            style={{ backgroundColor: clubColor }}
+                          >
+                            Aplicar
+                          </button>
+                        </div>
+                      )}
+
+                      {socioAnswer === "yes" && socioDiscountApplied && (
+                        <div
+                          className="mt-3 p-3 rounded-lg flex items-center justify-between"
+                          style={{ backgroundColor: clubColor + "12" }}
                         >
-                          Aplicar
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {socioDiscountApplied && (
-                    <div 
-                      className="p-3 rounded-xl border flex items-center justify-between"
-                      style={{ borderColor: clubColor + "30", backgroundColor: clubColor + "10" }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-5 h-5 flex-shrink-0" style={{ color: clubColor }} />
-                        <div>
-                          <p className="text-xs font-bold" style={{ color: clubColor }}>Parceria aplicada</p>
-                          <p className="text-[10px]" style={{ color: clubColor + "99" }}>Matrícula: {socioMatricula}</p>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
+                            <div>
+                              <p className="text-[11px] font-bold" style={{ color: clubColor }}>
+                                Parceria aplicada
+                              </p>
+                              <p className="text-[10px]" style={{ color: clubColor + "99" }}>
+                                Valor com desconto
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[10px] text-gray-400 line-through">
+                              R$ {basePrice.toFixed(2).replace(".", ",")}
+                            </p>
+                            <p className="text-lg font-bold" style={{ color: clubColor }}>
+                              R$ {sessionPrice.toFixed(2).replace(".", ",")}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <button
-                        onClick={() => { setSocioDiscountApplied(false); setSocioMatricula(""); }}
-                        className="text-[10px] font-medium underline"
-                        style={{ color: clubColor }}
-                      >
-                        Remover
-                      </button>
+                      )}
+
+                      {socioAnswer === "no" && (
+                        <div
+                          className="mt-3 p-3 rounded-lg flex items-center justify-between"
+                          style={{ backgroundColor: clubColor + "10" }}
+                        >
+                          <span className="text-gray-600 font-medium text-sm">Valor da sessão</span>
+                          <span className="text-lg font-bold" style={{ color: clubColor }}>
+                            R$ {basePrice.toFixed(2).replace(".", ",")}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
 
-                  <div
-                    className="mt-2 p-3 rounded-xl flex items-center justify-between"
-                    style={{ backgroundColor: clubColor + '10' }}
-                  >
-                    <span className="text-gray-600 font-medium text-sm">Valor</span>
-                    <div className="text-right">
+                  {!therapist.socioConsciente && (
+                    <div
+                      className="mt-2 p-3 rounded-xl flex items-center justify-between"
+                      style={{ backgroundColor: clubColor + '10' }}
+                    >
+                      <span className="text-gray-600 font-medium text-sm">Valor</span>
                       <span className="text-xl font-bold" style={{ color: clubColor }}>
                         R$ {sessionPrice.toFixed(2).replace(".", ",")}
                       </span>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
