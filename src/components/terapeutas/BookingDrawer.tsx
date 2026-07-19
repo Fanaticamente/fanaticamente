@@ -399,6 +399,17 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
   const canProcessStripe = paymentInfo?.stripe_account_status === "active";
   const hasPixKey = !!paymentInfo?.pix_key;
 
+  // Gender inference (mirrors TherapistCard heuristic) for role + torcedor label
+  const firstName = (therapist.name || "").trim().split(/\s+/)[0]?.toLowerCase() ?? "";
+  const female = firstName ? !new Set(["luca","costa","silva","andrea","sasha","elias","dias","jonas","tobias","matias","isaias","aoba"]).has(firstName) && (new Set(["lais","laís","ines","inês","beatriz","iris","íris","raquel","isabel"]).has(firstName) || /a$/.test(firstName)) : false;
+  const roleLabel = (() => {
+    const d = (therapist.degree || "").toLowerCase();
+    if (d.includes("nutric")) return "Nutricionista";
+    if (d.includes("fisio")) return "Fisioterapeuta";
+    if (d.includes("psiqui")) return "Psiquiatra";
+    return female ? "Psicóloga" : "Psicólogo";
+  })();
+
   const txid = `SESS${therapist.id.replace(/-/g, "").slice(0, 8)}${scheduledDateStr.replace(/-/g, "").slice(2)}${(selectedTime || "").replace(":", "")}`;
   const pixCode = paymentInfo?.pix_key && therapist.name
     ? generatePixCode(paymentInfo.pix_key, sessionPrice, therapist.name, txid)
