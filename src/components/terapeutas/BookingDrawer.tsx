@@ -525,7 +525,12 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
 
       toast.success("Agendamento enviado! Aguarde a confirmação do profissional.");
       onOpenChange(false);
-      navigate(`/pagamento/confirmacao/${therapist.id}?date=${scheduledDateStr}&time=${selectedTime}`);
+      const query = new URLSearchParams();
+      query.set("date", scheduledDateStr);
+      query.set("time", selectedTime || "");
+      query.set("price", sessionPrice.toFixed(2));
+      if (isSocioConsciente) query.set("socio", "1");
+      navigate(`/pagamento/confirmacao/${therapist.id}?${query.toString()}`);
     } catch (error) {
       console.error("Error confirming appointment:", error);
       toast.error("Erro ao enviar agendamento. Tente novamente.");
