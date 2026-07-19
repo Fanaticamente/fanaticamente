@@ -34,6 +34,7 @@ import MobileBrowserBlock from "@/components/MobileBrowserBlock";
 import Index from "./pages/Index";
 import Terapeutas from "./pages/Terapeutas";
 import ProfessionalProfile from "./pages/ProfessionalProfile";
+import AgendarSessao from "./pages/AgendarSessao";
 import SessionPayment from "./pages/SessionPayment";
 import PaymentConfirmation from "./pages/PaymentConfirmation";
 import Cursos from "./pages/Cursos";
@@ -138,6 +139,7 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/terapeutas" element={<Terapeutas />} />
               <Route path="/terapeuta/:id" element={<ProfessionalProfile />} />
+              <Route path="/agendar/:id" element={<AgendarSessao />} />
               <Route path="/cursos" element={<Cursos />} />
               <Route path="/curso/:id" element={<CursoDetalhe />} />
               <Route path="/quiz" element={<Quiz />} />
@@ -188,6 +190,7 @@ const App = () => {
                 <Route path="/" element={<DynamicProtectedRoute pageId="home"><Index /></DynamicProtectedRoute>} />
                 <Route path="/terapeutas" element={<DynamicProtectedRoute pageId="terapeutas"><Terapeutas /></DynamicProtectedRoute>} />
                 <Route path="/terapeuta/:id" element={<DynamicProtectedRoute pageId="terapeutas"><ProfessionalProfile /></DynamicProtectedRoute>} />
+              <Route path="/agendar/:id" element={<DynamicProtectedRoute pageId="terapeutas"><AgendarSessao /></DynamicProtectedRoute>} />
                 <Route path="/cursos" element={<DynamicProtectedRoute pageId="cursos"><Cursos /></DynamicProtectedRoute>} />
                 <Route path="/curso/:id" element={<DynamicProtectedRoute pageId="cursos"><CursoDetalhe /></DynamicProtectedRoute>} />
                 <Route path="/meus-cursos" element={<ProtectedRoute><MeusCursos /></ProtectedRoute>} />

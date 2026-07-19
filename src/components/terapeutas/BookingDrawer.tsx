@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { DialogTitle } from "@/components/ui/dialog";
-import bookingGrassBg from "@/assets/booking-grass-bg.png";
-import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Star, Shirt, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getFirstAndLastName } from "@/lib/utils";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, parseISO } from "date-fns";
@@ -54,8 +53,10 @@ interface BookingDrawerProps {
   therapist: TherapistData | null;
   clubColor: string;
   clubNickname?: string;
+  clubName?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  asPage?: boolean;
 }
 
 type BookingStep = "profile" | "payment";
@@ -125,7 +126,7 @@ const generatePixCode = (
   return payloadNoCrc + crc16ccitt(payloadNoCrc);
 };
 
-const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange }: BookingDrawerProps) => {
+const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onOpenChange, asPage = false }: BookingDrawerProps) => {
   const { toast: toastHook } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -398,6 +399,17 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
   const canProcessStripe = paymentInfo?.stripe_account_status === "active";
   const hasPixKey = !!paymentInfo?.pix_key;
 
+  // Gender inference (mirrors TherapistCard heuristic) for role + torcedor label
+  const firstName = (therapist.name || "").trim().split(/\s+/)[0]?.toLowerCase() ?? "";
+  const female = firstName ? !new Set(["luca","costa","silva","andrea","sasha","elias","dias","jonas","tobias","matias","isaias","aoba"]).has(firstName) && (new Set(["lais","laís","ines","inês","beatriz","iris","íris","raquel","isabel"]).has(firstName) || /a$/.test(firstName)) : false;
+  const roleLabel = (() => {
+    const d = (therapist.degree || "").toLowerCase();
+    if (d.includes("nutric")) return "Nutricionista";
+    if (d.includes("fisio")) return "Fisioterapeuta";
+    if (d.includes("psiqui")) return "Psiquiatra";
+    return female ? "Psicóloga" : "Psicólogo";
+  })();
+
   const txid = `SESS${therapist.id.replace(/-/g, "").slice(0, 8)}${scheduledDateStr.replace(/-/g, "").slice(2)}${(selectedTime || "").replace(":", "")}`;
   const pixCode = paymentInfo?.pix_key && therapist.name
     ? generatePixCode(paymentInfo.pix_key, sessionPrice, therapist.name, txid)
@@ -518,43 +530,18 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
     }
   };
 
-  return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <DialogPrimitive.Portal>
-        {/* Standard dark overlay */}
-        <DialogPrimitive.Overlay 
-          className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
-        />
-        
-        <DialogPrimitive.Content 
-          className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-2xl shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
-          style={{
-            backgroundImage: `url(${bookingGrassBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
-          {/* Header */}
-          <div
-            className="sticky top-0 z-10 px-4 py-4 flex items-center gap-3"
-            style={{ backgroundColor: clubColor }}
-          >
-            <button
-              onClick={() => step === "payment" ? setStep("profile") : onOpenChange(false)}
-              className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
-            >
-              <ChevronLeft className="w-5 h-5 text-white" />
-            </button>
-            <DialogTitle className="text-white font-bold text-xl font-sans capitalize">
-              {step === "profile" ? "Agendar Sessão" : "Confirmar Agendamento"}
-            </DialogTitle>
-          </div>
+  const headerTitle = step === "profile" ? "Agendar sessão" : "Confirmar agendamento";
+  const handleHeaderBack = () => {
+    if (step === "payment") setStep("profile");
+    else onOpenChange(false);
+  };
 
-        <div className="overflow-y-auto max-h-[calc(90vh-64px)] pb-8">
+  const bodyContent = (
+    <div className={asPage ? "pb-24" : "overflow-y-auto max-h-[calc(90vh-64px)] pb-8"}>
           {step === "profile" ? (
             <div className="p-4 space-y-4">
               {/* Profile Card */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 font-sans">
                 <div className="flex items-center gap-4">
                   <div
                     className="w-20 h-20 rounded-2xl overflow-hidden border-2"
@@ -579,34 +566,21 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
                         <CheckCircle className="w-5 h-5" style={{ color: clubColor }} />
                       )}
                     </div>
-                    <p className="text-gray-500 text-sm">{therapist.degree}</p>
+                    <p className="text-gray-500 text-sm">{roleLabel}</p>
                     <p className="text-gray-400 text-xs">CRP: {therapist.crp}</p>
                     <div className="flex items-center gap-3 mt-2 text-sm text-gray-600">
                       <span className="flex items-center gap-1">
                         <Star className="w-4 h-4" style={{ color: clubColor }} />
                         {therapist.experience} anos
                       </span>
-                      {therapist.location && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4" style={{ color: clubColor }} />
-                          {therapist.location}
-                        </span>
-                      )}
+                      <span className="flex items-center gap-1">
+                        <Shirt className="w-4 h-4" style={{ color: clubColor }} strokeWidth={2} />
+                        <span className="font-medium text-gray-700">{female ? "Torcedora" : "Torcedor"}</span>
+                        {clubName && <span className="text-gray-500">· {clubName}</span>}
+                      </span>
                     </div>
                   </div>
                 </div>
-
-                {therapist.hourlyRate && (
-                  <div
-                    className="mt-4 p-3 rounded-xl flex items-center justify-between"
-                    style={{ backgroundColor: clubColor + '10' }}
-                  >
-                    <span className="text-gray-600 font-medium">Valor da sessão</span>
-                    <span className="text-xl font-bold" style={{ color: clubColor }}>
-                      R$ {therapist.hourlyRate.toFixed(2).replace('.', ',')}
-                    </span>
-                  </div>
-                )}
               </div>
 
               {/* Scheduling */}
@@ -920,6 +894,58 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange 
             </div>
           )}
         </div>
+  );
+
+  if (asPage) {
+    if (!open) return null;
+    return (
+      <div className="min-h-screen bg-white font-sans">
+        <header className="fixed top-0 left-0 right-0 z-40 bg-white flex items-center justify-between px-3 py-2 pt-[calc(env(safe-area-inset-top)+8px)]">
+          <button
+            aria-label="Voltar"
+            onClick={handleHeaderBack}
+            className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-700"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h1 className="absolute left-1/2 -translate-x-1/2 max-w-[calc(100%-120px)] font-sans font-semibold text-base text-slate-900 truncate normal-case">
+            {headerTitle}
+          </h1>
+          <button
+            aria-label="Buscar"
+            className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-700"
+          >
+            <Search className="w-5 h-5" />
+          </button>
+        </header>
+        <div className="pt-[calc(env(safe-area-inset-top)+64px)] bg-white min-h-screen">
+          {bodyContent}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay
+          className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+        />
+        <DialogPrimitive.Content
+          className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-2xl shadow-2xl bg-white duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+        >
+          <div className="sticky top-0 z-10 px-4 py-4 flex items-center gap-3" style={{ backgroundColor: clubColor }}>
+            <button
+              onClick={handleHeaderBack}
+              className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
+            >
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+            <DialogTitle className="text-white font-bold text-xl font-sans normal-case">
+              {headerTitle}
+            </DialogTitle>
+          </div>
+          {bodyContent}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
