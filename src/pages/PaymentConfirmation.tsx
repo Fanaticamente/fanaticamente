@@ -1,22 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { CheckCircle, Calendar, Clock, User, Home, CalendarCheck, Download, Shield } from "lucide-react";
+import { CheckCircle, Calendar, Clock, User, Home, CalendarCheck, Download, Shield, Video } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getFirstAndLastName } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import jsPDF from "jspdf";
 
 interface Professional {
   id: string;
-  crp: string;
+  crp: string | null;
   degree: string | null;
   hourly_rate: number | null;
-  user_id: string;
-}
-
-interface Profile {
+  user_id: string | null;
   full_name: string | null;
   avatar_url: string | null;
+  favorite_club_id: string | null;
 }
 
 interface Club {
@@ -37,7 +36,6 @@ const PaymentConfirmation = () => {
   const socioApplied = searchParams.get("socio") === "1";
 
   const [professional, setProfessional] = useState<Professional | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [club, setClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -57,26 +55,15 @@ const PaymentConfirmation = () => {
           return;
         }
 
-        setProfessional(professionalData);
+        setProfessional(professionalData as Professional);
 
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("full_name, avatar_url, favorite_club_id")
-          .eq("user_id", professionalData.user_id)
-          .maybeSingle();
-
-        if (profileData) {
-          setProfile(profileData);
-
-          if (profileData.favorite_club_id) {
-            const { data: clubData } = await supabase
-              .from("clubs")
-              .select("*")
-              .eq("id", profileData.favorite_club_id)
-              .maybeSingle();
-
-            if (clubData) setClub(clubData);
-          }
+        if (professionalData.favorite_club_id) {
+          const { data: clubData } = await supabase
+            .from("clubs")
+            .select("*")
+            .eq("id", professionalData.favorite_club_id)
+            .maybeSingle();
+          if (clubData) setClub(clubData);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -88,14 +75,14 @@ const PaymentConfirmation = () => {
     fetchProfessionalData();
   }, [id, navigate]);
 
-  const clubColor = club?.primary_color || "#10b981";
+  const clubColor = club?.primary_color || "#0f172a";
   const accentColor = clubColor;
 
   const sessionPrice = priceParam
     ? parseFloat(priceParam)
     : professional?.hourly_rate ?? 150;
 
-  const professionalName = getFirstAndLastName(profile?.full_name || "");
+  const professionalName = getFirstAndLastName(professional?.full_name || "");
   const formattedDate = scheduledDate
     ? format(parseISO(scheduledDate), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })
     : "";
@@ -104,30 +91,68 @@ const PaymentConfirmation = () => {
     : "";
 
   const handleDownload = () => {
-    const content = [
-      "COMPROVANTE DE AGENDAMENTO",
-      "==========================",
-      "",
-      `Profissional: ${professionalName}`,
-      `CRP: ${professional?.crp || "—"}`,
-      "",
-      `Data: ${formattedDate}`,
-      `Horário: ${scheduledTime}`,
-      "",
-      socioApplied ? "Valor a pagar (com parceria aplicada)" : "Valor a pagar",
-      `R$ ${sessionPrice.toFixed(2).replace(".", ",")}`,
-      "",
-      "Você receberá um lembrete por e-mail 24 horas antes da sessão.",
-    ].join("\n");
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `agendamento-${scheduledDate || "data"}-${(scheduledTime || "hora").replace(":", "h")}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const rgb = hexToRgb(accentColor);
+
+    doc.setFillColor(rgb.r, rgb.g, rgb.b);
+    doc.rect(0, 0, pageWidth, 80, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("Comprovante de agendamento", 40, 50);
+
+    let y = 130;
+    doc.setTextColor(20, 20, 20);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Profissional", 40, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(professionalName || "—", 40, y + 18);
+    if (professional?.crp) doc.text(`CRP ${professional.crp}`, 40, y + 36);
+
+    y += 80;
+    doc.setFont("helvetica", "bold");
+    doc.text("Data", 40, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(formattedDate, 40, y + 18);
+
+    y += 50;
+    doc.setFont("helvetica", "bold");
+    doc.text("Horário", 40, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(scheduledTime || "—", 40, y + 18);
+
+    y += 50;
+    doc.setFont("helvetica", "bold");
+    doc.text("Modalidade", 40, y);
+    doc.setFont("helvetica", "normal");
+    doc.text("Atendimento on-line", 40, y + 18);
+
+    y += 60;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(40, y, pageWidth - 40, y);
+    y += 24;
+    doc.setFont("helvetica", "bold");
+    doc.text("Valor a pagar", 40, y);
+    doc.setTextColor(rgb.r, rgb.g, rgb.b);
+    doc.setFontSize(16);
+    doc.text(`R$ ${sessionPrice.toFixed(2).replace(".", ",")}`, pageWidth - 40, y, { align: "right" });
+    if (socioApplied) {
+      doc.setFontSize(11);
+      doc.text("Parceria Sócio Consciente aplicada", 40, y + 20);
+    }
+
+    doc.setTextColor(120, 120, 120);
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(10);
+    doc.text(
+      "Você receberá um lembrete por e-mail 24 horas antes da sua sessão.",
+      40,
+      y + 60,
+    );
+
+    doc.save(`agendamento-${scheduledDate || "data"}-${(scheduledTime || "hora").replace(":", "h")}.pdf`);
   };
 
   if (loading) {
@@ -157,8 +182,8 @@ const PaymentConfirmation = () => {
           <CheckCircle className="w-9 h-9 text-white" />
         </div>
 
-        <h1 className="text-xl font-extrabold text-slate-900 text-center normal-case">
-          Agendamento concluído
+        <h1 className="font-sans text-xl font-extrabold text-slate-900 text-center normal-case tracking-normal">
+          Agendamento concluído!
         </h1>
         <p className="text-sm text-slate-500 text-center mt-1 mb-4">
           Sua sessão foi agendada com sucesso
@@ -171,10 +196,10 @@ const PaymentConfirmation = () => {
               className="w-14 h-14 rounded-full overflow-hidden border-2 shrink-0"
               style={{ borderColor: accentColor }}
             >
-              {profile?.avatar_url ? (
+              {professional?.avatar_url ? (
                 <img
-                  src={profile.avatar_url}
-                  alt={profile?.full_name || "Profissional"}
+                  src={professional.avatar_url}
+                  alt={professional?.full_name || "Profissional"}
                   className="w-full h-full object-cover object-top"
                 />
               ) : (
@@ -187,10 +212,12 @@ const PaymentConfirmation = () => {
               )}
             </div>
             <div className="min-w-0">
-              <h3 className="font-sans font-bold text-slate-900 text-base leading-tight">
-                {professionalName}
+              <h3 className="font-sans font-bold text-slate-900 text-base leading-tight normal-case">
+                {professionalName || "Profissional"}
               </h3>
-              <p className="text-xs text-slate-500">CRP {professional.crp}</p>
+              {professional.crp && (
+                <p className="text-xs text-slate-500">CRP {professional.crp}</p>
+              )}
             </div>
           </div>
 
@@ -221,6 +248,19 @@ const PaymentConfirmation = () => {
               </div>
             </div>
 
+            <div className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                style={{ backgroundColor: accentColor + "15" }}
+              >
+                <Video className="w-4 h-4" style={{ color: accentColor }} />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Modalidade</p>
+                <p className="text-sm font-medium text-slate-900">Atendimento on-line</p>
+              </div>
+            </div>
+
             <div className="pt-3 border-t border-slate-100">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-slate-600">Valor a pagar</span>
@@ -232,7 +272,7 @@ const PaymentConfirmation = () => {
                 <div className="flex items-center gap-2 mt-1.5">
                   <Shield className="w-4 h-4" style={{ color: accentColor }} />
                   <span className="text-xs font-semibold" style={{ color: accentColor }}>
-                    Parceria aplicada
+                    Parceria Sócio Consciente aplicada
                   </span>
                 </div>
               )}
