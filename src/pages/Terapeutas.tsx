@@ -84,6 +84,7 @@ const leagueLabels: Record<League, string> = {
 const Terapeutas = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const location = (typeof window !== "undefined" ? (window.history.state?.usr ?? null) : null) as { clubId?: string } | null;
   const [step, setStep] = useState<Step>("club");
   const [selectedLeague, setSelectedLeague] = useState<League>("serie_a");
   const [selectedClub, setSelectedClub] = useState<BrazilianClub | null>(null);
@@ -206,6 +207,7 @@ const Terapeutas = () => {
     navigate(`/agendar/${therapist.id}`, {
       state: {
         therapist,
+        clubId: selectedClub?.id,
         clubColor: selectedClub?.primaryColor,
         clubName: selectedClub?.name,
         clubNickname: selectedClub ? clubNicknames[selectedClub.id] : undefined,
