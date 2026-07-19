@@ -28,6 +28,7 @@ const AgendarSessao = () => {
   const location = useLocation();
   const initial = (location.state ?? {}) as {
     therapist?: TherapistData;
+    clubId?: string;
     clubColor?: string;
     clubName?: string;
     clubNickname?: string;
@@ -36,6 +37,7 @@ const AgendarSessao = () => {
   const [clubColor, setClubColor] = useState<string>(initial.clubColor ?? "#10b981");
   const [clubName, setClubName] = useState<string | undefined>(initial.clubName);
   const [clubNickname, setClubNickname] = useState<string | undefined>(initial.clubNickname);
+  const [clubId, setClubId] = useState<string | undefined>(initial.clubId);
   const [loading, setLoading] = useState(!initial.therapist);
 
   useEffect(() => {
@@ -69,6 +71,7 @@ const AgendarSessao = () => {
             setClubColor(club.primaryColor);
             setClubName(club.name);
             setClubNickname(clubNicknames[club.id]);
+            setClubId(club.id);
           }
         }
       }
@@ -100,7 +103,12 @@ const AgendarSessao = () => {
         clubName={clubName}
         clubNickname={clubNickname}
         open
-        onOpenChange={(o) => { if (!o) navigate(-1); }}
+        onOpenChange={(o) => {
+          if (!o) {
+            if (clubId) navigate("/terapeutas", { state: { clubId } });
+            else navigate(-1);
+          }
+        }}
         asPage
       />
       <BottomNav />

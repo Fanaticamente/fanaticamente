@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { ChevronLeft, Shirt } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import TherapistCard from "@/components/terapeutas/TherapistCard";
@@ -84,6 +84,7 @@ const leagueLabels: Record<League, string> = {
 const Terapeutas = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const routerLocation = useLocation();
   const [step, setStep] = useState<Step>("club");
   const [selectedLeague, setSelectedLeague] = useState<League>("serie_a");
   const [selectedClub, setSelectedClub] = useState<BrazilianClub | null>(null);
@@ -196,6 +197,22 @@ const Terapeutas = () => {
     fetchTherapistsForClub(club.id);
   };
 
+  // Restore selected club when coming back from booking page
+  useEffect(() => {
+    const state = routerLocation.state as { clubId?: string } | null;
+    if (state?.clubId && step === "club") {
+      const league = (["serie_a","serie_b","serie_c"] as League[]).find((l) =>
+        getClubsByLeague(l).some((c) => c.id === state.clubId)
+      );
+      const club = league ? getClubsByLeague(league).find((c) => c.id === state.clubId) : null;
+      if (club) {
+        if (league) setSelectedLeague(league);
+        handleClubSelect(club);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routerLocation.state]);
+
   const handleBack = () => {
     setStep("club");
     setSelectedClub(null);
@@ -206,6 +223,7 @@ const Terapeutas = () => {
     navigate(`/agendar/${therapist.id}`, {
       state: {
         therapist,
+        clubId: selectedClub?.id,
         clubColor: selectedClub?.primaryColor,
         clubName: selectedClub?.name,
         clubNickname: selectedClub ? clubNicknames[selectedClub.id] : undefined,

@@ -570,7 +570,10 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <h2 className="font-bold text-gray-900 text-[20px] leading-tight capitalize">
+                      <h2
+                        className="font-bold text-gray-900 text-[20px] leading-tight"
+                        style={{ textTransform: "capitalize" }}
+                      >
                         {getFirstAndLastName(therapist.name).toLowerCase()}
                       </h2>
                       {therapist.verified && (
@@ -586,26 +589,21 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                       </span>
                     </div>
                     <p className="text-gray-400 text-xs mt-1.5">CRP: {therapist.crp}</p>
-                    <div className="flex items-stretch gap-2 mt-3">
-                      <div className="flex items-center gap-1.5 min-w-0">
+                    <div className="flex items-stretch gap-3 mt-3">
+                      <div className="flex items-center gap-1.5">
                         <Star className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
                         <div className="leading-tight">
-                          <div className="text-[12px] font-bold text-gray-800">{therapist.experience} {therapist.experience === 1 ? 'ano' : 'anos'}</div>
+                          <div className="text-[12px] font-bold text-gray-800 whitespace-nowrap">{therapist.experience} {therapist.experience === 1 ? 'ano' : 'anos'}</div>
                           <div className="text-[9px] text-gray-500 whitespace-nowrap">de experiência</div>
                         </div>
                       </div>
                       <div className="w-px bg-gray-200 flex-shrink-0" />
-                      <div className="flex items-center gap-1.5 min-w-0">
+                      <div className="flex items-center gap-1.5">
                         <Shirt className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} strokeWidth={2} />
-                        <div className="leading-tight min-w-0">
-                          <div className="text-[12px] font-bold text-gray-800 truncate">{female ? "Torcedora" : "Torcedor"}</div>
-                          <div className="text-[9px] text-gray-500 truncate">{clubName || therapist.location}</div>
+                        <div className="leading-tight">
+                          <div className="text-[12px] font-bold text-gray-800 whitespace-nowrap">{female ? "Torcedora" : "Torcedor"}</div>
+                          {clubName && <div className="text-[9px] text-gray-500 whitespace-nowrap">{clubName}</div>}
                         </div>
-                      </div>
-                      <div className="w-px bg-gray-200 flex-shrink-0" />
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} strokeWidth={2} />
-                        <div className="text-[12px] font-bold text-gray-800 truncate">{therapist.location || 'Brasil'}</div>
                       </div>
                     </div>
                   </div>
