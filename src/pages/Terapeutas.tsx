@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { ChevronLeft, Shirt } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import TherapistCard from "@/components/terapeutas/TherapistCard";
@@ -84,7 +84,7 @@ const leagueLabels: Record<League, string> = {
 const Terapeutas = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const location = (typeof window !== "undefined" ? (window.history.state?.usr ?? null) : null) as { clubId?: string } | null;
+  const routerLocation = useLocation();
   const [step, setStep] = useState<Step>("club");
   const [selectedLeague, setSelectedLeague] = useState<League>("serie_a");
   const [selectedClub, setSelectedClub] = useState<BrazilianClub | null>(null);
