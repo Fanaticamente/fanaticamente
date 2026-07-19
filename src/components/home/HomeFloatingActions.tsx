@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, Shirt, LogOut, Tv, Heart } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
-import logoHeader from "@/assets/logo-header.png";
+import logoHeader from "@/assets/logo-header-v5.png.asset.json";
 
 
 
@@ -44,7 +44,7 @@ const HomeFloatingActions = () => {
         </SheetTrigger>
         <SheetContent side="left" className="w-80 bg-white p-0 flex flex-col">
           <div className="p-6 border-b border-slate-200 flex flex-col items-center">
-            <img src={logoHeader} alt="Fanaticamente" className="h-12 w-auto" />
+            <img src={logoHeader.url} alt="Fanaticamente" className="h-12 w-auto" />
             <p className="text-slate-500 text-sm mt-2">Saúde mental para torcedores</p>
           </div>
           <nav className="p-3 flex-1 overflow-y-auto">
@@ -84,7 +84,7 @@ const HomeFloatingActions = () => {
       </Sheet>
 
       <Link to="/" aria-label="Fanaticamente" className="flex items-center">
-        <img src={logoHeader} alt="Fanaticamente" className="h-9 w-auto" />
+        <img src={logoHeader.url} alt="Fanaticamente" className="h-9 w-auto" />
       </Link>
 
       <button
