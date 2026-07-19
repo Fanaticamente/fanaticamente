@@ -79,12 +79,12 @@ const CoursePixPayment = ({ purchaseType, courseId, coursePrice, label, onBack, 
     return (
       <div className="space-y-5">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
-            <ArrowLeft className="w-5 h-5 text-white" />
+          <button onClick={onBack} className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors">
+            <ArrowLeft className="w-5 h-5 text-slate-700" />
           </button>
           <div>
-            <h2 className="font-display text-lg text-white">{label}</h2>
-            <p className="text-sm text-white/50">R$ {coursePrice.toFixed(2).replace(".", ",")} — PIX</p>
+            <h2 className="font-sans font-semibold text-lg text-slate-900 normal-case">{label}</h2>
+            <p className="text-sm text-slate-500">R$ {coursePrice.toFixed(2).replace(".", ",")} — PIX</p>
           </div>
         </div>
 
@@ -95,26 +95,26 @@ const CoursePixPayment = ({ purchaseType, courseId, coursePrice, label, onBack, 
             </div>
           )}
 
-          <p className="text-white/60 text-sm">
+          <p className="text-slate-600 text-sm">
             Escaneie o QR Code ou copie o código abaixo
           </p>
 
           <button
             onClick={handleCopyCode}
-            className="w-full py-3 bg-white text-gray-900 rounded-xl font-medium text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 bg-emerald-600 text-white rounded-xl font-semibold text-sm hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
           >
             {copied ? <><CheckCircle className="w-4 h-4" /> Copiado!</> : <><Copy className="w-4 h-4" /> Copiar código PIX</>}
           </button>
 
-          <div className="rounded-lg p-3 bg-white/5 border border-white/10">
-            <p className="text-xs text-white/50 mb-1">Após o pagamento, o acesso será liberado automaticamente em até 5 minutos.</p>
-            <button onClick={onSuccess} className="text-xs text-white hover:underline mt-1">
+          <div className="rounded-lg p-3 bg-slate-50 border border-slate-200">
+            <p className="text-xs text-slate-500 mb-1">Após o pagamento, o acesso será liberado automaticamente em até 5 minutos.</p>
+            <button onClick={onSuccess} className="text-xs text-emerald-700 hover:underline mt-1">
               Já paguei - verificar acesso
             </button>
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-2 text-xs text-white/40">
+        <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
           <Shield className="w-4 h-4" /> Pagamento seguro via Mercado Pago
         </div>
       </div>
@@ -124,12 +124,12 @@ const CoursePixPayment = ({ purchaseType, courseId, coursePrice, label, onBack, 
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-3">
-        <button onClick={onBack} className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors" disabled={isLoading}>
-          <ArrowLeft className="w-5 h-5 text-white" />
+        <button onClick={onBack} className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors" disabled={isLoading}>
+          <ArrowLeft className="w-5 h-5 text-slate-700" />
         </button>
         <div>
-          <h2 className="font-display text-lg text-white">{label}</h2>
-          <p className="text-sm text-white/50 flex items-center gap-1">
+          <h2 className="font-sans font-semibold text-lg text-slate-900 normal-case">{label}</h2>
+          <p className="text-sm text-slate-500 flex items-center gap-1">
             <QrCode className="w-3.5 h-3.5" />
             R$ {coursePrice.toFixed(2).replace(".", ",")} — PIX
           </p>
@@ -137,20 +137,20 @@ const CoursePixPayment = ({ purchaseType, courseId, coursePrice, label, onBack, 
       </div>
 
       {error && (
-        <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-sm text-red-400">{error}</div>
+        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">{error}</div>
       )}
 
       <form onSubmit={handleGeneratePix} className="space-y-4">
         <div className="space-y-1.5">
-          <Label className="text-sm text-white/70">E-mail</Label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 focus-visible:ring-white/30" />
+          <Label className="text-sm text-slate-600">E-mail</Label>
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="bg-slate-50 border-slate-200 text-white placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
         </div>
 
-        <button type="submit" disabled={isLoading} className="w-full py-4 bg-white text-gray-900 rounded-xl font-bold uppercase tracking-wide hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+        <button type="submit" disabled={isLoading} className="w-full py-4 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
           {isLoading ? (<><Loader2 className="w-5 h-5 animate-spin" />Gerando PIX...</>) : "Gerar QR Code PIX"}
         </button>
 
-        <div className="flex items-center justify-center gap-2 text-xs text-white/40">
+        <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
           <Shield className="w-4 h-4" /> Pagamento seguro via Mercado Pago
         </div>
       </form>
