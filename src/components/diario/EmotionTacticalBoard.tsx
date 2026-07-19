@@ -458,7 +458,7 @@ const EmotionTacticalBoard = () => {
       <div className="flex items-center gap-2 mb-4">
         <ClipboardList className="w-5 h-5 text-primary" />
         <span className="text-card-foreground font-bold font-sans">
-          Prancheta Emocional
+          Prancheta emocional
         </span>
       </div>
 
@@ -472,7 +472,7 @@ const EmotionTacticalBoard = () => {
         <div className="mb-3">
           <div className="flex items-center gap-1.5 mb-1.5">
             <Swords className="w-3.5 h-3.5 text-secondary" />
-            <span className="text-[10px] font-bold text-secondary uppercase tracking-wide">Ofensivas</span>
+            <span className="text-[10px] font-bold text-secondary tracking-wide">Ofensivas</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             {formations.filter((f) => f.type === "ofensiva").map((f) => (
@@ -497,7 +497,7 @@ const EmotionTacticalBoard = () => {
         <div>
           <div className="flex items-center gap-1.5 mb-1.5">
             <Shield className="w-3.5 h-3.5 text-primary" />
-            <span className="text-[10px] font-bold text-primary uppercase tracking-wide">Defensivas</span>
+            <span className="text-[10px] font-bold text-primary tracking-wide">Defensivas</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             {formations.filter((f) => f.type === "defensiva").map((f) => (
