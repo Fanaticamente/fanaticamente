@@ -530,7 +530,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
     }
   };
 
-  const headerTitle = step === "profile" ? "Agendar sessão" : "Confirmar agendamento";
+  const headerTitle = step === "profile" ? "Perfil profissional" : "Confirmar agendamento";
   const handleHeaderBack = () => {
     if (step === "payment") setStep("profile");
     else onOpenChange(false);
