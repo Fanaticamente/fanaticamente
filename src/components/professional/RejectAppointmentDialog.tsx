@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { X, AlertTriangle, Loader2, CreditCard } from "lucide-react";
+import { X, AlertTriangle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { addHours } from "date-fns";
 
 interface RejectAppointmentDialogProps {
   appointment: {
@@ -15,17 +14,11 @@ interface RejectAppointmentDialogProps {
   onRejected: () => void;
 }
 
-// Motivos que exigem reembolso ao usuário
-const REFUND_REASONS = [
+const REASONS = [
   { value: "imprevisto", label: "Imprevisto" },
   { value: "problemas_pessoais", label: "Problemas pessoais" },
+  { value: "indisponibilidade", label: "Indisponibilidade de horário" },
   { value: "outro", label: "Outro" },
-];
-
-// Motivos relacionados a pagamento (não exigem reembolso)
-const PAYMENT_REASONS = [
-  { value: "pagamento_nao_realizado", label: "Pagamento não realizado" },
-  { value: "comprovante_invalido", label: "Comprovante inválido" },
 ];
 
 const RejectAppointmentDialog = ({ appointment, onClose, onRejected }: RejectAppointmentDialogProps) => {
@@ -34,17 +27,13 @@ const RejectAppointmentDialog = ({ appointment, onClose, onRejected }: RejectApp
   const [customReason, setCustomReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isRefundReason = REFUND_REASONS.some(r => r.value === selectedReason);
-  const isPaymentReason = PAYMENT_REASONS.some(r => r.value === selectedReason);
-
   const handleConfirmReject = () => {
     setStep("reason");
   };
 
   const getReasonLabel = () => {
     if (selectedReason === "outro") return customReason;
-    const allReasons = [...REFUND_REASONS, ...PAYMENT_REASONS];
-    return allReasons.find(r => r.value === selectedReason)?.label || "";
+    return REASONS.find(r => r.value === selectedReason)?.label || "";
   };
 
   const handleSubmitRejection = async () => {
@@ -62,40 +51,18 @@ const RejectAppointmentDialog = ({ appointment, onClose, onRejected }: RejectApp
 
     setIsSubmitting(true);
     try {
-      // Motivos de pagamento: cancela sem reembolso, mas notifica o usuário
-      if (isPaymentReason) {
-        const { error } = await supabase
-          .from("appointments")
-          .update({
-            status: "payment_issue",
-            rejection_reason: finalReason
-          })
-          .eq("id", appointment.id);
+      const { error } = await supabase
+        .from("appointments")
+        .update({
+          status: "cancelled",
+          rejection_reason: finalReason,
+        })
+        .eq("id", appointment.id);
 
-        if (error) throw error;
+      if (error) throw error;
 
-        toast.success("Agendamento recusado. O usuário será notificado sobre o problema de pagamento.");
-        onRejected();
-      } else {
-        // Outros motivos: exigem reembolso - define prazo de 48h
-        const refundDeadline = addHours(new Date(), 48);
-
-        const { error } = await supabase
-          .from("appointments")
-          .update({
-            status: "refund_pending",
-            rejection_reason: finalReason,
-            refund_deadline: refundDeadline.toISOString()
-          })
-          .eq("id", appointment.id);
-
-        if (error) throw error;
-
-        toast.warning("Agendamento recusado. Você tem 48h para realizar o ressarcimento ao paciente.", {
-          duration: 6000
-        });
-        onRejected();
-      }
+      toast.success("Agendamento recusado. O usuário será notificado.");
+      onRejected();
     } catch (error) {
       console.error("Error rejecting appointment:", error);
       toast.error("Erro ao recusar agendamento");
@@ -165,12 +132,8 @@ const RejectAppointmentDialog = ({ appointment, onClose, onRejected }: RejectApp
                 Selecione o motivo da recusa:
               </p>
 
-              {/* Motivos que exigem reembolso */}
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                  Motivos pessoais
-                </p>
-                {REFUND_REASONS.map((reason) => (
+                {REASONS.map((reason) => (
                   <button
                     key={reason.value}
                     onClick={() => setSelectedReason(reason.value)}
@@ -194,49 +157,6 @@ const RejectAppointmentDialog = ({ appointment, onClose, onRejected }: RejectApp
                 />
               )}
 
-              {/* Aviso de reembolso para motivos pessoais */}
-              {isRefundReason && (
-                <div className="flex items-start gap-2 p-3 bg-orange-500/10 rounded-xl">
-                  <CreditCard className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-orange-600 text-sm">
-                    Ao confirmar, você precisará <strong>solicitar a chave PIX</strong> do usuário para realizar o reembolso em até 48 horas.
-                  </p>
-                </div>
-              )}
-
-              {/* Separador */}
-              <div className="border-t border-border my-2" />
-
-              {/* Motivos relacionados a pagamento */}
-              <div className="space-y-2">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                  Problemas de pagamento
-                </p>
-                {PAYMENT_REASONS.map((reason) => (
-                  <button
-                    key={reason.value}
-                    onClick={() => setSelectedReason(reason.value)}
-                    className={`w-full p-3 rounded-xl text-left transition-colors border ${
-                      selectedReason === reason.value
-                        ? "bg-red-500/10 border-red-500 text-card-foreground"
-                        : "bg-muted/50 border-transparent text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {reason.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Aviso para problemas de pagamento */}
-              {isPaymentReason && (
-                <div className="flex items-start gap-2 p-3 bg-red-500/10 rounded-xl">
-                  <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-red-600 text-sm">
-                    O usuário será <strong>notificado</strong> sobre o problema no pagamento do agendamento.
-                  </p>
-                </div>
-              )}
-
               <button
                 onClick={handleSubmitRejection}
                 disabled={isSubmitting || !selectedReason || (selectedReason === "outro" && !customReason.trim())}
@@ -247,8 +167,6 @@ const RejectAppointmentDialog = ({ appointment, onClose, onRejected }: RejectApp
                     <Loader2 className="w-4 h-4 animate-spin" />
                     Processando...
                   </>
-                ) : isRefundReason ? (
-                  "Solicitar chave PIX para reembolso"
                 ) : (
                   "Confirmar Recusa"
                 )}
