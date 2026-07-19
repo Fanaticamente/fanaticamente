@@ -1,12 +1,31 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Zap, Shirt } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import BottomNav from "@/components/layout/BottomNav";
+import Header from "@/components/layout/Header";
 import { useToast } from "@/hooks/use-toast";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { getFirstAndLastName } from "@/lib/utils";
+
+const isFemaleName = (fullName: string) => {
+  const first = (fullName || "").trim().split(/\s+/)[0]?.toLowerCase() ?? "";
+  if (!first) return false;
+  const maleExceptions = new Set(["luca","costa","silva","andrea","sasha","elias","dias","jonas","tobias","matias","isaias","aoba"]);
+  if (maleExceptions.has(first)) return false;
+  const femaleOverrides = new Set(["lais","laís","ines","inês","beatriz","iris","íris","mercedes","isis","ísis","raquel","isabel","cris","esther","ruth","judith","abigail","carmen","miriam","myriam","eunice","dolores","solange","heloise","eloise","eloá","eloa","agnes","damaris","noemi","noemí","rebeca","sarai","tamar","yasmin","jasmin","carol","sol","flor","mel"]);
+  if (femaleOverrides.has(first)) return true;
+  return /a$/.test(first);
+};
+
+const inferRoleLabel = (degree: string | null, female: boolean) => {
+  const d = (degree || "").toLowerCase();
+  if (d.includes("nutric")) return "Nutricionista";
+  if (d.includes("fisio")) return "Fisioterapeuta";
+  if (d.includes("psiqui")) return "Psiquiatra";
+  if (d.includes("terapeuta ocup")) return "Terapeuta Ocupacional";
+  return female ? "Psicóloga" : "Psicólogo";
+};
 
 interface Professional {
   id: string;
