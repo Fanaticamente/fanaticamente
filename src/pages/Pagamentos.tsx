@@ -51,7 +51,7 @@ const Pagamentos = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-20">
-        <Header />
+        <Header title="Pagamentos" />
         <main className="container py-4 pt-20">
           <PageContent />
         </main>

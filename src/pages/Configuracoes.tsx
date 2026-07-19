@@ -287,7 +287,7 @@ const Configuracoes = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background pb-20">
-        <Header />
+        <Header title="Configurações" />
         <main className="container py-4 pt-20">
           <h1 className="text-xl font-bold mb-4">Configurações</h1>
           <ConfiguracoesContent />

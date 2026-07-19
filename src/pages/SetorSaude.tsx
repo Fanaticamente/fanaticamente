@@ -32,7 +32,7 @@ const SetorSaude = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <Header title="Setor Saúde" />
 
       <main className="pt-20">
         <div className="px-4 mb-6">
