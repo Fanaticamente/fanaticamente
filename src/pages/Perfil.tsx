@@ -375,7 +375,7 @@ const Perfil = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background">
-        <Header title="Perfil" />
+        <Header title="Perfil" hideSearch />
         <main className="pt-20 px-4">
           <ProfileContent />
           {/* Spacer para manter distância do BottomNav */}
