@@ -153,13 +153,13 @@ const TherapistCard = ({ therapist, clubColor, clubName, onSelect }: TherapistCa
                 </span>
               </div>
 
-              {/* Meta: experience | shirt | price */}
+              {/* Meta: experience | shirt */}
               <div className="mt-2.5 flex items-center gap-2">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Star className="w-4 h-4 flex-shrink-0" style={{ color: clubColor, fill: clubColor }} />
                   <div className="leading-tight">
                     <div className="text-[11px] font-bold text-gray-800">{therapist.experience} {therapist.experience === 1 ? "ano" : "anos"}</div>
-                    <div className="text-[9px] text-gray-500">de experiência</div>
+                    <div className="text-[9px] text-gray-500 whitespace-nowrap">de experiência</div>
                   </div>
                 </div>
                 <div className="w-px h-7 bg-gray-200 flex-shrink-0" />
@@ -174,21 +174,6 @@ const TherapistCard = ({ therapist, clubColor, clubName, onSelect }: TherapistCa
                     </div>
                   </div>
                 </div>
-
-                {therapist.hourlyRate && (
-                  <div
-                    className="ml-auto flex items-center gap-1 rounded-lg px-2 py-1"
-                    style={{ border: `1.5px solid ${clubColor}`, backgroundColor: priceTint }}
-                  >
-                    <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{ color: clubColor, fill: clubColor }} />
-                    <div className="leading-tight text-center">
-                      <div className="text-[9px] font-medium" style={{ color: clubColor }}>Sessão</div>
-                      <div className="text-[11px] font-bold" style={{ color: clubColor }}>
-                        R$ {therapist.hourlyRate.toFixed(2).replace(".", ",")}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Specialties */}
