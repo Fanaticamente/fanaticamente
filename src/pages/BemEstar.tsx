@@ -154,12 +154,8 @@ const BemEstar = () => {
     <div className="min-h-screen bg-white font-sans text-slate-900 normal-case">
       <Header title="Bem-estar" />
 
-      <div className="pt-[calc(env(safe-area-inset-top)+64px)] px-4">
-        {/* Título removido conforme solicitado; mantido apenas no Header */}
-      </div>
-
       {/* Range tabs */}
-      <div className="px-4 mt-[1cm]">
+      <div className="px-4 pt-[calc(env(safe-area-inset-top)+64px+1cm)]">
         <div className="rounded-full bg-white border border-slate-200 p-1 grid grid-cols-3 gap-1">
           {RANGES.map((r) => (
             <button
