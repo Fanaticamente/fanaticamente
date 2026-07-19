@@ -232,6 +232,14 @@ const Comunidade = () => {
               ))}
             </div>
           </div>
+          <DialogFooter className="p-5 pt-2 bg-white">
+            <button
+              onClick={() => setShowClubsFull(false)}
+              className="w-full py-3 rounded-full bg-gray-100 text-gray-700 font-semibold text-sm flex items-center justify-center gap-2"
+            >
+              <X className="w-4 h-4" /> Fechar
+            </button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -259,6 +267,14 @@ const Comunidade = () => {
               </div>
             ))}
           </div>
+          <DialogFooter className="p-5 pt-2 bg-white">
+            <button
+              onClick={() => setShowFansFull(false)}
+              className="w-full py-3 rounded-full bg-gray-100 text-gray-700 font-semibold text-sm flex items-center justify-center gap-2"
+            >
+              <X className="w-4 h-4" /> Fechar
+            </button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
