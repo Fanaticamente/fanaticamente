@@ -23,7 +23,6 @@ import WeeklyAvailabilityManager from "@/components/professional/WeeklyAvailabil
 import ProfessionalMetricsTab from "@/components/professional/ProfessionalMetricsTab";
 import RejectAppointmentDialog from "@/components/professional/RejectAppointmentDialog";
 import AISecretaryChat from "@/components/professional/AISecretaryChat";
-import RefundPendingCard from "@/components/professional/RefundPendingCard";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
 import ProfessionalDesktopLayout from "@/components/layout/ProfessionalDesktopLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
