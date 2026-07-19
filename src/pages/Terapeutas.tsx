@@ -222,9 +222,15 @@ const Terapeutas = () => {
 
       {/* Full-width club header (mockup) */}
       {step === "therapists" && selectedClub && (
+        <>
         <div
-          className="relative overflow-hidden pt-16 pb-8 px-4"
-          style={{ backgroundColor: selectedClub.primaryColor }}
+          aria-hidden
+          className="fixed top-0 left-0 right-0 z-0 pointer-events-none"
+          style={{ height: "env(safe-area-inset-top)", backgroundColor: selectedClub.primaryColor }}
+        />
+        <div
+          className="relative overflow-hidden pb-8 px-4"
+          style={{ backgroundColor: selectedClub.primaryColor, paddingTop: "calc(env(safe-area-inset-top) + 16px)" }}
         >
           {/* Star background pattern */}
           <div
@@ -258,6 +264,7 @@ const Terapeutas = () => {
             </div>
           </div>
         </div>
+        </>
       )}
 
       <main className={step === "therapists" ? "px-4 pt-6" : "pt-16 px-5"}>
