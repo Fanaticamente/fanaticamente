@@ -42,7 +42,7 @@ const Cursos = () => {
   const CourseCard = ({ course, size = "normal" }: { course: Course; size?: "normal" | "small" }) => {
     const content = (
       <>
-        <div className={`relative ${size === "small" ? "aspect-[2/3]" : "aspect-video"} rounded-xl overflow-hidden bg-muted mb-2`}>
+        <div className={`relative ${size === "small" ? "aspect-[2/3]" : "aspect-video"} rounded-xl overflow-hidden bg-slate-100 mb-2`}>
           {course.thumbnail_url ? (
             <img src={course.thumbnail_url} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />
           ) : (
@@ -79,9 +79,9 @@ const Cursos = () => {
             </div>
           )}
         </div>
-        <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
+        <h3 className="text-slate-900 text-sm font-semibold line-clamp-2">{course.title}</h3>
         {course.instructor && (
-          <p className="text-muted-foreground text-xs mt-0.5">{course.instructor}</p>
+          <p className="text-slate-500 text-xs mt-0.5">{course.instructor}</p>
         )}
       </>
     );
@@ -107,7 +107,7 @@ const Cursos = () => {
   const GridCourseCard = ({ course }: { course: Course }) => {
     const content = (
       <>
-        <div className="relative aspect-video rounded-xl overflow-hidden bg-muted mb-2">
+        <div className="relative aspect-video rounded-xl overflow-hidden bg-slate-100 mb-2">
           {(course.grid_image_url || course.thumbnail_url) ? (
             <img src={course.grid_image_url || course.thumbnail_url!} alt={course.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
           ) : (
@@ -138,11 +138,11 @@ const Cursos = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           )}
         </div>
-        <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
+        <h3 className="text-slate-900 text-sm font-semibold line-clamp-2">{course.title}</h3>
         <div className="flex items-center gap-2 mt-1">
-          {course.instructor && <span className="text-muted-foreground text-xs">{course.instructor}</span>}
+          {course.instructor && <span className="text-slate-500 text-xs">{course.instructor}</span>}
           {course.total_duration && (
-            <span className="text-muted-foreground text-xs flex items-center gap-1">
+            <span className="text-slate-500 text-xs flex items-center gap-1">
               <Clock className="w-3 h-3" /> {course.total_duration}
             </span>
           )}
@@ -169,13 +169,13 @@ const Cursos = () => {
     <>
       {/* Search */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
         <input
           type="text"
           placeholder="Buscar cursos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-muted rounded-xl text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-white/50"
+          className="w-full pl-10 pr-4 py-2.5 bg-slate-100 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-white/50"
         />
       </div>
 
@@ -188,7 +188,7 @@ const Cursos = () => {
             className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors border ${
               selectedCategory === cat
                 ? "bg-white text-gray-800 border-white shadow-sm"
-                : "bg-transparent border-border text-white hover:bg-muted"
+                : "bg-transparent border-slate-200 text-white hover:bg-slate-100"
             }`}
           >
             {cat}
@@ -205,9 +205,9 @@ const Cursos = () => {
         </div>
       ) : filteredCourses.length === 0 ? (
         <div className="text-center py-20">
-          <Play className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+          <Play className="w-16 h-16 text-slate-500/30 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white mb-2">Nenhum curso disponível</h3>
-          <p className="text-muted-foreground text-sm">Em breve novos conteúdos serão adicionados.</p>
+          <p className="text-slate-500 text-sm">Em breve novos conteúdos serão adicionados.</p>
         </div>
       ) : (
         <>
@@ -223,10 +223,10 @@ const Cursos = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                 <div className={`absolute bottom-0 left-0 right-0 p-6 ${!isMobile ? "max-w-2xl" : ""}`}>
                   <span className="text-white font-bold text-xs tracking-widest uppercase mb-2 block">FANATICLASS</span>
-                  <h2 className="font-display text-3xl text-white mb-2 leading-tight">
+                  <h2 className="font-sans text-3xl text-white mb-2 leading-tight">
                     {featuredCourse.title}
                   </h2>
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                  <p className="text-slate-500 text-sm mb-4 line-clamp-2">
                     {featuredCourse.description}
                   </p>
                   <div className="flex gap-3">
@@ -244,7 +244,7 @@ const Cursos = () => {
                         Assistir
                       </Link>
                     )}
-                    <button className="flex items-center gap-2 py-3 px-6 bg-muted/80 text-white rounded-xl font-medium hover:bg-muted transition-colors">
+                    <button className="flex items-center gap-2 py-3 px-6 bg-slate-100 text-white rounded-xl font-medium hover:bg-slate-100 transition-colors">
                       <Plus className="w-5 h-5" />
                       Minha lista
                     </button>
@@ -257,7 +257,7 @@ const Cursos = () => {
           {/* Continue Watching — aparece após o hero */}
           {continueWatching.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-display text-xl text-white mb-4">CONTINUAR ASSISTINDO</h2>
+              <h2 className="font-sans text-xl text-white mb-4">CONTINUAR ASSISTINDO</h2>
               <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
                 {continueWatching.map((item) => (
                   <Link
@@ -265,7 +265,7 @@ const Cursos = () => {
                     to={`/curso/${item.courseId}?lesson=${item.lessonId}`}
                     className={`flex-shrink-0 group ${isMobile ? "w-40" : "w-52"}`}
                   >
-                    <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-muted">
+                    <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-slate-100">
                       {item.thumbnailUrl ? (
                         <img
                           src={item.thumbnailUrl}
@@ -292,8 +292,8 @@ const Cursos = () => {
                       </div>
                     </div>
                     <div className="mt-2 px-0.5">
-                      <p className="text-white text-xs font-medium line-clamp-1">{item.courseTitle}</p>
-                      <p className="text-muted-foreground text-xs line-clamp-1 mt-0.5">{item.lessonTitle}</p>
+                      <p className="text-slate-900 text-xs font-semibold line-clamp-1">{item.courseTitle}</p>
+                      <p className="text-slate-500 text-xs line-clamp-1 mt-0.5">{item.lessonTitle}</p>
                     </div>
                   </Link>
                 ))}
@@ -304,7 +304,7 @@ const Cursos = () => {
           {/* Free Courses */}
           {freeCourses.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-display text-xl text-white mb-4">
+              <h2 className="font-sans text-xl text-white mb-4">
                 🎓 Gratuitos
               </h2>
               <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
@@ -318,7 +318,7 @@ const Cursos = () => {
           {/* Premium Courses */}
           {premiumCourses.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-display text-xl text-white mb-4">
+              <h2 className="font-sans text-xl text-white mb-4">
                 Conteúdo Premium
               </h2>
               <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
@@ -332,7 +332,7 @@ const Cursos = () => {
           {/* All Courses Grid */}
           {filteredCourses.length > 1 && (
             <div className="mb-8">
-              <h2 className="font-display text-xl text-white mb-4">
+              <h2 className="font-sans text-xl text-white mb-4">
                 Todos os cursos
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -349,7 +349,7 @@ const Cursos = () => {
 
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <Header title="Cursos" />
         <main className={`${playingStation ? 'pt-[calc(env(safe-area-inset-top)+112px)]' : 'pt-[calc(env(safe-area-inset-top)+64px)]'} px-4`}>
           <CursosContent />

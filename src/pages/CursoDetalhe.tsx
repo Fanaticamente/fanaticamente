@@ -44,7 +44,7 @@ const CursoDetalhe = () => {
 
   if (loadingCourse) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-white border-t-transparent rounded-full" />
       </div>
     );
@@ -52,9 +52,9 @@ const CursoDetalhe = () => {
 
   if (!course) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-display text-white mb-2">Curso não encontrado</h2>
+          <h2 className="text-xl font-sans text-white mb-2">Curso não encontrado</h2>
           <Link to="/cursos" className="text-white/70 hover:underline">Voltar aos cursos</Link>
         </div>
       </div>
@@ -63,11 +63,11 @@ const CursoDetalhe = () => {
 
   if (course.coming_soon) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <Clock className="w-12 h-12 text-amber-500 mx-auto mb-3" />
-          <h2 className="text-xl font-display text-white mb-2">Em breve</h2>
-          <p className="text-muted-foreground text-sm mb-4">Este curso ainda não está disponível.</p>
+          <h2 className="text-xl font-sans text-white mb-2">Em breve</h2>
+          <p className="text-slate-500 text-sm mb-4">Este curso ainda não está disponível.</p>
           <Link to="/cursos" className="text-white/70 hover:underline">Voltar aos cursos</Link>
         </div>
       </div>
@@ -125,9 +125,9 @@ const CursoDetalhe = () => {
       {/* Course Info */}
       <div className="px-1">
         <span className="text-white font-bold text-xs tracking-widest uppercase">FANATICLASS</span>
-        <h1 className="font-display text-2xl text-white mt-1 mb-2">{course.title}</h1>
+        <h1 className="font-sans text-2xl text-white mt-1 mb-2">{course.title}</h1>
         
-        <div className="flex items-center gap-3 text-sm text-muted-foreground mb-4 flex-wrap">
+        <div className="flex items-center gap-3 text-sm text-slate-500 mb-4 flex-wrap">
           {course.instructor && <span>{course.instructor}</span>}
           {course.total_duration && (
             <span className="flex items-center gap-1">
@@ -155,17 +155,17 @@ const CursoDetalhe = () => {
         <>
         {/* Current Lesson Title */}
         {currentLesson && (
-          <div className="bg-muted/50 rounded-xl p-3 mb-4 border border-border">
-            <p className="text-xs text-muted-foreground mb-0.5">Assistindo agora</p>
+          <div className="bg-slate-50 rounded-xl p-3 mb-4 border border-slate-200">
+            <p className="text-xs text-slate-500 mb-0.5">Assistindo agora</p>
             <p className="text-white font-medium text-sm">{currentLesson.title}</p>
             {currentLesson.duration && (
-              <p className="text-xs text-muted-foreground mt-1">{currentLesson.duration}</p>
+              <p className="text-xs text-slate-500 mt-1">{currentLesson.duration}</p>
             )}
           </div>
         )}
 
         {/* Quick Actions */}
-        <div className="flex justify-around border-b border-border pb-4 mb-4">
+        <div className="flex justify-around border-b border-slate-200 pb-4 mb-4">
           <button className="flex flex-col items-center gap-1 text-white/70 hover:text-white transition-colors">
             <Plus className="w-5 h-5" />
             <span className="text-xs">Minha lista</span>
@@ -187,7 +187,7 @@ const CursoDetalhe = () => {
             className={`pb-2 font-medium text-sm transition-colors ${
               activeTab === "modulos"
                 ? "text-white border-b-2 border-white"
-                : "text-muted-foreground"
+                : "text-slate-500"
             }`}
           >
             Módulos e Aulas
@@ -197,7 +197,7 @@ const CursoDetalhe = () => {
             className={`pb-2 font-medium text-sm transition-colors ${
               activeTab === "sobre"
                 ? "text-white border-b-2 border-white"
-                : "text-muted-foreground"
+                : "text-slate-500"
             }`}
           >
             Sobre
@@ -216,32 +216,32 @@ const CursoDetalhe = () => {
                 {modules.map((mod, modIdx) => {
                   const modLessons = getLessonsForModule(mod.id);
                   return (
-                    <AccordionItem key={mod.id} value={mod.id} className="border border-border rounded-xl overflow-hidden">
-                      <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/50">
+                    <AccordionItem key={mod.id} value={mod.id} className="border border-slate-200 rounded-xl overflow-hidden">
+                      <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-slate-50">
                         <div className="flex items-center gap-3 text-left">
                           <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                             {modIdx + 1}
                           </div>
                           <div>
                             <h3 className="text-white font-medium text-sm">{mod.title}</h3>
-                            <p className="text-muted-foreground text-xs">{modLessons.length} aulas</p>
+                            <p className="text-slate-500 text-xs">{modLessons.length} aulas</p>
                           </div>
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="px-0 pb-0">
-                        <div className="border-t border-border">
+                        <div className="border-t border-slate-200">
                           {modLessons.map((lesson, lesIdx) => (
                             <button
                               key={lesson.id}
                               onClick={() => setSelectedLessonId(lesson.id)}
-                              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/50 transition-colors border-b border-border last:border-b-0 ${
+                              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors border-b border-slate-200 last:border-b-0 ${
                                 currentLesson?.id === lesson.id ? "bg-white/5" : ""
                               }`}
                             >
                               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${
                                 currentLesson?.id === lesson.id
                                   ? "bg-white text-gray-800"
-                                  : "bg-muted text-muted-foreground"
+                                  : "bg-slate-100 text-slate-500"
                               }`}>
                                 {currentLesson?.id === lesson.id ? (
                                   <Play className="w-3 h-3 fill-current ml-0.5" />
@@ -253,7 +253,7 @@ const CursoDetalhe = () => {
                                 <h4 className="text-white text-sm font-medium line-clamp-1">{lesson.title}</h4>
                                 <div className="flex items-center gap-2 mt-0.5">
                                   {lesson.duration && (
-                                    <span className="text-muted-foreground text-xs">{lesson.duration}</span>
+                                    <span className="text-slate-500 text-xs">{lesson.duration}</span>
                                   )}
                                   {lesson.is_free && (
                                     <span className="text-green-600 text-xs font-medium">Grátis</span>
@@ -261,7 +261,7 @@ const CursoDetalhe = () => {
                                 </div>
                               </div>
                               {!lesson.is_free && course.is_premium && (
-                                <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                                <Lock className="w-4 h-4 text-slate-500 flex-shrink-0" />
                               )}
                             </button>
                           ))}
@@ -272,7 +272,7 @@ const CursoDetalhe = () => {
                 })}
               </Accordion>
             ) : (
-              <div className="text-center py-12 text-muted-foreground">
+              <div className="text-center py-12 text-slate-500">
                 <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-30" />
                 <p>Conteúdo em breve</p>
               </div>
@@ -280,8 +280,8 @@ const CursoDetalhe = () => {
 
             {/* Activities Section */}
             {currentLesson && activities && activities.length > 0 && (
-              <div className="mt-6 pt-4 border-t border-border">
-                <h3 className="font-display text-lg text-white mb-3 flex items-center gap-2">
+              <div className="mt-6 pt-4 border-t border-slate-200">
+                <h3 className="font-sans text-lg text-white mb-3 flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-white" />
                   Atividades Complementares
                 </h3>
@@ -289,7 +289,7 @@ const CursoDetalhe = () => {
                   {activities.map((activity) => (
                     <div
                       key={activity.id}
-                      className="bg-muted/50 border border-border rounded-xl p-4"
+                      className="bg-slate-50 border border-slate-200 rounded-xl p-4"
                     >
                       <div className="flex items-start gap-3">
                         <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -298,7 +298,7 @@ const CursoDetalhe = () => {
                         <div>
                           <h4 className="text-white font-medium text-sm">{activity.title}</h4>
                           {activity.description && (
-                            <p className="text-muted-foreground text-xs mt-1">{activity.description}</p>
+                            <p className="text-slate-500 text-xs mt-1">{activity.description}</p>
                           )}
                           {activity.is_required && (
                             <span className="text-xs text-white font-medium mt-2 inline-block">Obrigatória</span>
@@ -319,7 +319,7 @@ const CursoDetalhe = () => {
             {course.description && (
               <div>
                 <h3 className="text-white font-medium mb-2">Descrição</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">
+                <p className="text-slate-500 text-sm leading-relaxed whitespace-pre-wrap">
                   {course.description}
                 </p>
               </div>
@@ -327,12 +327,12 @@ const CursoDetalhe = () => {
             {course.instructor && (
               <div>
                 <h3 className="text-white font-medium mb-1">Instrutor</h3>
-                <p className="text-muted-foreground text-sm">{course.instructor}</p>
+                <p className="text-slate-500 text-sm">{course.instructor}</p>
               </div>
             )}
             <div>
               <h3 className="text-white font-medium mb-1">Categoria</h3>
-              <p className="text-muted-foreground text-sm">{course.category}</p>
+              <p className="text-slate-500 text-sm">{course.category}</p>
             </div>
             {course.price !== null && course.price > 0 && (
               <div>
@@ -350,11 +350,11 @@ const CursoDetalhe = () => {
 
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <Header title={course?.title || "Curso"} />
         <main className="pt-[calc(env(safe-area-inset-top)+64px)] px-4 pb-4">
           <div className="mb-4">
-        <Link to="/cursos" className="flex items-center gap-1 text-muted-foreground text-sm hover:text-white transition-colors">
+        <Link to="/cursos" className="flex items-center gap-1 text-slate-500 text-sm hover:text-white transition-colors">
               <ChevronLeft className="w-4 h-4" /> Voltar
             </Link>
           </div>
@@ -369,7 +369,7 @@ const CursoDetalhe = () => {
   return (
     <UserDesktopLayout title={course.title} subtitle="FanatiClass">
       <div className="mb-4">
-        <Link to="/cursos" className="flex items-center gap-1 text-muted-foreground text-sm hover:text-foreground transition-colors">
+        <Link to="/cursos" className="flex items-center gap-1 text-slate-500 text-sm hover:text-foreground transition-colors">
           <ChevronLeft className="w-4 h-4" /> Voltar aos cursos
         </Link>
       </div>
