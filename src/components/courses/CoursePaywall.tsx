@@ -106,11 +106,11 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
     <div className="space-y-6">
       {/* Lock Banner */}
       <div className="text-center py-6">
-        <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4">
-          <Lock className="w-8 h-8 text-white" />
+        <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
+          <Lock className="w-8 h-8 text-emerald-600" />
         </div>
-        <h2 className="font-display text-xl text-white mb-2">Conteúdo Premium</h2>
-        <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+        <h2 className="font-sans font-semibold text-xl text-slate-900 normal-case mb-2">Conteúdo premium</h2>
+        <p className="text-slate-500 text-sm max-w-xs mx-auto">
           Para acessar este curso, escolha uma das opções abaixo.
         </p>
       </div>
@@ -119,13 +119,13 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
       {clubName && !socioDiscountApplied && (
         <div
           className="rounded-xl border p-3 space-y-2"
-          style={{ backgroundColor: clubColor + "10", borderColor: clubColor + "30" }}
+          style={{ backgroundColor: clubColor + "12", borderColor: clubColor + "40" }}
         >
           <div className="flex items-center gap-3">
             <Shield className="w-5 h-5 flex-shrink-0" style={{ color: clubColor }} />
             <div>
-              <p className="font-bold text-white text-xs">Sócio Consciente {clubName}</p>
-              <p className="text-[10px] text-white/50">Informe sua matrícula</p>
+              <p className="font-semibold text-slate-900 text-xs">Sócio Consciente {clubName}</p>
+              <p className="text-[10px] text-slate-500">Informe sua matrícula</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -135,8 +135,8 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
               onChange={(e) => setSocioMatricula(e.target.value)}
               placeholder="Nº da matrícula"
               maxLength={20}
-              className="flex-1 px-3 py-2 rounded-lg text-sm bg-white/10 border text-white placeholder:text-white/30 focus:outline-none focus:ring-1"
-              style={{ borderColor: clubColor + "30" }}
+              className="flex-1 px-3 py-2 rounded-lg text-sm bg-white border text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1"
+              style={{ borderColor: clubColor + "40" }}
             />
             <button
               onClick={handleApplySocio}
@@ -152,13 +152,13 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
       {clubName && socioDiscountApplied && (
         <div
           className="rounded-xl border p-3"
-          style={{ backgroundColor: clubColor + "10", borderColor: clubColor + "30" }}
+          style={{ backgroundColor: clubColor + "12", borderColor: clubColor + "40" }}
         >
           <div className="flex items-center gap-3">
             <CheckCircle className="w-5 h-5 flex-shrink-0" style={{ color: clubColor }} />
             <div>
               <p className="text-xs font-bold" style={{ color: clubColor }}>Parceria aplicada</p>
-              <p className="text-[10px]" style={{ color: clubColor + "99" }}>Matrícula: {socioMatricula}</p>
+              <p className="text-[10px] text-slate-500">Matrícula: {socioMatricula}</p>
             </div>
             <button
               onClick={() => { setSocioDiscountApplied(false); setSocioMatricula(""); }}
@@ -173,27 +173,27 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
 
       {/* Option 1: Individual Purchase */}
       {coursePrice > 0 && (
-        <div className="bg-muted/50 border border-border rounded-xl p-5 space-y-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-              <CreditCard className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+              <CreditCard className="w-6 h-6 text-emerald-600" />
             </div>
             <div>
-              <h3 className="text-white font-display text-lg uppercase tracking-wide">Compra Avulsa</h3>
-              <p className="text-muted-foreground text-xs">Acesso vitalício a este curso</p>
+              <h3 className="text-slate-900 font-sans font-semibold text-base normal-case">Compra avulsa</h3>
+              <p className="text-slate-500 text-xs">Acesso vitalício a este curso</p>
             </div>
             <div className="ml-auto text-right">
               {socioDiscountApplied ? (
                 <>
-                  <span className="text-white/40 line-through text-sm block">
+                  <span className="text-slate-400 line-through text-sm block">
                     R$ {coursePrice.toFixed(2).replace(".", ",")}
                   </span>
-                  <span className="text-white font-bold text-lg">
+                  <span className="text-slate-900 font-bold text-lg">
                     R$ {discountedCoursePrice.toFixed(2).replace(".", ",")}
                   </span>
                 </>
               ) : (
-                <span className="text-white font-bold text-lg">
+                <span className="text-slate-900 font-bold text-lg">
                   R$ {coursePrice.toFixed(2).replace(".", ",")}
                 </span>
               )}
@@ -202,13 +202,13 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
           <div className="flex gap-2">
             <button
               onClick={() => handleSelectPayment("course", "card")}
-              className="flex-1 py-3 bg-white text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-emerald-600 text-white rounded-lg font-semibold text-sm hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
             >
               <CreditCard className="w-4 h-4" /> Cartão
             </button>
             <button
               onClick={() => handleSelectPayment("course", "pix")}
-              className="flex-1 py-3 bg-white text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-white border border-emerald-600 text-emerald-700 rounded-lg font-semibold text-sm hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2"
             >
               <QrCode className="w-4 h-4" /> PIX
             </button>
@@ -219,36 +219,36 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
       {/* Divider */}
       {coursePrice > 0 && (
         <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-muted-foreground text-xs">ou</span>
-          <div className="flex-1 h-px bg-border" />
+          <div className="flex-1 h-px bg-slate-200" />
+          <span className="text-slate-500 text-xs">ou</span>
+          <div className="flex-1 h-px bg-slate-200" />
         </div>
       )}
 
       {/* Option 2: Membership */}
-      <div className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/30 rounded-xl p-5 space-y-4">
+      <div className="bg-white border border-amber-300 rounded-2xl p-5 space-y-4 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/15 flex items-center justify-center flex-shrink-0">
-            <Crown className="w-6 h-6 text-amber-400" />
+          <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+            <Crown className="w-6 h-6 text-amber-500" />
           </div>
           <div>
-            <h3 className="text-white font-display text-lg uppercase tracking-wide">Assinatura Mensal</h3>
-            <p className="text-muted-foreground text-xs">Acesso a todos os cursos da plataforma</p>
+            <h3 className="text-slate-900 font-sans font-semibold text-base normal-case">Assinatura mensal</h3>
+            <p className="text-slate-500 text-xs">Acesso a todos os cursos da plataforma</p>
           </div>
           <div className="ml-auto text-right whitespace-nowrap">
             {socioDiscountApplied ? (
               <>
-                <span className="text-white/40 line-through text-sm block">
+                <span className="text-slate-400 line-through text-sm block">
                   R$ 49,90
                 </span>
-                <span className="text-white font-bold text-lg">
+                <span className="text-slate-900 font-bold text-lg">
                   R$ {discountedMembershipPrice.toFixed(2).replace(".", ",")}
-                  <span className="text-muted-foreground text-xs font-normal">/mês</span>
+                  <span className="text-slate-500 text-xs font-normal">/mês</span>
                 </span>
               </>
             ) : (
-              <span className="text-white font-bold text-lg">
-                R$ 49,90<span className="text-muted-foreground text-xs font-normal">/mês</span>
+              <span className="text-slate-900 font-bold text-lg">
+                R$ 49,90<span className="text-slate-500 text-xs font-normal">/mês</span>
               </span>
             )}
           </div>
@@ -256,13 +256,13 @@ const CoursePaywall = ({ course, onAccessGranted }: CoursePaywallProps) => {
         <div className="flex gap-2">
           <button
             onClick={() => handleSelectPayment("membership", "card")}
-            className="flex-1 py-3 bg-white text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-3 bg-amber-500 text-white rounded-lg font-semibold text-sm hover:bg-amber-600 transition-colors flex items-center justify-center gap-2"
           >
             <CreditCard className="w-4 h-4" /> Cartão
           </button>
           <button
             onClick={() => handleSelectPayment("membership", "pix")}
-            className="flex-1 py-3 bg-white text-gray-900 rounded-lg font-medium text-sm hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-3 bg-white border border-amber-500 text-amber-700 rounded-lg font-semibold text-sm hover:bg-amber-50 transition-colors flex items-center justify-center gap-2"
           >
             <QrCode className="w-4 h-4" /> PIX
           </button>
