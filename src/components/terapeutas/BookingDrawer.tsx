@@ -295,7 +295,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [therapist, open, selectedDate, selectedTime, toastHook]);
+  }, [therapist, open, selectedDate, selectedTime, toastHook, currentUserId]);
 
   // Realtime subscription for Google Calendar busy blocks — keeps slot
   // availability accurate when the professional adds/removes events on Google.
