@@ -45,7 +45,7 @@ const CursoDetalhe = () => {
   if (loadingCourse) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-white border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -54,8 +54,8 @@ const CursoDetalhe = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-sans text-white mb-2">Curso não encontrado</h2>
-          <Link to="/cursos" className="text-slate-500 hover:underline">Voltar aos cursos</Link>
+          <h2 className="text-xl font-sans font-semibold text-slate-900 mb-2">Curso não encontrado</h2>
+          <Link to="/cursos" className="text-emerald-600 hover:underline">Voltar aos cursos</Link>
         </div>
       </div>
     );
@@ -66,9 +66,9 @@ const CursoDetalhe = () => {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <Clock className="w-12 h-12 text-amber-500 mx-auto mb-3" />
-          <h2 className="text-xl font-sans text-white mb-2">Em breve</h2>
+          <h2 className="text-xl font-sans font-semibold text-slate-900 mb-2">Em breve</h2>
           <p className="text-slate-500 text-sm mb-4">Este curso ainda não está disponível.</p>
-          <Link to="/cursos" className="text-slate-500 hover:underline">Voltar aos cursos</Link>
+          <Link to="/cursos" className="text-emerald-600 hover:underline">Voltar aos cursos</Link>
         </div>
       </div>
     );
