@@ -1,4 +1,4 @@
-import { ShieldCheck, Shirt, Star, Zap, ChevronRight, Bookmark, X } from "lucide-react";
+import { ShieldCheck, Shirt, Star, ChevronRight, Bookmark, X } from "lucide-react";
 import { useState } from "react";
 import { getFirstAndLastName } from "@/lib/utils";
 import silhouetteMale from "@/assets/silhouette-male.png";
@@ -87,7 +87,6 @@ const TherapistCard = ({ therapist, clubColor, clubName, onSelect }: TherapistCa
   // Very light tint for the CTA button background
   const softTint = `color-mix(in oklab, ${clubColor}, white 88%)`;
   const pillTint = `color-mix(in oklab, ${clubColor}, white 82%)`;
-  const priceTint = `color-mix(in oklab, ${clubColor}, white 92%)`;
 
   return (
     <>
