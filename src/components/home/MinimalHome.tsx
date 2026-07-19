@@ -24,8 +24,8 @@ const MOODS = [
 ];
 
 const SUGGESTIONS = [
-  { img: icCampo.url,        kicker: "Sugestão para você", title: "Campo das emoções",                         subtitle: "Escale seu time e gere uma reflexão.", path: "/diario" },
-  { img: icCurso.url,        kicker: "Curso em destaque",  title: "Ética & Responsabilidade Social no Futebol", subtitle: "Comece agora mesmo",                    path: "/curso/c6c7600e-de31-4adc-935e-75a9dd30beba", small: true },
+  { img: icCampo.url,        kicker: "Sugestão para você", title: "Campo das emoções",                         subtitle: "Escale seu time e gere uma reflexão", path: "/diario" },
+  { img: icCurso.url,        kicker: "Curso em destaque",  title: ["Ética & Responsabilidade Social", "no Futebol"], subtitle: "Comece agora mesmo",                    path: "/curso/c6c7600e-de31-4adc-935e-75a9dd30beba", small: true },
   { img: icEspecialista.url, kicker: "Cuide de você",      title: "Converse com um(a) especialista",           subtitle: "Terapeutas disponíveis",                path: "/terapeutas", small: true },
   { img: icRadio.url,        kicker: "Ao vivo",            title: "Rádio Alambrado FM",                         subtitle: "Acompanhe as rádios esportivas",        path: "/radio" },
   { img: icNoticias.url,     kicker: "Fique por dentro",   title: "Notícias do seu clube",                      subtitle: "Últimas atualizações",                  path: "/futebol" },
