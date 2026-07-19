@@ -219,7 +219,9 @@ const MinimalHome = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-semibold text-emerald-600">{s.kicker}</p>
-                    <p className={cn("font-bold text-slate-900 truncate", s.small ? "text-[13px]" : "text-base")}>{s.title}</p>
+                    <p className={cn("font-bold text-slate-900 leading-tight", s.small ? "text-[13px]" : "text-base", Array.isArray(s.title) && "line-clamp-2")}>
+                      {Array.isArray(s.title) ? s.title.map((line, i) => <span key={i} className="block">{line}</span>) : s.title}
+                    </p>
                     <p className="text-xs text-slate-500 truncate">{s.subtitle}</p>
                   </div>
                   <div className="w-11 h-11 rounded-full border border-slate-200 flex items-center justify-center shrink-0">
