@@ -42,7 +42,7 @@ const Cursos = () => {
   const CourseCard = ({ course, size = "normal" }: { course: Course; size?: "normal" | "small" }) => {
     const content = (
       <>
-        <div className={`relative ${size === "small" ? "aspect-[2/3]" : "aspect-video"} rounded-xl overflow-hidden bg-muted mb-2`}>
+        <div className={`relative ${size === "small" ? "aspect-[2/3]" : "aspect-video"} rounded-xl overflow-hidden bg-slate-100 mb-2`}>
           {course.thumbnail_url ? (
             <img src={course.thumbnail_url} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />
           ) : (
@@ -79,9 +79,9 @@ const Cursos = () => {
             </div>
           )}
         </div>
-        <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
+        <h3 className="text-slate-900 text-sm font-semibold line-clamp-2">{course.title}</h3>
         {course.instructor && (
-          <p className="text-muted-foreground text-xs mt-0.5">{course.instructor}</p>
+          <p className="text-slate-500 text-xs mt-0.5">{course.instructor}</p>
         )}
       </>
     );
@@ -107,7 +107,7 @@ const Cursos = () => {
   const GridCourseCard = ({ course }: { course: Course }) => {
     const content = (
       <>
-        <div className="relative aspect-video rounded-xl overflow-hidden bg-muted mb-2">
+        <div className="relative aspect-video rounded-xl overflow-hidden bg-slate-100 mb-2">
           {(course.grid_image_url || course.thumbnail_url) ? (
             <img src={course.grid_image_url || course.thumbnail_url!} alt={course.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
           ) : (
@@ -138,11 +138,11 @@ const Cursos = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           )}
         </div>
-        <h3 className="text-white text-sm font-medium line-clamp-2">{course.title}</h3>
+        <h3 className="text-slate-900 text-sm font-semibold line-clamp-2">{course.title}</h3>
         <div className="flex items-center gap-2 mt-1">
-          {course.instructor && <span className="text-muted-foreground text-xs">{course.instructor}</span>}
+          {course.instructor && <span className="text-slate-500 text-xs">{course.instructor}</span>}
           {course.total_duration && (
-            <span className="text-muted-foreground text-xs flex items-center gap-1">
+            <span className="text-slate-500 text-xs flex items-center gap-1">
               <Clock className="w-3 h-3" /> {course.total_duration}
             </span>
           )}
@@ -169,13 +169,13 @@ const Cursos = () => {
     <>
       {/* Search */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
         <input
           type="text"
           placeholder="Buscar cursos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-muted rounded-xl text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-white/50"
+          className="w-full pl-10 pr-4 py-2.5 bg-slate-100 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
         />
       </div>
 
@@ -187,8 +187,8 @@ const Cursos = () => {
             onClick={() => setSelectedCategory(cat)}
             className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors border ${
               selectedCategory === cat
-                ? "bg-white text-gray-800 border-white shadow-sm"
-                : "bg-transparent border-border text-white hover:bg-muted"
+                ? "bg-slate-900 text-white border-slate-900"
+                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
             }`}
           >
             {cat}
@@ -205,49 +205,42 @@ const Cursos = () => {
         </div>
       ) : filteredCourses.length === 0 ? (
         <div className="text-center py-20">
-          <Play className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-white mb-2">Nenhum curso disponível</h3>
-          <p className="text-muted-foreground text-sm">Em breve novos conteúdos serão adicionados.</p>
+          <Play className="w-16 h-16 text-slate-500/30 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">Nenhum curso disponível</h3>
+          <p className="text-slate-500 text-sm">Em breve novos conteúdos serão adicionados.</p>
         </div>
       ) : (
         <>
           {/* Featured Hero */}
           {featuredCourse && (
             <div className="mb-8">
-              <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-b from-muted to-card ${isMobile ? "aspect-[4/5] sm:aspect-[16/9] max-h-[500px]" : "aspect-[21/9]"}`}>
+              <div className={`relative rounded-2xl overflow-hidden bg-slate-100 ${isMobile ? "aspect-video" : "aspect-[21/9]"}`}>
                 {(featuredCourse.hero_image_url || featuredCourse.thumbnail_url) ? (
                   <img src={featuredCourse.hero_image_url || featuredCourse.thumbnail_url!} alt="" className="absolute inset-0 w-full h-full object-cover object-top" />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/30" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-                <div className={`absolute bottom-0 left-0 right-0 p-6 ${!isMobile ? "max-w-2xl" : ""}`}>
-                  <span className="text-white font-bold text-xs tracking-widest uppercase mb-2 block">FANATICLASS</span>
-                  <h2 className="font-display text-3xl text-white mb-2 leading-tight">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className={`absolute bottom-0 left-0 right-0 p-5 ${!isMobile ? "max-w-2xl" : ""}`}>
+                  <span className="text-white/90 font-semibold text-[11px] tracking-widest uppercase mb-1 block">Destaque</span>
+                  <h2 className="font-sans text-2xl text-white normal-case mb-2 leading-tight font-bold">
                     {featuredCourse.title}
                   </h2>
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                    {featuredCourse.description}
-                  </p>
-                  <div className="flex gap-3">
+                  <div className="flex gap-2 mt-3">
                     {featuredCourse.coming_soon ? (
-                      <div className="flex items-center gap-2 py-3 px-6 bg-amber-500 text-white rounded-xl font-medium">
-                        <Clock className="w-5 h-5" />
+                      <div className="flex items-center gap-2 py-2.5 px-5 bg-amber-500 text-white rounded-full text-sm font-semibold">
+                        <Clock className="w-4 h-4" />
                         Em breve
                       </div>
                     ) : (
                       <Link
                         to={`/curso/${featuredCourse.id}`}
-                        className="flex items-center gap-2 py-3 px-6 bg-white text-gray-800 rounded-xl font-medium hover:bg-gray-100 transition-colors"
+                        className="flex items-center gap-2 py-2.5 px-5 bg-emerald-500 text-white rounded-full text-sm font-semibold hover:bg-emerald-600 transition-colors"
                       >
-                        <Play className="w-5 h-5 fill-current" />
+                        <Play className="w-4 h-4 fill-current" />
                         Assistir
                       </Link>
                     )}
-                    <button className="flex items-center gap-2 py-3 px-6 bg-muted/80 text-white rounded-xl font-medium hover:bg-muted transition-colors">
-                      <Plus className="w-5 h-5" />
-                      Minha lista
-                    </button>
                   </div>
                 </div>
               </div>
@@ -257,7 +250,7 @@ const Cursos = () => {
           {/* Continue Watching — aparece após o hero */}
           {continueWatching.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-display text-xl text-white mb-4">CONTINUAR ASSISTINDO</h2>
+              <h2 className="font-sans text-lg text-slate-900 normal-case mb-3 font-semibold">Continuar assistindo</h2>
               <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
                 {continueWatching.map((item) => (
                   <Link
@@ -265,7 +258,7 @@ const Cursos = () => {
                     to={`/curso/${item.courseId}?lesson=${item.lessonId}`}
                     className={`flex-shrink-0 group ${isMobile ? "w-40" : "w-52"}`}
                   >
-                    <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-muted">
+                    <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-slate-100">
                       {item.thumbnailUrl ? (
                         <img
                           src={item.thumbnailUrl}
@@ -292,8 +285,8 @@ const Cursos = () => {
                       </div>
                     </div>
                     <div className="mt-2 px-0.5">
-                      <p className="text-white text-xs font-medium line-clamp-1">{item.courseTitle}</p>
-                      <p className="text-muted-foreground text-xs line-clamp-1 mt-0.5">{item.lessonTitle}</p>
+                      <p className="text-slate-900 text-xs font-semibold line-clamp-1">{item.courseTitle}</p>
+                      <p className="text-slate-500 text-xs line-clamp-1 mt-0.5">{item.lessonTitle}</p>
                     </div>
                   </Link>
                 ))}
@@ -304,9 +297,7 @@ const Cursos = () => {
           {/* Free Courses */}
           {freeCourses.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-display text-xl text-white mb-4">
-                🎓 Gratuitos
-              </h2>
+              <h2 className="font-sans text-lg text-slate-900 normal-case mb-3 font-semibold">Gratuitos</h2>
               <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
                 {freeCourses.map((course) => (
                   <CourseCard key={course.id} course={course} size="small" />
@@ -318,9 +309,7 @@ const Cursos = () => {
           {/* Premium Courses */}
           {premiumCourses.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-display text-xl text-white mb-4">
-                Conteúdo Premium
-              </h2>
+              <h2 className="font-sans text-lg text-slate-900 normal-case mb-3 font-semibold">Conteúdo premium</h2>
               <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
                 {premiumCourses.map((course) => (
                   <CourseCard key={course.id} course={course} size="small" />
@@ -332,9 +321,7 @@ const Cursos = () => {
           {/* All Courses Grid */}
           {filteredCourses.length > 1 && (
             <div className="mb-8">
-              <h2 className="font-display text-xl text-white mb-4">
-                Todos os cursos
-              </h2>
+              <h2 className="font-sans text-lg text-slate-900 normal-case mb-3 font-semibold">Todos os cursos</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {filteredCourses.map((course) => (
                   <GridCourseCard key={course.id} course={course} />
@@ -349,7 +336,7 @@ const Cursos = () => {
 
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <Header title="Cursos" />
         <main className={`${playingStation ? 'pt-[calc(env(safe-area-inset-top)+112px)]' : 'pt-[calc(env(safe-area-inset-top)+64px)]'} px-4`}>
           <CursosContent />
