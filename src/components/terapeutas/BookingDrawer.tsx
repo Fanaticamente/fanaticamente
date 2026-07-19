@@ -900,35 +900,13 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                         >
                           <div className="flex items-center gap-2">
                             <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
-                            <div>
-                              <p className="text-[11px] font-bold" style={{ color: clubColor }}>
-                                Parceria aplicada
-                              </p>
-                              <p className="text-[10px]" style={{ color: clubColor + "99" }}>
-                                Valor com desconto
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-[10px] text-gray-400 line-through">
-                              R$ {basePrice.toFixed(2).replace(".", ",")}
-                            </p>
-                            <p className="text-lg font-bold" style={{ color: clubColor }}>
-                              R$ {sessionPrice.toFixed(2).replace(".", ",")}
+                            <p className="text-[11px] font-bold" style={{ color: clubColor }}>
+                              Parceria aplicada
                             </p>
                           </div>
-                        </div>
-                      )}
-
-                      {socioAnswer === "no" && (
-                        <div
-                          className="mt-3 p-3 rounded-lg flex items-center justify-between"
-                          style={{ backgroundColor: clubColor + "10" }}
-                        >
-                          <span className="text-gray-600 font-medium text-sm">Valor da sessão</span>
-                          <span className="text-lg font-bold" style={{ color: clubColor }}>
-                            R$ {basePrice.toFixed(2).replace(".", ",")}
-                          </span>
+                          <p className="text-lg font-bold" style={{ color: clubColor }}>
+                            R$ {sessionPrice.toFixed(2).replace(".", ",")}
+                          </p>
                         </div>
                       )}
                     </div>
