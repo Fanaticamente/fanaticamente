@@ -69,7 +69,7 @@ const Comunidade = () => {
       <main className="pt-16 pb-32 px-4 max-w-2xl mx-auto">
         {/* Top tabs */}
         <div className="bg-white rounded-full shadow-sm p-1 flex mb-5">
-          {(["ranking", "desafios", "atividade"] as Tab[]).map((t) => (
+        {(["ranking", "atividade", "desafios"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
