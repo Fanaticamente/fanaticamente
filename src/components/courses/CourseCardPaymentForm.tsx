@@ -200,12 +200,12 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
           <Label className="text-sm text-slate-600">Número do cartão</Label>
-          <Input value={cardNumber} onChange={(e) => setCardNumber(formatCardNumber(e.target.value))} placeholder="0000 0000 0000 0000" maxLength={19} required className="bg-slate-50 border-slate-200 text-white placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
+          <Input value={cardNumber} onChange={(e) => setCardNumber(formatCardNumber(e.target.value))} placeholder="0000 0000 0000 0000" maxLength={19} required className="bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
         </div>
 
         <div className="space-y-1.5">
           <Label className="text-sm text-slate-600">Nome no cartão</Label>
-          <Input value={cardholderName} onChange={(e) => setCardholderName(e.target.value)} placeholder="NOME COMO NO CARTÃO" required className="bg-slate-50 border-slate-200 text-white placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40 uppercase" />
+          <Input value={cardholderName} onChange={(e) => setCardholderName(e.target.value)} placeholder="NOME COMO NO CARTÃO" required className="bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40 uppercase" />
         </div>
 
         <div className="grid grid-cols-3 gap-3">
@@ -225,7 +225,7 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
           </div>
           <div className="space-y-1.5">
             <Label className="text-sm text-slate-600">CVV</Label>
-            <Input value={securityCode} onChange={(e) => setSecurityCode(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="123" maxLength={4} required className="bg-slate-50 border-slate-200 text-white placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
+            <Input value={securityCode} onChange={(e) => setSecurityCode(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="123" maxLength={4} required className="bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
           </div>
         </div>
 
@@ -242,13 +242,13 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
           </div>
           <div className="col-span-2 space-y-1.5">
             <Label className="text-sm text-slate-600">Número</Label>
-            <Input value={docNumber} onChange={(e) => setDocNumber(formatDocNumber(e.target.value))} placeholder={docType === "CPF" ? "000.000.000-00" : "00.000.000/0000-00"} required className="bg-slate-50 border-slate-200 text-white placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
+            <Input value={docNumber} onChange={(e) => setDocNumber(formatDocNumber(e.target.value))} placeholder={docType === "CPF" ? "000.000.000-00" : "00.000.000/0000-00"} required className="bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
           </div>
         </div>
 
         <div className="space-y-1.5">
           <Label className="text-sm text-slate-600">E-mail</Label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="bg-slate-50 border-slate-200 text-white placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
         </div>
 
         <button type="submit" disabled={isLoading || !isSDKLoaded} className="w-full py-4 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">

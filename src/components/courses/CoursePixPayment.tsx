@@ -143,7 +143,7 @@ const CoursePixPayment = ({ purchaseType, courseId, coursePrice, label, onBack, 
       <form onSubmit={handleGeneratePix} className="space-y-4">
         <div className="space-y-1.5">
           <Label className="text-sm text-slate-600">E-mail</Label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="bg-slate-50 border-slate-200 text-white placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
         </div>
 
         <button type="submit" disabled={isLoading} className="w-full py-4 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
