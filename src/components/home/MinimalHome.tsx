@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, differenceInCalendarDays } from "date-fns";
 import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Radio, Newspaper, Trophy, BookOpen } from "lucide-react";
-import jornadaShield from "@/assets/jornada-shield.svg.asset.json";
+import jornadaLogo from "@/assets/logo-header-v3.png.asset.json";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -266,7 +266,7 @@ const MinimalHome = () => {
           </div>
 
           <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0">
-            <img src={jornadaShield.url} alt="" className="w-10 h-10 object-contain" />
+            <img src={jornadaLogo.url} alt="" className="w-12 h-12 object-contain" />
           </div>
         </div>
       </section>
