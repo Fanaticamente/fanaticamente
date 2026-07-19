@@ -197,6 +197,22 @@ const Terapeutas = () => {
     fetchTherapistsForClub(club.id);
   };
 
+  // Restore selected club when coming back from booking page
+  useEffect(() => {
+    const state = routerLocation.state as { clubId?: string } | null;
+    if (state?.clubId && step === "club") {
+      const league = (["serie_a","serie_b","serie_c"] as League[]).find((l) =>
+        getClubsByLeague(l).some((c) => c.id === state.clubId)
+      );
+      const club = league ? getClubsByLeague(league).find((c) => c.id === state.clubId) : null;
+      if (club) {
+        if (league) setSelectedLeague(league);
+        handleClubSelect(club);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routerLocation.state]);
+
   const handleBack = () => {
     setStep("club");
     setSelectedClub(null);
