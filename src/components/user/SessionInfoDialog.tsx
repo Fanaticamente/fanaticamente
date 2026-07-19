@@ -51,23 +51,23 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4" 
+      className="fixed inset-0 bg-slate-900/40 z-[100] flex items-center justify-center p-4" 
       onClick={onClose}
     >
       <div 
-        className="bg-card rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto" 
+        className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <h3 className="font-display text-lg text-card-foreground">
+        <div className="flex items-center justify-between p-4 border-b border-slate-200">
+          <h3 className="font-sans text-lg text-slate-900">
             Informações da Sessão
           </h3>
           <button 
             onClick={onClose} 
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
+            className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-muted-foreground" />
+            <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
 
@@ -75,12 +75,12 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
         <div className="p-4 space-y-6">
           {/* Professional Info */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">
               Dados do Profissional
             </h4>
-            <div className="bg-muted/50 rounded-xl p-4 space-y-3">
+            <div className="bg-slate-50 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-therapy/20 flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center overflow-hidden">
                   {appointment.profile?.avatar_url ? (
                     <img 
                       src={appointment.profile.avatar_url} 
@@ -88,15 +88,15 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
                       className="w-full h-full object-cover object-top"
                     />
                   ) : (
-                    <User className="w-6 h-6 text-therapy" />
+                    <User className="w-6 h-6 text-emerald-600" />
                   )}
                 </div>
                 <div>
-                  <p className="font-medium text-card-foreground">
+                  <p className="font-medium text-slate-900">
                     {appointment.profile?.full_name || "Profissional"}
                   </p>
                   {appointment.professional && (
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-slate-500 text-sm">
                       CRP {appointment.professional.crp}
                       {appointment.professional.degree && ` • ${appointment.professional.degree}`}
                     </p>
@@ -106,15 +106,15 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
               
               {appointment.professional_email && (
                 <div className="flex items-center gap-3 text-sm">
-                  <Mail className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-card-foreground">{appointment.professional_email}</span>
+                  <Mail className="w-4 h-4 text-slate-500" />
+                  <span className="text-slate-900">{appointment.professional_email}</span>
                 </div>
               )}
               
               {appointment.profile?.phone && (
                 <div className="flex items-center gap-3 text-sm">
-                  <Phone className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-card-foreground flex-1">{appointment.profile.phone}</span>
+                  <Phone className="w-4 h-4 text-slate-500" />
+                  <span className="text-slate-900 flex-1">{appointment.profile.phone}</span>
                   <a
                     href={`https://wa.me/${appointment.profile.phone.replace(/\D/g, '').replace(/^(\d{10,11})$/, '55$1')}`}
                     target="_blank"
@@ -131,7 +131,7 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
               {/* View Profile Button */}
               <button
                 onClick={() => navigate(`/profissional/${appointment.professional_id}`)}
-                className="w-full mt-2 py-2 bg-therapy/10 text-therapy rounded-xl font-medium hover:bg-therapy/20 transition-colors flex items-center justify-center gap-2"
+                className="w-full mt-2 py-2 bg-emerald-50 text-emerald-600 rounded-xl font-medium hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2"
               >
                 <User className="w-4 h-4" />
                 Ver Perfil do Profissional
@@ -141,19 +141,19 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
 
           {/* Appointment Info */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">
               Data e Horário
             </h4>
-            <div className="bg-muted/50 rounded-xl p-4 space-y-3">
+            <div className="bg-slate-50 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-primary" />
-                <span className="text-card-foreground">
+                <Calendar className="w-5 h-5 text-emerald-600" />
+                <span className="text-slate-900">
                   {format(parseISO(appointment.scheduled_date), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-primary" />
-                <span className="text-card-foreground">{appointment.scheduled_time}</span>
+                <Clock className="w-5 h-5 text-emerald-600" />
+                <span className="text-slate-900">{appointment.scheduled_time}</span>
               </div>
             </div>
           </div>
@@ -161,11 +161,11 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
           {/* Price if available */}
           {appointment.professional?.hourly_rate && (
             <div className="space-y-3">
-              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">
                 Valor da Sessão
               </h4>
-              <div className="bg-muted/50 rounded-xl p-4">
-                <p className="text-card-foreground font-bold text-lg">
+              <div className="bg-slate-50 rounded-xl p-4">
+                <p className="text-slate-900 font-bold text-lg">
                   R$ {appointment.professional.hourly_rate.toFixed(2).replace(".", ",")}
                 </p>
               </div>
@@ -174,7 +174,7 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
 
           {/* Consultation Link */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">
               Link da Consulta Online
             </h4>
             {appointment.consultation_link ? (
@@ -182,13 +182,13 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
                 href={appointment.consultation_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-4 bg-therapy/10 border border-therapy/30 rounded-xl hover:bg-therapy/20 transition-colors"
+                className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors"
               >
-                <Link className="w-5 h-5 text-therapy" />
-                <span className="text-therapy font-medium flex-1 truncate">
+                <Link className="w-5 h-5 text-emerald-600" />
+                <span className="text-emerald-600 font-medium flex-1 truncate">
                   {appointment.consultation_link}
                 </span>
-                <ExternalLink className="w-4 h-4 text-therapy" />
+                <ExternalLink className="w-4 h-4 text-emerald-600" />
               </a>
             ) : (
               <div className="flex items-start gap-3 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
@@ -206,18 +206,18 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
           {/* Notes */}
           {appointment.notes && (
             <div className="space-y-3">
-              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">
                 Observações
               </h4>
-              <div className="bg-muted/50 rounded-xl p-4">
-                <p className="text-card-foreground text-sm">{appointment.notes}</p>
+              <div className="bg-slate-50 rounded-xl p-4">
+                <p className="text-slate-900 text-sm">{appointment.notes}</p>
               </div>
             </div>
           )}
 
           {/* Status */}
-          <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
-            <span className="text-muted-foreground text-sm">Status</span>
+          <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+            <span className="text-slate-500 text-sm">Status</span>
             <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusDisplay.className}`}>
               {statusDisplay.label}
             </span>

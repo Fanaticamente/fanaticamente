@@ -176,14 +176,14 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
   if (appointment.status === "refund_pending") {
     // Professional rejected, waiting for user's PIX key
     return (
-      <div className="bg-card border border-orange-500/50 rounded-xl p-4 space-y-4">
+      <div className="bg-white border border-orange-500/50 rounded-xl p-4 space-y-4">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center">
             <AlertTriangle className="w-5 h-5 text-orange-500" />
           </div>
           <div>
-            <h3 className="font-medium text-card-foreground">Sessão Recusada</h3>
-            <p className="text-muted-foreground text-sm">
+            <h3 className="font-medium text-slate-900">Sessão Recusada</h3>
+            <p className="text-slate-500 text-sm">
               {format(parseISO(appointment.scheduled_date), "dd/MM", { locale: ptBR })} às {appointment.scheduled_time}
             </p>
           </div>
@@ -202,7 +202,7 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
 
         {!appointment.user_pix_key ? (
           <div className="space-y-3">
-            <p className="text-card-foreground text-sm">
+            <p className="text-slate-900 text-sm">
               Informe abaixo a sua chave Pix para o(a) profissional fazer o ressarcimento do valor pago.
             </p>
 
@@ -210,7 +210,7 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
               <select
                 value={pixKeyType}
                 onChange={(e) => setPixKeyType(e.target.value)}
-                className="w-full h-12 px-4 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none"
+                className="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl text-slate-900 focus:border-emerald-600 focus:outline-none"
               >
                 <option value="">Tipo da chave</option>
                 {PIX_KEY_TYPES.map((type) => (
@@ -223,14 +223,14 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
                 value={pixKey}
                 onChange={(e) => setPixKey(e.target.value)}
                 placeholder="Sua chave PIX"
-                className="w-full h-12 px-4 bg-background border border-border rounded-xl text-card-foreground focus:border-primary focus:outline-none"
+                className="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl text-slate-900 focus:border-emerald-600 focus:outline-none"
               />
             </div>
 
             <button
               onClick={handleSavePixKey}
               disabled={isSaving || !pixKey.trim() || !pixKeyType}
-              className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSaving ? (
                 <>
@@ -242,16 +242,16 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
               )}
             </button>
 
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-xs text-slate-500 text-center">
               O profissional tem até 48h para realizar o ressarcimento.
             </p>
           </div>
         ) : (
-          <div className="p-3 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              Chave PIX informada: <strong className="text-card-foreground">{appointment.user_pix_key}</strong>
+          <div className="p-3 bg-slate-50 rounded-lg">
+            <p className="text-sm text-slate-500">
+              Chave PIX informada: <strong className="text-slate-900">{appointment.user_pix_key}</strong>
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               Aguardando o profissional enviar o comprovante de ressarcimento.
             </p>
           </div>
@@ -263,14 +263,14 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
   if (appointment.status === "refund_sent") {
     // Professional sent refund receipt, waiting for user confirmation
     return (
-      <div className="bg-card border border-green-500/50 rounded-xl p-4 space-y-4">
+      <div className="bg-white border border-green-500/50 rounded-xl p-4 space-y-4">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
             <CheckCircle className="w-5 h-5 text-green-500" />
           </div>
           <div>
-            <h3 className="font-medium text-card-foreground">Ressarcimento Enviado</h3>
-            <p className="text-muted-foreground text-sm">
+            <h3 className="font-medium text-slate-900">Ressarcimento Enviado</h3>
+            <p className="text-slate-500 text-sm">
               {format(parseISO(appointment.scheduled_date), "dd/MM", { locale: ptBR })} às {appointment.scheduled_time}
             </p>
           </div>
@@ -287,13 +287,13 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
 
         {receiptUrl && (
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">
               Comprovante de Ressarcimento
             </h4>
             <button
               type="button"
               onClick={() => setShowReceiptViewer(true)}
-              className="w-full flex items-center gap-2 p-3 bg-muted/50 rounded-xl text-primary hover:bg-muted transition-colors text-sm font-medium"
+              className="w-full flex items-center gap-2 p-3 bg-slate-50 rounded-xl text-emerald-600 hover:bg-slate-200 transition-colors text-sm font-medium"
             >
               <Upload className="w-4 h-4" />
               Ver Comprovante de Ressarcimento
@@ -344,7 +344,7 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
           {!showDispute ? (
             <button
               onClick={() => setShowDispute(true)}
-              className="w-full py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 bg-slate-100 text-slate-500 rounded-xl font-medium hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"
             >
               <XCircle className="w-4 h-4" />
               Não recebi o pagamento
@@ -358,12 +358,12 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
                 value={disputeReason}
                 onChange={(e) => setDisputeReason(e.target.value)}
                 placeholder="Descreva o que aconteceu..."
-                className="w-full p-3 bg-background border border-border rounded-xl text-card-foreground resize-none h-24 focus:border-red-500 focus:outline-none"
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-900 resize-none h-24 focus:border-red-500 focus:outline-none"
               />
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowDispute(false)}
-                  className="flex-1 py-2 bg-muted text-muted-foreground rounded-lg font-medium"
+                  className="flex-1 py-2 bg-slate-100 text-slate-500 rounded-lg font-medium"
                 >
                   Cancelar
                 </button>
@@ -388,14 +388,14 @@ const RefundInfoCard = ({ appointment, onUpdate }: RefundInfoCardProps) => {
 
   if (appointment.status === "disputed") {
     return (
-      <div className="bg-card border border-red-500/50 rounded-xl p-4 space-y-4">
+      <div className="bg-white border border-red-500/50 rounded-xl p-4 space-y-4">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
             <AlertTriangle className="w-5 h-5 text-red-500" />
           </div>
           <div>
-            <h3 className="font-medium text-card-foreground">Em Análise</h3>
-            <p className="text-muted-foreground text-sm">
+            <h3 className="font-medium text-slate-900">Em Análise</h3>
+            <p className="text-slate-500 text-sm">
               {format(parseISO(appointment.scheduled_date), "dd/MM", { locale: ptBR })} às {appointment.scheduled_time}
             </p>
           </div>
