@@ -69,8 +69,6 @@ const ProfessionalProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
-  
   const [professional, setProfessional] = useState<Professional | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [club, setClub] = useState<Club | null>(null);
