@@ -290,14 +290,14 @@ const MeusAgendamentos = () => {
             onClick={() => setFilter("proximos")}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
               filter === "proximos"
-                ? "bg-slate-900 text-white"
+                ? "bg-emerald-600 text-white"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
             Próximos
             {proximosCount > 0 && (
               <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${
-                filter === "proximos" ? "bg-white/20 text-white" : "bg-slate-900 text-white"
+                filter === "proximos" ? "bg-white/20 text-white" : "bg-emerald-600 text-white"
               }`}>
                 {proximosCount}
               </span>
@@ -307,7 +307,7 @@ const MeusAgendamentos = () => {
             onClick={() => setFilter("realizados")}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               filter === "realizados"
-              ? "bg-slate-900 text-white"
+              ? "bg-emerald-600 text-white"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
           }`}
         >
@@ -317,7 +317,7 @@ const MeusAgendamentos = () => {
           onClick={() => setFilter("cancelados")}
           className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
             filter === "cancelados"
-              ? "bg-slate-900 text-white"
+              ? "bg-emerald-600 text-white"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
           }`}
         >
@@ -334,7 +334,7 @@ const MeusAgendamentos = () => {
           onClick={() => setFilter("todos")}
           className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
             filter === "todos"
-              ? "bg-slate-900 text-white"
+              ? "bg-emerald-600 text-white"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
           }`}
         >

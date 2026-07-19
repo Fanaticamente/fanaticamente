@@ -169,7 +169,7 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
   if (!isSDKLoaded && !error) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-white" />
+        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
       </div>
     );
   }
@@ -181,12 +181,12 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-3">
-        <button onClick={onBack} className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors" disabled={isLoading}>
-          <ArrowLeft className="w-5 h-5 text-white" />
+        <button onClick={onBack} className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors" disabled={isLoading}>
+          <ArrowLeft className="w-5 h-5 text-slate-700" />
         </button>
         <div>
-          <h2 className="font-display text-lg text-white">{label}</h2>
-          <p className="text-sm text-white/50 flex items-center gap-1">
+          <h2 className="font-sans font-semibold text-lg text-slate-900 normal-case">{label}</h2>
+          <p className="text-sm text-slate-500 flex items-center gap-1">
             <CreditCard className="w-3.5 h-3.5" />
             R$ {coursePrice.toFixed(2).replace(".", ",")} — Cartão de crédito
           </p>
@@ -194,46 +194,46 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
       </div>
 
       {error && (
-        <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-sm text-red-400">{error}</div>
+        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
-          <Label className="text-sm text-white/70">Número do cartão</Label>
-          <Input value={cardNumber} onChange={(e) => setCardNumber(formatCardNumber(e.target.value))} placeholder="0000 0000 0000 0000" maxLength={19} required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 focus-visible:ring-white/30" />
+          <Label className="text-sm text-slate-600">Número do cartão</Label>
+          <Input value={cardNumber} onChange={(e) => setCardNumber(formatCardNumber(e.target.value))} placeholder="0000 0000 0000 0000" maxLength={19} required className="bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-sm text-white/70">Nome no cartão</Label>
-          <Input value={cardholderName} onChange={(e) => setCardholderName(e.target.value)} placeholder="NOME COMO NO CARTÃO" required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 focus-visible:ring-white/30 uppercase" />
+          <Label className="text-sm text-slate-600">Nome no cartão</Label>
+          <Input value={cardholderName} onChange={(e) => setCardholderName(e.target.value)} placeholder="NOME COMO NO CARTÃO" required className="bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40 uppercase" />
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1.5">
-            <Label className="text-sm text-white/70">Mês</Label>
+            <Label className="text-sm text-slate-600">Mês</Label>
             <Select value={expirationMonth} onValueChange={setExpirationMonth} required>
-              <SelectTrigger className="bg-white/5 border-white/20 text-white [&>span]:text-white [&>svg]:text-white/50 focus:ring-white/30 focus:border-white/40 data-[placeholder]:text-white/30"><SelectValue placeholder="MM" /></SelectTrigger>
+              <SelectTrigger className="bg-slate-50 border-slate-200 text-slate-900 [&>span]:text-slate-900 [&>svg]:text-slate-500 focus:ring-emerald-500/40 focus:border-emerald-500 data-[placeholder]:text-slate-300"><SelectValue placeholder="MM" /></SelectTrigger>
               <SelectContent>{months.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-sm text-white/70">Ano</Label>
+            <Label className="text-sm text-slate-600">Ano</Label>
             <Select value={expirationYear} onValueChange={setExpirationYear} required>
-              <SelectTrigger className="bg-white/5 border-white/20 text-white [&>span]:text-white [&>svg]:text-white/50 focus:ring-white/30 focus:border-white/40 data-[placeholder]:text-white/30"><SelectValue placeholder="AAAA" /></SelectTrigger>
+              <SelectTrigger className="bg-slate-50 border-slate-200 text-slate-900 [&>span]:text-slate-900 [&>svg]:text-slate-500 focus:ring-emerald-500/40 focus:border-emerald-500 data-[placeholder]:text-slate-300"><SelectValue placeholder="AAAA" /></SelectTrigger>
               <SelectContent>{years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-sm text-white/70">CVV</Label>
-            <Input value={securityCode} onChange={(e) => setSecurityCode(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="123" maxLength={4} required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 focus-visible:ring-white/30" />
+            <Label className="text-sm text-slate-600">CVV</Label>
+            <Input value={securityCode} onChange={(e) => setSecurityCode(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="123" maxLength={4} required className="bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1.5">
-            <Label className="text-sm text-white/70">Documento</Label>
+            <Label className="text-sm text-slate-600">Documento</Label>
             <Select value={docType} onValueChange={setDocType}>
-              <SelectTrigger className="bg-white/5 border-white/20 text-white [&>span]:text-white [&>svg]:text-white/50 focus:ring-white/30 focus:border-white/40"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="bg-slate-50 border-slate-200 text-slate-900 [&>span]:text-slate-900 [&>svg]:text-slate-500 focus:ring-emerald-500/40 focus:border-emerald-500"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="CPF">CPF</SelectItem>
                 <SelectItem value="CNPJ">CNPJ</SelectItem>
@@ -241,21 +241,21 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
             </Select>
           </div>
           <div className="col-span-2 space-y-1.5">
-            <Label className="text-sm text-white/70">Número</Label>
-            <Input value={docNumber} onChange={(e) => setDocNumber(formatDocNumber(e.target.value))} placeholder={docType === "CPF" ? "000.000.000-00" : "00.000.000/0000-00"} required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 focus-visible:ring-white/30" />
+            <Label className="text-sm text-slate-600">Número</Label>
+            <Input value={docNumber} onChange={(e) => setDocNumber(formatDocNumber(e.target.value))} placeholder={docType === "CPF" ? "000.000.000-00" : "00.000.000/0000-00"} required className="bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-sm text-white/70">E-mail</Label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-white/40 focus-visible:ring-white/30" />
+          <Label className="text-sm text-slate-600">E-mail</Label>
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" required className="bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus:border-emerald-500 focus-visible:ring-emerald-500/40" />
         </div>
 
-        <button type="submit" disabled={isLoading || !isSDKLoaded} className="w-full py-4 bg-white text-gray-900 rounded-xl font-bold uppercase tracking-wide hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+        <button type="submit" disabled={isLoading || !isSDKLoaded} className="w-full py-4 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
           {isLoading ? (<><Loader2 className="w-5 h-5 animate-spin" />Processando...</>) : (`Pagar R$ ${coursePrice.toFixed(2).replace(".", ",")}`)}
         </button>
 
-        <div className="flex items-center justify-center gap-2 text-xs text-white/40">
+        <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
           <Shield className="w-4 h-4" /> Pagamento seguro via Mercado Pago
         </div>
       </form>

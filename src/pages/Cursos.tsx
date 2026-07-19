@@ -13,6 +13,16 @@ import { useContinueWatching } from "@/hooks/useContinueWatching";
 
 const categories = ["Todos", "Saúde Mental", "Resiliência", "Autoconhecimento", "Bem-estar", "Relacionamentos"];
 
+// Normalize DB titles that come in ALL CAPS to sentence-case for display.
+const displayTitle = (t?: string | null) => {
+  if (!t) return "";
+  const stripped = t.replace(/[\s\W]/g, "");
+  const isAllCaps = stripped.length > 0 && stripped === stripped.toUpperCase() && /[A-ZÀ-Ú]/.test(stripped);
+  if (!isAllCaps) return t;
+  const lower = t.toLocaleLowerCase("pt-BR");
+  return lower.charAt(0).toLocaleUpperCase("pt-BR") + lower.slice(1);
+};
+
 const Cursos = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,7 +89,7 @@ const Cursos = () => {
             </div>
           )}
         </div>
-        <h3 className="text-slate-900 text-sm font-semibold line-clamp-2">{course.title}</h3>
+        <h3 className="text-slate-900 text-sm font-semibold line-clamp-2 normal-case">{displayTitle(course.title)}</h3>
         {course.instructor && (
           <p className="text-slate-500 text-xs mt-0.5">{course.instructor}</p>
         )}
@@ -138,7 +148,7 @@ const Cursos = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           )}
         </div>
-        <h3 className="text-slate-900 text-sm font-semibold line-clamp-2">{course.title}</h3>
+        <h3 className="text-slate-900 text-sm font-semibold line-clamp-2 normal-case">{displayTitle(course.title)}</h3>
         <div className="flex items-center gap-2 mt-1">
           {course.instructor && <span className="text-slate-500 text-xs">{course.instructor}</span>}
           {course.total_duration && (
@@ -187,7 +197,7 @@ const Cursos = () => {
             onClick={() => setSelectedCategory(cat)}
             className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors border ${
               selectedCategory === cat
-                ? "bg-slate-900 text-white border-slate-900"
+                ? "bg-emerald-600 text-white border-emerald-600"
                 : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
             }`}
           >
@@ -224,7 +234,7 @@ const Cursos = () => {
                 <div className={`absolute bottom-0 left-0 right-0 p-5 ${!isMobile ? "max-w-2xl" : ""}`}>
                   <span className="text-white/90 font-semibold text-[11px] tracking-widest uppercase mb-1 block">Destaque</span>
                   <h2 className="font-sans text-2xl text-white normal-case mb-2 leading-tight font-bold">
-                    {featuredCourse.title}
+                    {displayTitle(featuredCourse.title)}
                   </h2>
                   <div className="flex gap-2 mt-3">
                     {featuredCourse.coming_soon ? (
@@ -285,8 +295,8 @@ const Cursos = () => {
                       </div>
                     </div>
                     <div className="mt-2 px-0.5">
-                      <p className="text-slate-900 text-xs font-semibold line-clamp-1">{item.courseTitle}</p>
-                      <p className="text-slate-500 text-xs line-clamp-1 mt-0.5">{item.lessonTitle}</p>
+                      <p className="text-slate-900 text-xs font-semibold line-clamp-1 normal-case">{displayTitle(item.courseTitle)}</p>
+                      <p className="text-slate-500 text-xs line-clamp-1 mt-0.5 normal-case">{displayTitle(item.lessonTitle)}</p>
                     </div>
                   </Link>
                 ))}
@@ -337,7 +347,7 @@ const Cursos = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-white">
-        <Header title="Cursos" />
+        <Header title="FanatiClass" />
         <main className={`${playingStation ? 'pt-[calc(env(safe-area-inset-top)+112px)]' : 'pt-[calc(env(safe-area-inset-top)+64px)]'} px-4`}>
           <CursosContent />
           <div aria-hidden className="h-28" />
