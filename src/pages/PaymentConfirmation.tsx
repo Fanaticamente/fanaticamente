@@ -137,10 +137,10 @@ const PaymentConfirmation = () => {
               className="w-16 h-16 rounded-full overflow-hidden border-2"
               style={{ borderColor: clubColor }}
             >
-              {profile.avatar_url ? (
+              {profile?.avatar_url ? (
                 <img 
                   src={profile.avatar_url} 
-                  alt={profile.full_name || "Profissional"} 
+                  alt={profile?.full_name || "Profissional"} 
                   className="w-full h-full object-cover object-top"
                 />
               ) : (
