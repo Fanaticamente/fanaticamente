@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Trophy, TrendingUp, X } from "lucide-react";
+import { ChevronRight, Trophy, TrendingUp, X, ClipboardList } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -30,6 +31,7 @@ const medalColor = (r: number) =>
   r === 1 ? "bg-amber-400 text-white" : r === 2 ? "bg-slate-300 text-white" : r === 3 ? "bg-orange-400 text-white" : "";
 
 const Comunidade = () => {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("ranking");
   const [league, setLeague] = useState<League>("serie_a");
   const [showClubsFull, setShowClubsFull] = useState(false);
@@ -186,8 +188,27 @@ const Comunidade = () => {
           </div>
         )}
         {tab === "atividade" && (
-          <div className="bg-white rounded-3xl shadow-sm p-8 text-center text-gray-500 text-sm">
-            Em breve: atividade da comunidade.
+          <div className="space-y-3">
+            <button
+              onClick={() => navigate("/diario")}
+              className="w-full text-left rounded-3xl bg-white border border-slate-200 shadow-sm p-4 flex items-center gap-4"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0">
+                <ClipboardList className="w-6 h-6 text-emerald-600" strokeWidth={1.8} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p
+                  className="font-sans font-bold text-slate-900"
+                  style={{ textTransform: "none" }}
+                >
+                  Campo das emoções
+                </p>
+                <p className="text-sm text-slate-500 leading-snug mt-0.5">
+                  Escale seu time e gere uma reflexão.
+                </p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-emerald-600 shrink-0" />
+            </button>
           </div>
         )}
       </main>
