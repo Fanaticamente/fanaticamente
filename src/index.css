@@ -261,7 +261,7 @@
   body {
     width: 100%;
     height: 100%;
-    background-color: #ffffff;
+    background-color: #ffffff !important;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
@@ -269,12 +269,13 @@
   }
 
   #root {
-    min-height: 100%;
-    background-color: #ffffff;
+    min-height: 100dvh;
+    background-color: #ffffff !important;
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply text-foreground font-sans antialiased;
+    background-color: #ffffff !important;
     font-family: 'Roboto', sans-serif;
     /* iOS PWA safe area */
     padding-top: env(safe-area-inset-top);
