@@ -98,6 +98,21 @@ const Terapeutas = () => {
   
   const [clubsWithProfessionals, setClubsWithProfessionals] = useState<Set<string>>(new Set());
 
+  // Prevent white overscroll gap at the top by tinting <html> with the club color
+  // while the therapist listing (club-themed hero) is visible.
+  useEffect(() => {
+    if (step === "therapists" && selectedClub) {
+      const prevHtml = document.documentElement.style.backgroundColor;
+      const prevBody = document.body.style.backgroundColor;
+      document.documentElement.style.backgroundColor = selectedClub.primaryColor;
+      document.body.style.backgroundColor = selectedClub.primaryColor;
+      return () => {
+        document.documentElement.style.backgroundColor = prevHtml;
+        document.body.style.backgroundColor = prevBody;
+      };
+    }
+  }, [step, selectedClub]);
+
   useEffect(() => {
     const fetchClubsWithProfessionals = async () => {
       const { data: professionals, error: profError } = await supabase
@@ -251,8 +266,8 @@ const Terapeutas = () => {
           style={{ height: "env(safe-area-inset-top)", backgroundColor: selectedClub.primaryColor }}
         />
         <div
-          className="relative overflow-hidden pb-8 px-4"
-          style={{ backgroundColor: selectedClub.primaryColor, paddingTop: "calc(env(safe-area-inset-top) + 16px)" }}
+          className="relative overflow-hidden pb-5 px-4"
+          style={{ backgroundColor: selectedClub.primaryColor, paddingTop: "calc(env(safe-area-inset-top) + 10px)" }}
         >
           {/* Star background pattern */}
           <div
@@ -265,24 +280,24 @@ const Terapeutas = () => {
           />
           <button
             onClick={handleBack}
-            className="relative z-10 mb-4 text-white/90 hover:text-white"
+            className="relative z-10 mb-2 text-white/90 hover:text-white"
             aria-label="Voltar"
           >
-            <ChevronLeft className="w-7 h-7" strokeWidth={2.5} />
+            <ChevronLeft className="w-6 h-6" strokeWidth={2.5} />
           </button>
-          <div className="relative z-10 flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center flex-shrink-0">
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center flex-shrink-0">
               <Shirt
-                className="w-11 h-11"
+                className="w-9 h-9"
                 style={{ color: selectedClub.primaryColor, fill: selectedClub.primaryColor }}
                 strokeWidth={1.5}
               />
             </div>
             <div className="min-w-0">
-              <h1 className="font-display italic text-3xl text-white leading-none tracking-wide uppercase">
+              <h1 className="font-display italic text-2xl text-white leading-none tracking-wide uppercase">
                 {selectedClub.name}
               </h1>
-              <p className="mt-1 text-white/85 text-sm">Especialistas para a torcida</p>
+              <p className="mt-1 text-white/85 text-xs">Especialistas para a torcida</p>
             </div>
           </div>
         </div>
