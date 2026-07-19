@@ -203,7 +203,14 @@ const Terapeutas = () => {
   };
 
   const handleTherapistSelect = (therapist: TherapistData) => {
-    navigate(`/agendar/${therapist.id}`);
+    navigate(`/agendar/${therapist.id}`, {
+      state: {
+        therapist,
+        clubColor: selectedClub?.primaryColor,
+        clubName: selectedClub?.name,
+        clubNickname: selectedClub ? clubNicknames[selectedClub.id] : undefined,
+      },
+    });
   };
 
   return (
