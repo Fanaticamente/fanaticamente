@@ -65,7 +65,7 @@ const Diario = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-white text-slate-900 font-sans normal-case">
-        <Header title="Campo das emoções" />
+        <Header title="Atividades" hideSearch />
         <main className="pt-[calc(env(safe-area-inset-top)+56px+16px)] px-4">
           <DiarioContent />
           <div aria-hidden className="h-28" />
