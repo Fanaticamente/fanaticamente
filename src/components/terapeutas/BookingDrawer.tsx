@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, ChevronLeft, ChevronRight, Star, Shirt, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield, Search } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Star, Shirt, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield, Search, MapPin, Ticket, BadgeCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getFirstAndLastName } from "@/lib/utils";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, parseISO } from "date-fns";
@@ -541,11 +541,11 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
           {step === "profile" ? (
             <div className="p-4 space-y-4">
               {/* Profile Card */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 font-sans">
-                <div className="flex items-center gap-4">
+              <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 font-sans">
+                <div className="flex items-start gap-4">
                   <div
-                    className="w-20 h-20 rounded-2xl overflow-hidden border-2"
-                    style={{ borderColor: clubColor + '40' }}
+                    className="relative flex-shrink-0 w-[120px] h-[140px] rounded-2xl overflow-hidden"
+                    style={{ boxShadow: `0 0 0 2px ${clubColor}22` }}
                   >
                     {therapist.imageUrl ? (
                       <img
@@ -558,28 +558,71 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                         <User className="w-8 h-8" style={{ color: clubColor }} />
                       </div>
                     )}
+                    {therapist.verified && (
+                      <div
+                        className="absolute bottom-1.5 right-1.5 w-7 h-7 rounded-full flex items-center justify-center shadow-md"
+                        style={{ backgroundColor: clubColor }}
+                        aria-label="Verificado"
+                      >
+                        <Shield className="w-4 h-4 text-white" strokeWidth={2.5} />
+                      </div>
+                    )}
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h2 className="font-bold text-gray-800 text-xl font-sans capitalize">{getFirstAndLastName(therapist.name).toLowerCase()}</h2>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h2 className="font-bold text-gray-900 text-[20px] leading-tight capitalize">
+                        {getFirstAndLastName(therapist.name).toLowerCase()}
+                      </h2>
                       {therapist.verified && (
-                        <CheckCircle className="w-5 h-5" style={{ color: clubColor }} />
+                        <BadgeCheck className="w-5 h-5" style={{ color: clubColor }} fill={clubColor} stroke="#fff" />
                       )}
                     </div>
-                    <p className="text-gray-500 text-sm">{roleLabel}</p>
-                    <p className="text-gray-400 text-xs">CRP: {therapist.crp}</p>
-                    <div className="flex items-center gap-3 mt-2 text-sm text-gray-600">
-                      <span className="flex items-center gap-1">
-                        <Star className="w-4 h-4" style={{ color: clubColor }} />
-                        {therapist.experience} anos
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Shirt className="w-4 h-4" style={{ color: clubColor }} strokeWidth={2} />
-                        <span className="font-medium text-gray-700">{female ? "Torcedora" : "Torcedor"}</span>
-                        {clubName && <span className="text-gray-500">· {clubName}</span>}
+                    <div className="mt-1.5">
+                      <span
+                        className="inline-block px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider"
+                        style={{ backgroundColor: clubColor + '15', color: clubColor }}
+                      >
+                        {roleLabel}
                       </span>
                     </div>
+                    <p className="text-gray-400 text-xs mt-1.5">CRP: {therapist.crp}</p>
+                    <div className="flex items-stretch gap-2 mt-3">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Star className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
+                        <div className="leading-tight">
+                          <div className="text-[12px] font-bold text-gray-800">{therapist.experience} {therapist.experience === 1 ? 'ano' : 'anos'}</div>
+                          <div className="text-[9px] text-gray-500 whitespace-nowrap">de experiência</div>
+                        </div>
+                      </div>
+                      <div className="w-px bg-gray-200 flex-shrink-0" />
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Shirt className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} strokeWidth={2} />
+                        <div className="leading-tight min-w-0">
+                          <div className="text-[12px] font-bold text-gray-800 truncate">{female ? "Torcedora" : "Torcedor"}</div>
+                          <div className="text-[9px] text-gray-500 truncate">{clubName || therapist.location}</div>
+                        </div>
+                      </div>
+                      <div className="w-px bg-gray-200 flex-shrink-0" />
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} strokeWidth={2} />
+                        <div className="text-[12px] font-bold text-gray-800 truncate">{therapist.location || 'Brasil'}</div>
+                      </div>
+                    </div>
                   </div>
+                </div>
+
+                {/* Session value */}
+                <div
+                  className="mt-4 rounded-2xl px-4 py-3 flex items-center justify-between"
+                  style={{ backgroundColor: clubColor + '10' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <Ticket className="w-5 h-5" style={{ color: clubColor }} strokeWidth={2.2} />
+                    <span className="text-sm font-medium" style={{ color: clubColor }}>Valor da sessão</span>
+                  </div>
+                  <span className="text-lg font-bold" style={{ color: clubColor }}>
+                    R$ {basePrice.toFixed(2).replace('.', ',')}
+                  </span>
                 </div>
               </div>
 
