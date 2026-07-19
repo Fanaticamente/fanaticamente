@@ -159,40 +159,24 @@ const CursoDetalhe = () => {
           </div>
         )}
 
-        {/* Quick Actions */}
-        <div className="flex justify-around border-b border-slate-200 pb-4 mb-4">
-          <button className="flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900 transition-colors">
-            <Plus className="w-5 h-5" />
-            <span className="text-xs">Minha lista</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900 transition-colors">
-            <ThumbsUp className="w-5 h-5" />
-            <span className="text-xs">Avaliar</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900 transition-colors">
-            <Share2 className="w-5 h-5" />
-            <span className="text-xs">Compartilhar</span>
-          </button>
-        </div>
-
         {/* Tabs */}
-        <div className="flex gap-6 mb-4">
+        <div className="flex gap-6 mb-5 border-b border-slate-200">
           <button
             onClick={() => setActiveTab("modulos")}
-            className={`pb-2 font-medium text-sm transition-colors ${
+            className={`pb-3 font-semibold text-sm transition-colors -mb-px ${
               activeTab === "modulos"
                 ? "text-emerald-600 border-b-2 border-emerald-600"
-                : "text-slate-500"
+                : "text-slate-500 border-b-2 border-transparent"
             }`}
           >
-            Módulos e Aulas
+            Módulos e aulas
           </button>
           <button
             onClick={() => setActiveTab("sobre")}
-            className={`pb-2 font-medium text-sm transition-colors ${
+            className={`pb-3 font-semibold text-sm transition-colors -mb-px ${
               activeTab === "sobre"
                 ? "text-emerald-600 border-b-2 border-emerald-600"
-                : "text-slate-500"
+                : "text-slate-500 border-b-2 border-transparent"
             }`}
           >
             Sobre
