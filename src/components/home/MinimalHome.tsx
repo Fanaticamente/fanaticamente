@@ -24,8 +24,8 @@ const MOODS = [
 ];
 
 const SUGGESTIONS = [
-  { img: icCampo.url,        kicker: "Sugestão para você", title: "Campo das emoções",                         subtitle: "Escale seu time e gere uma reflexão.", path: "/diario" },
-  { img: icCurso.url,        kicker: "Curso em destaque",  title: "Ética & Responsabilidade Social no Futebol", subtitle: "Comece agora mesmo",                    path: "/curso/c6c7600e-de31-4adc-935e-75a9dd30beba", small: true },
+  { img: icCampo.url,        kicker: "Sugestão para você", title: "Campo das emoções",                         subtitle: "Escale seu time e gere uma reflexão", path: "/diario" },
+  { img: icCurso.url,        kicker: "Curso em destaque",  title: ["Ética & Responsabilidade Social", "no Futebol"], subtitle: "Comece agora mesmo",                    path: "/curso/c6c7600e-de31-4adc-935e-75a9dd30beba", small: true },
   { img: icEspecialista.url, kicker: "Cuide de você",      title: "Converse com um(a) especialista",           subtitle: "Terapeutas disponíveis",                path: "/terapeutas", small: true },
   { img: icRadio.url,        kicker: "Ao vivo",            title: "Rádio Alambrado FM",                         subtitle: "Acompanhe as rádios esportivas",        path: "/radio" },
   { img: icNoticias.url,     kicker: "Fique por dentro",   title: "Notícias do seu clube",                      subtitle: "Últimas atualizações",                  path: "/futebol" },
@@ -219,7 +219,9 @@ const MinimalHome = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-semibold text-emerald-600">{s.kicker}</p>
-                    <p className={cn("font-bold text-slate-900 truncate", s.small ? "text-[13px]" : "text-base")}>{s.title}</p>
+                    <p className={cn("font-bold text-slate-900 leading-tight", s.small ? "text-[13px]" : "text-base", Array.isArray(s.title) && "line-clamp-2")}>
+                      {Array.isArray(s.title) ? s.title.map((line, i) => <span key={i} className="block">{line}</span>) : s.title}
+                    </p>
                     <p className="text-xs text-slate-500 truncate">{s.subtitle}</p>
                   </div>
                   <div className="w-11 h-11 rounded-full border border-slate-200 flex items-center justify-center shrink-0">
