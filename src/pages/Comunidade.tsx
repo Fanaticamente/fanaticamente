@@ -69,7 +69,7 @@ const Comunidade = () => {
       <main className="pt-16 pb-32 px-4 max-w-2xl mx-auto">
         {/* Top tabs */}
         <div className="bg-white rounded-full shadow-sm p-1 flex mb-5">
-          {(["ranking", "desafios", "atividade"] as Tab[]).map((t) => (
+        {(["ranking", "atividade", "desafios"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -87,11 +87,11 @@ const Comunidade = () => {
             {/* Weekly challenge banner */}
             <div className="relative overflow-hidden rounded-3xl p-5 mb-5 text-white" style={{ background: "linear-gradient(135deg, #1f6b3a 0%, #14532d 100%)" }}>
               <div className="relative z-10 max-w-[60%]">
-                <p className="text-sm/tight opacity-90 font-medium">Desafio da Semana</p>
-                <h2 className="text-2xl font-bold leading-tight mt-1">7 dias de autocuidado</h2>
-                <p className="text-sm opacity-90 mt-1">Participe e ganhe pontos!</p>
+                <p className="text-sm/tight opacity-90 font-medium">Em breve</p>
+                <h2 className="text-2xl font-bold leading-tight mt-1">DESAFIOS DE AUTOCUIDADO</h2>
+                <p className="text-sm opacity-90 mt-1">Participe e some pontos</p>
                 <button className="mt-4 bg-white text-emerald-700 font-semibold text-sm px-5 py-2.5 rounded-full">
-                  Participar
+                  Em breve
                 </button>
               </div>
               <Trophy className="absolute right-2 bottom-2 w-32 h-32 text-white/25" strokeWidth={1.2} />
