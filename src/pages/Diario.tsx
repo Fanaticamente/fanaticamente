@@ -44,7 +44,7 @@ const Diario = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Header title="Termômetro Torcedor" />
         <main className="pt-20 px-4">
           <DiarioContent />
           <div aria-hidden className="h-28" />

@@ -701,7 +701,7 @@ const Quiz = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header title="Resenha fanática" />
 
       <main className="pt-20 px-4">
         {!category && (

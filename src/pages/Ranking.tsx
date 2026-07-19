@@ -56,7 +56,7 @@ const Ranking = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <Header title="Ranking" />
 
       <main className="pt-16 flex flex-col" style={{ height: 'calc(100vh - 4rem)' }}>
         {/* Title Banner */}
