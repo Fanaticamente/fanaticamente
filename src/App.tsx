@@ -34,6 +34,7 @@ import MobileBrowserBlock from "@/components/MobileBrowserBlock";
 import Index from "./pages/Index";
 import Terapeutas from "./pages/Terapeutas";
 import ProfessionalProfile from "./pages/ProfessionalProfile";
+import AgendarSessao from "./pages/AgendarSessao";
 import SessionPayment from "./pages/SessionPayment";
 import PaymentConfirmation from "./pages/PaymentConfirmation";
 import Cursos from "./pages/Cursos";
