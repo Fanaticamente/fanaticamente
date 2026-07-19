@@ -175,7 +175,7 @@ const Cursos = () => {
           placeholder="Buscar cursos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-slate-100 rounded-xl text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-white/50"
+          className="w-full pl-10 pr-4 py-2.5 bg-slate-100 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
         />
       </div>
 
@@ -187,8 +187,8 @@ const Cursos = () => {
             onClick={() => setSelectedCategory(cat)}
             className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors border ${
               selectedCategory === cat
-                ? "bg-white text-gray-800 border-white shadow-sm"
-                : "bg-transparent border-slate-200 text-white hover:bg-slate-100"
+                ? "bg-slate-900 text-white border-slate-900"
+                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
             }`}
           >
             {cat}
@@ -214,40 +214,33 @@ const Cursos = () => {
           {/* Featured Hero */}
           {featuredCourse && (
             <div className="mb-8">
-              <div className={`relative rounded-2xl overflow-hidden bg-gradient-to-b from-muted to-card ${isMobile ? "aspect-[4/5] sm:aspect-[16/9] max-h-[500px]" : "aspect-[21/9]"}`}>
+              <div className={`relative rounded-2xl overflow-hidden bg-slate-100 ${isMobile ? "aspect-video" : "aspect-[21/9]"}`}>
                 {(featuredCourse.hero_image_url || featuredCourse.thumbnail_url) ? (
                   <img src={featuredCourse.hero_image_url || featuredCourse.thumbnail_url!} alt="" className="absolute inset-0 w-full h-full object-cover object-top" />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-secondary/30" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-                <div className={`absolute bottom-0 left-0 right-0 p-6 ${!isMobile ? "max-w-2xl" : ""}`}>
-                  <span className="text-white font-bold text-xs tracking-widest uppercase mb-2 block">FANATICLASS</span>
-                  <h2 className="font-sans text-3xl text-slate-900 normal-case mb-2 leading-tight">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className={`absolute bottom-0 left-0 right-0 p-5 ${!isMobile ? "max-w-2xl" : ""}`}>
+                  <span className="text-white/90 font-semibold text-[11px] tracking-widest uppercase mb-1 block">Destaque</span>
+                  <h2 className="font-sans text-2xl text-white normal-case mb-2 leading-tight font-bold">
                     {featuredCourse.title}
                   </h2>
-                  <p className="text-slate-500 text-sm mb-4 line-clamp-2">
-                    {featuredCourse.description}
-                  </p>
-                  <div className="flex gap-3">
+                  <div className="flex gap-2 mt-3">
                     {featuredCourse.coming_soon ? (
-                      <div className="flex items-center gap-2 py-3 px-6 bg-amber-500 text-white rounded-xl font-medium">
-                        <Clock className="w-5 h-5" />
+                      <div className="flex items-center gap-2 py-2.5 px-5 bg-amber-500 text-white rounded-full text-sm font-semibold">
+                        <Clock className="w-4 h-4" />
                         Em breve
                       </div>
                     ) : (
                       <Link
                         to={`/curso/${featuredCourse.id}`}
-                        className="flex items-center gap-2 py-3 px-6 bg-white text-gray-800 rounded-xl font-medium hover:bg-gray-100 transition-colors"
+                        className="flex items-center gap-2 py-2.5 px-5 bg-emerald-500 text-white rounded-full text-sm font-semibold hover:bg-emerald-600 transition-colors"
                       >
-                        <Play className="w-5 h-5 fill-current" />
+                        <Play className="w-4 h-4 fill-current" />
                         Assistir
                       </Link>
                     )}
-                    <button className="flex items-center gap-2 py-3 px-6 bg-slate-100 text-white rounded-xl font-medium hover:bg-slate-100 transition-colors">
-                      <Plus className="w-5 h-5" />
-                      Minha lista
-                    </button>
                   </div>
                 </div>
               </div>
@@ -257,7 +250,7 @@ const Cursos = () => {
           {/* Continue Watching — aparece após o hero */}
           {continueWatching.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-sans text-xl text-slate-900 normal-case mb-4">CONTINUAR ASSISTINDO</h2>
+              <h2 className="font-sans text-lg text-slate-900 normal-case mb-3 font-semibold">Continuar assistindo</h2>
               <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
                 {continueWatching.map((item) => (
                   <Link
@@ -304,9 +297,7 @@ const Cursos = () => {
           {/* Free Courses */}
           {freeCourses.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-sans text-xl text-slate-900 normal-case mb-4">
-                🎓 Gratuitos
-              </h2>
+              <h2 className="font-sans text-lg text-slate-900 normal-case mb-3 font-semibold">Gratuitos</h2>
               <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
                 {freeCourses.map((course) => (
                   <CourseCard key={course.id} course={course} size="small" />
@@ -318,9 +309,7 @@ const Cursos = () => {
           {/* Premium Courses */}
           {premiumCourses.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-sans text-xl text-slate-900 normal-case mb-4">
-                Conteúdo Premium
-              </h2>
+              <h2 className="font-sans text-lg text-slate-900 normal-case mb-3 font-semibold">Conteúdo premium</h2>
               <div className={`flex gap-3 overflow-x-auto pb-4 scrollbar-hide ${!isMobile ? "flex-wrap" : ""}`}>
                 {premiumCourses.map((course) => (
                   <CourseCard key={course.id} course={course} size="small" />
@@ -332,9 +321,7 @@ const Cursos = () => {
           {/* All Courses Grid */}
           {filteredCourses.length > 1 && (
             <div className="mb-8">
-              <h2 className="font-sans text-xl text-slate-900 normal-case mb-4">
-                Todos os cursos
-              </h2>
+              <h2 className="font-sans text-lg text-slate-900 normal-case mb-3 font-semibold">Todos os cursos</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {filteredCourses.map((course) => (
                   <GridCourseCard key={course.id} course={course} />
