@@ -212,14 +212,14 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
           <div className="space-y-1.5">
             <Label className="text-sm text-slate-600">Mês</Label>
             <Select value={expirationMonth} onValueChange={setExpirationMonth} required>
-              <SelectTrigger className="bg-slate-50 border-slate-200 text-white [&>span]:text-slate-900 [&>svg]:text-slate-500 focus:ring-emerald-500/40 focus:border-emerald-500 data-[placeholder]:text-slate-300"><SelectValue placeholder="MM" /></SelectTrigger>
+              <SelectTrigger className="bg-slate-50 border-slate-200 text-slate-900 [&>span]:text-slate-900 [&>svg]:text-slate-500 focus:ring-emerald-500/40 focus:border-emerald-500 data-[placeholder]:text-slate-300"><SelectValue placeholder="MM" /></SelectTrigger>
               <SelectContent>{months.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
             <Label className="text-sm text-slate-600">Ano</Label>
             <Select value={expirationYear} onValueChange={setExpirationYear} required>
-              <SelectTrigger className="bg-slate-50 border-slate-200 text-white [&>span]:text-slate-900 [&>svg]:text-slate-500 focus:ring-emerald-500/40 focus:border-emerald-500 data-[placeholder]:text-slate-300"><SelectValue placeholder="AAAA" /></SelectTrigger>
+              <SelectTrigger className="bg-slate-50 border-slate-200 text-slate-900 [&>span]:text-slate-900 [&>svg]:text-slate-500 focus:ring-emerald-500/40 focus:border-emerald-500 data-[placeholder]:text-slate-300"><SelectValue placeholder="AAAA" /></SelectTrigger>
               <SelectContent>{years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}</SelectContent>
             </Select>
           </div>
@@ -233,7 +233,7 @@ const CourseCardPaymentForm = ({ purchaseType, courseId, coursePrice, label, onB
           <div className="space-y-1.5">
             <Label className="text-sm text-slate-600">Documento</Label>
             <Select value={docType} onValueChange={setDocType}>
-              <SelectTrigger className="bg-slate-50 border-slate-200 text-white [&>span]:text-slate-900 [&>svg]:text-slate-500 focus:ring-emerald-500/40 focus:border-emerald-500"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="bg-slate-50 border-slate-200 text-slate-900 [&>span]:text-slate-900 [&>svg]:text-slate-500 focus:ring-emerald-500/40 focus:border-emerald-500"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="CPF">CPF</SelectItem>
                 <SelectItem value="CNPJ">CNPJ</SelectItem>
