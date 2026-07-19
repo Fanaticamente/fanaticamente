@@ -1,9 +1,15 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, differenceInCalendarDays } from "date-fns";
-import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Radio, Newspaper, Trophy, BookOpen } from "lucide-react";
+import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse } from "lucide-react";
 import jornadaLogo from "@/assets/logo-header-v3.png.asset.json";
+import icCampo from "@/assets/Untitled_design-17.png.asset.json";
+import icCurso from "@/assets/Untitled_design-18.png.asset.json";
+import icEspecialista from "@/assets/Untitled_design-19.png.asset.json";
+import icRadio from "@/assets/Untitled_design-20.png.asset.json";
+import icNoticias from "@/assets/Untitled_design-21.png.asset.json";
+import icRanking from "@/assets/Untitled_design-22.png.asset.json";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -18,12 +24,12 @@ const MOODS = [
 ];
 
 const SUGGESTIONS = [
-  { emoji: "🫁", kicker: "Sugestão para você", title: "Respiração para ansiedade", subtitle: "Exercício de 2 min", path: "/diario", icon: Play },
-  { emoji: "🧠", kicker: "Curso em destaque", title: "Inteligência emocional no futebol", subtitle: "Assista agora", path: "/cursos", icon: BookOpen },
-  { emoji: "🩺", kicker: "Cuide de você", title: "Converse com um especialista", subtitle: "Terapeutas disponíveis", path: "/terapeutas", icon: Users },
-  { emoji: "📻", kicker: "Ao vivo", title: "Rádio Alambrado FM", subtitle: "Escute agora", path: "/radio", icon: Radio },
-  { emoji: "📰", kicker: "Fique por dentro", title: "Notícias do seu clube", subtitle: "Últimas atualizações", path: "/futebol", icon: Newspaper },
-  { emoji: "🏆", kicker: "Comunidade", title: "Ranking Brasileirão da mente", subtitle: "Veja como sua torcida está", path: "/ranking", icon: Trophy },
+  { img: icCampo.url,        kicker: "Sugestão para você", title: "Campo das emoções",                         subtitle: "Escale seu time e gere uma reflexão.", path: "/diario" },
+  { img: icCurso.url,        kicker: "Curso em destaque",  title: "Ética & Responsabilidade Social no Futebol", subtitle: "Comece agora mesmo",                    path: "/curso/c6c7600e-de31-4adc-935e-75a9dd30beba", small: true },
+  { img: icEspecialista.url, kicker: "Cuide de você",      title: "Converse com um(a) especialista",           subtitle: "Terapeutas disponíveis",                path: "/terapeutas", small: true },
+  { img: icRadio.url,        kicker: "Ao vivo",            title: "Rádio Alambrado FM",                         subtitle: "Acompanhe as rádios esportivas",        path: "/radio" },
+  { img: icNoticias.url,     kicker: "Fique por dentro",   title: "Notícias do seu clube",                      subtitle: "Últimas atualizações",                  path: "/futebol" },
+  { img: icRanking.url,      kicker: "Comunidade",         title: "Brasileirão da Saúde Mental",                subtitle: "Veja como estão os clubes e torcida",   path: "/ranking", small: true },
 ];
 
 const MinimalHome = () => {
@@ -32,9 +38,14 @@ const MinimalHome = () => {
   const qc = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
   const [sugIdx, setSugIdx] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const touchDX = useRef(0);
+  const pausedRef = useRef(false);
 
   useEffect(() => {
-    const t = setInterval(() => setSugIdx((i) => (i + 1) % SUGGESTIONS.length), 4500);
+    const t = setInterval(() => {
+      if (!pausedRef.current) setSugIdx((i) => (i + 1) % SUGGESTIONS.length);
+    }, 4500);
     return () => clearInterval(t);
   }, []);
 
@@ -167,33 +178,55 @@ const MinimalHome = () => {
 
       {/* Sugestões carrossel */}
       <section>
-        <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/70 shadow-sm">
+        <div
+          className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/70 shadow-sm"
+          onTouchStart={(e) => {
+            touchStartX.current = e.touches[0].clientX;
+            touchDX.current = 0;
+            pausedRef.current = true;
+          }}
+          onTouchMove={(e) => {
+            if (touchStartX.current == null) return;
+            touchDX.current = e.touches[0].clientX - touchStartX.current;
+          }}
+          onTouchEnd={() => {
+            const dx = touchDX.current;
+            if (Math.abs(dx) > 40) {
+              setSugIdx((i) =>
+                dx < 0
+                  ? (i + 1) % SUGGESTIONS.length
+                  : (i - 1 + SUGGESTIONS.length) % SUGGESTIONS.length
+              );
+            }
+            touchStartX.current = null;
+            touchDX.current = 0;
+            setTimeout(() => { pausedRef.current = false; }, 4000);
+          }}
+          style={{ touchAction: "pan-y" }}
+        >
           <div
             className="flex transition-transform duration-700 ease-out"
             style={{ transform: `translateX(-${sugIdx * 100}%)` }}
           >
-            {SUGGESTIONS.map((s) => {
-              const Icon = s.icon;
-              return (
+            {SUGGESTIONS.map((s) => (
                 <button
                   key={s.path + s.title}
                   onClick={() => navigate(s.path)}
                   className="w-full shrink-0 text-left p-4 flex items-center gap-4"
                 >
-                  <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0">
-                    <span className="text-2xl">{s.emoji}</span>
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0 overflow-hidden">
+                    <img src={s.img} alt="" className="w-9 h-9 object-contain" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-semibold text-emerald-600">{s.kicker}</p>
-                    <p className="font-bold text-slate-900 truncate">{s.title}</p>
+                    <p className={cn("font-bold text-slate-900 truncate", s.small ? "text-[13px]" : "text-base")}>{s.title}</p>
                     <p className="text-xs text-slate-500 truncate">{s.subtitle}</p>
                   </div>
                   <div className="w-11 h-11 rounded-full border border-slate-200 flex items-center justify-center shrink-0">
-                    <Icon className="w-4 h-4 text-emerald-600" />
+                    <ChevronRight className="w-4 h-4 text-emerald-600" />
                   </div>
                 </button>
-              );
-            })}
+            ))}
           </div>
         </div>
         <div className="mt-2 flex justify-center gap-1.5">
