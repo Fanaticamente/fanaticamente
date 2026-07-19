@@ -530,43 +530,18 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
     }
   };
 
-  return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <DialogPrimitive.Portal>
-        {/* Standard dark overlay */}
-        <DialogPrimitive.Overlay 
-          className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
-        />
-        
-        <DialogPrimitive.Content 
-          className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-2xl shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
-          style={{
-            backgroundImage: `url(${bookingGrassBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
-          {/* Header */}
-          <div
-            className="sticky top-0 z-10 px-4 py-4 flex items-center gap-3"
-            style={{ backgroundColor: clubColor }}
-          >
-            <button
-              onClick={() => step === "payment" ? setStep("profile") : onOpenChange(false)}
-              className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
-            >
-              <ChevronLeft className="w-5 h-5 text-white" />
-            </button>
-            <DialogTitle className="text-white font-bold text-xl font-sans capitalize">
-              {step === "profile" ? "Agendar Sessão" : "Confirmar Agendamento"}
-            </DialogTitle>
-          </div>
+  const headerTitle = step === "profile" ? "Agendar sessão" : "Confirmar agendamento";
+  const handleHeaderBack = () => {
+    if (step === "payment") setStep("profile");
+    else onOpenChange(false);
+  };
 
-        <div className="overflow-y-auto max-h-[calc(90vh-64px)] pb-8">
+  const bodyContent = (
+    <div className={asPage ? "pb-24" : "overflow-y-auto max-h-[calc(90vh-64px)] pb-8"}>
           {step === "profile" ? (
             <div className="p-4 space-y-4">
               {/* Profile Card */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 font-sans">
                 <div className="flex items-center gap-4">
                   <div
                     className="w-20 h-20 rounded-2xl overflow-hidden border-2"
@@ -591,34 +566,21 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                         <CheckCircle className="w-5 h-5" style={{ color: clubColor }} />
                       )}
                     </div>
-                    <p className="text-gray-500 text-sm">{therapist.degree}</p>
+                    <p className="text-gray-500 text-sm">{roleLabel}</p>
                     <p className="text-gray-400 text-xs">CRP: {therapist.crp}</p>
                     <div className="flex items-center gap-3 mt-2 text-sm text-gray-600">
                       <span className="flex items-center gap-1">
                         <Star className="w-4 h-4" style={{ color: clubColor }} />
                         {therapist.experience} anos
                       </span>
-                      {therapist.location && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4" style={{ color: clubColor }} />
-                          {therapist.location}
-                        </span>
-                      )}
+                      <span className="flex items-center gap-1">
+                        <Shirt className="w-4 h-4" style={{ color: clubColor }} strokeWidth={2} />
+                        <span className="font-medium text-gray-700">{female ? "Torcedora" : "Torcedor"}</span>
+                        {clubName && <span className="text-gray-500">· {clubName}</span>}
+                      </span>
                     </div>
                   </div>
                 </div>
-
-                {therapist.hourlyRate && (
-                  <div
-                    className="mt-4 p-3 rounded-xl flex items-center justify-between"
-                    style={{ backgroundColor: clubColor + '10' }}
-                  >
-                    <span className="text-gray-600 font-medium">Valor da sessão</span>
-                    <span className="text-xl font-bold" style={{ color: clubColor }}>
-                      R$ {therapist.hourlyRate.toFixed(2).replace('.', ',')}
-                    </span>
-                  </div>
-                )}
               </div>
 
               {/* Scheduling */}
