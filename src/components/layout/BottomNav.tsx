@@ -8,7 +8,7 @@ import { CommunityIcon } from "@/components/icons/CommunityIcon";
 const navItems = [
   { icon: Home, label: "Início", path: "/" },
   { icon: Heart, label: "Bem-estar", path: "/bem-estar" },
-  { icon: CommunityIcon, label: "Comunidade", path: "/ranking" },
+  { icon: CommunityIcon, label: "Comunidade", path: "/comunidade" },
   { icon: User, label: "Você", path: "/perfil" },
 ];
 
