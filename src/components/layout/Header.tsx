@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   title?: string;
+  hideSearch?: boolean;
 }
 
 // Inner-page header: back arrow + centered title + search on a white bar.
 // The home page uses HomeFloatingActions instead of this component.
-const Header = ({ title }: HeaderProps) => {
+const Header = ({ title, hideSearch = false }: HeaderProps) => {
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -26,17 +27,21 @@ const Header = ({ title }: HeaderProps) => {
       </button>
 
       {title && (
-        <h1 className="absolute left-1/2 -translate-x-1/2 max-w-[calc(100%-120px)] font-sans font-semibold text-base text-slate-900 truncate normal-case">
+        <h1 className="absolute left-1/2 -translate-x-1/2 max-w-[calc(100%-120px)] font-sans font-semibold text-[15px] leading-tight text-slate-900 normal-case text-center line-clamp-2">
           {title}
         </h1>
       )}
 
-      <button
-        aria-label="Buscar"
-        className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-700"
-      >
-        <Search className="w-5 h-5" />
-      </button>
+      {hideSearch ? (
+        <div className="w-10 h-10" aria-hidden />
+      ) : (
+        <button
+          aria-label="Buscar"
+          className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-700"
+        >
+          <Search className="w-5 h-5" />
+        </button>
+      )}
     </header>
   );
 };
