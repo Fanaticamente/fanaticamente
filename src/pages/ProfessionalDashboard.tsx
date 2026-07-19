@@ -1160,26 +1160,6 @@ const ProfessionalDashboard = () => {
                   </button>
                 </div>
                 
-                {/* Refund Pending Cards - Show at top when there are pending refunds */}
-                {appointments.filter(a => a.status === 'refund_pending' && a.user_pix_key).length > 0 && (
-                  <div className="space-y-3 mb-4">
-                    <h3 className="text-sm font-medium text-orange-600 uppercase tracking-wide flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Ressarcimentos Pendentes
-                    </h3>
-                    {appointments
-                      .filter(a => a.status === 'refund_pending' && a.user_pix_key)
-                      .map(apt => (
-                        <RefundPendingCard 
-                          key={apt.id} 
-                          appointment={apt} 
-                          onUpdate={fetchAppointments} 
-                        />
-                      ))
-                    }
-                  </div>
-                )}
-                
                 {loadingAppointments ? (
                   <div className="flex items-center justify-center p-8">
                     <Loader2 className="w-8 h-8 animate-spin text-therapy" />
