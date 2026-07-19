@@ -10,6 +10,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import BottomNav from "@/components/layout/BottomNav";
+import Header from "@/components/layout/Header";
 import { cn } from "@/lib/utils";
 
 const MOOD_SCORES: Record<string, number> = {
@@ -150,24 +151,20 @@ const BemEstar = () => {
   const todayPoint = todayIdx >= 0 ? series[todayIdx] : null;
 
   return (
-    <div className="min-h-screen bg-[#f7f8fa] font-sans text-slate-900">
-      {/* Top bar */}
-      <div className="pt-[calc(env(safe-area-inset-top)+12px)] px-4 pb-2 flex items-center justify-between">
-        <button
-          onClick={() => navigate(-1)}
-          className="w-10 h-10 flex items-center justify-center text-slate-800"
-          aria-label="Voltar"
+    <div className="min-h-screen bg-white font-sans text-slate-900 normal-case">
+      <Header />
+
+      <div className="pt-[calc(env(safe-area-inset-top)+64px)] px-4">
+        <h1
+          className="font-sans font-bold text-2xl text-slate-900 !normal-case"
+          style={{ textTransform: "none" }}
         >
-          <ArrowLeft className="w-6 h-6" />
-        </button>
-        <h1 className="text-lg font-bold">Bem-estar</h1>
-        <button className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-600">
-          <Info className="w-5 h-5" />
-        </button>
+          Bem-estar
+        </h1>
       </div>
 
       {/* Range tabs */}
-      <div className="px-4">
+      <div className="px-4 mt-3">
         <div className="rounded-full bg-white border border-slate-200 p-1 grid grid-cols-3 gap-1">
           {RANGES.map((r) => (
             <button
@@ -190,7 +187,12 @@ const BemEstar = () => {
       <section className="mx-4 mt-4 rounded-3xl bg-white border border-slate-200 shadow-sm p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-lg font-bold">Seu equilíbrio emocional</h2>
+            <h2
+              className="font-sans text-lg font-bold text-slate-900 !normal-case"
+              style={{ textTransform: "none" }}
+            >
+              Seu equilíbrio emocional
+            </h2>
             <p className="text-5xl font-extrabold text-emerald-600 mt-2 leading-none">
               {avg}%
             </p>
@@ -289,7 +291,12 @@ const BemEstar = () => {
                 <Icon className="w-6 h-6 text-emerald-600" strokeWidth={1.8} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-slate-900">{s.title}</p>
+                <p
+                  className="font-sans font-bold text-slate-900 !normal-case"
+                  style={{ textTransform: "none" }}
+                >
+                  {s.title}
+                </p>
                 <p className="text-sm text-slate-500 leading-snug mt-0.5">{s.desc}</p>
               </div>
               <ChevronRight className="w-5 h-5 text-emerald-600 shrink-0" />
