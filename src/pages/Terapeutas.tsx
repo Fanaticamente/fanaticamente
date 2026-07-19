@@ -218,7 +218,7 @@ const Terapeutas = () => {
           : "#ffffff" 
       }}
     >
-      {step === "club" && <Header />}
+      {step === "club" && <Header title="Terapeutas" />}
 
       {/* Full-width club header (mockup) */}
       {step === "therapists" && selectedClub && (

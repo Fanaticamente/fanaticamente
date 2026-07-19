@@ -152,7 +152,7 @@ const BemEstar = () => {
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 normal-case">
-      <Header />
+      <Header title="Bem-estar" />
 
       <div className="pt-[calc(env(safe-area-inset-top)+64px)] px-4">
         <h1

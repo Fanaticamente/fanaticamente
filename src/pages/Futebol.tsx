@@ -31,7 +31,7 @@ const Futebol = () => {
         backgroundColor: selectedClub ? "#f5f5f5" : "white",
       }}
     >
-      <Header />
+      <Header title="Futebol" />
 
       <main className="pt-20">
         {/* Header */}

@@ -62,7 +62,7 @@ const Comunidade = () => {
 
   return (
     <div className="min-h-screen bg-[#f7f8fa] font-sans">
-      <Header />
+      <Header title="Comunidade" />
 
       <main className="pt-16 pb-32 px-4 max-w-2xl mx-auto">
         {/* Top tabs */}

@@ -507,7 +507,7 @@ const MinhaTemporada = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-black">
-        <Header />
+        <Header title="Minha temporada" />
         <main className="pt-20 px-4">
           <Content />
           <div aria-hidden className="h-28" />

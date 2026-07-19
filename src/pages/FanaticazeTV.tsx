@@ -11,7 +11,7 @@ const UPLOADS_PLAYLIST_EMBED = `https://www.youtube.com/embed/videoseries?list=U
 const FanaticazeTV = () => {
   return (
     <div className="min-h-screen bg-background pb-32">
-      <Header />
+      <Header title="FanatiCazé TV" />
 
       <main className="pt-20 px-4 max-w-3xl mx-auto space-y-6">
         {/* Title */}

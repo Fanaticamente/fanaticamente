@@ -226,7 +226,7 @@ const Notificacoes = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Header title="Notificações" />
         <main className="pt-20 px-4 pb-28">
           <h1 className="font-display text-xl text-card-foreground mb-4">Notificações</h1>
           <Content />

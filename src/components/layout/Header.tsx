@@ -1,9 +1,13 @@
 import { ArrowLeft, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-// Inner-page header: back arrow + search on a white bar. The home page uses
-// HomeFloatingActions instead of this component.
-const Header = () => {
+interface HeaderProps {
+  title?: string;
+}
+
+// Inner-page header: back arrow + centered title + search on a white bar.
+// The home page uses HomeFloatingActions instead of this component.
+const Header = ({ title }: HeaderProps) => {
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -20,6 +24,12 @@ const Header = () => {
       >
         <ArrowLeft className="w-5 h-5" />
       </button>
+
+      {title && (
+        <h1 className="absolute left-1/2 -translate-x-1/2 max-w-[calc(100%-120px)] font-sans font-semibold text-base text-slate-900 truncate normal-case">
+          {title}
+        </h1>
+      )}
 
       <button
         aria-label="Buscar"
