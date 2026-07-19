@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, Shirt, LogOut, Tv, Heart } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
-import logoHeader from "@/assets/logo-header-v4.png.asset.json";
+import logoHeader from "@/assets/logo-header.png";
+
 
 
 // Minimal floating icons for the home page (menu + search) — replaces the full Header bar.
