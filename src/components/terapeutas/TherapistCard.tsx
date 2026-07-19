@@ -86,7 +86,6 @@ const TherapistCard = ({ therapist, clubColor, clubName, onSelect }: TherapistCa
 
   // Very light tint for the CTA button background
   const softTint = `color-mix(in oklab, ${clubColor}, white 88%)`;
-  const pillTint = `color-mix(in oklab, ${clubColor}, white 82%)`;
 
   return (
     <>
