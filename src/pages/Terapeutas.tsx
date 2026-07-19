@@ -260,47 +260,43 @@ const Terapeutas = () => {
       {/* Full-width club header (mockup) */}
       {step === "therapists" && selectedClub && (
         <>
-        <div
-          aria-hidden
-          className="fixed top-0 left-0 right-0 z-0 pointer-events-none"
-          style={{ height: "env(safe-area-inset-top)", backgroundColor: selectedClub.primaryColor }}
-        />
-        <div
-          className="relative overflow-hidden pb-5 px-4"
-          style={{ backgroundColor: selectedClub.primaryColor, paddingTop: "calc(env(safe-area-inset-top) + 10px)" }}
-        >
-          {/* Star background pattern */}
           <div
-            className="absolute inset-0 pointer-events-none opacity-20"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 20% 30%, rgba(255,255,255,0.9) 0 2px, transparent 3px), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.6) 0 1.5px, transparent 2.5px), radial-gradient(circle at 65% 70%, rgba(255,255,255,0.8) 0 2px, transparent 3px), radial-gradient(circle at 35% 85%, rgba(255,255,255,0.5) 0 1.5px, transparent 2.5px), radial-gradient(circle at 90% 55%, rgba(255,255,255,0.7) 0 2px, transparent 3px)",
-              backgroundSize: "180px 180px",
-            }}
-          />
-          <button
-            onClick={handleBack}
-            className="relative z-10 mb-2 text-white/90 hover:text-white"
-            aria-label="Voltar"
+            className="fixed top-0 left-0 right-0 z-10 overflow-hidden px-6 pb-5"
+            style={{ backgroundColor: selectedClub.primaryColor, paddingTop: "calc(env(safe-area-inset-top) + 16px)" }}
           >
-            <ChevronLeft className="w-6 h-6" strokeWidth={2.5} />
-          </button>
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center flex-shrink-0">
-              <Shirt
-                className="w-9 h-9"
-                style={{ color: selectedClub.primaryColor, fill: selectedClub.primaryColor }}
-                strokeWidth={1.5}
-              />
-            </div>
-            <div className="min-w-0">
-              <h1 className="font-display italic text-2xl text-white leading-none tracking-wide uppercase">
-                {selectedClub.name}
-              </h1>
-              <p className="mt-1 text-white/85 text-xs">Especialistas para a torcida</p>
+            {/* Star background pattern */}
+            <div
+              className="absolute inset-0 pointer-events-none opacity-20"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 20% 30%, rgba(255,255,255,0.9) 0 2px, transparent 3px), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.6) 0 1.5px, transparent 2.5px), radial-gradient(circle at 65% 70%, rgba(255,255,255,0.8) 0 2px, transparent 3px), radial-gradient(circle at 35% 85%, rgba(255,255,255,0.5) 0 1.5px, transparent 2.5px), radial-gradient(circle at 90% 55%, rgba(255,255,255,0.7) 0 2px, transparent 3px)",
+                backgroundSize: "180px 180px",
+              }}
+            />
+            <button
+              onClick={handleBack}
+              className="relative z-10 mb-3 text-white/90 hover:text-white"
+              aria-label="Voltar"
+            >
+              <ChevronLeft className="w-8 h-8" strokeWidth={2.5} />
+            </button>
+            <div className="relative z-10 flex items-center gap-4">
+              <div className="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center flex-shrink-0">
+                <Shirt
+                  className="w-12 h-12"
+                  style={{ color: selectedClub.primaryColor, fill: selectedClub.primaryColor }}
+                  strokeWidth={1.5}
+                />
+              </div>
+              <div className="min-w-0">
+                <h1 className="font-display italic text-4xl text-white leading-none tracking-wide uppercase">
+                  {selectedClub.name}
+                </h1>
+                <p className="mt-1.5 text-white/85 text-sm">Especialistas para a torcida</p>
+              </div>
             </div>
           </div>
-        </div>
+          <div style={{ paddingTop: "calc(env(safe-area-inset-top) + 132px)" }} aria-hidden />
         </>
       )}
 
