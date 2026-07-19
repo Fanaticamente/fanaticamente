@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, differenceInCalendarDays } from "date-fns";
 import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Radio, Newspaper, Trophy, BookOpen } from "lucide-react";
+import jornadaShield from "@/assets/jornada-shield.svg.asset.json";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -120,7 +121,7 @@ const MinimalHome = () => {
       </section>
 
       {/* Check-in */}
-      <section className="rounded-3xl bg-white border border-slate-200/70 shadow-sm p-5">
+      <section className="mt-[19px] rounded-3xl bg-white border border-slate-200/70 shadow-sm p-5">
         <div className="flex items-center gap-2 text-emerald-600 text-xs font-semibold">
           <HeartPulse className="w-4 h-4" />
           Check-in emocional
@@ -265,7 +266,7 @@ const MinimalHome = () => {
           </div>
 
           <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0">
-            <span className="text-3xl">🛡️</span>
+            <img src={jornadaShield.url} alt="" className="w-10 h-10 object-contain" />
           </div>
         </div>
       </section>
