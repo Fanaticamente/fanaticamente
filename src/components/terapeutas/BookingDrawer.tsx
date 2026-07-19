@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { DialogTitle } from "@/components/ui/dialog";
-import bookingGrassBg from "@/assets/booking-grass-bg.png";
-import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Star, Shirt, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getFirstAndLastName } from "@/lib/utils";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, parseISO } from "date-fns";
@@ -54,8 +53,10 @@ interface BookingDrawerProps {
   therapist: TherapistData | null;
   clubColor: string;
   clubNickname?: string;
+  clubName?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  asPage?: boolean;
 }
 
 type BookingStep = "profile" | "payment";
@@ -125,7 +126,7 @@ const generatePixCode = (
   return payloadNoCrc + crc16ccitt(payloadNoCrc);
 };
 
-const BookingDrawer = ({ therapist, clubColor, clubNickname, open, onOpenChange }: BookingDrawerProps) => {
+const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onOpenChange, asPage = false }: BookingDrawerProps) => {
   const { toast: toastHook } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
