@@ -155,6 +155,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [socioMatricula, setSocioMatricula] = useState("");
   const [socioDiscountApplied, setSocioDiscountApplied] = useState(false);
+  const [socioAnswer, setSocioAnswer] = useState<null | "yes" | "no">(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Get current user
@@ -242,6 +243,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
       setReceiptFile(null);
       setSocioMatricula("");
       setSocioDiscountApplied(false);
+      setSocioAnswer(null);
       setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }));
     }
   }, [open]);
