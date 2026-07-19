@@ -8,8 +8,6 @@ import { ptBR } from "date-fns/locale";
 import SessionInfoDialog from "@/components/user/SessionInfoDialog";
 import SessionCompletedDialog from "@/components/user/SessionCompletedDialog";
 import RescheduleDialog from "@/components/user/RescheduleDialog";
-import RefundInfoCard from "@/components/user/RefundInfoCard";
-import RefundPixForm from "@/components/user/RefundPixForm";
 import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
 import Header from "@/components/layout/Header";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -342,22 +340,6 @@ const MeusAgendamentos = () => {
         </button>
       </div>
 
-      {/* Refund Cards for refund_sent / disputed (cancelados tab) */}
-      {filter === "cancelados" && filteredAppointments.filter(apt => ['refund_sent', 'disputed'].includes(apt.status)).length > 0 && (
-        <div className="space-y-3 mb-4">
-          {filteredAppointments
-            .filter(apt => ['refund_sent', 'disputed'].includes(apt.status))
-            .map(apt => (
-              <RefundInfoCard 
-                key={apt.id} 
-                appointment={apt} 
-                onUpdate={fetchAppointments} 
-              />
-            ))
-          }
-        </div>
-      )}
-
         {/* Appointments List */}
         {loading ? (
           <div className="flex items-center justify-center p-12">
@@ -496,41 +478,6 @@ const MeusAgendamentos = () => {
                       <p className="text-amber-700 text-sm text-center font-medium">
                         Aguardando confirmação do profissional
                       </p>
-                    </div>
-                  )}
-
-                  {/* Payment issue alert - shown when professional rejects due to payment problems */}
-                  {apt.status === "payment_issue" && (
-                    <div className="mt-3 p-3 bg-orange-50 rounded-xl border border-orange-200">
-                      <div className="flex items-start gap-2">
-                        <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-orange-700 font-medium text-sm">Pagamento não identificado</p>
-                          <p className="text-orange-600 text-sm mt-1">
-                            O(a) profissional não identificou pagamento. Reagende uma nova consulta.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Refund PIX Form - rejected/cancelled flow */}
-                  {['cancelled', 'refund_pending'].includes(apt.status) && (
-                    <RefundPixForm
-                      appointmentId={apt.id}
-                      appointmentStatus={apt.status}
-                      rejectionReason={apt.rejection_reason}
-                      professionalHourlyRate={apt.professional?.hourly_rate}
-                      currentPixKey={apt.user_pix_key}
-                      currentPixKeyType={apt.user_pix_key_type}
-                      onPixSaved={fetchAppointments}
-                    />
-                  )}
-
-                  {/* Refund Receipt - professional sent the PIX receipt */}
-                  {['refund_sent', 'disputed'].includes(apt.status) && filter !== 'cancelados' && (
-                    <div className="mt-4">
-                      <RefundInfoCard appointment={apt} onUpdate={fetchAppointments} />
                     </div>
                   )}
 

@@ -23,7 +23,6 @@ import WeeklyAvailabilityManager from "@/components/professional/WeeklyAvailabil
 import ProfessionalMetricsTab from "@/components/professional/ProfessionalMetricsTab";
 import RejectAppointmentDialog from "@/components/professional/RejectAppointmentDialog";
 import AISecretaryChat from "@/components/professional/AISecretaryChat";
-import RefundPendingCard from "@/components/professional/RefundPendingCard";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
 import ProfessionalDesktopLayout from "@/components/layout/ProfessionalDesktopLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -110,7 +109,6 @@ const ProfessionalDashboard = () => {
   
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loadingAppointments, setLoadingAppointments] = useState(false);
-  const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<any | null>(null);
   const [rejectingAppointment, setRejectingAppointment] = useState<any | null>(null);
 
@@ -598,23 +596,6 @@ const ProfessionalDashboard = () => {
     } catch (error) {
       console.error('Error updating appointment:', error);
       toast.error('Erro ao atualizar agendamento');
-    }
-  };
-
-  const handleViewReceipt = async (receiptPath: string) => {
-    try {
-      const { data, error } = await supabase.storage
-        .from('payment-receipts')
-        .createSignedUrl(receiptPath, 3600); // 1 hour expiry
-
-      if (error) throw error;
-      
-      if (data?.signedUrl) {
-        setSelectedReceipt(data.signedUrl);
-      }
-    } catch (error) {
-      console.error('Error getting receipt:', error);
-      toast.error('Erro ao carregar comprovante');
     }
   };
 
@@ -1179,26 +1160,6 @@ const ProfessionalDashboard = () => {
                   </button>
                 </div>
                 
-                {/* Refund Pending Cards - Show at top when there are pending refunds */}
-                {appointments.filter(a => a.status === 'refund_pending' && a.user_pix_key).length > 0 && (
-                  <div className="space-y-3 mb-4">
-                    <h3 className="text-sm font-medium text-orange-600 uppercase tracking-wide flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Ressarcimentos Pendentes
-                    </h3>
-                    {appointments
-                      .filter(a => a.status === 'refund_pending' && a.user_pix_key)
-                      .map(apt => (
-                        <RefundPendingCard 
-                          key={apt.id} 
-                          appointment={apt} 
-                          onUpdate={fetchAppointments} 
-                        />
-                      ))
-                    }
-                  </div>
-                )}
-                
                 {loadingAppointments ? (
                   <div className="flex items-center justify-center p-8">
                     <Loader2 className="w-8 h-8 animate-spin text-therapy" />
@@ -1295,22 +1256,6 @@ const ProfessionalDashboard = () => {
                         </span>
                       </div>
                       
-                      {/* Receipt Section */}
-                      {apt.receipt_url && (
-                        <div className="mt-4 pt-4 border-t border-border">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewReceipt(apt.receipt_url);
-                            }}
-                            className="flex items-center gap-2 text-sm text-therapy hover:underline"
-                          >
-                            <Upload className="w-4 h-4" />
-                            Ver Comprovante de Pagamento
-                          </button>
-                        </div>
-                      )}
-                      
                       {/* Action Buttons for Pending - Confirm keeps status pending, just validates receipt */}
                       {apt.status === "pending" && (
                         <div className="mt-4 pt-4 border-t border-border flex gap-2">
@@ -1364,38 +1309,6 @@ const ProfessionalDashboard = () => {
                   />
                 )}
 
-                {/* Receipt Modal */}
-                {selectedReceipt && (
-                  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedReceipt(null)}>
-                    <div className="bg-card rounded-2xl max-w-lg w-full max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-between p-4 border-b border-border">
-                        <h3 className="font-medium text-card-foreground">Comprovante de Pagamento</h3>
-                        <button onClick={() => setSelectedReceipt(null)} className="p-2 hover:bg-muted rounded-lg">
-                          <XCircle className="w-5 h-5 text-muted-foreground" />
-                        </button>
-                      </div>
-                      <div className="p-4">
-                        {selectedReceipt.includes('.pdf') ? (
-                          <a 
-                            href={selectedReceipt} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-therapy hover:underline"
-                          >
-                            <Upload className="w-5 h-5" />
-                            Abrir PDF em nova aba
-                          </a>
-                        ) : (
-                          <img 
-                            src={selectedReceipt} 
-                            alt="Comprovante" 
-                            className="w-full rounded-lg"
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 

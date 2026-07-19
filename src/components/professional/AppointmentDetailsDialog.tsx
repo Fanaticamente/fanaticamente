@@ -396,24 +396,6 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
             </div>
           </div>
 
-          {/* Receipt link inside details */}
-          {appointment.receipt_url && (
-            <div className="space-y-3">
-              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                Comprovante de Pagamento
-              </h4>
-              <a
-                href={appointment.receipt_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 p-3 bg-muted/50 rounded-xl text-therapy hover:bg-muted transition-colors text-sm font-medium"
-              >
-                <Upload className="w-4 h-4" />
-                Ver Comprovante de Pagamento
-              </a>
-            </div>
-          )}
-
           {/* Appointment Info */}
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
