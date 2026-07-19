@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { CheckCircle, Calendar, Clock, User, Home, MessageCircle } from "lucide-react";
+import { CheckCircle, Calendar, Clock, User, Home, CalendarCheck, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getFirstAndLastName } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
@@ -109,6 +109,35 @@ const PaymentConfirmation = () => {
 
   const sessionPrice = professional.hourly_rate || 150;
 
+  const professionalName = getFirstAndLastName(profile?.full_name || "");
+  const formattedDate = format(parseISO(scheduledDate), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+
+  const handleDownload = () => {
+    const content = [
+      "COMPROVANTE DE AGENDAMENTO",
+      "==========================",
+      "",
+      `Profissional: ${professionalName}`,
+      `CRP: ${professional.crp}`,
+      "",
+      `Data: ${formattedDate}`,
+      `Horário: ${scheduledTime}`,
+      "",
+      `Valor: R$ ${sessionPrice.toFixed(2).replace(".", ",")}`,
+      "",
+      "Você receberá um lembrete por e-mail 24 horas antes da sessão.",
+    ].join("\n");
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `agendamento-${scheduledDate}-${scheduledTime.replace(":", "h")}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div 
       className="min-h-screen flex flex-col"
@@ -153,7 +182,7 @@ const PaymentConfirmation = () => {
               )}
             </div>
             <div>
-              <h3 className="font-bold text-gray-800 text-xl font-sans capitalize">{getFirstAndLastName(profile?.full_name || "").toLowerCase()}</h3>
+              <h3 className="font-bold text-gray-800 text-xl font-sans capitalize">{professionalName.toLowerCase()}</h3>
               <p className="text-sm text-gray-500">CRP {professional.crp}</p>
             </div>
           </div>
@@ -194,6 +223,15 @@ const PaymentConfirmation = () => {
               </span>
             </div>
           </div>
+
+          <button
+            onClick={handleDownload}
+            className="mt-6 w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 border-2 transition-all"
+            style={{ borderColor: clubColor, color: clubColor, backgroundColor: "white" }}
+          >
+            <Download className="w-4 h-4" />
+            Baixar comprovante
+          </button>
         </div>
 
         {/* Info Text */}
@@ -209,28 +247,21 @@ const PaymentConfirmation = () => {
         {/* Action Buttons */}
         <div className="w-full max-w-sm space-y-3">
           <button
-            onClick={() => navigate("/")}
-            className="w-full py-4 rounded-xl font-bold uppercase tracking-wide transition-all shadow-lg flex items-center justify-center gap-2"
-            style={{ 
-              backgroundColor: clubColor, 
-              color: "#fff" 
-            }}
+            onClick={() => navigate("/meus-agendamentos")}
+            className="w-full py-4 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+            style={{ backgroundColor: clubColor, color: "#fff" }}
           >
-            <Home className="w-5 h-5" />
-            Voltar ao Início
+            <CalendarCheck className="w-5 h-5" />
+            Visualizar agendamentos
           </button>
 
           <button
-            onClick={() => navigate(`/terapeuta/${id}`)}
-            className="w-full py-4 rounded-xl font-bold uppercase tracking-wide transition-all border-2 flex items-center justify-center gap-2"
-            style={{ 
-              borderColor: clubColor, 
-              color: clubColor,
-              backgroundColor: "white"
-            }}
+            onClick={() => navigate("/")}
+            className="w-full py-4 rounded-xl font-bold transition-all border-2 flex items-center justify-center gap-2"
+            style={{ borderColor: clubColor, color: clubColor, backgroundColor: "white" }}
           >
-            <MessageCircle className="w-5 h-5" />
-            Ver Perfil do Terapeuta
+            <Home className="w-5 h-5" />
+            Voltar para o início
           </button>
         </div>
       </main>
