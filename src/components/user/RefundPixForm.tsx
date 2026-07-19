@@ -82,17 +82,17 @@ const RefundPixForm = ({ appointmentId, appointmentStatus, rejectionReason, prof
           </div>
         </div>
 
-        <div className="p-3 bg-background/60 rounded-lg space-y-1">
-          <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Chave PIX informada</p>
-          <p className="text-card-foreground text-sm font-mono break-all">{currentPixKey}</p>
+        <div className="p-3 bg-white rounded-lg space-y-1">
+          <p className="text-[11px] text-slate-500 uppercase tracking-wide">Chave PIX informada</p>
+          <p className="text-slate-900 text-sm font-mono break-all">{currentPixKey}</p>
           {keyTypeLabel && (
-            <p className="text-xs text-muted-foreground">Tipo: {keyTypeLabel}</p>
+            <p className="text-xs text-slate-500">Tipo: {keyTypeLabel}</p>
           )}
         </div>
 
         <button
           onClick={() => setIsEditing(true)}
-          className="w-full py-2.5 bg-muted hover:bg-muted/80 text-card-foreground rounded-xl font-medium transition-colors flex items-center justify-center gap-2 text-sm"
+          className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 text-sm"
         >
           <RefreshCw className="w-4 h-4" />
           Reenviar Chave
@@ -124,7 +124,7 @@ const RefundPixForm = ({ appointmentId, appointmentStatus, rejectionReason, prof
       )}
 
       <div className="space-y-2">
-        <p className="text-card-foreground text-sm">
+        <p className="text-slate-900 text-sm">
           Informe uma chave PIX registrada em seu nome para receber o ressarcimento
           {professionalHourlyRate && (
             <span className="font-semibold"> de R$ {professionalHourlyRate.toFixed(2).replace(".", ",")}</span>
@@ -134,7 +134,7 @@ const RefundPixForm = ({ appointmentId, appointmentStatus, rejectionReason, prof
         <select
           value={pixKeyType}
           onChange={(e) => setPixKeyType(e.target.value)}
-          className="w-full h-11 px-3 bg-background border border-border rounded-xl text-card-foreground text-sm focus:border-primary focus:outline-none"
+          className="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:border-emerald-600 focus:outline-none"
         >
           <option value="">Tipo da chave</option>
           {PIX_KEY_TYPES.map((type) => (
@@ -147,13 +147,13 @@ const RefundPixForm = ({ appointmentId, appointmentStatus, rejectionReason, prof
           value={pixKey}
           onChange={(e) => setPixKey(e.target.value)}
           placeholder="Sua chave PIX"
-          className="w-full h-11 px-3 bg-background border border-border rounded-xl text-card-foreground text-sm focus:border-primary focus:outline-none"
+          className="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:border-emerald-600 focus:outline-none"
         />
 
         <button
           onClick={handleSavePixKey}
           disabled={isSaving || !pixKey.trim() || !pixKeyType}
-          className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
+          className="w-full py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
         >
           {isSaving ? (
             <>
@@ -172,13 +172,13 @@ const RefundPixForm = ({ appointmentId, appointmentStatus, rejectionReason, prof
               setPixKeyType(currentPixKeyType || "");
               setIsEditing(false);
             }}
-            className="w-full py-2 text-muted-foreground text-xs hover:text-card-foreground transition-colors"
+            className="w-full py-2 text-slate-500 text-xs hover:text-slate-900 transition-colors"
           >
             Cancelar
           </button>
         )}
 
-        <p className="text-[10px] text-muted-foreground text-center">
+        <p className="text-[10px] text-slate-500 text-center">
           O profissional tem até 48h para realizar o ressarcimento via PIX.
         </p>
       </div>

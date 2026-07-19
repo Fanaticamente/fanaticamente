@@ -135,36 +135,36 @@ const RescheduleDialog = ({
   const availableTimes = selectedDate ? getAvailableTimesForDate(selectedDate) : [];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-card border border-border rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-white border-b border-slate-200 p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <RefreshCw className="w-5 h-5 text-primary" />
-            <h2 className="font-display text-lg text-card-foreground">
+            <RefreshCw className="w-5 h-5 text-emerald-600" />
+            <h2 className="font-sans text-lg text-slate-900">
               Reagendar Consulta
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
+            className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-muted-foreground" />
+            <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
 
         <div className="p-4">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
             </div>
           ) : (
             <>
               {/* Current appointment info */}
-              <div className="mb-4 p-3 bg-muted/50 rounded-xl">
-                <p className="text-muted-foreground text-sm mb-1">Consulta atual com</p>
-                <p className="font-medium text-card-foreground">{professionalName}</p>
-                <div className="flex gap-3 mt-2 text-sm text-muted-foreground">
+              <div className="mb-4 p-3 bg-slate-50 rounded-xl">
+                <p className="text-slate-500 text-sm mb-1">Consulta atual com</p>
+                <p className="font-medium text-slate-900">{professionalName}</p>
+                <div className="flex gap-3 mt-2 text-sm text-slate-500">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5" />
                     {format(parseISO(currentDate), "dd/MM/yyyy")}
@@ -178,12 +178,12 @@ const RescheduleDialog = ({
 
               {/* Select new date */}
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-card-foreground mb-3 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-medium text-slate-900 mb-3 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-emerald-600" />
                   Selecione uma nova data
                 </h3>
                 {daysWithAvailability.length === 0 ? (
-                  <p className="text-muted-foreground text-sm text-center py-4">
+                  <p className="text-slate-500 text-sm text-center py-4">
                     Nenhum horário disponível nos próximos 14 dias
                   </p>
                 ) : (
@@ -199,8 +199,8 @@ const RescheduleDialog = ({
                           }}
                           className={`p-2 rounded-xl text-center transition-colors ${
                             isSelected
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted hover:bg-muted/80 text-card-foreground"
+                              ? "bg-emerald-600 text-white"
+                              : "bg-slate-100 hover:bg-slate-200 text-slate-900"
                           }`}
                         >
                           <div className="text-xs opacity-70">{DAY_LABELS[date.getDay()]}</div>
@@ -216,12 +216,12 @@ const RescheduleDialog = ({
               {/* Select time */}
               {selectedDate && (
                 <div className="mb-4">
-                  <h3 className="text-sm font-medium text-card-foreground mb-3 flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-primary" />
+                  <h3 className="text-sm font-medium text-slate-900 mb-3 flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-emerald-600" />
                     Selecione um horário
                   </h3>
                   {availableTimes.length === 0 ? (
-                    <p className="text-muted-foreground text-sm text-center py-4">
+                    <p className="text-slate-500 text-sm text-center py-4">
                       Nenhum horário disponível nesta data
                     </p>
                   ) : (
@@ -232,8 +232,8 @@ const RescheduleDialog = ({
                           onClick={() => setSelectedTime(time)}
                           className={`py-2 px-3 rounded-xl text-center transition-colors text-sm font-medium ${
                             selectedTime === time
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted hover:bg-muted/80 text-card-foreground"
+                              ? "bg-emerald-600 text-white"
+                              : "bg-slate-100 hover:bg-slate-200 text-slate-900"
                           }`}
                         >
                           {time}
@@ -248,7 +248,7 @@ const RescheduleDialog = ({
               <button
                 onClick={handleReschedule}
                 disabled={!selectedDate || !selectedTime || submitting}
-                className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-medium transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 bg-emerald-600 text-white rounded-xl font-medium transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>

@@ -174,24 +174,24 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
 
   return (
     <div 
-      className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4" 
+      className="fixed inset-0 bg-slate-900/50 z-[100] flex items-center justify-center p-4" 
       onClick={handleBackdropClick}
     >
       <div 
-        className="bg-card rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto" 
+        className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <h3 className="font-display text-lg text-card-foreground">
+        <div className="flex items-center justify-between p-4 border-b border-slate-200">
+          <h3 className="font-sans text-lg text-slate-900">
             {showReschedule ? "Agendar Nova Sessão" : "Sessão Concluída"}
           </h3>
           {canClose && (
             <button 
               onClick={onClose} 
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
             >
-              <X className="w-5 h-5 text-muted-foreground" />
+              <X className="w-5 h-5 text-slate-500" />
             </button>
           )}
         </div>
@@ -204,10 +204,10 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-green-500" />
                 </div>
-                <h4 className="text-xl font-bold text-card-foreground mb-2">
+                <h4 className="text-xl font-bold text-slate-900 mb-2">
                   Consulta Concluída!
                 </h4>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-slate-500 text-sm">
                   Sua sessão com {appointment.profile?.full_name || "o profissional"} foi encerrada.
                 </p>
               </div>
@@ -215,7 +215,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
               {/* Rating Section */}
               {!hasRated && (
                 <div className="space-y-4 pb-4">
-                  <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide text-center">
+                  <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide text-center">
                     Avalie sua experiência
                   </h4>
                   <div className="flex justify-center gap-2 pb-2">
@@ -231,7 +231,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                           className={`w-10 h-10 transition-colors ${
                             star <= (hoveredRating || rating)
                               ? "fill-yellow-400 text-yellow-400"
-                              : "text-muted-foreground/30"
+                              : "text-slate-500/30"
                           }`}
                         />
                       </button>
@@ -241,7 +241,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                     <button
                       onClick={handleRatingSubmit}
                       disabled={isSubmittingRating}
-                      className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+                      className="w-full py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50"
                     >
                       {isSubmittingRating ? "Enviando..." : "Enviar Avaliação"}
                     </button>
@@ -251,17 +251,17 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
 
               {/* Reschedule Option - Only show after rating */}
               {hasRated && (
-                <div className="pt-4 border-t border-border">
+                <div className="pt-4 border-t border-slate-200">
                   <button
                     onClick={() => setShowReschedule(true)}
-                    className="w-full py-3 bg-therapy text-therapy-foreground rounded-xl font-medium hover:bg-therapy/90 transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
                   >
                     <Calendar className="w-5 h-5" />
                     Agendar Nova Sessão
                   </button>
                   <button
                     onClick={onClose}
-                    className="w-full mt-3 py-3 bg-muted text-muted-foreground rounded-xl font-medium hover:bg-muted/80 transition-colors"
+                    className="w-full mt-3 py-3 bg-slate-100 text-slate-500 rounded-xl font-medium hover:bg-slate-200 transition-colors"
                   >
                     Fechar
                   </button>
@@ -277,15 +277,15 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                   setSelectedDate(null);
                   setSelectedTime(null);
                 }}
-                className="flex items-center gap-2 text-muted-foreground hover:text-card-foreground transition-colors"
+                className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Voltar
               </button>
 
               {/* Professional Info */}
-              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
-                <div className="w-12 h-12 rounded-full bg-therapy/20 flex items-center justify-center overflow-hidden">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center overflow-hidden">
                   {appointment.profile?.avatar_url ? (
                     <img 
                       src={appointment.profile.avatar_url} 
@@ -293,17 +293,17 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                       className="w-full h-full object-cover object-top"
                     />
                   ) : (
-                    <span className="text-therapy text-lg font-bold">
+                    <span className="text-emerald-600 text-lg font-bold">
                       {(appointment.profile?.full_name || "P")[0]}
                     </span>
                   )}
                 </div>
                 <div>
-                  <p className="font-medium text-card-foreground">
+                  <p className="font-medium text-slate-900">
                     {appointment.profile?.full_name || "Profissional"}
                   </p>
                   {appointment.professional && (
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-slate-500 text-sm">
                       CRP {appointment.professional.crp}
                     </p>
                   )}
@@ -315,18 +315,18 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                 <div className="flex items-center justify-between">
                   <button
                     onClick={handlePreviousWeek}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
+                    className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
                   >
-                    <ChevronLeft className="w-5 h-5 text-muted-foreground" />
+                    <ChevronLeft className="w-5 h-5 text-slate-500" />
                   </button>
-                  <span className="text-card-foreground font-medium capitalize">
+                  <span className="text-slate-900 font-medium capitalize">
                     {format(currentWeekStart, "MMMM yyyy", { locale: ptBR })}
                   </span>
                   <button
                     onClick={handleNextWeek}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
+                    className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
                   >
-                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                    <ChevronRight className="w-5 h-5 text-slate-500" />
                   </button>
                 </div>
 
@@ -344,10 +344,10 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                         disabled={!isAvailable}
                         className={`flex flex-col items-center p-2 rounded-lg transition-all ${
                           isSelected 
-                            ? "bg-primary text-primary-foreground" 
+                            ? "bg-emerald-600 text-white" 
                             : isAvailable 
-                            ? "bg-muted hover:bg-muted/80 text-card-foreground" 
-                            : "bg-muted/30 text-muted-foreground opacity-50 cursor-not-allowed"
+                            ? "bg-slate-100 hover:bg-slate-200 text-slate-900" 
+                            : "bg-slate-50 text-slate-500 opacity-50 cursor-not-allowed"
                         }`}
                       >
                         <span className="text-xs uppercase">
@@ -364,7 +364,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                 {/* Time Slots */}
                 {selectedDate && (
                   <div className="space-y-3">
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-slate-500 text-sm">
                       Horários para {format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
                     </p>
                     <div className="grid grid-cols-4 gap-2">
@@ -374,8 +374,8 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                           onClick={() => setSelectedTime(time)}
                           className={`py-2 px-3 rounded-lg text-sm font-medium transition-all ${
                             selectedTime === time
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted text-card-foreground hover:bg-muted/80"
+                              ? "bg-emerald-600 text-white"
+                              : "bg-slate-100 text-slate-900 hover:bg-slate-200"
                           }`}
                         >
                           {time}
@@ -390,7 +390,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                   <button
                     onClick={handleScheduleNew}
                     disabled={loading}
-                    className="w-full py-4 bg-therapy text-therapy-foreground rounded-xl font-bold uppercase tracking-wide hover:bg-therapy/90 transition-all disabled:opacity-50"
+                    className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold uppercase tracking-wide hover:bg-emerald-700 transition-all disabled:opacity-50"
                   >
                     {loading ? "Agendando..." : "Agendar Nova Sessão"}
                   </button>
