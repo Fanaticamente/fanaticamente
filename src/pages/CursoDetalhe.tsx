@@ -55,7 +55,7 @@ const CursoDetalhe = () => {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-sans text-white mb-2">Curso não encontrado</h2>
-          <Link to="/cursos" className="text-white/70 hover:underline">Voltar aos cursos</Link>
+          <Link to="/cursos" className="text-slate-500 hover:underline">Voltar aos cursos</Link>
         </div>
       </div>
     );
@@ -68,7 +68,7 @@ const CursoDetalhe = () => {
           <Clock className="w-12 h-12 text-amber-500 mx-auto mb-3" />
           <h2 className="text-xl font-sans text-white mb-2">Em breve</h2>
           <p className="text-slate-500 text-sm mb-4">Este curso ainda não está disponível.</p>
-          <Link to="/cursos" className="text-white/70 hover:underline">Voltar aos cursos</Link>
+          <Link to="/cursos" className="text-slate-500 hover:underline">Voltar aos cursos</Link>
         </div>
       </div>
     );
@@ -95,24 +95,24 @@ const CursoDetalhe = () => {
             poster={currentLesson.thumbnail_url || (course as any).grid_image_url || course.thumbnail_url || undefined}
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-muted to-card flex flex-col items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-700 flex flex-col items-center justify-center">
             {course.thumbnail_url ? (
               <img src={course.thumbnail_url} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" />
             ) : null}
             <div className="relative z-10 flex flex-col items-center">
               {!hasAccess && course.is_premium ? (
                 <>
-                  <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center mb-3">
-                    <Lock className="w-8 h-8 text-white/80" />
+                  <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center mb-3">
+                    <Lock className="w-8 h-8 text-slate-700" />
                   </div>
-                  <p className="text-white/70 text-sm">Conteúdo bloqueado</p>
+                  <p className="text-slate-500 text-sm">Conteúdo bloqueado</p>
                 </>
               ) : (
                 <>
                   <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center mb-3">
                     <Play className="w-8 h-8 text-gray-800 fill-current ml-1" />
                   </div>
-                  <p className="text-white/70 text-sm">
+                  <p className="text-slate-500 text-sm">
                     {currentLesson ? "Vídeo em breve" : "Selecione uma aula"}
                   </p>
                 </>
@@ -124,7 +124,7 @@ const CursoDetalhe = () => {
 
       {/* Course Info */}
       <div className="px-1">
-        <span className="text-white font-bold text-xs tracking-widest uppercase">FANATICLASS</span>
+        <span className="text-emerald-600 font-bold text-[11px] tracking-widest uppercase">FANATICLASS</span>
         <h1 className="font-sans text-2xl text-slate-900 normal-case mt-1 mb-2">{course.title}</h1>
         
         <div className="flex items-center gap-3 text-sm text-slate-500 mb-4 flex-wrap">
@@ -138,7 +138,7 @@ const CursoDetalhe = () => {
             <BookOpen className="w-3.5 h-3.5" /> {totalLessons} aulas
           </span>
           {course.is_premium ? (
-            <span className="bg-white/10 text-white px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1">
+            <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1">
               <Lock className="w-3 h-3" /> Premium
             </span>
           ) : (
@@ -157,7 +157,7 @@ const CursoDetalhe = () => {
         {currentLesson && (
           <div className="bg-slate-50 rounded-xl p-3 mb-4 border border-slate-200">
             <p className="text-xs text-slate-500 mb-0.5">Assistindo agora</p>
-            <p className="text-white font-medium text-sm">{currentLesson.title}</p>
+            <p className="text-slate-900 font-semibold text-sm">{currentLesson.title}</p>
             {currentLesson.duration && (
               <p className="text-xs text-slate-500 mt-1">{currentLesson.duration}</p>
             )}
@@ -166,15 +166,15 @@ const CursoDetalhe = () => {
 
         {/* Quick Actions */}
         <div className="flex justify-around border-b border-slate-200 pb-4 mb-4">
-          <button className="flex flex-col items-center gap-1 text-white/70 hover:text-white transition-colors">
+          <button className="flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900 transition-colors">
             <Plus className="w-5 h-5" />
             <span className="text-xs">Minha lista</span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-white/70 hover:text-white transition-colors">
+          <button className="flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900 transition-colors">
             <ThumbsUp className="w-5 h-5" />
             <span className="text-xs">Avaliar</span>
           </button>
-          <button className="flex flex-col items-center gap-1 text-white/70 hover:text-white transition-colors">
+          <button className="flex flex-col items-center gap-1 text-slate-600 hover:text-slate-900 transition-colors">
             <Share2 className="w-5 h-5" />
             <span className="text-xs">Compartilhar</span>
           </button>
@@ -186,7 +186,7 @@ const CursoDetalhe = () => {
             onClick={() => setActiveTab("modulos")}
             className={`pb-2 font-medium text-sm transition-colors ${
               activeTab === "modulos"
-                ? "text-white border-b-2 border-white"
+                ? "text-emerald-600 border-b-2 border-emerald-600"
                 : "text-slate-500"
             }`}
           >
@@ -196,7 +196,7 @@ const CursoDetalhe = () => {
             onClick={() => setActiveTab("sobre")}
             className={`pb-2 font-medium text-sm transition-colors ${
               activeTab === "sobre"
-                ? "text-white border-b-2 border-white"
+                ? "text-emerald-600 border-b-2 border-emerald-600"
                 : "text-slate-500"
             }`}
           >
@@ -219,11 +219,11 @@ const CursoDetalhe = () => {
                     <AccordionItem key={mod.id} value={mod.id} className="border border-slate-200 rounded-xl overflow-hidden">
                       <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-slate-50">
                         <div className="flex items-center gap-3 text-left">
-                          <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                          <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-slate-900 font-bold text-sm flex-shrink-0">
                             {modIdx + 1}
                           </div>
                           <div>
-                            <h3 className="text-white font-medium text-sm">{mod.title}</h3>
+                            <h3 className="text-slate-900 font-semibold text-sm">{mod.title}</h3>
                             <p className="text-slate-500 text-xs">{modLessons.length} aulas</p>
                           </div>
                         </div>
@@ -240,7 +240,7 @@ const CursoDetalhe = () => {
                             >
                               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${
                                 currentLesson?.id === lesson.id
-                                  ? "bg-white text-gray-800"
+                                  ? "bg-emerald-500 text-white"
                                   : "bg-slate-100 text-slate-500"
                               }`}>
                                 {currentLesson?.id === lesson.id ? (
@@ -250,7 +250,7 @@ const CursoDetalhe = () => {
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h4 className="text-white text-sm font-medium line-clamp-1">{lesson.title}</h4>
+                                <h4 className="text-slate-900 text-sm font-semibold line-clamp-1">{lesson.title}</h4>
                                 <div className="flex items-center gap-2 mt-0.5">
                                   {lesson.duration && (
                                     <span className="text-slate-500 text-xs">{lesson.duration}</span>
@@ -282,7 +282,7 @@ const CursoDetalhe = () => {
             {currentLesson && activities && activities.length > 0 && (
               <div className="mt-6 pt-4 border-t border-slate-200">
                 <h3 className="font-sans text-lg text-slate-900 normal-case mb-3 flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-white" />
+                  <CheckCircle className="w-5 h-5 text-emerald-600" />
                   Atividades Complementares
                 </h3>
                 <div className="space-y-3">
@@ -292,16 +292,16 @@ const CursoDetalhe = () => {
                       className="bg-slate-50 border border-slate-200 rounded-xl p-4"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Check className="w-3.5 h-3.5 text-white" />
+                        <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
                         </div>
                         <div>
-                          <h4 className="text-white font-medium text-sm">{activity.title}</h4>
+                          <h4 className="text-slate-900 font-semibold text-sm">{activity.title}</h4>
                           {activity.description && (
                             <p className="text-slate-500 text-xs mt-1">{activity.description}</p>
                           )}
                           {activity.is_required && (
-                            <span className="text-xs text-white font-medium mt-2 inline-block">Obrigatória</span>
+                            <span className="text-xs text-emerald-600 font-semibold mt-2 inline-block">Obrigatória</span>
                           )}
                         </div>
                       </div>
@@ -318,7 +318,7 @@ const CursoDetalhe = () => {
           <div className="space-y-4">
             {course.description && (
               <div>
-                <h3 className="text-white font-medium mb-2">Descrição</h3>
+                <h3 className="text-slate-900 font-semibold mb-2">Descrição</h3>
                 <p className="text-slate-500 text-sm leading-relaxed whitespace-pre-wrap">
                   {course.description}
                 </p>
@@ -326,18 +326,18 @@ const CursoDetalhe = () => {
             )}
             {course.instructor && (
               <div>
-                <h3 className="text-white font-medium mb-1">Instrutor</h3>
+                <h3 className="text-slate-900 font-semibold mb-1">Instrutor</h3>
                 <p className="text-slate-500 text-sm">{course.instructor}</p>
               </div>
             )}
             <div>
-              <h3 className="text-white font-medium mb-1">Categoria</h3>
+              <h3 className="text-slate-900 font-semibold mb-1">Categoria</h3>
               <p className="text-slate-500 text-sm">{course.category}</p>
             </div>
             {course.price !== null && course.price > 0 && (
               <div>
-                <h3 className="text-white font-medium mb-1">Preço</h3>
-                <p className="text-white font-bold">R$ {Number(course.price).toFixed(2).replace('.', ',')}</p>
+                <h3 className="text-slate-900 font-semibold mb-1">Preço</h3>
+                <p className="text-slate-900 font-bold">R$ {Number(course.price).toFixed(2).replace('.', ',')}</p>
               </div>
             )}
           </div>
@@ -354,7 +354,7 @@ const CursoDetalhe = () => {
         <Header title={course?.title || "Curso"} />
         <main className="pt-[calc(env(safe-area-inset-top)+64px)] px-4 pb-4">
           <div className="mb-4">
-        <Link to="/cursos" className="flex items-center gap-1 text-slate-500 text-sm hover:text-white transition-colors">
+        <Link to="/cursos" className="flex items-center gap-1 text-slate-500 text-sm hover:text-slate-700 transition-colors">
               <ChevronLeft className="w-4 h-4" /> Voltar
             </Link>
           </div>
