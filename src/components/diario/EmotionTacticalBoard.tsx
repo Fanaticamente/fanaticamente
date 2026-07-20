@@ -428,7 +428,7 @@ const EmotionTacticalBoard = () => {
         setAnonLineup(anonData);
       }
 
-      toast.success("Escalação emocional registrada! ⚽🧠");
+      toast.success("Atividade concluída! +1 ponto");
     } catch (err: any) {
       console.error(err);
       toast.error("Erro ao salvar escalação.");
