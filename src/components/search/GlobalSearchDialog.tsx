@@ -62,7 +62,7 @@ const GlobalSearchDialog = ({ open, onClose }: Props) => {
           key: `pro-${r.id}`,
           title: r.full_name ?? "Profissional",
           subtitle: "Terapeuta",
-          path: `/terapeutas/${r.id}`,
+          path: `/terapeuta/${r.id}`,
           icon: Users,
           group: "Terapeutas" as const,
         }))
@@ -72,7 +72,7 @@ const GlobalSearchDialog = ({ open, onClose }: Props) => {
           key: `crs-${r.id}`,
           title: r.title ?? "Curso",
           subtitle: "FanatiClass",
-          path: `/cursos/${r.id}`,
+          path: `/curso/${r.id}`,
           icon: BookOpen,
           group: "FanatiClass" as const,
         }))
