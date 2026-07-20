@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, Trophy, TrendingUp, X, ClipboardList } from "lucide-react";
+import icCampo from "@/assets/Untitled_design-17.png.asset.json";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
@@ -199,8 +200,21 @@ const Comunidade = () => {
               onClick={() => navigate("/diario")}
               className="w-full text-left rounded-3xl bg-white border border-slate-200 shadow-sm p-4 flex items-center gap-4"
             >
-              <div className="w-14 h-14 rounded-2xl bg-[var(--club-50)] flex items-center justify-center shrink-0">
-                <ClipboardList className="w-6 h-6 text-[var(--club-600)]" strokeWidth={1.8} />
+              <div className="w-14 h-14 rounded-2xl bg-[var(--club-50)] flex items-center justify-center shrink-0 overflow-hidden">
+                <span
+                  aria-hidden
+                  className="block w-9 h-9 bg-[var(--club-600)]"
+                  style={{
+                    WebkitMaskImage: `url(${icCampo.url})`,
+                    maskImage: `url(${icCampo.url})`,
+                    WebkitMaskRepeat: "no-repeat",
+                    maskRepeat: "no-repeat",
+                    WebkitMaskPosition: "center",
+                    maskPosition: "center",
+                    WebkitMaskSize: "contain",
+                    maskSize: "contain",
+                  }}
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <p
