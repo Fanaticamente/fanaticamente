@@ -495,8 +495,8 @@ const BemEstar = () => {
                             key={e.entry_date + (e.created_at ?? "")}
                             className="flex items-center gap-3 rounded-2xl border border-slate-200 p-3"
                           >
-                            <div className="w-10 h-10 rounded-full bg-[var(--club-50)] flex items-center justify-center text-xl shrink-0">
-                              {tier.emoji}
+                            <div className="w-10 h-10 rounded-full bg-[var(--club-50)] text-[var(--club-600)] flex items-center justify-center shrink-0">
+                              <MoodFace variant={tier.variant} size={26} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-semibold text-slate-900">
