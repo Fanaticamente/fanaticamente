@@ -10,13 +10,6 @@ import icEspecialista from "@/assets/Untitled_design-23.png.asset.json";
 import icRadio from "@/assets/Untitled_design-20.png.asset.json";
 import icNoticias from "@/assets/Untitled_design-21.png.asset.json";
 import icRanking from "@/assets/Untitled_design-22.png.asset.json";
-import icCampoRed from "@/assets/club-icons/red-campo.png.asset.json";
-import icCursoRed from "@/assets/club-icons/red-curso.png.asset.json";
-import icEspecialistaRed from "@/assets/club-icons/red-especialista.png.asset.json";
-import icRadioRed from "@/assets/club-icons/red-radio.png.asset.json";
-import icNoticiasRed from "@/assets/club-icons/red-noticias.png.asset.json";
-import icRankingRed from "@/assets/club-icons/red-ranking.png.asset.json";
-import { useClubTheme } from "@/contexts/ClubThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -39,25 +32,11 @@ const SUGGESTIONS = [
   { img: icRanking.url,      kicker: "Comunidade",         title: "Brasileirão da Saúde Mental",                subtitle: "Veja como estão os clubes e torcida",   path: "/ranking", small: true },
 ];
 
-// Clubs whose primary identity is red — use the red icon variants.
-const RED_CLUBS = new Set<string>([
-  "athletico-pr", "bragantino", "internacional", "vitoria",
-  "atletico-go", "botafogo-sp", "crb", "nautico", "sport", "vila-nova",
-  "anapolis", "inter-de-limeira", "itabaiana", "ituano", "maranhao", "santa-cruz",
-]);
-
-const RED_ICONS = [
-  icCampoRed.url, icCursoRed.url, icEspecialistaRed.url,
-  icRadioRed.url, icNoticiasRed.url, icRankingRed.url,
-];
-
 const MinimalHome = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const { clubId } = useClubTheme();
-  const useRed = clubId ? RED_CLUBS.has(clubId) : false;
-  const suggestions = SUGGESTIONS.map((s, i) => useRed ? { ...s, img: RED_ICONS[i] } : s);
+  const suggestions = SUGGESTIONS;
   const [selected, setSelected] = useState<string | null>(null);
   const [sugIdx, setSugIdx] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -237,7 +216,20 @@ const MinimalHome = () => {
                   className="w-full shrink-0 text-left p-4 flex items-center gap-4"
                 >
                   <div className="w-14 h-14 rounded-2xl bg-[var(--club-50)] flex items-center justify-center shrink-0 overflow-hidden">
-                    <img src={s.img} alt="" className="w-9 h-9 object-contain" />
+                    <span
+                      aria-hidden
+                      className="block w-9 h-9 bg-[var(--club-600)]"
+                      style={{
+                        WebkitMaskImage: `url(${s.img})`,
+                        maskImage: `url(${s.img})`,
+                        WebkitMaskRepeat: "no-repeat",
+                        maskRepeat: "no-repeat",
+                        WebkitMaskPosition: "center",
+                        maskPosition: "center",
+                        WebkitMaskSize: "contain",
+                        maskSize: "contain",
+                      }}
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-semibold text-[var(--club-600)]">{s.kicker}</p>
