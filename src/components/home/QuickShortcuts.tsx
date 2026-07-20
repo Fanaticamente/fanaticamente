@@ -33,13 +33,13 @@ const QuickShortcuts = () => {
     <div className="px-4 py-4 grid grid-cols-2 gap-3">
       <ShortcutCard
         to="/meus-agendamentos"
-        icon={<CalendarDays className="text-emerald-500 shrink-0" size={34} strokeWidth={2} />}
+        icon={<CalendarDays className="text-[var(--club-500)] shrink-0" size={34} strokeWidth={2} />}
         title="Minhas Consultas"
         subtitle="Gerencie atendimentos"
       />
       <ShortcutCard
         to="/meus-cursos"
-        icon={<GraduationCap className="text-emerald-500 shrink-0" size={38} strokeWidth={2} />}
+        icon={<GraduationCap className="text-[var(--club-500)] shrink-0" size={38} strokeWidth={2} />}
         title="Meus Cursos"
         subtitle="Continue sua jornada"
       />

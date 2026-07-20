@@ -22,6 +22,7 @@ if (typeof window !== "undefined") {
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RadioProvider } from "@/contexts/RadioContext";
+import { ClubThemeProvider } from "@/contexts/ClubThemeContext";
 import ProtectedRoute, { DynamicProtectedRoute } from "@/components/ProtectedRoute";
 import GlobalRadioPlayer from "@/components/radio/GlobalRadioPlayer";
 
@@ -130,6 +131,7 @@ const App = () => {
     <TooltipProvider>
       {isEmbedMode() ? (
         <AuthProvider>
+          <ClubThemeProvider>
           <RadioProvider>
           <BrowserRouter>
             <Toaster />
@@ -163,9 +165,11 @@ const App = () => {
             </Routes>
           </BrowserRouter>
           </RadioProvider>
+          </ClubThemeProvider>
         </AuthProvider>
       ) : (
         <AuthProvider>
+          <ClubThemeProvider>
           <RadioProvider>
           <BrowserRouter>
             <AppProviders>
@@ -248,6 +252,7 @@ const App = () => {
             </AppProviders>
           </BrowserRouter>
           </RadioProvider>
+          </ClubThemeProvider>
         </AuthProvider>
       )}
     </TooltipProvider>

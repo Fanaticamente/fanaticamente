@@ -80,7 +80,7 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
             </h4>
             <div className="bg-slate-50 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 rounded-full bg-[var(--club-50)] flex items-center justify-center overflow-hidden">
                   {appointment.profile?.avatar_url ? (
                     <img 
                       src={appointment.profile.avatar_url} 
@@ -88,7 +88,7 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
                       className="w-full h-full object-cover object-top"
                     />
                   ) : (
-                    <User className="w-6 h-6 text-emerald-600" />
+                    <User className="w-6 h-6 text-[var(--club-600)]" />
                   )}
                 </div>
                 <div>
@@ -131,7 +131,7 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
               {/* View Profile Button */}
               <button
                 onClick={() => navigate(`/profissional/${appointment.professional_id}`)}
-                className="w-full mt-2 py-2 bg-emerald-50 text-emerald-600 rounded-xl font-medium hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2"
+                className="w-full mt-2 py-2 bg-[var(--club-50)] text-[var(--club-600)] rounded-xl font-medium hover:bg-[var(--club-100)] transition-colors flex items-center justify-center gap-2"
               >
                 <User className="w-4 h-4" />
                 Ver Perfil do Profissional
@@ -146,13 +146,13 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
             </h4>
             <div className="bg-slate-50 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-emerald-600" />
+                <Calendar className="w-5 h-5 text-[var(--club-600)]" />
                 <span className="text-slate-900">
                   {format(parseISO(appointment.scheduled_date), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-emerald-600" />
+                <Clock className="w-5 h-5 text-[var(--club-600)]" />
                 <span className="text-slate-900">{appointment.scheduled_time}</span>
               </div>
             </div>
@@ -182,13 +182,13 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
                 href={appointment.consultation_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors"
+                className="flex items-center gap-3 p-4 bg-[var(--club-50)] border border-[var(--club-200)] rounded-xl hover:bg-[var(--club-100)] transition-colors"
               >
-                <Link className="w-5 h-5 text-emerald-600" />
-                <span className="text-emerald-600 font-medium flex-1 truncate">
+                <Link className="w-5 h-5 text-[var(--club-600)]" />
+                <span className="text-[var(--club-600)] font-medium flex-1 truncate">
                   {appointment.consultation_link}
                 </span>
-                <ExternalLink className="w-4 h-4 text-emerald-600" />
+                <ExternalLink className="w-4 h-4 text-[var(--club-600)]" />
               </a>
             ) : (
               <div className="flex items-start gap-3 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">

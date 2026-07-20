@@ -241,7 +241,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                     <button
                       onClick={handleRatingSubmit}
                       disabled={isSubmittingRating}
-                      className="w-full py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                      className="w-full py-3 bg-[var(--club-600)] text-white rounded-xl font-medium hover:bg-[var(--club-700)] transition-colors disabled:opacity-50"
                     >
                       {isSubmittingRating ? "Enviando..." : "Enviar Avaliação"}
                     </button>
@@ -254,7 +254,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                 <div className="pt-4 border-t border-slate-200">
                   <button
                     onClick={() => setShowReschedule(true)}
-                    className="w-full py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-[var(--club-600)] text-white rounded-xl font-medium hover:bg-[var(--club-700)] transition-colors flex items-center justify-center gap-2"
                   >
                     <Calendar className="w-5 h-5" />
                     Agendar Nova Sessão
@@ -285,7 +285,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
 
               {/* Professional Info */}
               <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 rounded-full bg-[var(--club-50)] flex items-center justify-center overflow-hidden">
                   {appointment.profile?.avatar_url ? (
                     <img 
                       src={appointment.profile.avatar_url} 
@@ -293,7 +293,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                       className="w-full h-full object-cover object-top"
                     />
                   ) : (
-                    <span className="text-emerald-600 text-lg font-bold">
+                    <span className="text-[var(--club-600)] text-lg font-bold">
                       {(appointment.profile?.full_name || "P")[0]}
                     </span>
                   )}
@@ -344,7 +344,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                         disabled={!isAvailable}
                         className={`flex flex-col items-center p-2 rounded-lg transition-all ${
                           isSelected 
-                            ? "bg-emerald-600 text-white" 
+                            ? "bg-[var(--club-600)] text-white" 
                             : isAvailable 
                             ? "bg-slate-100 hover:bg-slate-200 text-slate-900" 
                             : "bg-slate-50 text-slate-500 opacity-50 cursor-not-allowed"
@@ -374,7 +374,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                           onClick={() => setSelectedTime(time)}
                           className={`py-2 px-3 rounded-lg text-sm font-medium transition-all ${
                             selectedTime === time
-                              ? "bg-emerald-600 text-white"
+                              ? "bg-[var(--club-600)] text-white"
                               : "bg-slate-100 text-slate-900 hover:bg-slate-200"
                           }`}
                         >
@@ -390,7 +390,7 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                   <button
                     onClick={handleScheduleNew}
                     disabled={loading}
-                    className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold uppercase tracking-wide hover:bg-emerald-700 transition-all disabled:opacity-50"
+                    className="w-full py-4 bg-[var(--club-600)] text-white rounded-xl font-bold uppercase tracking-wide hover:bg-[var(--club-700)] transition-all disabled:opacity-50"
                   >
                     {loading ? "Agendando..." : "Agendar Nova Sessão"}
                   </button>

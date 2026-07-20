@@ -140,7 +140,7 @@ const RescheduleDialog = ({
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-slate-200 p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <RefreshCw className="w-5 h-5 text-emerald-600" />
+            <RefreshCw className="w-5 h-5 text-[var(--club-600)]" />
             <h2 className="font-sans text-lg text-slate-900">
               Reagendar Consulta
             </h2>
@@ -156,7 +156,7 @@ const RescheduleDialog = ({
         <div className="p-4">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+              <Loader2 className="w-8 h-8 animate-spin text-[var(--club-600)]" />
             </div>
           ) : (
             <>
@@ -179,7 +179,7 @@ const RescheduleDialog = ({
               {/* Select new date */}
               <div className="mb-4">
                 <h3 className="text-sm font-medium text-slate-900 mb-3 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-emerald-600" />
+                  <Calendar className="w-4 h-4 text-[var(--club-600)]" />
                   Selecione uma nova data
                 </h3>
                 {daysWithAvailability.length === 0 ? (
@@ -199,7 +199,7 @@ const RescheduleDialog = ({
                           }}
                           className={`p-2 rounded-xl text-center transition-colors ${
                             isSelected
-                              ? "bg-emerald-600 text-white"
+                              ? "bg-[var(--club-600)] text-white"
                               : "bg-slate-100 hover:bg-slate-200 text-slate-900"
                           }`}
                         >
@@ -217,7 +217,7 @@ const RescheduleDialog = ({
               {selectedDate && (
                 <div className="mb-4">
                   <h3 className="text-sm font-medium text-slate-900 mb-3 flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-emerald-600" />
+                    <Clock className="w-4 h-4 text-[var(--club-600)]" />
                     Selecione um horário
                   </h3>
                   {availableTimes.length === 0 ? (
@@ -232,7 +232,7 @@ const RescheduleDialog = ({
                           onClick={() => setSelectedTime(time)}
                           className={`py-2 px-3 rounded-xl text-center transition-colors text-sm font-medium ${
                             selectedTime === time
-                              ? "bg-emerald-600 text-white"
+                              ? "bg-[var(--club-600)] text-white"
                               : "bg-slate-100 hover:bg-slate-200 text-slate-900"
                           }`}
                         >
@@ -248,7 +248,7 @@ const RescheduleDialog = ({
               <button
                 onClick={handleReschedule}
                 disabled={!selectedDate || !selectedTime || submitting}
-                className="w-full py-3 bg-emerald-600 text-white rounded-xl font-medium transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[var(--club-600)] text-white rounded-xl font-medium transition-colors hover:bg-[var(--club-700)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>

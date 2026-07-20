@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const MOODS = [
-  { id: "muito_bem", emoji: "🙂", label: "Muito bem",     bg: "bg-emerald-100", ring: "ring-emerald-400" },
+  { id: "muito_bem", emoji: "🙂", label: "Muito bem",     bg: "bg-[var(--club-100)]", ring: "ring-[var(--club-400)]" },
   { id: "mais_ou_menos", emoji: "😐", label: "Mais ou menos", bg: "bg-amber-100",   ring: "ring-amber-400" },
   { id: "nao_legal", emoji: "🙁", label: "Não estou legal", bg: "bg-orange-100",  ring: "ring-orange-400" },
   { id: "ansioso", emoji: "😟", label: "Ansioso",         bg: "bg-slate-100",   ring: "ring-slate-400" },
@@ -123,7 +123,7 @@ const MinimalHome = () => {
       <section className="pt-0">
         <h1 className="font-sans text-2xl font-extrabold tracking-tight leading-none normal-case flex items-center gap-1 whitespace-nowrap">
           {greeting},{" "}
-          <span className="text-emerald-600">{firstName}!</span>{" "}
+          <span className="text-[var(--club-600)]">{firstName}!</span>{" "}
           <span className="inline-block">👋</span>
         </h1>
         <p className="mt-1.5 text-slate-500 text-[15px] leading-snug">
@@ -133,7 +133,7 @@ const MinimalHome = () => {
 
       {/* Check-in */}
       <section className="mt-[19px] rounded-3xl bg-white border border-slate-200/70 shadow-sm p-5">
-        <div className="flex items-center gap-2 text-emerald-600 text-xs font-semibold">
+        <div className="flex items-center gap-2 text-[var(--club-600)] text-xs font-semibold">
           <HeartPulse className="w-4 h-4" />
           Check-in emocional
         </div>
@@ -169,7 +169,7 @@ const MinimalHome = () => {
           <button
             disabled={checkinMutation.isPending}
             onClick={() => checkinMutation.mutate(selected)}
-            className="mt-4 w-full py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm transition disabled:opacity-60"
+            className="mt-4 w-full py-3 rounded-2xl bg-[var(--club-500)] hover:bg-[var(--club-600)] text-white font-semibold text-sm transition disabled:opacity-60"
           >
             {checkinMutation.isPending ? "Registrando…" : "Registrar check-in"}
           </button>
@@ -214,18 +214,18 @@ const MinimalHome = () => {
                   onClick={() => navigate(s.path)}
                   className="w-full shrink-0 text-left p-4 flex items-center gap-4"
                 >
-                  <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0 overflow-hidden">
+                  <div className="w-14 h-14 rounded-2xl bg-[var(--club-50)] flex items-center justify-center shrink-0 overflow-hidden">
                     <img src={s.img} alt="" className="w-9 h-9 object-contain" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-semibold text-emerald-600">{s.kicker}</p>
+                    <p className="text-[11px] font-semibold text-[var(--club-600)]">{s.kicker}</p>
                     <p className={cn("font-bold text-slate-900 leading-tight", s.small ? "text-[13px]" : "text-base", Array.isArray(s.title) && "line-clamp-2")}>
                       {Array.isArray(s.title) ? s.title.map((line, i) => <span key={i} className="block">{line}</span>) : s.title}
                     </p>
                     <p className="text-xs text-slate-500 truncate">{s.subtitle}</p>
                   </div>
                   <div className="w-11 h-11 rounded-full border border-slate-200 flex items-center justify-center shrink-0">
-                    <ChevronRight className="w-4 h-4 text-emerald-600" />
+                    <ChevronRight className="w-4 h-4 text-[var(--club-600)]" />
                   </div>
                 </button>
             ))}
@@ -238,7 +238,7 @@ const MinimalHome = () => {
               onClick={() => setSugIdx(i)}
               className={cn(
                 "h-1.5 rounded-full transition-all",
-                i === sugIdx ? "w-5 bg-emerald-500" : "w-1.5 bg-slate-300"
+                i === sugIdx ? "w-5 bg-[var(--club-500)]" : "w-1.5 bg-slate-300"
               )}
               aria-label={`Ir para sugestão ${i + 1}`}
             />
@@ -258,8 +258,8 @@ const MinimalHome = () => {
                 onClick={() => navigate(s.path)}
                 className="rounded-2xl bg-white border border-slate-200/70 shadow-sm p-3 flex flex-col items-center gap-2 aspect-square justify-center"
               >
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-emerald-600" strokeWidth={1.8} />
+                <div className="w-10 h-10 rounded-xl bg-[var(--club-50)] flex items-center justify-center">
+                  <Icon className="w-5 h-5 text-[var(--club-600)]" strokeWidth={1.8} />
                 </div>
                 <span className="text-[11px] font-semibold text-slate-700 leading-tight text-center">
                   {s.label}
@@ -275,7 +275,7 @@ const MinimalHome = () => {
         <div className="flex items-start gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-emerald-600" />
+              <TrendingUp className="w-4 h-4 text-[var(--club-600)]" />
               <h3 className="font-sans font-bold normal-case tracking-normal">Sua jornada</h3>
             </div>
             <p className="text-sm text-slate-500 mt-1">
@@ -285,22 +285,22 @@ const MinimalHome = () => {
             <div className="mt-3 flex items-center gap-3">
               <div className="flex-1 h-2.5 rounded-full bg-slate-100 overflow-hidden">
                 <div
-                  className="h-full bg-emerald-500 rounded-full transition-all"
+                  className="h-full bg-[var(--club-500)] rounded-full transition-all"
                   style={{ width: `${progressPct}%` }}
                 />
               </div>
-              <span className="text-sm font-bold text-emerald-600">{progressPct}%</span>
+              <span className="text-sm font-bold text-[var(--club-600)]">{progressPct}%</span>
             </div>
 
             <button
               onClick={() => navigate("/minha-temporada")}
-              className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-emerald-600"
+              className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[var(--club-600)]"
             >
               Ver evolução detalhada <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0">
+          <div className="w-16 h-16 rounded-2xl bg-[var(--club-50)] flex items-center justify-center shrink-0">
             <img src={jornadaLogo.url} alt="" className="w-12 h-12 object-contain" />
           </div>
         </div>
@@ -309,10 +309,10 @@ const MinimalHome = () => {
       {/* Torcida */}
       <button
         onClick={() => navigate("/ranking")}
-        className="w-full text-left rounded-3xl bg-emerald-50 border border-emerald-100 p-4 flex items-center gap-3"
+        className="w-full text-left rounded-3xl bg-[var(--club-50)] border border-[var(--club-100)] p-4 flex items-center gap-3"
       >
         <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0">
-          <Users className="w-5 h-5 text-emerald-600" />
+          <Users className="w-5 h-5 text-[var(--club-600)]" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-slate-900 text-sm leading-tight">
@@ -321,7 +321,7 @@ const MinimalHome = () => {
           <p className="text-xs text-slate-600 mt-0.5">
             Veja como sua torcida está cuidando da mente.
           </p>
-          <p className="text-sm font-semibold text-emerald-700 mt-1 inline-flex items-center gap-1">
+          <p className="text-sm font-semibold text-[var(--club-700)] mt-1 inline-flex items-center gap-1">
             Ver ranking <ChevronRight className="w-3.5 h-3.5" />
           </p>
         </div>

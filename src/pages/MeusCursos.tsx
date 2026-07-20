@@ -26,17 +26,17 @@ const ConsciousnessBadge = ({
   points: number;
   pointsToNext: number;
 }) => (
-  <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/80 via-neutral-900 to-neutral-900 p-5">
-    <div className="absolute -right-8 -top-8 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl" />
+  <div className="relative overflow-hidden rounded-2xl border border-[color:var(--club-500)]/30 bg-gradient-to-br from-[color:var(--club-950)]/80 via-neutral-900 to-neutral-900 p-5">
+    <div className="absolute -right-8 -top-8 w-32 h-32 bg-[color:var(--club-500)]/10 rounded-full blur-2xl" />
     <div className="relative flex items-start gap-4">
-      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-900/50">
+      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[var(--club-400)] to-[var(--club-700)] flex items-center justify-center shrink-0 shadow-lg shadow-[color:var(--club-900)]/50">
         <Sparkles className="w-7 h-7 text-white" strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
           <p className="text-xs uppercase tracking-widest text-white font-semibold drop-shadow">Nível de Consciência</p>
         <h2 className="text-white text-xl font-bold mt-0.5 leading-tight">{rankLabel}</h2>
         <div className="mt-3">
-          <Progress value={percent} className="h-2 bg-neutral-800 [&>div]:bg-gradient-to-r [&>div]:from-emerald-400 [&>div]:to-emerald-500" />
+          <Progress value={percent} className="h-2 bg-neutral-800 [&>div]:bg-gradient-to-r [&>div]:from-[var(--club-400)] [&>div]:to-[var(--club-500)]" />
           <div className="flex justify-between mt-1.5 text-[11px] text-neutral-400">
             <span>{points} pts</span>
             <span>
@@ -51,7 +51,7 @@ const ConsciousnessBadge = ({
 
 const StatCard = ({ icon: Icon, label, value, accent }: { icon: typeof BookOpen; label: string; value: number | string; accent?: string }) => (
   <div className="flex flex-col items-center justify-center gap-1.5 bg-neutral-900 border border-neutral-800 rounded-xl py-3 px-2">
-    <Icon className={`w-5 h-5 ${accent ?? "text-emerald-500"}`} strokeWidth={2.2} />
+    <Icon className={`w-5 h-5 ${accent ?? "text-[var(--club-500)]"}`} strokeWidth={2.2} />
     <span className="text-white text-lg font-bold leading-none">{value}</span>
     <span className="text-neutral-400 text-[10px] uppercase tracking-wide text-center leading-tight">{label}</span>
   </div>
@@ -87,7 +87,7 @@ const CourseProgressRow = ({
         </div>
       )}
       {status === "completed" && (
-        <div className="absolute inset-0 bg-emerald-500/30 flex items-center justify-center">
+        <div className="absolute inset-0 bg-[color:var(--club-500)]/30 flex items-center justify-center">
           <CheckCircle2 className="w-7 h-7 text-white drop-shadow" />
         </div>
       )}
@@ -102,7 +102,7 @@ const CourseProgressRow = ({
       <div className="mt-1.5">
         <Progress
           value={progressPercent}
-          className="h-1 bg-neutral-800 [&>div]:bg-emerald-500"
+          className="h-1 bg-neutral-800 [&>div]:bg-[var(--club-500)]"
         />
       </div>
     </div>
@@ -220,7 +220,7 @@ const MeusCursos = () => {
                     </div>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
-                    <div className="h-full bg-emerald-500" style={{ width: `${item.progressPercent}%` }} />
+                    <div className="h-full bg-[var(--club-500)]" style={{ width: `${item.progressPercent}%` }} />
                   </div>
                 </div>
                 <p className="text-white text-xs font-medium mt-1.5 line-clamp-1">{item.courseTitle}</p>
@@ -277,7 +277,7 @@ const MeusCursos = () => {
           <p className="text-neutral-400 text-sm mb-4">Comece sua trilha de consciência hoje mesmo.</p>
           <Link
             to="/cursos"
-            className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl"
+            className="inline-flex items-center gap-2 bg-[var(--club-500)] hover:bg-[var(--club-600)] text-white text-sm font-semibold px-5 py-2.5 rounded-xl"
           >
             Explorar FanatiClass <ChevronRight className="w-4 h-4" />
           </Link>
@@ -289,7 +289,7 @@ const MeusCursos = () => {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-white text-sm font-bold uppercase tracking-wider">Descobrir cursos</h2>
-            <Link to="/cursos" className="text-emerald-400 text-xs font-semibold flex items-center gap-1">
+            <Link to="/cursos" className="text-[var(--club-400)] text-xs font-semibold flex items-center gap-1">
               Ver tudo <ChevronRight className="w-3 h-3" />
             </Link>
           </div>

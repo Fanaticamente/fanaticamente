@@ -164,7 +164,7 @@ const BemEstar = () => {
               className={cn(
                 "py-2 rounded-full text-sm font-semibold transition-colors",
                 range === r.id
-                  ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                  ? "bg-[var(--club-50)] text-[var(--club-600)] border border-[var(--club-200)]"
                   : "text-slate-500"
               )}
             >
@@ -184,7 +184,7 @@ const BemEstar = () => {
             >
               Seu equilíbrio emocional
             </h2>
-            <p className="text-5xl font-extrabold text-emerald-600 mt-2 leading-none">
+            <p className="text-5xl font-extrabold text-[var(--club-600)] mt-2 leading-none">
               {avg}%
             </p>
             <p className="text-sm text-slate-500 mt-3 max-w-[15rem] leading-snug">
@@ -278,8 +278,8 @@ const BemEstar = () => {
               onClick={() => navigate(s.path)}
               className="w-full text-left rounded-3xl bg-white border border-slate-200 shadow-sm p-4 flex items-center gap-4"
             >
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0">
-                <Icon className="w-6 h-6 text-emerald-600" strokeWidth={1.8} />
+              <div className="w-14 h-14 rounded-2xl bg-[var(--club-50)] flex items-center justify-center shrink-0">
+                <Icon className="w-6 h-6 text-[var(--club-600)]" strokeWidth={1.8} />
               </div>
               <div className="flex-1 min-w-0">
                 <p
@@ -290,7 +290,7 @@ const BemEstar = () => {
                 </p>
                 <p className="text-sm text-slate-500 leading-snug mt-0.5">{s.desc}</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-emerald-600 shrink-0" />
+              <ChevronRight className="w-5 h-5 text-[var(--club-600)] shrink-0" />
             </button>
           );
         })}

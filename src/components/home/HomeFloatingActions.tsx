@@ -57,7 +57,7 @@ const HomeFloatingActions = () => {
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 text-slate-700"
                 >
-                  <Icon className="w-5 h-5 text-emerald-600" />
+                  <Icon className="w-5 h-5 text-[var(--club-600)]" />
                   <span className="font-medium">{it.label}</span>
                 </Link>
               );
@@ -69,7 +69,7 @@ const HomeFloatingActions = () => {
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 text-slate-700"
             >
-              <User className="w-5 h-5 text-emerald-600" />
+              <User className="w-5 h-5 text-[var(--club-600)]" />
               <span className="font-medium">Você</span>
             </Link>
             <button

@@ -300,6 +300,13 @@ const AccountSettingsDialog = ({ trigger, isProfessional = false }: AccountSetti
 
       toast.success("Dados atualizados com sucesso!");
 
+      // Notify the club theme provider so accent colors refresh app-wide.
+      try {
+        window.dispatchEvent(new CustomEvent("club-theme-refresh"));
+      } catch {
+        // ignore
+      }
+
       // Clear draft after a successful save so it doesn't reopen stale data.
       if (storageKey) {
         try {
