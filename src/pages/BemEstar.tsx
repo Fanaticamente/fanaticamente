@@ -397,7 +397,7 @@ const BemEstar = () => {
 
         <div className="mt-5 h-[260px] text-[var(--club-600)]">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={series} margin={{ top: 18, right: 12, left: 0, bottom: 4 }}>
+            <LineChart data={series} margin={{ top: 18, right: 12, left: 42, bottom: 4 }}>
               <CartesianGrid stroke="#eef2f7" strokeDasharray="3 6" vertical={false} />
               <XAxis
                 dataKey="label"
