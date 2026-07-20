@@ -48,7 +48,7 @@ const SUGGESTIONS = [
   { img: icCurso.url,        kicker: "Curso em destaque",  title: ["Ética & Responsabilidade Social", "no Futebol"], subtitle: "Comece agora mesmo",                    path: "/curso/c6c7600e-de31-4adc-935e-75a9dd30beba", small: true },
   { img: icEspecialista.url, kicker: "Cuide de você",      title: "Converse com um(a) especialista",           subtitle: "Terapeutas disponíveis",                path: "/terapeutas", small: true },
   { img: icRadio.url,        kicker: "Ao vivo",            title: "Rádio Alambrado FM",                         subtitle: "Acompanhe as rádios esportivas",        path: "/radio" },
-  { img: icNoticias.url,     kicker: "Fique por dentro",   title: "Notícias do seu clube",                      subtitle: "Últimas atualizações",                  path: "/futebol" },
+  { img: icNoticias.url,     kicker: "Fique por dentro",   title: "Conteúdos sobre Futebol & Saúde",            subtitle: "Últimas atualizações",                  path: "/futebol" },
   { img: icRanking.url,      kicker: "Comunidade",         title: "Brasileirão da Saúde Mental",                subtitle: "Veja como estão os clubes e torcida",   path: "/comunidade?openClubs=1", small: true },
 ];
 
