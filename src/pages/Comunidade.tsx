@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ChevronRight, TrendingUp, X } from "lucide-react";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
 import icRanking from "@/assets/Untitled_design-22.png.asset.json";
@@ -31,6 +32,25 @@ const Comunidade = () => {
   const [league, setLeague] = useState<League>("serie_a");
   const [showClubsFull, setShowClubsFull] = useState(false);
   const [showFansFull, setShowFansFull] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("openClubs") === "1") {
+      setTab("ranking");
+      setShowClubsFull(true);
+      const dismissed = localStorage.getItem("comunidade-ranking-info-dismissed");
+      if (!dismissed) setShowInfo(true);
+      searchParams.delete("openClubs");
+      setSearchParams(searchParams, { replace: true });
+    }
+    if (searchParams.get("openFans") === "1") {
+      setTab("ranking");
+      setShowFansFull(true);
+      searchParams.delete("openFans");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Ranking zerado até reativação manual.
   const clubCounts: Record<string, number> = {};
@@ -328,6 +348,50 @@ const Comunidade = () => {
       </Dialog>
 
       <BottomNav />
+
+      {/* First-time ranking info */}
+      {showInfo && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-6">
+          <div className="bg-white rounded-3xl shadow-xl max-w-sm w-full p-6 relative font-sans">
+            <button
+              onClick={() => setShowInfo(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+              aria-label="Fechar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-3 normal-case">
+              Como funciona o Ranking?
+            </h2>
+            <p className="text-sm text-gray-600 leading-relaxed mb-4">
+              O <strong>Brasileirão da Saúde Mental</strong> pontua os clubes com base nas ações dos seus torcedores. Cada atividade gera pontos para o clube do coração conforme abaixo:
+            </p>
+            <ul className="text-sm text-gray-600 space-y-2 mb-6">
+              <li className="flex items-start gap-2">
+                <span className="font-bold mt-0.5 text-[var(--club-600)]">•</span>
+                <span><strong>Sessão de terapia</strong> concluída vale <strong>3 pontos</strong>.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold mt-0.5 text-[var(--club-600)]">•</span>
+                <span><strong>Check-in emocional</strong> diário vale <strong>1 ponto</strong>.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold mt-0.5 text-[var(--club-600)]">•</span>
+                <span><strong>FanatiClass</strong> — cada curso finalizado vale <strong>1 ponto</strong>.</span>
+              </li>
+            </ul>
+            <button
+              onClick={() => {
+                localStorage.setItem("comunidade-ranking-info-dismissed", "true");
+                setShowInfo(false);
+              }}
+              className="w-full py-3 rounded-full text-white text-sm font-semibold bg-[var(--club-600)]"
+            >
+              Entendi, não mostrar novamente
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

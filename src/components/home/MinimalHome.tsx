@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, differenceInCalendarDays } from "date-fns";
-import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse } from "lucide-react";
+import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Heart } from "lucide-react";
 import jornadaLogo from "@/assets/logo-header-v3.png.asset.json";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
 import icCurso from "@/assets/Untitled_design-18.png.asset.json";
@@ -48,7 +48,7 @@ const SUGGESTIONS = [
   { img: icEspecialista.url, kicker: "Cuide de você",      title: "Converse com um(a) especialista",           subtitle: "Terapeutas disponíveis",                path: "/terapeutas", small: true },
   { img: icRadio.url,        kicker: "Ao vivo",            title: "Rádio Alambrado FM",                         subtitle: "Acompanhe as rádios esportivas",        path: "/radio" },
   { img: icNoticias.url,     kicker: "Fique por dentro",   title: "Notícias do seu clube",                      subtitle: "Últimas atualizações",                  path: "/futebol" },
-  { img: icRanking.url,      kicker: "Comunidade",         title: "Brasileirão da Saúde Mental",                subtitle: "Veja como estão os clubes e torcida",   path: "/ranking", small: true },
+  { img: icRanking.url,      kicker: "Comunidade",         title: "Brasileirão da Saúde Mental",                subtitle: "Veja como estão os clubes e torcida",   path: "/comunidade?openClubs=1", small: true },
 ];
 
 const MinimalHome = () => {
@@ -168,7 +168,7 @@ const MinimalHome = () => {
     { icon: CalendarDays, label: "Consultas", path: "/meus-agendamentos" },
     { icon: Users,        label: "Terapeutas", path: "/terapeutas" },
     { icon: GraduationCap,label: "Cursos",     path: "/cursos" },
-    { icon: HeartPulse,   label: "Bem-estar",  path: "/setor-saude" },
+    { icon: Heart,        label: "Bem-estar",  path: "/bem-estar" },
   ];
 
   return (
@@ -442,18 +442,31 @@ const MinimalHome = () => {
 
       {/* Torcida */}
       <button
-        onClick={() => navigate("/ranking")}
+        onClick={() => navigate("/comunidade?openFans=1")}
         className="w-full text-left rounded-3xl bg-[var(--club-50)] border border-[var(--club-100)] p-4 flex items-center gap-3"
       >
-        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0">
-          <Users className="w-5 h-5 text-[var(--club-600)]" />
+        <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0 overflow-hidden">
+          <span
+            aria-hidden
+            className="block w-7 h-7 bg-[var(--club-600)]"
+            style={{
+              WebkitMaskImage: `url(${icEspecialista.url})`,
+              maskImage: `url(${icEspecialista.url})`,
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+            }}
+          />
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-slate-900 text-sm leading-tight">
-            Torcida que apoia, mente que fica!
+            Juntos na arquibancada, juntos na evolução!
           </p>
           <p className="text-xs text-slate-600 mt-0.5">
-            Veja como sua torcida está cuidando da mente.
+            Veja os torcedores que estão cuidando da mente.
           </p>
           <p className="text-sm font-semibold text-[var(--club-700)] mt-1 inline-flex items-center gap-1">
             Ver ranking <ChevronRight className="w-3.5 h-3.5" />
