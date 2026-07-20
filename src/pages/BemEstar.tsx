@@ -31,7 +31,7 @@ const BalanceDonut = ({
   const stroke = 10;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
-  const gap = 2; // px gap between segments
+  const gap = 2;
 
   let offset = 0;
   const active = segments.filter((s) => s.value > 0);
@@ -61,29 +61,28 @@ const BalanceDonut = ({
 
   const inner = size - stroke * 2 - 6;
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(-90deg)" }}>
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        fill="none"
-        stroke="currentColor"
-        strokeOpacity={0.1}
-        strokeWidth={stroke}
-      />
-      {arcs}
-      <foreignObject
-        x={(size - inner) / 2}
-        y={(size - inner) / 2}
-        width={inner}
-        height={inner}
-        style={{ transform: "rotate(90deg)", transformOrigin: "center" }}
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        style={{ transform: "rotate(-90deg)" }}
       >
-        <div className="w-full h-full flex items-center justify-center">
-          <MoodFace variant={centerVariant} size={inner - 4} />
-        </div>
-      </foreignObject>
-    </svg>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="currentColor"
+          strokeOpacity={0.1}
+          strokeWidth={stroke}
+        />
+        {arcs}
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <MoodFace variant={centerVariant} size={inner} />
+      </div>
+    </div>
   );
 };
 
