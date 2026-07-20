@@ -2358,6 +2358,27 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_club_ranking: {
+        Args: never
+        Returns: {
+          fans_count: number
+          favorite_club_id: string
+          points: number
+        }[]
+      }
+      get_fan_ranking: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          checkins_count: number
+          courses_count: number
+          favorite_club_id: string
+          full_name: string
+          points: number
+          sessions_count: number
+          user_id: string
+        }[]
+      }
       get_public_professionals: {
         Args: never
         Returns: {
