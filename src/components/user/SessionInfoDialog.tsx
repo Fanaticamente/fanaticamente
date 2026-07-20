@@ -75,12 +75,12 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
         <div className="p-4 space-y-6">
           {/* Professional Info */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">
-              Dados do Profissional
+            <h4 className="text-sm font-medium text-slate-500">
+              Dados do profissional
             </h4>
             <div className="bg-slate-50 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[var(--club-50)] flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 rounded-full bg-[var(--club-50)] flex items-center justify-center overflow-hidden flex-shrink-0">
                   {appointment.profile?.avatar_url ? (
                     <img 
                       src={appointment.profile.avatar_url} 
@@ -141,8 +141,8 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
 
           {/* Appointment Info */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">
-              Data e Horário
+            <h4 className="text-sm font-medium text-slate-500">
+              Data e horário
             </h4>
             <div className="bg-slate-50 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-3">
@@ -161,8 +161,8 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
           {/* Price if available */}
           {appointment.professional?.hourly_rate && (
             <div className="space-y-3">
-              <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">
-                Valor da Sessão
+              <h4 className="text-sm font-medium text-slate-500">
+                Valor da sessão
               </h4>
               <div className="bg-slate-50 rounded-xl p-4">
                 <p className="text-slate-900 font-bold text-lg">
@@ -174,8 +174,8 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
 
           {/* Consultation Link */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">
-              Link da Consulta Online
+            <h4 className="text-sm font-medium text-slate-500">
+              Link da consulta online
             </h4>
             {appointment.consultation_link ? (
               <a
@@ -206,7 +206,7 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
           {/* Notes */}
           {appointment.notes && (
             <div className="space-y-3">
-              <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">
+              <h4 className="text-sm font-medium text-slate-500">
                 Observações
               </h4>
               <div className="bg-slate-50 rounded-xl p-4">

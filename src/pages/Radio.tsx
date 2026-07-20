@@ -58,7 +58,7 @@ const Radio = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header title="Rádio" hideSearch />
+      <Header title="Alambrado FM" hideSearch />
 
       {/* Now Playing Bar - fixed at top below header */}
       {playingStation && (
