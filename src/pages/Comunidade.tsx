@@ -354,11 +354,12 @@ const Comunidade = () => {
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-6">
           <div className="bg-white rounded-3xl shadow-xl max-w-sm w-full p-6 relative font-sans">
             <button
+              type="button"
               onClick={() => setShowInfo(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-95 transition"
               aria-label="Fechar"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
             <h2 className="text-lg font-bold text-gray-900 mb-3 normal-case">
               Como funciona o Ranking?

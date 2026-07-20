@@ -8,6 +8,7 @@ import jornadaLogo from "@/assets/logo-header-v3.png.asset.json";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
 import icCurso from "@/assets/Untitled_design-18.png.asset.json";
 import icEspecialista from "@/assets/Untitled_design-23.png.asset.json";
+import icTorcida from "@/assets/Untitled_design-24.png.asset.json";
 import icRadio from "@/assets/ic-radio-v2.png.asset.json";
 import icNoticias from "@/assets/Untitled_design-21.png.asset.json";
 import icRanking from "@/assets/Untitled_design-22.png.asset.json";
@@ -450,8 +451,8 @@ const MinimalHome = () => {
             aria-hidden
             className="block w-7 h-7 bg-[var(--club-600)]"
             style={{
-              WebkitMaskImage: `url(${icEspecialista.url})`,
-              maskImage: `url(${icEspecialista.url})`,
+              WebkitMaskImage: `url(${icTorcida.url})`,
+              maskImage: `url(${icTorcida.url})`,
               WebkitMaskRepeat: "no-repeat",
               maskRepeat: "no-repeat",
               WebkitMaskPosition: "center",
