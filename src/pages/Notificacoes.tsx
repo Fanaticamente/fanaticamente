@@ -119,16 +119,25 @@ const Notificacoes = () => {
     <div className="space-y-4">
       {/* Push notification toggle */}
       {pushPermission !== "denied" && (
-        <div className={`flex items-center justify-between p-4 rounded-xl border ${
-          pushSubscribed ? "bg-primary/5 border-primary/20" : "bg-card border-border"
-        }`}>
+        <div
+          className="flex items-center justify-between p-4 rounded-2xl border bg-white"
+          style={{
+            borderColor: pushSubscribed ? "var(--club-200)" : "#e2e8f0",
+            background: pushSubscribed ? "var(--club-50)" : "white",
+          }}
+        >
           <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${pushSubscribed ? "bg-primary/15" : "bg-muted"}`}>
-              {pushSubscribed ? <Bell className="w-4 h-4 text-primary" /> : <BellOff className="w-4 h-4 text-muted-foreground" />}
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ background: pushSubscribed ? "var(--club-100)" : "#f1f5f9" }}
+            >
+              {pushSubscribed
+                ? <Bell className="w-4 h-4" style={{ color: "var(--club-700)" }} />
+                : <BellOff className="w-4 h-4 text-slate-500" />}
             </div>
             <div>
-              <p className="text-sm font-medium text-card-foreground">Notificações Push</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm font-medium text-slate-900">Notificações push</p>
+              <p className="text-xs text-slate-500">
                 {pushSubscribed ? "Ativas — você receberá alertas mesmo com o app fechado" : "Receba alertas mesmo com o app fechado"}
               </p>
             </div>
@@ -136,9 +145,8 @@ const Notificacoes = () => {
           <button
             onClick={() => pushSubscribed ? unsubscribePush() : subscribePush()}
             disabled={pushLoading}
-            className={`w-12 h-6 rounded-full relative transition-colors flex-shrink-0 ${
-              pushSubscribed ? "bg-primary" : "bg-muted-foreground/30"
-            } disabled:opacity-50`}
+            className="w-12 h-6 rounded-full relative transition-colors flex-shrink-0 disabled:opacity-50"
+            style={{ background: pushSubscribed ? "var(--club-600)" : "#cbd5e1" }}
           >
             <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${pushSubscribed ? "right-1" : "left-1"}`} />
           </button>
@@ -148,13 +156,14 @@ const Notificacoes = () => {
       {/* Header actions */}
       {notifications.length > 0 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-slate-500">
             {unreadCount > 0 ? `${unreadCount} não lida${unreadCount > 1 ? "s" : ""}` : "Tudo lido"}
           </p>
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors"
+              className="flex items-center gap-1.5 text-sm transition-colors hover:opacity-80"
+              style={{ color: "var(--club-700)" }}
             >
               <CheckCheck className="w-4 h-4" />
               Marcar todas como lidas
@@ -166,11 +175,11 @@ const Notificacoes = () => {
       {/* Empty state */}
       {!dataLoading && notifications.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-            <Bell className="w-8 h-8 text-muted-foreground" />
+          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+            <Bell className="w-8 h-8 text-slate-400" />
           </div>
-          <h3 className="font-display text-lg text-card-foreground mb-1">Nenhuma notificação</h3>
-          <p className="text-muted-foreground text-sm max-w-xs">
+          <h3 className="font-sans font-semibold text-lg text-slate-900 mb-1 normal-case">Nenhuma notificação</h3>
+          <p className="text-slate-500 text-sm max-w-xs">
             Suas notificações de agendamentos, cursos e pagamentos aparecerão aqui.
           </p>
         </div>
@@ -182,26 +191,30 @@ const Notificacoes = () => {
           <div
             key={notification.id}
             onClick={() => handleNotificationClick(notification)}
-            className={`flex items-start gap-3 p-4 rounded-xl border transition-colors cursor-pointer group ${
+            className="flex items-start gap-3 p-4 rounded-2xl border transition-colors cursor-pointer group bg-white"
+            style={
               notification.is_read
-                ? "bg-card border-border hover:border-muted-foreground/30"
-                : "bg-primary/5 border-primary/20 hover:border-primary/40"
-            }`}
+                ? { borderColor: "#e2e8f0" }
+                : { borderColor: "var(--club-200)", background: "var(--club-50)" }
+            }
           >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${getNotificationIconBg(notification.type)}`}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-slate-100">
               {getNotificationIcon(notification.type)}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2">
-                <p className={`text-sm font-medium ${notification.is_read ? "text-card-foreground" : "text-card-foreground"}`}>
+                <p className="text-sm font-medium text-slate-900">
                   {notification.title}
                 </p>
                 {!notification.is_read && (
-                  <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />
+                  <div
+                    className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5"
+                    style={{ background: "var(--club-600)" }}
+                  />
                 )}
               </div>
-              <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{notification.message}</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">
+              <p className="text-sm text-slate-600 mt-0.5 line-clamp-2">{notification.message}</p>
+              <p className="text-xs text-slate-400 mt-1">
                 {formatNotificationDate(notification.created_at)} · {format(parseISO(notification.created_at), "HH:mm")}
               </p>
             </div>
@@ -210,10 +223,10 @@ const Notificacoes = () => {
                 e.stopPropagation();
                 deleteNotification(notification.id);
               }}
-              className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-destructive/10 transition-all flex-shrink-0"
+              className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-50 transition-all flex-shrink-0"
               title="Excluir"
             >
-              <Trash2 className="w-4 h-4 text-destructive" />
+              <Trash2 className="w-4 h-4 text-red-500" />
             </button>
           </div>
         ))}
@@ -225,10 +238,9 @@ const Notificacoes = () => {
 
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header title="Notificações" />
+      <div className="min-h-screen bg-white">
+        <Header title="Notificações" hideSearch />
         <main className="pt-20 px-4 pb-28">
-          <h1 className="font-display text-xl text-card-foreground mb-4">Notificações</h1>
           <Content />
         </main>
         <BottomNav />

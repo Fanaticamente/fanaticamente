@@ -10,37 +10,24 @@ const Pagamentos = () => {
   const isMobile = useIsMobile();
 
   const PageContent = () => (
-    <div className="bg-gradient-to-b from-black via-neutral-950 to-black rounded-2xl p-6 md:p-8 space-y-10">
-      {/* Page Header */}
-      <div>
-        <h1 className="font-display text-2xl md:text-3xl uppercase tracking-wide text-white">
-          Pagamentos
-        </h1>
-        <p className="text-sm text-white/40 mt-1">
-          Gerencie assinaturas e visualize o histórico de transações
-        </p>
-      </div>
-
-      {/* Subscriptions Section */}
+    <div className="space-y-8">
       <section>
-        <div className="flex items-center gap-2 mb-5">
-          <Crown className="w-5 h-5 text-amber-500" />
-          <h2 className="font-display text-lg uppercase tracking-wide text-white">
+        <div className="flex items-center gap-2 mb-4">
+          <Crown className="w-5 h-5" style={{ color: "var(--club-600)" }} />
+          <h2 className="font-sans font-semibold text-lg text-slate-900 normal-case">
             Assinaturas
           </h2>
         </div>
         <MembershipSection />
       </section>
 
-      {/* Divider */}
-      <div className="border-t border-white/10" />
+      <div className="border-t border-slate-200" />
 
-      {/* Payments History Section */}
       <section>
-        <div className="flex items-center gap-2 mb-5">
-          <Receipt className="w-5 h-5 text-emerald-500" />
-          <h2 className="font-display text-lg uppercase tracking-wide text-white">
-            Extrato de Pagamentos
+        <div className="flex items-center gap-2 mb-4">
+          <Receipt className="w-5 h-5" style={{ color: "var(--club-600)" }} />
+          <h2 className="font-sans font-semibold text-lg text-slate-900 normal-case">
+            Extrato de pagamentos
           </h2>
         </div>
         <SessionPaymentsHistory />
@@ -50,9 +37,9 @@ const Pagamentos = () => {
 
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background pb-20">
-        <Header title="Pagamentos" />
-        <main className="container py-4 pt-20">
+      <div className="min-h-screen bg-white pb-20">
+        <Header title="Pagamentos" hideSearch />
+        <main className="px-4 pt-20 pb-8">
           <PageContent />
         </main>
         <BottomNav />
