@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Radio as RadioIcon, Play, Pause, MapPin, Loader2 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { useRadio, type RadioStation } from "@/contexts/RadioContext";
 
-const stations: RadioStation[] = [
+export const stations: RadioStation[] = [
   // São Paulo
   { id: 1, name: "Rádio Bandeirantes SP", state: "São Paulo", frequency: "90.9 FM", streamUrl: "https://playerservices.streamtheworld.com/api/livestream-redirect/RadioBandeirantesAAC.aac" },
   { id: 2, name: "Jovem Pan FM", state: "São Paulo", frequency: "100.9 FM", streamUrl: "https://stream.zeno.fm/c45wbq2us3buv" },
@@ -47,13 +48,17 @@ const states = [
 const Radio = () => {
   const { playingStation, isLoading, play } = useRadio();
   const [selectedState, setSelectedState] = useState("Todos");
+  const navigate = useNavigate();
 
   const filteredStations = stations.filter(
     (station) => selectedState === "Todos" || station.state === selectedState
   );
 
-  const handlePlayPause = (station: RadioStation) => {
-    play(station);
+  const handleStationClick = (station: RadioStation) => {
+    if (playingStation?.id !== station.id) {
+      play(station);
+    }
+    navigate(`/radio/${station.id}`);
   };
 
   return (
@@ -63,7 +68,8 @@ const Radio = () => {
       {/* Now Playing Bar - fixed at top below header */}
       {playingStation && (
         <div
-          className="fixed top-[calc(env(safe-area-inset-top)+60px)] left-0 right-0 z-40 p-3 flex items-center gap-4"
+          onClick={() => navigate(`/radio/${playingStation.id}`)}
+          className="fixed top-[calc(env(safe-area-inset-top)+56px)] left-0 right-0 z-40 p-3 flex items-center gap-4 cursor-pointer"
           style={{ background: "var(--club-600)", color: "var(--club-on)" }}
         >
           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
@@ -80,7 +86,7 @@ const Radio = () => {
             </p>
           </div>
           <button
-            onClick={() => play(playingStation)}
+            onClick={(e) => { e.stopPropagation(); play(playingStation); }}
             className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"
           >
             <Pause className="w-4 h-4" />
@@ -135,7 +141,7 @@ const Radio = () => {
             return (
               <button
                 key={station.id}
-                onClick={() => handlePlayPause(station)}
+                onClick={() => handleStationClick(station)}
                 className="w-full flex items-center gap-4 rounded-2xl p-4 transition-all border bg-white"
                 style={
                   active
