@@ -7,7 +7,7 @@ import jornadaLogo from "@/assets/logo-header-v3.png.asset.json";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
 import icCurso from "@/assets/Untitled_design-18.png.asset.json";
 import icEspecialista from "@/assets/Untitled_design-23.png.asset.json";
-import icRadio from "@/assets/Untitled_design-20.png.asset.json";
+import icRadio from "@/assets/ic-radio-v2.png.asset.json";
 import icNoticias from "@/assets/Untitled_design-21.png.asset.json";
 import icRanking from "@/assets/Untitled_design-22.png.asset.json";
 import { useAuth } from "@/contexts/AuthContext";
