@@ -71,6 +71,27 @@ const MinimalHome = () => {
     return () => clearInterval(t);
   }, []);
 
+  useEffect(() => {
+    if (!reasonOpen) return;
+    const root = document.documentElement;
+    const body = document.body;
+    const rootEl = document.getElementById("root");
+    const prevHtml = root.style.backgroundColor;
+    const prevBody = body.style.backgroundColor;
+    const prevRoot = rootEl?.style.backgroundColor ?? "";
+
+    const clubColor = getComputedStyle(root).getPropertyValue("--club-600").trim();
+    root.style.backgroundColor = clubColor || "#237B0E";
+    body.style.backgroundColor = clubColor || "#237B0E";
+    if (rootEl) rootEl.style.backgroundColor = clubColor || "#237B0E";
+
+    return () => {
+      root.style.backgroundColor = prevHtml;
+      body.style.backgroundColor = prevBody;
+      if (rootEl) rootEl.style.backgroundColor = prevRoot;
+    };
+  }, [reasonOpen]);
+
   const { data: profile } = useQuery({
     queryKey: ["mh-profile", user?.id],
     enabled: !!user,
