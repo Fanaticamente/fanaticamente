@@ -13,6 +13,7 @@ import BottomNav from "@/components/layout/BottomNav";
 import Header from "@/components/layout/Header";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import MoodFace, { type MoodVariant } from "@/components/MoodFace";
 
 const MOOD_SCORES: Record<string, number> = {
   otimo: 100, bem: 80, muito_bem: 90, neutro: 60, mais_ou_menos: 55,
@@ -154,13 +155,16 @@ const BemEstar = () => {
   const todayPoint = todayIdx >= 0 ? series[todayIdx] : null;
 
   // Emoji tiers used by both chart Y-axis and legend
-  const MOOD_TIERS = [
-    { value: 100, label: "Ótimo", emoji: "😄" },
-    { value: 75, label: "Bem", emoji: "🙂" },
-    { value: 50, label: "Neutro", emoji: "😐" },
-    { value: 25, label: "Chateado", emoji: "😟" },
-    { value: 0, label: "Mal", emoji: "😢" },
+  const MOOD_TIERS: { value: number; label: string; variant: MoodVariant }[] = [
+    { value: 100, label: "Ótimo", variant: "happy" },
+    { value: 75, label: "Bem", variant: "calm" },
+    { value: 50, label: "Neutro", variant: "meh" },
+    { value: 25, label: "Chateado", variant: "worried" },
+    { value: 0, label: "Mal", variant: "sad" },
   ];
+
+  const variantForValue = (v: number): MoodVariant =>
+    [...MOOD_TIERS].sort((a, b) => Math.abs(a.value - v) - Math.abs(b.value - v))[0].variant;
 
   // Details: last 7 days grouped, last 4 weeks grouped, and full history
   const details = useMemo(() => {
@@ -250,41 +254,22 @@ const BemEstar = () => {
 
       {/* Balance card */}
       <section className="mx-4 mt-4 rounded-3xl bg-white border border-slate-200 shadow-sm p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2
-              className="font-sans text-lg font-bold text-slate-900 !normal-case"
-              style={{ textTransform: "none" }}
-            >
-              Seu equilíbrio emocional
-            </h2>
-            <p className="text-5xl font-extrabold text-[var(--club-600)] mt-2 leading-none">
-              {avg}%
-            </p>
-            <p className="text-sm text-slate-500 mt-3 max-w-[15rem] leading-snug">
-              {message}
-            </p>
-          </div>
-          <div className="relative w-24 h-24 shrink-0">
-            <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-              <circle cx="50" cy="50" r="42" stroke="#dcfce7" strokeWidth="10" fill="none" />
-              <circle
-                cx="50" cy="50" r="42"
-                stroke="#16a34a" strokeWidth="10" fill="none"
-                strokeDasharray={`${(avg / 100) * 264} 264`}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center text-3xl">
-              {avg >= 70 ? "🙂" : avg >= 40 ? "😐" : "🙁"}
-            </div>
-          </div>
+        <div>
+          <h2
+            className="font-sans text-lg font-bold text-slate-900 !normal-case"
+            style={{ textTransform: "none" }}
+          >
+            Seu balanço emocional
+          </h2>
+          <p className="text-sm text-slate-500 mt-1 leading-snug">
+            Veja o equilíbrio ou a variação das suas emoções.
+          </p>
         </div>
 
-        <div className="mt-5 h-[240px] -mx-2">
+        <div className="mt-5 h-[260px] -mx-2 text-[var(--club-600)]">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={series} margin={{ top: 12, right: 16, left: 8, bottom: 4 }}>
-              <CartesianGrid stroke="#e2e8f0" strokeDasharray="4 4" />
+            <LineChart data={series} margin={{ top: 18, right: 20, left: 12, bottom: 4 }}>
+              <CartesianGrid stroke="#eef2f7" strokeDasharray="3 6" vertical={false} />
               <XAxis
                 dataKey="label"
                 axisLine={false}
@@ -310,14 +295,17 @@ const BemEstar = () => {
                 ticks={[0, 25, 50, 75, 100]}
                 axisLine={false}
                 tickLine={false}
-                width={36}
+                width={42}
                 tick={(props) => {
                   const { x, y, payload } = props;
                   const tier = MOOD_TIERS.find((t) => t.value === payload.value);
+                  if (!tier) return <g />;
                   return (
-                    <text x={x - 4} y={y + 5} textAnchor="middle" fontSize={16}>
-                      {tier?.emoji ?? ""}
-                    </text>
+                    <foreignObject x={x - 22} y={y - 12} width={24} height={24}>
+                      <div style={{ color: "var(--club-600)" }}>
+                        <MoodFace variant={tier.variant} size={22} />
+                      </div>
+                    </foreignObject>
                   );
                 }}
               />
@@ -329,26 +317,37 @@ const BemEstar = () => {
                 formatter={(v: number) => {
                   const tier = [...MOOD_TIERS]
                     .sort((a, b) => Math.abs(a.value - v) - Math.abs(b.value - v))[0];
-                  return [`${tier.emoji} ${tier.label}`, "Sentimento"];
+                  return [tier.label, "Sentimento"];
                 }}
               />
               <Line
-                type="monotone"
+                type="natural"
                 dataKey="value"
                 stroke="var(--club-600)"
-                strokeWidth={3}
-                dot={{ r: 5, fill: "#fff", stroke: "var(--club-600)", strokeWidth: 2.5 }}
-                activeDot={{ r: 7, fill: "var(--club-600)", stroke: "#fff", strokeWidth: 2 }}
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                dot={(props: any) => {
+                  const { cx, cy, value, index } = props;
+                  if (value == null || cx == null || cy == null) return <g key={`d-${index}`} />;
+                  return (
+                    <foreignObject key={`d-${index}`} x={cx - 12} y={cy - 12} width={24} height={24}>
+                      <div style={{ color: "var(--club-600)" }}>
+                        <MoodFace variant={variantForValue(value)} size={24} />
+                      </div>
+                    </foreignObject>
+                  );
+                }}
+                activeDot={false}
                 connectNulls
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 justify-center">
+        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 justify-center text-[var(--club-600)]">
           {MOOD_TIERS.map((t) => (
             <div key={t.value} className="flex items-center gap-1 text-xs text-slate-500">
-              <span className="text-sm leading-none">{t.emoji}</span>
+              <MoodFace variant={t.variant} size={16} />
               <span>{t.label}</span>
             </div>
           ))}
@@ -496,8 +495,8 @@ const BemEstar = () => {
                             key={e.entry_date + (e.created_at ?? "")}
                             className="flex items-center gap-3 rounded-2xl border border-slate-200 p-3"
                           >
-                            <div className="w-10 h-10 rounded-full bg-[var(--club-50)] flex items-center justify-center text-xl shrink-0">
-                              {tier.emoji}
+                            <div className="w-10 h-10 rounded-full bg-[var(--club-50)] text-[var(--club-600)] flex items-center justify-center shrink-0">
+                              <MoodFace variant={tier.variant} size={26} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-semibold text-slate-900">
