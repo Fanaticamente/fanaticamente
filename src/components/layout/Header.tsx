@@ -1,5 +1,7 @@
 import { ArrowLeft, Search } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import GlobalSearchDialog from "@/components/search/GlobalSearchDialog";
 
 interface HeaderProps {
   title?: string;
@@ -10,6 +12,7 @@ interface HeaderProps {
 // The home page uses HomeFloatingActions instead of this component.
 const Header = ({ title, hideSearch = false }: HeaderProps) => {
   const navigate = useNavigate();
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const handleBack = () => {
     if (window.history.length > 1) navigate(-1);
@@ -37,11 +40,13 @@ const Header = ({ title, hideSearch = false }: HeaderProps) => {
       ) : (
         <button
           aria-label="Buscar"
+          onClick={() => setSearchOpen(true)}
           className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-700"
         >
           <Search className="w-5 h-5" />
         </button>
       )}
+      <GlobalSearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 };
