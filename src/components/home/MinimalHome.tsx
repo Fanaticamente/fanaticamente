@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, differenceInCalendarDays } from "date-fns";
@@ -226,13 +227,13 @@ const MinimalHome = () => {
         </div>
       </section>
 
-      {reasonOpen && selected && (
+      {reasonOpen && selected && createPortal(
         <div
-          className="fixed inset-0 z-[80] flex flex-col text-white bg-[var(--club-600)]"
-          style={{ minHeight: "100dvh" }}
+          className="fixed inset-0 z-[9999] flex flex-col text-white bg-[var(--club-600)] overflow-hidden"
+          style={{ height: "100dvh", width: "100vw", top: 0, left: 0 }}
         >
           <div
-            className="flex items-center gap-3 px-4"
+            className="flex items-center gap-3 px-4 pb-3 bg-[var(--club-600)]"
             style={{ paddingTop: "calc(env(safe-area-inset-top) + 12px)" }}
           >
             <button
@@ -294,7 +295,8 @@ const MinimalHome = () => {
               </button>
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Sugestões carrossel */}
