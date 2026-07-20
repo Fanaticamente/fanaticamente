@@ -85,7 +85,7 @@ if (typeof window !== "undefined") {
 }
 
 export const ClubThemeProvider = ({ children }: { children: ReactNode }) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [clubId, setClubId] = useState<string | null>(() => {
     try { return localStorage.getItem("club-theme:clubId"); } catch { return null; }
   });
@@ -94,6 +94,9 @@ export const ClubThemeProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      // During session hydration `user` is temporarily null. Keep the cached
+      // club theme on screen instead of replacing it with the brand fallback.
+      if (authLoading) return;
       if (!user) {
         if (!cancelled) {
           setClubId(null);
@@ -117,7 +120,7 @@ export const ClubThemeProvider = ({ children }: { children: ReactNode }) => {
     }
     load();
     return () => { cancelled = true; };
-  }, [user, tick]);
+  }, [user, authLoading, tick]);
 
   const primaryColor = useMemo(() => {
     if (!clubId) return FALLBACK_PRIMARY;
