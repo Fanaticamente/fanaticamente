@@ -46,6 +46,7 @@ import Diario from "./pages/Diario";
 import MinhaTemporada from "./pages/MinhaTemporada";
 import BemEstar from "./pages/BemEstar";
 import Radio from "./pages/Radio";
+import RadioStation from "./pages/RadioStation";
 import Futebol from "./pages/Futebol";
 import Perfil from "./pages/Perfil";
 import EditarPerfil from "./pages/EditarPerfil";
@@ -146,6 +147,7 @@ const App = () => {
               <Route path="/curso/:id" element={<CursoDetalhe />} />
               <Route path="/quiz" element={<Quiz />} />
               <Route path="/radio" element={<Radio />} />
+              <Route path="/radio/:id" element={<RadioStation />} />
               <Route path="/futebol" element={<Futebol />} />
               <Route path="/comunidade" element={<Comunidade />} />
               <Route path="/loja" element={<FanaticaShop />} />
@@ -199,6 +201,7 @@ const App = () => {
                 <Route path="/meus-cursos" element={<ProtectedRoute><MeusCursos /></ProtectedRoute>} />
                 <Route path="/quiz" element={<DynamicProtectedRoute pageId="quiz"><Quiz /></DynamicProtectedRoute>} />
                 <Route path="/radio" element={<DynamicProtectedRoute pageId="radio"><Radio /></DynamicProtectedRoute>} />
+                <Route path="/radio/:id" element={<DynamicProtectedRoute pageId="radio"><RadioStation /></DynamicProtectedRoute>} />
                 <Route path="/futebol" element={<DynamicProtectedRoute pageId="futebol"><Futebol /></DynamicProtectedRoute>} />
                 <Route path="/comunidade" element={<DynamicProtectedRoute pageId="ranking"><Comunidade /></DynamicProtectedRoute>} />
                 <Route path="/loja" element={<DynamicProtectedRoute pageId="loja"><FanaticaShop /></DynamicProtectedRoute>} />
