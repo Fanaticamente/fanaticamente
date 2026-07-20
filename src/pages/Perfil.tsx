@@ -88,16 +88,41 @@ const Perfil = () => {
         return;
       }
 
-      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-      const filePath = `avatars/${user.id}.${fileExt}`;
+      // Normalize to JPEG to avoid HEIC/HEIF from iPhone (browsers can't
+      // decode HEIC to display later) and to standardize the storage key.
+      let uploadBlob: Blob = file;
+      let contentType = file.type || "image/jpeg";
+      try {
+        const bitmap = await createImageBitmap(file);
+        const canvas = document.createElement("canvas");
+        const maxDim = 1024;
+        const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+        canvas.width = Math.round(bitmap.width * scale);
+        canvas.height = Math.round(bitmap.height * scale);
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+          const blob: Blob | null = await new Promise((res) =>
+            canvas.toBlob((b) => res(b), "image/jpeg", 0.9),
+          );
+          if (blob) {
+            uploadBlob = blob;
+            contentType = "image/jpeg";
+          }
+        }
+      } catch (convErr) {
+        console.warn("[Avatar] Não foi possível normalizar a imagem, enviando original.", convErr);
+      }
+
+      const filePath = `avatars/${user.id}.jpg`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, uploadBlob, { upsert: true, contentType });
 
       if (uploadError) {
-        toast.error("Erro ao enviar foto");
-        console.error(uploadError);
+        console.error("[Avatar] Upload error:", uploadError);
+        toast.error(uploadError.message || "Erro ao enviar foto. Tente outra imagem (.jpg ou .png).");
         return;
       }
 
@@ -105,9 +130,12 @@ const Perfil = () => {
         .from('avatars')
         .getPublicUrl(filePath);
 
+      // Cache-buster so the new image shows up immediately.
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ avatar_url: urlData.publicUrl })
+        .update({ avatar_url: publicUrl })
         .eq('user_id', user.id);
 
       if (updateError) {
@@ -115,7 +143,7 @@ const Perfil = () => {
         return;
       }
 
-      setProfile(prev => prev ? { ...prev, avatar_url: urlData.publicUrl } : prev);
+      setProfile(prev => prev ? { ...prev, avatar_url: publicUrl } : prev);
       toast.success("Foto atualizada!");
     } catch (error) {
       console.error("Avatar upload error:", error);
