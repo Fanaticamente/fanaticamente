@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import { ChevronRight, TrendingUp, X } from "lucide-react";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
@@ -350,8 +351,8 @@ const Comunidade = () => {
       <BottomNav />
 
       {/* First-time ranking info */}
-      {showInfo && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-6">
+      {showInfo && createPortal(
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-6">
           <div className="bg-white rounded-3xl shadow-xl max-w-sm w-full p-6 relative font-sans">
             <button
               type="button"
@@ -391,7 +392,8 @@ const Comunidade = () => {
               Entendi, não mostrar novamente
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
