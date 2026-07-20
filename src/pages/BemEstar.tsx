@@ -15,6 +15,78 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { cn } from "@/lib/utils";
 import MoodFace, { type MoodVariant } from "@/components/MoodFace";
 
+// Small donut showing distribution of emotions in the selected range,
+// with a MoodFace at the center reflecting the average balance.
+const BalanceDonut = ({
+  size = 78,
+  segments,
+  total,
+  centerVariant,
+}: {
+  size?: number;
+  segments: { value: number; opacity: number }[];
+  total: number;
+  centerVariant: MoodVariant;
+}) => {
+  const stroke = 10;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const gap = 2; // px gap between segments
+
+  let offset = 0;
+  const active = segments.filter((s) => s.value > 0);
+  const arcs =
+    total > 0
+      ? active.map((s, i) => {
+          const len = (s.value / total) * c - (active.length > 1 ? gap : 0);
+          const el = (
+            <circle
+              key={i}
+              cx={size / 2}
+              cy={size / 2}
+              r={r}
+              fill="none"
+              stroke="currentColor"
+              strokeOpacity={s.opacity}
+              strokeWidth={stroke}
+              strokeDasharray={`${Math.max(len, 0)} ${c}`}
+              strokeDashoffset={-offset}
+              strokeLinecap="round"
+            />
+          );
+          offset += len + gap;
+          return el;
+        })
+      : null;
+
+  const inner = size - stroke * 2 - 6;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(-90deg)" }}>
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity={0.1}
+        strokeWidth={stroke}
+      />
+      {arcs}
+      <foreignObject
+        x={(size - inner) / 2}
+        y={(size - inner) / 2}
+        width={inner}
+        height={inner}
+        style={{ transform: "rotate(90deg)", transformOrigin: "center" }}
+      >
+        <div className="w-full h-full flex items-center justify-center">
+          <MoodFace variant={centerVariant} size={inner - 4} />
+        </div>
+      </foreignObject>
+    </svg>
+  );
+};
+
 const MOOD_SCORES: Record<string, number> = {
   // Current check-in ids
   muito_bem: 100,
