@@ -8,13 +8,17 @@ interface Props {
   size?: number;
   /** CSS color for the face (stroke + subtle fill). Defaults to currentColor. */
   color?: string;
+  /** Override color for the outer ring around the face. */
+  ringColor?: string;
+  /** Override stroke width for the outer ring. */
+  ringWidth?: number;
 }
 
 /**
  * Flat, editorial round-face illustration. Single color, varies only by expression.
  * Uses currentColor so it inherits from parent (e.g. text-[var(--club-600)]).
  */
-const MoodFace = ({ variant, className, size = 28, color }: Props) => {
+const MoodFace = ({ variant, className, size = 28, color, ringColor, ringWidth }: Props) => {
   const stroke = color ?? "currentColor";
   const sw = 2.2;
   const common = {
@@ -85,7 +89,15 @@ const MoodFace = ({ variant, className, size = 28, color }: Props) => {
       role="img"
       aria-hidden="true"
     >
-      <circle cx="16" cy="16" r="13" fill={stroke} fillOpacity={0.12} stroke={stroke} strokeWidth={sw} />
+      <circle
+        cx="16"
+        cy="16"
+        r="13"
+        fill={stroke}
+        fillOpacity={0.12}
+        stroke={ringColor ?? stroke}
+        strokeWidth={ringWidth ?? sw}
+      />
       {parts}
     </svg>
   );
