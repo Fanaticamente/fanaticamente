@@ -9,8 +9,8 @@ const GlobalRadioPlayer = () => {
 
   // Don't render on the radio page itself (it has its own inline player bar)
   if (!playingStation) return null;
-  // On the radio pages the inline top bar is already rendered.
-  if (location.pathname === "/radio" || location.pathname.startsWith("/radio/")) return null;
+  // Radio list page has its own inline top bar.
+  if (location.pathname === "/radio") return null;
 
   return (
     <>
