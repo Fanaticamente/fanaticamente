@@ -306,14 +306,14 @@ const Terapeutas = () => {
             <div className="relative mb-6">
               <div className="pr-24">
                 <h1 className="font-sans font-bold text-[28px] leading-tight text-gray-900 normal-case">
-                  Selecione <span className="text-emerald-500">seu time</span>
+                  Selecione <span className="text-[var(--club-600)]">seu time</span>
                 </h1>
                 <p className="mt-1 text-gray-500 text-[15px]">
                   Escolha o time do coração
                 </p>
               </div>
-              <div className="absolute top-0 right-0 w-20 h-20 rounded-full bg-emerald-50/60 flex items-center justify-center">
-                <Shirt className="w-12 h-12 text-emerald-500" strokeWidth={1.5} />
+              <div className="absolute top-0 right-0 w-20 h-20 rounded-full bg-[var(--club-50)] flex items-center justify-center">
+                <Shirt className="w-12 h-12 text-[var(--club-600)]" strokeWidth={1.5} />
               </div>
             </div>
 
@@ -326,7 +326,7 @@ const Terapeutas = () => {
                   className={cn(
                     "flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all",
                     selectedLeague === league
-                      ? "bg-white text-emerald-500 shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
+                      ? "bg-white text-[var(--club-600)] shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
                       : "bg-transparent text-gray-400"
                   )}
                 >
@@ -355,7 +355,7 @@ const Terapeutas = () => {
                     <p
                       className={cn(
                         "font-medium text-[13px] leading-tight normal-case",
-                        isSelected ? "text-emerald-500" : "text-gray-800"
+                        isSelected ? "text-[var(--club-600)]" : "text-gray-800"
                       )}
                     >
                       {club.name}
