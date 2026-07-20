@@ -131,6 +131,7 @@ const App = () => {
     <TooltipProvider>
       {isEmbedMode() ? (
         <AuthProvider>
+          <ClubThemeProvider>
           <RadioProvider>
           <BrowserRouter>
             <Toaster />
@@ -164,9 +165,11 @@ const App = () => {
             </Routes>
           </BrowserRouter>
           </RadioProvider>
+          </ClubThemeProvider>
         </AuthProvider>
       ) : (
         <AuthProvider>
+          <ClubThemeProvider>
           <RadioProvider>
           <BrowserRouter>
             <AppProviders>
@@ -249,6 +252,7 @@ const App = () => {
             </AppProviders>
           </BrowserRouter>
           </RadioProvider>
+          </ClubThemeProvider>
         </AuthProvider>
       )}
     </TooltipProvider>
