@@ -264,7 +264,8 @@
     background-color: #ffffff !important;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: none;
+    /* Allow a small rubber-band stretch (~5cm) instead of a fully rigid feel */
+    overscroll-behavior-y: auto;
     overscroll-behavior-x: none;
   }
 
