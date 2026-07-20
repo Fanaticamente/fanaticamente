@@ -10,18 +10,33 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      style={
+        {
+          "--normal-bg": "var(--club-primary)",
+          "--normal-text": "var(--club-on)",
+          "--normal-border": "var(--club-primary)",
+          "--success-bg": "var(--club-primary)",
+          "--success-text": "var(--club-on)",
+          "--success-border": "var(--club-primary)",
+          "--error-bg": "var(--club-primary)",
+          "--error-text": "var(--club-on)",
+          "--error-border": "var(--club-primary)",
+          "--info-bg": "var(--club-primary)",
+          "--info-text": "var(--club-on)",
+          "--info-border": "var(--club-primary)",
+          "--warning-bg": "var(--club-primary)",
+          "--warning-text": "var(--club-on)",
+          "--warning-border": "var(--club-primary)",
+        } as React.CSSProperties
+      }
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-therapy group-[.toaster]:text-therapy-foreground group-[.toaster]:border-therapy group-[.toaster]:shadow-lg",
-          title: "group-[.toast]:!text-therapy-foreground",
-          description: "group-[.toast]:!text-therapy-foreground/90",
-          actionButton: "group-[.toast]:bg-white group-[.toast]:text-therapy",
-          cancelButton: "group-[.toast]:bg-white/20 group-[.toast]:text-therapy-foreground",
-          error: "group-[.toaster]:!bg-therapy group-[.toaster]:!text-therapy-foreground",
-          warning: "group-[.toaster]:!bg-therapy group-[.toaster]:!text-therapy-foreground",
-          success: "group-[.toaster]:!bg-therapy group-[.toaster]:!text-therapy-foreground",
-          info: "group-[.toaster]:!bg-therapy group-[.toaster]:!text-therapy-foreground",
+            "group toast shadow-lg",
+          title: "",
+          description: "opacity-90",
+          actionButton: "group-[.toast]:bg-white/95 group-[.toast]:text-black",
+          cancelButton: "group-[.toast]:bg-white/20",
         },
       }}
       {...props}
