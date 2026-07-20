@@ -200,7 +200,7 @@ const MinimalHome = () => {
         </div>
         <h2 className="font-sans mt-1.5 text-xl font-bold normal-case">Como você está hoje?</h2>
         <p className="text-sm text-slate-500 mt-1">
-          Sua resposta nos ajuda a cuidar de você melhor.
+          Cada dia é uma rodada!
         </p>
 
         <div className="grid grid-cols-5 gap-2 mt-4">
