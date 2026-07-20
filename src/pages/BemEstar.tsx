@@ -384,7 +384,7 @@ const BemEstar = () => {
           >
             Seu balanço emocional
           </h2>
-          <p className="text-sm text-slate-500 mt-1 leading-snug">
+          <p className="text-xs text-slate-500 mt-1 leading-snug">
             Veja o equilíbrio ou a variação das suas emoções.
           </p>
           </div>
