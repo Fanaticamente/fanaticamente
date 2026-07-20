@@ -48,7 +48,7 @@ const MatchExpectationCard = ({ userClubId }: MatchExpectationCardProps) => {
       {
         onSuccess: () => {
           setSaved(true);
-          toast.success("Expectativa registrada!");
+          toast.success("Atividade concluída! +1 ponto");
         },
       }
     );
