@@ -11,6 +11,7 @@ import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
 import { getClubById, BrazilianClub } from "@/data/brazilianClubs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getDisplayAuthEmail } from "@/lib/appMode";
+import { uploadProfessionalFile } from "@/lib/professionalUploads";
 
 const Perfil = () => {
   const { user, roles, signOut, hasRole, loading } = useAuth();
@@ -88,50 +89,11 @@ const Perfil = () => {
         return;
       }
 
-      // Normalize to JPEG to avoid HEIC/HEIF from iPhone (browsers can't
-      // decode HEIC to display later) and to standardize the storage key.
-      let uploadBlob: Blob = file;
-      let contentType = file.type || "image/jpeg";
-      try {
-        const bitmap = await createImageBitmap(file);
-        const canvas = document.createElement("canvas");
-        const maxDim = 1024;
-        const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
-        canvas.width = Math.round(bitmap.width * scale);
-        canvas.height = Math.round(bitmap.height * scale);
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-          const blob: Blob | null = await new Promise((res) =>
-            canvas.toBlob((b) => res(b), "image/jpeg", 0.9),
-          );
-          if (blob) {
-            uploadBlob = blob;
-            contentType = "image/jpeg";
-          }
-        }
-      } catch (convErr) {
-        console.warn("[Avatar] Não foi possível normalizar a imagem, enviando original.", convErr);
-      }
-
-      const filePath = `avatars/${user.id}.jpg`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, uploadBlob, { upsert: true, contentType });
-
-      if (uploadError) {
-        console.error("[Avatar] Upload error:", uploadError);
-        toast.error(uploadError.message || "Erro ao enviar foto. Tente outra imagem (.jpg ou .png).");
-        return;
-      }
-
-      const { data: urlData } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-      // Cache-buster so the new image shows up immediately.
-      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      // Upload through the authenticated server action. It validates the
+      // session and writes with server credentials, avoiding client Storage
+      // policy/path mismatches while keeping ownership derived from the JWT.
+      const { url } = await uploadProfessionalFile(file, "avatar");
+      const publicUrl = `${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`;
 
       const { error: updateError } = await supabase
         .from('profiles')
@@ -147,7 +109,7 @@ const Perfil = () => {
       toast.success("Foto atualizada!");
     } catch (error) {
       console.error("Avatar upload error:", error);
-      toast.error("Erro ao processar a imagem. Tente selecionar uma foto da galeria.");
+      toast.error(error instanceof Error ? error.message : "Erro ao processar a imagem. Tente selecionar uma foto da galeria.");
     } finally {
       // Reset the input to allow re-selection
       e.target.value = '';
