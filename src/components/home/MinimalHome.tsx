@@ -23,7 +23,7 @@ const MOODS = [
   { id: "irritado", emoji: "😠", label: "Irritado",        bg: "bg-rose-100",    ring: "ring-rose-400" },
 ];
 
-const REASON_GROUPS: { title: string; items: string[] }[] = [
+const REASON_GROUPS_BASE: { title: string; items: string[] }[] = [
   { title: "Carreira e Estudos", items: ["Carreira e Estudos", "Produtividade", "Relações profissionais", "Salário"] },
   { title: "Emocional", items: ["Controle emocional", "Medos e fobias", "Mudanças", "Traumas"] },
   { title: "Família e Amigos", items: ["Amigos", "Familiares", "Filhos", "Pais"] },
@@ -31,6 +31,16 @@ const REASON_GROUPS: { title: string; items: string[] }[] = [
   { title: "Saúde e Bem Estar", items: ["Alimentação", "Corpo", "Doente", "Dor física", "Estudos", "Exercícios físicos / Esportes", "Hábitos", "Meditação", "Sono", "Vícios"] },
   { title: "Vida Amorosa", items: ["Orientação sexual", "Relacionamento amoroso", "Sexo"] },
 ];
+
+const GOOD_MOODS = ["muito_bem"];
+
+const getReasonGroups = (moodId: string | null) => {
+  const isGood = moodId ? GOOD_MOODS.includes(moodId) : false;
+  const meuClubeItems = isGood
+    ? ["Vitória", "Goleada aplicada", "Vitória no clássico", "Classificação", "Título", "Derrota do rival"]
+    : ["Derrotas", "Empate", "Goleada sofrida", "Derrota no clássico", "Desclassificação", "Perda de título", "Vitória do rival"];
+  return [{ title: "Meu Clube", items: meuClubeItems }, ...REASON_GROUPS_BASE];
+};
 
 const SUGGESTIONS = [
   { img: icCampo.url,        kicker: "Sugestão para você", title: "Campo das emoções",                         subtitle: "Escale seu time e gere uma reflexão", path: "/diario" },
@@ -60,6 +70,27 @@ const MinimalHome = () => {
     }, 4500);
     return () => clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    if (!reasonOpen) return;
+    const root = document.documentElement;
+    const body = document.body;
+    const rootEl = document.getElementById("root");
+    const prevHtml = root.style.backgroundColor;
+    const prevBody = body.style.backgroundColor;
+    const prevRoot = rootEl?.style.backgroundColor ?? "";
+
+    const clubColor = getComputedStyle(root).getPropertyValue("--club-600").trim();
+    root.style.backgroundColor = clubColor || "#237B0E";
+    body.style.backgroundColor = clubColor || "#237B0E";
+    if (rootEl) rootEl.style.backgroundColor = clubColor || "#237B0E";
+
+    return () => {
+      root.style.backgroundColor = prevHtml;
+      body.style.backgroundColor = prevBody;
+      if (rootEl) rootEl.style.backgroundColor = prevRoot;
+    };
+  }, [reasonOpen]);
 
   const { data: profile } = useQuery({
     queryKey: ["mh-profile", user?.id],
@@ -197,8 +228,8 @@ const MinimalHome = () => {
 
       {reasonOpen && selected && (
         <div
-          className="fixed inset-0 z-[80] flex flex-col text-white"
-          style={{ background: "var(--club-600)" }}
+          className="fixed inset-0 z-[80] flex flex-col text-white bg-[var(--club-600)]"
+          style={{ minHeight: "100dvh" }}
         >
           <div
             className="flex items-center gap-3 px-4"
@@ -212,12 +243,12 @@ const MinimalHome = () => {
               <ChevronRight className="w-6 h-6 rotate-180 text-white" />
             </button>
             <h2 className="font-sans text-lg font-bold normal-case flex-1">
-              Qual o motivo do sentimento?
+              De onde vem este sentimento?
             </h2>
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32">
-            {REASON_GROUPS.map((g) => (
+            {getReasonGroups(selected).map((g) => (
               <div key={g.title} className="mt-4 first:mt-0">
                 <h3 className="text-center font-sans font-bold text-white/85 normal-case mb-3">
                   {g.title}
@@ -249,18 +280,20 @@ const MinimalHome = () => {
             ))}
           </div>
 
-          <div
-            className="absolute inset-x-0 bottom-0 px-4 pt-3 bg-gradient-to-t from-[var(--club-700)] to-transparent"
-            style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
-          >
-            <button
-              disabled={checkinMutation.isPending || reasons.length === 0}
-              onClick={() => checkinMutation.mutate({ moodId: selected, note: reasons.join(", ") })}
-              className="w-full py-3.5 rounded-2xl bg-white text-[var(--club-700)] font-bold text-sm transition disabled:opacity-60"
+          {reasons.length > 0 && (
+            <div
+              className="absolute inset-x-0 bottom-0 px-4 pt-3 bg-gradient-to-t from-[var(--club-700)] to-transparent"
+              style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
             >
-              {checkinMutation.isPending ? "Registrando…" : "Confirmar"}
-            </button>
-          </div>
+              <button
+                disabled={checkinMutation.isPending}
+                onClick={() => checkinMutation.mutate({ moodId: selected, note: reasons.join(", ") })}
+                className="w-full py-3.5 rounded-2xl bg-white text-[var(--club-700)] font-bold text-sm transition disabled:opacity-60"
+              >
+                {checkinMutation.isPending ? "Registrando…" : "Confirmar"}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
