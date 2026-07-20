@@ -82,7 +82,7 @@ const BalanceDonut = ({
       <div
         className="absolute inset-0 flex items-center justify-center pointer-events-none"
       >
-        <MoodFace variant={centerVariant} size={inner} />
+        <MoodFace variant={centerVariant} size={inner} ringColor="var(--club-200)" ringWidth={1.2} />
       </div>
     </div>
   );
