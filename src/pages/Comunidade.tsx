@@ -85,7 +85,13 @@ const Comunidade = () => {
         {tab === "ranking" && (
           <>
             {/* Weekly challenge banner */}
-            <div className="relative overflow-hidden rounded-3xl p-5 mb-5 text-white" style={{ background: "linear-gradient(135deg, #1f6b3a 0%, #14532d 100%)" }}>
+            <div
+              className="relative overflow-hidden rounded-3xl p-5 mb-5"
+              style={{
+                background: "linear-gradient(135deg, var(--club-500) 0%, var(--club-700) 100%)",
+                color: "var(--club-on)",
+              }}
+            >
               <div className="relative z-10 max-w-[60%]">
                 <p className="text-sm/tight opacity-90 font-medium">Em breve</p>
                 <h2 className="text-2xl font-bold leading-tight mt-1">DESAFIOS DE AUTOCUIDADO</h2>
@@ -94,7 +100,7 @@ const Comunidade = () => {
                   Em breve
                 </button>
               </div>
-              <Trophy className="absolute right-2 bottom-2 w-32 h-32 text-white/25" strokeWidth={1.2} />
+              <Trophy className="absolute right-2 bottom-2 w-32 h-32 opacity-25" strokeWidth={1.2} style={{ color: "var(--club-on)" }} />
             </div>
 
             {/* Brasileirão card */}
