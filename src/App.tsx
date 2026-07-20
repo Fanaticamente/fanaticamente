@@ -76,7 +76,6 @@ import PsiHouse from "./pages/PsiHouse";
 import Conecta from "./pages/Conecta";
 import OSMF from "./pages/OSMF";
 import ZonaMista from "./pages/ZonaMista";
-import Ranking from "./pages/Ranking";
 import Comunidade from "./pages/Comunidade";
 import Notificacoes from "./pages/Notificacoes";
 import VerificarRecibo from "./pages/VerificarRecibo";
@@ -147,7 +146,6 @@ const App = () => {
               <Route path="/quiz" element={<Quiz />} />
               <Route path="/radio" element={<Radio />} />
               <Route path="/futebol" element={<Futebol />} />
-              <Route path="/ranking" element={<Ranking />} />
               <Route path="/comunidade" element={<Comunidade />} />
               <Route path="/loja" element={<FanaticaShop />} />
               <Route path="/loja/produto/:id" element={<ProductDetail />} />
@@ -201,7 +199,6 @@ const App = () => {
                 <Route path="/quiz" element={<DynamicProtectedRoute pageId="quiz"><Quiz /></DynamicProtectedRoute>} />
                 <Route path="/radio" element={<DynamicProtectedRoute pageId="radio"><Radio /></DynamicProtectedRoute>} />
                 <Route path="/futebol" element={<DynamicProtectedRoute pageId="futebol"><Futebol /></DynamicProtectedRoute>} />
-                <Route path="/ranking" element={<DynamicProtectedRoute pageId="ranking"><Ranking /></DynamicProtectedRoute>} />
                 <Route path="/comunidade" element={<DynamicProtectedRoute pageId="ranking"><Comunidade /></DynamicProtectedRoute>} />
                 <Route path="/loja" element={<DynamicProtectedRoute pageId="loja"><FanaticaShop /></DynamicProtectedRoute>} />
                 <Route path="/loja/produto/:id" element={<DynamicProtectedRoute pageId="loja"><ProductDetail /></DynamicProtectedRoute>} />
