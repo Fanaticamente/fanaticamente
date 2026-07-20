@@ -58,8 +58,6 @@ const Comunidade = () => {
     if (searchParams.get("openClubs") === "1") {
       setTab("ranking");
       setShowClubsFull(true);
-      const dismissed = localStorage.getItem("comunidade-ranking-info-dismissed");
-      if (!dismissed) setShowInfo(true);
       searchParams.delete("openClubs");
       setSearchParams(searchParams, { replace: true });
     }
@@ -70,6 +68,24 @@ const Comunidade = () => {
       setSearchParams(searchParams, { replace: true });
     }
   }, [searchParams, setSearchParams]);
+
+  const openClubsTable = () => {
+    setShowClubsFull(true);
+    const dismissed = localStorage.getItem("comunidade-ranking-info-dismissed");
+    if (!dismissed) setShowInfo(true);
+  };
+  const openFansTable = () => {
+    setShowFansFull(true);
+    const dismissed = localStorage.getItem("comunidade-ranking-info-dismissed");
+    if (!dismissed) setShowInfo(true);
+  };
+
+  useEffect(() => {
+    if (showClubsFull || showFansFull) {
+      const dismissed = localStorage.getItem("comunidade-ranking-info-dismissed");
+      if (!dismissed) setShowInfo(true);
+    }
+  }, [showClubsFull, showFansFull]);
 
   const { data: clubRanking = [] } = useQuery({
     queryKey: ["club-ranking"],
@@ -176,7 +192,7 @@ const Comunidade = () => {
             <section className="bg-white rounded-3xl shadow-sm p-5 mb-5">
               <header className="flex items-center justify-between mb-4">
                 <h3 className="font-sans text-base font-bold text-gray-900 normal-case">Brasileirão da Saúde Mental</h3>
-                <button onClick={() => setShowClubsFull(true)} className="text-[var(--club-600)] text-sm font-semibold flex items-center gap-0.5">
+                <button onClick={openClubsTable} className="text-[var(--club-600)] text-sm font-semibold flex items-center gap-0.5">
                   Ver tabela <ChevronRight className="w-4 h-4" />
                 </button>
               </header>
@@ -223,7 +239,7 @@ const Comunidade = () => {
             <section className="bg-white rounded-3xl shadow-sm p-5">
               <header className="flex items-center justify-between mb-4">
                 <h3 className="font-sans text-lg font-bold text-gray-900 normal-case">Ranking de Torcedores</h3>
-                <button onClick={() => setShowFansFull(true)} className="text-[var(--club-600)] text-sm font-semibold flex items-center gap-0.5">
+                <button onClick={openFansTable} className="text-[var(--club-600)] text-sm font-semibold flex items-center gap-0.5">
                   Ver todos <ChevronRight className="w-4 h-4" />
                 </button>
               </header>
@@ -428,6 +444,10 @@ const Comunidade = () => {
               <li className="flex items-start gap-2">
                 <span className="font-bold mt-0.5 text-[var(--club-600)]">•</span>
                 <span><strong>FanatiClass</strong> — cada curso finalizado vale <strong>1 ponto</strong>.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold mt-0.5 text-[var(--club-600)]">•</span>
+                <span><strong>Atividade</strong> concluída vale <strong>1 ponto</strong>.</span>
               </li>
             </ul>
             <button

@@ -2369,6 +2369,7 @@ export type Database = {
       get_fan_ranking: {
         Args: never
         Returns: {
+          activities_count: number
           avatar_url: string
           checkins_count: number
           courses_count: number
