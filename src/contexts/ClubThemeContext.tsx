@@ -69,14 +69,19 @@ function applyClubVars(primary: string) {
 
 export const ClubThemeProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
-  const [clubId, setClubId] = useState<string | null>(null);
+  const [clubId, setClubId] = useState<string | null>(() => {
+    try { return localStorage.getItem("club-theme:clubId"); } catch { return null; }
+  });
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       if (!user) {
-        if (!cancelled) setClubId(null);
+        if (!cancelled) {
+          setClubId(null);
+          try { localStorage.removeItem("club-theme:clubId"); } catch {}
+        }
         return;
       }
       const { data } = await supabase
@@ -84,7 +89,14 @@ export const ClubThemeProvider = ({ children }: { children: ReactNode }) => {
         .select("favorite_club_id")
         .eq("user_id", user.id)
         .maybeSingle();
-      if (!cancelled) setClubId(data?.favorite_club_id ?? null);
+      if (!cancelled) {
+        const next = data?.favorite_club_id ?? null;
+        setClubId(next);
+        try {
+          if (next) localStorage.setItem("club-theme:clubId", next);
+          else localStorage.removeItem("club-theme:clubId");
+        } catch {}
+      }
     }
     load();
     return () => { cancelled = true; };
