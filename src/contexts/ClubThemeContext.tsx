@@ -67,6 +67,23 @@ function applyClubVars(primary: string) {
   Object.entries(shades).forEach(([k, v]) => root.style.setProperty(k, v));
 }
 
+// Apply cached club colors as early as possible (module import) to avoid a
+// flash of the default green before React mounts and reads the profile.
+if (typeof window !== "undefined") {
+  try {
+    const cachedId = localStorage.getItem("club-theme:clubId");
+    if (cachedId) {
+      const club = getClubById(cachedId);
+      if (club?.primaryColor) applyClubVars(club.primaryColor);
+      else applyClubVars(FALLBACK_PRIMARY);
+    } else {
+      applyClubVars(FALLBACK_PRIMARY);
+    }
+  } catch {
+    applyClubVars(FALLBACK_PRIMARY);
+  }
+}
+
 export const ClubThemeProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const [clubId, setClubId] = useState<string | null>(() => {
