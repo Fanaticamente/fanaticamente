@@ -10,6 +10,13 @@ import icEspecialista from "@/assets/Untitled_design-23.png.asset.json";
 import icRadio from "@/assets/Untitled_design-20.png.asset.json";
 import icNoticias from "@/assets/Untitled_design-21.png.asset.json";
 import icRanking from "@/assets/Untitled_design-22.png.asset.json";
+import icCampoRed from "@/assets/club-icons/red-campo.png.asset.json";
+import icCursoRed from "@/assets/club-icons/red-curso.png.asset.json";
+import icEspecialistaRed from "@/assets/club-icons/red-especialista.png.asset.json";
+import icRadioRed from "@/assets/club-icons/red-radio.png.asset.json";
+import icNoticiasRed from "@/assets/club-icons/red-noticias.png.asset.json";
+import icRankingRed from "@/assets/club-icons/red-ranking.png.asset.json";
+import { useClubTheme } from "@/contexts/ClubThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -32,10 +39,25 @@ const SUGGESTIONS = [
   { img: icRanking.url,      kicker: "Comunidade",         title: "Brasileirão da Saúde Mental",                subtitle: "Veja como estão os clubes e torcida",   path: "/ranking", small: true },
 ];
 
+// Clubs whose primary identity is red — use the red icon variants.
+const RED_CLUBS = new Set<string>([
+  "athletico-pr", "bragantino", "internacional", "vitoria",
+  "atletico-go", "botafogo-sp", "crb", "nautico", "sport", "vila-nova",
+  "anapolis", "inter-de-limeira", "itabaiana", "ituano", "maranhao", "santa-cruz",
+]);
+
+const RED_ICONS = [
+  icCampoRed.url, icCursoRed.url, icEspecialistaRed.url,
+  icRadioRed.url, icNoticiasRed.url, icRankingRed.url,
+];
+
 const MinimalHome = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { clubId } = useClubTheme();
+  const useRed = clubId ? RED_CLUBS.has(clubId) : false;
+  const suggestions = SUGGESTIONS.map((s, i) => useRed ? { ...s, img: RED_ICONS[i] } : s);
   const [selected, setSelected] = useState<string | null>(null);
   const [sugIdx, setSugIdx] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -208,7 +230,7 @@ const MinimalHome = () => {
             className="flex transition-transform duration-700 ease-out"
             style={{ transform: `translateX(-${sugIdx * 100}%)` }}
           >
-            {SUGGESTIONS.map((s) => (
+            {suggestions.map((s) => (
                 <button
                   key={s.path + s.title}
                   onClick={() => navigate(s.path)}
@@ -232,7 +254,7 @@ const MinimalHome = () => {
           </div>
         </div>
         <div className="mt-2 flex justify-center gap-1.5">
-          {SUGGESTIONS.map((_, i) => (
+          {suggestions.map((_, i) => (
             <button
               key={i}
               onClick={() => setSugIdx(i)}
