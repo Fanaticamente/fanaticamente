@@ -4,12 +4,14 @@ import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, LogOut, He
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import logoHeader from "@/assets/logo-header-v5.png.asset.json";
+import GlobalSearchDialog from "@/components/search/GlobalSearchDialog";
 
 
 
 // Minimal floating icons for the home page (menu + search) — replaces the full Header bar.
 const HomeFloatingActions = () => {
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const navigate = useNavigate();
 
   const items = [
@@ -86,10 +88,12 @@ const HomeFloatingActions = () => {
 
       <button
         aria-label="Buscar"
+        onClick={() => setSearchOpen(true)}
         className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-slate-700"
       >
         <Search className="w-5 h-5" />
       </button>
+      <GlobalSearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>
   );
 };
