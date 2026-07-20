@@ -910,8 +910,8 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                 </div>
               </div>
 
-              {/* Review card — appears after socio choice (or immediately when program not available) */}
-              {(!therapist.socioConsciente || socioAnswer !== null) && (
+              {/* Review card — appears when: no socio program, socio answered "no", or socio "yes" and discount applied */}
+              {(!therapist.socioConsciente || socioAnswer === "no" || (socioAnswer === "yes" && socioDiscountApplied)) && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-3">
                   <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
                     Revise os detalhes
@@ -925,6 +925,10 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                     <Clock className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
                     <span>{selectedTime}</span>
                   </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-700">
+                    <User className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
+                    <span>Atendimento on-line</span>
+                  </div>
                   {isSocioConsciente && (
                     <div className="flex items-center gap-2 text-xs text-gray-700">
                       <Shield className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
@@ -932,11 +936,11 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                     </div>
                   )}
                   <div
-                    className="p-3 rounded-xl flex items-center justify-between"
+                    className="p-3 rounded-xl flex items-center justify-between gap-3"
                     style={{ backgroundColor: clubColor + '10' }}
                   >
-                    <span className="text-gray-600 font-medium text-sm">Valor</span>
-                    <span className="text-xl font-bold" style={{ color: clubColor }}>
+                    <span className="text-gray-600 font-medium text-xs leading-tight">Valor que deverá ser pago pela sessão ao profissional</span>
+                    <span className="text-xl font-bold whitespace-nowrap" style={{ color: clubColor }}>
                       R$ {sessionPrice.toFixed(2).replace(".", ",")}
                     </span>
                   </div>
