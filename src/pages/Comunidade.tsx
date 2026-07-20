@@ -25,6 +25,22 @@ const leagueTabs: { key: League; label: string }[] = [
 
 type FanRankEntry = { id: string; name: string; avatar: string | null; points: number; rank: number; isMe?: boolean };
 
+const formatFanName = (raw: string) => {
+  const parts = (raw || "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "Torcedor";
+  if (parts.length === 1) return parts[0];
+  const first = parts[0];
+  const lastInitial = parts[parts.length - 1].charAt(0).toUpperCase();
+  return `${first} ${lastInitial}.`;
+};
+
+const avatarImgProps = {
+  draggable: false as const,
+  onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
+  onClick: (e: React.MouseEvent) => e.preventDefault(),
+  style: { pointerEvents: "none" as const, WebkitTouchCallout: "none" as const, userSelect: "none" as const },
+};
+
 const medalColor = (r: number) =>
   r === 1 ? "bg-amber-400 text-white" : r === 2 ? "bg-slate-300 text-white" : r === 3 ? "bg-orange-400 text-white" : "";
 
@@ -82,7 +98,7 @@ const Comunidade = () => {
 
   const fanRanking: FanRankEntry[] = fanRankingRaw.map((f, i) => ({
     id: f.user_id,
-    name: f.full_name,
+    name: formatFanName(f.full_name),
     avatar: f.avatar_url,
     points: f.points,
     rank: i + 1,
