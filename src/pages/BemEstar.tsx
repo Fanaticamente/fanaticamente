@@ -1,16 +1,17 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Info, Heart, GraduationCap, MessageCircle, ChevronRight, Users } from "lucide-react";
+import { ArrowLeft, Info, Heart, GraduationCap, MessageCircle, ChevronRight, Users, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { format, subDays, differenceInCalendarDays, startOfMonth, startOfYear } from "date-fns";
+import { format, subDays, differenceInCalendarDays, startOfMonth, startOfYear, parseISO, startOfWeek, endOfWeek, addWeeks } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
-  ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceDot,
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
 } from "recharts";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import BottomNav from "@/components/layout/BottomNav";
 import Header from "@/components/layout/Header";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 const MOOD_SCORES: Record<string, number> = {
@@ -30,6 +31,8 @@ const BemEstar = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [range, setRange] = useState<RangeId>("semana");
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [detailsTab, setDetailsTab] = useState<"semana" | "mes">("semana");
 
   const { data: emotions = [] } = useQuery({
     queryKey: ["bemestar-emotions", user?.id],
@@ -38,10 +41,10 @@ const BemEstar = () => {
       const since = format(subDays(new Date(), 365), "yyyy-MM-dd");
       const { data } = await supabase
         .from("emotion_entries")
-        .select("emotion, entry_date")
+        .select("emotion, entry_date, note, created_at")
         .eq("user_id", user!.id)
         .gte("entry_date", since)
-        .order("entry_date", { ascending: true });
+        .order("entry_date", { ascending: false });
       return data ?? [];
     },
   });
@@ -150,6 +153,51 @@ const BemEstar = () => {
   const todayIdx = series.findIndex((s) => s.isToday && s.value !== null);
   const todayPoint = todayIdx >= 0 ? series[todayIdx] : null;
 
+  // Details: last 7 days grouped and last 4 weeks grouped
+  const details = useMemo(() => {
+    const now = new Date();
+    const daily: { date: string; label: string; emotion?: string; value: number | null; note?: string | null }[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = subDays(now, i);
+      const key = format(d, "yyyy-MM-dd");
+      const entry = emotions.find((e) => e.entry_date === key);
+      daily.push({
+        date: key,
+        label: i === 0 ? "Hoje" : format(d, "EEE, dd/MM", { locale: ptBR }),
+        emotion: entry?.emotion,
+        value: entry ? MOOD_SCORES[entry.emotion] ?? 60 : null,
+        note: (entry as any)?.note ?? null,
+      });
+    }
+    const weekly: { label: string; count: number; avg: number | null }[] = [];
+    for (let i = 0; i < 4; i++) {
+      const ws = startOfWeek(addWeeks(now, -i), { weekStartsOn: 1 });
+      const we = endOfWeek(ws, { weekStartsOn: 1 });
+      const items = emotions.filter((e) => {
+        const d = parseISO(e.entry_date);
+        return d >= ws && d <= we;
+      });
+      const avg = items.length
+        ? Math.round(items.reduce((s, e) => s + (MOOD_SCORES[e.emotion] ?? 60), 0) / items.length)
+        : null;
+      weekly.push({
+        label:
+          i === 0
+            ? "Esta semana"
+            : `${format(ws, "dd/MM")} – ${format(we, "dd/MM")}`,
+        count: items.length,
+        avg,
+      });
+    }
+    return { daily, weekly };
+  }, [emotions]);
+
+  const emotionLabels: Record<string, string> = {
+    otimo: "Ótimo", bem: "Bem", muito_bem: "Muito bem", neutro: "Neutro",
+    mais_ou_menos: "Mais ou menos", ansioso: "Ansioso", nao_legal: "Não legal",
+    mal: "Mal", irritado: "Irritado",
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 normal-case">
       <Header title="Bem-estar" />
@@ -209,7 +257,7 @@ const BemEstar = () => {
 
         <div className="mt-5 h-[220px] -mx-2">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={series} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
+            <BarChart data={series} margin={{ top: 10, right: 12, left: 0, bottom: 0 }} barCategoryGap="25%">
               <CartesianGrid stroke="#e2e8f0" strokeDasharray="4 4" vertical={false} />
               <XAxis
                 dataKey="label"
@@ -224,7 +272,7 @@ const BemEstar = () => {
                       textAnchor="middle"
                       fontSize={12}
                       fontWeight={isToday ? 700 : 500}
-                      fill={isToday ? "#16a34a" : "#94a3b8"}
+                      fill={isToday ? "var(--club-600)" : "#94a3b8"}
                     >
                       {payload.value}
                     </text>
@@ -239,33 +287,30 @@ const BemEstar = () => {
                 tick={{ fill: "#94a3b8", fontSize: 12 }}
               />
               <Tooltip
+                cursor={{ fill: "var(--club-50)" }}
                 contentStyle={{
                   borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 12,
                 }}
                 formatter={(v: number) => [`${v}%`, "Equilíbrio"]}
               />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke="#16a34a"
-                strokeWidth={2.5}
-                dot={{ r: 4, fill: "#16a34a", strokeWidth: 0 }}
-                activeDot={{ r: 6 }}
-                connectNulls
-              />
-              {todayPoint && todayPoint.value !== null && (
-                <ReferenceDot
-                  x={todayPoint.label}
-                  y={todayPoint.value}
-                  r={6}
-                  fill="#16a34a"
-                  stroke="#fff"
-                  strokeWidth={2}
-                />
-              )}
-            </LineChart>
+              <Bar dataKey="value" radius={[8, 8, 8, 8]} minPointSize={4}>
+                {series.map((s, i) => (
+                  <Cell
+                    key={i}
+                    fill={s.isToday ? "var(--club-600)" : "var(--club-200)"}
+                  />
+                ))}
+              </Bar>
+            </BarChart>
           </ResponsiveContainer>
         </div>
+
+        <button
+          onClick={() => setDetailsOpen(true)}
+          className="mt-4 w-full rounded-2xl border border-slate-200 bg-white py-3 text-sm font-semibold text-[var(--club-600)] hover:bg-[var(--club-50)] transition-colors"
+        >
+          Ver detalhes
+        </button>
       </section>
 
       {/* Quick access cards */}
@@ -298,6 +343,91 @@ const BemEstar = () => {
 
       <div aria-hidden className="h-28" />
       <BottomNav />
+
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="max-w-md rounded-2xl p-0 overflow-hidden bg-white max-h-[85vh] flex flex-col">
+          <DialogHeader className="px-5 pt-5 pb-3 border-b border-slate-100">
+            <DialogTitle className="text-lg font-bold text-slate-900" style={{ textTransform: "none" }}>
+              Detalhes dos registros
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="px-5 pt-3">
+            <div className="rounded-full bg-slate-100 p-1 grid grid-cols-2 gap-1">
+              {(["semana", "mes"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setDetailsTab(t)}
+                  className={cn(
+                    "py-2 rounded-full text-sm font-semibold transition-colors",
+                    detailsTab === t
+                      ? "bg-white text-[var(--club-600)] shadow-sm"
+                      : "text-slate-500"
+                  )}
+                >
+                  {t === "semana" ? "Últimos 7 dias" : "Últimas 4 semanas"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-5 overflow-y-auto">
+            {detailsTab === "semana" ? (
+              <div className="space-y-2">
+                {details.daily.map((d) => (
+                  <div
+                    key={d.date}
+                    className="flex items-center justify-between rounded-2xl border border-slate-200 p-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-slate-900">{d.label}</p>
+                      <p className="text-xs text-slate-500 truncate">
+                        {d.emotion ? emotionLabels[d.emotion] ?? d.emotion : "Sem registro"}
+                      </p>
+                    </div>
+                    <div
+                      className={cn(
+                        "text-sm font-bold px-3 py-1 rounded-full shrink-0",
+                        d.value !== null
+                          ? "bg-[var(--club-50)] text-[var(--club-700)]"
+                          : "bg-slate-100 text-slate-400"
+                      )}
+                    >
+                      {d.value !== null ? `${d.value}%` : "—"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {details.weekly.map((w) => (
+                  <div
+                    key={w.label}
+                    className="flex items-center justify-between rounded-2xl border border-slate-200 p-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-slate-900">{w.label}</p>
+                      <p className="text-xs text-slate-500">
+                        {w.count} registro{w.count === 1 ? "" : "s"}
+                      </p>
+                    </div>
+                    <div
+                      className={cn(
+                        "text-sm font-bold px-3 py-1 rounded-full shrink-0",
+                        w.avg !== null
+                          ? "bg-[var(--club-50)] text-[var(--club-700)]"
+                          : "bg-slate-100 text-slate-400"
+                      )}
+                    >
+                      {w.avg !== null ? `${w.avg}%` : "—"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
