@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
-import { ChevronRight, TrendingUp, X } from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
 import icRanking from "@/assets/Untitled_design-22.png.asset.json";
 import { useNavigate } from "react-router-dom";
