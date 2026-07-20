@@ -464,7 +464,7 @@ const MinimalHome = () => {
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-slate-900 text-[13px] leading-tight truncate">
-            Juntos na arquibancada e na evolução
+            Juntos na arquibancada e na evolução!
           </p>
           <p className="text-xs text-slate-600 mt-0.5">
             Veja os torcedores que estão cuidando da mente.
