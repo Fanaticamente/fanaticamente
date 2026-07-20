@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Trophy, TrendingUp, X, ClipboardList } from "lucide-react";
+import { ChevronRight, TrendingUp, X } from "lucide-react";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
+import icRanking from "@/assets/Untitled_design-22.png.asset.json";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
@@ -19,14 +20,9 @@ const leagueTabs: { key: League; label: string }[] = [
   { key: "serie_c", label: "Série C" },
 ];
 
-// Placeholder fan ranking — will be wired to real data when available
-const fanRanking = [
-  { id: "1", name: "Lucas Alvinegro", points: 2450, rank: 1 },
-  { id: "2", name: "Mariana Tricolor", points: 2150, rank: 2 },
-  { id: "3", name: "Rafael Colorado", points: 1980, rank: 3 },
-  { id: "me", name: "Você", points: 1650, rank: 4, isMe: true, trend: 2 },
-  { id: "5", name: "Camila Palestrina", points: 1420, rank: 5 },
-];
+// Real fan ranking data will populate here as users score points.
+type FanRankEntry = { id: string; name: string; points: number; rank: number; isMe?: boolean; trend?: number };
+const fanRanking: FanRankEntry[] = [];
 
 const medalColor = (r: number) =>
   r === 1 ? "bg-amber-400 text-white" : r === 2 ? "bg-slate-300 text-white" : r === 3 ? "bg-orange-400 text-white" : "";
@@ -38,19 +34,8 @@ const Comunidade = () => {
   const [showClubsFull, setShowClubsFull] = useState(false);
   const [showFansFull, setShowFansFull] = useState(false);
 
-  const { data: clubCounts = {} } = useQuery({
-    queryKey: ["ranking-counts"],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_ranking_counts");
-      if (error) throw error;
-      const counts: Record<string, number> = {};
-      (data || []).forEach((row: { club_id: string; session_count: number }) => {
-        counts[row.club_id] = row.session_count;
-      });
-      return counts;
-    },
-    staleTime: 60_000,
-  });
+  // Ranking zerado até reativação manual.
+  const clubCounts: Record<string, number> = {};
 
   const leagueClubs = getClubsByLeague(league);
   const sortedClubs = [...leagueClubs]
@@ -64,10 +49,10 @@ const Comunidade = () => {
   const topFans = fanRanking.slice(0, 5);
 
   return (
-    <div className="min-h-screen bg-[#f7f8fa] font-sans">
+    <div className="min-h-screen bg-white font-sans overscroll-none">
       <Header title="Comunidade" />
 
-      <main className="pt-16 pb-32 px-4 max-w-2xl mx-auto">
+      <main className="pt-16 pb-32 px-4 max-w-2xl mx-auto overscroll-none">
         {/* Top tabs */}
         <div className="bg-white rounded-full shadow-sm p-1 flex mb-5">
         {(["ranking", "atividade", "desafios"] as Tab[]).map((t) => (
@@ -94,20 +79,35 @@ const Comunidade = () => {
               }}
             >
               <div className="relative z-10 max-w-[60%]">
-                <p className="text-sm/tight opacity-90 font-medium">Em breve</p>
-                <h2 className="text-2xl font-bold leading-tight mt-1">DESAFIOS DE AUTOCUIDADO</h2>
+                <h2 className="text-2xl font-bold leading-tight normal-case" style={{ textTransform: "none" }}>
+                  Desafios de Autocuidado
+                </h2>
                 <p className="text-sm opacity-90 mt-1">Participe e some pontos</p>
                 <button className="mt-4 bg-white text-[var(--club-700)] font-semibold text-sm px-5 py-2.5 rounded-full">
                   Em breve
                 </button>
               </div>
-              <Trophy className="absolute right-2 bottom-2 w-32 h-32 opacity-25" strokeWidth={1.2} style={{ color: "var(--club-on)" }} />
+              <span
+                aria-hidden
+                className="absolute right-2 bottom-2 w-32 h-32 opacity-25"
+                style={{
+                  backgroundColor: "var(--club-on)",
+                  WebkitMaskImage: `url(${icRanking.url})`,
+                  maskImage: `url(${icRanking.url})`,
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                  WebkitMaskSize: "contain",
+                  maskSize: "contain",
+                }}
+              />
             </div>
 
             {/* Brasileirão card */}
             <section className="bg-white rounded-3xl shadow-sm p-5 mb-5">
               <header className="flex items-center justify-between mb-4">
-                <h3 className="font-sans text-lg font-bold text-gray-900 normal-case">Brasileirão da Saúde Mental</h3>
+                <h3 className="font-sans text-base font-bold text-gray-900 normal-case">Brasileirão da Saúde Mental</h3>
                 <button onClick={() => setShowClubsFull(true)} className="text-[var(--club-600)] text-sm font-semibold flex items-center gap-0.5">
                   Ver tabela <ChevronRight className="w-4 h-4" />
                 </button>
@@ -131,7 +131,6 @@ const Comunidade = () => {
                 <span className="w-8 text-center">#</span>
                 <span className="flex-1 ml-2 text-center">Clube</span>
                 <span className="w-12 text-center">Pts</span>
-                <span className="w-16 text-center">Sessões</span>
               </div>
 
               <div className="divide-y divide-gray-100">
@@ -146,7 +145,6 @@ const Comunidade = () => {
                         <span className="text-sm font-medium text-gray-800 truncate">{c.name}</span>
                       </div>
                       <span className={`w-12 text-center text-sm font-bold ${c.points > 0 ? "text-gray-900" : "text-gray-300"}`}>{c.points}</span>
-                      <span className={`w-16 text-center text-sm ${c.sessions > 0 ? "text-gray-700" : "text-gray-300"}`}>{c.sessions}</span>
                     </div>
                   );
                 })}
@@ -162,6 +160,11 @@ const Comunidade = () => {
                 </button>
               </header>
 
+              {topFans.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-6">
+                  Ainda sem torcedores no ranking. Some pontos e apareça aqui!
+                </p>
+              ) : (
               <div className="divide-y divide-gray-100">
                 {topFans.map((f) => (
                   <div key={f.id} className="flex items-center py-3 px-1">
@@ -185,6 +188,7 @@ const Comunidade = () => {
                   </div>
                 ))}
               </div>
+              )}
             </section>
           </>
         )}
@@ -237,7 +241,7 @@ const Comunidade = () => {
       <Dialog open={showClubsFull} onOpenChange={setShowClubsFull}>
         <DialogContent className="max-w-lg w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto rounded-3xl p-0 bg-white font-sans">
           <DialogHeader className="p-5 pb-2 sticky top-0 bg-white z-10">
-            <DialogTitle className="font-sans text-lg font-bold text-gray-900 normal-case text-left">Brasileirão da Saúde Mental</DialogTitle>
+            <DialogTitle className="font-sans text-base font-bold text-gray-900 normal-case text-left">Brasileirão da Saúde Mental</DialogTitle>
             <div className="flex gap-2 mt-3">
               {leagueTabs.map((t) => (
                 <button
@@ -257,7 +261,6 @@ const Comunidade = () => {
               <span className="w-8 text-center">#</span>
               <span className="flex-1 ml-2">Clube</span>
               <span className="w-12 text-center">Pts</span>
-              <span className="w-16 text-center">Sessões</span>
             </div>
             <div className="divide-y divide-gray-100">
               {sortedClubs.map((c, i) => (
@@ -268,7 +271,6 @@ const Comunidade = () => {
                     <span className="text-sm font-medium text-gray-800 truncate">{c.name}</span>
                   </div>
                   <span className={`w-12 text-center text-sm font-bold ${c.points > 0 ? "text-gray-900" : "text-gray-300"}`}>{c.points}</span>
-                  <span className={`w-16 text-center text-sm ${c.sessions > 0 ? "text-gray-700" : "text-gray-300"}`}>{c.sessions}</span>
                 </div>
               ))}
             </div>
@@ -290,7 +292,13 @@ const Comunidade = () => {
           <DialogHeader className="p-5 pb-2 sticky top-0 bg-white z-10">
             <DialogTitle className="font-sans text-lg font-bold text-gray-900 normal-case text-left">Ranking de Torcedores</DialogTitle>
           </DialogHeader>
-          <div className="px-5 pb-6 divide-y divide-gray-100 bg-white">
+          <div className="px-5 pb-6 bg-white">
+            {fanRanking.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-8">
+                Ainda sem torcedores no ranking.
+              </p>
+            ) : (
+            <div className="divide-y divide-gray-100">
             {fanRanking.map((f) => (
               <div key={f.id} className="flex items-center py-3 px-1">
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
@@ -307,6 +315,8 @@ const Comunidade = () => {
                 </span>
               </div>
             ))}
+            </div>
+            )}
           </div>
           <DialogFooter className="p-5 pt-2 bg-white">
             <button
