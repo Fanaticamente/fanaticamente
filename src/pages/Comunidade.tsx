@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, TrendingUp, X } from "lucide-react";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
 import icRanking from "@/assets/Untitled_design-22.png.asset.json";
@@ -7,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
 import { getClubsByLeague } from "@/data/brazilianClubs";
 import ClubMark from "@/components/clubs/ClubMark";
 
