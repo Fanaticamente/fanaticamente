@@ -416,12 +416,20 @@ const Comunidade = () => {
 
       {/* First-time ranking info */}
       {showInfo && createPortal(
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-6">
-          <div className="bg-white rounded-3xl shadow-xl max-w-sm w-full p-6 relative font-sans">
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-6"
+          style={{ pointerEvents: "auto" }}
+          onClick={() => setShowInfo(false)}
+        >
+          <div
+            className="bg-white rounded-3xl shadow-xl max-w-sm w-full p-6 relative font-sans"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
-              onClick={() => setShowInfo(false)}
-              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-95 transition"
+              onClick={(e) => { e.stopPropagation(); setShowInfo(false); }}
+              className="absolute top-3 right-3 z-10 p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-95 transition"
+              style={{ pointerEvents: "auto" }}
               aria-label="Fechar"
             >
               <X className="w-4 h-4" />
