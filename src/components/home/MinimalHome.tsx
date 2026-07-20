@@ -23,6 +23,15 @@ const MOODS = [
   { id: "irritado", emoji: "😠", label: "Irritado",        bg: "bg-rose-100",    ring: "ring-rose-400" },
 ];
 
+const REASON_GROUPS: { title: string; items: string[] }[] = [
+  { title: "Carreira e Estudos", items: ["Carreira e Estudos", "Produtividade", "Relações profissionais", "Salário"] },
+  { title: "Emocional", items: ["Controle emocional", "Medos e fobias", "Mudanças", "Traumas"] },
+  { title: "Família e Amigos", items: ["Amigos", "Familiares", "Filhos", "Pais"] },
+  { title: "Finanças", items: ["Minhas finanças"] },
+  { title: "Saúde e Bem Estar", items: ["Alimentação", "Corpo", "Doente", "Dor física", "Estudos", "Exercícios físicos / Esportes", "Hábitos", "Meditação", "Sono", "Vícios"] },
+  { title: "Vida Amorosa", items: ["Orientação sexual", "Relacionamento amoroso", "Sexo"] },
+];
+
 const SUGGESTIONS = [
   { img: icCampo.url,        kicker: "Sugestão para você", title: "Campo das emoções",                         subtitle: "Escale seu time e gere uma reflexão", path: "/diario" },
   { img: icCurso.url,        kicker: "Curso em destaque",  title: ["Ética & Responsabilidade Social", "no Futebol"], subtitle: "Comece agora mesmo",                    path: "/curso/c6c7600e-de31-4adc-935e-75a9dd30beba", small: true },
@@ -38,6 +47,8 @@ const MinimalHome = () => {
   const qc = useQueryClient();
   const suggestions = SUGGESTIONS;
   const [selected, setSelected] = useState<string | null>(null);
+  const [reasonOpen, setReasonOpen] = useState(false);
+  const [reasons, setReasons] = useState<string[]>([]);
   const [sugIdx, setSugIdx] = useState(0);
   const touchStartX = useRef<number | null>(null);
   const touchDX = useRef(0);
@@ -101,13 +112,13 @@ const MinimalHome = () => {
   const progressPct = Math.min(100, Math.round((weekActivities / 10) * 100));
 
   const checkinMutation = useMutation({
-    mutationFn: async (moodId: string) => {
+    mutationFn: async ({ moodId, note }: { moodId: string; note: string }) => {
       if (!user) throw new Error("no-user");
       const today = format(new Date(), "yyyy-MM-dd");
       const { error } = await supabase
         .from("emotion_entries")
         .upsert(
-          { user_id: user.id, emotion: moodId, entry_date: today },
+          { user_id: user.id, emotion: moodId, note: note || null, entry_date: today },
           { onConflict: "user_id,entry_date" }
         );
       if (error) throw error;
@@ -116,6 +127,8 @@ const MinimalHome = () => {
       toast.success("Check-in registrado! 💚");
       qc.invalidateQueries({ queryKey: ["mh-emotions"] });
       setSelected(null);
+      setReasons([]);
+      setReasonOpen(false);
     },
     onError: () => toast.error("Não foi possível registrar."),
   });
@@ -162,7 +175,7 @@ const MinimalHome = () => {
           {MOODS.map((m) => (
             <button
               key={m.id}
-              onClick={() => setSelected(m.id)}
+              onClick={() => { setSelected(m.id); setReasons([]); setReasonOpen(true); }}
               className="flex flex-col items-center gap-1.5"
             >
               <div
@@ -180,17 +193,76 @@ const MinimalHome = () => {
             </button>
           ))}
         </div>
-
-        {selected && (
-          <button
-            disabled={checkinMutation.isPending}
-            onClick={() => checkinMutation.mutate(selected)}
-            className="mt-4 w-full py-3 rounded-2xl bg-[var(--club-500)] hover:bg-[var(--club-600)] text-white font-semibold text-sm transition disabled:opacity-60"
-          >
-            {checkinMutation.isPending ? "Registrando…" : "Registrar check-in"}
-          </button>
-        )}
       </section>
+
+      {reasonOpen && selected && (
+        <div
+          className="fixed inset-0 z-[80] flex flex-col text-white"
+          style={{ background: "var(--club-600)" }}
+        >
+          <div
+            className="flex items-center gap-3 px-4"
+            style={{ paddingTop: "calc(env(safe-area-inset-top) + 12px)" }}
+          >
+            <button
+              aria-label="Voltar"
+              onClick={() => { setReasonOpen(false); setSelected(null); setReasons([]); }}
+              className="w-10 h-10 flex items-center justify-center -ml-2"
+            >
+              <ChevronRight className="w-6 h-6 rotate-180 text-white" />
+            </button>
+            <h2 className="font-sans text-lg font-bold normal-case flex-1">
+              Qual o motivo do sentimento?
+            </h2>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32">
+            {REASON_GROUPS.map((g) => (
+              <div key={g.title} className="mt-4 first:mt-0">
+                <h3 className="text-center font-sans font-bold text-white/85 normal-case mb-3">
+                  {g.title}
+                </h3>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {g.items.map((r) => {
+                    const active = reasons.includes(r);
+                    return (
+                      <button
+                        key={r}
+                        onClick={() =>
+                          setReasons((prev) =>
+                            prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]
+                          )
+                        }
+                        className={cn(
+                          "px-4 py-2 rounded-full border text-sm font-medium transition",
+                          active
+                            ? "bg-white text-[var(--club-700)] border-white"
+                            : "border-white/80 text-white hover:bg-white/10"
+                        )}
+                      >
+                        {r}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div
+            className="absolute inset-x-0 bottom-0 px-4 pt-3 bg-gradient-to-t from-[var(--club-700)] to-transparent"
+            style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
+          >
+            <button
+              disabled={checkinMutation.isPending || reasons.length === 0}
+              onClick={() => checkinMutation.mutate({ moodId: selected, note: reasons.join(", ") })}
+              className="w-full py-3.5 rounded-2xl bg-white text-[var(--club-700)] font-bold text-sm transition disabled:opacity-60"
+            >
+              {checkinMutation.isPending ? "Registrando…" : "Confirmar"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Sugestões carrossel */}
       <section>
