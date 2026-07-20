@@ -57,32 +57,33 @@ const Radio = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header title="Rádio" />
+    <div className="min-h-screen bg-white">
+      <Header title="Rádio" hideSearch />
 
       {/* Now Playing Bar - fixed at top below header */}
       {playingStation && (
-        <div className="fixed top-[calc(env(safe-area-inset-top)+60px)] left-0 right-0 z-40 bg-radio p-3 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full bg-radio-foreground/20 flex items-center justify-center">
+        <div
+          className="fixed top-[calc(env(safe-area-inset-top)+60px)] left-0 right-0 z-40 p-3 flex items-center gap-4"
+          style={{ background: "var(--club-600)", color: "var(--club-on)" }}
+        >
+          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
             {isLoading ? (
-              <Loader2 className="w-5 h-5 text-radio-foreground animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <RadioIcon className="w-5 h-5 text-radio-foreground" />
+              <RadioIcon className="w-5 h-5" />
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-radio-foreground font-medium text-sm truncate">
-              {playingStation.name}
-            </p>
-            <p className="text-radio-foreground/70 text-xs">
+            <p className="font-medium text-sm truncate">{playingStation.name}</p>
+            <p className="text-xs opacity-80">
               {playingStation.frequency} • {isLoading ? "Conectando..." : "Ao vivo"}
             </p>
           </div>
           <button
             onClick={() => play(playingStation)}
-            className="w-9 h-9 rounded-full bg-radio-foreground/20 flex items-center justify-center flex-shrink-0"
+            className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"
           >
-            <Pause className="w-4 h-4 text-radio-foreground" />
+            <Pause className="w-4 h-4" />
           </button>
         </div>
       )}
@@ -90,13 +91,16 @@ const Radio = () => {
       <main className={`px-4 ${playingStation ? 'pt-[calc(env(safe-area-inset-top)+144px)]' : 'pt-20'}`}>
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-radio/20 flex items-center justify-center">
-            <RadioIcon className="w-10 h-10 text-radio" />
+          <div
+            className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center"
+            style={{ background: "var(--club-100)" }}
+          >
+            <RadioIcon className="w-9 h-9" style={{ color: "var(--club-600)" }} />
           </div>
-          <h1 className="font-display text-4xl text-primary mb-2">
-            Alambrado <span className="text-radio">FM</span>
+          <h1 className="font-sans font-semibold text-2xl text-slate-900 normal-case">
+            Alambrado FM
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-slate-500 text-sm mt-1">
             As principais rádios esportivas do Brasil
           </p>
         </div>
@@ -104,71 +108,80 @@ const Radio = () => {
         {/* State Filter */}
         <div className="mb-6">
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {states.map((state) => (
-              <button
-                key={state}
-                onClick={() => setSelectedState(state)}
-                className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors ${
-                  selectedState === state
-                    ? "bg-radio text-radio-foreground"
-                    : "bg-card border border-border text-card-foreground hover:border-radio"
-                }`}
-              >
-                {state}
-              </button>
-            ))}
+            {states.map((state) => {
+              const active = selectedState === state;
+              return (
+                <button
+                  key={state}
+                  onClick={() => setSelectedState(state)}
+                  className="px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors border"
+                  style={
+                    active
+                      ? { background: "var(--club-600)", color: "var(--club-on)", borderColor: "var(--club-600)" }
+                      : { background: "white", color: "#0f172a", borderColor: "#e2e8f0" }
+                  }
+                >
+                  {state}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Stations List */}
         <div className="space-y-3">
-          {filteredStations.map((station) => (
-            <button
-              key={station.id}
-              onClick={() => handlePlayPause(station)}
-              className={`w-full flex items-center gap-4 bg-card border rounded-xl p-4 transition-all ${
-                playingStation?.id === station.id
-                  ? "border-radio bg-radio/10"
-                  : "border-border hover:border-radio"
-              }`}
-            >
-              <div
-                className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors ${
-                  playingStation?.id === station.id
-                    ? "bg-radio text-radio-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
+          {filteredStations.map((station) => {
+            const active = playingStation?.id === station.id;
+            return (
+              <button
+                key={station.id}
+                onClick={() => handlePlayPause(station)}
+                className="w-full flex items-center gap-4 rounded-2xl p-4 transition-all border bg-white"
+                style={
+                  active
+                    ? { borderColor: "var(--club-600)", background: "var(--club-50)" }
+                    : { borderColor: "#e2e8f0" }
+                }
               >
-                {playingStation?.id === station.id && isLoading ? (
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                ) : playingStation?.id === station.id ? (
-                  <Pause className="w-6 h-6" />
-                ) : (
-                  <Play className="w-6 h-6 ml-1" />
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center transition-colors"
+                  style={
+                    active
+                      ? { background: "var(--club-600)", color: "var(--club-on)" }
+                      : { background: "#f1f5f9", color: "#475569" }
+                  }
+                >
+                  {active && isLoading ? (
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  ) : active ? (
+                    <Pause className="w-6 h-6" />
+                  ) : (
+                    <Play className="w-6 h-6 ml-1" />
+                  )}
+                </div>
+
+                <div className="flex-1 text-left min-w-0">
+                  <h3 className="text-slate-900 font-semibold truncate normal-case">
+                    {station.name}
+                  </h3>
+                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                    <MapPin className="w-3 h-3" />
+                    <span>{station.state}</span>
+                    <span>•</span>
+                    <span>{station.frequency}</span>
+                  </div>
+                </div>
+
+                {active && !isLoading && (
+                  <div className="flex items-center gap-1">
+                    <span className="w-1 h-4 rounded-full animate-pulse" style={{ background: "var(--club-600)" }} />
+                    <span className="w-1 h-6 rounded-full animate-pulse" style={{ background: "var(--club-600)", animationDelay: "0.1s" }} />
+                    <span className="w-1 h-3 rounded-full animate-pulse" style={{ background: "var(--club-600)", animationDelay: "0.2s" }} />
+                  </div>
                 )}
-              </div>
-
-              <div className="flex-1 text-left">
-                <h3 className="text-card-foreground font-medium">
-                  {station.name}
-                </h3>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin className="w-3 h-3" />
-                  <span>{station.state}</span>
-                  <span>•</span>
-                  <span>{station.frequency}</span>
-                </div>
-              </div>
-
-              {playingStation?.id === station.id && !isLoading && (
-                <div className="flex items-center gap-1">
-                  <span className="w-1 h-4 bg-radio rounded-full animate-pulse" />
-                  <span className="w-1 h-6 bg-radio rounded-full animate-pulse" style={{ animationDelay: "0.1s" }} />
-                  <span className="w-1 h-3 bg-radio rounded-full animate-pulse" style={{ animationDelay: "0.2s" }} />
-                </div>
-              )}
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
 
         {/* Spacer para manter distância do BottomNav */}
