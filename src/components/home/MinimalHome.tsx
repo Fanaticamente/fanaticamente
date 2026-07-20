@@ -15,14 +15,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import MoodFace, { type MoodVariant } from "@/components/MoodFace";
-
-const MOODS: { id: string; variant: MoodVariant; label: string }[] = [
-  { id: "muito_bem",     variant: "happy",   label: "Muito bem" },
-  { id: "mais_ou_menos", variant: "calm",    label: "Mais ou menos" },
-  { id: "nao_legal",     variant: "meh",     label: "Não estou legal" },
-  { id: "ansioso",       variant: "worried", label: "Ansioso" },
-  { id: "irritado",      variant: "sad",     label: "Irritado" },
+const MOODS: { id: string; emoji: string; label: string }[] = [
+  { id: "muito_bem",     emoji: "😄", label: "Muito bem" },
+  { id: "mais_ou_menos", emoji: "🙂", label: "Mais ou menos" },
+  { id: "nao_legal",     emoji: "😐", label: "Não estou legal" },
+  { id: "ansioso",       emoji: "😟", label: "Ansioso" },
+  { id: "irritado",      emoji: "😠", label: "Irritado" },
 ];
 
 const REASON_GROUPS_BASE: { title: string; items: string[] }[] = [
@@ -213,11 +211,11 @@ const MinimalHome = () => {
             >
               <div
                 className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-[var(--club-100)] text-[var(--club-600)]",
+                  "w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-[var(--club-100)] text-2xl",
                   selected === m.id ? "ring-2 ring-[var(--club-400)] scale-105" : "opacity-90"
                 )}
               >
-                <MoodFace variant={m.variant} size={30} />
+                <span aria-hidden>{m.emoji}</span>
               </div>
               <span className="text-[10.5px] font-semibold text-slate-700 leading-tight text-center">
                 {m.label}

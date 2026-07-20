@@ -15,6 +15,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { cn } from "@/lib/utils";
 import MoodFace, { type MoodVariant } from "@/components/MoodFace";
 
+const MOOD_EMOJIS: Record<MoodVariant, string> = {
+  happy: "😄",
+  calm: "🙂",
+  meh: "😐",
+  worried: "😟",
+  sad: "😠",
+};
+
 // Small donut showing distribution of emotions in the selected range,
 // with a MoodFace at the center reflecting the average balance.
 const BalanceDonut = ({
@@ -445,11 +453,14 @@ const BemEstar = () => {
                   const tier = MOOD_TIERS.find((t) => t.value === payload.value);
                   if (!tier) return <g />;
                   return (
-                    <foreignObject x={x - 22} y={y - 12} width={24} height={24}>
-                      <div style={{ color: "var(--club-600)" }}>
-                        <MoodFace variant={tier.variant} size={22} />
-                      </div>
-                    </foreignObject>
+                    <text
+                      x={x - 10}
+                      y={y + 6}
+                      fontSize={18}
+                      textAnchor="middle"
+                    >
+                      {MOOD_EMOJIS[tier.variant]}
+                    </text>
                   );
                 }}
               />
@@ -586,7 +597,7 @@ const BemEstar = () => {
                           : "bg-slate-100 text-slate-400"
                       )}
                     >
-                      {tier ? <MoodFace variant={tier.variant} size={26} /> : <span>—</span>}
+                      {tier ? <span className="text-2xl leading-none">{MOOD_EMOJIS[tier.variant]}</span> : <span>—</span>}
                     </div>
                   </div>
                   );
@@ -617,7 +628,7 @@ const BemEstar = () => {
                           : "bg-slate-100 text-slate-400"
                       )}
                     >
-                      {tier ? <MoodFace variant={tier.variant} size={26} /> : <span>—</span>}
+                      {tier ? <span className="text-2xl leading-none">{MOOD_EMOJIS[tier.variant]}</span> : <span>—</span>}
                     </div>
                   </div>
                   );
@@ -646,8 +657,8 @@ const BemEstar = () => {
                             key={e.entry_date + (e.created_at ?? "")}
                             className="flex items-center gap-3 rounded-2xl border border-slate-200 p-3"
                           >
-                            <div className="w-10 h-10 rounded-full bg-[var(--club-50)] text-[var(--club-600)] flex items-center justify-center shrink-0">
-                              <MoodFace variant={tier.variant} size={26} />
+                            <div className="w-10 h-10 rounded-full bg-[var(--club-50)] flex items-center justify-center shrink-0 text-2xl leading-none">
+                              <span>{MOOD_EMOJIS[tier.variant]}</span>
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-semibold text-slate-900">
