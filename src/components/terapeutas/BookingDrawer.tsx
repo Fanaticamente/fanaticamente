@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, ChevronLeft, ChevronRight, Star, Shirt, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield, Search, MapPin, Ticket, BadgeCheck } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Star, Shirt, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield, Search, MapPin, Ticket, BadgeCheck, Video } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getFirstAndLastName } from "@/lib/utils";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, parseISO } from "date-fns";
@@ -947,7 +947,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                     <span>{selectedTime}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-700">
-                    <User className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
+                    <Video className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
                     <span>Atendimento on-line</span>
                   </div>
                   {isSocioConsciente && (
@@ -960,7 +960,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                     className="p-3 rounded-xl flex items-center justify-between gap-3"
                     style={{ backgroundColor: clubColor + '10' }}
                   >
-                    <span className="text-gray-600 font-medium text-xs leading-tight">Valor que deverá ser pago pela sessão ao profissional</span>
+                    <span className="text-gray-600 font-medium text-[10px] leading-tight">Valor que deverá ser pago pela sessão ao profissional</span>
                     <span className="text-xl font-bold whitespace-nowrap" style={{ color: clubColor }}>
                       R$ {sessionPrice.toFixed(2).replace(".", ",")}
                     </span>
