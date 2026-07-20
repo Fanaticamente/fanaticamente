@@ -136,7 +136,7 @@ const Ranking = () => {
                     key={club.id}
                     className={`flex items-center py-3 px-3 transition-colors ${
                       isG4
-                        ? "bg-emerald-50/60"
+                        ? "bg-[var(--club-50)]/60"
                         : isZ4
                         ? "bg-red-50/40"
                         : ""
@@ -145,7 +145,7 @@ const Ranking = () => {
                     <span
                       className={`w-8 text-center text-sm font-bold ${
                         isG4
-                          ? "text-emerald-600"
+                          ? "text-[var(--club-600)]"
                           : isZ4
                           ? "text-red-500"
                           : "text-gray-400"
@@ -168,13 +168,13 @@ const Ranking = () => {
                     <span className={`w-16 text-center text-sm font-extrabold ${total > 0 ? "text-gray-900" : "text-gray-300"}`}>
                       {total}
                     </span>
-                    <span className={`w-20 text-center text-sm font-bold ${sessions > 0 ? "text-emerald-600" : "text-gray-300"}`}>
+                    <span className={`w-20 text-center text-sm font-bold ${sessions > 0 ? "text-[var(--club-600)]" : "text-gray-300"}`}>
                       {sessions}
                     </span>
-                    <span className={`w-24 text-center text-sm font-bold ${thermometer > 0 ? "text-emerald-600" : "text-gray-300"}`}>
+                    <span className={`w-24 text-center text-sm font-bold ${thermometer > 0 ? "text-[var(--club-600)]" : "text-gray-300"}`}>
                       {thermometer}
                     </span>
-                    <span className={`w-20 text-center text-sm font-bold ${courses > 0 ? "text-emerald-600" : "text-gray-300"}`}>
+                    <span className={`w-20 text-center text-sm font-bold ${courses > 0 ? "text-[var(--club-600)]" : "text-gray-300"}`}>
                       {courses}
                     </span>
                   </div>
@@ -185,7 +185,7 @@ const Ranking = () => {
             {/* Legend */}
             <div className="flex items-center gap-6 py-4 mt-2 text-xs text-gray-500">
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-emerald-500/20 border border-emerald-500/40" />
+                <div className="w-3 h-3 rounded-sm bg-[var(--club-500)]/20 border border-[var(--club-500)]/40" />
                 <span>G-4 — Zona de classificação</span>
               </div>
               <div className="flex items-center gap-1.5">

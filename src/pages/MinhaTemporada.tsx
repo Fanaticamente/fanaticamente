@@ -495,7 +495,7 @@ const MinhaTemporada = () => {
           )}
           <div className="mt-3 h-2 rounded-full bg-white/10 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all"
+              className="h-full bg-gradient-to-r from-green-500 to-[var(--club-400)] transition-all"
               style={{ width: `${progressPct}%` }}
             />
           </div>

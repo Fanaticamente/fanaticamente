@@ -185,7 +185,7 @@ const Cursos = () => {
           placeholder="Buscar cursos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-slate-100 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+          className="w-full pl-10 pr-4 py-2.5 bg-slate-100 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--club-500)]/40"
         />
       </div>
 
@@ -197,7 +197,7 @@ const Cursos = () => {
             onClick={() => setSelectedCategory(cat)}
             className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors border ${
               selectedCategory === cat
-                ? "bg-emerald-600 text-white border-emerald-600"
+                ? "bg-[var(--club-600)] text-white border-[var(--club-600)]"
                 : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
             }`}
           >
@@ -245,7 +245,7 @@ const Cursos = () => {
                     ) : (
                       <Link
                         to={`/curso/${featuredCourse.id}`}
-                        className="flex items-center gap-2 py-2.5 px-5 bg-emerald-500 text-white rounded-full text-sm font-semibold hover:bg-emerald-600 transition-colors"
+                        className="flex items-center gap-2 py-2.5 px-5 bg-[var(--club-500)] text-white rounded-full text-sm font-semibold hover:bg-[var(--club-600)] transition-colors"
                       >
                         <Play className="w-4 h-4 fill-current" />
                         Assistir

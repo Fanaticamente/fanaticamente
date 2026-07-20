@@ -72,7 +72,7 @@ const BottomNav = () => {
                     slim ? "w-10 h-10" : "w-12 h-14"
                   } ${
                     isActive
-                      ? "text-emerald-600"
+                      ? "text-[var(--club-600)]"
                       : "text-slate-500 hover:text-slate-700"
                   }`
                 }

@@ -102,7 +102,7 @@ const ZonaMista = () => {
             className="text-4xl lg:text-5xl text-white font-bold mb-4"
             style={{ fontFamily: "'Work Sans', sans-serif" }}
           >
-            Zona <span className="text-emerald-600">Mista</span>
+            Zona <span className="text-[var(--club-600)]">Mista</span>
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl">
             Notícias, artigos e reflexões sobre saúde mental no universo do futebol. 
@@ -120,7 +120,7 @@ const ZonaMista = () => {
                 placeholder="Buscar artigos..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-900 border-gray-800 text-white placeholder:text-gray-500 focus:border-emerald-600"
+                className="pl-10 bg-gray-900 border-gray-800 text-white placeholder:text-gray-500 focus:border-[var(--club-600)]"
               />
             </div>
 
@@ -132,7 +132,7 @@ const ZonaMista = () => {
                   onClick={() => setSelectedCategory(category)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     selectedCategory === category
-                      ? "bg-emerald-600 text-white"
+                      ? "bg-[var(--club-600)] text-white"
                       : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
                   }`}
                 >
@@ -155,11 +155,11 @@ const ZonaMista = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-8">
-                  <Badge className="bg-emerald-600 text-white mb-4">
+                  <Badge className="bg-[var(--club-600)] text-white mb-4">
                     {featuredNews.category}
                   </Badge>
                   <h2 
-                    className="text-3xl lg:text-4xl text-white font-bold mb-4 group-hover:text-emerald-400 transition-colors"
+                    className="text-3xl lg:text-4xl text-white font-bold mb-4 group-hover:text-[var(--club-400)] transition-colors"
                     style={{ fontFamily: "'Work Sans', sans-serif" }}
                   >
                     {featuredNews.title}
@@ -198,7 +198,7 @@ const ZonaMista = () => {
                 <Link
                   key={news.id}
                   to={`/zona-mista/${news.id}`}
-                  className="group bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800 hover:border-emerald-600/50 transition-colors"
+                  className="group bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800 hover:border-[var(--club-600)]/50 transition-colors"
                 >
                   <div className="relative overflow-hidden">
                     <img
@@ -206,13 +206,13 @@ const ZonaMista = () => {
                       alt={news.title}
                       className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <Badge className="absolute top-4 left-4 bg-emerald-600/90 text-white">
+                    <Badge className="absolute top-4 left-4 bg-[var(--club-600)]/90 text-white">
                       {news.category}
                     </Badge>
                   </div>
                   <div className="p-6">
                     <h3 
-                      className="text-xl text-white font-semibold mb-3 group-hover:text-emerald-400 transition-colors line-clamp-2"
+                      className="text-xl text-white font-semibold mb-3 group-hover:text-[var(--club-400)] transition-colors line-clamp-2"
                       style={{ fontFamily: "'Work Sans', sans-serif" }}
                     >
                       {news.title}
@@ -245,7 +245,7 @@ const ZonaMista = () => {
           {/* Load More Button */}
           {regularNews.length > 0 && (
             <div className="text-center mt-12">
-              <button className="inline-flex items-center gap-2 px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-full transition-colors">
+              <button className="inline-flex items-center gap-2 px-8 py-3 bg-[var(--club-600)] hover:bg-[var(--club-700)] text-white font-medium rounded-full transition-colors">
                 Carregar mais artigos
                 <ArrowRight className="w-4 h-4" />
               </button>

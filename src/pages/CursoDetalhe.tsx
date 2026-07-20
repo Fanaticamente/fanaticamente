@@ -45,7 +45,7 @@ const CursoDetalhe = () => {
   if (loadingCourse) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-4 border-[var(--club-500)] border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -55,7 +55,7 @@ const CursoDetalhe = () => {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-sans font-semibold text-slate-900 mb-2">Curso não encontrado</h2>
-          <Link to="/cursos" className="text-emerald-600 hover:underline">Voltar aos cursos</Link>
+          <Link to="/cursos" className="text-[var(--club-600)] hover:underline">Voltar aos cursos</Link>
         </div>
       </div>
     );
@@ -68,7 +68,7 @@ const CursoDetalhe = () => {
           <Clock className="w-12 h-12 text-amber-500 mx-auto mb-3" />
           <h2 className="text-xl font-sans font-semibold text-slate-900 mb-2">Em breve</h2>
           <p className="text-slate-500 text-sm mb-4">Este curso ainda não está disponível.</p>
-          <Link to="/cursos" className="text-emerald-600 hover:underline">Voltar aos cursos</Link>
+          <Link to="/cursos" className="text-[var(--club-600)] hover:underline">Voltar aos cursos</Link>
         </div>
       </div>
     );
@@ -110,7 +110,7 @@ const CursoDetalhe = () => {
                 </>
               ) : (
                 <>
-                  <div className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
+                  <div className="w-16 h-16 rounded-full bg-[var(--club-500)] flex items-center justify-center shadow-lg">
                     <Play className="w-8 h-8 text-white fill-current ml-1" />
                   </div>
                 </>
@@ -119,19 +119,19 @@ const CursoDetalhe = () => {
             {/* Meta chips */}
             <div className="absolute bottom-3 left-3 right-3 z-10 flex gap-2 flex-wrap">
               {course.instructor && (
-                <span className="px-3 py-1 rounded-full border border-emerald-400 text-emerald-300 text-[11px] font-semibold bg-black/30 backdrop-blur-sm">
+                <span className="px-3 py-1 rounded-full border border-[var(--club-400)] text-[var(--club-300)] text-[11px] font-semibold bg-black/30 backdrop-blur-sm">
                   {course.instructor}
                 </span>
               )}
-              <span className="px-3 py-1 rounded-full border border-emerald-400 text-emerald-300 text-[11px] font-semibold bg-black/30 backdrop-blur-sm inline-flex items-center gap-1">
+              <span className="px-3 py-1 rounded-full border border-[var(--club-400)] text-[var(--club-300)] text-[11px] font-semibold bg-black/30 backdrop-blur-sm inline-flex items-center gap-1">
                 <BookOpen className="w-3 h-3" /> {totalLessons} aulas
               </span>
               {course.total_duration && (
-                <span className="px-3 py-1 rounded-full border border-emerald-400 text-emerald-300 text-[11px] font-semibold bg-black/30 backdrop-blur-sm inline-flex items-center gap-1">
+                <span className="px-3 py-1 rounded-full border border-[var(--club-400)] text-[var(--club-300)] text-[11px] font-semibold bg-black/30 backdrop-blur-sm inline-flex items-center gap-1">
                   <Clock className="w-3 h-3" /> {course.total_duration}
                 </span>
               )}
-              <span className="px-3 py-1 rounded-full border border-emerald-400 text-emerald-300 text-[11px] font-semibold bg-black/30 backdrop-blur-sm">
+              <span className="px-3 py-1 rounded-full border border-[var(--club-400)] text-[var(--club-300)] text-[11px] font-semibold bg-black/30 backdrop-blur-sm">
                 {course.is_premium ? "Premium" : "Gratuito"}
               </span>
             </div>
@@ -165,7 +165,7 @@ const CursoDetalhe = () => {
             onClick={() => setActiveTab("modulos")}
             className={`pb-3 font-semibold text-sm transition-colors -mb-px ${
               activeTab === "modulos"
-                ? "text-emerald-600 border-b-2 border-emerald-600"
+                ? "text-[var(--club-600)] border-b-2 border-[var(--club-600)]"
                 : "text-slate-500 border-b-2 border-transparent"
             }`}
           >
@@ -175,7 +175,7 @@ const CursoDetalhe = () => {
             onClick={() => setActiveTab("sobre")}
             className={`pb-3 font-semibold text-sm transition-colors -mb-px ${
               activeTab === "sobre"
-                ? "text-emerald-600 border-b-2 border-emerald-600"
+                ? "text-[var(--club-600)] border-b-2 border-[var(--club-600)]"
                 : "text-slate-500 border-b-2 border-transparent"
             }`}
           >
@@ -219,7 +219,7 @@ const CursoDetalhe = () => {
                             >
                               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${
                                 currentLesson?.id === lesson.id
-                                  ? "bg-emerald-500 text-white"
+                                  ? "bg-[var(--club-500)] text-white"
                                   : "bg-slate-100 text-slate-500"
                               }`}>
                                 {currentLesson?.id === lesson.id ? (
@@ -261,7 +261,7 @@ const CursoDetalhe = () => {
             {currentLesson && activities && activities.length > 0 && (
               <div className="mt-6 pt-4 border-t border-slate-200">
                 <h3 className="font-sans text-lg text-slate-900 normal-case mb-3 flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <CheckCircle className="w-5 h-5 text-[var(--club-600)]" />
                   Atividades Complementares
                 </h3>
                 <div className="space-y-3">
@@ -271,8 +271,8 @@ const CursoDetalhe = () => {
                       className="bg-slate-50 border border-slate-200 rounded-xl p-4"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <div className="w-6 h-6 rounded-full bg-[var(--club-50)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-3.5 h-3.5 text-[var(--club-600)]" />
                         </div>
                         <div>
                           <h4 className="text-slate-900 font-semibold text-sm">{activity.title}</h4>
@@ -280,7 +280,7 @@ const CursoDetalhe = () => {
                             <p className="text-slate-500 text-xs mt-1">{activity.description}</p>
                           )}
                           {activity.is_required && (
-                            <span className="text-xs text-emerald-600 font-semibold mt-2 inline-block">Obrigatória</span>
+                            <span className="text-xs text-[var(--club-600)] font-semibold mt-2 inline-block">Obrigatória</span>
                           )}
                         </div>
                       </div>

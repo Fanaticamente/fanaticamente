@@ -181,7 +181,7 @@ const MeusAgendamentos = () => {
     } else if (status === "link_sent") {
       return { label: "Link recebido", className: "bg-cyan-50 text-cyan-600", icon: CheckCircle };
     } else if (status === "confirmed") {
-      return { label: past ? "Realizada" : "Confirmada", className: "bg-emerald-50 text-emerald-600", icon: CheckCircle };
+      return { label: past ? "Realizada" : "Confirmada", className: "bg-[var(--club-50)] text-[var(--club-600)]", icon: CheckCircle };
     } else if (status === "completed") {
       return { label: "Concluída", className: "bg-violet-50 text-violet-600", icon: CheckCircle };
     } else if (status === "payment_issue") {
@@ -274,7 +274,7 @@ const MeusAgendamentos = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--club-600)]" />
       </div>
     );
   }
@@ -288,14 +288,14 @@ const MeusAgendamentos = () => {
             onClick={() => setFilter("proximos")}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
               filter === "proximos"
-                ? "bg-emerald-600 text-white"
+                ? "bg-[var(--club-600)] text-white"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
             Próximos
             {proximosCount > 0 && (
               <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${
-                filter === "proximos" ? "bg-white/20 text-white" : "bg-emerald-600 text-white"
+                filter === "proximos" ? "bg-white/20 text-white" : "bg-[var(--club-600)] text-white"
               }`}>
                 {proximosCount}
               </span>
@@ -305,7 +305,7 @@ const MeusAgendamentos = () => {
             onClick={() => setFilter("realizados")}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               filter === "realizados"
-              ? "bg-emerald-600 text-white"
+              ? "bg-[var(--club-600)] text-white"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
           }`}
         >
@@ -315,7 +315,7 @@ const MeusAgendamentos = () => {
           onClick={() => setFilter("cancelados")}
           className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
             filter === "cancelados"
-              ? "bg-emerald-600 text-white"
+              ? "bg-[var(--club-600)] text-white"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
           }`}
         >
@@ -332,7 +332,7 @@ const MeusAgendamentos = () => {
           onClick={() => setFilter("todos")}
           className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
             filter === "todos"
-              ? "bg-emerald-600 text-white"
+              ? "bg-[var(--club-600)] text-white"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
           }`}
         >
@@ -343,7 +343,7 @@ const MeusAgendamentos = () => {
         {/* Appointments List */}
         {loading ? (
           <div className="flex items-center justify-center p-12">
-            <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+            <Loader2 className="w-8 h-8 animate-spin text-[var(--club-600)]" />
           </div>
         ) : filteredAppointments.length === 0 ? (
           <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center">
@@ -427,13 +427,13 @@ const MeusAgendamentos = () => {
                   {/* Date and Time */}
                   <div className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-emerald-600" />
+                      <Calendar className="w-4 h-4 text-[var(--club-600)]" />
                       <span className="text-slate-900 text-sm">
                         {format(appointmentDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-emerald-600" />
+                      <Clock className="w-4 h-4 text-[var(--club-600)]" />
                       <span className="text-slate-900 text-sm">
                         {apt.scheduled_time}
                       </span>
@@ -454,7 +454,7 @@ const MeusAgendamentos = () => {
                   {(apt.status === "confirmed" || apt.status === "link_sent" || apt.status === "in_progress") && (
                     <button
                       onClick={() => setSelectedAppointment(apt)}
-                      className="w-full mt-3 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+                      className="w-full mt-3 py-3 bg-[var(--club-600)] text-white rounded-xl font-semibold hover:bg-[var(--club-700)] transition-colors flex items-center justify-center gap-2"
                     >
                       <Info className="w-4 h-4" />
                       Informações da sessão

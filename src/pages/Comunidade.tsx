@@ -74,7 +74,7 @@ const Comunidade = () => {
               key={t}
               onClick={() => setTab(t)}
               className={`flex-1 py-2.5 rounded-full text-sm font-semibold capitalize transition-all ${
-                tab === t ? "bg-emerald-50 text-emerald-700" : "text-gray-500"
+                tab === t ? "bg-[var(--club-50)] text-[var(--club-700)]" : "text-gray-500"
               }`}
             >
               {t === "ranking" ? "Ranking" : t === "desafios" ? "Desafios" : "Atividade"}
@@ -90,7 +90,7 @@ const Comunidade = () => {
                 <p className="text-sm/tight opacity-90 font-medium">Em breve</p>
                 <h2 className="text-2xl font-bold leading-tight mt-1">DESAFIOS DE AUTOCUIDADO</h2>
                 <p className="text-sm opacity-90 mt-1">Participe e some pontos</p>
-                <button className="mt-4 bg-white text-emerald-700 font-semibold text-sm px-5 py-2.5 rounded-full">
+                <button className="mt-4 bg-white text-[var(--club-700)] font-semibold text-sm px-5 py-2.5 rounded-full">
                   Em breve
                 </button>
               </div>
@@ -101,7 +101,7 @@ const Comunidade = () => {
             <section className="bg-white rounded-3xl shadow-sm p-5 mb-5">
               <header className="flex items-center justify-between mb-4">
                 <h3 className="font-sans text-lg font-bold text-gray-900 normal-case">Brasileirão da Saúde Mental</h3>
-                <button onClick={() => setShowClubsFull(true)} className="text-emerald-600 text-sm font-semibold flex items-center gap-0.5">
+                <button onClick={() => setShowClubsFull(true)} className="text-[var(--club-600)] text-sm font-semibold flex items-center gap-0.5">
                   Ver tabela <ChevronRight className="w-4 h-4" />
                 </button>
               </header>
@@ -112,7 +112,7 @@ const Comunidade = () => {
                     key={t.key}
                     onClick={() => setLeague(t.key)}
                     className={`flex-1 py-2 rounded-full text-xs font-semibold transition-colors ${
-                      league === t.key ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-500"
+                      league === t.key ? "bg-[var(--club-600)] text-white" : "bg-gray-100 text-gray-500"
                     }`}
                   >
                     {t.label}
@@ -132,8 +132,8 @@ const Comunidade = () => {
                   const pos = i + 1;
                   const highlight = pos === 1;
                   return (
-                    <div key={c.id} className={`flex items-center py-3 px-1 rounded-lg ${highlight ? "bg-emerald-50/60" : ""}`}>
-                      <span className={`w-8 text-center text-sm font-bold ${highlight ? "text-emerald-600" : "text-gray-400"}`}>{pos}</span>
+                    <div key={c.id} className={`flex items-center py-3 px-1 rounded-lg ${highlight ? "bg-[var(--club-50)]/60" : ""}`}>
+                      <span className={`w-8 text-center text-sm font-bold ${highlight ? "text-[var(--club-600)]" : "text-gray-400"}`}>{pos}</span>
                       <div className="flex-1 ml-2 flex items-center gap-3 min-w-0">
                         <div className="w-7 h-7 flex-shrink-0"><ClubMark clubId={c.id} mode="badge" /></div>
                         <span className="text-sm font-medium text-gray-800 truncate">{c.name}</span>
@@ -150,7 +150,7 @@ const Comunidade = () => {
             <section className="bg-white rounded-3xl shadow-sm p-5">
               <header className="flex items-center justify-between mb-4">
                 <h3 className="font-sans text-lg font-bold text-gray-900 normal-case">Ranking de Torcedores</h3>
-                <button onClick={() => setShowFansFull(true)} className="text-emerald-600 text-sm font-semibold flex items-center gap-0.5">
+                <button onClick={() => setShowFansFull(true)} className="text-[var(--club-600)] text-sm font-semibold flex items-center gap-0.5">
                   Ver todos <ChevronRight className="w-4 h-4" />
                 </button>
               </header>
@@ -159,15 +159,15 @@ const Comunidade = () => {
                 {topFans.map((f) => (
                   <div key={f.id} className="flex items-center py-3 px-1">
                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                      medalColor(f.rank) || (f.isMe ? "text-emerald-600" : "text-gray-400")
+                      medalColor(f.rank) || (f.isMe ? "text-[var(--club-600)]" : "text-gray-400")
                     }`}>
                       {f.rank}
                     </div>
                     <div className="w-9 h-9 rounded-full bg-gray-200 ml-3 flex-shrink-0 overflow-hidden" />
-                    <span className={`flex-1 ml-3 text-sm font-medium truncate ${f.isMe ? "text-emerald-600" : "text-gray-800"}`}>
+                    <span className={`flex-1 ml-3 text-sm font-medium truncate ${f.isMe ? "text-[var(--club-600)]" : "text-gray-800"}`}>
                       {f.name}
                     </span>
-                    <div className={`text-right ${f.isMe ? "text-emerald-600" : "text-gray-800"}`}>
+                    <div className={`text-right ${f.isMe ? "text-[var(--club-600)]" : "text-gray-800"}`}>
                       <div className="text-sm font-bold">{f.points.toLocaleString("pt-BR")} pts</div>
                       {f.isMe && f.trend ? (
                         <div className="text-[11px] flex items-center justify-end gap-0.5">
@@ -193,8 +193,8 @@ const Comunidade = () => {
               onClick={() => navigate("/diario")}
               className="w-full text-left rounded-3xl bg-white border border-slate-200 shadow-sm p-4 flex items-center gap-4"
             >
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0">
-                <ClipboardList className="w-6 h-6 text-emerald-600" strokeWidth={1.8} />
+              <div className="w-14 h-14 rounded-2xl bg-[var(--club-50)] flex items-center justify-center shrink-0">
+                <ClipboardList className="w-6 h-6 text-[var(--club-600)]" strokeWidth={1.8} />
               </div>
               <div className="flex-1 min-w-0">
                 <p
@@ -207,7 +207,7 @@ const Comunidade = () => {
                   Escale seu time e gere uma reflexão.
                 </p>
               </div>
-              <ChevronRight className="w-5 h-5 text-emerald-600 shrink-0" />
+              <ChevronRight className="w-5 h-5 text-[var(--club-600)] shrink-0" />
             </button>
           </div>
         )}
@@ -224,7 +224,7 @@ const Comunidade = () => {
                   key={t.key}
                   onClick={() => setLeague(t.key)}
                   className={`flex-1 py-2 rounded-full text-xs font-semibold ${
-                    league === t.key ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-500"
+                    league === t.key ? "bg-[var(--club-600)] text-white" : "bg-gray-100 text-gray-500"
                   }`}
                 >
                   {t.label}
@@ -274,15 +274,15 @@ const Comunidade = () => {
             {fanRanking.map((f) => (
               <div key={f.id} className="flex items-center py-3 px-1">
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                  medalColor(f.rank) || (f.isMe ? "text-emerald-600" : "text-gray-400")
+                  medalColor(f.rank) || (f.isMe ? "text-[var(--club-600)]" : "text-gray-400")
                 }`}>
                   {f.rank}
                 </div>
                 <div className="w-9 h-9 rounded-full bg-gray-200 ml-3" />
-                <span className={`flex-1 ml-3 text-sm font-medium truncate ${f.isMe ? "text-emerald-600" : "text-gray-800"}`}>
+                <span className={`flex-1 ml-3 text-sm font-medium truncate ${f.isMe ? "text-[var(--club-600)]" : "text-gray-800"}`}>
                   {f.name}
                 </span>
-                <span className={`text-sm font-bold ${f.isMe ? "text-emerald-600" : "text-gray-800"}`}>
+                <span className={`text-sm font-bold ${f.isMe ? "text-[var(--club-600)]" : "text-gray-800"}`}>
                   {f.points.toLocaleString("pt-BR")} pts
                 </span>
               </div>

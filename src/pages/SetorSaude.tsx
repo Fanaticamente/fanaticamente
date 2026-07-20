@@ -36,7 +36,7 @@ const SetorSaude = () => {
 
       <main className="pt-20">
         <div className="px-4 mb-6">
-          <div className="flex items-center justify-between pb-3 mb-3 border-b-2 border-emerald-700">
+          <div className="flex items-center justify-between pb-3 mb-3 border-b-2 border-[var(--club-700)]">
             <div className="flex items-center gap-2">
               <SetorSaudeInlineIcon
                 variant="green"
@@ -44,7 +44,7 @@ const SetorSaude = () => {
                 aria-hidden
                 focusable="false"
               />
-              <h1 className="text-4xl font-display font-bold tracking-tight text-emerald-700">
+              <h1 className="text-4xl font-display font-bold tracking-tight text-[var(--club-700)]">
                 Setor Saúde
               </h1>
             </div>
@@ -56,7 +56,7 @@ const SetorSaude = () => {
 
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
-            <Loader2 className="w-8 h-8 animate-spin text-emerald-700" />
+            <Loader2 className="w-8 h-8 animate-spin text-[var(--club-700)]" />
             <p className="text-gray-500 text-sm">Carregando conteúdo...</p>
           </div>
         )}
