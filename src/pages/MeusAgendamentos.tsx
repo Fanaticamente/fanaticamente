@@ -129,7 +129,7 @@ const MeusAgendamentos = () => {
       // Fetch professionals usando VIEW pública segura
       const { data: professionalsData } = await supabase
         .from("professionals_public")
-        .select("id, user_id, crp, degree, hourly_rate")
+        .select("id, user_id, crp, degree, hourly_rate, avatar_url, full_name")
         .in("id", professionalIds);
 
       // Get user IDs from professionals to fetch their profiles
@@ -160,7 +160,11 @@ const MeusAgendamentos = () => {
             degree: professional.degree,
             hourly_rate: professional.hourly_rate
           } : null,
-          profile: profile || null
+          profile: {
+            full_name: profile?.full_name || professional?.full_name || null,
+            avatar_url: profile?.avatar_url || (professional as any)?.avatar_url || null,
+            phone: profile?.phone || null,
+          }
         };
       });
 
