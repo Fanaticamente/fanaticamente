@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { User, LogOut, CreditCard, Calendar, BookOpen, ChevronRight, Bell, Briefcase, Shield, Code, Camera } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,7 +7,6 @@ import BottomNav from "@/components/layout/BottomNav";
 import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
 import { getClubById, BrazilianClub } from "@/data/brazilianClubs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getDisplayAuthEmail } from "@/lib/appMode";
@@ -23,6 +22,27 @@ const Perfil = () => {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [profileLoading, setProfileLoading] = useState(true);
   const displayEmail = getDisplayAuthEmail(user);
+  const [showCameraOverlay, setShowCameraOverlay] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const overlayTimerRef = useRef<number | null>(null);
+
+  const revealCameraTemporarily = () => {
+    setShowCameraOverlay(true);
+    if (overlayTimerRef.current) window.clearTimeout(overlayTimerRef.current);
+    overlayTimerRef.current = window.setTimeout(() => setShowCameraOverlay(false), 3500);
+  };
+
+  const handleAvatarClick = () => {
+    if (!profile?.avatar_url) {
+      fileInputRef.current?.click();
+      return;
+    }
+    if (showCameraOverlay) {
+      fileInputRef.current?.click();
+    } else {
+      revealCameraTemporarily();
+    }
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -106,6 +126,7 @@ const Perfil = () => {
       }
 
       setProfile(prev => prev ? { ...prev, avatar_url: publicUrl } : prev);
+      setShowCameraOverlay(false);
       toast.success("Foto atualizada!");
     } catch (error) {
       console.error("Avatar upload error:", error);
@@ -196,26 +217,31 @@ const Perfil = () => {
       {/* Profile Header */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-6">
         <div className="flex items-center gap-4 mb-4">
-          <label
-            className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden relative cursor-pointer group"
+          <button
+            type="button"
+            onClick={handleAvatarClick}
+            className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden relative cursor-pointer"
             style={{ background: "var(--club-100)" }}
+            aria-label={profile?.avatar_url ? "Alterar foto de perfil" : "Adicionar foto de perfil"}
           >
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover object-top" />
             ) : (
               <User className="w-10 h-10" style={{ color: "var(--club-600)" }} />
             )}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-opacity rounded-full">
-              <Camera className="w-5 h-5 text-white" />
-            </div>
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/heic,image/heif,image/webp"
-              capture={undefined}
-              className="hidden"
-              onChange={handleAvatarUpload}
-            />
-          </label>
+            {(!profile?.avatar_url || showCameraOverlay) && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full pointer-events-none">
+                <Camera className="w-5 h-5 text-white" />
+              </div>
+            )}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/heic,image/heif,image/webp"
+            className="hidden"
+            onChange={handleAvatarUpload}
+          />
           <div className="flex-1 min-w-0">
             <h1 className="font-sans font-semibold text-xl text-slate-900 truncate normal-case">
               {profile?.full_name || "Torcedor fanático"}
@@ -238,16 +264,13 @@ const Perfil = () => {
           </div>
         </div>
 
-        <AccountSettingsDialog
-          trigger={
-            <button
-              className="w-full py-3 rounded-xl font-medium text-white transition-opacity hover:opacity-90"
-              style={{ background: "var(--club-600)", color: "var(--club-on)" }}
-            >
-              Editar perfil
-            </button>
-          }
-        />
+        <Link
+          to="/perfil/editar"
+          className="w-full py-3 rounded-xl font-medium text-white transition-opacity hover:opacity-90 flex items-center justify-center"
+          style={{ background: "var(--club-600)", color: "var(--club-on)" }}
+        >
+          Editar perfil
+        </Link>
       </div>
 
       {/* Role-specific Menu Items */}
