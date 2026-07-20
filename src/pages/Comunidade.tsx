@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import { ChevronRight, TrendingUp, X } from "lucide-react";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
