@@ -85,9 +85,9 @@ const UserDesktopLayout = ({ children, title, subtitle }: UserDesktopLayoutProps
           {/* User Profile Card */}
           <div className="p-4 border-b border-gray-100">
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-              <Avatar className="h-10 w-10 border-2 border-emerald-500">
+              <Avatar className="h-10 w-10 border-2 border-[var(--club-500)]">
                 <AvatarImage src={profile?.avatar_url || undefined} />
-                <AvatarFallback className="bg-emerald-600 text-white text-sm font-medium">
+                <AvatarFallback className="bg-[var(--club-600)] text-white text-sm font-medium">
                   {getInitials(profile?.full_name)}
                 </AvatarFallback>
               </Avatar>
@@ -114,13 +114,13 @@ const UserDesktopLayout = ({ children, title, subtitle }: UserDesktopLayoutProps
                   onClick={() => navigate(item.path)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                     active
-                      ? "bg-emerald-50 text-emerald-700"
+                      ? "bg-[var(--club-50)] text-[var(--club-700)]"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   }`}
                 >
-                  <IconComponent className={`w-5 h-5 ${active ? "text-emerald-600" : "text-gray-500"}`} />
+                  <IconComponent className={`w-5 h-5 ${active ? "text-[var(--club-600)]" : "text-gray-500"}`} />
                   <span className="flex-1 text-left">{item.label}</span>
-                  {active && <ChevronRight className="w-4 h-4 text-emerald-600" />}
+                  {active && <ChevronRight className="w-4 h-4 text-[var(--club-600)]" />}
                 </button>
               );
             })}
