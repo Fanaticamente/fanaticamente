@@ -540,9 +540,11 @@ const BemEstar = () => {
       <BottomNav />
 
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="max-w-md rounded-2xl p-0 overflow-hidden bg-white max-h-[85vh] flex flex-col">
+        <DialogContent
+          className="max-w-md rounded-2xl p-0 overflow-hidden bg-white max-h-[85vh] flex flex-col [&>button]:text-[var(--club-600)] [&>button]:opacity-100"
+        >
           <DialogHeader className="px-5 pt-5 pb-3 border-b border-slate-100">
-            <DialogTitle className="text-lg font-bold text-slate-900" style={{ textTransform: "none" }}>
+            <DialogTitle className="text-lg font-normal text-slate-900" style={{ textTransform: "none" }}>
               Detalhes dos registros
             </DialogTitle>
           </DialogHeader>
@@ -569,7 +571,11 @@ const BemEstar = () => {
           <div className="p-5 overflow-y-auto">
             {detailsTab === "semana" ? (
               <div className="space-y-2">
-                {details.daily.map((d) => (
+                {details.daily.map((d) => {
+                  const tier = d.value !== null ? [...MOOD_TIERS].sort(
+                    (a, b) => Math.abs(a.value - (d.value as number)) - Math.abs(b.value - (d.value as number))
+                  )[0] : null;
+                  return (
                   <div
                     key={d.date}
                     className="flex items-center justify-between rounded-2xl border border-slate-200 p-3"
@@ -582,20 +588,25 @@ const BemEstar = () => {
                     </div>
                     <div
                       className={cn(
-                        "text-sm font-bold px-3 py-1 rounded-full shrink-0",
-                        d.value !== null
-                          ? "bg-[var(--club-50)] text-[var(--club-700)]"
+                        "w-10 h-10 rounded-full shrink-0 flex items-center justify-center",
+                        tier
+                          ? "bg-[var(--club-50)] text-[var(--club-600)]"
                           : "bg-slate-100 text-slate-400"
                       )}
                     >
-                      {d.value !== null ? `${d.value}%` : "—"}
+                      {tier ? <MoodFace variant={tier.variant} size={26} /> : <span>—</span>}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ) : detailsTab === "mes" ? (
               <div className="space-y-2">
-                {details.weekly.map((w) => (
+                {details.weekly.map((w) => {
+                  const tier = w.avg !== null ? [...MOOD_TIERS].sort(
+                    (a, b) => Math.abs(a.value - (w.avg as number)) - Math.abs(b.value - (w.avg as number))
+                  )[0] : null;
+                  return (
                   <div
                     key={w.label}
                     className="flex items-center justify-between rounded-2xl border border-slate-200 p-3"
@@ -608,16 +619,17 @@ const BemEstar = () => {
                     </div>
                     <div
                       className={cn(
-                        "text-sm font-bold px-3 py-1 rounded-full shrink-0",
-                        w.avg !== null
-                          ? "bg-[var(--club-50)] text-[var(--club-700)]"
+                        "w-10 h-10 rounded-full shrink-0 flex items-center justify-center",
+                        tier
+                          ? "bg-[var(--club-50)] text-[var(--club-600)]"
                           : "bg-slate-100 text-slate-400"
                       )}
                     >
-                      {w.avg !== null ? `${w.avg}%` : "—"}
+                      {tier ? <MoodFace variant={tier.variant} size={26} /> : <span>—</span>}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="space-y-4">
