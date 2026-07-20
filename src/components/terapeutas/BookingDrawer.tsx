@@ -157,6 +157,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
   const [socioDiscountApplied, setSocioDiscountApplied] = useState(false);
   const [socioAnswer, setSocioAnswer] = useState<null | "yes" | "no">(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showBackConfirm, setShowBackConfirm] = useState(false);
 
   // Get current user
   useEffect(() => {
@@ -541,8 +542,25 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
 
   const headerTitle = step === "profile" ? "Perfil profissional" : "Confirmar agendamento";
   const handleHeaderBack = () => {
-    if (step === "payment") setStep("profile");
-    else onOpenChange(false);
+    if (step === "payment") {
+      // If any progress was made on the confirmation step, ask before discarding.
+      if (socioAnswer !== null || socioDiscountApplied) {
+        setShowBackConfirm(true);
+      } else {
+        setStep("profile");
+      }
+    } else {
+      onOpenChange(false);
+    }
+  };
+
+  const handleConfirmCancel = () => {
+    setShowBackConfirm(false);
+    setSocioAnswer(null);
+    setSocioDiscountApplied(false);
+    setSocioMatricula("");
+    setTermsAccepted(false);
+    setStep("profile");
   };
 
   const bodyContent = (
@@ -840,18 +858,21 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                       <div className="grid grid-cols-2 gap-2">
                         {(["yes", "no"] as const).map((opt) => {
                           const active = socioAnswer === opt;
+                          const disabled = socioDiscountApplied && opt === "no";
                           return (
                             <button
                               key={opt}
                               type="button"
+                              disabled={disabled}
                               onClick={() => {
+                                if (disabled) return;
                                 setSocioAnswer(opt);
                                 if (opt === "no") {
                                   setSocioDiscountApplied(false);
                                   setSocioMatricula("");
                                 }
                               }}
-                              className="py-2 rounded-lg text-sm font-semibold border transition-colors"
+                              className="py-2 rounded-lg text-sm font-semibold border transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                               style={{
                                 borderColor: clubColor + (active ? "" : "40"),
                                 backgroundColor: active ? clubColor : "#fff",
@@ -913,8 +934,8 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
               {/* Review card — appears when: no socio program, socio answered "no", or socio "yes" and discount applied */}
               {(!therapist.socioConsciente || socioAnswer === "no" || (socioAnswer === "yes" && socioDiscountApplied)) && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-3">
-                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                    Revise os detalhes
+                  <h4 className="text-xs font-bold text-gray-500">
+                    Revise os detalhes do agendamento
                   </h4>
                   <div className="flex items-center gap-2 text-sm text-gray-700">
                     <Calendar className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
@@ -983,6 +1004,43 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
         </div>
   );
 
+  const backConfirmOverlay = showBackConfirm ? (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-6"
+      onClick={() => setShowBackConfirm(false)}
+    >
+      <div
+        className="w-full max-w-xs bg-white rounded-2xl shadow-xl p-5 font-sans"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h4 className="text-base font-bold text-gray-900 text-center">
+          Cancelar agendamento?
+        </h4>
+        <p className="mt-1 text-xs text-gray-500 text-center">
+          Todo o processo feito até aqui será perdido.
+        </p>
+        <div className="grid grid-cols-2 gap-2 mt-4">
+          <button
+            type="button"
+            onClick={handleConfirmCancel}
+            className="py-2 rounded-lg text-sm font-semibold border transition-colors"
+            style={{ borderColor: clubColor, backgroundColor: clubColor, color: "#fff" }}
+          >
+            Sim
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowBackConfirm(false)}
+            className="py-2 rounded-lg text-sm font-semibold border transition-colors bg-white"
+            style={{ borderColor: clubColor + "40", color: clubColor }}
+          >
+            Não
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   if (asPage) {
     if (!open) return null;
     return (
@@ -1008,6 +1066,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
         <div className="pt-[calc(env(safe-area-inset-top)+64px)] bg-white min-h-screen">
           {bodyContent}
         </div>
+        {backConfirmOverlay}
       </div>
     );
   }
@@ -1035,6 +1094,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
           {bodyContent}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
+      {backConfirmOverlay}
     </DialogPrimitive.Root>
   );
 };
