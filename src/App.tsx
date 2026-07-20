@@ -48,6 +48,7 @@ import BemEstar from "./pages/BemEstar";
 import Radio from "./pages/Radio";
 import Futebol from "./pages/Futebol";
 import Perfil from "./pages/Perfil";
+import EditarPerfil from "./pages/EditarPerfil";
 import MeusAgendamentos from "./pages/MeusAgendamentos";
 import Pagamentos from "./pages/Pagamentos";
 import Configuracoes from "./pages/Configuracoes";
@@ -210,6 +211,7 @@ const App = () => {
                 <Route path="/minha-temporada" element={<DynamicProtectedRoute pageId="minha-temporada"><MinhaTemporada /></DynamicProtectedRoute>} />
                 <Route path="/bem-estar" element={<DynamicProtectedRoute pageId="diario"><BemEstar /></DynamicProtectedRoute>} />
                 <Route path="/perfil" element={<DynamicProtectedRoute pageId="perfil"><Perfil /></DynamicProtectedRoute>} />
+                <Route path="/perfil/editar" element={<ProtectedRoute><EditarPerfil /></ProtectedRoute>} />
                 <Route path="/meus-agendamentos" element={<DynamicProtectedRoute pageId="agendamentos"><MeusAgendamentos /></DynamicProtectedRoute>} />
                 <Route path="/perfil/agendamentos" element={<DynamicProtectedRoute pageId="agendamentos"><MeusAgendamentos /></DynamicProtectedRoute>} />
                 <Route path="/pagamentos" element={<DynamicProtectedRoute pageId="pagamentos"><Pagamentos /></DynamicProtectedRoute>} />
