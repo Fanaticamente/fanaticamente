@@ -346,7 +346,7 @@ const BemEstar = () => {
       <Header title="Bem-estar" />
 
       {/* Range tabs */}
-      <div className="px-4 pt-[calc(env(safe-area-inset-top)+56px+8px)]">
+      <div className="px-4 pt-[calc(env(safe-area-inset-top)+56px+1cm)]">
         <div className="rounded-full bg-white border border-slate-200 p-1 grid grid-cols-3 gap-1">
           {RANGES.map((r) => (
             <button
@@ -489,15 +489,6 @@ const BemEstar = () => {
               />
             </LineChart>
           </ResponsiveContainer>
-        </div>
-
-        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 justify-center text-[var(--club-600)]">
-          {MOOD_TIERS.map((t) => (
-            <div key={t.value} className="flex items-center gap-1 text-xs text-slate-500">
-              <MoodFace variant={t.variant} size={16} />
-              <span>{t.label}</span>
-            </div>
-          ))}
         </div>
 
         <button

@@ -566,7 +566,7 @@ const MeusAgendamentos = () => {
     return (
       <div className="min-h-screen bg-white">
         <Header title="Meus agendamentos" />
-        <main className="pb-24 px-4 pt-[calc(env(safe-area-inset-top)+64px)]">
+        <main className="pb-24 px-4 pt-[calc(env(safe-area-inset-top)+56px+1cm)]">
           <p className="text-slate-500 text-sm mb-4">
             {appointments.length} consulta{appointments.length !== 1 ? "s" : ""}
           </p>
