@@ -10,6 +10,9 @@ import BottomNav from "@/components/layout/BottomNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { getClubsByLeague } from "@/data/brazilianClubs";
 import ClubMark from "@/components/clubs/ClubMark";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Tab = "ranking" | "desafios" | "atividade";
 type League = "serie_a" | "serie_b" | "serie_c";
@@ -20,15 +23,14 @@ const leagueTabs: { key: League; label: string }[] = [
   { key: "serie_c", label: "Série C" },
 ];
 
-// Real fan ranking data will populate here as users score points.
-type FanRankEntry = { id: string; name: string; points: number; rank: number; isMe?: boolean; trend?: number };
-const fanRanking: FanRankEntry[] = [];
+type FanRankEntry = { id: string; name: string; avatar: string | null; points: number; rank: number; isMe?: boolean };
 
 const medalColor = (r: number) =>
   r === 1 ? "bg-amber-400 text-white" : r === 2 ? "bg-slate-300 text-white" : r === 3 ? "bg-orange-400 text-white" : "";
 
 const Comunidade = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("ranking");
   const [league, setLeague] = useState<League>("serie_a");
   const [showClubsFull, setShowClubsFull] = useState(false);
@@ -53,14 +55,45 @@ const Comunidade = () => {
     }
   }, [searchParams, setSearchParams]);
 
-  // Ranking zerado até reativação manual.
-  const clubCounts: Record<string, number> = {};
+  const { data: clubRanking = [] } = useQuery({
+    queryKey: ["club-ranking"],
+    queryFn: async () => {
+      const { data } = await supabase.rpc("get_club_ranking");
+      return (data ?? []) as { favorite_club_id: string; fans_count: number; points: number }[];
+    },
+  });
+
+  const { data: fanRankingRaw = [] } = useQuery({
+    queryKey: ["fan-ranking"],
+    queryFn: async () => {
+      const { data } = await supabase.rpc("get_fan_ranking");
+      return (data ?? []) as {
+        user_id: string;
+        full_name: string;
+        avatar_url: string | null;
+        favorite_club_id: string | null;
+        points: number;
+      }[];
+    },
+  });
+
+  const clubPoints: Record<string, number> = {};
+  clubRanking.forEach((c) => { clubPoints[c.favorite_club_id] = c.points; });
+
+  const fanRanking: FanRankEntry[] = fanRankingRaw.map((f, i) => ({
+    id: f.user_id,
+    name: f.full_name,
+    avatar: f.avatar_url,
+    points: f.points,
+    rank: i + 1,
+    isMe: user?.id === f.user_id,
+  }));
 
   const leagueClubs = getClubsByLeague(league);
   const sortedClubs = [...leagueClubs]
     .map((c) => {
-      const sessions = clubCounts[c.id] || 0;
-      return { ...c, sessions, points: sessions * 3 };
+      const points = clubPoints[c.id] || 0;
+      return { ...c, points };
     })
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, "pt-BR"));
 
@@ -192,17 +225,14 @@ const Comunidade = () => {
                     }`}>
                       {f.rank}
                     </div>
-                    <div className="w-9 h-9 rounded-full bg-gray-200 ml-3 flex-shrink-0 overflow-hidden" />
+                  <div className="w-9 h-9 rounded-full bg-gray-200 ml-3 flex-shrink-0 overflow-hidden">
+                    {f.avatar && <img src={f.avatar} alt="" className="w-full h-full object-cover" />}
+                  </div>
                     <span className={`flex-1 ml-3 text-sm font-medium truncate ${f.isMe ? "text-[var(--club-600)]" : "text-gray-800"}`}>
                       {f.name}
                     </span>
                     <div className={`text-right ${f.isMe ? "text-[var(--club-600)]" : "text-gray-800"}`}>
                       <div className="text-sm font-bold">{f.points.toLocaleString("pt-BR")} pts</div>
-                      {f.isMe && f.trend ? (
-                        <div className="text-[11px] flex items-center justify-end gap-0.5">
-                          <TrendingUp className="w-3 h-3" /> {f.trend}
-                        </div>
-                      ) : null}
                     </div>
                   </div>
                 ))}
@@ -325,7 +355,9 @@ const Comunidade = () => {
                 }`}>
                   {f.rank}
                 </div>
-                <div className="w-9 h-9 rounded-full bg-gray-200 ml-3" />
+                <div className="w-9 h-9 rounded-full bg-gray-200 ml-3 overflow-hidden">
+                  {f.avatar && <img src={f.avatar} alt="" className="w-full h-full object-cover" />}
+                </div>
                 <span className={`flex-1 ml-3 text-sm font-medium truncate ${f.isMe ? "text-[var(--club-600)]" : "text-gray-800"}`}>
                   {f.name}
                 </span>
