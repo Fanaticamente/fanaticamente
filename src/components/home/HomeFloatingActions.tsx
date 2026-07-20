@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, Shirt, LogOut, Tv, Heart } from "lucide-react";
+import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, LogOut, Heart } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import logoHeader from "@/assets/logo-header-v5.png.asset.json";
@@ -19,8 +19,6 @@ const HomeFloatingActions = () => {
     { icon: BookOpen, label: "FanatiClass", path: "/cursos" },
     { icon: Radio, label: "Alambrado FM", path: "/radio" },
     { icon: Newspaper, label: "Futebol", path: "/futebol" },
-    { icon: Shirt, label: "FanaticaShop", path: "/loja" },
-    { icon: Tv, label: "FanatiCazé TV", path: "/fanaticaze-tv" },
   ];
 
   const handleLogout = async () => {
@@ -43,9 +41,8 @@ const HomeFloatingActions = () => {
           </button>
         </SheetTrigger>
         <SheetContent side="left" className="w-80 bg-white p-0 flex flex-col">
-          <div className="p-6 border-b border-slate-200 flex flex-col items-center">
+          <div className="p-6 pt-[calc(env(safe-area-inset-top)+24px)] border-b border-slate-200 flex flex-col items-center">
             <img src={logoHeader.url} alt="Fanaticamente" className="h-12 w-auto" />
-            <p className="text-slate-500 text-sm mt-2">Saúde mental para torcedores</p>
           </div>
           <nav className="p-3 flex-1 overflow-y-auto">
             {items.map((it) => {
