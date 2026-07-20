@@ -28,7 +28,7 @@ const BalanceDonut = ({
   total: number;
   centerVariant: MoodVariant;
 }) => {
-  const stroke = 10;
+  const stroke = 4;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const gap = 2;
@@ -66,6 +66,7 @@ const BalanceDonut = ({
         width={size}
         height={size}
         viewBox={`0 0 ${size} ${size}`}
+        className="absolute inset-0"
         style={{ transform: "rotate(-90deg)" }}
       >
         <circle
@@ -73,13 +74,14 @@ const BalanceDonut = ({
           cy={size / 2}
           r={r}
           fill="none"
-          stroke="currentColor"
-          strokeOpacity={0.1}
+          stroke="var(--club-200)"
           strokeWidth={stroke}
         />
         {arcs}
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <div
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
         <MoodFace variant={centerVariant} size={inner} />
       </div>
     </div>
@@ -345,7 +347,7 @@ const BemEstar = () => {
       <Header title="Bem-estar" />
 
       {/* Range tabs */}
-      <div className="px-4 pt-[calc(env(safe-area-inset-top)+56px+1cm)]">
+      <div className="px-4 pt-[calc(env(safe-area-inset-top)+56px)]">
         <div className="rounded-full bg-white border border-slate-200 p-1 grid grid-cols-3 gap-1">
           {RANGES.map((r) => (
             <button
