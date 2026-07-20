@@ -67,16 +67,38 @@ function applyClubVars(primary: string) {
   Object.entries(shades).forEach(([k, v]) => root.style.setProperty(k, v));
 }
 
+// Apply cached club colors as early as possible (module import) to avoid a
+// flash of the default green before React mounts and reads the profile.
+if (typeof window !== "undefined") {
+  try {
+    const cachedId = localStorage.getItem("club-theme:clubId");
+    if (cachedId) {
+      const club = getClubById(cachedId);
+      if (club?.primaryColor) applyClubVars(club.primaryColor);
+      else applyClubVars(FALLBACK_PRIMARY);
+    } else {
+      applyClubVars(FALLBACK_PRIMARY);
+    }
+  } catch {
+    applyClubVars(FALLBACK_PRIMARY);
+  }
+}
+
 export const ClubThemeProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
-  const [clubId, setClubId] = useState<string | null>(null);
+  const [clubId, setClubId] = useState<string | null>(() => {
+    try { return localStorage.getItem("club-theme:clubId"); } catch { return null; }
+  });
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       if (!user) {
-        if (!cancelled) setClubId(null);
+        if (!cancelled) {
+          setClubId(null);
+          try { localStorage.removeItem("club-theme:clubId"); } catch {}
+        }
         return;
       }
       const { data } = await supabase
@@ -84,7 +106,14 @@ export const ClubThemeProvider = ({ children }: { children: ReactNode }) => {
         .select("favorite_club_id")
         .eq("user_id", user.id)
         .maybeSingle();
-      if (!cancelled) setClubId(data?.favorite_club_id ?? null);
+      if (!cancelled) {
+        const next = data?.favorite_club_id ?? null;
+        setClubId(next);
+        try {
+          if (next) localStorage.setItem("club-theme:clubId", next);
+          else localStorage.removeItem("club-theme:clubId");
+        } catch {}
+      }
     }
     load();
     return () => { cancelled = true; };
