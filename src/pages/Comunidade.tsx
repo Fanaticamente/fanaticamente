@@ -371,8 +371,8 @@ const Comunidade = () => {
                 }`}>
                   {f.rank}
                 </div>
-                <div className="w-9 h-9 rounded-full bg-gray-200 ml-3 overflow-hidden">
-                  {f.avatar && <img src={f.avatar} alt="" className="w-full h-full object-cover" />}
+                <div className="w-9 h-9 rounded-full bg-gray-200 ml-3 overflow-hidden select-none">
+                  {f.avatar && <img src={f.avatar} alt="" className="w-full h-full object-cover" {...avatarImgProps} />}
                 </div>
                 <span className={`flex-1 ml-3 text-sm font-medium truncate ${f.isMe ? "text-[var(--club-600)]" : "text-gray-800"}`}>
                   {f.name}
