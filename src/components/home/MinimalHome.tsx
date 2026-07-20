@@ -10,7 +10,6 @@ import icEspecialista from "@/assets/Untitled_design-23.png.asset.json";
 import icRadio from "@/assets/Untitled_design-20.png.asset.json";
 import icNoticias from "@/assets/Untitled_design-21.png.asset.json";
 import icRanking from "@/assets/Untitled_design-22.png.asset.json";
-import { useClubTheme } from "@/contexts/ClubThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
