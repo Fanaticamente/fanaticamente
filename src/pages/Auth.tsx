@@ -373,7 +373,7 @@ const Auth = () => {
       if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
         age--;
       }
-      const minAge = authMode === "professional" ? 18 : 16;
+      const minAge = 18;
       if (age < minAge) {
         newErrors.birthDate = `Você deve ter pelo menos ${minAge} anos`;
       }
@@ -699,7 +699,7 @@ const Auth = () => {
                           min="1900-01-01"
                           max={format(
                             new Date(
-                              new Date().getFullYear() - (authMode === "professional" ? 18 : 16),
+                            new Date().getFullYear() - 18,
                               new Date().getMonth(),
                               new Date().getDate()
                             ),
@@ -948,7 +948,7 @@ const Auth = () => {
                   className={`w-full py-4 rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed ${
                     authMode === "professional"
                       ? "bg-therapy text-therapy-foreground"
-                      : "bg-primary text-primary-foreground"
+                      : "bg-[#237B0E] text-white"
                   }`}
                 >
                   {isLoading
@@ -966,7 +966,7 @@ const Auth = () => {
                     setErrors({});
                   }}
                   className={`hover:underline ${
-                    authMode === "professional" ? "text-therapy" : "text-primary"
+                    authMode === "professional" ? "text-therapy" : "text-[#237B0E]"
                   }`}
                 >
                   {isLogin
@@ -975,16 +975,6 @@ const Auth = () => {
                 </button>
               </div>
 
-          <button
-                type="button"
-                onClick={() => navigate("/")}
-                className="w-full mt-4 py-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-                hidden={authMode === "professional"}
-                style={authMode === "professional" ? { display: "none" } : undefined}
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm">Voltar</span>
-              </button>
             </div>
 
           </div>
@@ -1088,7 +1078,7 @@ const Auth = () => {
                       min="1900-01-01"
                       max={format(
                         new Date(
-                          new Date().getFullYear() - (authMode === "professional" ? 18 : 16),
+                          new Date().getFullYear() - 18,
                           new Date().getMonth(),
                           new Date().getDate()
                         ),
@@ -1340,7 +1330,7 @@ const Auth = () => {
               className={`w-full py-4 rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed ${
                 authMode === "professional"
                   ? "bg-therapy text-therapy-foreground"
-                  : "bg-primary text-primary-foreground"
+                  : "bg-[#237B0E] text-white"
               }`}
             >
               {isLoading
@@ -1358,7 +1348,7 @@ const Auth = () => {
                 setErrors({});
               }}
               className={`hover:underline ${
-                authMode === "professional" ? "text-therapy" : "text-primary"
+                authMode === "professional" ? "text-therapy" : "text-[#237B0E]"
               }`}
             >
               {isLogin
@@ -1367,16 +1357,6 @@ const Auth = () => {
             </button>
           </div>
 
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="w-full mt-4 py-3 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-            hidden={authMode === "professional"}
-            style={authMode === "professional" ? { display: "none" } : undefined}
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm">Voltar</span>
-          </button>
         </div>
 
       </div>
