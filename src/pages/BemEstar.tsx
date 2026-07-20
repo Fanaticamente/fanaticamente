@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format, subDays, differenceInCalendarDays, startOfMonth, startOfYear, parseISO, startOfWeek, endOfWeek, addWeeks } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
+  ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from "recharts";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,7 +32,7 @@ const BemEstar = () => {
   const { user } = useAuth();
   const [range, setRange] = useState<RangeId>("semana");
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [detailsTab, setDetailsTab] = useState<"semana" | "mes">("semana");
+  const [detailsTab, setDetailsTab] = useState<"semana" | "mes" | "historico">("semana");
 
   const { data: emotions = [] } = useQuery({
     queryKey: ["bemestar-emotions", user?.id],
@@ -153,7 +153,16 @@ const BemEstar = () => {
   const todayIdx = series.findIndex((s) => s.isToday && s.value !== null);
   const todayPoint = todayIdx >= 0 ? series[todayIdx] : null;
 
-  // Details: last 7 days grouped and last 4 weeks grouped
+  // Emoji tiers used by both chart Y-axis and legend
+  const MOOD_TIERS = [
+    { value: 100, label: "Ótimo", emoji: "😄" },
+    { value: 75, label: "Bem", emoji: "🙂" },
+    { value: 50, label: "Neutro", emoji: "😐" },
+    { value: 25, label: "Chateado", emoji: "😟" },
+    { value: 0, label: "Mal", emoji: "😢" },
+  ];
+
+  // Details: last 7 days grouped, last 4 weeks grouped, and full history
   const details = useMemo(() => {
     const now = new Date();
     const daily: { date: string; label: string; emotion?: string; value: number | null; note?: string | null }[] = [];
@@ -189,7 +198,24 @@ const BemEstar = () => {
         avg,
       });
     }
-    return { daily, weekly };
+    // Full history grouped by month (desc)
+    const historyGroups: Record<string, typeof emotions> = {};
+    emotions.forEach((e) => {
+      const d = parseISO(e.entry_date);
+      const key = format(d, "yyyy-MM");
+      if (!historyGroups[key]) historyGroups[key] = [] as any;
+      (historyGroups[key] as any).push(e);
+    });
+    const history = Object.keys(historyGroups)
+      .sort((a, b) => b.localeCompare(a))
+      .map((k) => ({
+        key: k,
+        label: format(parseISO(`${k}-01`), "MMMM 'de' yyyy", { locale: ptBR }),
+        entries: (historyGroups[k] as any).sort((a: any, b: any) =>
+          b.entry_date.localeCompare(a.entry_date)
+        ),
+      }));
+    return { daily, weekly, history };
   }, [emotions]);
 
   const emotionLabels: Record<string, string> = {
@@ -255,10 +281,10 @@ const BemEstar = () => {
           </div>
         </div>
 
-        <div className="mt-5 h-[220px] -mx-2">
+        <div className="mt-5 h-[240px] -mx-2">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={series} margin={{ top: 10, right: 12, left: 0, bottom: 0 }} barCategoryGap="25%">
-              <CartesianGrid stroke="#e2e8f0" strokeDasharray="4 4" vertical={false} />
+            <LineChart data={series} margin={{ top: 12, right: 16, left: 8, bottom: 4 }}>
+              <CartesianGrid stroke="#e2e8f0" strokeDasharray="4 4" />
               <XAxis
                 dataKey="label"
                 axisLine={false}
@@ -284,25 +310,48 @@ const BemEstar = () => {
                 ticks={[0, 25, 50, 75, 100]}
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#94a3b8", fontSize: 12 }}
+                width={36}
+                tick={(props) => {
+                  const { x, y, payload } = props;
+                  const tier = MOOD_TIERS.find((t) => t.value === payload.value);
+                  return (
+                    <text x={x - 4} y={y + 5} textAnchor="middle" fontSize={16}>
+                      {tier?.emoji ?? ""}
+                    </text>
+                  );
+                }}
               />
               <Tooltip
-                cursor={{ fill: "var(--club-50)" }}
+                cursor={{ stroke: "var(--club-200)", strokeWidth: 1 }}
                 contentStyle={{
                   borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 12,
                 }}
-                formatter={(v: number) => [`${v}%`, "Equilíbrio"]}
+                formatter={(v: number) => {
+                  const tier = [...MOOD_TIERS]
+                    .sort((a, b) => Math.abs(a.value - v) - Math.abs(b.value - v))[0];
+                  return [`${tier.emoji} ${tier.label}`, "Sentimento"];
+                }}
               />
-              <Bar dataKey="value" radius={[8, 8, 8, 8]} minPointSize={4}>
-                {series.map((s, i) => (
-                  <Cell
-                    key={i}
-                    fill={s.isToday ? "var(--club-600)" : "var(--club-200)"}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke="var(--club-600)"
+                strokeWidth={3}
+                dot={{ r: 5, fill: "#fff", stroke: "var(--club-600)", strokeWidth: 2.5 }}
+                activeDot={{ r: 7, fill: "var(--club-600)", stroke: "#fff", strokeWidth: 2 }}
+                connectNulls
+              />
+            </LineChart>
           </ResponsiveContainer>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 justify-center">
+          {MOOD_TIERS.map((t) => (
+            <div key={t.value} className="flex items-center gap-1 text-xs text-slate-500">
+              <span className="text-sm leading-none">{t.emoji}</span>
+              <span>{t.label}</span>
+            </div>
+          ))}
         </div>
 
         <button
@@ -353,19 +402,19 @@ const BemEstar = () => {
           </DialogHeader>
 
           <div className="px-5 pt-3">
-            <div className="rounded-full bg-slate-100 p-1 grid grid-cols-2 gap-1">
-              {(["semana", "mes"] as const).map((t) => (
+            <div className="rounded-full bg-slate-100 p-1 grid grid-cols-3 gap-1">
+              {(["semana", "mes", "historico"] as const).map((t) => (
                 <button
                   key={t}
                   onClick={() => setDetailsTab(t)}
                   className={cn(
-                    "py-2 rounded-full text-sm font-semibold transition-colors",
+                    "py-2 rounded-full text-xs font-semibold transition-colors",
                     detailsTab === t
                       ? "bg-white text-[var(--club-600)] shadow-sm"
                       : "text-slate-500"
                   )}
                 >
-                  {t === "semana" ? "Últimos 7 dias" : "Últimas 4 semanas"}
+                  {t === "semana" ? "7 dias" : t === "mes" ? "4 semanas" : "Histórico"}
                 </button>
               ))}
             </div>
@@ -398,7 +447,7 @@ const BemEstar = () => {
                   </div>
                 ))}
               </div>
-            ) : (
+            ) : detailsTab === "mes" ? (
               <div className="space-y-2">
                 {details.weekly.map((w) => (
                   <div
@@ -420,6 +469,48 @@ const BemEstar = () => {
                       )}
                     >
                       {w.avg !== null ? `${w.avg}%` : "—"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {details.history.length === 0 && (
+                  <p className="text-sm text-slate-500 text-center py-6">
+                    Nenhum check-in registrado ainda.
+                  </p>
+                )}
+                {details.history.map((group) => (
+                  <div key={group.key}>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2 capitalize">
+                      {group.label}
+                    </p>
+                    <div className="space-y-2">
+                      {group.entries.map((e: any) => {
+                        const score = MOOD_SCORES[e.emotion] ?? 60;
+                        const tier = [...MOOD_TIERS].sort(
+                          (a, b) => Math.abs(a.value - score) - Math.abs(b.value - score)
+                        )[0];
+                        return (
+                          <div
+                            key={e.entry_date + (e.created_at ?? "")}
+                            className="flex items-center gap-3 rounded-2xl border border-slate-200 p-3"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-[var(--club-50)] flex items-center justify-center text-xl shrink-0">
+                              {tier.emoji}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-slate-900">
+                                {format(parseISO(e.entry_date), "EEE, dd 'de' MMM", { locale: ptBR })}
+                              </p>
+                              <p className="text-xs text-slate-500 truncate">
+                                {emotionLabels[e.emotion] ?? tier.label}
+                                {e.note ? ` • ${String(e.note).slice(0, 60)}` : ""}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
