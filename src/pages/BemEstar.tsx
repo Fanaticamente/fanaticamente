@@ -16,8 +16,14 @@ import { cn } from "@/lib/utils";
 import MoodFace, { type MoodVariant } from "@/components/MoodFace";
 
 const MOOD_SCORES: Record<string, number> = {
-  otimo: 100, bem: 80, muito_bem: 90, neutro: 60, mais_ou_menos: 55,
-  ansioso: 40, nao_legal: 35, mal: 20, irritado: 30,
+  // Current check-in ids
+  muito_bem: 100,
+  mais_ou_menos: 75,
+  nao_legal: 50,
+  ansioso: 25,
+  irritado: 0,
+  // Legacy ids (kept for old entries)
+  otimo: 100, bem: 75, neutro: 50, mal: 0,
 };
 
 const RANGES = [
@@ -50,21 +56,21 @@ const BemEstar = () => {
     },
   });
 
-  const { series, avg, delta } = useMemo(() => {
+  const { series, avg, delta, distribution } = useMemo(() => {
     const cfg = RANGES.find((r) => r.id === range)!;
     const now = new Date();
     const start =
       cfg.id === "semana"
         ? subDays(now, 6)
         : cfg.id === "mes"
-        ? startOfMonth(now)
-        : startOfYear(now);
+        ? startOfMonth(subDays(now, 30 * 5)) // ~6 months back
+        : startOfYear(subDays(now, 365 * 5)); // ~6 years back
 
     const filtered = emotions.filter((e) => new Date(e.entry_date) >= start);
     const scores = filtered.map((e) => MOOD_SCORES[e.emotion] ?? 60);
 
     // Weekly series: last 7 days Seg-Dom
-    let series: { label: string; value: number | null; isToday?: boolean }[] = [];
+    let series: { label: string; sub?: string; value: number | null; isToday?: boolean }[] = [];
     if (cfg.id === "semana") {
       const labels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
       series = Array.from({ length: 7 }).map((_, i) => {
@@ -74,32 +80,34 @@ const BemEstar = () => {
         const dow = (d.getDay() + 6) % 7; // Mon=0
         return {
           label: i === 6 ? "Hoje" : labels[dow],
+          sub: format(d, "dd/MM"),
           value: entry ? MOOD_SCORES[entry.emotion] ?? 60 : null,
           isToday: i === 6,
         };
       });
     } else if (cfg.id === "mes") {
-      // 4 buckets by week
-      series = Array.from({ length: 4 }).map((_, i) => {
-        const bucketStart = subDays(now, (3 - i) * 7 + 6);
-        const bucketEnd = subDays(now, (3 - i) * 7);
+      // Last 6 months
+      const months = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+      series = Array.from({ length: 6 }).map((_, i) => {
+        const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
         const items = emotions.filter((e) => {
-          const d = new Date(e.entry_date);
-          return d >= bucketStart && d <= bucketEnd;
+          const ed = new Date(e.entry_date);
+          return ed.getFullYear() === d.getFullYear() && ed.getMonth() === d.getMonth();
         });
         const val = items.length
           ? Math.round(items.reduce((s, e) => s + (MOOD_SCORES[e.emotion] ?? 60), 0) / items.length)
           : null;
-        return { label: `S${i + 1}`, value: val, isToday: i === 3 };
+        return { label: months[d.getMonth()], sub: format(d, "yy"), value: val, isToday: i === 5 };
       });
     } else {
-      const months = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
-      series = months.map((m, i) => {
-        const items = emotions.filter((e) => new Date(e.entry_date).getMonth() === i);
+      // Last 6 years (current year at the end)
+      series = Array.from({ length: 6 }).map((_, i) => {
+        const y = now.getFullYear() - (5 - i);
+        const items = emotions.filter((e) => new Date(e.entry_date).getFullYear() === y);
         const val = items.length
           ? Math.round(items.reduce((s, e) => s + (MOOD_SCORES[e.emotion] ?? 60), 0) / items.length)
           : null;
-        return { label: m, value: val, isToday: i === now.getMonth() };
+        return { label: String(y), value: val, isToday: i === 5 };
       });
     }
 
@@ -118,7 +126,13 @@ const BemEstar = () => {
       : 0;
     const delta = prevAvg ? avg - prevAvg : 0;
 
-    return { series, avg, delta };
+    // Distribution of emotions in the range (for the donut)
+    const distribution: Record<string, number> = {};
+    filtered.forEach((e) => {
+      distribution[e.emotion] = (distribution[e.emotion] ?? 0) + 1;
+    });
+
+    return { series, avg, delta, distribution };
   }, [emotions, range]);
 
   const message =
@@ -223,10 +237,37 @@ const BemEstar = () => {
   }, [emotions]);
 
   const emotionLabels: Record<string, string> = {
-    otimo: "Ótimo", bem: "Bem", muito_bem: "Muito bem", neutro: "Neutro",
-    mais_ou_menos: "Mais ou menos", ansioso: "Ansioso", nao_legal: "Não legal",
-    mal: "Mal", irritado: "Irritado",
+    muito_bem: "Muito bem",
+    mais_ou_menos: "Mais ou menos",
+    nao_legal: "Não estou legal",
+    ansioso: "Ansioso",
+    irritado: "Irritado",
+    // Legacy
+    otimo: "Muito bem", bem: "Mais ou menos", neutro: "Não estou legal", mal: "Irritado",
   };
+
+  // ---- Balance donut (top-right of the card) ----
+  // Ring segments sized by count per emotion; colored with club opacity by tier.
+  const donut = useMemo(() => {
+    const order: { id: string; opacity: number }[] = [
+      { id: "muito_bem", opacity: 1 },
+      { id: "mais_ou_menos", opacity: 0.8 },
+      { id: "nao_legal", opacity: 0.6 },
+      { id: "ansioso", opacity: 0.4 },
+      { id: "irritado", opacity: 0.25 },
+    ];
+    // Merge legacy ids into current buckets
+    const merged: Record<string, number> = {};
+    Object.entries(distribution).forEach(([k, v]) => {
+      const map: Record<string, string> = {
+        otimo: "muito_bem", bem: "mais_ou_menos", neutro: "nao_legal", mal: "irritado",
+      };
+      const key = map[k] ?? k;
+      merged[key] = (merged[key] ?? 0) + v;
+    });
+    const total = Object.values(merged).reduce((s, v) => s + v, 0);
+    return { order, merged, total };
+  }, [distribution]);
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 normal-case">
@@ -254,7 +295,8 @@ const BemEstar = () => {
 
       {/* Balance card */}
       <section className="mx-4 mt-4 rounded-3xl bg-white border border-slate-200 shadow-sm p-5">
-        <div>
+        <div className="flex items-start justify-between gap-3">
+          <div>
           <h2
             className="font-sans text-lg font-bold text-slate-900 !normal-case"
             style={{ textTransform: "none" }}
@@ -264,6 +306,20 @@ const BemEstar = () => {
           <p className="text-sm text-slate-500 mt-1 leading-snug">
             Veja o equilíbrio ou a variação das suas emoções.
           </p>
+          </div>
+
+          {/* Balance donut */}
+          <div className="shrink-0 text-[var(--club-600)]">
+            <BalanceDonut
+              size={78}
+              segments={donut.order.map((o) => ({
+                value: donut.merged[o.id] ?? 0,
+                opacity: o.opacity,
+              }))}
+              total={donut.total}
+              centerVariant={variantForValue(avg)}
+            />
+          </div>
         </div>
 
         <div className="mt-5 h-[260px] -mx-2 text-[var(--club-600)]">
@@ -274,19 +330,34 @@ const BemEstar = () => {
                 dataKey="label"
                 axisLine={false}
                 tickLine={false}
+                interval={0}
+                height={38}
                 tick={(props) => {
-                  const { x, y, payload } = props;
+                  const { x, y, payload, index } = props;
                   const isToday = payload.value === "Hoje";
+                  const sub = series[index]?.sub;
                   return (
-                    <text
-                      x={x} y={y + 14}
-                      textAnchor="middle"
-                      fontSize={12}
-                      fontWeight={isToday ? 700 : 500}
-                      fill={isToday ? "var(--club-600)" : "#94a3b8"}
-                    >
-                      {payload.value}
-                    </text>
+                    <g>
+                      <text
+                        x={x} y={y + 14}
+                        textAnchor="middle"
+                        fontSize={12}
+                        fontWeight={isToday ? 700 : 500}
+                        fill={isToday ? "var(--club-600)" : "#94a3b8"}
+                      >
+                        {payload.value}
+                      </text>
+                      {sub && (
+                        <text
+                          x={x} y={y + 28}
+                          textAnchor="middle"
+                          fontSize={10}
+                          fill={isToday ? "var(--club-600)" : "#cbd5e1"}
+                        >
+                          {sub}
+                        </text>
+                      )}
+                    </g>
                   );
                 }}
               />
@@ -321,7 +392,7 @@ const BemEstar = () => {
                 }}
               />
               <Line
-                type="natural"
+                type="monotone"
                 dataKey="value"
                 stroke="var(--club-600)"
                 strokeWidth={2.5}
@@ -330,11 +401,15 @@ const BemEstar = () => {
                   const { cx, cy, value, index } = props;
                   if (value == null || cx == null || cy == null) return <g key={`d-${index}`} />;
                   return (
-                    <foreignObject key={`d-${index}`} x={cx - 12} y={cy - 12} width={24} height={24}>
-                      <div style={{ color: "var(--club-600)" }}>
-                        <MoodFace variant={variantForValue(value)} size={24} />
-                      </div>
-                    </foreignObject>
+                    <circle
+                      key={`d-${index}`}
+                      cx={cx}
+                      cy={cy}
+                      r={5}
+                      fill="#ffffff"
+                      stroke="var(--club-600)"
+                      strokeWidth={2.5}
+                    />
                   );
                 }}
                 activeDot={false}
