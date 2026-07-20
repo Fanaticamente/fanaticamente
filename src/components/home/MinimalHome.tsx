@@ -53,17 +53,26 @@ const MinimalHome = () => {
   const { data: profile } = useQuery({
     queryKey: ["mh-profile", user?.id],
     enabled: !!user,
+    staleTime: 5 * 60 * 1000,
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
         .select("full_name")
         .eq("user_id", user!.id)
         .maybeSingle();
+      if (data?.full_name) {
+        try { localStorage.setItem("mh:firstName", data.full_name.split(" ")[0]); } catch {}
+      }
       return data;
     },
   });
 
-  const firstName = (profile?.full_name || "torcedor").split(" ")[0];
+  const cachedFirstName = (() => {
+    try { return localStorage.getItem("mh:firstName") || ""; } catch { return ""; }
+  })();
+  const firstName = profile?.full_name
+    ? profile.full_name.split(" ")[0]
+    : cachedFirstName;
   const greeting = (() => {
     const h = new Date().getHours();
     if (h < 12) return "Bom dia";
@@ -122,10 +131,16 @@ const MinimalHome = () => {
     <div className="font-sans text-slate-900 space-y-5 pb-4">
       {/* Greeting */}
       <section className="pt-0">
-        <h1 className="font-sans text-2xl font-extrabold tracking-tight leading-none normal-case flex items-center gap-1 whitespace-nowrap">
-          {greeting},{" "}
-          <span className="text-[var(--club-600)]">{firstName}!</span>{" "}
-          <span className="inline-block">👋</span>
+        <h1 className="font-sans text-2xl font-extrabold tracking-tight leading-none normal-case flex items-center gap-1 whitespace-nowrap min-h-[1.5rem]">
+          {firstName ? (
+            <>
+              {greeting},{" "}
+              <span className="text-[var(--club-600)]">{firstName}!</span>{" "}
+              <span className="inline-block">👋</span>
+            </>
+          ) : (
+            <span className="opacity-0">{greeting}</span>
+          )}
         </h1>
         <p className="mt-1.5 text-slate-500 text-[15px] leading-snug">
           Saúde Mental agora é papo de arquibancada!
