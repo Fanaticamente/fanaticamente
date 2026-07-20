@@ -207,8 +207,8 @@ const MinimalHome = () => {
 
       {reasonOpen && selected && (
         <div
-          className="fixed inset-0 z-[80] flex flex-col text-white"
-          style={{ background: "var(--club-600)" }}
+          className="fixed inset-0 z-[80] flex flex-col text-white bg-[var(--club-600)]"
+          style={{ minHeight: "100dvh" }}
         >
           <div
             className="flex items-center gap-3 px-4"
@@ -222,12 +222,12 @@ const MinimalHome = () => {
               <ChevronRight className="w-6 h-6 rotate-180 text-white" />
             </button>
             <h2 className="font-sans text-lg font-bold normal-case flex-1">
-              Qual o motivo do sentimento?
+              De onde vem este sentimento?
             </h2>
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32">
-            {REASON_GROUPS.map((g) => (
+            {getReasonGroups(selected).map((g) => (
               <div key={g.title} className="mt-4 first:mt-0">
                 <h3 className="text-center font-sans font-bold text-white/85 normal-case mb-3">
                   {g.title}
@@ -259,18 +259,20 @@ const MinimalHome = () => {
             ))}
           </div>
 
-          <div
-            className="absolute inset-x-0 bottom-0 px-4 pt-3 bg-gradient-to-t from-[var(--club-700)] to-transparent"
-            style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
-          >
-            <button
-              disabled={checkinMutation.isPending || reasons.length === 0}
-              onClick={() => checkinMutation.mutate({ moodId: selected, note: reasons.join(", ") })}
-              className="w-full py-3.5 rounded-2xl bg-white text-[var(--club-700)] font-bold text-sm transition disabled:opacity-60"
+          {reasons.length > 0 && (
+            <div
+              className="absolute inset-x-0 bottom-0 px-4 pt-3 bg-gradient-to-t from-[var(--club-700)] to-transparent"
+              style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
             >
-              {checkinMutation.isPending ? "Registrando…" : "Confirmar"}
-            </button>
-          </div>
+              <button
+                disabled={checkinMutation.isPending}
+                onClick={() => checkinMutation.mutate({ moodId: selected, note: reasons.join(", ") })}
+                className="w-full py-3.5 rounded-2xl bg-white text-[var(--club-700)] font-bold text-sm transition disabled:opacity-60"
+              >
+                {checkinMutation.isPending ? "Registrando…" : "Confirmar"}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
