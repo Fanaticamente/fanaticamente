@@ -456,7 +456,7 @@ const EmotionTacticalBoard = () => {
       <style>{pulseStyle}</style>
 
       <div className="flex items-center gap-2 mb-4">
-        <ClipboardList className="w-5 h-5 text-primary" />
+        <ClipboardList className="w-5 h-5 text-[var(--club-600)]" />
         <span className="text-card-foreground font-bold font-sans">
           Prancheta emocional
         </span>
@@ -471,8 +471,8 @@ const EmotionTacticalBoard = () => {
 
         <div className="mb-3">
           <div className="flex items-center gap-1.5 mb-1.5">
-            <Swords className="w-3.5 h-3.5 text-secondary" />
-            <span className="text-[10px] font-bold text-secondary tracking-wide">Ofensivas</span>
+            <Swords className="w-3.5 h-3.5 text-[var(--club-600)]" />
+            <span className="text-[10px] font-bold text-[var(--club-600)] tracking-wide">Ofensivas</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             {formations.filter((f) => f.type === "ofensiva").map((f) => (
@@ -482,10 +482,10 @@ const EmotionTacticalBoard = () => {
                 disabled={isCompleted}
                 className={`py-2.5 rounded-xl border text-sm font-bold transition-all ${
                   selectedFormation?.id === f.id
-                    ? "bg-secondary text-secondary-foreground border-secondary"
+                    ? "bg-[var(--club-600)] text-[var(--club-on)] border-[var(--club-600)]"
                     : isCompleted
                     ? "bg-muted/50 text-muted-foreground border-border cursor-not-allowed"
-                    : "bg-muted text-card-foreground border-border hover:border-secondary hover:bg-secondary/10"
+                    : "bg-muted text-card-foreground border-border hover:border-[var(--club-600)]"
                 }`}
               >
                 {f.label}
@@ -496,8 +496,8 @@ const EmotionTacticalBoard = () => {
 
         <div>
           <div className="flex items-center gap-1.5 mb-1.5">
-            <Shield className="w-3.5 h-3.5 text-primary" />
-            <span className="text-[10px] font-bold text-primary tracking-wide">Defensivas</span>
+            <Shield className="w-3.5 h-3.5 text-[var(--club-600)]" />
+            <span className="text-[10px] font-bold text-[var(--club-600)] tracking-wide">Defensivas</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             {formations.filter((f) => f.type === "defensiva").map((f) => (
@@ -507,10 +507,10 @@ const EmotionTacticalBoard = () => {
                 disabled={isCompleted}
                 className={`py-2.5 rounded-xl border text-sm font-bold transition-all ${
                   selectedFormation?.id === f.id
-                    ? "bg-primary text-primary-foreground border-primary"
+                    ? "bg-[var(--club-600)] text-[var(--club-on)] border-[var(--club-600)]"
                     : isCompleted
                     ? "bg-muted/50 text-muted-foreground border-border cursor-not-allowed"
-                    : "bg-muted text-card-foreground border-border hover:border-primary hover:bg-primary/10"
+                    : "bg-muted text-card-foreground border-border hover:border-[var(--club-600)]"
                 }`}
               >
                 {f.label}
@@ -668,7 +668,7 @@ const EmotionTacticalBoard = () => {
             disabled={filledCount === 0 || saving}
             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all ${
               filledCount > 0
-                ? "bg-primary text-primary-foreground hover:scale-[1.02]"
+                ? "bg-[var(--club-600)] text-[var(--club-on)] hover:scale-[1.02]"
                 : "bg-muted text-muted-foreground cursor-not-allowed"
             }`}
           >
@@ -712,7 +712,7 @@ const EmotionTacticalBoard = () => {
 
       {analyzingAI && !aiAnalysis && (
         <div className="mt-5 bg-muted border border-border rounded-2xl p-5 flex items-center justify-center gap-3">
-          <Loader2 className="w-5 h-5 animate-spin text-primary" />
+          <Loader2 className="w-5 h-5 animate-spin text-[var(--club-600)]" />
           <span className="text-muted-foreground text-sm">Analisando sua escalação...</span>
         </div>
       )}
