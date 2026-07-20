@@ -23,7 +23,7 @@ const MOODS = [
   { id: "irritado", emoji: "😠", label: "Irritado",        bg: "bg-rose-100",    ring: "ring-rose-400" },
 ];
 
-const REASON_GROUPS: { title: string; items: string[] }[] = [
+const REASON_GROUPS_BASE: { title: string; items: string[] }[] = [
   { title: "Carreira e Estudos", items: ["Carreira e Estudos", "Produtividade", "Relações profissionais", "Salário"] },
   { title: "Emocional", items: ["Controle emocional", "Medos e fobias", "Mudanças", "Traumas"] },
   { title: "Família e Amigos", items: ["Amigos", "Familiares", "Filhos", "Pais"] },
@@ -31,6 +31,16 @@ const REASON_GROUPS: { title: string; items: string[] }[] = [
   { title: "Saúde e Bem Estar", items: ["Alimentação", "Corpo", "Doente", "Dor física", "Estudos", "Exercícios físicos / Esportes", "Hábitos", "Meditação", "Sono", "Vícios"] },
   { title: "Vida Amorosa", items: ["Orientação sexual", "Relacionamento amoroso", "Sexo"] },
 ];
+
+const GOOD_MOODS = ["muito_bem"];
+
+const getReasonGroups = (moodId: string | null) => {
+  const isGood = moodId ? GOOD_MOODS.includes(moodId) : false;
+  const meuClubeItems = isGood
+    ? ["Vitória", "Goleada aplicada", "Vitória no clássico", "Classificação", "Título", "Derrota do rival"]
+    : ["Derrotas", "Empate", "Goleada sofrida", "Derrota no clássico", "Desclassificação", "Perda de título", "Vitória do rival"];
+  return [{ title: "Meu Clube", items: meuClubeItems }, ...REASON_GROUPS_BASE];
+};
 
 const SUGGESTIONS = [
   { img: icCampo.url,        kicker: "Sugestão para você", title: "Campo das emoções",                         subtitle: "Escale seu time e gere uma reflexão", path: "/diario" },
