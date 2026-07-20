@@ -215,9 +215,13 @@ const EditarPerfil = () => {
               <div>
                 <label className="text-xs text-slate-500">Time do coração</label>
                 <Select value={favoriteClubId} onValueChange={setFavoriteClubId}>
-                  <SelectTrigger className="mt-1 h-11 rounded-xl border-slate-200"><SelectValue placeholder="Selecione seu time" /></SelectTrigger>
-                  <SelectContent>
-                    {allBrazilianClubs.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
+                  <SelectTrigger className="mt-1 h-11 rounded-xl border border-slate-200 bg-white text-slate-900 [&>span]:text-slate-900">
+                    <SelectValue placeholder="Selecione seu time" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white text-slate-900 border-slate-200 max-h-72">
+                    {allBrazilianClubs.map((c) => (
+                      <SelectItem key={c.id} value={c.id} className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">{c.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -225,15 +229,15 @@ const EditarPerfil = () => {
                 <div>
                   <label className="text-xs text-slate-500">Estado</label>
                   <Select value={state} onValueChange={(v) => { setState(v); setCity(""); }}>
-                    <SelectTrigger className="mt-1 h-11 rounded-xl border-slate-200"><SelectValue placeholder="Estado" /></SelectTrigger>
-                    <SelectContent>{brazilianStates.map((s) => (<SelectItem key={s.sigla} value={s.sigla}>{s.sigla}</SelectItem>))}</SelectContent>
+                    <SelectTrigger className="mt-1 h-11 rounded-xl border border-slate-200 bg-white text-slate-900 [&>span]:text-slate-900"><SelectValue placeholder="Estado" /></SelectTrigger>
+                    <SelectContent className="bg-white text-slate-900 border-slate-200 max-h-72">{brazilianStates.map((s) => (<SelectItem key={s.sigla} value={s.sigla} className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">{s.sigla}</SelectItem>))}</SelectContent>
                   </Select>
                 </div>
                 <div>
                   <label className="text-xs text-slate-500">Cidade</label>
                   <Select value={city} onValueChange={setCity} disabled={!state}>
-                    <SelectTrigger className="mt-1 h-11 rounded-xl border-slate-200"><SelectValue placeholder="—" /></SelectTrigger>
-                    <SelectContent>{cities.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}</SelectContent>
+                    <SelectTrigger className="mt-1 h-11 rounded-xl border border-slate-200 bg-white text-slate-900 [&>span]:text-slate-900"><SelectValue placeholder="—" /></SelectTrigger>
+                    <SelectContent className="bg-white text-slate-900 border-slate-200 max-h-72">{cities.map((c) => (<SelectItem key={c} value={c} className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">{c}</SelectItem>))}</SelectContent>
                   </Select>
                 </div>
               </div>
@@ -309,25 +313,25 @@ const EditarPerfil = () => {
       )}
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white text-slate-900 border-slate-200 rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-red-600 flex items-center gap-2 normal-case">
               <Trash2 className="w-5 h-5" /> Excluir conta
             </AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription className="text-slate-600">
               Tem certeza? Esta ação não pode ser desfeita. Nos conte o motivo:
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <RadioGroup value={deleteReason} onValueChange={setDeleteReason} className="space-y-3 py-4">
+          <RadioGroup value={deleteReason} onValueChange={setDeleteReason} className="space-y-3 py-2">
             {deleteReasons.map((r) => (
               <div key={r.id} className="flex items-center space-x-3">
-                <RadioGroupItem value={r.id} id={r.id} />
-                <Label htmlFor={r.id} className="text-sm cursor-pointer">{r.label}</Label>
+                <RadioGroupItem value={r.id} id={r.id} className="border-slate-300 text-red-600" />
+                <Label htmlFor={r.id} className="text-sm cursor-pointer text-slate-800 font-normal">{r.label}</Label>
               </div>
             ))}
           </RadioGroup>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50">Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAccount}
               disabled={loadingDelete || !deleteReason}
