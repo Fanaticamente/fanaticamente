@@ -198,7 +198,7 @@ const ZonaMista = () => {
                 <Link
                   key={news.id}
                   to={`/zona-mista/${news.id}`}
-                  className="group bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800 hover:border-[var(--club-600)]/50 transition-colors"
+                  className="group bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800 hover:border-[color:var(--club-600)]/50 transition-colors"
                 >
                   <div className="relative overflow-hidden">
                     <img
@@ -206,7 +206,7 @@ const ZonaMista = () => {
                       alt={news.title}
                       className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <Badge className="absolute top-4 left-4 bg-[var(--club-600)]/90 text-white">
+                    <Badge className="absolute top-4 left-4 bg-[color:var(--club-600)]/90 text-white">
                       {news.category}
                     </Badge>
                   </div>

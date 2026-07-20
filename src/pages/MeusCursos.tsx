@@ -26,10 +26,10 @@ const ConsciousnessBadge = ({
   points: number;
   pointsToNext: number;
 }) => (
-  <div className="relative overflow-hidden rounded-2xl border border-[var(--club-500)]/30 bg-gradient-to-br from-[var(--club-950)]/80 via-neutral-900 to-neutral-900 p-5">
-    <div className="absolute -right-8 -top-8 w-32 h-32 bg-[var(--club-500)]/10 rounded-full blur-2xl" />
+  <div className="relative overflow-hidden rounded-2xl border border-[color:var(--club-500)]/30 bg-gradient-to-br from-[color:var(--club-950)]/80 via-neutral-900 to-neutral-900 p-5">
+    <div className="absolute -right-8 -top-8 w-32 h-32 bg-[color:var(--club-500)]/10 rounded-full blur-2xl" />
     <div className="relative flex items-start gap-4">
-      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[var(--club-400)] to-[var(--club-700)] flex items-center justify-center shrink-0 shadow-lg shadow-[var(--club-900)]/50">
+      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[var(--club-400)] to-[var(--club-700)] flex items-center justify-center shrink-0 shadow-lg shadow-[color:var(--club-900)]/50">
         <Sparkles className="w-7 h-7 text-white" strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
@@ -87,7 +87,7 @@ const CourseProgressRow = ({
         </div>
       )}
       {status === "completed" && (
-        <div className="absolute inset-0 bg-[var(--club-500)]/30 flex items-center justify-center">
+        <div className="absolute inset-0 bg-[color:var(--club-500)]/30 flex items-center justify-center">
           <CheckCircle2 className="w-7 h-7 text-white drop-shadow" />
         </div>
       )}

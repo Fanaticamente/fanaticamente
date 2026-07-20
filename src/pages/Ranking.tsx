@@ -136,7 +136,7 @@ const Ranking = () => {
                     key={club.id}
                     className={`flex items-center py-3 px-3 transition-colors ${
                       isG4
-                        ? "bg-[var(--club-50)]/60"
+                        ? "bg-[color:var(--club-50)]/60"
                         : isZ4
                         ? "bg-red-50/40"
                         : ""
@@ -185,7 +185,7 @@ const Ranking = () => {
             {/* Legend */}
             <div className="flex items-center gap-6 py-4 mt-2 text-xs text-gray-500">
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-[var(--club-500)]/20 border border-[var(--club-500)]/40" />
+                <div className="w-3 h-3 rounded-sm bg-[color:var(--club-500)]/20 border border-[color:var(--club-500)]/40" />
                 <span>G-4 — Zona de classificação</span>
               </div>
               <div className="flex items-center gap-1.5">

@@ -175,7 +175,7 @@ const HeroCarousel = () => {
               )}
               <div className="relative h-full flex flex-col justify-end p-6 pb-10">
                 {slide.isHealthNews && (
-                  <div className="inline-flex items-center gap-1.5 self-start mb-3 px-3 py-1 rounded-full bg-[var(--club-500)]/90 backdrop-blur-sm">
+                  <div className="inline-flex items-center gap-1.5 self-start mb-3 px-3 py-1 rounded-full bg-[color:var(--club-500)]/90 backdrop-blur-sm">
                     <Heart className="w-3.5 h-3.5 text-white fill-white" />
                     <span className="text-white text-xs font-bold uppercase tracking-wide">
                       {slide.healthBadge ?? "Saúde"}

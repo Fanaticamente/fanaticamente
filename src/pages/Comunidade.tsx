@@ -132,7 +132,7 @@ const Comunidade = () => {
                   const pos = i + 1;
                   const highlight = pos === 1;
                   return (
-                    <div key={c.id} className={`flex items-center py-3 px-1 rounded-lg ${highlight ? "bg-[var(--club-50)]/60" : ""}`}>
+                    <div key={c.id} className={`flex items-center py-3 px-1 rounded-lg ${highlight ? "bg-[color:var(--club-50)]/60" : ""}`}>
                       <span className={`w-8 text-center text-sm font-bold ${highlight ? "text-[var(--club-600)]" : "text-gray-400"}`}>{pos}</span>
                       <div className="flex-1 ml-2 flex items-center gap-3 min-w-0">
                         <div className="w-7 h-7 flex-shrink-0"><ClubMark clubId={c.id} mode="badge" /></div>
