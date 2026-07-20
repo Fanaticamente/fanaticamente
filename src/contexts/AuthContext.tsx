@@ -164,6 +164,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!profileError) {
         console.log("[Auth] Profile updated successfully");
         clearStorage();
+        // Notify club theme provider to re-fetch immediately so the app
+        // adopts the chosen club colors right after signup.
+        try {
+          if (profileFields?.favorite_club_id) {
+            localStorage.setItem("club-theme:clubId", profileFields.favorite_club_id);
+          }
+          window.dispatchEvent(new CustomEvent("club-theme-refresh"));
+        } catch {}
       } else {
         console.error("[Auth] Profile update failed:", profileError);
       }
