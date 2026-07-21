@@ -73,6 +73,8 @@ project_id = "jehgvrskdyijirecznii"
     verify_jwt = false
   [functions.scrape-football-news]
     verify_jwt = false
+  [functions.scrape-brasileirao]
+    verify_jwt = false
   [functions.scrape-matches]
     verify_jwt = false
   [functions.scrape-products]
