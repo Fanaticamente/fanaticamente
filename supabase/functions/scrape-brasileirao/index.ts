@@ -107,7 +107,6 @@ function buildPayload(data: any) {
     : allMatches.findIndex((m) => !m.status?.finished);
   const upcoming = startIdx >= 0 ? allMatches.slice(startIdx) : [];
   const nextRoundNum = upcoming[0]?.round;
-  const weekdays = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
   const next_round = upcoming
     .filter((m) => m.round === nextRoundNum)
