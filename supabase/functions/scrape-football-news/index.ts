@@ -195,6 +195,12 @@ function extractArticleDetails(html: string, url: string): {
 function sanitizeRewrittenContent(text: string): string {
   return text
     .replace(/\r\n/g, '\n')
+    // Strip ALL emojis / pictographs
+    .replace(/[\p{Extended_Pictographic}\p{Emoji_Presentation}]/gu, '')
+    // Common GE promo lines
+    .replace(/^[^\n]*adicione o ge[^\n]*/gim, '')
+    .replace(/^[^\n]*fontes favoritas do google[^\n]*/gim, '')
+    .replace(/^\s*\+\s*[^\n]*$/gim, '')
     .replace(/—?\s*Foto:\s*[^\n]+/gi, '')
     .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
     .replace(/^Há\s+\d+\s+(minuto|hora|segundo|dia)s?\s*[a-záàâãéèêíïóôõöúç\s]*$/gim, '')
