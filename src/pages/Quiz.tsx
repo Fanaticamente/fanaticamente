@@ -29,7 +29,7 @@ const CategoryButton = ({
 }) => (
   <button
     onClick={onClick}
-    className="block relative w-full overflow-hidden rounded-2xl h-32 sm:h-40 group bg-muted"
+    className="block relative w-full overflow-hidden rounded-2xl h-32 sm:h-40 group bg-slate-100 shadow-sm"
   >
     <img
       src={image}
@@ -38,7 +38,7 @@ const CategoryButton = ({
       loading="lazy"
     />
     <div className="absolute right-4 top-1/2 -translate-y-1/2">
-      <ChevronRight className="w-6 h-6 text-primary drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] group-hover:translate-x-1 transition-transform" />
+      <ChevronRight className="w-6 h-6 text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] group-hover:translate-x-1 transition-transform" />
     </div>
   </button>
 );
@@ -700,26 +700,18 @@ const Quiz = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header title="Resenha fanática" />
+    <div className="min-h-screen bg-white text-slate-900 font-sans normal-case">
+      <Header title="Resenha fanática" hideSearch />
 
-      <main className="pt-20 px-4">
+      <main className="pt-[calc(56px+1cm)] px-4">
         {!category && (
           <div className="animate-fade-in">
-            <div className="flex justify-center mb-6">
-              <img
-                src={resenhaFanaticaLogo.url}
-                alt="Resenha Fanática"
-                className="w-40 sm:w-48 h-auto object-contain"
-                loading="eager"
-                decoding="sync"
-                fetchPriority="high"
-              />
+            <div className="text-center mb-6">
+              <h1 className="font-sans text-2xl font-bold text-slate-900 mb-1" style={{ textTransform: "none" }}>
+                Resenha fanática
+              </h1>
+              <p className="text-sm text-slate-500">Escolha uma categoria para começar</p>
             </div>
-
-            <p className="text-card-foreground text-center mb-8">
-              Escolha uma categoria para começar:
-            </p>
 
             <div className="space-y-4">
               <CategoryButton
@@ -748,23 +740,23 @@ const Quiz = () => {
           <div className="animate-fade-in">
             {/* Progress */}
             <div className="flex items-center gap-4 mb-6">
-              <span className="text-muted-foreground text-sm">
+              <span className="text-slate-500 text-sm">
                 {currentQuestion + 1}/{questions.length}
               </span>
-              <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-primary transition-all"
+                  className="h-full bg-emerald-600 transition-all"
                   style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
                 />
               </div>
             </div>
 
             {/* Scenario */}
-            <div className="bg-card border border-border rounded-2xl p-6 mb-6">
-              <h2 className="font-display text-xl text-card-foreground mb-4">
+            <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 mb-6">
+              <h2 className="font-sans text-lg font-semibold text-slate-900 mb-3" style={{ textTransform: "none" }}>
                 Cenário
               </h2>
-              <p className="text-card-foreground leading-relaxed">
+              <p className="text-slate-700 leading-relaxed">
                 {question.scenario}
               </p>
             </div>
@@ -775,18 +767,16 @@ const Quiz = () => {
                 const isSelected = selectedOption === option.id;
                 const correctOption = question.options.find((o) => o.isCorrect);
                 
-                let borderClass = "border-border hover:border-primary";
-                let bgClass = "bg-card";
+                let borderClass = "border-slate-200 hover:border-emerald-500";
+                let bgClass = "bg-white";
                 
                 if (showFeedback) {
                   if (option.isCorrect) {
-                    // Always show correct answer in green when feedback is shown
-                    borderClass = "border-secondary border-2";
-                    bgClass = "bg-secondary/20";
+                    borderClass = "border-emerald-500 border-2";
+                    bgClass = "bg-emerald-50";
                   } else if (isSelected && !option.isCorrect) {
-                    // Show selected wrong answer in red
-                    borderClass = "border-destructive border-2";
-                    bgClass = "bg-destructive/20";
+                    borderClass = "border-red-500 border-2";
+                    bgClass = "bg-red-50";
                   }
                 }
 
@@ -797,17 +787,17 @@ const Quiz = () => {
                       disabled={showFeedback}
                       className={`w-full text-left border rounded-xl p-4 transition-colors ${bgClass} ${borderClass}`}
                     >
-                      <span className="text-card-foreground">{option.text}</span>
+                      <span className="text-slate-800">{option.text}</span>
                     </button>
                     
                     {/* Feedback below the selected option */}
                     {showFeedback && isSelected && (
                       <div className={`mt-2 p-3 rounded-lg animate-fade-in ${
                         option.isCorrect 
-                          ? "bg-secondary/10 border border-secondary/30" 
-                          : "bg-destructive/10 border border-destructive/30"
+                          ? "bg-emerald-50 border border-emerald-200"
+                          : "bg-red-50 border border-red-200"
                       }`}>
-                        <p className={`text-sm ${option.isCorrect ? "text-secondary" : "text-destructive"}`}>
+                        <p className={`text-sm ${option.isCorrect ? "text-emerald-700" : "text-red-700"}`}>
                           {option.feedback}
                         </p>
                       </div>
@@ -821,7 +811,8 @@ const Quiz = () => {
             {showFeedback && (
               <button
                 onClick={handleNext}
-                className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform"
+                className="w-full py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors"
+                style={{ textTransform: "none" }}
               >
                 {currentQuestion < questions.length - 1 ? "Próxima" : "Ver Resultado"}
               </button>
@@ -831,31 +822,32 @@ const Quiz = () => {
 
         {finished && (
           <div className="animate-fade-in text-center">
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
-              <Trophy className="w-12 h-12 text-primary" />
+            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-emerald-100 flex items-center justify-center">
+              <Trophy className="w-12 h-12 text-emerald-600" />
             </div>
 
-            <h1 className="font-display text-4xl text-primary mb-4">
+            <h1 className="font-sans text-3xl font-bold text-slate-900 mb-4" style={{ textTransform: "none" }}>
               Parabéns!
             </h1>
 
-            <p className="text-card-foreground text-xl mb-2">
+            <p className="text-slate-700 text-lg mb-2">
               Você acertou{" "}
-              <span className="text-primary font-bold">{score}</span> de{" "}
-              <span className="text-primary font-bold">{questions.length}</span>{" "}
+              <span className="text-emerald-600 font-bold">{score}</span> de{" "}
+              <span className="text-emerald-600 font-bold">{questions.length}</span>{" "}
               questões
             </p>
 
-            <p className="text-muted-foreground mb-8">
+            <p className="text-slate-500 mb-8">
               Continue praticando para melhorar suas habilidades!
             </p>
 
             <button
               onClick={handleRestart}
-              className="flex items-center justify-center gap-2 mx-auto py-4 px-8 bg-primary text-primary-foreground rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform"
+              className="flex items-center justify-center gap-2 mx-auto py-3 px-8 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors"
+              style={{ textTransform: "none" }}
             >
               <RotateCcw className="w-5 h-5" />
-              Jogar Novamente
+              Jogar novamente
             </button>
           </div>
         )}
