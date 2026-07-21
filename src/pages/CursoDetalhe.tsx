@@ -331,7 +331,7 @@ const CursoDetalhe = () => {
     return (
       <div className="min-h-screen bg-white">
         <Header title={course?.title || "Curso"} hideSearch />
-        <main className="pt-[calc(env(safe-area-inset-top)+56px+1cm)] px-4 pb-4">
+        <main className="pt-[calc(56px+1cm)] px-4 pb-4">
           <div className="mb-4">
         <Link to="/cursos" className="flex items-center gap-1 text-slate-500 text-sm hover:text-slate-700 transition-colors">
               <ChevronLeft className="w-4 h-4" /> Voltar

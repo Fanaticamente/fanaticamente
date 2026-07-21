@@ -85,7 +85,7 @@ const RadioStation = () => {
     <div className="min-h-screen bg-white">
       <Header title={station.name} hideSearch />
 
-      <main className="px-4 pt-[calc(env(safe-area-inset-top)+56px+1cm)] pb-28">
+      <main className="px-4 pt-[calc(56px+1cm)] pb-28">
         {/* Card principal */}
         <section
           className="rounded-3xl p-5 mb-6"

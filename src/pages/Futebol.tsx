@@ -38,7 +38,7 @@ const Futebol = () => {
     <div className="min-h-screen bg-white">
       <Header title="Conteúdo" />
 
-      <main className="pt-[calc(env(safe-area-inset-top)+56px+1cm)] pb-32">
+      <main className="pt-[calc(56px+1cm)] pb-32">
         {/* Tabs */}
         <div className="px-4 mb-5">
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
