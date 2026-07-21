@@ -340,14 +340,17 @@ async function rewriteWithAI(title: string, content: string): Promise<{ rewritte
   const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
   if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY not configured');
 
-  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é REESCREVER notícias de futebol com suas PRÓPRIAS PALAVRAS.
+  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é PRODUZIR UM RESUMO ORIGINAL da notícia, apontando os principais detalhes com SUAS PRÓPRIAS PALAVRAS. Não parafraseie frase a frase, não copie a estrutura do original.
 
 ⚠️ REGRA ANTI-PLÁGIO (MAIS IMPORTANTE):
-- Você NÃO pode copiar frases do texto original. CADA FRASE deve ser reescrita com vocabulário e estrutura DIFERENTES.
-- Compare mentalmente cada frase que escrever com o original. Se for igual ou muito parecida, REESCREVA novamente.
-- Use sinônimos, mude a ordem das informações, reestruture parágrafos inteiros.
-- Exemplo: Original "O jogador marcou dois gols" → Reescrito "Dois gols foram anotados pelo atacante"
-- O texto final NÃO pode ter mais de 20% de semelhança textual com o original.
+- NÃO copie frases nem trechos do texto original. Escreva um resumo próprio, jornalístico, destacando os fatos principais (o que aconteceu, quem, quando, onde, valores, próximos passos).
+- Use vocabulário e estrutura diferentes. O texto final não pode ter mais de 20% de semelhança textual com o original.
+- Tamanho: 3 a 6 parágrafos curtos. Prefira menos texto e mais clareza.
+
+⚠️ ORTOGRAFIA E NOMES PRÓPRIOS (OBRIGATÓRIO):
+- Preserve TODOS os acentos gráficos, cedilhas e til (ex.: "reforço", "condições", "São Paulo", "Grêmio", "Atlético").
+- TODOS os nomes próprios levam inicial maiúscula em CADA elemento: pessoas (Lautaro Díaz, Juan Pablo Vojvoda), clubes (Racing, Cruzeiro, Santos), países/cidades (Argentina, Independiente del Valle), instituições, competições (Copa do Brasil, Libertadores), eventos e datas históricas.
+- Nunca escreva nomes próprios em minúsculas, mesmo no meio da frase.
 
 ⚠️ REGRAS DE PROIBIÇÃO ABSOLUTA NO TEXTO FINAL:
 1. JAMAIS inclua qualquer instrução ao leitor: "clique aqui", "siga o canal", "acesse", "assine", "vote", "participe", "ouça o podcast", "assista", "confira", "veja abaixo/acima", "leia mais", "monte seu time", "cadastre-se", "entre no grupo", "compartilhe", "curta", "comente"
