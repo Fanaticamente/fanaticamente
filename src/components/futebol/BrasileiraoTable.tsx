@@ -1,27 +1,7 @@
 import { Loader2, RefreshCw, MapPin, Clock } from "lucide-react";
 import { useBrasileirao } from "@/hooks/useBrasileirao";
-import { brazilianClubs } from "@/data/brazilianClubs";
 import ClubMark from "@/components/clubs/ClubMark";
-
-const normalize = (s: string) =>
-  s
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
-
-const findClubId = (name: string, abbr?: string): string | null => {
-  const n = normalize(name);
-  const a = abbr ? abbr.toUpperCase() : "";
-  const found = brazilianClubs.find(
-    (c) =>
-      normalize(c.name) === n ||
-      normalize(c.shortName) === n ||
-      (a && c.shortName.toUpperCase() === a) ||
-      normalize(c.id) === n.replace(/\s+/g, "-"),
-  );
-  return found?.id ?? null;
-};
+import { findClubId, cleanDisplayName } from "@/lib/clubMatcher";
 
 const zoneColor = (pos: number): string => {
   if (pos <= 4) return "bg-emerald-500"; // Libertadores
@@ -95,6 +75,7 @@ const BrasileiraoTable = () => {
         <div className="divide-y divide-gray-100">
           {data.standings.map((row) => {
             const clubId = findClubId(row.club, row.abbr);
+            const displayName = cleanDisplayName(row.club);
             return (
               <div
                 key={`${row.position}-${row.abbr}`}
@@ -112,7 +93,7 @@ const BrasileiraoTable = () => {
                   ) : (
                     <div className="w-5 h-5 shrink-0 rounded-full bg-gray-200" />
                   )}
-                  <span className="truncate font-medium">{row.club}</span>
+                  <span className="truncate font-medium">{displayName}</span>
                 </div>
                 <span className="text-center text-gray-500">{row.played}</span>
                 <span className="text-center text-gray-500">{row.played}</span>
@@ -141,6 +122,8 @@ const BrasileiraoTable = () => {
             {data.next_round.map((m, i) => {
               const homeId = findClubId(m.home, m.home_abbr);
               const awayId = findClubId(m.away, m.away_abbr);
+              const homeName = cleanDisplayName(m.home);
+              const awayName = cleanDisplayName(m.away);
               return (
                 <div
                   key={i}
@@ -165,11 +148,11 @@ const BrasileiraoTable = () => {
                       {homeId && (
                         <div className="w-6 h-6 shrink-0"><ClubMark clubId={homeId} /></div>
                       )}
-                      <span className="text-sm font-semibold text-gray-800 truncate">{m.home}</span>
+                      <span className="text-sm font-semibold text-gray-800 truncate">{homeName}</span>
                     </div>
                     <span className="text-xs font-bold text-gray-400 px-2">×</span>
                     <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-                      <span className="text-sm font-semibold text-gray-800 truncate text-right">{m.away}</span>
+                      <span className="text-sm font-semibold text-gray-800 truncate text-right">{awayName}</span>
                       {awayId && (
                         <div className="w-6 h-6 shrink-0"><ClubMark clubId={awayId} /></div>
                       )}
