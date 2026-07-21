@@ -2,6 +2,8 @@ import { useState } from "react";
 import { ChevronRight, RotateCcw, Trophy } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import resenhaLaEles from "@/assets/resenha-deles-v2.png.asset.json";
 import resenhaLaElas from "@/assets/resenha-delas-v2.png.asset.json";
 import resenhaBet from "@/assets/resenha-bet.png.asset.json";
@@ -687,6 +689,21 @@ const Quiz = () => {
       setShowFeedback(false);
     } else {
       setFinished(true);
+      void (async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+          const { error } = await supabase.from("quiz_completions").insert({
+            user_id: user.id,
+            quiz_key: category,
+            score,
+            total: questions.length,
+          });
+          if (!error) {
+            toast.success("Atividade concluída! +1 ponto no ranking");
+          }
+        } catch {}
+      })();
     }
   };
 
@@ -745,8 +762,11 @@ const Quiz = () => {
               </span>
               <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-emerald-600 transition-all"
-                  style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+                  className="h-full transition-all"
+                  style={{
+                    width: `${((currentQuestion + 1) / questions.length) * 100}%`,
+                    background: "var(--club-600)",
+                  }}
                 />
               </div>
             </div>
@@ -767,13 +787,13 @@ const Quiz = () => {
                 const isSelected = selectedOption === option.id;
                 const correctOption = question.options.find((o) => o.isCorrect);
                 
-                let borderClass = "border-slate-200 hover:border-emerald-500";
+                let borderClass = "border-slate-200 hover:border-[var(--club-500)]";
                 let bgClass = "bg-white";
                 
                 if (showFeedback) {
                   if (option.isCorrect) {
-                    borderClass = "border-emerald-500 border-2";
-                    bgClass = "bg-emerald-50";
+                    borderClass = "border-[var(--club-500)] border-2";
+                    bgClass = "bg-[var(--club-50)]";
                   } else if (isSelected && !option.isCorrect) {
                     borderClass = "border-red-500 border-2";
                     bgClass = "bg-red-50";
@@ -794,10 +814,10 @@ const Quiz = () => {
                     {showFeedback && isSelected && (
                       <div className={`mt-2 p-3 rounded-lg animate-fade-in ${
                         option.isCorrect 
-                          ? "bg-emerald-50 border border-emerald-200"
+                          ? "bg-[var(--club-50)] border border-[var(--club-100)]"
                           : "bg-red-50 border border-red-200"
                       }`}>
-                        <p className={`text-sm ${option.isCorrect ? "text-emerald-700" : "text-red-700"}`}>
+                        <p className={`text-sm ${option.isCorrect ? "text-[var(--club-700)]" : "text-red-700"}`}>
                           {option.feedback}
                         </p>
                       </div>
@@ -811,8 +831,8 @@ const Quiz = () => {
             {showFeedback && (
               <button
                 onClick={handleNext}
-                className="w-full py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors"
-                style={{ textTransform: "none" }}
+                className="w-full py-3 text-white rounded-xl font-semibold transition-colors"
+                style={{ textTransform: "none", background: "var(--club-600)" }}
               >
                 {currentQuestion < questions.length - 1 ? "Próxima" : "Ver Resultado"}
               </button>
@@ -822,8 +842,11 @@ const Quiz = () => {
 
         {finished && (
           <div className="animate-fade-in text-center">
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-emerald-100 flex items-center justify-center">
-              <Trophy className="w-12 h-12 text-emerald-600" />
+            <div
+              className="w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center"
+              style={{ background: "var(--club-50)" }}
+            >
+              <Trophy className="w-12 h-12" style={{ color: "var(--club-600)" }} />
             </div>
 
             <h1 className="font-sans text-3xl font-bold text-slate-900 mb-4" style={{ textTransform: "none" }}>
@@ -832,8 +855,8 @@ const Quiz = () => {
 
             <p className="text-slate-700 text-lg mb-2">
               Você acertou{" "}
-              <span className="text-emerald-600 font-bold">{score}</span> de{" "}
-              <span className="text-emerald-600 font-bold">{questions.length}</span>{" "}
+              <span className="font-bold" style={{ color: "var(--club-600)" }}>{score}</span> de{" "}
+              <span className="font-bold" style={{ color: "var(--club-600)" }}>{questions.length}</span>{" "}
               questões
             </p>
 
@@ -843,8 +866,8 @@ const Quiz = () => {
 
             <button
               onClick={handleRestart}
-              className="flex items-center justify-center gap-2 mx-auto py-3 px-8 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors"
-              style={{ textTransform: "none" }}
+              className="flex items-center justify-center gap-2 mx-auto py-3 px-8 text-white rounded-xl font-semibold transition-colors"
+              style={{ textTransform: "none", background: "var(--club-600)" }}
             >
               <RotateCcw className="w-5 h-5" />
               Jogar novamente

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
-import { ChevronRight, X } from "lucide-react";
+import { ChevronRight, X, MessageCircle } from "lucide-react";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
 import icRanking from "@/assets/Untitled_design-22.png.asset.json";
 import { useNavigate } from "react-router-dom";
@@ -310,6 +310,30 @@ const Comunidade = () => {
                 </p>
                 <p className="text-sm text-slate-500 leading-snug mt-0.5">
                   Escale seu time e gere uma reflexão.
+                </p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-[var(--club-600)] shrink-0" />
+            </button>
+
+            <button
+              onClick={() => navigate("/quiz")}
+              className="w-full text-left rounded-3xl bg-white border border-slate-200 shadow-sm p-4 flex items-center gap-4"
+            >
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+                style={{ background: "var(--club-50)" }}
+              >
+                <MessageCircle className="w-7 h-7" style={{ color: "var(--club-600)" }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p
+                  className="font-sans font-bold text-slate-900"
+                  style={{ textTransform: "none" }}
+                >
+                  Resenha fanática
+                </p>
+                <p className="text-sm text-slate-500 leading-snug mt-0.5">
+                  Cenários e escolhas do dia a dia do torcedor.
                 </p>
               </div>
               <ChevronRight className="w-5 h-5 text-[var(--club-600)] shrink-0" />
