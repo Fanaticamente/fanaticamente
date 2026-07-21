@@ -176,7 +176,7 @@ const MinimalHome = () => {
   return (
     <div className="font-sans text-slate-900 space-y-5 pb-4">
       {/* Greeting */}
-      <section className="pt-0">
+      <section className="pt-[1cm]">
         <h1 className="font-sans text-2xl font-extrabold tracking-tight leading-none normal-case flex items-center gap-1 whitespace-nowrap min-h-[1.5rem]">
           {firstName ? (
             <>
@@ -194,7 +194,7 @@ const MinimalHome = () => {
       </section>
 
       {/* Próxima partida do clube do coração */}
-      <div className="mt-4">
+      <div className="mt-[1cm]">
         <NextMatchBar />
       </div>
 

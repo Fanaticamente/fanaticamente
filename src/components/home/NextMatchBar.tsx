@@ -93,8 +93,7 @@ const NextMatchBar = () => {
 
   return (
     <div
-      className="rounded-2xl border bg-white px-3 py-2.5 flex items-center gap-3"
-      style={{ borderColor: "var(--club-200)" }}
+      className="rounded-2xl border border-slate-200/70 bg-white px-3 py-2.5 flex items-center gap-3"
     >
       {/* Status pill */}
       <div className="flex flex-col items-center min-w-[52px]">
@@ -109,7 +108,7 @@ const NextMatchBar = () => {
           </span>
         ) : (
           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ color: "var(--club-700)", backgroundColor: "var(--club-100)" }}>
-            PRÓXIMO
+            próxima partida
           </span>
         )}
         <span className="text-[10px] text-gray-500 mt-1 leading-tight text-center">
