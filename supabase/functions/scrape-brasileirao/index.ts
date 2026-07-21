@@ -3,7 +3,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 min
+const CACHE_TTL_MS = 60 * 1000; // 60s (keeps live scores fresh)
 let cache: { at: number; payload: unknown } | null = null;
 
 // Fotmob league id for Brasileirão Série A (same data source Google surfaces via Opta partners).
@@ -94,6 +94,45 @@ function buildPayload(data: any) {
   return { standings, next_round, updated_at: new Date().toISOString() };
 }
 
+function buildMatches(data: any) {
+  const allMatches: any[] = data?.fixtures?.allMatches ?? [];
+  return allMatches.map((m) => {
+    const st = m.status ?? {};
+    const started = !!st.started;
+    const finished = !!st.finished;
+    const cancelled = !!st.cancelled;
+    const ongoing = started && !finished && !cancelled;
+    const scoreStr = typeof st.scoreStr === "string" ? st.scoreStr : "";
+    const scoreParts = scoreStr.split("-").map((p: string) => p.trim());
+    const parseScore = (side: any, idx: number): number | null => {
+      if (typeof side?.score === "number") return side.score;
+      if (typeof side?.score === "string" && side.score !== "") {
+        const n = Number(side.score);
+        if (!isNaN(n)) return n;
+      }
+      if (scoreParts[idx] !== undefined) {
+        const n = Number(scoreParts[idx]);
+        if (!isNaN(n)) return n;
+      }
+      return null;
+    };
+    return {
+      id: String(m.id ?? ""),
+      round: m.round ?? null,
+      utcTime: st.utcTime ?? null,
+      home: fixName(m.home?.name ?? ""),
+      home_abbr: abbrOf(m.home?.name ?? ""),
+      away: fixName(m.away?.name ?? ""),
+      away_abbr: abbrOf(m.away?.name ?? ""),
+      home_score: parseScore(m.home, 0),
+      away_score: parseScore(m.away, 1),
+      status: cancelled ? "cancelled" : finished ? "finished" : ongoing ? "live" : "scheduled",
+      live_minute: ongoing ? (st.liveTime?.short ?? st.liveTime?.long ?? null) : null,
+      score_str: scoreStr || null,
+    };
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -108,7 +147,9 @@ Deno.serve(async (req) => {
     }
 
     const data = await fetchFotmob();
-    const payload = buildPayload(data);
+    const base = buildPayload(data);
+    const matches = buildMatches(data);
+    const payload = { ...base, matches };
     cache = { at: Date.now(), payload };
 
     return new Response(JSON.stringify({ success: true, cached: false, ...payload }), {

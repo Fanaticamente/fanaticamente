@@ -29,16 +29,37 @@ export interface NextMatch {
 export interface BrasileiraoPayload {
   standings: StandingRow[];
   next_round: NextMatch[];
+  matches?: MatchRow[];
   updated_at: string;
   cached?: boolean;
+}
+
+export interface MatchRow {
+  id: string;
+  round: number | null;
+  utcTime: string | null;
+  home: string;
+  home_abbr: string;
+  away: string;
+  away_abbr: string;
+  home_score: number | null;
+  away_score: number | null;
+  status: "scheduled" | "live" | "finished" | "cancelled";
+  live_minute: string | null;
+  score_str: string | null;
 }
 
 export const useBrasileirao = (enabled: boolean) => {
   return useQuery({
     queryKey: ["brasileirao-serie-a"],
     enabled,
-    staleTime: 10 * 60 * 1000,
+    staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
+    refetchInterval: (query) => {
+      const d = query.state.data as BrasileiraoPayload | undefined;
+      const hasLive = d?.matches?.some((m) => m.status === "live");
+      return hasLive ? 60 * 1000 : false;
+    },
     queryFn: async (): Promise<BrasileiraoPayload> => {
       const { data, error } = await supabase.functions.invoke("scrape-brasileirao");
       if (error) throw error;
@@ -46,6 +67,7 @@ export const useBrasileirao = (enabled: boolean) => {
       return {
         standings: data.standings ?? [],
         next_round: data.next_round ?? [],
+        matches: data.matches ?? [],
         updated_at: data.updated_at,
         cached: data.cached,
       };

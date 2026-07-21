@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import NextMatchBar from "@/components/home/NextMatchBar";
 const MOODS: { id: string; emoji: string; label: string }[] = [
   { id: "muito_bem",     emoji: "😄", label: "Muito bem" },
   { id: "mais_ou_menos", emoji: "🙂", label: "Mais ou menos" },
@@ -191,6 +192,11 @@ const MinimalHome = () => {
           Saúde Mental agora é papo de arquibancada!
         </p>
       </section>
+
+      {/* Próxima partida do clube do coração */}
+      <div className="mt-4">
+        <NextMatchBar />
+      </div>
 
       {/* Check-in */}
       <section className="mt-[19px] rounded-3xl bg-white border border-slate-200/70 shadow-sm p-5">
