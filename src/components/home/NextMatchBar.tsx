@@ -3,6 +3,7 @@ import { useBrasileirao, type MatchRow } from "@/hooks/useBrasileirao";
 import { useClubTheme } from "@/contexts/ClubThemeContext";
 import ClubMark from "@/components/clubs/ClubMark";
 import { findClubId, cleanDisplayName } from "@/lib/clubMatcher";
+import { brazilianClubs } from "@/data/brazilianClubs";
 
 const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
@@ -67,10 +68,10 @@ const NextMatchBar = () => {
   const homeName = cleanDisplayName(match.home);
   const awayName = cleanDisplayName(match.away);
   const homeShort = homeId
-    ? (require("@/data/brazilianClubs").brazilianClubs.find((c: any) => c.id === homeId)?.shortName ?? match.home_abbr)
+    ? (brazilianClubs.find((c) => c.id === homeId)?.shortName ?? match.home_abbr)
     : match.home_abbr;
   const awayShort = awayId
-    ? (require("@/data/brazilianClubs").brazilianClubs.find((c: any) => c.id === awayId)?.shortName ?? match.away_abbr)
+    ? (brazilianClubs.find((c) => c.id === awayId)?.shortName ?? match.away_abbr)
     : match.away_abbr;
   const isLive = match.status === "live";
   const isFinished = match.status === "finished";
