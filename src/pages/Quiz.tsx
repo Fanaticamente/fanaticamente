@@ -2,6 +2,8 @@ import { useState } from "react";
 import { ChevronRight, RotateCcw, Trophy } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import resenhaLaEles from "@/assets/resenha-deles-v2.png.asset.json";
 import resenhaLaElas from "@/assets/resenha-delas-v2.png.asset.json";
 import resenhaBet from "@/assets/resenha-bet.png.asset.json";
