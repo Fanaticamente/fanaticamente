@@ -152,14 +152,15 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get today's articles
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    // Reprocess recent articles (last 7 days) shown on the page
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
     const { data: articles, error } = await supabase
       .from('football_news')
       .select('id, rewritten_title, rewritten_content, original_title, original_content, original_url, image_credits')
-      .gte('published_at', `${todayStr}T00:00:00Z`);
+      .gte('published_at', since)
+      .order('published_at', { ascending: false })
+      .limit(60);
 
     if (error) throw error;
     console.log(`Found ${articles?.length || 0} articles from today to re-process`);
