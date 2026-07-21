@@ -3,18 +3,20 @@ import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import NewsCard from "@/components/futebol/NewsCard";
 import ClubFilterDropdown from "@/components/futebol/ClubFilterDropdown";
+import BrasileiraoTable from "@/components/futebol/BrasileiraoTable";
 import { useFootballNews } from "@/hooks/useFootballNews";
 import { brazilianClubs } from "@/data/brazilianClubs";
 import { fixTitleCapitalization } from "@/lib/fixTitleCapitalization";
-import { Loader2, Newspaper, Play, Headphones, Lightbulb, Bookmark, Clock } from "lucide-react";
+import { Loader2, Newspaper, Play, Headphones, Lightbulb, Bookmark, Clock, Trophy } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-type TabKey = "todos" | "noticias" | "videos" | "podcasts" | "dicas";
+type TabKey = "todos" | "noticias" | "tabela" | "videos" | "podcasts" | "dicas";
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "todos", label: "Todos" },
   { key: "noticias", label: "Notícias" },
+  { key: "tabela", label: "Tabela" },
   { key: "videos", label: "Vídeos" },
   { key: "podcasts", label: "Podcasts" },
   { key: "dicas", label: "Dicas" },
@@ -33,6 +35,7 @@ const Futebol = () => {
   const rest = useMemo(() => news?.slice(1) ?? [], [news]);
 
   const showNewsSections = tab === "todos" || tab === "noticias";
+  const showTable = tab === "tabela";
 
   return (
     <div className="min-h-screen bg-white">
@@ -78,6 +81,9 @@ const Futebol = () => {
           </div>
         )}
 
+        {/* Brasileirão table */}
+        {showTable && <BrasileiraoTable />}
+
         {/* Loading */}
         {showNewsSections && isLoading && (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
@@ -118,7 +124,7 @@ const Futebol = () => {
         )}
 
         {/* Placeholder for tabs without data */}
-        {!showNewsSections && (
+        {!showNewsSections && !showTable && (
           <div className="px-6 py-16 text-center">
             <div
               className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center"
