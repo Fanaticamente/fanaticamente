@@ -53,12 +53,13 @@ export const useBrasileirao = (enabled: boolean) => {
   return useQuery({
     queryKey: ["brasileirao-serie-a"],
     enabled,
-    staleTime: 60 * 1000,
-    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
     refetchInterval: (query) => {
       const d = query.state.data as BrasileiraoPayload | undefined;
       const hasLive = d?.matches?.some((m) => m.status === "live");
-      return hasLive ? 60 * 1000 : false;
+      // Live: 60s. Otherwise: 5 minutes (per user request).
+      return hasLive ? 60 * 1000 : 5 * 60 * 1000;
     },
     queryFn: async (): Promise<BrasileiraoPayload> => {
       const { data, error } = await supabase.functions.invoke("scrape-brasileirao");

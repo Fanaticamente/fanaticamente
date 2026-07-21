@@ -3,7 +3,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CACHE_TTL_MS = 60 * 1000; // 60s (keeps live scores fresh)
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 min (user-requested refresh cadence)
 let cache: { at: number; payload: unknown } | null = null;
 
 // Fotmob league id for Brasileirão Série A (same data source Google surfaces via Opta partners).
