@@ -271,8 +271,14 @@ function deepCleanText(text: string): string {
   return cleaned;
 }
 
-// Fix title capitalization: ensure first letter is uppercase and proper nouns are capitalized
-function fixTitleCapitalization(title: string): string {
+// Normalize a string for accent-insensitive comparison
+function normalizeForCompare(s: string): string {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+// Fix title capitalization: ensure first letter is uppercase and proper nouns are capitalized.
+// If `original` is provided, any word that was capitalized in the original title will also be capitalized here.
+function fixTitleCapitalization(title: string, original?: string): string {
   if (!title || title.length === 0) return title;
   
   const properNouns: Record<string, string> = {
@@ -319,7 +325,25 @@ function fixTitleCapitalization(title: string): string {
   fixed = fixed.replace(/([:.])\s+([a-záàâãéèêíïóôõöúç])/g, (_, punct, letter) => {
     return `${punct} ${letter.toUpperCase()}`;
   });
-  
+
+  // Preserve capitalization of proper nouns present in the ORIGINAL title.
+  if (original) {
+    const originalCaps = new Map<string, string>();
+    for (const w of original.split(/\s+/)) {
+      const clean = w.replace(/[^\p{L}\p{M}\-]/gu, '');
+      if (clean.length < 2) continue;
+      if (/^[A-ZÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ]/.test(clean)) {
+        originalCaps.set(normalizeForCompare(clean), clean);
+      }
+    }
+    fixed = fixed.replace(/[\p{L}\p{M}\-]+/gu, (word) => {
+      const key = normalizeForCompare(word);
+      const match = originalCaps.get(key);
+      if (match) return match; // use the original casing/accents
+      return word;
+    });
+  }
+
   return fixed;
 }
 
