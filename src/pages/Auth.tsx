@@ -1330,7 +1330,7 @@ const Auth = () => {
               className={`w-full py-4 rounded-xl font-bold uppercase tracking-wide hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed ${
                 authMode === "professional"
                   ? "bg-therapy text-therapy-foreground"
-                  : "bg-[#237B0E] text-white"
+                  : "bg-white text-background"
               }`}
             >
               {isLoading
@@ -1348,7 +1348,7 @@ const Auth = () => {
                 setErrors({});
               }}
               className={`hover:underline ${
-                authMode === "professional" ? "text-therapy" : "text-[#237B0E]"
+                authMode === "professional" ? "text-therapy" : "text-white"
               }`}
             >
               {isLogin
