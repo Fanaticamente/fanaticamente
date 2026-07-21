@@ -70,33 +70,29 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={cn(
-          "flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors",
-          !selectedClub && "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
-        )}
-        style={selectedClub && accentColor ? {
-          borderColor: accentColor,
-          backgroundColor: `${accentColor}0D`,
-          color: accentColor,
-        } : undefined}
+        className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors"
+        style={
+          selectedClub && accentColor
+            ? { backgroundColor: accentColor, color: "#fff" }
+            : { backgroundColor: "#f3f4f6", color: "#374151" }
+        }
       >
         {selectedClubData ? (
           <>
-            <span className="text-sm font-medium" style={{ color: accentColor || undefined }}>{selectedClubData.shortName || selectedClubData.name}</span>
+            <span>{selectedClubData.shortName || selectedClubData.name}</span>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleSelectClub(null);
               }}
-              className="ml-1 p-0.5 rounded-full hover:bg-gray-200"
-              style={{ color: accentColor || undefined }}
+              className="ml-1 p-0.5 rounded-full hover:bg-white/20"
             >
               <X className="w-3 h-3" />
             </button>
           </>
         ) : (
           <>
-            <span className="text-sm">Filtrar</span>
+            <span>Filtrar por clube</span>
             <ChevronDown className={cn("w-4 h-4 transition-transform", isOpen && "rotate-180")} />
           </>
         )}
