@@ -800,8 +800,8 @@ const Quiz = () => {
                 
                 if (showFeedback) {
                   if (option.isCorrect) {
-                    borderClass = "border-[var(--club-500)] border-2";
-                    bgClass = "bg-[var(--club-50)]";
+                    borderClass = "border-green-600 border-2";
+                    bgClass = "bg-green-50";
                   } else if (isSelected && !option.isCorrect) {
                     borderClass = "border-red-500 border-2";
                     bgClass = "bg-red-50";
@@ -822,10 +822,10 @@ const Quiz = () => {
                     {showFeedback && isSelected && (
                       <div className={`mt-2 p-3 rounded-lg animate-fade-in ${
                         option.isCorrect 
-                          ? "bg-[var(--club-50)] border border-[var(--club-100)]"
+                          ? "bg-green-50 border border-green-200"
                           : "bg-red-50 border border-red-200"
                       }`}>
-                        <p className={`text-sm ${option.isCorrect ? "text-[var(--club-700)]" : "text-red-700"}`}>
+                        <p className={`text-sm ${option.isCorrect ? "text-green-700" : "text-red-700"}`}>
                           {option.feedback}
                         </p>
                       </div>
