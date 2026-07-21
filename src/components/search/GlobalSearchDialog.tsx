@@ -30,11 +30,7 @@ const staticPages: Item[] = [
   { key: "p-diario", title: "Campo das emoções", path: "/diario", icon: Activity, group: "Páginas" },
   { key: "p-temp", title: "Minha temporada", path: "/minha-temporada", icon: Trophy, group: "Páginas" },
   { key: "p-quiz", title: "Resenha Fanática", path: "/quiz", icon: MessageCircle, group: "Páginas" },
-  { key: "p-zona", title: "Zona Mista", path: "/zona-mista", icon: Newspaper, group: "Páginas" },
-  { key: "p-setor", title: "Setor Saúde", path: "/setor-saude", icon: Heart, group: "Páginas" },
-  { key: "p-osmf", title: "OSMF", subtitle: "Observatório", path: "/osmf", icon: ClipboardList, group: "Páginas" },
   { key: "p-ag", title: "Meus agendamentos", path: "/meus-agendamentos", icon: Calendar, group: "Páginas" },
-  { key: "p-mc", title: "Meus cursos", path: "/meus-cursos", icon: BookOpen, group: "Páginas" },
   { key: "p-perf", title: "Perfil", path: "/perfil", icon: User, group: "Páginas" },
   { key: "p-not", title: "Notificações", path: "/notificacoes", icon: Bell, group: "Páginas" },
   { key: "p-cfg", title: "Configurações", path: "/configuracoes", icon: Settings, group: "Páginas" },
@@ -55,10 +51,20 @@ const GlobalSearchDialog = ({ open, onClose }: Props) => {
     (async () => {
       const [{ data: p }, { data: c }] = await Promise.all([
         supabase.from("professionals_public").select("id, full_name").limit(200),
-        supabase.from("courses").select("id, title, is_published").eq("is_published", true).limit(200),
+        supabase
+          .from("courses")
+          .select("id, title, is_published, coming_soon")
+          .eq("is_published", true)
+          .eq("coming_soon", false)
+          .limit(200),
       ]);
       setPros(
-        (p ?? []).map((r: any) => ({
+        (p ?? [])
+          .filter((r: any) => {
+            const n = (r.full_name ?? "").toLowerCase();
+            return !!r.full_name && !n.includes("teste") && !n.includes("universal");
+          })
+          .map((r: any) => ({
           key: `pro-${r.id}`,
           title: r.full_name ?? "Profissional",
           subtitle: "Terapeuta",

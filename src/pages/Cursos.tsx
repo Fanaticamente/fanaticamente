@@ -348,7 +348,7 @@ const Cursos = () => {
     return (
       <div className="min-h-screen bg-white">
         <Header title="FanatiClass" />
-        <main className={`${playingStation ? 'pt-[calc(env(safe-area-inset-top)+104px+1cm)]' : 'pt-[calc(env(safe-area-inset-top)+56px+1cm)]'} px-4`}>
+        <main className={`${playingStation ? 'pt-[calc(104px+1cm)]' : 'pt-[calc(56px+1cm)]'} px-4`}>
           <CursosContent />
           <div aria-hidden className="h-28" />
         </main>

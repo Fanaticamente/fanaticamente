@@ -355,7 +355,7 @@ const BemEstar = () => {
       <Header title="Bem-estar" />
 
       {/* Range tabs */}
-     <div className="px-4 pt-[calc(env(safe-area-inset-top)+40px)]">
+     <div className="px-4 pt-[calc(40px+1cm)]">
         <div className="rounded-full bg-white border border-slate-200 p-1 grid grid-cols-3 gap-1">
           {RANGES.map((r) => (
             <button

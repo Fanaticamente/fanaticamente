@@ -66,7 +66,7 @@ const Diario = () => {
     return (
       <div className="min-h-screen bg-white text-slate-900 font-sans normal-case">
         <Header title="Atividades" hideSearch />
-        <main className="pt-[calc(env(safe-area-inset-top)+56px+1cm)] px-4">
+        <main className="pt-[calc(56px+1cm)] px-4">
           <DiarioContent />
           <div aria-hidden className="h-28" />
         </main>
