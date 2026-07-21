@@ -76,6 +76,12 @@ const MinhaTemporada = () => {
     const avgScore = last7.length
       ? Math.round(last7.reduce((s, e) => s + scoreOf(e.emotion), 0) / last7.length)
       : 0;
+    // Emoji do mood mais próximo do avgScore
+    const avgEmoji = last7.length
+      ? MOODS.reduce((closest, m) =>
+          Math.abs(m.score - avgScore) < Math.abs(closest.score - avgScore) ? m : closest,
+        MOODS[0]).emoji
+      : "";
 
     const days = new Set(emotions.map((e) => e.entry_date));
     let streak = 0;
@@ -96,7 +102,7 @@ const MinhaTemporada = () => {
     // Pontuação: 3pts por sessão concluída, 1pt por check-in, 1pt por curso
     const points = sessionsDone * 3 + checkinsCount + coursesCount;
 
-    return { avgScore, streak, monthCheckins, sessionsDone, sessionsUpcoming, coursesCount, checkinsCount, points };
+    return { avgScore, avgEmoji, streak, monthCheckins, sessionsDone, sessionsUpcoming, coursesCount, checkinsCount, points };
   }, [emotions, appointments, courses]);
 
   const timeline = useMemo(() => {
@@ -160,7 +166,7 @@ const MinhaTemporada = () => {
 
       {/* Métricas */}
       <section className="grid grid-cols-2 gap-3">
-        <MetricCard icon={<Heart className="w-4 h-4" />} label="Humor médio (7d)" value={stats.avgScore ? `${stats.avgScore}%` : "—"} />
+        <MetricCard icon={<Heart className="w-4 h-4" />} label="Humor médio (7d)" value={stats.avgEmoji || "—"} />
         <MetricCard icon={<Flame className="w-4 h-4" />} label="Sequência" value={`${stats.streak} dia${stats.streak === 1 ? "" : "s"}`} />
         <MetricCard icon={<Smile className="w-4 h-4" />} label="Check-ins no mês" value={`${stats.monthCheckins}`} />
         <MetricCard icon={<CalendarDays className="w-4 h-4" />} label="Sessões concluídas" value={`${stats.sessionsDone}`} hint={stats.sessionsUpcoming ? `${stats.sessionsUpcoming} agendadas` : undefined} />

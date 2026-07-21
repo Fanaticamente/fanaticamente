@@ -63,13 +63,13 @@ const BrasileiraoTable = () => {
 
       {/* Standings table */}
       <div className="rounded-2xl border border-gray-200 overflow-hidden bg-white">
-        <div className="grid grid-cols-[28px_1fr_32px_32px_32px_40px] gap-1 px-3 py-2 bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wide">
+        <div className="grid grid-cols-[28px_1fr_40px_32px_32px_32px] gap-1 px-3 py-2 bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wide">
           <span>#</span>
           <span>Time</span>
+          <span className="text-center">Pts</span>
           <span className="text-center">J</span>
           <span className="text-center">V</span>
           <span className="text-center">SG</span>
-          <span className="text-center">Pts</span>
         </div>
         <div className="divide-y divide-gray-100">
           {data.standings.map((row) => {
@@ -78,7 +78,7 @@ const BrasileiraoTable = () => {
             return (
               <div
                 key={`${row.position}-${row.abbr}`}
-                className="grid grid-cols-[28px_1fr_32px_32px_32px_40px] gap-1 items-center px-3 py-2 text-[13px] text-gray-800"
+                className="grid grid-cols-[28px_1fr_40px_32px_32px_32px] gap-1 items-center px-3 py-2 text-[13px] text-gray-800"
               >
                 <div className="flex items-center gap-1.5">
                   <span className={`w-1 h-4 rounded-sm ${zoneColor(row.position)}`} />
@@ -94,10 +94,10 @@ const BrasileiraoTable = () => {
                   )}
                   <span className="truncate font-medium">{displayName}</span>
                 </div>
+                <span className="text-center font-bold text-gray-900">{row.points}</span>
                 <span className="text-center text-gray-500">{row.played}</span>
                 <span className="text-center text-gray-500">{row.wins}</span>
                 <span className="text-center text-gray-500">{row.goal_diff}</span>
-                <span className="text-center font-bold text-gray-900">{row.points}</span>
               </div>
             );
           })}
