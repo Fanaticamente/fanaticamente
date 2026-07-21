@@ -308,10 +308,86 @@ function fixTitleCapitalization(title: string, original?: string): string {
     'real madrid': 'Real Madrid', 'barcelona': 'Barcelona', 'manchester': 'Manchester',
     'shakhtar': 'Shakhtar', 'conmebol': 'CONMEBOL', 'cbf': 'CBF', 'fifa': 'FIFA',
     'var': 'VAR', 'crb': 'CRB',
+    // Extras
+    'laliga': 'LaLiga', 'la-liga': 'LaLiga', 'infantino': 'Infantino',
+    'uefa': 'UEFA', 'afa': 'AFA', 'ge': 'GE', 'sportv': 'SporTV',
+    'racing': 'Racing', 'boca': 'Boca', 'river': 'River', 'independiente': 'Independiente',
+    'lautaro': 'Lautaro', 'díaz': 'Díaz', 'diaz': 'Díaz',
+    'vojvoda': 'Vojvoda', 'abel': 'Abel', 'ferreira': 'Ferreira',
+    'neymar': 'Neymar', 'vinicius': 'Vinícius', 'vini': 'Vini', 'jr': 'Jr',
+    'endrick': 'Endrick', 'rodrygo': 'Rodrygo', 'raphinha': 'Raphinha',
+    'messi': 'Messi', 'ronaldo': 'Ronaldo', 'mbappé': 'Mbappé', 'mbappe': 'Mbappé',
+    'haaland': 'Haaland', 'psg': 'PSG', 'chelsea': 'Chelsea', 'liverpool': 'Liverpool',
+    'arsenal': 'Arsenal', 'city': 'City', 'united': 'United', 'bayern': 'Bayern',
+    'juventus': 'Juventus', 'inter': 'Inter', 'milan': 'Milan', 'napoli': 'Napoli',
+    'porto': 'Porto', 'benfica': 'Benfica', 'sporting': 'Sporting',
+    'argentina': 'Argentina', 'brasil': 'Brasil', 'espanha': 'Espanha',
+    'portugal': 'Portugal', 'inglaterra': 'Inglaterra', 'frança': 'França', 'franca': 'França',
+    'alemanha': 'Alemanha', 'itália': 'Itália', 'italia': 'Itália', 'europa': 'Europa',
+    'américa': 'América', 'america': 'América',
+  };
+
+  // Common Portuguese words that frequently lose accents in AI output.
+  // Only unambiguous forms (the unaccented lowercase word doesn't exist as another PT word).
+  const accentFixes: Record<string, string> = {
+    'saida': 'saída', 'saidas': 'saídas',
+    'condicoes': 'condições', 'condicao': 'condição',
+    'reforco': 'reforço', 'reforcos': 'reforços',
+    'emprestimo': 'empréstimo', 'emprestimos': 'empréstimos',
+    'negociacao': 'negociação', 'negociacoes': 'negociações',
+    'decisao': 'decisão', 'decisoes': 'decisões',
+    'sessao': 'sessão', 'sessoes': 'sessões',
+    'selecao': 'seleção', 'selecoes': 'seleções',
+    'situacao': 'situação', 'situacoes': 'situações',
+    'gestao': 'gestão',
+    'campeao': 'campeão', 'campeoes': 'campeões',
+    'milhao': 'milhão', 'milhoes': 'milhões',
+    'bilhao': 'bilhão', 'bilhoes': 'bilhões',
+    'cartao': 'cartão', 'cartoes': 'cartões',
+    'coracao': 'coração',
+    'edicao': 'edição', 'edicoes': 'edições',
+    'atencao': 'atenção',
+    'demissao': 'demissão',
+    'contratacao': 'contratação', 'contratacoes': 'contratações',
+    'renovacao': 'renovação',
+    'lesao': 'lesão', 'lesoes': 'lesões',
+    'suspensao': 'suspensão',
+    'ambicao': 'ambição', 'ambicoes': 'ambições',
+    'punicao': 'punição',
+    'invasao': 'invasão',
+    'reacao': 'reação', 'reacoes': 'reações',
+    'atletico': 'atlético',
+    'proximo': 'próximo', 'proxima': 'próxima', 'proximos': 'próximos', 'proximas': 'próximas',
+    'tecnico': 'técnico', 'tecnica': 'técnica', 'tecnicos': 'técnicos',
+    'titulo': 'título', 'titulos': 'títulos',
+    'serie': 'série',
+    'historia': 'história', 'historias': 'histórias',
+    'memoria': 'memória',
+    'noticia': 'notícia', 'noticias': 'notícias',
+    'politica': 'política',
+    'epoca': 'época',
+    'brasilia': 'Brasília',
+    'america': 'América',
+    'olimpico': 'olímpico', 'olimpica': 'olímpica',
+    'ultimo': 'último', 'ultima': 'última', 'ultimos': 'últimos', 'ultimas': 'últimas',
+    'medico': 'médico', 'medica': 'médica',
+    'basico': 'básico', 'basica': 'básica',
   };
 
   let fixed = title.charAt(0).toUpperCase() + title.slice(1);
   
+  // Apply accent fixes first (word-boundary, case-insensitive but preserving case)
+  for (const [bad, good] of Object.entries(accentFixes)) {
+    const regex = new RegExp(`\\b${bad}\\b`, 'gi');
+    fixed = fixed.replace(regex, (match) => {
+      // preserve leading capital
+      if (match[0] === match[0].toUpperCase()) {
+        return good.charAt(0).toUpperCase() + good.slice(1);
+      }
+      return good;
+    });
+  }
+
   // Sort by length descending so longer matches take priority (e.g., "são paulo" before "paulo")
   const sortedEntries = Object.entries(properNouns).sort((a, b) => b[0].length - a[0].length);
   
