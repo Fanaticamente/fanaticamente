@@ -39,6 +39,14 @@ const CategoryButton = ({
       className="absolute inset-0 w-full h-full object-cover"
       loading="lazy"
     />
+    {/* Tint the green banner background with the user's club color while
+        preserving the illustration details (mix-blend-hue keeps saturation
+        and luminosity from the image, replacing only the hue). */}
+    <div
+      aria-hidden
+      className="absolute inset-0 pointer-events-none"
+      style={{ background: "var(--club-500)", mixBlendMode: "hue" }}
+    />
     <div className="absolute right-4 top-1/2 -translate-y-1/2">
       <ChevronRight className="w-6 h-6 text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)] group-hover:translate-x-1 transition-transform" />
     </div>
@@ -718,14 +726,14 @@ const Quiz = () => {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans normal-case">
-      <Header title="Resenha fanática" hideSearch />
+      <Header title="Atividades" hideSearch />
 
       <main className="pt-[calc(56px+1cm)] px-4">
         {!category && (
           <div className="animate-fade-in">
             <div className="text-center mb-6">
               <h1 className="font-sans text-2xl font-bold text-slate-900 mb-1" style={{ textTransform: "none" }}>
-                Resenha fanática
+                Resenha Fanática
               </h1>
               <p className="text-sm text-slate-500">Escolha uma categoria para começar</p>
             </div>
