@@ -1288,35 +1288,35 @@ const Auth = () => {
                   )}
                 </div>
 
-                {/* Terms Acceptance */}
-                <div className="mt-4 p-4 bg-muted/50 rounded-xl">
-                  <div className="flex items-start gap-3">
-                    <Checkbox
-                      id="accept-terms"
-                      checked={acceptedTerms}
-                      onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                      className="mt-0.5 border-therapy data-[state=checked]:bg-therapy data-[state=checked]:text-therapy-foreground data-[state=checked]:border-therapy focus-visible:ring-therapy"
-                    />
-                    <label htmlFor="accept-terms" className="text-sm text-therapy cursor-pointer leading-relaxed">
-                      Li e aceito a{" "}
-                      <Link
-                        to={authMode === "professional" ? "/politica-privacidade-profissional" : "/politica-privacidade"}
-                        target="_blank"
-                        className="underline font-medium text-therapy"
-                      >
-                        Política de Privacidade
-                      </Link>
-                      {" "}e os{" "}
-                      <Link
-                        to="/termos-de-uso"
-                        target="_blank"
-                        className="underline font-medium text-therapy"
-                      >
-                        Termos de Uso
-                      </Link>
-                      {" "}da plataforma Fanaticamente.
-                    </label>
-                  </div>
+                 {/* Terms Acceptance */}
+                 <div className="mt-4 p-4 bg-muted/50 rounded-xl">
+                   <div className="flex items-start gap-3">
+                     <Checkbox
+                       id="accept-terms"
+                       checked={acceptedTerms}
+                       onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                       className={`mt-0.5 ${authMode === "professional" ? "border-therapy data-[state=checked]:bg-therapy data-[state=checked]:text-therapy-foreground data-[state=checked]:border-therapy focus-visible:ring-therapy" : "border-white data-[state=checked]:bg-white data-[state=checked]:text-background data-[state=checked]:border-white focus-visible:ring-white"}`}
+                     />
+                     <label htmlFor="accept-terms" className={`text-sm cursor-pointer leading-relaxed ${authMode === "professional" ? "text-therapy" : "text-white"}`}>
+                       Li e aceito a{" "}
+                       <Link
+                         to={authMode === "professional" ? "/politica-privacidade-profissional" : "/politica-privacidade"}
+                         target="_blank"
+                         className={`underline font-medium ${authMode === "professional" ? "text-therapy" : "text-white"}`}
+                       >
+                         Política de Privacidade
+                       </Link>
+                       {" "}e os{" "}
+                       <Link
+                         to="/termos-de-uso"
+                         target="_blank"
+                         className={`underline font-medium ${authMode === "professional" ? "text-therapy" : "text-white"}`}
+                       >
+                         Termos de Uso
+                       </Link>
+                       {" "}da plataforma Fanaticamente.
+                     </label>
+                   </div>
                   {errors.terms && (
                     <p className="text-destructive text-sm mt-2 ml-7">{errors.terms}</p>
                   )}
