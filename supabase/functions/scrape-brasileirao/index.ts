@@ -1,5 +1,3 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -8,74 +6,92 @@ const corsHeaders = {
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 min
 let cache: { at: number; payload: unknown } | null = null;
 
-async function fetchHtml(url: string): Promise<string> {
-  const res = await fetch(url, {
+// Fotmob league id for Brasileirão Série A (same data source Google surfaces via Opta partners).
+const FOTMOB_URL = "https://www.fotmob.com/api/data/leagues?id=268";
+
+const NAME_FIXES: Record<string, string> = {
+  "Atletico MG": "Atlético-MG",
+  "Athletico Paranaense": "Athletico-PR",
+  "Sao Paulo": "São Paulo",
+  "Gremio": "Grêmio",
+  "Cuiaba": "Cuiabá",
+  "Goias": "Goiás",
+  "America MG": "América-MG",
+  "Ceara": "Ceará",
+  "Vitoria": "Vitória",
+  "Atletico GO": "Atlético-GO",
+  "Red Bull Bragantino": "RB Bragantino",
+};
+
+function fixName(n: string): string {
+  return NAME_FIXES[n] ?? n;
+}
+
+function abbrOf(n: string): string {
+  const fixed = fixName(n);
+  const parts = fixed.replace(/[-]/g, " ").split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 3).toUpperCase();
+  return (parts[0][0] + parts[1][0] + (parts[2]?.[0] ?? "")).toUpperCase().slice(0, 3);
+}
+
+async function fetchFotmob(): Promise<any> {
+  const res = await fetch(FOTMOB_URL, {
     headers: {
       "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Accept-Language": "pt-BR,pt;q=0.9",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+      "Accept": "application/json",
+      "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
     },
   });
-  if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
-  return res.text();
+  if (!res.ok) throw new Error(`Fotmob fetch failed: ${res.status}`);
+  return res.json();
 }
 
-function htmlToText(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
+function buildPayload(data: any) {
+  const rows: any[] = data?.table?.[0]?.data?.table?.all ?? [];
+  const standings = rows.map((r, i) => ({
+    position: r.idx ?? i + 1,
+    club: fixName(r.name),
+    abbr: abbrOf(r.name),
+    points: r.pts ?? 0,
+    played: r.played ?? 0,
+    wins: r.wins ?? 0,
+    draws: r.draws ?? 0,
+    losses: r.losses ?? 0,
+    goals_for: Number(String(r.scoresStr ?? "0-0").split("-")[0]) || 0,
+    goals_against: Number(String(r.scoresStr ?? "0-0").split("-")[1]) || 0,
+    goal_diff: r.goalConDiff ?? 0,
+  }));
 
-async function extractWithAI(text: string) {
-  const KEY = Deno.env.get("LOVABLE_API_KEY");
-  if (!KEY) throw new Error("LOVABLE_API_KEY not configured");
+  const allMatches: any[] = data?.fixtures?.allMatches ?? [];
+  const firstUnplayedId: string | undefined = data?.fixtures?.firstUnplayedMatch?.firstUnplayedMatchId;
+  const startIdx = firstUnplayedId
+    ? allMatches.findIndex((m) => String(m.id) === String(firstUnplayedId))
+    : allMatches.findIndex((m) => !m.status?.finished);
+  const upcoming = startIdx >= 0 ? allMatches.slice(startIdx) : [];
+  const nextRoundNum = upcoming[0]?.round;
+  const weekdays = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
-  const prompt = `Você recebe o texto de uma página do ge.globo com a classificação e jogos do Brasileirão Série A.
+  const next_round = upcoming
+    .filter((m) => m.round === nextRoundNum)
+    .slice(0, 10)
+    .map((m) => {
+      const d = new Date(m.status?.utcTime);
+      const pad = (n: number) => String(n).padStart(2, "0");
+      const isValid = !isNaN(d.getTime());
+      return {
+        date: isValid ? `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}` : "",
+        weekday: isValid ? weekdays[d.getUTCDay()] : "",
+        time: isValid ? `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}` : "",
+        venue: "",
+        home: fixName(m.home?.name ?? ""),
+        home_abbr: abbrOf(m.home?.name ?? ""),
+        away: fixName(m.away?.name ?? ""),
+        away_abbr: abbrOf(m.away?.name ?? ""),
+      };
+    });
 
-Extraia estritamente em JSON:
-{
-  "standings": [
-    { "position": 1, "club": "Palmeiras", "abbr": "PAL", "points": 41, "played": 18, "wins": 12, "draws": 5, "losses": 1, "goals_for": 30, "goals_against": 13, "goal_diff": 17 }
-  ],
-  "next_round": [
-    { "date": "22/07", "weekday": "Terça", "time": "19:30", "venue": "Couto Pereira", "home": "Coritiba", "home_abbr": "CFC", "away": "Palmeiras", "away_abbr": "PAL" }
-  ]
-}
-
-Regras:
-- Retorne 20 times na classificação, ordenados por posição.
-- Em next_round inclua apenas jogos ainda NÃO realizados (sem placar). Máximo 10.
-- Use nomes próprios com capitalização correta (São Paulo, Grêmio, Atlético-MG).
-- Responda APENAS o JSON, sem markdown.`;
-
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
-      messages: [
-        { role: "system", content: prompt },
-        { role: "user", content: text.slice(0, 18000) },
-      ],
-    }),
-  });
-
-  if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`AI error ${res.status}: ${t}`);
-  }
-  const data = await res.json();
-  const content: string = data.choices?.[0]?.message?.content ?? "";
-  const match = content.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("AI did not return JSON");
-  return JSON.parse(match[0]);
+  return { standings, next_round, updated_at: new Date().toISOString() };
 }
 
 Deno.serve(async (req) => {
@@ -91,15 +107,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const html = await fetchHtml("https://ge.globo.com/futebol/brasileirao-serie-a/");
-    const text = htmlToText(html);
-    const parsed = await extractWithAI(text);
-
-    const payload = {
-      standings: Array.isArray(parsed.standings) ? parsed.standings : [],
-      next_round: Array.isArray(parsed.next_round) ? parsed.next_round : [],
-      updated_at: new Date().toISOString(),
-    };
+    const data = await fetchFotmob();
+    const payload = buildPayload(data);
     cache = { at: Date.now(), payload };
 
     return new Response(JSON.stringify({ success: true, cached: false, ...payload }), {
