@@ -131,6 +131,56 @@ function normalizeForCompare(s: string): string {
 function fixTitleCaps(title: string, original: string): string {
   if (!title) return title;
   let fixed = title.charAt(0).toUpperCase() + title.slice(1);
+
+  const properNouns: Record<string, string> = {
+    'flamengo':'Flamengo','corinthians':'Corinthians','palmeiras':'Palmeiras','santos':'Santos',
+    'vasco':'Vasco','botafogo':'Botafogo','fluminense':'Fluminense','gremio':'Grêmio','grêmio':'Grêmio',
+    'internacional':'Internacional','cruzeiro':'Cruzeiro','bahia':'Bahia','fortaleza':'Fortaleza',
+    'ceara':'Ceará','ceará':'Ceará','sport':'Sport','vitoria':'Vitória','vitória':'Vitória',
+    'coritiba':'Coritiba','bragantino':'Bragantino','mirassol':'Mirassol','remo':'Remo',
+    'sao paulo':'São Paulo','são paulo':'São Paulo','chapecoense':'Chapecoense','juventude':'Juventude',
+    'cuiaba':'Cuiabá','goias':'Goiás','criciuma':'Criciúma','novorizontino':'Novorizontino',
+    'vila nova':'Vila Nova','ponte preta':'Ponte Preta','londrina':'Londrina','nautico':'Náutico',
+    'avai':'Avaí','brasileirao':'Brasileirão','libertadores':'Libertadores','sul-americana':'Sul-Americana',
+    'copa do brasil':'Copa do Brasil','serie a':'Série A','serie b':'Série B',
+    'champions league':'Champions League','premier league':'Premier League','la liga':'LaLiga','laliga':'LaLiga',
+    'copa america':'Copa América','real madrid':'Real Madrid','barcelona':'Barcelona','manchester':'Manchester',
+    'conmebol':'CONMEBOL','cbf':'CBF','fifa':'FIFA','uefa':'UEFA','var':'VAR','crb':'CRB','psg':'PSG',
+    'infantino':'Infantino','racing':'Racing','boca':'Boca','river':'River','independiente':'Independiente',
+    'lautaro':'Lautaro','diaz':'Díaz','díaz':'Díaz','neymar':'Neymar','messi':'Messi','ronaldo':'Ronaldo',
+    'mbappe':'Mbappé','haaland':'Haaland','endrick':'Endrick','rodrygo':'Rodrygo','raphinha':'Raphinha',
+    'vinicius':'Vinícius','argentina':'Argentina','brasil':'Brasil','portugal':'Portugal',
+    'inglaterra':'Inglaterra','franca':'França','espanha':'Espanha','italia':'Itália','alemanha':'Alemanha',
+    'europa':'Europa','america':'América','brasilia':'Brasília','sportv':'SporTV',
+  };
+  const accentFixes: Record<string, string> = {
+    'saida':'saída','saidas':'saídas','condicoes':'condições','condicao':'condição',
+    'reforco':'reforço','reforcos':'reforços','emprestimo':'empréstimo','emprestimos':'empréstimos',
+    'negociacao':'negociação','negociacoes':'negociações','decisao':'decisão','decisoes':'decisões',
+    'sessao':'sessão','selecao':'seleção','selecoes':'seleções','situacao':'situação','gestao':'gestão',
+    'campeao':'campeão','campeoes':'campeões','milhao':'milhão','milhoes':'milhões',
+    'bilhao':'bilhão','bilhoes':'bilhões','cartao':'cartão','cartoes':'cartões','coracao':'coração',
+    'edicao':'edição','atencao':'atenção','demissao':'demissão','contratacao':'contratação',
+    'contratacoes':'contratações','renovacao':'renovação','lesao':'lesão','lesoes':'lesões',
+    'suspensao':'suspensão','punicao':'punição','invasao':'invasão','reacao':'reação',
+    'atletico':'atlético','proximo':'próximo','proxima':'próxima','tecnico':'técnico','tecnica':'técnica',
+    'titulo':'título','titulos':'títulos','serie':'série','historia':'história','memoria':'memória',
+    'noticia':'notícia','noticias':'notícias','politica':'política','epoca':'época',
+    'olimpico':'olímpico','olimpica':'olímpica','ultimo':'último','ultima':'última',
+    'medico':'médico','medica':'médica','basico':'básico','basica':'básica',
+  };
+
+  for (const [bad, good] of Object.entries(accentFixes)) {
+    const re = new RegExp(`\\b${bad}\\b`, 'gi');
+    fixed = fixed.replace(re, (m) => (m[0] === m[0].toUpperCase() ? good.charAt(0).toUpperCase()+good.slice(1) : good));
+  }
+  const sorted = Object.entries(properNouns).sort((a,b)=>b[0].length-a[0].length);
+  for (const [lower, correct] of sorted) {
+    const escaped = lower.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const re = new RegExp(`\\b${escaped}\\b`, 'gi');
+    fixed = fixed.replace(re, correct);
+  }
+
   const caps = new Map<string, string>();
   for (const w of (original || '').split(/\s+/)) {
     const clean = w.replace(/[^\p{L}\p{M}\-]/gu, '');
