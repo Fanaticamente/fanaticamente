@@ -1734,6 +1734,33 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_completions: {
+        Row: {
+          completed_at: string
+          id: string
+          quiz_key: string
+          score: number | null
+          total: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          quiz_key: string
+          score?: number | null
+          total?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          quiz_key?: string
+          score?: number | null
+          total?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       receipt_templates: {
         Row: {
           created_at: string
