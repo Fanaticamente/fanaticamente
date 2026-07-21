@@ -202,6 +202,33 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    const url = new URL(req.url);
+    const titlesOnly = url.searchParams.get('titles_only') === '1';
+
+    if (titlesOnly) {
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { data: rows, error } = await supabase
+        .from('football_news')
+        .select('id, rewritten_title, original_title')
+        .gte('published_at', since)
+        .order('published_at', { ascending: false })
+        .limit(500);
+      if (error) throw error;
+      let updated = 0;
+      for (const r of rows || []) {
+        const newTitle = fixTitleCaps(r.rewritten_title, r.original_title || '');
+        if (newTitle && newTitle !== r.rewritten_title) {
+          const { error: e } = await supabase
+            .from('football_news')
+            .update({ rewritten_title: newTitle })
+            .eq('id', r.id);
+          if (!e) updated++;
+        }
+      }
+      return new Response(JSON.stringify({ success: true, total: rows?.length || 0, updated }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     // Reprocess recent articles (last 7 days) shown on the page
     const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
