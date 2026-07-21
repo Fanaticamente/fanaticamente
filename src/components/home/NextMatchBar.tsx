@@ -1,32 +1,11 @@
 import { useMemo } from "react";
 import { useBrasileirao, type MatchRow } from "@/hooks/useBrasileirao";
 import { useClubTheme } from "@/contexts/ClubThemeContext";
-import { brazilianClubs } from "@/data/brazilianClubs";
 import ClubMark from "@/components/clubs/ClubMark";
+import { findClubId, cleanDisplayName } from "@/lib/clubMatcher";
+import { brazilianClubs } from "@/data/brazilianClubs";
 
 const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-
-const normalize = (s: string) =>
-  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-
-const findClubId = (name: string, abbr?: string): string | null => {
-  const n = normalize(name);
-  const a = abbr ? abbr.toUpperCase() : "";
-  let found = brazilianClubs.find(
-    (c) =>
-      normalize(c.name) === n ||
-      normalize(c.shortName) === n ||
-      (a && c.shortName.toUpperCase() === a) ||
-      normalize(c.id) === n.replace(/\s+/g, "-"),
-  );
-  if (!found) {
-    found = brazilianClubs.find((c) => {
-      const cn = normalize(c.name);
-      return cn && (n.startsWith(cn) || cn.startsWith(n) || n.includes(cn));
-    });
-  }
-  return found?.id ?? null;
-};
 
 const isMyClub = (myId: string, matchName: string, matchAbbr?: string) => {
   const found = findClubId(matchName, matchAbbr);
@@ -86,6 +65,14 @@ const NextMatchBar = () => {
 
   const homeId = findClubId(match.home, match.home_abbr);
   const awayId = findClubId(match.away, match.away_abbr);
+  const homeName = cleanDisplayName(match.home);
+  const awayName = cleanDisplayName(match.away);
+  const homeShort = homeId
+    ? (brazilianClubs.find((c) => c.id === homeId)?.shortName ?? match.home_abbr)
+    : match.home_abbr;
+  const awayShort = awayId
+    ? (brazilianClubs.find((c) => c.id === awayId)?.shortName ?? match.away_abbr)
+    : match.away_abbr;
   const isLive = match.status === "live";
   const isFinished = match.status === "finished";
   const showScore = isLive || isFinished;
@@ -118,7 +105,7 @@ const NextMatchBar = () => {
 
       {/* Home */}
       <div className="flex-1 flex items-center gap-2 min-w-0 justify-end">
-        <span className="text-xs font-semibold text-gray-800 truncate text-right">{match.home_abbr || match.home}</span>
+        <span className="text-xs font-semibold text-gray-800 truncate text-right">{homeShort || homeName}</span>
         <div className="w-7 h-7 shrink-0">
           {homeId ? <ClubMark clubId={homeId} /> : null}
         </div>
@@ -134,7 +121,7 @@ const NextMatchBar = () => {
         <div className="w-7 h-7 shrink-0">
           {awayId ? <ClubMark clubId={awayId} /> : null}
         </div>
-        <span className="text-xs font-semibold text-gray-800 truncate">{match.away_abbr || match.away}</span>
+        <span className="text-xs font-semibold text-gray-800 truncate">{awayShort || awayName}</span>
       </div>
     </div>
   );

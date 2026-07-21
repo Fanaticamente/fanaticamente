@@ -21,10 +21,47 @@ const NAME_FIXES: Record<string, string> = {
   "Vitoria": "Vitória",
   "Atletico GO": "Atlético-GO",
   "Red Bull Bragantino": "RB Bragantino",
+  "Chapecoense-SC": "Chapecoense",
+  "Chapecoense AF": "Chapecoense",
+  "Santos FC": "Santos",
+  "Coritiba FC": "Coritiba",
+  "Sao Paulo FC": "São Paulo",
+  "Sport Recife": "Sport",
 };
 
 function fixName(n: string): string {
-  return NAME_FIXES[n] ?? n;
+  if (NAME_FIXES[n]) return NAME_FIXES[n];
+  // Strip trailing FC / EC / SC / AF suffix
+  return n.replace(/\s+(FC|EC|SC|AF)$/i, "").trim();
+}
+
+const WEEKDAYS_PT = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+
+// Format a UTC ISO string as Brazil time (America/Sao_Paulo)
+function formatBRT(utcIso: string): { date: string; weekday: string; time: string } {
+  const d = new Date(utcIso);
+  if (isNaN(d.getTime())) return { date: "", weekday: "", time: "" };
+  // Build a fresh Date in BRT via Intl parts
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "America/Sao_Paulo",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    weekday: "short",
+    hour12: false,
+  }).formatToParts(d);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  const wkShort = get("weekday").toLowerCase();
+  const wkMap: Record<string, string> = {
+    sun: "Domingo", mon: "Segunda", tue: "Terça", wed: "Quarta",
+    thu: "Quinta", fri: "Sexta", sat: "Sábado",
+  };
+  return {
+    date: `${get("day")}/${get("month")}`,
+    weekday: wkMap[wkShort] ?? "",
+    time: `${get("hour")}:${get("minute")}`,
+  };
 }
 
 function abbrOf(n: string): string {
@@ -70,19 +107,16 @@ function buildPayload(data: any) {
     : allMatches.findIndex((m) => !m.status?.finished);
   const upcoming = startIdx >= 0 ? allMatches.slice(startIdx) : [];
   const nextRoundNum = upcoming[0]?.round;
-  const weekdays = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
   const next_round = upcoming
     .filter((m) => m.round === nextRoundNum)
     .slice(0, 10)
     .map((m) => {
-      const d = new Date(m.status?.utcTime);
-      const pad = (n: number) => String(n).padStart(2, "0");
-      const isValid = !isNaN(d.getTime());
+      const brt = formatBRT(m.status?.utcTime ?? "");
       return {
-        date: isValid ? `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}` : "",
-        weekday: isValid ? weekdays[d.getUTCDay()] : "",
-        time: isValid ? `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}` : "",
+        date: brt.date,
+        weekday: brt.weekday,
+        time: brt.time,
         venue: "",
         home: fixName(m.home?.name ?? ""),
         home_abbr: abbrOf(m.home?.name ?? ""),
