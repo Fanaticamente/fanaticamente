@@ -195,6 +195,12 @@ function extractArticleDetails(html: string, url: string): {
 function sanitizeRewrittenContent(text: string): string {
   return text
     .replace(/\r\n/g, '\n')
+    // Strip ALL emojis / pictographs
+    .replace(/[\p{Extended_Pictographic}\p{Emoji_Presentation}]/gu, '')
+    // Common GE promo lines
+    .replace(/^[^\n]*adicione o ge[^\n]*/gim, '')
+    .replace(/^[^\n]*fontes favoritas do google[^\n]*/gim, '')
+    .replace(/^\s*\+\s*[^\n]*$/gim, '')
     .replace(/—?\s*Foto:\s*[^\n]+/gi, '')
     .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
     .replace(/^Há\s+\d+\s+(minuto|hora|segundo|dia)s?\s*[a-záàâãéèêíïóôõöúç\s]*$/gim, '')
@@ -265,8 +271,14 @@ function deepCleanText(text: string): string {
   return cleaned;
 }
 
-// Fix title capitalization: ensure first letter is uppercase and proper nouns are capitalized
-function fixTitleCapitalization(title: string): string {
+// Normalize a string for accent-insensitive comparison
+function normalizeForCompare(s: string): string {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+// Fix title capitalization: ensure first letter is uppercase and proper nouns are capitalized.
+// If `original` is provided, any word that was capitalized in the original title will also be capitalized here.
+function fixTitleCapitalization(title: string, original?: string): string {
   if (!title || title.length === 0) return title;
   
   const properNouns: Record<string, string> = {
@@ -313,7 +325,25 @@ function fixTitleCapitalization(title: string): string {
   fixed = fixed.replace(/([:.])\s+([a-záàâãéèêíïóôõöúç])/g, (_, punct, letter) => {
     return `${punct} ${letter.toUpperCase()}`;
   });
-  
+
+  // Preserve capitalization of proper nouns present in the ORIGINAL title.
+  if (original) {
+    const originalCaps = new Map<string, string>();
+    for (const w of original.split(/\s+/)) {
+      const clean = w.replace(/[^\p{L}\p{M}\-]/gu, '');
+      if (clean.length < 2) continue;
+      if (/^[A-ZÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ]/.test(clean)) {
+        originalCaps.set(normalizeForCompare(clean), clean);
+      }
+    }
+    fixed = fixed.replace(/[\p{L}\p{M}\-]+/gu, (word) => {
+      const key = normalizeForCompare(word);
+      const match = originalCaps.get(key);
+      if (match) return match; // use the original casing/accents
+      return word;
+    });
+  }
+
   return fixed;
 }
 
@@ -334,14 +364,17 @@ async function rewriteWithAI(title: string, content: string): Promise<{ rewritte
   const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
   if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY not configured');
 
-  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é REESCREVER notícias de futebol com suas PRÓPRIAS PALAVRAS.
+  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Sua tarefa é PRODUZIR UM RESUMO ORIGINAL da notícia, apontando os principais detalhes com SUAS PRÓPRIAS PALAVRAS. Não parafraseie frase a frase, não copie a estrutura do original.
 
 ⚠️ REGRA ANTI-PLÁGIO (MAIS IMPORTANTE):
-- Você NÃO pode copiar frases do texto original. CADA FRASE deve ser reescrita com vocabulário e estrutura DIFERENTES.
-- Compare mentalmente cada frase que escrever com o original. Se for igual ou muito parecida, REESCREVA novamente.
-- Use sinônimos, mude a ordem das informações, reestruture parágrafos inteiros.
-- Exemplo: Original "O jogador marcou dois gols" → Reescrito "Dois gols foram anotados pelo atacante"
-- O texto final NÃO pode ter mais de 20% de semelhança textual com o original.
+- NÃO copie frases nem trechos do texto original. Escreva um resumo próprio, jornalístico, destacando os fatos principais (o que aconteceu, quem, quando, onde, valores, próximos passos).
+- Use vocabulário e estrutura diferentes. O texto final não pode ter mais de 20% de semelhança textual com o original.
+- Tamanho: 3 a 6 parágrafos curtos. Prefira menos texto e mais clareza.
+
+⚠️ ORTOGRAFIA E NOMES PRÓPRIOS (OBRIGATÓRIO):
+- Preserve TODOS os acentos gráficos, cedilhas e til (ex.: "reforço", "condições", "São Paulo", "Grêmio", "Atlético").
+- TODOS os nomes próprios levam inicial maiúscula em CADA elemento: pessoas (Lautaro Díaz, Juan Pablo Vojvoda), clubes (Racing, Cruzeiro, Santos), países/cidades (Argentina, Independiente del Valle), instituições, competições (Copa do Brasil, Libertadores), eventos e datas históricas.
+- Nunca escreva nomes próprios em minúsculas, mesmo no meio da frase.
 
 ⚠️ REGRAS DE PROIBIÇÃO ABSOLUTA NO TEXTO FINAL:
 1. JAMAIS inclua qualquer instrução ao leitor: "clique aqui", "siga o canal", "acesse", "assine", "vote", "participe", "ouça o podcast", "assista", "confira", "veja abaixo/acima", "leia mais", "monte seu time", "cadastre-se", "entre no grupo", "compartilhe", "curta", "comente"
@@ -420,7 +453,7 @@ Responda APENAS em JSON válido:
       const detectedClubId = parsed.clubId && VALID_CLUB_IDS.includes(parsed.clubId) ? parsed.clubId : undefined;
       return {
         shouldSkip: false,
-        rewrittenTitle: fixTitleCapitalization(parsed.rewrittenTitle || title),
+        rewrittenTitle: fixTitleCapitalization(parsed.rewrittenTitle || title, title),
         rewrittenContent: deepCleanText(parsed.rewrittenContent || content),
         detectedClubId,
       };

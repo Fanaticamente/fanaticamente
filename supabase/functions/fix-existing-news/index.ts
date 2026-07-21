@@ -39,7 +39,10 @@ function extractImageCredits(html: string): { imageCredits?: string; imageCaptio
 function cleanContent(text: string): string {
   return text
     .replace(/\r\n/g, '\n')
-    .replace(/[✅🗞️🎧📺📲👉🔗➡️⬇️]\s*[^\n]*/g, '')
+    .replace(/[\p{Extended_Pictographic}\p{Emoji_Presentation}]/gu, '')
+    .replace(/^[^\n]*adicione o ge[^\n]*/gim, '')
+    .replace(/^[^\n]*fontes favoritas do google[^\n]*/gim, '')
+    .replace(/^\s*\+\s*[^\n]*$/gim, '')
     .replace(/^\+\s*[^\n]*(clique|siga|acesse|inscreva|assine|baixe|vote|participe|ouça|assista|acompanhe|confira|veja|leia|monte|cadastre|entre|compartilhe|curta|comente|envie|mande)[^\n]*/gim, '')
     .replace(/^[^\n]*clique aqui[^\n]*/gim, '')
     .replace(/^[^\n]*siga o (novo )?canal[^\n]*/gim, '')
@@ -77,17 +80,14 @@ async function rewriteWithAI(title: string, content: string): Promise<{ rewritte
   const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
   if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY not configured');
 
-  const prompt = `Você é um jornalista esportivo sênior. Reescreva esta notícia com suas PRÓPRIAS PALAVRAS.
+  const prompt = `Você é um jornalista esportivo sênior da Fanaticamente. Produza um RESUMO ORIGINAL desta notícia com suas PRÓPRIAS PALAVRAS, apontando os principais detalhes. Não parafraseie frase a frase, não copie a estrutura do original.
 
-REGRA ANTI-PLÁGIO: CADA FRASE deve ser reescrita com vocabulário e estrutura DIFERENTES do original. Use sinônimos, mude a ordem. NÃO copie frases.
-
-PROIBIDO: instruções ao leitor (clique, siga, acesse, assine, vote, ouça, assista, confira, veja, leia, compartilhe), emojis, redes sociais, URLs, referências a Globo/ge/sportv/Cartola, timestamps, créditos de foto.
-
-TÍTULO: Use "sentence case" - apenas primeira letra maiúscula (exceto nomes próprios).
-- Correto: "Flamengo anuncia novo reforço para a temporada"
-- ERRADO: "Flamengo Anuncia Novo Reforço Para a Temporada"
-
-Mantenha TODOS os fatos e declarações entre aspas. Tamanho similar ao original.
+REGRAS OBRIGATÓRIAS:
+- Não copie frases nem trechos. Escreva um resumo jornalístico próprio (3 a 6 parágrafos curtos) destacando os fatos principais.
+- Preserve TODOS os acentos, cedilhas e til (ex.: "reforço", "condições", "São Paulo").
+- Nomes próprios sempre com inicial maiúscula em cada elemento: pessoas (Lautaro Díaz), clubes (Racing, Cruzeiro), países/cidades (Argentina), instituições, competições (Copa do Brasil, Libertadores).
+- Título em "sentence case", apenas primeira letra maiúscula, exceto nomes próprios que sempre iniciam com maiúscula. Máx. 80 caracteres.
+- PROIBIDO: emojis, instruções ao leitor (clique, siga, acesse, assine, vote, ouça, assista, confira, veja, leia, compartilhe), redes sociais, URLs, referências a Globo/ge/sportv/Cartola, timestamps, créditos de foto.
 
 TÍTULO: ${title}
 CONTEÚDO: ${content}
@@ -117,11 +117,29 @@ JSON: {"rewrittenTitle": "...", "rewrittenContent": "..."}`;
   if (jsonMatch) {
     const parsed = JSON.parse(jsonMatch[0]);
     return {
-      rewrittenTitle: parsed.rewrittenTitle || title,
+      rewrittenTitle: fixTitleCaps(parsed.rewrittenTitle || title, title),
       rewrittenContent: cleanContent(parsed.rewrittenContent || content),
     };
   }
   throw new Error('Failed to parse AI response');
+}
+
+function normalizeForCompare(s: string): string {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function fixTitleCaps(title: string, original: string): string {
+  if (!title) return title;
+  let fixed = title.charAt(0).toUpperCase() + title.slice(1);
+  const caps = new Map<string, string>();
+  for (const w of (original || '').split(/\s+/)) {
+    const clean = w.replace(/[^\p{L}\p{M}\-]/gu, '');
+    if (clean.length >= 2 && /^[A-ZÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ]/.test(clean)) {
+      caps.set(normalizeForCompare(clean), clean);
+    }
+  }
+  fixed = fixed.replace(/[\p{L}\p{M}\-]+/gu, (w) => caps.get(normalizeForCompare(w)) || w);
+  return fixed;
 }
 
 serve(async (req) => {
@@ -134,14 +152,15 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get today's articles
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    // Reprocess recent articles (last 7 days) shown on the page
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
     const { data: articles, error } = await supabase
       .from('football_news')
       .select('id, rewritten_title, rewritten_content, original_title, original_content, original_url, image_credits')
-      .gte('published_at', `${todayStr}T00:00:00Z`);
+      .gte('published_at', since)
+      .order('published_at', { ascending: false })
+      .limit(60);
 
     if (error) throw error;
     console.log(`Found ${articles?.length || 0} articles from today to re-process`);
