@@ -382,6 +382,8 @@ const Auth = () => {
 
     if (!signUpData.favoriteClub) {
       newErrors.favoriteClub = "Selecione seu time do coração";
+    } else if (signUpData.favoriteClub === "__custom__" && !customClubName.trim()) {
+      newErrors.favoriteClub = "Digite o nome do seu time";
     }
 
     if (!signUpData.state) {
@@ -456,7 +458,10 @@ const Auth = () => {
         // IMPORTANT: store signup data BEFORE calling signUp to avoid race conditions
         const profileData: any = {
           birth_date: signUpData.birthDate,
-          favorite_club_id: signUpData.favoriteClub,
+          favorite_club_id:
+            signUpData.favoriteClub === "__custom__"
+              ? `custom:${customClubName.trim()}`
+              : signUpData.favoriteClub,
           city: signUpData.city,
           state: signUpData.state,
           phone: signUpData.phone,
