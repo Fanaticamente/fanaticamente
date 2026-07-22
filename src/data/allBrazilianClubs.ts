@@ -53,6 +53,7 @@ export const allBrazilianClubs: BrazilianClub[] = ([
   { id: "abc", name: "ABC", state: "RN", league: "serie_c" },
   { id: "aparecidense", name: "Aparecidense", state: "GO", league: "serie_c" },
   { id: "athletic", name: "Athletic Club", state: "MG", league: "serie_c" },
+  { id: "barra-sc", name: "Barra-SC", state: "SC", league: "serie_c" },
   { id: "botafogo-pb", name: "Botafogo-PB", state: "PB", league: "serie_c" },
   { id: "caxias", name: "Caxias", state: "RS", league: "serie_c" },
   { id: "confianca", name: "Confiança", state: "SE", league: "serie_c" },

@@ -49,8 +49,29 @@ export interface MatchRow {
   score_str: string | null;
 }
 
-export const useBrasileirao = (enabled: boolean) => {
-  const CACHE_KEY = "brasileirao-serie-a:v1";
+export type LeagueKey =
+  | "serie-a"
+  | "serie-b"
+  | "serie-c"
+  | "copa-do-brasil"
+  | "libertadores"
+  | "sul-americana"
+  | "brasileirao-fem"
+  | "copa-do-brasil-fem";
+
+export const LEAGUE_LABELS: Record<LeagueKey, string> = {
+  "serie-a":            "Brasileirão Série A",
+  "serie-b":            "Brasileirão Série B",
+  "serie-c":            "Brasileirão Série C",
+  "copa-do-brasil":     "Copa do Brasil",
+  "libertadores":       "Copa Libertadores",
+  "sul-americana":      "Copa Sul-Americana",
+  "brasileirao-fem":    "Brasileirão Feminino",
+  "copa-do-brasil-fem": "Copa do Brasil Feminina",
+};
+
+export const useLeague = (leagueKey: LeagueKey, enabled: boolean) => {
+  const CACHE_KEY = `league:${leagueKey}:v1`;
   const readCache = (): BrasileiraoPayload | undefined => {
     try {
       const raw = typeof window !== "undefined" ? window.localStorage.getItem(CACHE_KEY) : null;
@@ -61,7 +82,7 @@ export const useBrasileirao = (enabled: boolean) => {
     }
   };
   return useQuery({
-    queryKey: ["brasileirao-serie-a"],
+    queryKey: ["league", leagueKey],
     enabled,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
@@ -77,11 +98,12 @@ export const useBrasileirao = (enabled: boolean) => {
     refetchInterval: (query) => {
       const d = query.state.data as BrasileiraoPayload | undefined;
       const hasLive = d?.matches?.some((m) => m.status === "live");
-      // Live: 60s. Otherwise: 5 minutes (per user request).
       return hasLive ? 60 * 1000 : 5 * 60 * 1000;
     },
     queryFn: async (): Promise<BrasileiraoPayload> => {
-      const { data, error } = await supabase.functions.invoke("scrape-brasileirao");
+      const { data, error } = await supabase.functions.invoke("scrape-brasileirao", {
+        body: { league: leagueKey },
+      });
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || "Falha ao carregar tabela");
       const payload: BrasileiraoPayload = {
@@ -99,3 +121,6 @@ export const useBrasileirao = (enabled: boolean) => {
     },
   });
 };
+
+// Backwards-compatible alias
+export const useBrasileirao = (enabled: boolean) => useLeague("serie-a", enabled);
