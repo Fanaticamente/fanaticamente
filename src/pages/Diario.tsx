@@ -62,22 +62,6 @@ const Diario = () => {
         <MatchExpectationCard userClubId={profile?.favorite_club_id ?? null} />
         <EmotionTacticalBoard />
       </div>
-
-      <button
-        onClick={() => navigate("/quiz")}
-        className="mt-4 w-full flex items-center gap-3 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow text-left"
-      >
-        <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
-          <MessageCircle className="w-5 h-5 text-emerald-600" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-sans font-semibold text-slate-900 text-[15px] leading-tight" style={{ textTransform: "none" }}>
-            Resenha fanática
-          </h3>
-          <p className="text-xs text-slate-500 mt-0.5">Cenários e escolhas do dia a dia do torcedor</p>
-        </div>
-        <ChevronRight className="w-5 h-5 text-slate-400 shrink-0" />
-      </button>
     </>
   );
 
