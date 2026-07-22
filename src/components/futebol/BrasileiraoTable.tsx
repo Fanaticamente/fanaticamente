@@ -1,7 +1,9 @@
-import { Loader2, RefreshCw, MapPin, Clock } from "lucide-react";
-import { useBrasileirao } from "@/hooks/useBrasileirao";
+import { useState } from "react";
+import { Loader2, RefreshCw, MapPin, Clock, ChevronDown } from "lucide-react";
+import { useLeague, LEAGUE_LABELS, type LeagueKey, type BrasileiraoPayload } from "@/hooks/useBrasileirao";
 import ClubMark from "@/components/clubs/ClubMark";
 import { findClubId, cleanDisplayName } from "@/lib/clubMatcher";
+import { cn } from "@/lib/utils";
 
 const zoneColor = (pos: number): string => {
   if (pos <= 4) return "bg-emerald-500"; // Libertadores
@@ -11,58 +13,20 @@ const zoneColor = (pos: number): string => {
   return "bg-gray-300";
 };
 
-const BrasileiraoTable = () => {
-  const { data, isLoading, isError, refetch, isFetching } = useBrasileirao(true);
+// ------------------------------------------------------------------------
+// Inner renderers
+// ------------------------------------------------------------------------
 
-  if (isLoading) {
+const StandingsGrid = ({ data }: { data: BrasileiraoPayload }) => {
+  if (!data.standings?.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 gap-3">
-        <Loader2 className="w-8 h-8 animate-spin" style={{ color: "var(--club-600)" }} />
-        <p className="text-gray-500 text-sm">Carregando tabela do Brasileirão...</p>
+      <div className="px-4 py-6 text-center text-[12px] text-gray-500">
+        Tabela não disponível para esta competição.
       </div>
     );
   }
-
-  if (isError || !data) {
-    return (
-      <div className="px-6 py-16 text-center">
-        <p className="text-gray-600 text-sm mb-4">Não foi possível carregar a tabela agora.</p>
-        <button
-          onClick={() => refetch()}
-          className="px-4 py-2 rounded-full text-sm font-semibold text-white"
-          style={{ backgroundColor: "var(--club-600)" }}
-        >
-          Tentar novamente
-        </button>
-      </div>
-    );
-  }
-
-  const updated = new Date(data.updated_at).toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
   return (
-    <div className="px-4 space-y-6">
-      {/* Header row */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-[15px] font-bold text-gray-900">Brasileirão Série A</h2>
-          <p className="text-[11px] text-gray-500">Atualizado {updated}</p>
-        </div>
-        <button
-          onClick={() => refetch()}
-          disabled={isFetching}
-          className="w-9 h-9 rounded-full flex items-center justify-center bg-gray-100 text-gray-700 disabled:opacity-50"
-          aria-label="Atualizar"
-        >
-          <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
-        </button>
-      </div>
-
-      {/* Standings table */}
-      <div className="rounded-2xl border border-gray-200 overflow-hidden bg-white">
+    <div className="rounded-xl border border-gray-200 overflow-hidden bg-white">
         <div className="grid grid-cols-[28px_1fr_40px_32px_32px_32px] gap-1 px-3 py-2 bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wide">
           <span>#</span>
           <span>Time</span>
@@ -102,22 +66,21 @@ const BrasileiraoTable = () => {
             );
           })}
         </div>
+    </div>
+  );
+};
 
-        {/* Legend */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 bg-gray-50 text-[10px] text-gray-600">
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-emerald-500" />Libertadores</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-blue-500" />Pré-Liberta.</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-amber-400" />Sul-Americana</span>
-          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-500" />Rebaixamento</span>
-        </div>
+const NextRoundList = ({ data }: { data: BrasileiraoPayload }) => {
+  if (!data.next_round?.length) {
+    return (
+      <div className="px-4 py-6 text-center text-[12px] text-gray-500">
+        Sem jogos programados no momento.
       </div>
-
-      {/* Next round */}
-      {data.next_round.length > 0 && (
-        <div>
-          <h3 className="text-[15px] font-bold text-gray-900 mb-3">Próxima rodada</h3>
-          <div className="space-y-2">
-            {data.next_round.map((m, i) => {
+    );
+  }
+  return (
+    <div className="space-y-2">
+      {data.next_round.map((m, i) => {
               const homeId = findClubId(m.home, m.home_abbr);
               const awayId = findClubId(m.away, m.away_abbr);
               const homeName = cleanDisplayName(m.home);
@@ -125,7 +88,7 @@ const BrasileiraoTable = () => {
               return (
                 <div
                   key={i}
-                  className="rounded-2xl border border-gray-200 bg-white p-3"
+            className="rounded-xl border border-gray-200 bg-white p-3"
                 >
                   <div className="flex items-center justify-between text-[11px] text-gray-500 mb-2">
                     <span className="flex items-center gap-1">
@@ -158,10 +121,140 @@ const BrasileiraoTable = () => {
                   </div>
                 </div>
               );
-            })}
+      })}
+    </div>
+  );
+};
+
+// ------------------------------------------------------------------------
+// League card (expandable)
+// ------------------------------------------------------------------------
+
+interface LeagueCardProps {
+  leagueKey: LeagueKey;
+  defaultOpen?: boolean;
+  showStandingsToggle?: boolean; // false → cup: only "Jogos"
+}
+
+const LeagueCard = ({ leagueKey, defaultOpen = false, showStandingsToggle = true }: LeagueCardProps) => {
+  const [open, setOpen] = useState(defaultOpen);
+  const [tab, setTab] = useState<"standings" | "matches">(showStandingsToggle ? "standings" : "matches");
+  const { data, isLoading, isError, refetch, isFetching } = useLeague(leagueKey, open);
+  const label = LEAGUE_LABELS[leagueKey];
+
+  return (
+    <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left"
+      >
+        <div className="min-w-0">
+          <h3 className="text-[14px] font-bold text-gray-900 truncate">{label}</h3>
+          {data?.updated_at && (
+            <p className="text-[10px] text-gray-500">
+              Atualizado{" "}
+              {new Date(data.updated_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+            </p>
+          )}
+        </div>
+        <ChevronDown
+          className={cn("w-4 h-4 text-gray-400 transition-transform", open && "rotate-180")}
+        />
+      </button>
+
+      {/* Preview (top 4) when collapsed */}
+      {!open && data?.standings?.length ? (
+        <div className="px-4 pb-3 space-y-1">
+          {data.standings.slice(0, 4).map((row) => {
+            const clubId = findClubId(row.club, row.abbr);
+            return (
+              <div key={row.position} className="flex items-center gap-2 text-[12px] text-gray-700">
+                <span className={`w-1 h-3 rounded-sm ${zoneColor(row.position)}`} />
+                <span className="text-gray-500 font-semibold w-4">{row.position}</span>
+                {clubId && <div className="w-4 h-4"><ClubMark clubId={clubId} /></div>}
+                <span className="truncate flex-1">{cleanDisplayName(row.club)}</span>
+                <span className="font-bold">{row.points}</span>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {open && (
+        <div className="px-3 pb-3 space-y-3">
+          {/* Toolbar */}
+          <div className="flex items-center justify-between gap-2">
+            {showStandingsToggle ? (
+              <div className="inline-flex rounded-full bg-gray-100 p-0.5 text-[11px] font-semibold">
+                <button
+                  onClick={() => setTab("standings")}
+                  className={cn(
+                    "px-3 py-1 rounded-full transition-colors",
+                    tab === "standings" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500",
+                  )}
+                >
+                  Tabela
+                </button>
+                <button
+                  onClick={() => setTab("matches")}
+                  className={cn(
+                    "px-3 py-1 rounded-full transition-colors",
+                    tab === "matches" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500",
+                  )}
+                >
+                  Jogos
+                </button>
+              </div>
+            ) : (
+              <span className="text-[11px] font-semibold text-gray-500">Próximos jogos</span>
+            )}
+            <button
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-700 disabled:opacity-50"
+              aria-label="Atualizar"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
+            </button>
           </div>
+
+          {isLoading && !data ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+            </div>
+          ) : isError && !data ? (
+            <div className="text-center text-[12px] text-gray-500 py-6">
+              Não foi possível carregar {label}.
+            </div>
+          ) : data ? (
+            tab === "standings" && showStandingsToggle ? (
+              <StandingsGrid data={data} />
+            ) : (
+              <NextRoundList data={data} />
+            )
+          ) : null}
         </div>
       )}
+    </div>
+  );
+};
+
+// ------------------------------------------------------------------------
+// Root: multi-league accordion
+// ------------------------------------------------------------------------
+
+const BrasileiraoTable = () => {
+  return (
+    <div className="px-4 space-y-3">
+      <LeagueCard leagueKey="serie-a" defaultOpen />
+      <LeagueCard leagueKey="serie-b" />
+      <LeagueCard leagueKey="serie-c" />
+      <LeagueCard leagueKey="copa-do-brasil" showStandingsToggle={false} />
+      <LeagueCard leagueKey="libertadores" showStandingsToggle={false} />
+      <LeagueCard leagueKey="sul-americana" showStandingsToggle={false} />
+      <LeagueCard leagueKey="brasileirao-fem" />
+      <LeagueCard leagueKey="copa-do-brasil-fem" showStandingsToggle={false} />
     </div>
   );
 };
