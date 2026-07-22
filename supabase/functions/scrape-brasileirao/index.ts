@@ -4,10 +4,22 @@ const corsHeaders = {
 };
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 min (user-requested refresh cadence)
-let cache: { at: number; payload: unknown } | null = null;
+const cacheByLeague: Record<string, { at: number; payload: unknown }> = {};
+const scorerCache: Record<string, { at: number; payload: unknown }> = {};
+const SCORER_TTL_MS = 45 * 1000; // 45s for live match details
 
-// Fotmob league id for Brasileirão Série A (same data source Google surfaces via Opta partners).
-const FOTMOB_URL = "https://www.fotmob.com/api/data/leagues?id=268";
+// Fotmob league ids. Values are best-effort — endpoint returns 200 with empty
+// standings for cup formats, which the UI handles gracefully.
+const LEAGUES: Record<string, { id: number; label: string; format: "league" | "cup" }> = {
+  "serie-a":            { id: 268,   label: "Brasileirão Série A",         format: "league" },
+  "serie-b":            { id: 269,   label: "Brasileirão Série B",         format: "league" },
+  "serie-c":            { id: 270,   label: "Brasileirão Série C",         format: "league" },
+  "copa-do-brasil":     { id: 336,   label: "Copa do Brasil",              format: "cup"    },
+  "libertadores":       { id: 44,    label: "Copa Libertadores",           format: "cup"    },
+  "sul-americana":      { id: 45,    label: "Copa Sul-Americana",          format: "cup"    },
+  "brasileirao-fem":    { id: 8965,  label: "Brasileirão Feminino",        format: "league" },
+  "copa-do-brasil-fem": { id: 10537, label: "Copa do Brasil Feminina",     format: "cup"    },
+};
 
 const NAME_FIXES: Record<string, string> = {
   "Atletico MG": "Atlético-MG",
@@ -71,8 +83,8 @@ function abbrOf(n: string): string {
   return (parts[0][0] + parts[1][0] + (parts[2]?.[0] ?? "")).toUpperCase().slice(0, 3);
 }
 
-async function fetchFotmob(): Promise<any> {
-  const res = await fetch(FOTMOB_URL, {
+async function fetchFotmob(leagueId: number): Promise<any> {
+  const res = await fetch(`https://www.fotmob.com/api/data/leagues?id=${leagueId}`, {
     headers: {
       "User-Agent":
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
@@ -82,6 +94,35 @@ async function fetchFotmob(): Promise<any> {
   });
   if (!res.ok) throw new Error(`Fotmob fetch failed: ${res.status}`);
   return res.json();
+}
+
+async function fetchMatchDetails(matchId: string): Promise<any> {
+  const res = await fetch(`https://www.fotmob.com/api/data/matchDetails?matchId=${matchId}`, {
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+      "Accept": "application/json",
+    },
+  });
+  if (!res.ok) throw new Error(`Fotmob matchDetails failed: ${res.status}`);
+  return res.json();
+}
+
+function extractScorers(details: any): Array<{ team: "home" | "away"; player: string; minute: string }> {
+  const events = details?.content?.matchFacts?.events?.events
+    ?? details?.header?.events
+    ?? [];
+  const out: Array<{ team: "home" | "away"; player: string; minute: string }> = [];
+  for (const ev of Array.isArray(events) ? events : []) {
+    const type = String(ev?.type ?? ev?.eventType ?? "").toLowerCase();
+    if (!type.includes("goal")) continue;
+    if (String(ev?.ownGoal ?? "").toLowerCase() === "true") { /* still count */ }
+    const isHome = ev?.isHome === true || ev?.side === "home";
+    const player = ev?.player?.name ?? ev?.nameStr ?? ev?.name ?? "";
+    const minute = ev?.timeStr ?? (ev?.time != null ? `${ev.time}'` : "");
+    if (player) out.push({ team: isHome ? "home" : "away", player, minute });
+  }
+  return out;
 }
 
 function buildPayload(data: any) {
@@ -173,20 +214,52 @@ Deno.serve(async (req) => {
   try {
     const url = new URL(req.url);
     const force = url.searchParams.get("force") === "1";
+    const action = url.searchParams.get("action");
 
-    if (!force && cache && Date.now() - cache.at < CACHE_TTL_MS) {
-      return new Response(JSON.stringify({ success: true, cached: true, ...cache.payload as object }), {
+    // Body may also carry params when invoked via supabase.functions.invoke
+    let body: any = null;
+    if (req.method === "POST") {
+      try { body = await req.json(); } catch { body = null; }
+    }
+    const leagueKey = (url.searchParams.get("league") ?? body?.league ?? "serie-a").toLowerCase();
+    const matchIdParam = url.searchParams.get("matchId") ?? body?.matchId;
+    const actionParam = action ?? body?.action;
+
+    // --- Live scorers endpoint --------------------------------------------
+    if (actionParam === "scorers" && matchIdParam) {
+      const key = String(matchIdParam);
+      const cached = scorerCache[key];
+      if (!force && cached && Date.now() - cached.at < SCORER_TTL_MS) {
+        return new Response(JSON.stringify({ success: true, cached: true, ...cached.payload as object }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const details = await fetchMatchDetails(key);
+      const scorers = extractScorers(details);
+      const payload = { scorers, updated_at: new Date().toISOString() };
+      scorerCache[key] = { at: Date.now(), payload };
+      return new Response(JSON.stringify({ success: true, cached: false, ...payload }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const data = await fetchFotmob();
+    // --- League payload endpoint ------------------------------------------
+    const league = LEAGUES[leagueKey] ?? LEAGUES["serie-a"];
+    const cacheKey = String(league.id);
+    const cached = cacheByLeague[cacheKey];
+    if (!force && cached && Date.now() - cached.at < CACHE_TTL_MS) {
+      return new Response(JSON.stringify({ success: true, cached: true, league: leagueKey, label: league.label, format: league.format, ...cached.payload as object }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const data = await fetchFotmob(league.id);
     const base = buildPayload(data);
     const matches = buildMatches(data);
     const payload = { ...base, matches };
-    cache = { at: Date.now(), payload };
+    cacheByLeague[cacheKey] = { at: Date.now(), payload };
 
-    return new Response(JSON.stringify({ success: true, cached: false, ...payload }), {
+    return new Response(JSON.stringify({ success: true, cached: false, league: leagueKey, label: league.label, format: league.format, ...payload }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
