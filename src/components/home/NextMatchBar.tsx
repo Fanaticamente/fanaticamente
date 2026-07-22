@@ -1,9 +1,22 @@
-import { useMemo } from "react";
-import { useBrasileirao, type MatchRow } from "@/hooks/useBrasileirao";
+import { useEffect, useMemo, useState } from "react";
+import { useLeague, type MatchRow, type LeagueKey } from "@/hooks/useBrasileirao";
 import { useClubTheme } from "@/contexts/ClubThemeContext";
 import ClubMark from "@/components/clubs/ClubMark";
 import { findClubId, cleanDisplayName } from "@/lib/clubMatcher";
 import { brazilianClubs } from "@/data/brazilianClubs";
+import { supabase } from "@/integrations/supabase/client";
+
+// Leagues to consider for "next match by date across all competitions".
+const LEAGUES_TO_CHECK: LeagueKey[] = [
+  "serie-a",
+  "serie-b",
+  "serie-c",
+  "copa-do-brasil",
+  "libertadores",
+  "sul-americana",
+  "brasileirao-fem",
+  "copa-do-brasil-fem",
+];
 
 const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
@@ -54,12 +67,47 @@ const formatDateTime = (utc: string | null) => {
 
 const NextMatchBar = () => {
   const { clubId } = useClubTheme();
-  const { data } = useBrasileirao(!!clubId);
+
+  // Pull matches from every relevant competition; each hook has its own cache
+  // so the bar renders instantly from localStorage on cold open.
+  const leagueData = LEAGUES_TO_CHECK.map((key) => useLeague(key, !!clubId).data);
 
   const match = useMemo(() => {
-    if (!clubId || !data?.matches) return null;
-    return pickMatchForClub(data.matches, clubId);
-  }, [clubId, data]);
+    if (!clubId) return null;
+    const all: MatchRow[] = [];
+    for (const d of leagueData) {
+      if (d?.matches) all.push(...d.matches);
+    }
+    return pickMatchForClub(all, clubId);
+  }, [clubId, leagueData]);
+
+  // Live scorers (loaded lazily for live matches only)
+  const [scorers, setScorers] = useState<Array<{ team: "home" | "away"; player: string; minute: string }>>([]);
+  useEffect(() => {
+    if (!match || match.status !== "live" || !match.id) {
+      setScorers([]);
+      return;
+    }
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const { data } = await supabase.functions.invoke("scrape-brasileirao", {
+          body: { action: "scorers", matchId: match.id },
+        });
+        if (!cancelled && data?.success && Array.isArray(data.scorers)) {
+          setScorers(data.scorers);
+        }
+      } catch {
+        /* silent */
+      }
+    };
+    load();
+    const t = setInterval(load, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, [match?.id, match?.status]);
 
   if (!clubId || !match) return null;
 
@@ -79,9 +127,8 @@ const NextMatchBar = () => {
   const { day, time } = formatDateTime(match.utcTime);
 
   return (
-    <div
-      className="rounded-2xl border border-slate-200/70 bg-white px-3 py-2.5 flex items-center gap-3"
-    >
+    <div className="rounded-2xl border border-slate-200/70 bg-white px-3 py-2.5">
+      <div className="flex items-center gap-3">
       {/* Status pill */}
       <div className="flex flex-col items-center min-w-[52px]">
         {isLive ? (
@@ -123,6 +170,23 @@ const NextMatchBar = () => {
         </div>
         <span className="text-xs font-semibold text-gray-800 truncate">{awayShort || awayName}</span>
       </div>
+      </div>
+
+      {/* Live scorers */}
+      {isLive && scorers.length > 0 && (
+        <div className="mt-2 pt-2 border-t border-gray-100 grid grid-cols-2 gap-2 text-[10px] text-gray-600">
+          <div className="text-right space-y-0.5">
+            {scorers.filter((s) => s.team === "home").map((s, i) => (
+              <div key={`h-${i}`} className="truncate">⚽ {s.player} <span className="text-gray-400">{s.minute}</span></div>
+            ))}
+          </div>
+          <div className="space-y-0.5">
+            {scorers.filter((s) => s.team === "away").map((s, i) => (
+              <div key={`a-${i}`} className="truncate">⚽ {s.player} <span className="text-gray-400">{s.minute}</span></div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
