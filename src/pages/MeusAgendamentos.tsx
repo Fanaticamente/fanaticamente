@@ -23,10 +23,6 @@ interface Appointment {
   created_at: string;
   rating?: number | null;
   rejection_reason?: string | null;
-  user_pix_key?: string | null;
-  user_pix_key_type?: string | null;
-  refund_receipt_url?: string | null;
-  refund_deadline?: string | null;
   professional?: {
     crp: string;
     degree: string | null;
@@ -188,14 +184,6 @@ const MeusAgendamentos = () => {
       return { label: past ? "Realizada" : "Confirmada", className: "bg-[var(--club-50)] text-[var(--club-600)]", icon: CheckCircle };
     } else if (status === "completed") {
       return { label: "Concluída", className: "bg-violet-50 text-violet-600", icon: CheckCircle };
-    } else if (status === "payment_issue") {
-      return { label: "Problema no pagamento", className: "bg-orange-50 text-orange-600", icon: AlertCircle };
-    } else if (status === "refund_pending") {
-      return { label: "Aguardando reembolso", className: "bg-orange-50 text-orange-600", icon: Clock };
-    } else if (status === "refund_sent") {
-      return { label: "Reembolso enviado", className: "bg-blue-50 text-blue-600", icon: CheckCircle };
-    } else if (status === "disputed") {
-      return { label: "Em análise", className: "bg-red-50 text-red-600", icon: AlertCircle };
     } else if (status === "cancelled") {
       return { label: "Cancelada", className: "bg-red-50 text-red-600", icon: XCircle };
     } else {
@@ -208,52 +196,17 @@ const MeusAgendamentos = () => {
   // Also includes cancellations awaiting PIX key (user still needs to provide PIX key)
   const filteredAppointments = appointments.filter(apt => {
     if (filter === "proximos") {
-      // Active appointments
       if (['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status)) {
         return true;
       }
-
-      // Keep completed sessions in "Próximos" until rated
       if (apt.status === 'completed' && !apt.rating) {
         return true;
       }
-
-      // Keep "cancelled" (rejeitada) visible until user sends PIX
-      if (apt.status === 'cancelled' && !apt.user_pix_key) {
-        return true;
-      }
-
-      // Keep refund_pending in "Próximos" until reembolso is sent
-      if (apt.status === 'refund_pending') {
-        return true;
-      }
-
-      // Keep refund_sent in "Próximos" so user can see the receipt and confirm
-      if (apt.status === 'refund_sent') {
-        return true;
-      }
-
-      // Keep payment_issue in "Próximos" so user can see it
-      if (apt.status === 'payment_issue') {
-        return true;
-      }
-
       return false;
     } else if (filter === "realizados") {
-      // Only show completed sessions that have been rated
       return apt.status === 'completed' && !!apt.rating;
     } else if (filter === "cancelados") {
-      // Show refund flow + cancelled once PIX is provided
-      if (apt.status === 'refund_sent' || apt.status === 'disputed') {
-        return true;
-      }
-
-      // Safety: if for some reason status is still cancelled but PIX already exists, treat as cancelled bucket
-      if (apt.status === 'cancelled' && !!apt.user_pix_key) {
-        return true;
-      }
-
-      return false;
+      return apt.status === 'cancelled';
     }
 
     return true; // "todos"
@@ -262,18 +215,11 @@ const MeusAgendamentos = () => {
   const proximosCount = appointments.filter(apt => {
     if (['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status)) return true;
     if (apt.status === 'completed' && !apt.rating) return true;
-    if (apt.status === 'cancelled' && !apt.user_pix_key) return true;
-    if (apt.status === 'refund_pending') return true;
-    if (apt.status === 'refund_sent') return true;
     return false;
   }).length;
 
   const realizadosCount = appointments.filter(apt => apt.status === 'completed' && !!apt.rating).length;
-  const canceladosCount = appointments.filter(apt => {
-    if (['refund_sent', 'disputed'].includes(apt.status)) return true;
-    if (apt.status === 'cancelled' && !!apt.user_pix_key) return true;
-    return false;
-  }).length;
+  const canceladosCount = appointments.filter(apt => apt.status === 'cancelled').length;
 
   if (authLoading) {
     return (
@@ -486,7 +432,7 @@ const MeusAgendamentos = () => {
                   )}
 
                   {/* Reschedule button - available for pending, confirmed, link_sent statuses (not completed, cancelled, in_progress or refund_pending) */}
-                  {!['completed', 'cancelled', 'in_progress', 'refund_pending', 'refund_sent', 'disputed'].includes(apt.status) && (
+                  {!['completed', 'cancelled', 'in_progress'].includes(apt.status) && (
                     <div className="mt-3">
                       <button
                         onClick={() => {
