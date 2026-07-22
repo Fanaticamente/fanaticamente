@@ -138,6 +138,7 @@ const Auth = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [roleValidated, setRoleValidated] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [customClubName, setCustomClubName] = useState("");
 
   const { signIn, signUp, user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
@@ -796,9 +797,20 @@ const Auth = () => {
                               {club.name}
                             </option>
                           ))}
+                          <option value="__custom__">Outro (digitar meu time)</option>
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
                       </div>
+                      {signUpData.favoriteClub === "__custom__" && (
+                        <input
+                          type="text"
+                          value={customClubName}
+                          onChange={(e) => setCustomClubName(e.target.value)}
+                          placeholder="Digite o nome do seu time"
+                          className={selectClassName + " mt-2"}
+                          maxLength={60}
+                        />
+                      )}
                       {errors.favoriteClub && (
                         <p className="text-destructive text-sm mt-1">{errors.favoriteClub}</p>
                       )}
@@ -1175,9 +1187,20 @@ const Auth = () => {
                           {club.name}
                         </option>
                       ))}
+                      <option value="__custom__">Outro (digitar meu time)</option>
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
                   </div>
+                  {signUpData.favoriteClub === "__custom__" && (
+                    <input
+                      type="text"
+                      value={customClubName}
+                      onChange={(e) => setCustomClubName(e.target.value)}
+                      placeholder="Digite o nome do seu time"
+                      className={selectClassName + " mt-2"}
+                      maxLength={60}
+                    />
+                  )}
                   {errors.favoriteClub && (
                     <p className="text-destructive text-sm mt-1">{errors.favoriteClub}</p>
                   )}
