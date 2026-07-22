@@ -1,47 +1,47 @@
-## Objetivo
+## 1. Cadastro — lista completa de clubes
+- Usar `allBrazilianClubs` (Séries A, B, C) no seletor de time em `Auth.tsx` (cadastro) e em `EditarPerfil.tsx`.
+- Adicionar opção "Digitar meu time" com input livre — grava um texto customizado em `profiles.favorite_club_id` (ou campo `custom_club_name` se preferir separar; usarei o mesmo campo com prefixo `custom:` para não afetar temas).
 
-Fazer o app do torcedor ganhar a identidade visual do clube favorito do usuário logado — o verde emerald atual é substituído pelas cores do clube em toda a interface do torcedor. Fallback pro verde da marca quando o usuário ainda não escolheu clube.
+## 2. Campo das Emoções — remover atalho da Resenha Fanática
+- Localizar a página do "Campo das emoções" (provavelmente `EmotionTacticalBoard.tsx` ou a página que a hospeda) e remover o card inferior "Resenha fanática".
 
-## Como vai funcionar
+## 3. Página de notícias (Futebol) — filtro por clube
+- Reduzir tamanho do botão "Filtrar por clube" em `ClubFilterDropdown.tsx`.
+- Repadronizar o dropdown/sheet de escudos para o novo padrão claro (fundo branco, tipografia atual, sem amarelo/legado).
 
-1. **`ClubThemeProvider` global** — lê `favorite_club_id` do perfil do usuário logado e injeta as cores do clube como variáveis CSS no `<html>`:
-   - `--club-primary` (cor principal do clube)
-   - `--club-primary-soft` (mesma cor com 88% branco, para fundos de destaque)
-   - `--club-primary-tint-15` / `--club-primary-tint-40` (translúcidos para tags/bordas)
-   - `--club-on-primary` (branco ou preto, escolhido por contraste automático)
-   - Atualiza sozinho quando o usuário troca de clube no perfil.
+## 4. Meus Agendamentos — remover fluxo de pagamento antigo
+- Remover badge/estado "Aguardando reembolso" e quaisquer referências a: comprovante, reembolso, chave PIX, envio de pagamento.
+- Varrer `MeusAgendamentos.tsx`, `AppointmentDetailsDialog.tsx`, `RescheduleDialog.tsx`, `SessionInfoDialog.tsx`, componentes admin, e strings relacionadas.
 
-2. **Aplicação nas superfícies do torcedor:**
-   - **BottomNav** — ícone/label ativo, indicador
-   - **Home minimalista** — carrossel de atalhos, saudação, botões primários
-   - **Comunidade** — abas ativas, cards do ranking
-   - **Bem-Estar / Atividades / Minha Temporada** — títulos de seção, ícones, acentos
-   - **FanatiClass (Cursos + Detalhe)** — pílulas de categoria ativa, botões, ícones "sobre o curso"
-   - **Meus Agendamentos** — abas, status ativo, botões
-   - **Perfil do torcedor** — botões de ação
-   - **Auth (login/cadastro)** — botão primário e links (quando já em fluxo torcedor)
-   - **Cabeçalhos das páginas principais** — mantém fundo branco, mas título/ícones de ação ganham a cor do clube em elementos-chave (não faz faixa colorida cheia como em Equipes Terapêuticas — mantém o estilo minimalista atual, só troca o accent).
+## 5. Página Tabela — múltiplos campeonatos em cards minimizáveis
+- Refatorar `BrasileiraoTable.tsx` para lista de campeonatos:
+  - Brasileirão A / B / C (toggle interno)
+  - Copa do Brasil
+  - Libertadores
+  - Sul-Americana
+  - Brasileirão Feminino
+  - Copa do Brasil Feminina
+- Cada card mostra prévia (top 4 ou próximos jogos) e expande para tabela completa + próximos jogos, com toggle Tabela/Jogos dentro do card.
+- Remover subtítulo "Fonte: SofaScore/Opta (via Fotmob)".
+- Ampliar `scrape-brasileirao` para aceitar `leagueId` (parâmetro) e mapear IDs Fotmob:
+  - Brasileirão A: 268, B: 269, C: 270
+  - Copa do Brasil: 73, Libertadores: 44, Sul-Americana: 45
+  - Brasileirão Feminino: 8965, Copa do Brasil Feminina: 10537
+  (IDs verificados na edge; se algum divergir, ajustar em runtime.)
+- Adaptar payload para copas (bracket) vs pontos corridos (standings) — para copas, mostrar próximos jogos apenas.
+- Cache por leagueId.
 
-3. **O que NÃO muda:**
-   - Sistema profissional, admin e dev (mantêm verde/paleta atual).
-   - Cabeçalho das Equipes Terapêuticas (continua usando cor do clube do profissional exibido, não do usuário).
-   - Neutros (branco, cinzas, preto) e cores de status (vermelho cancelado, âmbar pendente, azul info).
-   - Cores dos clubes nas telas específicas de clube (marketplace, cards etc.).
+## 6. Página inicial — NextMatchBar
+- Selecionar próxima partida por **data** (mais próxima no futuro, entre todas as competições), não só Brasileirão. Consultar múltiplas ligas onde o clube joga.
+- Para partidas ao vivo, exibir autores dos gols abaixo do placar (fonte Fotmob: `matchDetails` — requer chamada extra para `matchDetails?matchId=`). Adicionar campo `scorers` no payload de matches ao vivo apenas.
 
-4. **Fallback:**
-   - Sem usuário logado ou sem clube escolhido → verde da marca `#237B0E` (mesmo verde que já é usado hoje).
+## 7. Comunidade — Ranking de Torcedores
+- Reduzir tamanho da fonte do título "Ranking de Torcedores" para igualar "Brasileirão da Saúde Mental".
+- Exibir apenas os 4 primeiros na tabela reduzida; resto acessível via "Ver todos".
 
-## Detalhes técnicos
+## Técnico
+- Nova edge function ampliada aceita `?league=<key>` e retorna `{ standings?, matches, next_round, live_scorers? }`.
+- Frontend `useBrasileirao` vira `useLeague(key)` genérico; hooks separados por liga com cache localStorage por chave.
+- Custom-team storage: adicionar coluna opcional `custom_team_name` em `profiles` via migração, para não poluir `favorite_club_id`.
 
-- Novo arquivo: `src/contexts/ClubThemeContext.tsx` — provider + hook `useClubTheme()`.
-- Wrap dentro de `AuthProvider` em `src/App.tsx` (só nas rotas do app torcedor — não afeta rotas `/professional`, `/admin`, `/developer`).
-- Cores injetadas via `document.documentElement.style.setProperty`.
-- Componentes atualizados trocam classes `bg-emerald-500 text-white` por `bg-[var(--club-primary)] text-[var(--club-on-primary)]` (e equivalentes para 50/100/600/700).
-- Cálculo de contraste (luminância) pra decidir texto branco ou preto sobre a cor primária — clubes com cores claras (Cuiabá dourado, por exemplo) recebem texto preto automaticamente.
-- Persistência: o clube já vem do `profiles.favorite_club_id` — nada novo em banco.
-
-## Escopo em arquivos
-
-~15 arquivos editados (páginas e componentes fan-only listados acima) + 1 arquivo novo (provider) + 1 edição em `App.tsx`.
-
-Pronto pra implementar?
+Confirma que posso avançar com toda essa lista? É bastante mudança de uma vez — se preferir, posso quebrar em 2 entregas (1: itens 1–4 e 7; 2: reformulação da página Tabela e NextMatch por data com goleadores).

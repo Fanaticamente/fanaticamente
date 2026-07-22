@@ -130,7 +130,7 @@ const Comunidade = () => {
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, "pt-BR"));
 
   const topClubs = sortedClubs.slice(0, 4);
-  const topFans = fanRanking.slice(0, 5);
+  const topFans = fanRanking.slice(0, 4);
 
   return (
     <div className="min-h-screen bg-white font-sans overscroll-none">
@@ -238,7 +238,7 @@ const Comunidade = () => {
             {/* Fan ranking card */}
             <section className="bg-white rounded-3xl shadow-sm p-5">
               <header className="flex items-center justify-between mb-4">
-                <h3 className="font-sans text-lg font-bold text-gray-900 normal-case">Ranking de Torcedores</h3>
+                <h3 className="font-sans text-base font-bold text-gray-900 normal-case">Ranking de Torcedores</h3>
                 <button onClick={openFansTable} className="text-[var(--club-600)] text-sm font-semibold flex items-center gap-0.5">
                   Ver todos <ChevronRight className="w-4 h-4" />
                 </button>
@@ -395,7 +395,7 @@ const Comunidade = () => {
       <Dialog open={showFansFull} onOpenChange={setShowFansFull}>
         <DialogContent className="max-w-lg w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto rounded-3xl p-0 bg-white font-sans">
           <DialogHeader className="p-5 pb-2 sticky top-0 bg-white z-10">
-            <DialogTitle className="font-sans text-lg font-bold text-gray-900 normal-case text-left">Ranking de Torcedores</DialogTitle>
+            <DialogTitle className="font-sans text-base font-bold text-gray-900 normal-case text-left">Ranking de Torcedores</DialogTitle>
           </DialogHeader>
           <div className="px-5 pb-6 bg-white">
             {fanRanking.length === 0 ? (

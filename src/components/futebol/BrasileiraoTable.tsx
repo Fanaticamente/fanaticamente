@@ -49,7 +49,7 @@ const BrasileiraoTable = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-[15px] font-bold text-gray-900">Brasileirão Série A</h2>
-          <p className="text-[11px] text-gray-500">Atualizado {updated} • Fonte: SofaScore/Opta (via Fotmob)</p>
+          <p className="text-[11px] text-gray-500">Atualizado {updated}</p>
         </div>
         <button
           onClick={() => refetch()}

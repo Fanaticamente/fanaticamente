@@ -50,6 +50,7 @@ const EditarPerfil = () => {
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
   const [favoriteClubId, setFavoriteClubId] = useState("");
+  const [customClubName, setCustomClubName] = useState("");
   const [cities, setCities] = useState<string[]>([]);
 
   const [email, setEmail] = useState("");
@@ -81,7 +82,15 @@ const EditarPerfil = () => {
         setBirthDate(data.birth_date || "");
         setState(data.state || "");
         setCity(data.city || "");
-        setFavoriteClubId(data.favorite_club_id || "");
+        {
+          const stored = data.favorite_club_id || "";
+          if (stored.startsWith("custom:")) {
+            setFavoriteClubId("__custom__");
+            setCustomClubName(stored.slice(7));
+          } else {
+            setFavoriteClubId(stored);
+          }
+        }
       }
       setLoadingProfile(false);
     })();
@@ -102,7 +111,10 @@ const EditarPerfil = () => {
         birth_date: birthDate || null,
         state,
         city,
-        favorite_club_id: favoriteClubId || null,
+        favorite_club_id:
+          favoriteClubId === "__custom__"
+            ? (customClubName.trim() ? `custom:${customClubName.trim()}` : null)
+            : (favoriteClubId || null),
         updated_at: new Date().toISOString(),
       }).eq("user_id", user.id);
       if (error) throw error;
@@ -222,8 +234,19 @@ const EditarPerfil = () => {
                     {allBrazilianClubs.map((c) => (
                       <SelectItem key={c.id} value={c.id} className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">{c.name}</SelectItem>
                     ))}
+                    <SelectItem value="__custom__" className="text-slate-900 focus:bg-slate-100 focus:text-slate-900">Outro (digitar meu time)</SelectItem>
                   </SelectContent>
                 </Select>
+                {favoriteClubId === "__custom__" && (
+                  <input
+                    type="text"
+                    value={customClubName}
+                    onChange={(e) => setCustomClubName(e.target.value)}
+                    placeholder="Digite o nome do seu time"
+                    maxLength={60}
+                    className={inputClass + " mt-2"}
+                  />
+                )}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>

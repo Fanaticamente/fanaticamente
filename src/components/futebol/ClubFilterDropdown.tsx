@@ -70,7 +70,7 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors"
         style={
           selectedClub && accentColor
             ? { backgroundColor: accentColor, color: "#fff" }
@@ -85,35 +85,35 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
                 e.stopPropagation();
                 handleSelectClub(null);
               }}
-              className="ml-1 p-0.5 rounded-full hover:bg-white/20"
+              className="ml-0.5 p-0.5 rounded-full hover:bg-white/20"
             >
-              <X className="w-3 h-3" />
+              <X className="w-2.5 h-2.5" />
             </button>
           </>
         ) : (
           <>
-            <span>Filtrar por clube</span>
-            <ChevronDown className={cn("w-4 h-4 transition-transform", isOpen && "rotate-180")} />
+            <span>Filtrar</span>
+            <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", isOpen && "rotate-180")} />
           </>
         )}
       </button>
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-2 w-[300px] bg-white rounded-2xl shadow-lg border border-gray-200 z-50 overflow-hidden">
           {/* Header with "All" option */}
-          <div className="p-3 border-b border-gray-100">
+          <div className="p-2 border-b border-gray-100">
             <button
               onClick={() => handleSelectClub(null)}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                !selectedClub ? "bg-primary/10 text-primary" : "hover:bg-gray-50"
+                "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-colors text-sm",
+                !selectedClub ? "bg-gray-100 text-gray-900 font-semibold" : "hover:bg-gray-50 text-gray-700"
               )}
             >
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center overflow-hidden border border-gray-200">
-                <img src={fanaticaLogoIcon} alt="Todos" className="w-6 h-6 object-contain" />
+              <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center overflow-hidden border border-gray-200">
+                <img src={fanaticaLogoIcon} alt="Todos" className="w-5 h-5 object-contain" />
               </div>
-              <span className="font-medium">Todos os clubes</span>
+              <span>Todos os clubes</span>
             </button>
           </div>
 
@@ -121,10 +121,10 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
           <div className="max-h-80 overflow-y-auto">
             {/* Série A */}
             <div className="p-3">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+              <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
                 Série A
               </h4>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-6 gap-1.5">
                 {serieAClubs.map((club) => (
                   <button
                     key={club.id}
@@ -133,7 +133,7 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
                     className={cn(
                       "flex items-center justify-center p-1 rounded-lg transition-all",
                       selectedClub === club.id 
-                        ? "bg-primary/10 ring-2 ring-primary" 
+                        ? "bg-gray-100 ring-2 ring-gray-900" 
                         : "hover:bg-gray-100"
                     )}
                   >
@@ -145,10 +145,10 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
 
             {/* Série B */}
             <div className="p-3 border-t border-gray-100">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+              <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
                 Série B
               </h4>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-6 gap-1.5">
                 {serieBClubs.map((club) => (
                   <button
                     key={club.id}
@@ -157,7 +157,7 @@ const ClubFilterDropdown = ({ selectedClub, onSelectClub, accentColor }: ClubFil
                     className={cn(
                       "flex items-center justify-center p-1 rounded-lg transition-all",
                       selectedClub === club.id 
-                        ? "bg-primary/10 ring-2 ring-primary" 
+                        ? "bg-gray-100 ring-2 ring-gray-900" 
                         : "hover:bg-gray-100"
                     )}
                   >
