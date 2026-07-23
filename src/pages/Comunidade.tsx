@@ -327,19 +327,6 @@ const Comunidade = () => {
         <DialogContent className="max-w-lg w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto rounded-3xl p-0 bg-white font-sans">
           <DialogHeader className="p-5 pb-2 sticky top-0 bg-white z-10">
             <DialogTitle className="font-sans text-base font-bold text-gray-900 normal-case text-left">Brasileirão da Saúde Mental</DialogTitle>
-            <div className="flex gap-2 mt-3">
-              {leagueTabs.map((t) => (
-                <button
-                  key={t.key}
-                  onClick={() => setLeague(t.key)}
-                  className={`flex-1 py-2 rounded-full text-xs font-semibold ${
-                    league === t.key ? "bg-[var(--club-600)] text-white" : "bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
           </DialogHeader>
           <div className="px-5 pb-6 bg-white">
             <div className="flex items-center px-1 py-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
