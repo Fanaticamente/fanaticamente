@@ -129,6 +129,7 @@ function buildPayload(data: any) {
     position: r.idx ?? i + 1,
     club: fixName(r.name),
     abbr: abbrOf(r.name),
+    team_id: r.id != null ? String(r.id) : null,
     points: r.pts ?? 0,
     played: r.played ?? 0,
     wins: r.wins ?? 0,
@@ -159,8 +160,10 @@ function buildPayload(data: any) {
         venue: "",
         home: fixName(m.home?.name ?? ""),
         home_abbr: abbrOf(m.home?.name ?? ""),
+        home_id: m.home?.id != null ? String(m.home.id) : null,
         away: fixName(m.away?.name ?? ""),
         away_abbr: abbrOf(m.away?.name ?? ""),
+        away_id: m.away?.id != null ? String(m.away.id) : null,
       };
     });
 
@@ -195,8 +198,10 @@ function buildMatches(data: any) {
       utcTime: st.utcTime ?? null,
       home: fixName(m.home?.name ?? ""),
       home_abbr: abbrOf(m.home?.name ?? ""),
+      home_id: m.home?.id != null ? String(m.home.id) : null,
       away: fixName(m.away?.name ?? ""),
       away_abbr: abbrOf(m.away?.name ?? ""),
+      away_id: m.away?.id != null ? String(m.away.id) : null,
       home_score: parseScore(m.home, 0),
       away_score: parseScore(m.away, 1),
       status: cancelled ? "cancelled" : finished ? "finished" : ongoing ? "live" : "scheduled",
