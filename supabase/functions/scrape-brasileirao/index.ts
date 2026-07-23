@@ -12,13 +12,11 @@ const SCORER_TTL_MS = 45 * 1000; // 45s for live match details
 // standings for cup formats, which the UI handles gracefully.
 const LEAGUES: Record<string, { id: number; label: string; format: "league" | "cup" }> = {
   "serie-a":            { id: 268,   label: "Brasileirão Série A",         format: "league" },
-  "serie-b":            { id: 269,   label: "Brasileirão Série B",         format: "league" },
-  "serie-c":            { id: 270,   label: "Brasileirão Série C",         format: "league" },
-  "copa-do-brasil":     { id: 336,   label: "Copa do Brasil",              format: "cup"    },
+  "serie-b":            { id: 8814,  label: "Brasileirão Série B",         format: "league" },
+  "serie-c":            { id: 8971,  label: "Brasileirão Série C",         format: "league" },
+  "copa-do-brasil":     { id: 9067,  label: "Copa do Brasil",              format: "cup"    },
   "libertadores":       { id: 44,    label: "Copa Libertadores",           format: "cup"    },
-  "sul-americana":      { id: 45,    label: "Copa Sul-Americana",          format: "cup"    },
-  "brasileirao-fem":    { id: 8965,  label: "Brasileirão Feminino",        format: "league" },
-  "copa-do-brasil-fem": { id: 10537, label: "Copa do Brasil Feminina",     format: "cup"    },
+  "sul-americana":      { id: 299,   label: "Copa Sul-Americana",          format: "cup"    },
 };
 
 const NAME_FIXES: Record<string, string> = {
