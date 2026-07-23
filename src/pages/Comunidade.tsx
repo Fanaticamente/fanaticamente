@@ -191,20 +191,6 @@ const Comunidade = () => {
                 </button>
               </header>
 
-              <div className="flex gap-2 mb-4">
-                {leagueTabs.map((t) => (
-                  <button
-                    key={t.key}
-                    onClick={() => setLeague(t.key)}
-                    className={`flex-1 py-2 rounded-full text-xs font-semibold transition-colors ${
-                      league === t.key ? "bg-[var(--club-600)] text-white" : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-
               <div className="flex items-center px-1 pb-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
                 <span className="w-8 text-center">#</span>
                 <span className="flex-1 ml-2 text-center">Clube</span>
