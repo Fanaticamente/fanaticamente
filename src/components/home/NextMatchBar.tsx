@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLeague, type MatchRow, type LeagueKey } from "@/hooks/useBrasileirao";
 import { useClubTheme } from "@/contexts/ClubThemeContext";
-import ClubMark from "@/components/clubs/ClubMark";
+import TeamBadge from "@/components/clubs/TeamBadge";
 import { findClubId, cleanDisplayName } from "@/lib/clubMatcher";
 import { brazilianClubs } from "@/data/brazilianClubs";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,8 +14,6 @@ const LEAGUES_TO_CHECK: LeagueKey[] = [
   "copa-do-brasil",
   "libertadores",
   "sul-americana",
-  "brasileirao-fem",
-  "copa-do-brasil-fem",
 ];
 
 const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
@@ -37,10 +35,7 @@ const pickMatchForClub = (matches: MatchRow[], clubId: string): MatchRow | null 
     .filter((m) => m.status === "scheduled" && m.utcTime && new Date(m.utcTime).getTime() >= now - 60_000)
     .sort((a, b) => new Date(a.utcTime!).getTime() - new Date(b.utcTime!).getTime());
   if (upcoming.length) return upcoming[0];
-  const lastFinished = mine
-    .filter((m) => m.status === "finished")
-    .sort((a, b) => new Date(b.utcTime ?? 0).getTime() - new Date(a.utcTime ?? 0).getTime());
-  return lastFinished[0] ?? null;
+  return null;
 };
 
 const formatDateTime = (utc: string | null) => {
@@ -122,8 +117,7 @@ const NextMatchBar = () => {
     ? (brazilianClubs.find((c) => c.id === awayId)?.shortName ?? match.away_abbr)
     : match.away_abbr;
   const isLive = match.status === "live";
-  const isFinished = match.status === "finished";
-  const showScore = isLive || isFinished;
+  const showScore = isLive;
   const { day, time } = formatDateTime(match.utcTime);
 
   return (
@@ -135,10 +129,6 @@ const NextMatchBar = () => {
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: "#dc2626" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             AO VIVO
-          </span>
-        ) : isFinished ? (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-gray-600 bg-gray-100">
-            ENCERRADO
           </span>
         ) : (
           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ color: "var(--club-700)", backgroundColor: "var(--club-100)" }}>
@@ -154,7 +144,7 @@ const NextMatchBar = () => {
       <div className="flex-1 flex items-center gap-2 min-w-0 justify-end">
         <span className="text-xs font-semibold text-gray-800 truncate text-right">{homeShort || homeName}</span>
         <div className="w-7 h-7 shrink-0">
-          {homeId ? <ClubMark clubId={homeId} /> : null}
+          <TeamBadge clubId={homeId} fotmobId={match.home_id} alt={homeName} />
         </div>
       </div>
 
@@ -166,7 +156,7 @@ const NextMatchBar = () => {
       {/* Away */}
       <div className="flex-1 flex items-center gap-2 min-w-0">
         <div className="w-7 h-7 shrink-0">
-          {awayId ? <ClubMark clubId={awayId} /> : null}
+          <TeamBadge clubId={awayId} fotmobId={match.away_id} alt={awayName} />
         </div>
         <span className="text-xs font-semibold text-gray-800 truncate">{awayShort || awayName}</span>
       </div>
@@ -174,15 +164,17 @@ const NextMatchBar = () => {
 
       {/* Live scorers */}
       {isLive && scorers.length > 0 && (
-        <div className="mt-2 pt-2 border-t border-gray-100 grid grid-cols-2 gap-2 text-[10px] text-gray-600">
-          <div className="text-right space-y-0.5">
+        <div className="mt-1.5 flex items-start gap-3 text-[9px] leading-tight text-gray-500">
+          <div className="min-w-[52px]" aria-hidden />
+          <div className="flex-1 text-right space-y-0.5 min-w-0">
             {scorers.filter((s) => s.team === "home").map((s, i) => (
-              <div key={`h-${i}`} className="truncate">⚽ {s.player} <span className="text-gray-400">{s.minute}</span></div>
+              <div key={`h-${i}`} className="truncate">{s.player} <span className="text-gray-400">{s.minute}</span></div>
             ))}
           </div>
-          <div className="space-y-0.5">
+          <div className="shrink-0 px-1 text-sm font-extrabold tabular-nums invisible">0 × 0</div>
+          <div className="flex-1 space-y-0.5 min-w-0">
             {scorers.filter((s) => s.team === "away").map((s, i) => (
-              <div key={`a-${i}`} className="truncate">⚽ {s.player} <span className="text-gray-400">{s.minute}</span></div>
+              <div key={`a-${i}`} className="truncate">{s.player} <span className="text-gray-400">{s.minute}</span></div>
             ))}
           </div>
         </div>

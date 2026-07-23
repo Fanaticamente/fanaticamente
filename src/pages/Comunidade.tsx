@@ -8,20 +8,13 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { getClubsByLeague } from "@/data/brazilianClubs";
+import { brazilianClubs } from "@/data/brazilianClubs";
 import ClubMark from "@/components/clubs/ClubMark";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 type Tab = "ranking" | "desafios" | "atividade";
-type League = "serie_a" | "serie_b" | "serie_c";
-
-const leagueTabs: { key: League; label: string }[] = [
-  { key: "serie_a", label: "Série A" },
-  { key: "serie_b", label: "Série B" },
-  { key: "serie_c", label: "Série C" },
-];
 
 type FanRankEntry = { id: string; name: string; avatar: string | null; points: number; rank: number; isMe?: boolean };
 
@@ -48,7 +41,6 @@ const Comunidade = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("ranking");
-  const [league, setLeague] = useState<League>("serie_a");
   const [showClubsFull, setShowClubsFull] = useState(false);
   const [showFansFull, setShowFansFull] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -121,8 +113,10 @@ const Comunidade = () => {
     isMe: user?.id === f.user_id,
   }));
 
-  const leagueClubs = getClubsByLeague(league);
-  const sortedClubs = [...leagueClubs]
+  const allRankableClubs = brazilianClubs.filter(
+    (c) => c.league === "serie_a" || c.league === "serie_b" || c.league === "serie_c",
+  );
+  const sortedClubs = [...allRankableClubs]
     .map((c) => {
       const points = clubPoints[c.id] || 0;
       return { ...c, points };
@@ -196,20 +190,6 @@ const Comunidade = () => {
                   Ver tabela <ChevronRight className="w-4 h-4" />
                 </button>
               </header>
-
-              <div className="flex gap-2 mb-4">
-                {leagueTabs.map((t) => (
-                  <button
-                    key={t.key}
-                    onClick={() => setLeague(t.key)}
-                    className={`flex-1 py-2 rounded-full text-xs font-semibold transition-colors ${
-                      league === t.key ? "bg-[var(--club-600)] text-white" : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
 
               <div className="flex items-center px-1 pb-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
                 <span className="w-8 text-center">#</span>
@@ -347,19 +327,6 @@ const Comunidade = () => {
         <DialogContent className="max-w-lg w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto rounded-3xl p-0 bg-white font-sans">
           <DialogHeader className="p-5 pb-2 sticky top-0 bg-white z-10">
             <DialogTitle className="font-sans text-base font-bold text-gray-900 normal-case text-left">Brasileirão da Saúde Mental</DialogTitle>
-            <div className="flex gap-2 mt-3">
-              {leagueTabs.map((t) => (
-                <button
-                  key={t.key}
-                  onClick={() => setLeague(t.key)}
-                  className={`flex-1 py-2 rounded-full text-xs font-semibold ${
-                    league === t.key ? "bg-[var(--club-600)] text-white" : "bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
           </DialogHeader>
           <div className="px-5 pb-6 bg-white">
             <div className="flex items-center px-1 py-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">

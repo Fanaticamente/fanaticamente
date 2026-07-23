@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Loader2, RefreshCw, MapPin, Clock, ChevronDown } from "lucide-react";
 import { useLeague, LEAGUE_LABELS, type LeagueKey, type BrasileiraoPayload } from "@/hooks/useBrasileirao";
-import ClubMark from "@/components/clubs/ClubMark";
+import TeamBadge from "@/components/clubs/TeamBadge";
 import { findClubId, cleanDisplayName } from "@/lib/clubMatcher";
 import { cn } from "@/lib/utils";
 
@@ -49,13 +49,9 @@ const StandingsGrid = ({ data }: { data: BrasileiraoPayload }) => {
                   <span className="text-gray-500 font-semibold">{row.position}</span>
                 </div>
                 <div className="flex items-center gap-2 min-w-0">
-                  {clubId ? (
-                    <div className="w-5 h-5 shrink-0">
-                      <ClubMark clubId={clubId} />
-                    </div>
-                  ) : (
-                    <div className="w-5 h-5 shrink-0 rounded-full bg-gray-200" />
-                  )}
+                  <div className="w-5 h-5 shrink-0">
+                    <TeamBadge clubId={clubId} fotmobId={row.team_id} alt={displayName} />
+                  </div>
                   <span className="truncate font-medium">{displayName}</span>
                 </div>
                 <span className="text-center font-bold text-gray-900">{row.points}</span>
@@ -106,17 +102,13 @@ const NextRoundList = ({ data }: { data: BrasileiraoPayload }) => {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      {homeId && (
-                        <div className="w-6 h-6 shrink-0"><ClubMark clubId={homeId} /></div>
-                      )}
+                      <div className="w-6 h-6 shrink-0"><TeamBadge clubId={homeId} fotmobId={m.home_id} alt={homeName} /></div>
                       <span className="text-sm font-semibold text-gray-800 truncate">{homeName}</span>
                     </div>
                     <span className="text-xs font-bold text-gray-400 px-2">×</span>
                     <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
                       <span className="text-sm font-semibold text-gray-800 truncate text-right">{awayName}</span>
-                      {awayId && (
-                        <div className="w-6 h-6 shrink-0"><ClubMark clubId={awayId} /></div>
-                      )}
+                      <div className="w-6 h-6 shrink-0"><TeamBadge clubId={awayId} fotmobId={m.away_id} alt={awayName} /></div>
                     </div>
                   </div>
                 </div>
@@ -172,7 +164,7 @@ const LeagueCard = ({ leagueKey, defaultOpen = false, showStandingsToggle = true
               <div key={row.position} className="flex items-center gap-2 text-[12px] text-gray-700">
                 <span className={`w-1 h-3 rounded-sm ${zoneColor(row.position)}`} />
                 <span className="text-gray-500 font-semibold w-4">{row.position}</span>
-                {clubId && <div className="w-4 h-4"><ClubMark clubId={clubId} /></div>}
+                <div className="w-4 h-4"><TeamBadge clubId={clubId} fotmobId={row.team_id} alt={cleanDisplayName(row.club)} /></div>
                 <span className="truncate flex-1">{cleanDisplayName(row.club)}</span>
                 <span className="font-bold">{row.points}</span>
               </div>
@@ -253,8 +245,6 @@ const BrasileiraoTable = () => {
       <LeagueCard leagueKey="copa-do-brasil" showStandingsToggle={false} />
       <LeagueCard leagueKey="libertadores" showStandingsToggle={false} />
       <LeagueCard leagueKey="sul-americana" showStandingsToggle={false} />
-      <LeagueCard leagueKey="brasileirao-fem" />
-      <LeagueCard leagueKey="copa-do-brasil-fem" showStandingsToggle={false} />
     </div>
   );
 };

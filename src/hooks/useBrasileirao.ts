@@ -5,6 +5,7 @@ export interface StandingRow {
   position: number;
   club: string;
   abbr: string;
+  team_id?: string | null;
   points: number;
   played: number;
   wins: number;
@@ -22,8 +23,10 @@ export interface NextMatch {
   venue?: string;
   home: string;
   home_abbr?: string;
+  home_id?: string | null;
   away: string;
   away_abbr?: string;
+  away_id?: string | null;
 }
 
 export interface BrasileiraoPayload {
@@ -40,8 +43,10 @@ export interface MatchRow {
   utcTime: string | null;
   home: string;
   home_abbr: string;
+  home_id?: string | null;
   away: string;
   away_abbr: string;
+  away_id?: string | null;
   home_score: number | null;
   away_score: number | null;
   status: "scheduled" | "live" | "finished" | "cancelled";
@@ -55,9 +60,7 @@ export type LeagueKey =
   | "serie-c"
   | "copa-do-brasil"
   | "libertadores"
-  | "sul-americana"
-  | "brasileirao-fem"
-  | "copa-do-brasil-fem";
+  | "sul-americana";
 
 export const LEAGUE_LABELS: Record<LeagueKey, string> = {
   "serie-a":            "Brasileirão Série A",
@@ -66,8 +69,6 @@ export const LEAGUE_LABELS: Record<LeagueKey, string> = {
   "copa-do-brasil":     "Copa do Brasil",
   "libertadores":       "Copa Libertadores",
   "sul-americana":      "Copa Sul-Americana",
-  "brasileirao-fem":    "Brasileirão Feminino",
-  "copa-do-brasil-fem": "Copa do Brasil Feminina",
 };
 
 export const useLeague = (leagueKey: LeagueKey, enabled: boolean) => {
