@@ -139,7 +139,18 @@ export const DynamicProtectedRoute = ({ children, pageId }: ProtectedRouteProps 
     return <Navigate to="/" replace />;
   }
 
-  // If page not found in DB or is_public is true, render without protection
+  // Fan/mobile experience: login is mandatory. The desktop marketing site
+  // (fanaticamente.com em telas >=1024px) mantém as páginas públicas conforme
+  // a flag is_public do CMS.
+  const isMobileViewport =
+    typeof window !== "undefined" && window.innerWidth < 1024;
+  const requireLoginAlways = isFanApp || isMobileViewport;
+
+  if (requireLoginAlways) {
+    return <ProtectedRoute>{children}</ProtectedRoute>;
+  }
+
+  // Desktop web: if page not found in DB or is_public is true, render without protection
   if (!page || page.is_public !== false) {
     return <>{children}</>;
   }
