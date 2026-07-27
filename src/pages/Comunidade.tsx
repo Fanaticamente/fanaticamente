@@ -103,17 +103,14 @@ const Comunidade = () => {
         .from("ranking_snapshot")
         .select("user_id, full_name, avatar_url, favorite_club_id, points")
         .order("position", { ascending: true })
-        .limit(500);
-      if (error || !data) {
-        const { data: live } = await supabase.rpc("get_fan_ranking");
-        return (live ?? []) as {
-          user_id: string;
-          full_name: string;
-          avatar_url: string | null;
-          favorite_club_id: string | null;
-          points: number;
-        }[];
-      }
+        .limit(200);
+      if (error || !data) return [] as {
+        user_id: string;
+        full_name: string;
+        avatar_url: string | null;
+        favorite_club_id: string | null;
+        points: number;
+      }[];
       return data as {
         user_id: string;
         full_name: string;
