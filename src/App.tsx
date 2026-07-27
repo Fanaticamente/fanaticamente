@@ -2,6 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 
 // Global safety net: prevent unhandled promise rejections (e.g. video.pause() AbortError)
 // from crashing the entire React app with a white screen.
@@ -91,9 +93,24 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
+      // Phase 3 scaling: serve from cache first, revalidate in background.
+      staleTime: 60_000,
+      gcTime: 24 * 60 * 60 * 1000,
+      retry: 1,
     },
   },
 });
+
+// Persisted cache: repeat visits render instantly from localStorage and only
+// hit the backend for revalidation, cutting read load at high concurrency.
+const persister =
+  typeof window !== "undefined"
+    ? createSyncStoragePersister({
+        storage: window.localStorage,
+        key: "fanatica-query-cache",
+        throttleTime: 2000,
+      })
+    : undefined;
 
 const isEmbedMode = () => {
   try {

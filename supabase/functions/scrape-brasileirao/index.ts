@@ -234,7 +234,7 @@ Deno.serve(async (req) => {
       const cached = scorerCache[key];
       if (!force && cached && Date.now() - cached.at < SCORER_TTL_MS) {
         return new Response(JSON.stringify({ success: true, cached: true, ...cached.payload as object }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { ...corsHeaders, "Content-Type": "application/json", "Cache-Control": "public, max-age=30, s-maxage=30, stale-while-revalidate=120" },
         });
       }
       const details = await fetchMatchDetails(key);
@@ -242,7 +242,7 @@ Deno.serve(async (req) => {
       const payload = { scorers, updated_at: new Date().toISOString() };
       scorerCache[key] = { at: Date.now(), payload };
       return new Response(JSON.stringify({ success: true, cached: false, ...payload }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json", "Cache-Control": "public, max-age=30, s-maxage=30, stale-while-revalidate=120" },
       });
     }
 
@@ -252,7 +252,7 @@ Deno.serve(async (req) => {
     const cached = cacheByLeague[cacheKey];
     if (!force && cached && Date.now() - cached.at < CACHE_TTL_MS) {
       return new Response(JSON.stringify({ success: true, cached: true, league: leagueKey, label: league.label, format: league.format, ...cached.payload as object }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json", "Cache-Control": "public, max-age=60, s-maxage=60, stale-while-revalidate=300" },
       });
     }
 
@@ -263,7 +263,7 @@ Deno.serve(async (req) => {
     cacheByLeague[cacheKey] = { at: Date.now(), payload };
 
     return new Response(JSON.stringify({ success: true, cached: false, league: leagueKey, label: league.label, format: league.format, ...payload }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json", "Cache-Control": "public, max-age=60, s-maxage=60, stale-while-revalidate=300" },
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
