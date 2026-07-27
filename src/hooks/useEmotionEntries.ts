@@ -62,7 +62,8 @@ export const useEmotionEntries = () => {
         .select("*")
         .eq("user_id", user!.id)
         .gte("entry_date", sevenDaysAgo)
-        .order("entry_date", { ascending: false });
+        .order("entry_date", { ascending: false })
+        .limit(50);
       if (error) throw error;
       return data as EmotionEntry[];
     },
