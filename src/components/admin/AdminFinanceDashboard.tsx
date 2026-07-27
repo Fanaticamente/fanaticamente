@@ -86,7 +86,9 @@ const AdminFinanceDashboard = ({ themeStyles, isDarkMode }: AdminFinanceDashboar
           professionals (
             hourly_rate
           )
-        `);
+        `)
+        .order("scheduled_date", { ascending: false })
+        .limit(2000);
 
       const allAppointments = appointments || [];
       
