@@ -37,7 +37,8 @@ const fetchAppointmentsData = async (): Promise<Appointment[]> => {
   const { data: appointmentsData, error: appointmentsError } = await supabase
     .from("appointments")
     .select("*")
-    .order("scheduled_date", { ascending: false });
+    .order("scheduled_date", { ascending: false })
+    .limit(500);
 
   if (appointmentsError) throw appointmentsError;
 
