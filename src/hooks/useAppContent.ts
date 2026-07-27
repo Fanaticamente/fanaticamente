@@ -42,7 +42,8 @@ export const useAppContent = (category?: string) => {
       if (error) throw error;
       return data as AppContent[];
     },
-    staleTime: 0,
+    // Escala: sem realtime global; conteúdo do CMS revalida a cada 60s
+    staleTime: 60_000,
   });
 };
 
@@ -155,7 +156,7 @@ export const useAppMenus = () => {
         items: menu.items as unknown as MenuItem[]
       })) as AppMenu[];
     },
-    staleTime: 0,
+    staleTime: 60_000,
   });
 };
 
@@ -176,7 +177,7 @@ export const useAppMenu = (menuId: string) => {
         items: data.items as unknown as MenuItem[]
       } as AppMenu;
     },
-    staleTime: 0, // Always fresh for realtime updates
+    staleTime: 60_000,
   });
 };
 

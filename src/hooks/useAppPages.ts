@@ -35,6 +35,9 @@ export const useAppPages = (platform?: string) => {
       if (error) throw error;
       return data as AppPage[];
     },
+    // Escala: sem realtime global; revalida a cada 60s
+    staleTime: 60_000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 

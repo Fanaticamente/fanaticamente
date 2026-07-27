@@ -82,16 +82,39 @@ const Comunidade = () => {
   const { data: clubRanking = [] } = useQuery({
     queryKey: ["club-ranking"],
     queryFn: async () => {
-      const { data } = await supabase.rpc("get_club_ranking");
-      return (data ?? []) as { favorite_club_id: string; fans_count: number; points: number }[];
+      // Lê o snapshot pré-calculado (atualizado a cada 10 min) em vez de recalcular
+      const { data, error } = await supabase
+        .from("club_ranking_snapshot")
+        .select("favorite_club_id, fans_count, points");
+      if (error || !data) {
+        const { data: live } = await supabase.rpc("get_club_ranking");
+        return (live ?? []) as { favorite_club_id: string; fans_count: number; points: number }[];
+      }
+      return data as { favorite_club_id: string; fans_count: number; points: number }[];
     },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   const { data: fanRankingRaw = [] } = useQuery({
     queryKey: ["fan-ranking"],
     queryFn: async () => {
-      const { data } = await supabase.rpc("get_fan_ranking");
-      return (data ?? []) as {
+      const { data, error } = await supabase
+        .from("ranking_snapshot")
+        .select("user_id, full_name, avatar_url, favorite_club_id, points")
+        .order("position", { ascending: true })
+        .limit(500);
+      if (error || !data) {
+        const { data: live } = await supabase.rpc("get_fan_ranking");
+        return (live ?? []) as {
+          user_id: string;
+          full_name: string;
+          avatar_url: string | null;
+          favorite_club_id: string | null;
+          points: number;
+        }[];
+      }
+      return data as {
         user_id: string;
         full_name: string;
         avatar_url: string | null;
@@ -99,6 +122,8 @@ const Comunidade = () => {
         points: number;
       }[];
     },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   const clubPoints: Record<string, number> = {};

@@ -4,9 +4,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Hook that sets up realtime subscriptions for app content and menus.
- * Should be called once at the app level to ensure realtime updates work everywhere.
- * 
+ * Hook that sets up realtime subscriptions.
+ *
+ * ESCALA (Fase 1): realtime é caro por usuário conectado — cada canal aberto vira
+ * uma subscription no servidor e cada evento é entregue a TODOS os clientes.
+ * Por isso as assinaturas ficam restritas às rotas administrativas (/admin*),
+ * onde a audiência é pequena e a atualização instantânea importa.
+ * No app do torcedor o conteúdo do CMS é atualizado por cache/refetch (staleTime),
+ * sem manter conexões abertas.
+ *
  * IMPORTANT: Disabled on Content Manager routes (/developer*, /desenvolvedor*)
  * to prevent auto-refresh loops in the preview iframes.
  */
@@ -20,15 +26,17 @@ export const useRealtimeSubscriptions = () => {
     location.pathname.startsWith("/developer") || 
     location.pathname.startsWith("/desenvolvedor");
 
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   useEffect(() => {
-    // Skip ALL realtime subscriptions on manager routes
-    if (isManagerRoute) {
+    // Skip ALL realtime subscriptions outside admin routes (scale) and on manager routes
+    if (isManagerRoute || !isAdminRoute) {
       return;
     }
 
-    // Subscribe to app_content changes
-    const contentChannel = supabase
-      .channel('global_app_content_changes')
+    // Um único canal multiplexado para todas as tabelas observadas no admin
+    const channel = supabase
+      .channel('admin_realtime_changes')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'app_content' },
@@ -36,11 +44,6 @@ export const useRealtimeSubscriptions = () => {
           queryClient.invalidateQueries({ queryKey: ['app-content'] });
         }
       )
-      .subscribe();
-
-    // Subscribe to app_menus changes
-    const menusChannel = supabase
-      .channel('global_app_menus_changes')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'app_menus' },
@@ -49,11 +52,6 @@ export const useRealtimeSubscriptions = () => {
           queryClient.invalidateQueries({ queryKey: ['app-menu'] });
         }
       )
-      .subscribe();
-
-    // Subscribe to app_modules changes
-    const modulesChannel = supabase
-      .channel('global_app_modules_changes')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'app_modules' },
@@ -63,11 +61,13 @@ export const useRealtimeSubscriptions = () => {
           queryClient.invalidateQueries({ queryKey: ['home-modules'] });
         }
       )
-      .subscribe();
-
-    // Subscribe to profiles changes (for admin tables)
-    const profilesChannel = supabase
-      .channel('global_profiles_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'app_pages' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['app-pages'] });
+        }
+      )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'profiles' },
@@ -76,11 +76,6 @@ export const useRealtimeSubscriptions = () => {
           queryClient.invalidateQueries({ queryKey: ['admin-professionals'] });
         }
       )
-      .subscribe();
-
-    // Subscribe to professionals changes
-    const professionalsChannel = supabase
-      .channel('global_professionals_changes')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'professionals' },
@@ -88,11 +83,6 @@ export const useRealtimeSubscriptions = () => {
           queryClient.invalidateQueries({ queryKey: ['admin-professionals'] });
         }
       )
-      .subscribe();
-
-    // Subscribe to appointments changes
-    const appointmentsChannel = supabase
-      .channel('global_appointments_changes')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'appointments' },
@@ -102,26 +92,8 @@ export const useRealtimeSubscriptions = () => {
       )
       .subscribe();
 
-    // Subscribe to app_pages changes
-    const pagesChannel = supabase
-      .channel('global_app_pages_changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'app_pages' },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['app-pages'] });
-        }
-      )
-      .subscribe();
-
     return () => {
-      supabase.removeChannel(contentChannel);
-      supabase.removeChannel(menusChannel);
-      supabase.removeChannel(modulesChannel);
-      supabase.removeChannel(profilesChannel);
-      supabase.removeChannel(professionalsChannel);
-      supabase.removeChannel(appointmentsChannel);
-      supabase.removeChannel(pagesChannel);
+      supabase.removeChannel(channel);
     };
-  }, [queryClient, isManagerRoute]);
+  }, [queryClient, isManagerRoute, isAdminRoute]);
 };
