@@ -458,6 +458,27 @@ export type Database = {
           },
         ]
       }
+      club_ranking_snapshot: {
+        Row: {
+          fans_count: number
+          favorite_club_id: string
+          points: number
+          updated_at: string
+        }
+        Insert: {
+          fans_count?: number
+          favorite_club_id: string
+          points?: number
+          updated_at?: string
+        }
+        Update: {
+          fans_count?: number
+          favorite_club_id?: string
+          points?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       clubs: {
         Row: {
           badge_url: string | null
@@ -1761,6 +1782,48 @@ export type Database = {
         }
         Relationships: []
       }
+      ranking_snapshot: {
+        Row: {
+          activities_count: number
+          avatar_url: string | null
+          checkins_count: number
+          courses_count: number
+          favorite_club_id: string | null
+          full_name: string | null
+          points: number
+          position: number
+          sessions_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activities_count?: number
+          avatar_url?: string | null
+          checkins_count?: number
+          courses_count?: number
+          favorite_club_id?: string | null
+          full_name?: string | null
+          points?: number
+          position?: number
+          sessions_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activities_count?: number
+          avatar_url?: string | null
+          checkins_count?: number
+          courses_count?: number
+          favorite_club_id?: string | null
+          full_name?: string | null
+          points?: number
+          position?: number
+          sessions_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       receipt_templates: {
         Row: {
           created_at: string
@@ -2454,6 +2517,7 @@ export type Database = {
         }
         Returns: number
       }
+      purge_cron_history: { Args: never; Returns: undefined }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
@@ -2462,6 +2526,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      refresh_ranking_snapshots: { Args: never; Returns: undefined }
       verify_receipt_by_number: {
         Args: { p_receipt_number: number }
         Returns: {
