@@ -2357,6 +2357,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_points_counters: {
+        Row: {
+          activities_count: number
+          checkins_count: number
+          courses_count: number
+          sessions_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activities_count?: number
+          checkins_count?: number
+          courses_count?: number
+          sessions_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activities_count?: number
+          checkins_count?: number
+          courses_count?: number
+          sessions_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -2518,6 +2545,7 @@ export type Database = {
         Returns: number
       }
       purge_cron_history: { Args: never; Returns: undefined }
+      purge_operational_logs: { Args: never; Returns: undefined }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {

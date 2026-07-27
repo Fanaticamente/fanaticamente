@@ -41,7 +41,8 @@ const MinhaTemporada = () => {
         .select("emotion, entry_date, note, created_at")
         .eq("user_id", user!.id)
         .gte("entry_date", since)
-        .order("entry_date", { ascending: false });
+        .order("entry_date", { ascending: false })
+        .limit(200);
       return data ?? [];
     },
   });
@@ -53,7 +54,9 @@ const MinhaTemporada = () => {
       const { data } = await supabase
         .from("appointments")
         .select("id, status, scheduled_date, scheduled_time")
-        .eq("user_id", user!.id);
+        .eq("user_id", user!.id)
+        .order("scheduled_date", { ascending: false })
+        .limit(200);
       return data ?? [];
     },
   });
@@ -66,7 +69,8 @@ const MinhaTemporada = () => {
         .from("user_course_access")
         .select("id, created_at, course_id, courses(title)")
         .eq("user_id", user!.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(100);
       return data ?? [];
     },
   });

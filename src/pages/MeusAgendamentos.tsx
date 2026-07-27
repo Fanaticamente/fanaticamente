@@ -110,7 +110,8 @@ const MeusAgendamentos = () => {
         .select("*, rating")
         .eq("user_id", user.id)
         .order("scheduled_date", { ascending: false })
-        .order("scheduled_time", { ascending: false });
+        .order("scheduled_time", { ascending: false })
+        .limit(200);
 
       if (appointmentsError) throw appointmentsError;
 

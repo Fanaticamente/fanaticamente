@@ -74,21 +74,41 @@ const AdminMetricsDashboard = ({ themeStyles, isDarkMode }: AdminMetricsDashboar
         .select("*", { count: "exact", head: true })
         .eq("is_active", true);
 
-      // Fetch all appointments
-      const { data: appointments } = await supabase
-        .from("appointments")
-        .select("*");
+      // Status counts computed in the database (no full-table download)
+      const statusCount = async (status?: string) => {
+        let q = supabase.from("appointments").select("*", { count: "exact", head: true });
+        if (status) q = q.eq("status", status);
+        const { count } = await q;
+        return count || 0;
+      };
 
-      const allAppointments = appointments || [];
-      const totalAppointments = allAppointments.length;
-      const confirmedAppointments = allAppointments.filter(a => a.status === "confirmed").length;
-      const pendingAppointments = allAppointments.filter(a => a.status === "pending").length;
-      const completedAppointments = allAppointments.filter(a => a.status === "completed").length;
-      const cancelledAppointments = allAppointments.filter(a => a.status === "cancelled").length;
-      const inProgressAppointments = allAppointments.filter(a => a.status === "in_progress").length;
+      const [
+        totalAppointments,
+        confirmedAppointments,
+        pendingAppointments,
+        completedAppointments,
+        cancelledAppointments,
+        inProgressAppointments,
+      ] = await Promise.all([
+        statusCount(),
+        statusCount("confirmed"),
+        statusCount("pending"),
+        statusCount("completed"),
+        statusCount("cancelled"),
+        statusCount("in_progress"),
+      ]);
 
-      // Calculate weekly appointments (last 7 days)
+      // Calculate weekly appointments (last 7 days) — only the window is fetched
       const today = new Date();
+      const weekStart = new Date(today);
+      weekStart.setDate(weekStart.getDate() - 6);
+      const { data: weekAppointments } = await supabase
+        .from("appointments")
+        .select("scheduled_date")
+        .gte("scheduled_date", weekStart.toISOString().split("T")[0])
+        .lte("scheduled_date", today.toISOString().split("T")[0])
+        .limit(2000);
+      const windowAppointments = weekAppointments || [];
       const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
       const weeklyData = [];
       
@@ -96,7 +116,7 @@ const AdminMetricsDashboard = ({ themeStyles, isDarkMode }: AdminMetricsDashboar
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split("T")[0];
-        const count = allAppointments.filter(a => a.scheduled_date === dateStr).length;
+        const count = windowAppointments.filter(a => a.scheduled_date === dateStr).length;
         weeklyData.push({
           day: weekDays[date.getDay()],
           agendamentos: count

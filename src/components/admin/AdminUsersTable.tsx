@@ -46,14 +46,16 @@ const fetchUsersData = async (): Promise<User[]> => {
   const { data: profiles, error: profilesError } = await supabase
     .from("profiles")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(500);
 
   if (profilesError) throw profilesError;
 
   // Fetch user roles
   const { data: roles, error: rolesError } = await supabase
     .from("user_roles")
-    .select("user_id, role");
+    .select("user_id, role")
+    .limit(2000);
 
   if (rolesError) throw rolesError;
 

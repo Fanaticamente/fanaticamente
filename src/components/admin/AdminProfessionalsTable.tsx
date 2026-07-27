@@ -105,7 +105,9 @@ const fetchProfessionalsData = async (): Promise<Professional[]> => {
   // Fetch appointment counts
   const { data: appointments } = await supabase
     .from("appointments")
-    .select("professional_id");
+    .select("professional_id")
+    .in("professional_id", (professionalsData || []).map(p => p.id))
+    .limit(5000);
 
   const appointmentCounts = new Map<string, number>();
   (appointments || []).forEach(a => {

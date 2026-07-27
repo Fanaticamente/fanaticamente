@@ -132,7 +132,8 @@ const BemEstar = () => {
         .select("emotion, entry_date, note, created_at")
         .eq("user_id", user!.id)
         .gte("entry_date", since)
-        .order("entry_date", { ascending: false });
+        .order("entry_date", { ascending: false })
+        .limit(400);
       return data ?? [];
     },
   });
