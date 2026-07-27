@@ -144,7 +144,21 @@ const App = () => {
   useViewportHeightSync();
 
   return (
-  <QueryClientProvider client={queryClient}>
+  <PersistQueryClientProvider
+    client={queryClient}
+    persistOptions={{
+      persister: persister!,
+      maxAge: 24 * 60 * 60 * 1000,
+      dehydrateOptions: {
+        // Never persist user-sensitive or auth-bound data
+        shouldDehydrateQuery: (query) => {
+          const key = JSON.stringify(query.queryKey).toLowerCase();
+          if (query.state.status !== "success") return false;
+          return !/(profile|auth|appointment|receipt|notification|payment|membership|admin|professional-private|user-)/.test(key);
+        },
+      },
+    }}
+  >
     <MobileBrowserBlock>
     <TooltipProvider>
       {isEmbedMode() ? (
@@ -276,7 +290,7 @@ const App = () => {
       )}
     </TooltipProvider>
     </MobileBrowserBlock>
-  </QueryClientProvider>
+  </PersistQueryClientProvider>
   );
 };
 
