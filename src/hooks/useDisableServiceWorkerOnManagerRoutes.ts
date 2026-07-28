@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 
 /**
  * Manager pages must never be interrupted by automatic PWA updates.
- * When the user enters /developer* or /desenvolvedor*, we:
+ * When the user enters a content-management route, we:
  *  - set a session flag so main.tsx will stop auto-updating
  *  - unregister any active service workers (prevents reloads)
  */
@@ -12,7 +12,8 @@ export const useDisableServiceWorkerOnManagerRoutes = () => {
 
   const isManagerRoute =
     location.pathname.startsWith("/developer") ||
-    location.pathname.startsWith("/desenvolvedor");
+    location.pathname.startsWith("/desenvolvedor") ||
+    location.pathname.startsWith("/marketing");
 
   useEffect(() => {
     if (!isManagerRoute) return;

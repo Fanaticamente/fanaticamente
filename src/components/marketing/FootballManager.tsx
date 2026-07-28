@@ -17,6 +17,15 @@ import {
 type Cfg = Record<string, any>;
 
 const BUCKET = "health-news";
+const FOOTBALL_SECTION_KEY = "fanatica_football_manager_section";
+
+const getSavedFootballSection = () => {
+  try {
+    return sessionStorage.getItem(FOOTBALL_SECTION_KEY) || "football_tabs";
+  } catch {
+    return "football_tabs";
+  }
+};
 
 const uploadFile = async (file: File, folder: string): Promise<string> => {
   const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
@@ -408,7 +417,15 @@ const SECTIONS = [
 
 const FootballManager = ({ onPreview }: { onPreview?: () => void }) => {
   const { data: modules, isLoading } = useAppModules("futebol");
-  const [active, setActive] = useState<string>("football_tabs");
+  const [active, setActive] = useState<string>(getSavedFootballSection);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(FOOTBALL_SECTION_KEY, active);
+    } catch {
+      // Keep working when storage is unavailable.
+    }
+  }, [active]);
 
   const mod = useMemo(
     () => modules?.find((m) => m.module_id === active) ?? null,

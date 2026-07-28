@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,12 @@ import {
 } from "lucide-react";
 
 const BUCKET = "health-news";
+const NEWS_DRAFT_KEY = "fanatica_football_news_draft";
+
+interface StoredDraft {
+  editing: Partial<NewsRow>;
+  dateValue: string;
+}
 
 interface NewsRow {
   id: string;
@@ -50,11 +56,42 @@ const toLocalInput = (iso?: string | null) => {
   return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16);
 };
 
+const getStoredDraft = (): StoredDraft | null => {
+  try {
+    const raw = sessionStorage.getItem(NEWS_DRAFT_KEY);
+    return raw ? JSON.parse(raw) as StoredDraft : null;
+  } catch {
+    return null;
+  }
+};
+
 const FootballNewsManager = () => {
   const qc = useQueryClient();
-  const [editing, setEditing] = useState<Partial<NewsRow> | null>(null);
-  const [dateValue, setDateValue] = useState<string>(toLocalInput());
+  const storedDraft = useMemo(getStoredDraft, []);
+  const [editing, setEditing] = useState<Partial<NewsRow> | null>(storedDraft?.editing ?? null);
+  const [dateValue, setDateValue] = useState<string>(storedDraft?.dateValue ?? toLocalInput());
   const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (editing) {
+        sessionStorage.setItem(NEWS_DRAFT_KEY, JSON.stringify({ editing, dateValue } satisfies StoredDraft));
+      } else {
+        sessionStorage.removeItem(NEWS_DRAFT_KEY);
+      }
+    } catch {
+      // Keep editing normally when storage is unavailable.
+    }
+  }, [editing, dateValue]);
+
+  const closeEditor = () => {
+    try {
+      sessionStorage.removeItem(NEWS_DRAFT_KEY);
+    } catch {
+      // ignore
+    }
+    setEditing(null);
+  };
 
   const { data: items, isLoading } = useQuery({
     queryKey: ["admin-football-news"],
@@ -124,7 +161,7 @@ const FootballNewsManager = () => {
     onSuccess: () => {
       toast.success("Notícia salva");
       invalidate();
-      setEditing(null);
+      closeEditor();
     },
     onError: (e: any) => toast.error(e.message || "Erro ao salvar"),
   });
@@ -171,7 +208,7 @@ const FootballNewsManager = () => {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <Button variant="ghost" onClick={() => setEditing(null)}>
+          <Button variant="ghost" onClick={closeEditor}>
             <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
           </Button>
           <Button
