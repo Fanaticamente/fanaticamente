@@ -63,7 +63,7 @@ const ClubFilter = ({ selectedClub, onSelectClub }: ClubFilterProps) => {
                 <img
                   src={club.badgeUrl}
                   alt={club.name}
-                  className={club.id === "coritiba" ? "w-10 h-10 object-contain" : "w-9 h-9 object-contain"}
+                  className="w-9 h-9 object-contain"
                 />
               </div>
             </button>
