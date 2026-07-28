@@ -202,12 +202,21 @@ const MinimalHome = () => {
     onError: () => toast.error("Não foi possível registrar."),
   });
 
-  const shortcuts = [
-    { icon: CalendarDays, label: "Consultas", path: "/meus-agendamentos" },
-    { icon: Users,        label: "Terapeutas", path: "/terapeutas" },
-    { icon: GraduationCap,label: "Cursos",     path: "/cursos" },
-    { icon: Heart,        label: "Bem-estar",  path: "/bem-estar" },
-  ];
+  const shortcutsCfg = (cfgOf("home_shortcuts").items as ShortcutItem[] | undefined) || [];
+  const shortcuts = (shortcutsCfg.length
+    ? shortcutsCfg
+    : [
+        { icon: "CalendarDays", label: "Consultas", path: "/meus-agendamentos" },
+        { icon: "Users", label: "Terapeutas", path: "/terapeutas" },
+        { icon: "GraduationCap", label: "Cursos", path: "/cursos" },
+        { icon: "Heart", label: "Bem-estar", path: "/bem-estar" },
+      ]
+  ).map((s) => ({ icon: getMenuIcon(s.icon), label: s.label ?? "", path: s.path || "/" }));
+
+  const greetingCfg = cfgOf("home_greeting");
+  const checkinCfg = cfgOf("home_checkin");
+  const journeyCfg = cfgOf("home_journey");
+  const fanbaseCfg = cfgOf("home_fanbase");
 
   return (
     <div className="font-sans text-slate-900 space-y-5 pb-4">
@@ -225,24 +234,29 @@ const MinimalHome = () => {
           )}
         </h1>
         <p className="mt-1.5 text-slate-500 text-[15px] leading-snug">
-          Saúde Mental agora é papo de arquibancada!
+          {(greetingCfg.subtitle as string) || "Saúde Mental agora é papo de arquibancada!"}
         </p>
       </section>
 
       {/* Próxima partida do clube do coração */}
-      <div className="mt-[1cm]">
-        <NextMatchBar />
-      </div>
+      {isOn("home_next_match") && (
+        <div className="mt-[1cm]">
+          <NextMatchBar />
+        </div>
+      )}
 
       {/* Check-in */}
+      {isOn("home_checkin") && (
       <section className="mt-[19px] rounded-3xl bg-white border border-slate-200/70 shadow-sm p-5">
         <div className="flex items-center gap-2 text-[var(--club-600)] text-xs font-semibold">
           <HeartPulse className="w-4 h-4" />
-          Check-in emocional
+          {(checkinCfg.kicker as string) || "Check-in emocional"}
         </div>
-        <h2 className="font-sans mt-1.5 text-xl font-bold normal-case">Como você está hoje?</h2>
+        <h2 className="font-sans mt-1.5 text-xl font-bold normal-case">
+          {(checkinCfg.title as string) || "Como você está hoje?"}
+        </h2>
         <p className="text-sm text-slate-500 mt-1">
-          Cada dia é uma rodada!
+          {(checkinCfg.subtitle as string) || "Cada dia é uma rodada!"}
         </p>
 
         <div className="grid grid-cols-5 gap-2 mt-4">
@@ -267,6 +281,7 @@ const MinimalHome = () => {
           ))}
         </div>
       </section>
+      )}
 
       {reasonOpen && selected && createPortal(
         <div
