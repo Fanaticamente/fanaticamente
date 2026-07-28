@@ -281,7 +281,7 @@ const FeaturedHero = ({ item }: { item: NonNullable<ReturnType<typeof useFootbal
       type="button"
       onClick={() => setOpen(true)}
       aria-label={title}
-      className="relative block w-full text-left rounded-2xl overflow-hidden bg-gray-900 h-[220px]"
+      className="relative flex w-full flex-col justify-end text-left rounded-2xl overflow-hidden bg-gray-900 min-h-[220px]"
     >
       {item.image_url && (
         <img
@@ -290,12 +290,12 @@ const FeaturedHero = ({ item }: { item: NonNullable<ReturnType<typeof useFootbal
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent" />
       <span className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center">
         <Bookmark className="w-4 h-4 text-white" />
       </span>
-      <div className="absolute left-4 right-4 bottom-3">
-        <h3 className="text-white text-lg font-bold leading-tight line-clamp-2 mb-1">{title}</h3>
+      <div className="relative px-4 pt-24 pb-3">
+        <h3 className="text-white text-lg font-bold leading-tight mb-1 [text-wrap:balance]">{title}</h3>
         <div className="flex items-center gap-2 text-white/80 text-xs">
           <Clock className="w-3 h-3" />
           <span>{timeAgo}</span>
