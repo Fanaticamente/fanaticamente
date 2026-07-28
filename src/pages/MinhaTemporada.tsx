@@ -245,12 +245,12 @@ const MinhaTemporada = () => {
         <ShortcutButton
           onClick={() => navigate("/meus-agendamentos")}
           icon={<CalendarDays className="w-4 h-4" />}
-          label="Meus agendamentos"
+          label="Meus Agendamentos"
         />
         <ShortcutButton
           onClick={() => navigate("/meus-cursos")}
           icon={<GraduationCap className="w-4 h-4" />}
-          label="Meus cursos"
+          label="Meus Cursos"
         />
       </section>
 
