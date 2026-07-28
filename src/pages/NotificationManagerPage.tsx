@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Monitor, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useManagerTheme } from "@/hooks/useManagerTheme";
 import NotificationManager from "@/components/developer/NotificationManager";
 
 const NotificationManagerPage = () => {
+  useManagerTheme();
   const { user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
 
