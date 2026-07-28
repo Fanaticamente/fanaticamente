@@ -168,12 +168,84 @@
     --border: 0 0% 90%;
     --input: 0 0% 90%;
     --ring: 108 80% 27%;
-    /* Unify all secondary green tokens with the brand green inside the professional system */
     --therapy: 108 80% 27%;
     --therapy-foreground: 0 0% 100%;
     --stadium: 108 80% 27%;
     --stadium-foreground: 0 0% 100%;
     color-scheme: light;
+  }
+
+  /* Content Manager Theme - light surface aligned with the fan app */
+  .manager-theme {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 108 80% 27%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 108 80% 27%;
+    --therapy: 108 80% 27%;
+    --therapy-foreground: 0 0% 100%;
+    --stadium: 108 80% 27%;
+    --stadium-foreground: 0 0% 100%;
+    color-scheme: light;
+  }
+
+  .manager-theme,
+  .manager-theme * {
+    font-family: 'Work Sans', 'Inter', sans-serif;
+  }
+
+  .manager-theme h1,
+  .manager-theme h2,
+  .manager-theme h3,
+  .manager-theme h4 {
+    font-family: 'Work Sans', 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .manager-theme input,
+  .manager-theme textarea,
+  .manager-theme select {
+    background-color: #ffffff;
+    color: hsl(0 0% 10%);
+    border-color: hsl(0 0% 88%);
+    border-radius: 0.75rem;
+  }
+
+  .manager-theme input::placeholder,
+  .manager-theme textarea::placeholder {
+    color: hsl(0 0% 60%);
+  }
+
+  .manager-theme input:focus,
+  .manager-theme textarea:focus,
+  .manager-theme select:focus {
+    border-color: #237B0E;
+    box-shadow: 0 0 0 3px rgb(35 123 14 / 0.12);
+  }
+
+  .manager-theme label {
+    color: hsl(0 0% 35%);
+    font-weight: 600;
+  }
+
+  .manager-theme button {
+    border-radius: 0.75rem;
+    font-weight: 600;
   }
 
   .professional-theme,
