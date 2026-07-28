@@ -333,33 +333,14 @@ const MeusCursos = () => {
 
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white font-sans text-slate-900">
         <MeusCursosInfoCard />
         <Header title="Meus cursos" />
-        <header
-          className="fixed left-0 right-0 z-40 bg-background border-b border-neutral-800 pb-3"
-          style={{
-            top: 0,
-            paddingTop: `calc(env(safe-area-inset-top) + ${playingStation ? 60 : 12}px)`,
-          }}
-        >
-          <div className="flex items-center gap-3 px-4">
-            <Link to="/" className="w-9 h-9 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center">
-              <ArrowLeft className="w-5 h-5 text-white" />
-            </Link>
-            <div>
-              <h1 className="text-white font-bold text-lg leading-tight">Meus Cursos</h1>
-              <p className="text-neutral-400 text-[11px]">Sua trilha de consciência</p>
-            </div>
+        <main className="pt-[calc(56px+1cm)] px-4 pb-32">
+          <div className="mb-4">
+            <h1 className="font-sans text-2xl font-extrabold tracking-tight normal-case">Meus Cursos</h1>
+            <p className="text-sm text-slate-500 mt-1">Sua trilha de consciência</p>
           </div>
-        </header>
-        <main
-          className="px-4"
-          style={{
-            paddingTop: `calc(env(safe-area-inset-top) + ${playingStation ? 120 : 72}px)`,
-            paddingBottom: "8rem",
-          }}
-        >
           <Content />
         </main>
         <BottomNav />
