@@ -22,6 +22,8 @@ import ypirangaBadge from "@/assets/badges/ypiranga-rs.png";
 import mirassolBadge from "@/assets/badges/mirassol.png";
 import coritibaBadgeAsset from "@/assets/club-badges/coritiba-badge.png.asset.json";
 
+import { normalizedClubBadges } from "./normalizedClubBadges";
+
 export interface BrazilianClub {
   id: string;
   name: string;
@@ -80,7 +82,7 @@ export const clubGeUrls: Record<string, string> = {
   "vila-nova": "https://ge.globo.com/go/futebol/times/vila-nova/",
 };
 
-export const brazilianClubs: BrazilianClub[] = [
+const rawBrazilianClubs: BrazilianClub[] = [
   // Série A - 2026 (ordem alfabética)
   {
     id: "athletico-pr",
@@ -687,6 +689,11 @@ export const brazilianClubs: BrazilianClub[] = [
     storeUrl: "https://www.ypirangafc.com.br",
   },
 ];
+
+export const brazilianClubs: BrazilianClub[] = rawBrazilianClubs.map((club) => ({
+  ...club,
+  badgeUrl: normalizedClubBadges[club.id] ?? club.badgeUrl,
+}));
 
 export const getClubById = (id: string): BrazilianClub | undefined => {
   return brazilianClubs.find((club) => club.id === id);
