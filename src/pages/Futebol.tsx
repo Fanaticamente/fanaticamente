@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
-import NewsCard from "@/components/futebol/NewsCard";
+import NewsCard, { NewsDrawer } from "@/components/futebol/NewsCard";
 import ClubFilterDropdown from "@/components/futebol/ClubFilterDropdown";
 import BrasileiraoTable from "@/components/futebol/BrasileiraoTable";
 import { useFootballNews } from "@/hooks/useFootballNews";
@@ -269,13 +269,20 @@ const ContentItemCard = ({ item, type }: { item: ContentItem; type: TabKey }) =>
 
 const FeaturedHero = ({ item }: { item: NonNullable<ReturnType<typeof useFootballNews>["data"]>[number] }) => {
   const title = fixTitleCapitalization(item.rewritten_title);
+  const [open, setOpen] = useState(false);
   const timeAgo = formatDistanceToNow(new Date(item.published_at), {
     addSuffix: true,
     locale: ptBR,
   }).replace(/^cerca de /, "");
 
   return (
-    <div className="relative rounded-2xl overflow-hidden bg-gray-900 h-[220px]">
+    <>
+    <button
+      type="button"
+      onClick={() => setOpen(true)}
+      aria-label={title}
+      className="relative block w-full text-left rounded-2xl overflow-hidden bg-gray-900 h-[220px]"
+    >
       {item.image_url && (
         <img
           src={item.image_url}
@@ -284,12 +291,9 @@ const FeaturedHero = ({ item }: { item: NonNullable<ReturnType<typeof useFootbal
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
-      <button
-        aria-label="Salvar"
-        className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center"
-      >
+      <span className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center">
         <Bookmark className="w-4 h-4 text-white" />
-      </button>
+      </span>
       <div className="absolute left-4 right-4 bottom-3">
         <h3 className="text-white text-lg font-bold leading-tight line-clamp-2 mb-1">{title}</h3>
         <div className="flex items-center gap-2 text-white/80 text-xs">
@@ -297,7 +301,9 @@ const FeaturedHero = ({ item }: { item: NonNullable<ReturnType<typeof useFootbal
           <span>{timeAgo}</span>
         </div>
       </div>
-    </div>
+    </button>
+    <NewsDrawer news={item} isOpen={open} onClose={() => setOpen(false)} />
+    </>
   );
 };
 

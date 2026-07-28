@@ -483,4 +483,5 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   );
 };
 
+export { NewsDrawer };
 export default NewsCard;
