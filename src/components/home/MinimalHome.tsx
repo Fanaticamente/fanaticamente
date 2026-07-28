@@ -167,12 +167,30 @@ const MinimalHome = () => {
       const since = format(subDays(new Date(), 14), "yyyy-MM-dd");
       const { data } = await supabase
         .from("emotion_entries")
-        .select("entry_date")
+        .select("entry_date, emotion")
         .eq("user_id", user!.id)
         .gte("entry_date", since);
       return data ?? [];
     },
   });
+
+  const todayKey = format(new Date(), "yyyy-MM-dd");
+  const todayEntry = emotions.find((e: any) => e.entry_date === todayKey) as
+    | { entry_date: string; emotion: string }
+    | undefined;
+
+  const miniSeries = useMemo(() => {
+    return Array.from({ length: 7 }).map((_, i) => {
+      const d = subDays(new Date(), 6 - i);
+      const key = format(d, "yyyy-MM-dd");
+      const entry = emotions.find((e: any) => e.entry_date === key) as any;
+      return {
+        key,
+        label: format(d, "EEEEEE", { locale: ptBR }),
+        value: entry ? MOOD_SCORES[entry.emotion] ?? 50 : null,
+      };
+    });
+  }, [emotions]);
 
   const weekActivities = useMemo(
     () => emotions.filter((e) => differenceInCalendarDays(new Date(), new Date(e.entry_date)) < 7).length,
