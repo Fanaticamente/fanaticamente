@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { IS_PREVIEW_FRAME } from "@/lib/previewMode";
 
 const ROUTE_STORAGE_KEY = "fanatica_last_route";
 const ROUTE_TIMESTAMP_KEY = "fanatica_last_route_ts";
@@ -137,7 +138,10 @@ export const useRouteRestoration = () => {
   // IMPORTANT: Use location.pathname (reactive) instead of checking only once
   const isManagerRoute =
     location.pathname.startsWith("/developer") ||
-    location.pathname.startsWith("/desenvolvedor");
+    location.pathname.startsWith("/desenvolvedor") ||
+    // O iframe de preview do Gerenciador Mobile não deve gravar nem restaurar
+    // a rota do usuário (o storage é compartilhado com a janela real do app).
+    IS_PREVIEW_FRAME;
 
   // Monitora quando o usuário sai do app (visibility change)
   useEffect(() => {
