@@ -1,29 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Smartphone, Monitor, ArrowRight, Loader2, Settings, LogOut, ExternalLink, GraduationCap, ArrowLeft, Sun, Moon, Bell, Megaphone } from "lucide-react";
+import { Smartphone, Monitor, ArrowRight, Loader2, Settings, LogOut, ExternalLink, GraduationCap, ArrowLeft, Bell, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CourseManager from "@/components/admin/CourseManager";
+import { useManagerTheme } from "@/hooks/useManagerTheme";
 
 const ContentManagers = () => {
   const { user, hasRole, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState<"menu" | "courses">("menu");
-  const [isLightMode, setIsLightMode] = useState(() => {
-    return localStorage.getItem("dev-light-mode") === "true";
-  });
-
-  useEffect(() => {
-    if (isLightMode) {
-      document.documentElement.classList.add("developer-light-theme");
-    } else {
-      document.documentElement.classList.remove("developer-light-theme");
-    }
-    localStorage.setItem("dev-light-mode", String(isLightMode));
-    return () => {
-      document.documentElement.classList.remove("developer-light-theme");
-    };
-  }, [isLightMode]);
+  useManagerTheme();
 
   const handleLogout = async () => {
     await signOut();
@@ -102,15 +89,6 @@ const ContentManagers = () => {
         </div>
         
         <div className="flex items-center gap-3">
-          <Button
-            variant={isLightMode ? "default" : "outline"}
-            size="sm"
-            onClick={() => setIsLightMode(!isLightMode)}
-            className="gap-2"
-          >
-            {isLightMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            {isLightMode ? "Modo Claro" : "Modo Escuro"}
-          </Button>
           <Button variant="outline" onClick={() => navigate("/")}>
             <ExternalLink className="w-4 h-4 mr-2" />
             Visualizar o site
