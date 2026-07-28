@@ -13,6 +13,7 @@ import ClubMark from "@/components/clubs/ClubMark";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
 
 type Tab = "ranking" | "desafios" | "atividade";
 
@@ -40,6 +41,27 @@ const medalColor = (r: number) =>
 const Comunidade = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { data: rankingModule } = useModuleConfig("ranking_page");
+  const cfg = (rankingModule?.config || {}) as Record<string, unknown>;
+  const showBadges = cfg.show_badges !== false;
+  const hiddenBadges = (cfg.hidden_badges as string[]) || [];
+  const clubDisplayMode = ((cfg.club_display_mode as string) || "badge") as "badge" | "flag";
+
+  const ClubIdentity = ({ club }: { club: { id: string; shortName?: string; name: string } }) => {
+    const visible = showBadges && !hiddenBadges.includes(club.id);
+    if (!visible) {
+      return (
+        <span className="w-7 shrink-0 text-[11px] font-bold text-gray-500 uppercase tracking-wide text-center">
+          {(club.shortName || club.name.slice(0, 3)).toUpperCase()}
+        </span>
+      );
+    }
+    return (
+      <div className="w-7 h-7 flex-shrink-0">
+        <ClubMark clubId={club.id} mode={clubDisplayMode} />
+      </div>
+    );
+  };
   const [tab, setTab] = useState<Tab>("ranking");
   const [showClubsFull, setShowClubsFull] = useState(false);
   const [showFansFull, setShowFansFull] = useState(false);
@@ -227,7 +249,7 @@ const Comunidade = () => {
                     <div key={c.id} className={`flex items-center py-3 px-1 rounded-lg ${highlight ? "bg-[color:var(--club-50)]/60" : ""}`}>
                       <span className={`w-8 text-center text-sm font-bold ${highlight ? "text-[var(--club-600)]" : "text-gray-400"}`}>{pos}</span>
                       <div className="flex-1 ml-2 flex items-center gap-3 min-w-0">
-                        <div className="w-7 h-7 flex-shrink-0"><ClubMark clubId={c.id} mode="badge" /></div>
+                        <ClubIdentity club={c} />
                         <span className="text-sm font-medium text-gray-800 truncate">{c.name}</span>
                       </div>
                       <span className={`w-12 text-center text-sm font-bold ${c.points > 0 ? "text-gray-900" : "text-gray-300"}`}>{c.points}</span>
@@ -361,7 +383,7 @@ const Comunidade = () => {
                 <div key={c.id} className="flex items-center py-3 px-1">
                   <span className="w-8 text-center text-sm font-bold text-gray-400">{i + 1}</span>
                   <div className="flex-1 ml-2 flex items-center gap-3 min-w-0">
-                    <div className="w-7 h-7 flex-shrink-0"><ClubMark clubId={c.id} mode="badge" /></div>
+                    <ClubIdentity club={c} />
                     <span className="text-sm font-medium text-gray-800 truncate">{c.name}</span>
                   </div>
                   <span className={`w-12 text-center text-sm font-bold ${c.points > 0 ? "text-gray-900" : "text-gray-300"}`}>{c.points}</span>
