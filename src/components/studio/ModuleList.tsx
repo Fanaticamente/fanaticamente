@@ -3,7 +3,8 @@ import {
   GripVertical, Eye, EyeOff, ChevronRight, ChevronDown, 
   MoreVertical, Trash2, Copy, Home, Navigation as NavIcon,
   Layout, Image, Users, Ticket, Brain, Radio, GraduationCap,
-  ShoppingBag, Trophy, LucideIcon, FileText, Smartphone
+  ShoppingBag, Trophy, LucideIcon, FileText, Smartphone,
+  Heart, Newspaper, Calendar, User, Bell, Settings
 } from "lucide-react";
 import { AppModule, useToggleModuleVisibility, useReorderModules } from "@/hooks/useAppModules";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,12 @@ const iconMap: Record<string, LucideIcon> = {
   trophy: Trophy,
   navigation: NavIcon,
   home: Home,
+  heart: Heart,
+  newspaper: Newspaper,
+  calendar: Calendar,
+  user: User,
+  bell: Bell,
+  settings: Settings,
 };
 
 const getIconComponent = (iconName: string): LucideIcon => {

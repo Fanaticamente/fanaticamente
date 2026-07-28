@@ -2,10 +2,21 @@ import * as React from "react";
 
 const MOBILE_BREAKPOINT = 1024;
 
+// Allows the Content Manager preview (iframe) to force the mobile layout
+const isForcedMobile = () => {
+  if (typeof window === "undefined") return false;
+  try {
+    return new URLSearchParams(window.location.search).get("forceMobile") === "1";
+  } catch {
+    return false;
+  }
+};
+
 // Detect if the device is a touch/mobile device (persists across orientation changes)
 const isTouchDevice = () => {
   if (typeof window === "undefined") return true;
   return (
+    isForcedMobile() ||
     window.matchMedia("(pointer: coarse)").matches ||
     "ontouchstart" in window ||
     navigator.maxTouchPoints > 0
