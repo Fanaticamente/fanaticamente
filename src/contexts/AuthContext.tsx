@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [authLoading, setAuthLoading] = useState(true);
   const [rolesLoading, setRolesLoading] = useState(true);
+  const rolesLoadedForUserRef = useRef<string | null>(null);
 
   const loading = authLoading || rolesLoading;
 
