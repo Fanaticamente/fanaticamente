@@ -7,10 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import ClubBadgeToggles from "@/components/studio/ClubBadgeToggles";
+import FootballNewsManager from "@/components/marketing/FootballNewsManager";
 import { toast } from "sonner";
 import {
   Loader2, Plus, Trash2, ArrowUp, ArrowDown, Save, Upload,
-  LayoutTemplate, Newspaper, Trophy, Play, Headphones, Lightbulb, Eye,
+  LayoutTemplate, Newspaper, Trophy, Play, Headphones, Lightbulb, Eye, PenLine,
 } from "lucide-react";
 
 type Cfg = Record<string, any>;
@@ -398,6 +399,7 @@ const TableEditor = ({ module }: { module: AppModule }) => {
 const SECTIONS = [
   { id: "football_tabs", label: "Abas / Submenus", icon: LayoutTemplate },
   { id: "football_news_section", label: "Notícias", icon: Newspaper },
+  { id: "football_news_posts", label: "Publicar Notícias", icon: PenLine },
   { id: "football_table", label: "Tabelas", icon: Trophy },
   { id: "football_videos", label: "Vídeos", icon: Play },
   { id: "football_podcasts", label: "Podcasts", icon: Headphones },
@@ -451,7 +453,9 @@ const FootballManager = ({ onPreview }: { onPreview?: () => void }) => {
         </nav>
 
         <div className="p-5 bg-gray-50 min-h-[420px]">
-          {!mod ? (
+          {active === "football_news_posts" ? (
+            <FootballNewsManager />
+          ) : !mod ? (
             <p className="text-sm text-gray-500">Módulo não encontrado.</p>
           ) : active === "football_tabs" ? (
             <TabsEditor module={mod} />

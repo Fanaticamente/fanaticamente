@@ -8,6 +8,7 @@ export interface FootballNewsItem {
   source_site: string;
   original_title: string;
   rewritten_title: string;
+  subtitle?: string | null;
   rewritten_content: string;
   image_url: string | null;
   image_caption: string | null;
@@ -17,6 +18,7 @@ export interface FootballNewsItem {
   created_at: string;
   is_original: boolean;
   club_id: string | null;
+  is_featured?: boolean;
 }
 
 export const useFootballNews = (selectedClub?: string | null) => {
@@ -119,18 +121,7 @@ export const useFootballNews = (selectedClub?: string | null) => {
     };
   }, [queryClient]);
 
-  // Auto-scrape every 2 minutes
-  useEffect(() => {
-    const initialTimeout = setTimeout(triggerScrape, 1000);
-    const interval = setInterval(() => {
-      triggerScrape();
-    }, 2 * 60 * 1000);
-
-    return () => {
-      clearTimeout(initialTimeout);
-      clearInterval(interval);
-    };
-  }, [triggerScrape]);
+  // Coleta automática desativada — notícias são publicadas manualmente.
 
   const queryResult = useQuery({
     queryKey: ["football-news", selectedClub || "all"],

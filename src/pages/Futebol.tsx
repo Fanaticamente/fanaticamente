@@ -79,8 +79,14 @@ const Futebol = () => {
     ? brazilianClubs.find((c) => c.id === selectedClub)
     : null;
 
-  const featured = useMemo(() => news?.[0], [news]);
-  const rest = useMemo(() => news?.slice(1) ?? [], [news]);
+  const featured = useMemo(
+    () => news?.find((n) => (n as any).is_featured) ?? news?.[0],
+    [news]
+  );
+  const rest = useMemo(
+    () => (news ?? []).filter((n) => n.id !== featured?.id),
+    [news, featured]
+  );
 
   const showNewsSections = tab === "todos" || tab === "noticias";
   const showTable = tab === "tabela";
