@@ -5,6 +5,7 @@ import {
   Trophy, Tv, LayoutDashboard, Brain, ShoppingBag, type LucideIcon,
 } from "lucide-react";
 import { CommunityIcon } from "@/components/icons/CommunityIcon";
+import { SpecialistIcon } from "@/components/icons/SpecialistIcon";
 
 export const MENU_ICONS: Record<string, LucideIcon | typeof CommunityIcon> = {
   Home, Users, BookOpen, GraduationCap, Radio, Newspaper, User, Settings,
@@ -12,6 +13,7 @@ export const MENU_ICONS: Record<string, LucideIcon | typeof CommunityIcon> = {
   Image, FileText, Search, Bell, Mail, Phone, MapPin, Clock, Briefcase,
   Trophy, Tv, LayoutDashboard, Brain, ShoppingBag,
   Community: CommunityIcon,
+  Especialista: SpecialistIcon as unknown as LucideIcon,
 };
 
 export const MENU_ICON_NAMES = Object.keys(MENU_ICONS);
