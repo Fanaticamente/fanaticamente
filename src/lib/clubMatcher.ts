@@ -42,6 +42,11 @@ const ALIASES: Record<string, string> = {
   "ceara": "ceara",
   "vitoria": "vitoria",
   "criciuma": "criciuma",
+  "operario": "operario-pr",
+  "operario pr": "operario-pr",
+  "operario ferroviario": "operario-pr",
+  "operario ferroviario ec": "operario-pr",
+  "operario ferroviario esporte clube": "operario-pr",
 };
 
 export const findClubId = (name: string, abbr?: string): string | null => {
