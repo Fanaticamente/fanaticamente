@@ -204,6 +204,29 @@ const FootballNewsManager = () => {
     }
   };
 
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = Array.from(e.dataTransfer.files || []).find((f) => f.type.startsWith("image/"));
+    if (file) { handleUpload(file); return; }
+    const text = e.dataTransfer.getData("text/uri-list") || e.dataTransfer.getData("text/plain");
+    if (text && /^https?:\/\//i.test(text.trim())) {
+      setEditing((p) => ({ ...(p || {}), image_url: text.trim() }));
+      toast.success("Imagem adicionada pelo link");
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const file = Array.from(e.clipboardData.files || []).find((f) => f.type.startsWith("image/"));
+    if (file) { e.preventDefault(); handleUpload(file); return; }
+    const text = e.clipboardData.getData("text");
+    if (text && /^https?:\/\//i.test(text.trim())) {
+      e.preventDefault();
+      setEditing((p) => ({ ...(p || {}), image_url: text.trim() }));
+      toast.success("Imagem adicionada pelo link");
+    }
+  };
+
   if (editing) {
     return (
       <div className="space-y-4">
