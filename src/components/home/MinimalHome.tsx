@@ -277,6 +277,55 @@ const MinimalHome = () => {
       {/* Check-in */}
       {isOn("home_checkin") && (
       <section className="mt-[19px] rounded-3xl bg-white border border-slate-200/70 shadow-sm p-5">
+        {todayEntry ? (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[var(--club-600)] text-xs font-semibold">
+                <HeartPulse className="w-4 h-4" />
+                Check-in de hoje registrado
+              </div>
+              <button
+                onClick={() => navigate("/bem-estar")}
+                className="flex items-center gap-0.5 text-xs font-semibold text-[var(--club-600)]"
+              >
+                Ver detalhes <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <div className="mt-2 flex items-center gap-3">
+              <span className="text-3xl leading-none" aria-hidden>
+                {MOODS.find((m) => m.id === todayEntry.emotion)?.emoji ?? "🙂"}
+              </span>
+              <div>
+                <h2 className="font-sans text-lg font-bold normal-case leading-tight">
+                  {MOODS.find((m) => m.id === todayEntry.emotion)?.label ?? "Registrado"}
+                </h2>
+                <p className="text-xs text-slate-500">Volte amanhã para um novo check-in.</p>
+              </div>
+            </div>
+            <div className="mt-3 h-[90px] text-[var(--club-600)]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={miniSeries} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
+                  <YAxis hide domain={[0, 100]} />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    dot={{ r: 3, fill: "currentColor", strokeWidth: 0 }}
+                    connectNulls
+                    isAnimationActive={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="grid grid-cols-7 text-[10px] text-slate-400 text-center">
+              {miniSeries.map((d) => (
+                <span key={d.key} className="capitalize">{d.label}</span>
+              ))}
+            </div>
+          </>
+        ) : (
+        <>
         <div className="flex items-center gap-2 text-[var(--club-600)] text-xs font-semibold">
           <HeartPulse className="w-4 h-4" />
           {(checkinCfg.kicker as string) || "Check-in emocional"}
@@ -309,6 +358,8 @@ const MinimalHome = () => {
             </button>
           ))}
         </div>
+        </>
+        )}
       </section>
       )}
 
