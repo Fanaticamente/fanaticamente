@@ -190,6 +190,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Register user with OneSignal after login
   const registerOneSignalUser = async (userId: string) => {
     try {
+      if (IS_PREVIEW_FRAME) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const OneSignal = (window as any).OneSignal;
       if (OneSignal) {
@@ -213,6 +214,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logoutOneSignalUser = async () => {
     try {
+      if (IS_PREVIEW_FRAME) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const OneSignal = (window as any).OneSignal;
       if (OneSignal) {
@@ -277,8 +279,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     Promise.race([sessionPromise, timeoutPromise]).then(async (result: any) => {
       if (result?.timedOut) {
-        console.warn("[Auth] getSession timeout — limpando tokens corrompidos");
+        console.warn("[Auth] getSession timeout");
+        // No iframe de preview NUNCA apagamos os tokens: eles são compartilhados
+        // com a janela do gerenciador (mesma origem) e isso o deslogaria.
         try {
+          if (IS_PREVIEW_FRAME) throw new Error("preview");
           const keys: string[] = [];
           for (let i = 0; i < localStorage.length; i++) {
             const k = localStorage.key(i);
