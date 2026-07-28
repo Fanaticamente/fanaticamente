@@ -356,6 +356,7 @@ const MinimalHome = () => {
       )}
 
       {/* Sugestões carrossel */}
+      {isOn("home_suggestions") && suggestionsCount > 0 && (
       <section>
         <div
           className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/70 shadow-sm"
@@ -373,8 +374,8 @@ const MinimalHome = () => {
             if (Math.abs(dx) > 40) {
               setSugIdx((i) =>
                 dx < 0
-                  ? (i + 1) % SUGGESTIONS.length
-                  : (i - 1 + SUGGESTIONS.length) % SUGGESTIONS.length
+                  ? (i + 1) % suggestionsCount
+                  : (i - 1 + suggestionsCount) % suggestionsCount
               );
             }
             touchStartX.current = null;
@@ -413,9 +414,9 @@ const MinimalHome = () => {
                     <p className="text-[10.5px] font-semibold text-[var(--club-600)] truncate">{s.kicker}</p>
                     <p className={cn(
                       "font-bold text-slate-900 leading-tight break-words",
-                      Array.isArray(s.title) ? "text-[13px]" : "text-[14px]"
+                      (s.title?.length ?? 0) > 30 ? "text-[13px]" : "text-[14px]"
                     )}>
-                      {Array.isArray(s.title) ? s.title.map((line, i) => <span key={i} className="block">{line}</span>) : s.title}
+                      {s.title}
                     </p>
                     <p className="text-[11.5px] text-slate-500 truncate">{s.subtitle}</p>
                   </div>
@@ -440,10 +441,14 @@ const MinimalHome = () => {
           ))}
         </div>
       </section>
+      )}
 
       {/* Acesso rápido */}
+      {isOn("home_shortcuts") && (
       <section>
-        <h3 className="font-sans font-bold text-slate-900 mb-2 px-1 normal-case tracking-normal">Acesso rápido</h3>
+        <h3 className="font-sans font-bold text-slate-900 mb-2 px-1 normal-case tracking-normal">
+          {(cfgOf("home_shortcuts").title as string) || "Acesso rápido"}
+        </h3>
         <div className="grid grid-cols-4 gap-2.5">
           {shortcuts.map((s) => {
             const Icon = s.icon;
@@ -464,14 +469,18 @@ const MinimalHome = () => {
           })}
         </div>
       </section>
+      )}
 
       {/* Sua jornada */}
+      {isOn("home_journey") && (
       <section className="rounded-3xl bg-white border border-slate-200/70 shadow-sm p-5">
         <div className="flex items-start gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-[var(--club-600)]" />
-              <h3 className="font-sans font-bold normal-case tracking-normal">Sua jornada</h3>
+              <h3 className="font-sans font-bold normal-case tracking-normal">
+                {(journeyCfg.title as string) || "Sua jornada"}
+              </h3>
             </div>
             <p className="text-sm text-slate-500 mt-1">
               Você completou {weekActivities} atividade{weekActivities === 1 ? "" : "s"} esta semana.
