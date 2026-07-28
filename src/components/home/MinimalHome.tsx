@@ -301,11 +301,15 @@ const MinimalHome = () => {
       ? shortcutsCfg
       : [
           { icon: "CalendarDays", label: "Consultas", path: "/meus-agendamentos" },
-          { icon: "Users", label: "Terapeutas", path: "/terapeutas" },
+          { icon: "Especialista", label: "Terapeutas", path: "/terapeutas" },
           { icon: "GraduationCap", label: "Cursos", path: "/cursos" },
           { icon: "Heart", label: "Bem-estar", path: "/bem-estar" },
         ]
-  ).map((s) => ({ icon: getMenuIcon(s.icon), label: s.label ?? "", path: s.path || "/" }));
+  ).map((s) => ({
+    icon: (s.path || "").startsWith("/terapeutas") ? getMenuIcon("Especialista") : getMenuIcon(s.icon),
+    label: s.label ?? "",
+    path: s.path || "/",
+  }));
 
   const greetingCfg = cfgOf("home_greeting");
   const checkinCfg = cfgOf("home_checkin");
