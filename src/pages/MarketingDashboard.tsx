@@ -15,6 +15,8 @@ import {
   LogOut, Megaphone, Image as ImageIcon, Calendar, LayoutTemplate,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Trophy } from "lucide-react";
+import FootballManager from "@/components/marketing/FootballManager";
 import { useAppModules } from "@/hooks/useAppModules";
 import ModuleEditor from "@/components/studio/ModuleEditor";
 import { getDisplayAuthEmail } from "@/lib/appMode";
@@ -42,7 +44,7 @@ const MarketingDashboard = () => {
   const [editing, setEditing] = useState<Partial<HealthNewsItem> | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
-  const [section, setSection] = useState<"news" | "carousel">("news");
+  const [section, setSection] = useState<"news" | "carousel" | "futebol">("news");
 
   const { data: items, isLoading } = useHealthNewsAdmin();
   const { data: modules } = useAppModules("home");
@@ -167,7 +169,7 @@ const MarketingDashboard = () => {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-8">
-        <Tabs value={section} onValueChange={(v) => setSection(v as "news" | "carousel")} className="mb-6">
+        <Tabs value={section} onValueChange={(v) => setSection(v as "news" | "carousel" | "futebol")} className="mb-6">
           <TabsList>
             <TabsTrigger value="news">
               <Megaphone className="w-4 h-4 mr-1" /> Matérias
@@ -175,10 +177,15 @@ const MarketingDashboard = () => {
             <TabsTrigger value="carousel">
               <LayoutTemplate className="w-4 h-4 mr-1" /> Carrossel Principal
             </TabsTrigger>
+            <TabsTrigger value="futebol">
+              <Trophy className="w-4 h-4 mr-1" /> Futebol / Conteúdo
+            </TabsTrigger>
           </TabsList>
         </Tabs>
 
-        {section === "carousel" ? (
+        {section === "futebol" ? (
+          <FootballManager onPreview={() => navigate("/futebol")} />
+        ) : section === "carousel" ? (
           <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <div>

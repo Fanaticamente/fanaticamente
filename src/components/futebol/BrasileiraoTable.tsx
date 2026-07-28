@@ -1,9 +1,51 @@
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { Loader2, RefreshCw, MapPin, Clock, ChevronDown } from "lucide-react";
 import { useLeague, LEAGUE_LABELS, type LeagueKey, type BrasileiraoPayload } from "@/hooks/useBrasileirao";
 import TeamBadge from "@/components/clubs/TeamBadge";
+import ClubMark, { type ClubDisplayMode } from "@/components/clubs/ClubMark";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
 import { findClubId, cleanDisplayName } from "@/lib/clubMatcher";
 import { cn } from "@/lib/utils";
+
+// ------------------------------------------------------------------------
+// Club identity (respects manager toggles: shields / flags / abbreviation)
+// ------------------------------------------------------------------------
+interface BadgeSettings {
+  showBadges: boolean;
+  mode: ClubDisplayMode;
+  hidden: string[];
+}
+
+const BadgeCtx = createContext<BadgeSettings>({ showBadges: true, mode: "badge", hidden: [] });
+
+const ClubIdentity = ({
+  clubId, fotmobId, name, abbr, size = "w-5 h-5",
+}: { clubId: string | null; fotmobId?: number | string; name: string; abbr?: string; size?: string }) => {
+  const { showBadges, mode, hidden } = useContext(BadgeCtx);
+  const hiddenForClub = clubId ? hidden.includes(clubId) : false;
+
+  if (!showBadges || hiddenForClub) {
+    return (
+      <span className={`${size} shrink-0 flex items-center justify-center text-[10px] font-bold text-gray-500 uppercase`}>
+        {(abbr || name.slice(0, 3)).toUpperCase().slice(0, 3)}
+      </span>
+    );
+  }
+
+  if (mode === "flag" && clubId) {
+    return (
+      <div className={`${size} shrink-0`}>
+        <ClubMark clubId={clubId} mode="flag" />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${size} shrink-0`}>
+      <TeamBadge clubId={clubId} fotmobId={fotmobId as any} alt={name} />
+    </div>
+  );
+};
 
 const zoneColor = (pos: number): string => {
   if (pos <= 4) return "bg-emerald-500"; // Libertadores
@@ -49,9 +91,7 @@ const StandingsGrid = ({ data }: { data: BrasileiraoPayload }) => {
                   <span className="text-gray-500 font-semibold">{row.position}</span>
                 </div>
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-5 h-5 shrink-0">
-                    <TeamBadge clubId={clubId} fotmobId={row.team_id} alt={displayName} />
-                  </div>
+                  <ClubIdentity clubId={clubId} fotmobId={row.team_id} name={displayName} abbr={row.abbr} />
                   <span className="truncate font-medium">{displayName}</span>
                 </div>
                 <span className="text-center font-bold text-gray-900">{row.points}</span>
@@ -102,13 +142,13 @@ const NextRoundList = ({ data }: { data: BrasileiraoPayload }) => {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <div className="w-6 h-6 shrink-0"><TeamBadge clubId={homeId} fotmobId={m.home_id} alt={homeName} /></div>
+                      <ClubIdentity clubId={homeId} fotmobId={m.home_id} name={homeName} abbr={m.home_abbr} size="w-6 h-6" />
                       <span className="text-sm font-semibold text-gray-800 truncate">{homeName}</span>
                     </div>
                     <span className="text-xs font-bold text-gray-400 px-2">×</span>
                     <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
                       <span className="text-sm font-semibold text-gray-800 truncate text-right">{awayName}</span>
-                      <div className="w-6 h-6 shrink-0"><TeamBadge clubId={awayId} fotmobId={m.away_id} alt={awayName} /></div>
+                      <ClubIdentity clubId={awayId} fotmobId={m.away_id} name={awayName} abbr={m.away_abbr} size="w-6 h-6" />
                     </div>
                   </div>
                 </div>
@@ -164,7 +204,7 @@ const LeagueCard = ({ leagueKey, defaultOpen = false, showStandingsToggle = true
               <div key={row.position} className="flex items-center gap-2 text-[12px] text-gray-700">
                 <span className={`w-1 h-3 rounded-sm ${zoneColor(row.position)}`} />
                 <span className="text-gray-500 font-semibold w-4">{row.position}</span>
-                <div className="w-4 h-4"><TeamBadge clubId={clubId} fotmobId={row.team_id} alt={cleanDisplayName(row.club)} /></div>
+                <ClubIdentity clubId={clubId} fotmobId={row.team_id} name={cleanDisplayName(row.club)} abbr={row.abbr} size="w-4 h-4" />
                 <span className="truncate flex-1">{cleanDisplayName(row.club)}</span>
                 <span className="font-bold">{row.points}</span>
               </div>
@@ -236,16 +276,44 @@ const LeagueCard = ({ leagueKey, defaultOpen = false, showStandingsToggle = true
 // Root: multi-league accordion
 // ------------------------------------------------------------------------
 
+const CUP_LEAGUES: LeagueKey[] = ["copa-do-brasil", "libertadores", "sul-americana"];
+
+const DEFAULT_LEAGUES: { key: LeagueKey; visible?: boolean }[] = [
+  { key: "serie-a" },
+  { key: "serie-b" },
+  { key: "serie-c" },
+  { key: "copa-do-brasil" },
+  { key: "libertadores" },
+  { key: "sul-americana" },
+];
+
 const BrasileiraoTable = () => {
+  const { data: mod } = useModuleConfig("football_table");
+  const cfg = (mod?.config as any) || {};
+
+  const settings: BadgeSettings = {
+    showBadges: cfg.show_badges !== false,
+    mode: (cfg.club_display_mode as ClubDisplayMode) || "badge",
+    hidden: (cfg.hidden_badges as string[]) || [],
+  };
+
+  const leagues: { key: LeagueKey; visible?: boolean }[] =
+    (cfg.leagues as any[])?.length ? cfg.leagues : DEFAULT_LEAGUES;
+  const visibleLeagues = leagues.filter((l) => l.visible !== false);
+
   return (
-    <div className="px-4 space-y-3">
-      <LeagueCard leagueKey="serie-a" defaultOpen />
-      <LeagueCard leagueKey="serie-b" />
-      <LeagueCard leagueKey="serie-c" />
-      <LeagueCard leagueKey="copa-do-brasil" showStandingsToggle={false} />
-      <LeagueCard leagueKey="libertadores" showStandingsToggle={false} />
-      <LeagueCard leagueKey="sul-americana" showStandingsToggle={false} />
-    </div>
+    <BadgeCtx.Provider value={settings}>
+      <div className="px-4 space-y-3">
+        {visibleLeagues.map((l, i) => (
+          <LeagueCard
+            key={l.key}
+            leagueKey={l.key}
+            defaultOpen={i === 0}
+            showStandingsToggle={!CUP_LEAGUES.includes(l.key)}
+          />
+        ))}
+      </div>
+    </BadgeCtx.Provider>
   );
 };
 
