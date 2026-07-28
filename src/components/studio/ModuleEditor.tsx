@@ -741,6 +741,17 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
                     />
                   </div>
                 </div>
+
+                {module.module_id === "home_next_match" && (
+                  <ClubBadgeToggles
+                    showBadges={config.show_badges !== false}
+                    onShowBadgesChange={(val) => setConfig((prev) => ({ ...prev, show_badges: val }))}
+                    hiddenBadges={(config.hidden_badges as string[]) || []}
+                    onHiddenBadgesChange={(badges) => setConfig((prev) => ({ ...prev, hidden_badges: badges }))}
+                    displayMode={(config.club_display_mode as "badge" | "flag") || "badge"}
+                    onDisplayModeChange={(mode) => setConfig((prev) => ({ ...prev, club_display_mode: mode }))}
+                  />
+                )}
               </div>
             )}
             
