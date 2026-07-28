@@ -209,7 +209,7 @@ const MarketingDashboard = () => {
                 <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
               </div>
             ) : (
-              <div className="dark bg-background text-foreground">
+              <div className="bg-white text-gray-900">
                 <ModuleEditor
                   module={heroModule}
                   onClose={() => setSection("news")}
