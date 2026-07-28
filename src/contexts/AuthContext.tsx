@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { clearUserVideoProgress } from "@/hooks/useVideoProgress";
@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [authLoading, setAuthLoading] = useState(true);
   const [rolesLoading, setRolesLoading] = useState(true);
+  const rolesLoadedForUserRef = useRef<string | null>(null);
 
   const loading = authLoading || rolesLoading;
 
@@ -241,12 +242,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         if (session?.user) {
+          // Voltar para a aba dispara SIGNED_IN novamente para o MESMO usuário.
+          // Nesse caso mantemos os papéis já carregados e não exibimos spinner.
+          if (rolesLoadedForUserRef.current === session.user.id) {
+            setRolesLoading(false);
+            setAuthLoading(false);
+            return;
+          }
           setRolesLoading(true);
           setRoles([]);
           setTimeout(() => {
             (async () => {
               try {
                 const nextRoles = await fetchUserRoles(session.user.id);
+                rolesLoadedForUserRef.current = session.user.id;
                 if (nextRoles && await enforceAppSessionBoundary(nextRoles)) return;
               } finally {
                 setRolesLoading(false);
@@ -261,6 +270,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             })();
           }, 0);
         } else {
+          rolesLoadedForUserRef.current = null;
           setRoles([]);
           setRolesLoading(false);
           logoutOneSignalUser();
@@ -305,6 +315,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setRolesLoading(true);
         try {
           const nextRoles = await fetchUserRoles(session.user.id);
+          rolesLoadedForUserRef.current = session.user.id;
           if (nextRoles && await enforceAppSessionBoundary(nextRoles)) {
             setAuthLoading(false);
             return;
