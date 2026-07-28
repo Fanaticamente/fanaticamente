@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useLeague, type MatchRow, type LeagueKey } from "@/hooks/useBrasileirao";
 import { useClubTheme } from "@/contexts/ClubThemeContext";
 import TeamBadge from "@/components/clubs/TeamBadge";
+import ClubMark, { type ClubDisplayMode } from "@/components/clubs/ClubMark";
+import { useModuleConfig } from "@/hooks/useModuleConfig";
 import { findClubId, cleanDisplayName } from "@/lib/clubMatcher";
 import { brazilianClubs } from "@/data/brazilianClubs";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,6 +64,15 @@ const formatDateTime = (utc: string | null) => {
 
 const NextMatchBar = () => {
   const { clubId } = useClubTheme();
+  const { data: moduleCfg } = useModuleConfig("home_next_match");
+  const cfg = (moduleCfg?.config ?? {}) as {
+    show_badges?: boolean;
+    hidden_badges?: string[];
+    club_display_mode?: ClubDisplayMode;
+  };
+  const showBadges = cfg.show_badges !== false;
+  const hiddenBadges = cfg.hidden_badges ?? [];
+  const displayMode: ClubDisplayMode = cfg.club_display_mode ?? "badge";
 
   // Pull matches from every relevant competition; each hook has its own cache
   // so the bar renders instantly from localStorage on cold open.
@@ -120,6 +131,20 @@ const NextMatchBar = () => {
   const showScore = isLive;
   const { day, time } = formatDateTime(match.utcTime);
 
+  const renderMark = (id: string | null, fotmobId?: string | null, alt?: string) => {
+    if (!showBadges) return null;
+    if (id && hiddenBadges.includes(id)) return null;
+    return (
+      <div className="w-7 h-7 shrink-0">
+        {id ? (
+          <ClubMark clubId={id} mode={displayMode} />
+        ) : displayMode === "badge" ? (
+          <TeamBadge clubId={id} fotmobId={fotmobId} alt={alt ?? ""} />
+        ) : null}
+      </div>
+    );
+  };
+
   return (
     <div className="rounded-2xl border border-slate-200/70 bg-white px-3 py-2.5">
       <div className="flex items-center gap-3">
@@ -143,9 +168,7 @@ const NextMatchBar = () => {
       {/* Home */}
       <div className="flex-1 flex items-center gap-2 min-w-0 justify-end">
         <span className="text-xs font-semibold text-gray-800 truncate text-right">{homeShort || homeName}</span>
-        <div className="w-7 h-7 shrink-0">
-          <TeamBadge clubId={homeId} fotmobId={match.home_id} alt={homeName} />
-        </div>
+        {renderMark(homeId, match.home_id, homeName)}
       </div>
 
       {/* Score / vs */}
@@ -155,9 +178,7 @@ const NextMatchBar = () => {
 
       {/* Away */}
       <div className="flex-1 flex items-center gap-2 min-w-0">
-        <div className="w-7 h-7 shrink-0">
-          <TeamBadge clubId={awayId} fotmobId={match.away_id} alt={awayName} />
-        </div>
+        {renderMark(awayId, match.away_id, awayName)}
         <span className="text-xs font-semibold text-gray-800 truncate">{awayShort || awayName}</span>
       </div>
       </div>
