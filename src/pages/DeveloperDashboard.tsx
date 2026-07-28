@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppModules, AppModule } from "@/hooks/useAppModules";
@@ -41,6 +41,15 @@ const DeveloperDashboard = () => {
   const [previewRoute, setPreviewRoute] = useState("/");
   const { data: modules, isLoading } = useAppModules();
 
+  // O preview roda uma segunda instância do app no mesmo domínio. Eventos de
+  // auth disparados por ela podem reativar `loading` no gerenciador; se a tela
+  // voltar para o spinner, o iframe é desmontado e recarregado — gerando um
+  // loop infinito de refresh. Por isso o "booting" só vale até a primeira
+  // renderização completa.
+  const hasBootedRef = useRef(false);
+  const isBooting = !hasBootedRef.current && (loading || isLoading);
+  if (!isBooting) hasBootedRef.current = true;
+
   const handleSelectModule = (module: AppModule) => {
     setSelectedModule(module);
     const path = (module.config as { path?: string } | null)?.path;
@@ -65,7 +74,7 @@ const DeveloperDashboard = () => {
 
   // IMPORTANT: Preview refresh is manual-only (button inside the preview).
 
-  if (loading || isLoading) {
+  if (isBooting) {
     return (
       <div className="h-screen w-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />

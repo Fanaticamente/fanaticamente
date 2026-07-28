@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAppPages } from "@/hooks/useAppPages";
@@ -42,7 +43,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading, hasRole } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  // Uma vez que o conteúdo já foi renderizado, um novo ciclo de "loading"
+  // (refresh de token, evento de outra aba/iframe) não deve desmontar a tela:
+  // isso apaga o conteúdo e recarrega iframes filhos em loop.
+  const hasRenderedRef = useRef(false);
+
+  if (loading && !hasRenderedRef.current) {
     const isProfessional = isProfessionalRoute(location.pathname);
 
     if (isProfessional) {
@@ -100,6 +106,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     }
   }
 
+  hasRenderedRef.current = true;
   return <>{children}</>;
 };
 

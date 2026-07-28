@@ -158,7 +158,7 @@ const MobilePreview = ({ route, onRouteChange }: MobilePreviewProps) => {
               
               {/* Content - Live app preview */}
               <iframe
-                key={`${src}-${refreshKey}`}
+                key={refreshKey}
                 ref={iframeRef}
                 src={src}
                 title="Preview do app"
