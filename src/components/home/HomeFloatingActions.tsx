@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import logoHeader from "@/assets/logo-header-v5.png.asset.json";
 import GlobalSearchDialog from "@/components/search/GlobalSearchDialog";
+import { SpecialistIcon } from "@/components/icons/SpecialistIcon";
 
 
 
@@ -17,7 +18,7 @@ const HomeFloatingActions = () => {
   const items = [
     { icon: Home, label: "Início", path: "/" },
     { icon: Heart, label: "Bem-estar", path: "/bem-estar" },
-    { icon: Users, label: "Terapeutas", path: "/terapeutas" },
+    { icon: SpecialistIcon, label: "Terapeutas", path: "/terapeutas" },
     { icon: BookOpen, label: "FanatiClass", path: "/cursos" },
     { icon: Radio, label: "Alambrado FM", path: "/radio" },
     { icon: Newspaper, label: "Futebol", path: "/futebol" },
