@@ -63,7 +63,7 @@ const BottomNav = () => {
       >
         <div className={`flex items-center justify-between transition-all duration-300 ${slim ? "gap-4 px-5 py-2" : "gap-8 px-8 py-3"}`}>
           {visibleItems.map((item) => {
-            const IconComponent = getMenuIcon(item.icon);
+            const IconComponent = item.path.startsWith("/terapeutas") ? getMenuIcon("Especialista") : getMenuIcon(item.icon);
             return (
               <NavLink
                 key={item.path}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, Search, Home, Users, BookOpen, Radio, Newspaper, User, LogOut, Heart } from "lucide-react";
+import { Menu, Search, Home, BookOpen, Radio, Newspaper, User, LogOut, Heart } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import logoHeader from "@/assets/logo-header-v5.png.asset.json";
