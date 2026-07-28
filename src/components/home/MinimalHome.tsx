@@ -6,6 +6,7 @@ import { format, subDays, differenceInCalendarDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ResponsiveContainer, LineChart, Line, YAxis } from "recharts";
 import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Heart } from "lucide-react";
+import { SpecialistIcon } from "@/components/icons/SpecialistIcon";
 import jornadaLogo from "@/assets/logo-header-v3.png.asset.json";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
 import icCurso from "@/assets/Untitled_design-18.png.asset.json";
