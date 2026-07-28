@@ -228,14 +228,18 @@ const MinhaTemporada = () => {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-slate-900">
-            {stats.avgScore >= 70 ? "Seu humor está estável" : stats.avgScore > 0 ? "Atenção ao seu bem-estar" : "Comece a acompanhar seu humor"}
+            {stats.streak >= 3
+              ? `Temporada em ritmo forte: ${stats.streak} dias seguidos`
+              : stats.points > 0
+              ? "Sua temporada está em andamento"
+              : "Sua temporada começa agora"}
           </p>
           <p className="text-xs text-slate-600 mt-1">
-            {stats.avgScore >= 70
-              ? "Você tem mantido um bom equilíbrio esta semana. Continue com os check-ins."
-              : stats.avgScore > 0
-              ? "Seu humor médio caiu esta semana. Que tal falar com um profissional?"
-              : "Faça check-ins diários para desbloquear seus insights personalizados."}
+            {stats.streak >= 3
+              ? `Você já soma ${stats.points} pontos na plataforma. Mantenha a sequência para subir no ranking.`
+              : stats.points > 0
+              ? `${stats.points} pontos conquistados até aqui. Use o app todos os dias para somar mais e avançar na classificação.`
+              : "Participe das atividades do app para somar pontos e disputar posição no ranking da comunidade."}
           </p>
         </div>
       </section>
