@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
 import ClubBadgeToggles from "./ClubBadgeToggles";
+import { MENU_ICON_NAMES } from "@/lib/menuIcons";
 interface ModuleEditorProps {
   module: AppModule | null;
   onClose: () => void;
