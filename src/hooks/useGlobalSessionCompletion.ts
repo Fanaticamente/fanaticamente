@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { IS_PREVIEW_FRAME } from "@/lib/previewMode";
 
 interface CompletedAppointment {
   id: string;
@@ -34,7 +35,7 @@ export const useGlobalSessionCompletion = () => {
 
   useEffect(() => {
     // Only listen for regular users, not professionals viewing their own dashboard
-    if (isManagerRoute) return;
+    if (isManagerRoute || IS_PREVIEW_FRAME) return;
     if (loading || !user || isProfessional) return;
 
     console.log("[GlobalSessionCompletion] Setting up realtime listener for user:", user.id);
