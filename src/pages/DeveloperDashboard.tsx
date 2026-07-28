@@ -38,7 +38,15 @@ const DeveloperDashboard = () => {
   
   const [selectedModule, setSelectedModule] = useState<AppModule | null>(null);
   const [currentPage, setCurrentPage] = useState(initialPage);
+  const [previewRoute, setPreviewRoute] = useState("/");
   const { data: modules, isLoading } = useAppModules();
+
+  const handleSelectModule = (module: AppModule) => {
+    setSelectedModule(module);
+    const path = (module.config as { path?: string } | null)?.path;
+    if (path) setPreviewRoute(path);
+    else if (module.page === "home" || module.page === "navigation") setPreviewRoute("/");
+  };
 
   // Sync page changes to URL
   useEffect(() => {
@@ -139,7 +147,7 @@ const DeveloperDashboard = () => {
         
         {/* Center - Mobile Preview (static view) */}
         <main className="flex-1 min-w-0 bg-muted/30 overflow-hidden">
-          <MobilePreview />
+          <MobilePreview route={previewRoute} onRouteChange={setPreviewRoute} />
         </main>
         
         {/* Right Panel - Module List or Editor */}
@@ -161,7 +169,7 @@ const DeveloperDashboard = () => {
                 <ModuleList
                   modules={modules || []}
                   selectedModuleId={selectedModule?.id}
-                  onSelectModule={setSelectedModule}
+                  onSelectModule={handleSelectModule}
                   currentPage={currentPage}
                   onPageChange={setCurrentPage}
                 />
