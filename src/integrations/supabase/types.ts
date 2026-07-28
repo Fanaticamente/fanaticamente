@@ -899,6 +899,7 @@ export type Database = {
           image_caption: string | null
           image_credits: string | null
           image_url: string | null
+          is_featured: boolean
           is_original: boolean | null
           original_content: string | null
           original_title: string
@@ -907,6 +908,7 @@ export type Database = {
           rewritten_content: string
           rewritten_title: string
           source_site: string
+          subtitle: string | null
           updated_at: string
         }
         Insert: {
@@ -917,6 +919,7 @@ export type Database = {
           image_caption?: string | null
           image_credits?: string | null
           image_url?: string | null
+          is_featured?: boolean
           is_original?: boolean | null
           original_content?: string | null
           original_title: string
@@ -925,6 +928,7 @@ export type Database = {
           rewritten_content: string
           rewritten_title: string
           source_site: string
+          subtitle?: string | null
           updated_at?: string
         }
         Update: {
@@ -935,6 +939,7 @@ export type Database = {
           image_caption?: string | null
           image_credits?: string | null
           image_url?: string | null
+          is_featured?: boolean
           is_original?: boolean | null
           original_content?: string | null
           original_title?: string
@@ -943,6 +948,7 @@ export type Database = {
           rewritten_content?: string
           rewritten_title?: string
           source_site?: string
+          subtitle?: string | null
           updated_at?: string
         }
         Relationships: []
