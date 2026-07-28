@@ -153,7 +153,17 @@ export const useUpdateModuleConfig = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const moduleConfig = data as AppModule;
+      queryClient.setQueryData(["module-config", moduleConfig.module_id], moduleConfig);
+      try {
+        localStorage.setItem(
+          `lovable:module-config:${moduleConfig.module_id}`,
+          JSON.stringify({ updatedAt: Date.now(), data: moduleConfig })
+        );
+      } catch {
+        // Ignore storage errors; the database save still succeeded.
+      }
       queryClient.invalidateQueries({ queryKey: ["app-modules"] });
       toast.success("Configuração salva!");
     },
