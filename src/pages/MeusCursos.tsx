@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Play, CheckCircle2, Sparkles, GraduationCap, Trophy, BookOpen, Clock, ChevronRight } from "lucide-react";
+import { Play, CheckCircle2, Sparkles, GraduationCap, Trophy, BookOpen, Clock, ChevronRight } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useRadio } from "@/contexts/RadioContext";
 import { useMyCoursesData } from "@/hooks/useMyCoursesData";
 import { useContinueWatching } from "@/hooks/useContinueWatching";
 import { useCourses } from "@/hooks/useCourses";
@@ -26,18 +25,18 @@ const ConsciousnessBadge = ({
   points: number;
   pointsToNext: number;
 }) => (
-  <div className="relative overflow-hidden rounded-2xl border border-[color:var(--club-500)]/30 bg-gradient-to-br from-[color:var(--club-950)]/80 via-neutral-900 to-neutral-900 p-5">
-    <div className="absolute -right-8 -top-8 w-32 h-32 bg-[color:var(--club-500)]/10 rounded-full blur-2xl" />
+  <div className="relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-sm p-5">
+    <div className="absolute -right-8 -top-8 w-32 h-32 bg-[var(--club-50)] rounded-full blur-2xl" />
     <div className="relative flex items-start gap-4">
-      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[var(--club-400)] to-[var(--club-700)] flex items-center justify-center shrink-0 shadow-lg shadow-[color:var(--club-900)]/50">
+      <div className="w-14 h-14 rounded-full bg-[var(--club-600)] flex items-center justify-center shrink-0">
         <Sparkles className="w-7 h-7 text-white" strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
-          <p className="text-xs uppercase tracking-widest text-white font-semibold drop-shadow">Nível de Consciência</p>
-        <h2 className="text-white text-xl font-bold mt-0.5 leading-tight">{rankLabel}</h2>
+        <p className="text-[11px] uppercase tracking-widest text-[var(--club-600)] font-semibold">Nível de Consciência</p>
+        <h2 className="text-slate-900 text-xl font-bold mt-0.5 leading-tight normal-case">{rankLabel}</h2>
         <div className="mt-3">
-          <Progress value={percent} className="h-2 bg-neutral-800 [&>div]:bg-gradient-to-r [&>div]:from-[var(--club-400)] [&>div]:to-[var(--club-500)]" />
-          <div className="flex justify-between mt-1.5 text-[11px] text-neutral-400">
+          <Progress value={percent} className="h-2 bg-slate-100 [&>div]:bg-[var(--club-600)]" />
+          <div className="flex justify-between mt-1.5 text-[11px] text-slate-500">
             <span>{points} pts</span>
             <span>
               {nextRankLabel ? `${pointsToNext} pts para ${nextRankLabel}` : "Nível máximo atingido"}
@@ -49,11 +48,11 @@ const ConsciousnessBadge = ({
   </div>
 );
 
-const StatCard = ({ icon: Icon, label, value, accent }: { icon: typeof BookOpen; label: string; value: number | string; accent?: string }) => (
-  <div className="flex flex-col items-center justify-center gap-1.5 bg-neutral-900 border border-neutral-800 rounded-xl py-3 px-2">
-    <Icon className={`w-5 h-5 ${accent ?? "text-[var(--club-500)]"}`} strokeWidth={2.2} />
-    <span className="text-white text-lg font-bold leading-none">{value}</span>
-    <span className="text-neutral-400 text-[10px] uppercase tracking-wide text-center leading-tight">{label}</span>
+const StatCard = ({ icon: Icon, label, value }: { icon: typeof BookOpen; label: string; value: number | string; accent?: string }) => (
+  <div className="flex flex-col items-center justify-center gap-1.5 bg-white border border-slate-200/70 shadow-sm rounded-2xl py-3 px-2">
+    <Icon className="w-5 h-5 text-[var(--club-600)]" strokeWidth={2.2} />
+    <span className="text-slate-900 text-lg font-extrabold leading-none">{value}</span>
+    <span className="text-slate-500 text-[10px] uppercase tracking-wide text-center leading-tight">{label}</span>
   </div>
 );
 
@@ -76,25 +75,25 @@ const CourseProgressRow = ({
 }) => (
   <Link
     to={`/curso/${courseId}`}
-    className="flex items-center gap-3 bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 active:scale-[0.99] transition-transform"
+    className="flex items-center gap-3 bg-white border border-slate-200/70 shadow-sm rounded-2xl p-2.5 active:scale-[0.99] transition-transform"
   >
-    <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-neutral-800 shrink-0">
+    <div className="relative w-16 h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0">
       {thumbnailUrl ? (
         <img src={thumbnailUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
-          <Play className="w-5 h-5 text-neutral-600" />
+          <Play className="w-5 h-5 text-slate-400" />
         </div>
       )}
       {status === "completed" && (
-        <div className="absolute inset-0 bg-[color:var(--club-500)]/30 flex items-center justify-center">
+        <div className="absolute inset-0 bg-[var(--club-600)]/30 flex items-center justify-center">
           <CheckCircle2 className="w-7 h-7 text-white drop-shadow" />
         </div>
       )}
     </div>
     <div className="flex-1 min-w-0">
-      <h3 className="text-white text-sm font-semibold line-clamp-2 leading-tight">{title}</h3>
-      <p className="text-neutral-400 text-[11px] mt-1">
+      <h3 className="text-slate-900 text-sm font-semibold line-clamp-2 leading-tight normal-case">{title}</h3>
+      <p className="text-slate-500 text-[11px] mt-1">
         {totalLessons > 0
           ? `${completedLessons} de ${totalLessons} aulas`
           : "Sem aulas disponíveis"}
@@ -102,11 +101,11 @@ const CourseProgressRow = ({
       <div className="mt-1.5">
         <Progress
           value={progressPercent}
-          className="h-1 bg-neutral-800 [&>div]:bg-[var(--club-500)]"
+          className="h-1 bg-slate-100 [&>div]:bg-[var(--club-600)]"
         />
       </div>
     </div>
-    <ChevronRight className="w-4 h-4 text-neutral-500 shrink-0" />
+    <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
   </Link>
 );
 
@@ -125,22 +124,22 @@ const DiscoverCard = ({
 }) => {
   const content = (
     <>
-      <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-neutral-800">
+      <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-slate-100 border border-slate-200/70">
         {thumbnailUrl ? (
           <img src={thumbnailUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <Play className="w-6 h-6 text-neutral-600" />
+            <Play className="w-6 h-6 text-slate-400" />
           </div>
         )}
         {isPremium && (
-          <span className="absolute top-1.5 right-1.5 bg-white text-gray-800 text-[9px] font-bold py-0.5 px-1.5 rounded-full">PRO</span>
+          <span className="absolute top-1.5 right-1.5 bg-[var(--club-600)] text-white text-[9px] font-bold py-0.5 px-1.5 rounded-full">PRO</span>
         )}
         {comingSoon && (
-          <span className="absolute bottom-1.5 right-1.5 bg-amber-500 text-white text-[9px] font-bold py-0.5 px-1.5 rounded-full">EM BREVE</span>
+          <span className="absolute bottom-1.5 right-1.5 bg-slate-900/85 text-white text-[9px] font-bold py-0.5 px-1.5 rounded-full">EM BREVE</span>
         )}
       </div>
-      <p className="text-white text-xs font-medium mt-1.5 line-clamp-2">{title}</p>
+      <p className="text-slate-900 text-xs font-semibold mt-1.5 line-clamp-2 normal-case">{title}</p>
     </>
   );
   if (comingSoon) {
@@ -155,7 +154,6 @@ const DiscoverCard = ({
 
 const MeusCursos = () => {
   const isMobile = useIsMobile();
-  const { playingStation } = useRadio();
   const { data, isLoading } = useMyCoursesData();
   const { items: continueWatching } = useContinueWatching();
   const { data: allCourses } = useCourses();
@@ -190,16 +188,16 @@ const MeusCursos = () => {
       {data && (
         <div className="grid grid-cols-4 gap-2">
           <StatCard icon={BookOpen} label="Adquiridos" value={data.totalAccessibleCourses} />
-          <StatCard icon={Play} label="Em curso" value={data.totalInProgressCourses} accent="text-sky-400" />
-          <StatCard icon={Trophy} label="Concluídos" value={data.totalCompletedCourses} accent="text-amber-400" />
-          <StatCard icon={GraduationCap} label="Aulas vistas" value={data.totalCompletedLessons} accent="text-violet-400" />
+          <StatCard icon={Play} label="Em curso" value={data.totalInProgressCourses} />
+          <StatCard icon={Trophy} label="Concluídos" value={data.totalCompletedCourses} />
+          <StatCard icon={GraduationCap} label="Aulas vistas" value={data.totalCompletedLessons} />
         </div>
       )}
 
       {/* Continue watching */}
       {continueWatching.length > 0 && (
         <section>
-          <h2 className="text-white text-sm font-bold uppercase tracking-wider mb-3">Continuar assistindo</h2>
+          <h2 className="text-slate-900 text-base font-bold normal-case mb-3">Continuar assistindo</h2>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {continueWatching.map((item) => (
               <Link
@@ -207,11 +205,11 @@ const MeusCursos = () => {
                 to={`/curso/${item.courseId}?lesson=${item.lessonId}`}
                 className="flex-shrink-0 w-36 group"
               >
-                <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-neutral-800">
+                <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-slate-100 border border-slate-200/70">
                   {item.thumbnailUrl ? (
                     <img src={item.thumbnailUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-neutral-700 to-neutral-900" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-100 to-slate-200" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -219,12 +217,12 @@ const MeusCursos = () => {
                       <Play className="w-4 h-4 text-white fill-current ml-0.5" />
                     </div>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
-                    <div className="h-full bg-[var(--club-500)]" style={{ width: `${item.progressPercent}%` }} />
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/40">
+                    <div className="h-full bg-[var(--club-600)]" style={{ width: `${item.progressPercent}%` }} />
                   </div>
                 </div>
-                <p className="text-white text-xs font-medium mt-1.5 line-clamp-1">{item.courseTitle}</p>
-                <p className="text-neutral-400 text-[11px] line-clamp-1">{item.lessonTitle}</p>
+                <p className="text-slate-900 text-xs font-semibold mt-1.5 line-clamp-1 normal-case">{item.courseTitle}</p>
+                <p className="text-slate-500 text-[11px] line-clamp-1">{item.lessonTitle}</p>
               </Link>
             ))}
           </div>
@@ -234,7 +232,7 @@ const MeusCursos = () => {
       {/* Em andamento */}
       {inProgress.length > 0 && (
         <section>
-          <h2 className="text-white text-sm font-bold uppercase tracking-wider mb-3">Em andamento</h2>
+          <h2 className="text-slate-900 text-base font-bold normal-case mb-3">Em andamento</h2>
           <div className="space-y-2">
             {inProgress.map((c) => (
               <CourseProgressRow key={c.courseId} {...c} />
@@ -246,8 +244,8 @@ const MeusCursos = () => {
       {/* Concluídos */}
       {completed.length > 0 && (
         <section>
-          <h2 className="text-white text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-amber-400" /> Concluídos
+          <h2 className="text-slate-900 text-base font-bold normal-case mb-3 flex items-center gap-2">
+            <Trophy className="w-4 h-4 text-[var(--club-600)]" /> Concluídos
           </h2>
           <div className="space-y-2">
             {completed.map((c) => (
@@ -260,7 +258,7 @@ const MeusCursos = () => {
       {/* Adquiridos não iniciados */}
       {notStarted.length > 0 && (
         <section>
-          <h2 className="text-white text-sm font-bold uppercase tracking-wider mb-3">Comece agora</h2>
+          <h2 className="text-slate-900 text-base font-bold normal-case mb-3">Comece agora</h2>
           <div className="space-y-2">
             {notStarted.map((c) => (
               <CourseProgressRow key={c.courseId} {...c} />
@@ -271,13 +269,13 @@ const MeusCursos = () => {
 
       {/* Empty state */}
       {!isLoading && data && data.courses.length === 0 && (
-        <div className="text-center py-8 px-4 border border-dashed border-neutral-800 rounded-2xl">
-          <GraduationCap className="w-12 h-12 text-neutral-700 mx-auto mb-3" />
-          <h3 className="text-white text-base font-semibold mb-1">Você ainda não possui cursos</h3>
-          <p className="text-neutral-400 text-sm mb-4">Comece sua trilha de consciência hoje mesmo.</p>
+        <div className="text-center py-8 px-4 border border-dashed border-slate-300 rounded-3xl bg-white">
+          <GraduationCap className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <h3 className="text-slate-900 text-base font-bold mb-1 normal-case">Você ainda não possui cursos</h3>
+          <p className="text-slate-500 text-sm mb-4">Comece sua trilha de consciência hoje mesmo.</p>
           <Link
             to="/cursos"
-            className="inline-flex items-center gap-2 bg-[var(--club-500)] hover:bg-[var(--club-600)] text-white text-sm font-semibold px-5 py-2.5 rounded-xl"
+            className="inline-flex items-center gap-2 bg-[var(--club-600)] text-white text-sm font-semibold px-5 py-2.5 rounded-2xl"
           >
             Explorar FanatiClass <ChevronRight className="w-4 h-4" />
           </Link>
@@ -288,8 +286,8 @@ const MeusCursos = () => {
       {discoverCourses.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-white text-sm font-bold uppercase tracking-wider">Descobrir cursos</h2>
-            <Link to="/cursos" className="text-[var(--club-400)] text-xs font-semibold flex items-center gap-1">
+            <h2 className="text-slate-900 text-base font-bold normal-case">Descobrir cursos</h2>
+            <Link to="/cursos" className="text-[var(--club-600)] text-xs font-semibold flex items-center gap-1">
               Ver tudo <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
@@ -311,8 +309,8 @@ const MeusCursos = () => {
       {/* Em breve */}
       {comingSoonCourses.length > 0 && (
         <section>
-          <h2 className="text-white text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-amber-400" /> Em breve
+          <h2 className="text-slate-900 text-base font-bold normal-case mb-3 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-[var(--club-600)]" /> Em breve
           </h2>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {comingSoonCourses.map((c) => (
@@ -333,33 +331,14 @@ const MeusCursos = () => {
 
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white font-sans text-slate-900">
         <MeusCursosInfoCard />
         <Header title="Meus cursos" />
-        <header
-          className="fixed left-0 right-0 z-40 bg-background border-b border-neutral-800 pb-3"
-          style={{
-            top: 0,
-            paddingTop: `calc(env(safe-area-inset-top) + ${playingStation ? 60 : 12}px)`,
-          }}
-        >
-          <div className="flex items-center gap-3 px-4">
-            <Link to="/" className="w-9 h-9 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center">
-              <ArrowLeft className="w-5 h-5 text-white" />
-            </Link>
-            <div>
-              <h1 className="text-white font-bold text-lg leading-tight">Meus Cursos</h1>
-              <p className="text-neutral-400 text-[11px]">Sua trilha de consciência</p>
-            </div>
+        <main className="pt-[calc(56px+1cm)] px-4 pb-32">
+          <div className="mb-4">
+            <h1 className="font-sans text-2xl font-extrabold tracking-tight normal-case">Meus Cursos</h1>
+            <p className="text-sm text-slate-500 mt-1">Sua trilha de consciência</p>
           </div>
-        </header>
-        <main
-          className="px-4"
-          style={{
-            paddingTop: `calc(env(safe-area-inset-top) + ${playingStation ? 120 : 72}px)`,
-            paddingBottom: "8rem",
-          }}
-        >
           <Content />
         </main>
         <BottomNav />

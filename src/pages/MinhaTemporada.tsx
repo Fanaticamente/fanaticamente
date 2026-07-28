@@ -216,11 +216,9 @@ const MinhaTemporada = () => {
       </section>
 
       {/* Atalhos */}
-      <section className="grid grid-cols-2 gap-3">
-        <ShortcutButton onClick={() => navigate("/bem-estar")} icon={<Heart className="w-4 h-4" />} label="Bem-estar" />
+      <section className="grid grid-cols-1 gap-3">
         <ShortcutButton onClick={() => navigate("/meus-agendamentos")} icon={<CalendarDays className="w-4 h-4" />} label="Meus agendamentos" />
         <ShortcutButton onClick={() => navigate("/meus-cursos")} icon={<GraduationCap className="w-4 h-4" />} label="Meus cursos" />
-        <ShortcutButton onClick={() => navigate("/comunidade")} icon={<Trophy className="w-4 h-4" />} label="Comunidade" />
       </section>
 
       {/* Insight */}
