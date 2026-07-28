@@ -17,6 +17,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import NextMatchBar from "@/components/home/NextMatchBar";
+import { useAppModules } from "@/hooks/useAppModules";
+import { getMenuIcon } from "@/lib/menuIcons";
+
+type HomeCfg = Record<string, unknown>;
+type SuggestionItem = { image?: string; kicker?: string; title?: string; subtitle?: string; path?: string };
+type ShortcutItem = { icon?: string; label?: string; path?: string };
 const MOODS: { id: string; emoji: string; label: string }[] = [
   { id: "muito_bem",     emoji: "😄", label: "Muito bem" },
   { id: "mais_ou_menos", emoji: "🙂", label: "Mais ou menos" },
@@ -57,7 +63,37 @@ const MinimalHome = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const suggestions = SUGGESTIONS;
+  const { data: homeModules } = useAppModules("home");
+  const findModule = (id: string) => homeModules?.find((m) => m.module_id === id);
+  const isOn = (id: string) => {
+    const m = findModule(id);
+    return m ? m.is_visible : true;
+  };
+  const cfgOf = (id: string): HomeCfg => {
+    const c = findModule(id)?.config;
+    return c && typeof c === "object" ? (c as HomeCfg) : {};
+  };
+
+  const suggestionsCfg = (cfgOf("home_suggestions").items as SuggestionItem[] | undefined) || [];
+  const suggestions = suggestionsCfg.length
+    ? suggestionsCfg.map((item) => {
+        const fallback = SUGGESTIONS.find((s) => s.path === item.path);
+        return {
+          img: item.image || fallback?.img || icEspecialista.url,
+          kicker: item.kicker ?? "",
+          title: item.title ?? "",
+          subtitle: item.subtitle ?? "",
+          path: item.path || "/",
+        };
+      })
+    : SUGGESTIONS.map((s) => ({
+        img: s.img,
+        kicker: s.kicker,
+        title: Array.isArray(s.title) ? s.title.join(" ") : s.title,
+        subtitle: s.subtitle,
+        path: s.path,
+      }));
+  const suggestionsCount = suggestions.length;
   const [selected, setSelected] = useState<string | null>(null);
   const [reasonOpen, setReasonOpen] = useState(false);
   const [reasons, setReasons] = useState<string[]>([]);
@@ -68,10 +104,10 @@ const MinimalHome = () => {
 
   useEffect(() => {
     const t = setInterval(() => {
-      if (!pausedRef.current) setSugIdx((i) => (i + 1) % SUGGESTIONS.length);
+      if (!pausedRef.current) setSugIdx((i) => (i + 1) % Math.max(suggestionsCount, 1));
     }, 4500);
     return () => clearInterval(t);
-  }, []);
+  }, [suggestionsCount]);
 
   useEffect(() => {
     if (!reasonOpen) return;
@@ -166,12 +202,21 @@ const MinimalHome = () => {
     onError: () => toast.error("Não foi possível registrar."),
   });
 
-  const shortcuts = [
-    { icon: CalendarDays, label: "Consultas", path: "/meus-agendamentos" },
-    { icon: Users,        label: "Terapeutas", path: "/terapeutas" },
-    { icon: GraduationCap,label: "Cursos",     path: "/cursos" },
-    { icon: Heart,        label: "Bem-estar",  path: "/bem-estar" },
-  ];
+  const shortcutsCfg = (cfgOf("home_shortcuts").items as ShortcutItem[] | undefined) || [];
+  const shortcuts = (shortcutsCfg.length
+    ? shortcutsCfg
+    : [
+        { icon: "CalendarDays", label: "Consultas", path: "/meus-agendamentos" },
+        { icon: "Users", label: "Terapeutas", path: "/terapeutas" },
+        { icon: "GraduationCap", label: "Cursos", path: "/cursos" },
+        { icon: "Heart", label: "Bem-estar", path: "/bem-estar" },
+      ]
+  ).map((s) => ({ icon: getMenuIcon(s.icon), label: s.label ?? "", path: s.path || "/" }));
+
+  const greetingCfg = cfgOf("home_greeting");
+  const checkinCfg = cfgOf("home_checkin");
+  const journeyCfg = cfgOf("home_journey");
+  const fanbaseCfg = cfgOf("home_fanbase");
 
   return (
     <div className="font-sans text-slate-900 space-y-5 pb-4">
@@ -189,24 +234,29 @@ const MinimalHome = () => {
           )}
         </h1>
         <p className="mt-1.5 text-slate-500 text-[15px] leading-snug">
-          Saúde Mental agora é papo de arquibancada!
+          {(greetingCfg.subtitle as string) || "Saúde Mental agora é papo de arquibancada!"}
         </p>
       </section>
 
       {/* Próxima partida do clube do coração */}
-      <div className="mt-[1cm]">
-        <NextMatchBar />
-      </div>
+      {isOn("home_next_match") && (
+        <div className="mt-[1cm]">
+          <NextMatchBar />
+        </div>
+      )}
 
       {/* Check-in */}
+      {isOn("home_checkin") && (
       <section className="mt-[19px] rounded-3xl bg-white border border-slate-200/70 shadow-sm p-5">
         <div className="flex items-center gap-2 text-[var(--club-600)] text-xs font-semibold">
           <HeartPulse className="w-4 h-4" />
-          Check-in emocional
+          {(checkinCfg.kicker as string) || "Check-in emocional"}
         </div>
-        <h2 className="font-sans mt-1.5 text-xl font-bold normal-case">Como você está hoje?</h2>
+        <h2 className="font-sans mt-1.5 text-xl font-bold normal-case">
+          {(checkinCfg.title as string) || "Como você está hoje?"}
+        </h2>
         <p className="text-sm text-slate-500 mt-1">
-          Cada dia é uma rodada!
+          {(checkinCfg.subtitle as string) || "Cada dia é uma rodada!"}
         </p>
 
         <div className="grid grid-cols-5 gap-2 mt-4">
@@ -231,6 +281,7 @@ const MinimalHome = () => {
           ))}
         </div>
       </section>
+      )}
 
       {reasonOpen && selected && createPortal(
         <div
@@ -305,6 +356,7 @@ const MinimalHome = () => {
       )}
 
       {/* Sugestões carrossel */}
+      {isOn("home_suggestions") && suggestionsCount > 0 && (
       <section>
         <div
           className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/70 shadow-sm"
@@ -322,8 +374,8 @@ const MinimalHome = () => {
             if (Math.abs(dx) > 40) {
               setSugIdx((i) =>
                 dx < 0
-                  ? (i + 1) % SUGGESTIONS.length
-                  : (i - 1 + SUGGESTIONS.length) % SUGGESTIONS.length
+                  ? (i + 1) % suggestionsCount
+                  : (i - 1 + suggestionsCount) % suggestionsCount
               );
             }
             touchStartX.current = null;
@@ -362,9 +414,9 @@ const MinimalHome = () => {
                     <p className="text-[10.5px] font-semibold text-[var(--club-600)] truncate">{s.kicker}</p>
                     <p className={cn(
                       "font-bold text-slate-900 leading-tight break-words",
-                      Array.isArray(s.title) ? "text-[13px]" : "text-[14px]"
+                      (s.title?.length ?? 0) > 30 ? "text-[13px]" : "text-[14px]"
                     )}>
-                      {Array.isArray(s.title) ? s.title.map((line, i) => <span key={i} className="block">{line}</span>) : s.title}
+                      {s.title}
                     </p>
                     <p className="text-[11.5px] text-slate-500 truncate">{s.subtitle}</p>
                   </div>
@@ -389,10 +441,14 @@ const MinimalHome = () => {
           ))}
         </div>
       </section>
+      )}
 
       {/* Acesso rápido */}
+      {isOn("home_shortcuts") && (
       <section>
-        <h3 className="font-sans font-bold text-slate-900 mb-2 px-1 normal-case tracking-normal">Acesso rápido</h3>
+        <h3 className="font-sans font-bold text-slate-900 mb-2 px-1 normal-case tracking-normal">
+          {(cfgOf("home_shortcuts").title as string) || "Acesso rápido"}
+        </h3>
         <div className="grid grid-cols-4 gap-2.5">
           {shortcuts.map((s) => {
             const Icon = s.icon;
@@ -413,14 +469,18 @@ const MinimalHome = () => {
           })}
         </div>
       </section>
+      )}
 
       {/* Sua jornada */}
+      {isOn("home_journey") && (
       <section className="rounded-3xl bg-white border border-slate-200/70 shadow-sm p-5">
         <div className="flex items-start gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-[var(--club-600)]" />
-              <h3 className="font-sans font-bold normal-case tracking-normal">Sua jornada</h3>
+              <h3 className="font-sans font-bold normal-case tracking-normal">
+                {(journeyCfg.title as string) || "Sua jornada"}
+              </h3>
             </div>
             <p className="text-sm text-slate-500 mt-1">
               Você completou {weekActivities} atividade{weekActivities === 1 ? "" : "s"} esta semana.
@@ -449,10 +509,12 @@ const MinimalHome = () => {
           </div>
         </div>
       </section>
+      )}
 
       {/* Torcida */}
+      {isOn("home_fanbase") && (
       <button
-        onClick={() => navigate("/comunidade?openFans=1")}
+        onClick={() => navigate((fanbaseCfg.link as string) || "/comunidade?openFans=1")}
         className="w-full text-left rounded-3xl bg-[var(--club-50)] border border-[var(--club-100)] p-4 flex items-center gap-3"
       >
         <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0 overflow-hidden">
@@ -473,16 +535,17 @@ const MinimalHome = () => {
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-slate-900 text-[13px] leading-tight truncate">
-            Juntos na arquibancada e na evolução!
+            {(fanbaseCfg.title as string) || "Juntos na arquibancada e na evolução!"}
           </p>
           <p className="text-xs text-slate-600 mt-0.5">
-            Veja os torcedores que estão cuidando da mente.
+            {(fanbaseCfg.subtitle as string) || "Veja os torcedores que estão cuidando da mente."}
           </p>
           <p className="text-sm font-semibold text-[var(--club-700)] mt-1 inline-flex items-center gap-1">
-            Ver ranking <ChevronRight className="w-3.5 h-3.5" />
+            {(fanbaseCfg.cta as string) || "Ver ranking"} <ChevronRight className="w-3.5 h-3.5" />
           </p>
         </div>
       </button>
+      )}
     </div>
   );
 };

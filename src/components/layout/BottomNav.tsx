@@ -1,19 +1,19 @@
-import { Home, Heart, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useAppPages } from "@/hooks/useAppPages";
-import { CommunityIcon } from "@/components/icons/CommunityIcon";
+import { useAppMenu } from "@/hooks/useAppContent";
+import { getMenuIcon } from "@/lib/menuIcons";
 
-
-const navItems = [
-  { icon: Home, label: "Início", path: "/" },
-  { icon: Heart, label: "Bem-estar", path: "/bem-estar" },
-  { icon: CommunityIcon, label: "Comunidade", path: "/comunidade" },
-  { icon: User, label: "Você", path: "/perfil" },
+const DEFAULT_ITEMS = [
+  { icon: "Home", label: "Início", path: "/" },
+  { icon: "Heart", label: "Bem-estar", path: "/bem-estar" },
+  { icon: "Community", label: "Comunidade", path: "/comunidade" },
+  { icon: "User", label: "Você", path: "/perfil" },
 ];
 
 const BottomNav = () => {
   const { data: pages } = useAppPages('mobile');
+  const { data: menu } = useAppMenu("bottom_nav");
   const [slim, setSlim] = useState(true);
   const timer = useRef<number | null>(null);
 
@@ -40,6 +40,8 @@ const BottomNav = () => {
     };
   }, []);
 
+  const navItems = menu?.items?.length ? menu.items : DEFAULT_ITEMS;
+
   const visibleItems = navItems.filter((item) => {
     if (!pages || pages.length === 0) return true;
     const page = pages.find((p) => p.path === item.path);
@@ -61,7 +63,7 @@ const BottomNav = () => {
       >
         <div className={`flex items-center justify-between transition-all duration-300 ${slim ? "gap-4 px-5 py-2" : "gap-8 px-8 py-3"}`}>
           {visibleItems.map((item) => {
-            const IconComponent = item.icon;
+            const IconComponent = getMenuIcon(item.icon);
             return (
               <NavLink
                 key={item.path}
