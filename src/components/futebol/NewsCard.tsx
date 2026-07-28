@@ -378,19 +378,19 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DrawerContent className="max-h-[92vh] bg-white">
         <DrawerHeader className="border-b border-gray-300 pb-4 bg-white px-5">
-          <div className="flex flex-col">
-            <div className="w-full">
+          <div className="flex items-start justify-between">
+            <div className="flex-1 pr-2">
               {/* Newspaper masthead style */}
-              <div className="flex items-center justify-between gap-2 mb-3 pt-1">
+              <div className="flex items-center justify-between mb-3 pt-1">
                 <span 
-                  className="text-[10px] tracking-[0.18em] uppercase text-gray-600 whitespace-nowrap"
+                  className="text-xs tracking-[0.3em] uppercase text-gray-600"
                   style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
                 >
                   {news.category} • Fanaticamente
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <span 
-                    className="text-[10px] text-gray-500 capitalize whitespace-nowrap"
+                    className="text-xs text-gray-500 capitalize"
                     style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
                   >
                     {formattedDate}
@@ -398,7 +398,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                   {/* Font size toggle button - AA icon */}
                   <button 
                     onClick={toggleFontSize}
-                    className={`flex items-baseline px-2 py-1 rounded-md transition-colors ${
+                    className={`flex items-baseline px-2.5 py-1.5 rounded-md transition-colors ${
                       fontSizeLevel > 0 
                         ? 'bg-gray-200 text-gray-900' 
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -408,20 +408,21 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                     <span className="text-[11px] font-bold">A</span>
                     <span className="text-[15px] font-bold">A</span>
                   </button>
-                  {/* Close button */}
-                  <DrawerClose asChild>
-                    <Button variant="ghost" size="icon" className="flex-shrink-0 h-8 w-8 text-gray-600 hover:text-black hover:bg-transparent">
-                      <X className="w-5 h-5" />
-                    </Button>
-                  </DrawerClose>
                 </div>
               </div>
-              
+
               {/* Newspaper headline */}
               <DrawerTitle className="w-full text-[22px] sm:text-3xl font-sans font-bold text-black leading-[1.15] tracking-tight text-left [text-wrap:balance] hyphens-auto">
                 {fixedTitle}
               </DrawerTitle>
             </div>
+
+            {/* Close button */}
+            <DrawerClose asChild>
+              <Button variant="ghost" size="icon" className="flex-shrink-0 text-gray-600 hover:text-black hover:bg-transparent -mt-1">
+                <X className="w-5 h-5" />
+              </Button>
+            </DrawerClose>
           </div>
         </DrawerHeader>
 

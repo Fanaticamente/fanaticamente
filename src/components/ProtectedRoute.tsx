@@ -62,11 +62,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       );
     }
 
-    return (
-      <div className="min-h-screen bg-[hsl(0,0%,8%)] flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-[hsl(45,100%,51%)] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    // App torcedor: sem tela de carregamento — o splash inicial já cobre o boot.
+    return null;
   }
 
   if (!user) {
