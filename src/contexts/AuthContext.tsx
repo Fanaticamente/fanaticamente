@@ -3,6 +3,7 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { clearUserVideoProgress } from "@/hooks/useVideoProgress";
 import { AccountType, encodeAuthEmail, getAccountTypeForAuth, isFanApp, isProfessionalApp } from "@/lib/appMode";
+import { IS_PREVIEW_FRAME } from "@/lib/previewMode";
 
 
 type AppRole = "user" | "professional" | "developer" | "admin" | "marketing";
@@ -79,6 +80,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const enforceAppSessionBoundary = async (nextRoles: AppRole[]) => {
     if (sessionIsCompatibleWithApp(nextRoles)) return false;
+    // Nunca deslogar a partir do iframe de preview do Gerenciador Mobile:
+    // o signOut é global (mesma origem) e derrubaria o gerenciador.
+    if (IS_PREVIEW_FRAME) return false;
     console.warn("[Auth] Sessão incompatível com este app; encerrando para impedir troca de ambiente.");
     await supabase.auth.signOut();
     setUser(null);
