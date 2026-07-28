@@ -293,7 +293,7 @@ const FootballNewsManager = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2 flex-wrap">
+      <div className="flex flex-col gap-3 bg-white rounded-xl border border-gray-200 p-4">
         <div>
           <h3 className="text-base font-bold text-gray-900">Notícias publicadas</h3>
           <p className="text-xs text-gray-500">
@@ -301,10 +301,11 @@ const FootballNewsManager = () => {
           </p>
         </div>
         <Button
-          className="bg-emerald-700 hover:bg-emerald-800"
+          size="lg"
+          className="w-full bg-emerald-700 hover:bg-emerald-800 font-bold"
           onClick={() => { setDateValue(toLocalInput()); setEditing({ ...emptyItem }); }}
         >
-          <Plus className="w-4 h-4 mr-1" /> Nova notícia
+          <Plus className="w-5 h-5 mr-2" /> Escrever nova notícia
         </Button>
       </div>
 
