@@ -190,16 +190,16 @@ const MeusCursos = () => {
       {data && (
         <div className="grid grid-cols-4 gap-2">
           <StatCard icon={BookOpen} label="Adquiridos" value={data.totalAccessibleCourses} />
-          <StatCard icon={Play} label="Em curso" value={data.totalInProgressCourses} accent="text-sky-400" />
-          <StatCard icon={Trophy} label="Concluídos" value={data.totalCompletedCourses} accent="text-amber-400" />
-          <StatCard icon={GraduationCap} label="Aulas vistas" value={data.totalCompletedLessons} accent="text-violet-400" />
+          <StatCard icon={Play} label="Em curso" value={data.totalInProgressCourses} />
+          <StatCard icon={Trophy} label="Concluídos" value={data.totalCompletedCourses} />
+          <StatCard icon={GraduationCap} label="Aulas vistas" value={data.totalCompletedLessons} />
         </div>
       )}
 
       {/* Continue watching */}
       {continueWatching.length > 0 && (
         <section>
-          <h2 className="text-white text-sm font-bold uppercase tracking-wider mb-3">Continuar assistindo</h2>
+          <h2 className="text-slate-900 text-base font-bold normal-case mb-3">Continuar assistindo</h2>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {continueWatching.map((item) => (
               <Link
@@ -207,11 +207,11 @@ const MeusCursos = () => {
                 to={`/curso/${item.courseId}?lesson=${item.lessonId}`}
                 className="flex-shrink-0 w-36 group"
               >
-                <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-neutral-800">
+                <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-slate-100 border border-slate-200/70">
                   {item.thumbnailUrl ? (
                     <img src={item.thumbnailUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-neutral-700 to-neutral-900" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-100 to-slate-200" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -219,12 +219,12 @@ const MeusCursos = () => {
                       <Play className="w-4 h-4 text-white fill-current ml-0.5" />
                     </div>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
-                    <div className="h-full bg-[var(--club-500)]" style={{ width: `${item.progressPercent}%` }} />
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/40">
+                    <div className="h-full bg-[var(--club-600)]" style={{ width: `${item.progressPercent}%` }} />
                   </div>
                 </div>
-                <p className="text-white text-xs font-medium mt-1.5 line-clamp-1">{item.courseTitle}</p>
-                <p className="text-neutral-400 text-[11px] line-clamp-1">{item.lessonTitle}</p>
+                <p className="text-slate-900 text-xs font-semibold mt-1.5 line-clamp-1 normal-case">{item.courseTitle}</p>
+                <p className="text-slate-500 text-[11px] line-clamp-1">{item.lessonTitle}</p>
               </Link>
             ))}
           </div>
@@ -234,7 +234,7 @@ const MeusCursos = () => {
       {/* Em andamento */}
       {inProgress.length > 0 && (
         <section>
-          <h2 className="text-white text-sm font-bold uppercase tracking-wider mb-3">Em andamento</h2>
+          <h2 className="text-slate-900 text-base font-bold normal-case mb-3">Em andamento</h2>
           <div className="space-y-2">
             {inProgress.map((c) => (
               <CourseProgressRow key={c.courseId} {...c} />
@@ -246,8 +246,8 @@ const MeusCursos = () => {
       {/* Concluídos */}
       {completed.length > 0 && (
         <section>
-          <h2 className="text-white text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-amber-400" /> Concluídos
+          <h2 className="text-slate-900 text-base font-bold normal-case mb-3 flex items-center gap-2">
+            <Trophy className="w-4 h-4 text-[var(--club-600)]" /> Concluídos
           </h2>
           <div className="space-y-2">
             {completed.map((c) => (
@@ -260,7 +260,7 @@ const MeusCursos = () => {
       {/* Adquiridos não iniciados */}
       {notStarted.length > 0 && (
         <section>
-          <h2 className="text-white text-sm font-bold uppercase tracking-wider mb-3">Comece agora</h2>
+          <h2 className="text-slate-900 text-base font-bold normal-case mb-3">Comece agora</h2>
           <div className="space-y-2">
             {notStarted.map((c) => (
               <CourseProgressRow key={c.courseId} {...c} />
@@ -271,13 +271,13 @@ const MeusCursos = () => {
 
       {/* Empty state */}
       {!isLoading && data && data.courses.length === 0 && (
-        <div className="text-center py-8 px-4 border border-dashed border-neutral-800 rounded-2xl">
-          <GraduationCap className="w-12 h-12 text-neutral-700 mx-auto mb-3" />
-          <h3 className="text-white text-base font-semibold mb-1">Você ainda não possui cursos</h3>
-          <p className="text-neutral-400 text-sm mb-4">Comece sua trilha de consciência hoje mesmo.</p>
+        <div className="text-center py-8 px-4 border border-dashed border-slate-300 rounded-3xl bg-white">
+          <GraduationCap className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <h3 className="text-slate-900 text-base font-bold mb-1 normal-case">Você ainda não possui cursos</h3>
+          <p className="text-slate-500 text-sm mb-4">Comece sua trilha de consciência hoje mesmo.</p>
           <Link
             to="/cursos"
-            className="inline-flex items-center gap-2 bg-[var(--club-500)] hover:bg-[var(--club-600)] text-white text-sm font-semibold px-5 py-2.5 rounded-xl"
+            className="inline-flex items-center gap-2 bg-[var(--club-600)] text-white text-sm font-semibold px-5 py-2.5 rounded-2xl"
           >
             Explorar FanatiClass <ChevronRight className="w-4 h-4" />
           </Link>
@@ -288,8 +288,8 @@ const MeusCursos = () => {
       {discoverCourses.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-white text-sm font-bold uppercase tracking-wider">Descobrir cursos</h2>
-            <Link to="/cursos" className="text-[var(--club-400)] text-xs font-semibold flex items-center gap-1">
+            <h2 className="text-slate-900 text-base font-bold normal-case">Descobrir cursos</h2>
+            <Link to="/cursos" className="text-[var(--club-600)] text-xs font-semibold flex items-center gap-1">
               Ver tudo <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
@@ -311,8 +311,8 @@ const MeusCursos = () => {
       {/* Em breve */}
       {comingSoonCourses.length > 0 && (
         <section>
-          <h2 className="text-white text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-amber-400" /> Em breve
+          <h2 className="text-slate-900 text-base font-bold normal-case mb-3 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-[var(--club-600)]" /> Em breve
           </h2>
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {comingSoonCourses.map((c) => (
