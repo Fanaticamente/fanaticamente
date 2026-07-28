@@ -12,8 +12,10 @@ import ImageManager from "@/components/developer/ImageManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Smartphone, Loader2, Monitor, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useManagerTheme } from "@/hooks/useManagerTheme";
 
 const DeveloperDashboard = () => {
+  useManagerTheme();
   const { user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();

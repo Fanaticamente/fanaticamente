@@ -7,6 +7,7 @@ import DesktopModuleEditor from "@/components/studio/DesktopModuleEditor";
 import ModuleCatalog from "@/components/studio/ModuleCatalog";
 import { Monitor, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useManagerTheme } from "@/hooks/useManagerTheme";
 import { AppModule } from "@/hooks/useAppModules";
 
 const DESKTOP_MANAGER_SELECTED_MODULE_KEY = "fanatica_desktop_manager_selected_module";
@@ -21,6 +22,7 @@ const safeJsonParse = <T,>(value: string | null): T | null => {
 };
 
 const DesktopContentManager = () => {
+  useManagerTheme();
   const { user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
   
