@@ -1,12 +1,41 @@
-import { useState } from "react";
-import { Smartphone, Tablet, Monitor, RotateCcw, RefreshCw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Smartphone, Tablet, Monitor, RotateCcw, RefreshCw, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import StaticMobileView from "./StaticMobileView";
+import { useAppPages } from "@/hooks/useAppPages";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const MobilePreview = () => {
+interface MobilePreviewProps {
+  route?: string;
+  onRouteChange?: (route: string) => void;
+}
+
+const MobilePreview = ({ route, onRouteChange }: MobilePreviewProps) => {
   const [device, setDevice] = useState<"mobile" | "tablet" | "desktop">("mobile");
   const [scale, setScale] = useState(100);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [internalRoute, setInternalRoute] = useState("/");
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const { data: pages } = useAppPages("mobile");
+
+  const currentRoute = route ?? internalRoute;
+
+  const setRoute = (next: string) => {
+    setInternalRoute(next);
+    onRouteChange?.(next);
+  };
+
+  // Keep internal state in sync when parent drives the route
+  useEffect(() => {
+    if (route) setInternalRoute(route);
+  }, [route]);
+
+  const src = `${currentRoute}${currentRoute.includes("?") ? "&" : "?"}forceMobile=1`;
 
   const handleRefresh = () => {
     setRefreshKey(prev => prev + 1);
@@ -50,6 +79,30 @@ const MobilePreview = () => {
             title="Atualizar preview"
           >
             <RefreshCw className="w-4 h-4" />
+          </Button>
+          <div className="w-px h-6 bg-border mx-1" />
+          <Select value={currentRoute} onValueChange={setRoute}>
+            <SelectTrigger className="h-8 w-52 text-xs">
+              <SelectValue placeholder="Selecionar tela" />
+            </SelectTrigger>
+            <SelectContent className="max-h-72">
+              {(pages || [])
+                .filter(p => p.is_visible)
+                .map(p => (
+                  <SelectItem key={p.id} value={p.path} className="text-xs">
+                    {p.name}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => window.open(src, "_blank")}
+            className="h-8 w-8 p-0"
+            title="Abrir em nova aba"
+          >
+            <ExternalLink className="w-4 h-4" />
           </Button>
         </div>
         
@@ -103,10 +156,14 @@ const MobilePreview = () => {
                 <div className="w-16 h-4 bg-zinc-800 rounded-full" />
               </div>
               
-              {/* Content - Static Mobile View */}
-              <div className="h-full overflow-y-auto pt-7">
-                <StaticMobileView key={refreshKey} />
-              </div>
+              {/* Content - Live app preview */}
+              <iframe
+                key={`${src}-${refreshKey}`}
+                ref={iframeRef}
+                src={src}
+                title="Preview do app"
+                className="w-full h-full border-0 bg-background"
+              />
               
               {/* Home Indicator */}
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/30 rounded-full z-20" />
