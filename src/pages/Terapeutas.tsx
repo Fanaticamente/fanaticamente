@@ -282,11 +282,17 @@ const Terapeutas = () => {
             </button>
             <div className="relative z-10 flex items-center gap-4">
               <div className="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center flex-shrink-0">
-                <Shirt
-                  className="w-12 h-12"
-                  style={{ color: selectedClub.primaryColor, fill: selectedClub.primaryColor }}
-                  strokeWidth={1.5}
-                />
+                {showBadges && !hiddenBadges.includes(selectedClub.id) ? (
+                  <div className="w-14 h-14 flex items-center justify-center">
+                    <ClubMark clubId={selectedClub.id} mode={clubDisplayMode} />
+                  </div>
+                ) : (
+                  <Shirt
+                    className="w-12 h-12"
+                    style={{ color: selectedClub.primaryColor, fill: selectedClub.primaryColor }}
+                    strokeWidth={1.5}
+                  />
+                )}
               </div>
               <div className="min-w-0">
                 <h1 className="font-display italic text-4xl text-white leading-none tracking-wide uppercase">

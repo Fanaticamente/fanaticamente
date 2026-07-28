@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ModuleConfig {
@@ -40,6 +40,7 @@ const writeCached = (moduleId: string, data: ModuleConfig) => {
 };
 
 export const useModuleConfig = (moduleId: string) => {
+  const queryClient = useQueryClient();
   const cached = typeof window !== "undefined" ? readCached(moduleId) : null;
 
   const query = useQuery({
@@ -68,6 +69,24 @@ export const useModuleConfig = (moduleId: string) => {
     if (query.data) writeCached(moduleId, query.data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moduleId, query.data]);
+
+  useEffect(() => {
+    const storageKey = `${STORAGE_PREFIX}${moduleId}`;
+    const syncSavedConfig = (event: StorageEvent) => {
+      if (event.key !== storageKey || !event.newValue) return;
+      try {
+        const saved = JSON.parse(event.newValue) as CachedModuleConfig;
+        if (saved?.data) {
+          queryClient.setQueryData(["module-config", moduleId], saved.data);
+        }
+      } catch {
+        // Ignore malformed cache entries.
+      }
+    };
+
+    window.addEventListener("storage", syncSavedConfig);
+    return () => window.removeEventListener("storage", syncSavedConfig);
+  }, [moduleId, queryClient]);
 
   return query;
 };
