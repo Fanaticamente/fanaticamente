@@ -509,10 +509,12 @@ const MinimalHome = () => {
           </div>
         </div>
       </section>
+      )}
 
       {/* Torcida */}
+      {isOn("home_fanbase") && (
       <button
-        onClick={() => navigate("/comunidade?openFans=1")}
+        onClick={() => navigate((fanbaseCfg.link as string) || "/comunidade?openFans=1")}
         className="w-full text-left rounded-3xl bg-[var(--club-50)] border border-[var(--club-100)] p-4 flex items-center gap-3"
       >
         <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0 overflow-hidden">
@@ -533,16 +535,17 @@ const MinimalHome = () => {
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-slate-900 text-[13px] leading-tight truncate">
-            Juntos na arquibancada e na evolução!
+            {(fanbaseCfg.title as string) || "Juntos na arquibancada e na evolução!"}
           </p>
           <p className="text-xs text-slate-600 mt-0.5">
-            Veja os torcedores que estão cuidando da mente.
+            {(fanbaseCfg.subtitle as string) || "Veja os torcedores que estão cuidando da mente."}
           </p>
           <p className="text-sm font-semibold text-[var(--club-700)] mt-1 inline-flex items-center gap-1">
-            Ver ranking <ChevronRight className="w-3.5 h-3.5" />
+            {(fanbaseCfg.cta as string) || "Ver ranking"} <ChevronRight className="w-3.5 h-3.5" />
           </p>
         </div>
       </button>
+      )}
     </div>
   );
 };
