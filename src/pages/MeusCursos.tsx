@@ -26,18 +26,18 @@ const ConsciousnessBadge = ({
   points: number;
   pointsToNext: number;
 }) => (
-  <div className="relative overflow-hidden rounded-2xl border border-[color:var(--club-500)]/30 bg-gradient-to-br from-[color:var(--club-950)]/80 via-neutral-900 to-neutral-900 p-5">
-    <div className="absolute -right-8 -top-8 w-32 h-32 bg-[color:var(--club-500)]/10 rounded-full blur-2xl" />
+  <div className="relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-sm p-5">
+    <div className="absolute -right-8 -top-8 w-32 h-32 bg-[var(--club-50)] rounded-full blur-2xl" />
     <div className="relative flex items-start gap-4">
-      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[var(--club-400)] to-[var(--club-700)] flex items-center justify-center shrink-0 shadow-lg shadow-[color:var(--club-900)]/50">
+      <div className="w-14 h-14 rounded-full bg-[var(--club-600)] flex items-center justify-center shrink-0">
         <Sparkles className="w-7 h-7 text-white" strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
-          <p className="text-xs uppercase tracking-widest text-white font-semibold drop-shadow">Nível de Consciência</p>
-        <h2 className="text-white text-xl font-bold mt-0.5 leading-tight">{rankLabel}</h2>
+        <p className="text-[11px] uppercase tracking-widest text-[var(--club-600)] font-semibold">Nível de Consciência</p>
+        <h2 className="text-slate-900 text-xl font-bold mt-0.5 leading-tight normal-case">{rankLabel}</h2>
         <div className="mt-3">
-          <Progress value={percent} className="h-2 bg-neutral-800 [&>div]:bg-gradient-to-r [&>div]:from-[var(--club-400)] [&>div]:to-[var(--club-500)]" />
-          <div className="flex justify-between mt-1.5 text-[11px] text-neutral-400">
+          <Progress value={percent} className="h-2 bg-slate-100 [&>div]:bg-[var(--club-600)]" />
+          <div className="flex justify-between mt-1.5 text-[11px] text-slate-500">
             <span>{points} pts</span>
             <span>
               {nextRankLabel ? `${pointsToNext} pts para ${nextRankLabel}` : "Nível máximo atingido"}
@@ -49,11 +49,11 @@ const ConsciousnessBadge = ({
   </div>
 );
 
-const StatCard = ({ icon: Icon, label, value, accent }: { icon: typeof BookOpen; label: string; value: number | string; accent?: string }) => (
-  <div className="flex flex-col items-center justify-center gap-1.5 bg-neutral-900 border border-neutral-800 rounded-xl py-3 px-2">
-    <Icon className={`w-5 h-5 ${accent ?? "text-[var(--club-500)]"}`} strokeWidth={2.2} />
-    <span className="text-white text-lg font-bold leading-none">{value}</span>
-    <span className="text-neutral-400 text-[10px] uppercase tracking-wide text-center leading-tight">{label}</span>
+const StatCard = ({ icon: Icon, label, value }: { icon: typeof BookOpen; label: string; value: number | string; accent?: string }) => (
+  <div className="flex flex-col items-center justify-center gap-1.5 bg-white border border-slate-200/70 shadow-sm rounded-2xl py-3 px-2">
+    <Icon className="w-5 h-5 text-[var(--club-600)]" strokeWidth={2.2} />
+    <span className="text-slate-900 text-lg font-extrabold leading-none">{value}</span>
+    <span className="text-slate-500 text-[10px] uppercase tracking-wide text-center leading-tight">{label}</span>
   </div>
 );
 
@@ -76,25 +76,25 @@ const CourseProgressRow = ({
 }) => (
   <Link
     to={`/curso/${courseId}`}
-    className="flex items-center gap-3 bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 active:scale-[0.99] transition-transform"
+    className="flex items-center gap-3 bg-white border border-slate-200/70 shadow-sm rounded-2xl p-2.5 active:scale-[0.99] transition-transform"
   >
-    <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-neutral-800 shrink-0">
+    <div className="relative w-16 h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0">
       {thumbnailUrl ? (
         <img src={thumbnailUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
-          <Play className="w-5 h-5 text-neutral-600" />
+          <Play className="w-5 h-5 text-slate-400" />
         </div>
       )}
       {status === "completed" && (
-        <div className="absolute inset-0 bg-[color:var(--club-500)]/30 flex items-center justify-center">
+        <div className="absolute inset-0 bg-[var(--club-600)]/30 flex items-center justify-center">
           <CheckCircle2 className="w-7 h-7 text-white drop-shadow" />
         </div>
       )}
     </div>
     <div className="flex-1 min-w-0">
-      <h3 className="text-white text-sm font-semibold line-clamp-2 leading-tight">{title}</h3>
-      <p className="text-neutral-400 text-[11px] mt-1">
+      <h3 className="text-slate-900 text-sm font-semibold line-clamp-2 leading-tight normal-case">{title}</h3>
+      <p className="text-slate-500 text-[11px] mt-1">
         {totalLessons > 0
           ? `${completedLessons} de ${totalLessons} aulas`
           : "Sem aulas disponíveis"}
@@ -102,11 +102,11 @@ const CourseProgressRow = ({
       <div className="mt-1.5">
         <Progress
           value={progressPercent}
-          className="h-1 bg-neutral-800 [&>div]:bg-[var(--club-500)]"
+          className="h-1 bg-slate-100 [&>div]:bg-[var(--club-600)]"
         />
       </div>
     </div>
-    <ChevronRight className="w-4 h-4 text-neutral-500 shrink-0" />
+    <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
   </Link>
 );
 
@@ -125,22 +125,22 @@ const DiscoverCard = ({
 }) => {
   const content = (
     <>
-      <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-neutral-800">
+      <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-slate-100 border border-slate-200/70">
         {thumbnailUrl ? (
           <img src={thumbnailUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <Play className="w-6 h-6 text-neutral-600" />
+            <Play className="w-6 h-6 text-slate-400" />
           </div>
         )}
         {isPremium && (
-          <span className="absolute top-1.5 right-1.5 bg-white text-gray-800 text-[9px] font-bold py-0.5 px-1.5 rounded-full">PRO</span>
+          <span className="absolute top-1.5 right-1.5 bg-[var(--club-600)] text-white text-[9px] font-bold py-0.5 px-1.5 rounded-full">PRO</span>
         )}
         {comingSoon && (
-          <span className="absolute bottom-1.5 right-1.5 bg-amber-500 text-white text-[9px] font-bold py-0.5 px-1.5 rounded-full">EM BREVE</span>
+          <span className="absolute bottom-1.5 right-1.5 bg-slate-900/85 text-white text-[9px] font-bold py-0.5 px-1.5 rounded-full">EM BREVE</span>
         )}
       </div>
-      <p className="text-white text-xs font-medium mt-1.5 line-clamp-2">{title}</p>
+      <p className="text-slate-900 text-xs font-semibold mt-1.5 line-clamp-2 normal-case">{title}</p>
     </>
   );
   if (comingSoon) {
