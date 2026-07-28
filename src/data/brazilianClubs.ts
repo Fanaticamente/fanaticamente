@@ -20,6 +20,7 @@ import maringaBadge from "@/assets/badges/maringa.png";
 import paysanduBadge from "@/assets/badges/paysandu.png";
 import ypirangaBadge from "@/assets/badges/ypiranga-rs.png";
 import mirassolBadge from "@/assets/badges/mirassol.png";
+import coritibaBadgeAsset from "@/assets/club-badges/coritiba-badge.png.asset.json";
 
 export interface BrazilianClub {
   id: string;
@@ -157,7 +158,7 @@ export const brazilianClubs: BrazilianClub[] = [
     shortName: "CFC",
     primaryColor: "#006437",
     secondaryColor: "#FFFFFF",
-    badgeUrl: "https://logodetimes.com/times/coritiba/logo-coritiba-256.png",
+    badgeUrl: coritibaBadgeAsset.url,
     league: "serie_a",
     storeUrl: "https://www.coritiba.com.br",
   },

@@ -281,10 +281,10 @@ const Terapeutas = () => {
               <ChevronLeft className="w-8 h-8" strokeWidth={2.5} />
             </button>
             <div className="relative z-10 flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                 {showBadges && !hiddenBadges.includes(selectedClub.id) ? (
-                  <div className="w-14 h-14 flex items-center justify-center">
-                    <ClubMark clubId={selectedClub.id} mode={clubDisplayMode} />
+                  <div className="w-12 h-12 flex items-center justify-center">
+                    <ClubMark clubId={selectedClub.id} mode={clubDisplayMode} imgClassName="max-w-full max-h-full object-contain" />
                   </div>
                 ) : (
                   <Shirt
@@ -309,8 +309,8 @@ const Terapeutas = () => {
       <main className={step === "therapists" ? "px-4 pt-6" : "pt-16 px-5"}>
         {step === "club" && (
           <div className="animate-fade-in font-sans">
-            <div className="relative mb-6">
-              <div className="pr-24">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <div className="min-w-0">
                 <h1 className="font-sans font-bold text-[28px] leading-tight text-gray-900 normal-case">
                   Selecione <span className="text-[var(--club-600)]">seu time</span>
                 </h1>
@@ -318,8 +318,8 @@ const Terapeutas = () => {
                   Escolha o time do coração
                 </p>
               </div>
-              <div className="absolute top-0 right-0 w-20 h-20 rounded-full bg-[var(--club-50)] flex items-center justify-center">
-                <Shirt className="w-12 h-12 text-[var(--club-600)]" strokeWidth={1.5} />
+              <div className="w-14 h-14 shrink-0 rounded-full bg-[var(--club-50)] flex items-center justify-center">
+                <Shirt className="w-7 h-7 text-[var(--club-600)]" strokeWidth={1.5} />
               </div>
             </div>
 
@@ -353,8 +353,8 @@ const Terapeutas = () => {
                   >
                     {showBadges && !hiddenBadges.includes(club.id) && (
                       <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-white border border-gray-100 flex items-center justify-center overflow-hidden">
-                        <div className="w-11 h-11 flex items-center justify-center">
-                          <ClubMark clubId={club.id} mode={clubDisplayMode} />
+                        <div className="w-10 h-10 flex items-center justify-center">
+                          <ClubMark clubId={club.id} mode={clubDisplayMode} imgClassName="max-w-full max-h-full object-contain" />
                         </div>
                       </div>
                     )}
