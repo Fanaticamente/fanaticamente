@@ -293,19 +293,32 @@ const FootballNewsManager = () => {
                   >Remover</Button>
                 </div>
               ) : (
-                <label className="block border-2 border-dashed border-gray-300 rounded-lg py-8 text-center cursor-pointer hover:border-emerald-500">
+                <label
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={handleDrop}
+                  onPaste={handlePaste}
+                  tabIndex={0}
+                  className={`block border-2 border-dashed rounded-lg py-8 text-center cursor-pointer outline-none transition-colors ${dragOver ? "border-emerald-600 bg-emerald-50" : "border-gray-300 hover:border-emerald-500"}`}
+                >
                   {uploading ? (
                     <Loader2 className="w-6 h-6 animate-spin text-gray-400 mx-auto" />
                   ) : (
                     <>
                       <ImageIcon className="w-6 h-6 text-gray-400 mx-auto mb-2" />
-                      <span className="text-sm text-gray-500">Clique para enviar</span>
+                      <span className="block text-sm text-gray-500">Clique, arraste ou cole a imagem</span>
+                      <span className="block text-[11px] text-gray-400 mt-1">Também aceita colar o link (Ctrl+V)</span>
                     </>
                   )}
                   <input type="file" accept="image/*" className="hidden"
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); }} />
                 </label>
               )}
+              <Input
+                placeholder="Ou cole o link da imagem (https://...)"
+                value={editing.image_url || ""}
+                onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
+              />
               <Input placeholder="Legenda da imagem"
                 value={editing.image_caption || ""}
                 onChange={(e) => setEditing({ ...editing, image_caption: e.target.value })} />
