@@ -71,6 +71,7 @@ const FootballNewsManager = () => {
   const [editing, setEditing] = useState<Partial<NewsRow> | null>(storedDraft?.editing ?? null);
   const [dateValue, setDateValue] = useState<string>(storedDraft?.dateValue ?? toLocalInput());
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   useEffect(() => {
     try {
