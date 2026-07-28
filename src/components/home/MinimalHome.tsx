@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, differenceInCalendarDays } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { ResponsiveContainer, LineChart, Line, YAxis } from "recharts";
 import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Heart } from "lucide-react";
 import jornadaLogo from "@/assets/logo-header-v3.png.asset.json";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
@@ -41,6 +43,15 @@ const REASON_GROUPS_BASE: { title: string; items: string[] }[] = [
 ];
 
 const GOOD_MOODS = ["muito_bem"];
+
+const MOOD_SCORES: Record<string, number> = {
+  muito_bem: 100,
+  mais_ou_menos: 75,
+  nao_legal: 50,
+  ansioso: 25,
+  irritado: 0,
+  otimo: 100, bem: 75, neutro: 50, mal: 0,
+};
 
 const getReasonGroups = (moodId: string | null) => {
   const isGood = moodId ? GOOD_MOODS.includes(moodId) : false;
