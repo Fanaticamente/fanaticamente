@@ -56,11 +56,12 @@ export const useModuleConfig = (moduleId: string) => {
     },
     initialData: cached?.data,
     initialDataUpdatedAt: cached?.updatedAt,
-    staleTime: 30 * 1000, // Consider stale after 30s so refetches happen often
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnWindowFocus: false, // Refetch when user returns to tab/app
-    refetchOnReconnect: true,
-    refetchOnMount: "always", // Always refetch on component mount
+    // Estabilidade no gerenciador: sem refetch automático ao voltar para a tela.
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
   });
 
   useEffect(() => {
@@ -85,7 +86,9 @@ export const useAllHomeModules = () => {
       if (error) throw error;
       return data as unknown as ModuleConfig[];
     },
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -103,6 +106,8 @@ export const useDesktopModuleConfig = (moduleId: string) => {
       if (error) throw error;
       return data as unknown as ModuleConfig;
     },
-    staleTime: 0, // Always fresh data for editing
+    staleTime: 5 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };

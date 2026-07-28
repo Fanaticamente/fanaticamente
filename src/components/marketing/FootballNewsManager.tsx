@@ -67,6 +67,10 @@ const FootballNewsManager = () => {
       if (error) throw error;
       return (data || []) as unknown as NewsRow[];
     },
+    staleTime: 5 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   const clubs = useMemo(
