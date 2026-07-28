@@ -63,6 +63,12 @@ const MarketingDashboard = () => {
     if (!loading && (!user || !allowed)) navigate("/admin-access");
   }, [user, allowed, loading, navigate]);
 
+  // Light, app-aligned theme for the whole content manager (incl. portals/dialogs)
+  useEffect(() => {
+    document.documentElement.classList.add("manager-theme");
+    return () => document.documentElement.classList.remove("manager-theme");
+  }, []);
+
   const handleNew = () => {
     setEditing({ ...empty, author_name: displayEmail.split("@")[0] || "" });
     setMode("edit");
