@@ -23,6 +23,18 @@ import { getDisplayAuthEmail } from "@/lib/appMode";
 
 type Mode = "list" | "edit";
 
+const MARKETING_SECTION_KEY = "fanatica_marketing_section";
+
+const getSavedSection = (): "news" | "carousel" | "futebol" => {
+  try {
+    const saved = sessionStorage.getItem(MARKETING_SECTION_KEY);
+    if (saved === "news" || saved === "carousel" || saved === "futebol") return saved;
+  } catch {
+    // Keep the default when storage is unavailable.
+  }
+  return "news";
+};
+
 const empty: Partial<HealthNewsItem> = {
   title: "",
   subtitle: "",
@@ -44,7 +56,7 @@ const MarketingDashboard = () => {
   const [editing, setEditing] = useState<Partial<HealthNewsItem> | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
-  const [section, setSection] = useState<"news" | "carousel" | "futebol">("news");
+  const [section, setSection] = useState<"news" | "carousel" | "futebol">(getSavedSection);
 
   const { data: items, isLoading } = useHealthNewsAdmin();
   const { data: modules } = useAppModules("home");
@@ -68,6 +80,14 @@ const MarketingDashboard = () => {
     document.documentElement.classList.add("manager-theme");
     return () => document.documentElement.classList.remove("manager-theme");
   }, []);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(MARKETING_SECTION_KEY, section);
+    } catch {
+      // Keep working when storage is unavailable.
+    }
+  }, [section]);
 
   const handleNew = () => {
     setEditing({ ...empty, author_name: displayEmail.split("@")[0] || "" });

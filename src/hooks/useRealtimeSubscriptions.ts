@@ -24,7 +24,8 @@ export const useRealtimeSubscriptions = () => {
   // Use reactive location.pathname instead of window.location
   const isManagerRoute = 
     location.pathname.startsWith("/developer") || 
-    location.pathname.startsWith("/desenvolvedor");
+    location.pathname.startsWith("/desenvolvedor") ||
+    location.pathname.startsWith("/marketing");
 
   const isAdminRoute = location.pathname.startsWith("/admin");
 
