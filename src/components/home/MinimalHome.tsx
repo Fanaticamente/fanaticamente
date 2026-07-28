@@ -299,7 +299,7 @@ const MinimalHome = () => {
                 <h2 className="font-sans text-lg font-bold normal-case leading-tight">
                   {MOODS.find((m) => m.id === todayEntry.emotion)?.label ?? "Registrado"}
                 </h2>
-                <p className="text-xs text-slate-500">Volte amanhã para um novo check-in.</p>
+                <p className="text-xs text-slate-500">Volte amanhã para uma nova rodada.</p>
               </div>
             </div>
             <div className="mt-3 h-[90px] text-[var(--club-600)]">
