@@ -6,10 +6,6 @@ import ModuleCatalog from "@/components/studio/ModuleCatalog";
 import MobilePreview from "@/components/studio/MobilePreview";
 import ModuleList from "@/components/studio/ModuleList";
 import ModuleEditor from "@/components/studio/ModuleEditor";
-import MenuEditor from "@/components/developer/MenuEditor";
-import ContentEditor from "@/components/developer/ContentEditor";
-import ImageManager from "@/components/developer/ImageManager";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Smartphone, Loader2, Monitor, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -150,32 +146,13 @@ const DeveloperDashboard = () => {
               onClose={() => setSelectedModule(null)}
             />
           ) : (
-            <Tabs defaultValue="estrutura" className="w-full">
-              <TabsList className="w-full grid grid-cols-4 rounded-none border-b border-border bg-card h-11">
-                <TabsTrigger value="estrutura" className="text-xs">Estrutura</TabsTrigger>
-                <TabsTrigger value="menus" className="text-xs">Menus</TabsTrigger>
-                <TabsTrigger value="conteudos" className="text-xs">Textos</TabsTrigger>
-                <TabsTrigger value="imagens" className="text-xs">Imagens</TabsTrigger>
-              </TabsList>
-              <TabsContent value="estrutura" className="m-0">
-                <ModuleList
-                  modules={modules || []}
-                  selectedModuleId={selectedModule?.id}
-                  onSelectModule={setSelectedModule}
-                  currentPage={currentPage}
-                  onPageChange={setCurrentPage}
-                />
-              </TabsContent>
-              <TabsContent value="menus" className="m-0 p-4">
-                <MenuEditor />
-              </TabsContent>
-              <TabsContent value="conteudos" className="m-0 p-4">
-                <ContentEditor />
-              </TabsContent>
-              <TabsContent value="imagens" className="m-0 p-4">
-                <ImageManager />
-              </TabsContent>
-            </Tabs>
+            <ModuleList
+              modules={modules || []}
+              selectedModuleId={selectedModule?.id}
+              onSelectModule={setSelectedModule}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
           )}
         </aside>
       </div>
