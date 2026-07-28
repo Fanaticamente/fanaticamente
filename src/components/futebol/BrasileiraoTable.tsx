@@ -24,15 +24,16 @@ const ClubIdentity = ({
   const { showBadges, mode, hidden } = useContext(BadgeCtx);
   const hiddenForClub = clubId ? hidden.includes(clubId) : false;
 
-  if (!showBadges || hiddenForClub) {
-    return (
-      <span className={`${size} shrink-0 flex items-center justify-center text-[10px] font-bold text-gray-500 uppercase`}>
-        {(abbr || name.slice(0, 3)).toUpperCase().slice(0, 3)}
-      </span>
-    );
-  }
+  const fallback = (
+    <span className={`${size} shrink-0 flex items-center justify-center text-[10px] font-bold text-gray-500 uppercase`}>
+      {(abbr || name.slice(0, 3)).toUpperCase().slice(0, 3)}
+    </span>
+  );
 
-  if (mode === "flag" && clubId) {
+  if (!showBadges || hiddenForClub) return fallback;
+
+  if (mode === "flag") {
+    if (!clubId) return fallback;
     return (
       <div className={`${size} shrink-0`}>
         <ClubMark clubId={clubId} mode="flag" />
