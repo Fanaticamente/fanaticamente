@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Play, CheckCircle2, Sparkles, GraduationCap, Trophy, BookOpen, Clock, ChevronRight } from "lucide-react";
+import { Play, CheckCircle2, Sparkles, GraduationCap, Trophy, BookOpen, Clock, ChevronRight } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import UserDesktopLayout from "@/components/layout/UserDesktopLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useRadio } from "@/contexts/RadioContext";
 import { useMyCoursesData } from "@/hooks/useMyCoursesData";
 import { useContinueWatching } from "@/hooks/useContinueWatching";
 import { useCourses } from "@/hooks/useCourses";
@@ -155,7 +154,6 @@ const DiscoverCard = ({
 
 const MeusCursos = () => {
   const isMobile = useIsMobile();
-  const { playingStation } = useRadio();
   const { data, isLoading } = useMyCoursesData();
   const { items: continueWatching } = useContinueWatching();
   const { data: allCourses } = useCourses();
