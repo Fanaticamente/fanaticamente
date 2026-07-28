@@ -18,6 +18,20 @@ type CachedModuleConfig = {
 
 const STORAGE_PREFIX = "lovable:module-config:";
 
+// Rotas de gerenciamento precisam de cache estável (sem refetch ao voltar).
+// Já o app do torcedor precisa sempre buscar a config mais recente ao montar,
+// senão as alterações salvas no gerenciador nunca aparecem para os usuários.
+const isManagerContext = (): boolean => {
+  if (typeof window === "undefined") return false;
+  const path = window.location.pathname;
+  return (
+    path.startsWith("/developer") ||
+    path.startsWith("/marketing") ||
+    path.startsWith("/admin") ||
+    path.startsWith("/desktop-content")
+  );
+};
+
 const readCached = (moduleId: string): CachedModuleConfig | null => {
   try {
     const raw = localStorage.getItem(`${STORAGE_PREFIX}${moduleId}`);
@@ -58,11 +72,11 @@ export const useModuleConfig = (moduleId: string) => {
     initialData: cached?.data,
     initialDataUpdatedAt: cached?.updatedAt,
     gcTime: 24 * 60 * 60 * 1000,
-    // Estabilidade no gerenciador: sem refetch automático ao voltar para a tela.
-    staleTime: 5 * 60 * 1000,
+    // Estabilidade no gerenciador; no app do torcedor, sempre revalidar ao montar.
+    staleTime: isManagerContext() ? 5 * 60 * 1000 : 0,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-    refetchOnMount: false,
+    refetchOnMount: isManagerContext() ? false : "always",
   });
 
   useEffect(() => {
