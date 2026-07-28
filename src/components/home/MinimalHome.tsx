@@ -6,6 +6,7 @@ import { format, subDays, differenceInCalendarDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ResponsiveContainer, LineChart, Line, YAxis } from "recharts";
 import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Heart } from "lucide-react";
+import { SpecialistIcon } from "@/components/icons/SpecialistIcon";
 import jornadaLogo from "@/assets/logo-header-v3.png.asset.json";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
 import icCurso from "@/assets/Untitled_design-18.png.asset.json";
@@ -606,14 +607,23 @@ const MinimalHome = () => {
           <div className="grid grid-cols-4 gap-2.5">
             {shortcuts.map((s) => {
               const Icon = s.icon;
+              const isSpecialist = Icon === SpecialistIcon;
               return (
                 <button
                   key={s.path}
                   onClick={() => navigate(s.path)}
                   className="rounded-2xl bg-white border border-slate-200/70 shadow-sm p-3 flex flex-col items-center gap-2 aspect-square justify-center"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-[var(--club-50)] flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-[var(--club-600)]" strokeWidth={1.8} />
+                  <div
+                    className={cn(
+                      "rounded-xl bg-[var(--club-50)] flex items-center justify-center",
+                      isSpecialist ? "w-11 h-11" : "w-10 h-10",
+                    )}
+                  >
+                    <Icon
+                      className={cn("text-[var(--club-600)]", isSpecialist ? "w-6 h-6" : "w-5 h-5")}
+                      strokeWidth={1.8}
+                    />
                   </div>
                   <span className="text-[11px] font-semibold text-slate-700 leading-tight text-center">{s.label}</span>
                 </button>
