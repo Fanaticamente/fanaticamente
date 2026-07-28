@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, differenceInCalendarDays } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { ResponsiveContainer, LineChart, Line, YAxis } from "recharts";
 import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Heart } from "lucide-react";
 import jornadaLogo from "@/assets/logo-header-v3.png.asset.json";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
@@ -41,6 +43,15 @@ const REASON_GROUPS_BASE: { title: string; items: string[] }[] = [
 ];
 
 const GOOD_MOODS = ["muito_bem"];
+
+const MOOD_SCORES: Record<string, number> = {
+  muito_bem: 100,
+  mais_ou_menos: 75,
+  nao_legal: 50,
+  ansioso: 25,
+  irritado: 0,
+  otimo: 100, bem: 75, neutro: 50, mal: 0,
+};
 
 const getReasonGroups = (moodId: string | null) => {
   const isGood = moodId ? GOOD_MOODS.includes(moodId) : false;
@@ -167,12 +178,30 @@ const MinimalHome = () => {
       const since = format(subDays(new Date(), 14), "yyyy-MM-dd");
       const { data } = await supabase
         .from("emotion_entries")
-        .select("entry_date")
+        .select("entry_date, emotion")
         .eq("user_id", user!.id)
         .gte("entry_date", since);
       return data ?? [];
     },
   });
+
+  const todayKey = format(new Date(), "yyyy-MM-dd");
+  const todayEntry = emotions.find((e: any) => e.entry_date === todayKey) as
+    | { entry_date: string; emotion: string }
+    | undefined;
+
+  const miniSeries = useMemo(() => {
+    return Array.from({ length: 7 }).map((_, i) => {
+      const d = subDays(new Date(), 6 - i);
+      const key = format(d, "yyyy-MM-dd");
+      const entry = emotions.find((e: any) => e.entry_date === key) as any;
+      return {
+        key,
+        label: format(d, "EEEEEE", { locale: ptBR }),
+        value: entry ? MOOD_SCORES[entry.emotion] ?? 50 : null,
+      };
+    });
+  }, [emotions]);
 
   const weekActivities = useMemo(
     () => emotions.filter((e) => differenceInCalendarDays(new Date(), new Date(e.entry_date)) < 7).length,
@@ -248,6 +277,55 @@ const MinimalHome = () => {
       {/* Check-in */}
       {isOn("home_checkin") && (
       <section className="mt-[19px] rounded-3xl bg-white border border-slate-200/70 shadow-sm p-5">
+        {todayEntry ? (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[var(--club-600)] text-xs font-semibold">
+                <HeartPulse className="w-4 h-4" />
+                Check-in de hoje registrado
+              </div>
+              <button
+                onClick={() => navigate("/bem-estar")}
+                className="flex items-center gap-0.5 text-xs font-semibold text-[var(--club-600)]"
+              >
+                Ver detalhes <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <div className="mt-2 flex items-center gap-3">
+              <span className="text-3xl leading-none" aria-hidden>
+                {MOODS.find((m) => m.id === todayEntry.emotion)?.emoji ?? "🙂"}
+              </span>
+              <div>
+                <h2 className="font-sans text-lg font-bold normal-case leading-tight">
+                  {MOODS.find((m) => m.id === todayEntry.emotion)?.label ?? "Registrado"}
+                </h2>
+                <p className="text-xs text-slate-500">Volte amanhã para um novo check-in.</p>
+              </div>
+            </div>
+            <div className="mt-3 h-[90px] text-[var(--club-600)]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={miniSeries} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
+                  <YAxis hide domain={[0, 100]} />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    dot={{ r: 3, fill: "currentColor", strokeWidth: 0 }}
+                    connectNulls
+                    isAnimationActive={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="grid grid-cols-7 text-[10px] text-slate-400 text-center">
+              {miniSeries.map((d) => (
+                <span key={d.key} className="capitalize">{d.label}</span>
+              ))}
+            </div>
+          </>
+        ) : (
+        <>
         <div className="flex items-center gap-2 text-[var(--club-600)] text-xs font-semibold">
           <HeartPulse className="w-4 h-4" />
           {(checkinCfg.kicker as string) || "Check-in emocional"}
@@ -280,6 +358,8 @@ const MinimalHome = () => {
             </button>
           ))}
         </div>
+        </>
+        )}
       </section>
       )}
 
