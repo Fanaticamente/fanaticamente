@@ -17,6 +17,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import NextMatchBar from "@/components/home/NextMatchBar";
+import { useAppModules } from "@/hooks/useAppModules";
+import { getMenuIcon } from "@/lib/menuIcons";
+
+type HomeCfg = Record<string, unknown>;
+type SuggestionItem = { image?: string; kicker?: string; title?: string; subtitle?: string; path?: string };
+type ShortcutItem = { icon?: string; label?: string; path?: string };
 const MOODS: { id: string; emoji: string; label: string }[] = [
   { id: "muito_bem",     emoji: "😄", label: "Muito bem" },
   { id: "mais_ou_menos", emoji: "🙂", label: "Mais ou menos" },
@@ -57,7 +63,37 @@ const MinimalHome = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const suggestions = SUGGESTIONS;
+  const { data: homeModules } = useAppModules("home");
+  const findModule = (id: string) => homeModules?.find((m) => m.module_id === id);
+  const isOn = (id: string) => {
+    const m = findModule(id);
+    return m ? m.is_visible : true;
+  };
+  const cfgOf = (id: string): HomeCfg => {
+    const c = findModule(id)?.config;
+    return c && typeof c === "object" ? (c as HomeCfg) : {};
+  };
+
+  const suggestionsCfg = (cfgOf("home_suggestions").items as SuggestionItem[] | undefined) || [];
+  const suggestions = suggestionsCfg.length
+    ? suggestionsCfg.map((item) => {
+        const fallback = SUGGESTIONS.find((s) => s.path === item.path);
+        return {
+          img: item.image || fallback?.img || icEspecialista.url,
+          kicker: item.kicker ?? "",
+          title: item.title ?? "",
+          subtitle: item.subtitle ?? "",
+          path: item.path || "/",
+        };
+      })
+    : SUGGESTIONS.map((s) => ({
+        img: s.img,
+        kicker: s.kicker,
+        title: Array.isArray(s.title) ? s.title.join(" ") : s.title,
+        subtitle: s.subtitle,
+        path: s.path,
+      }));
+  const suggestionsCount = suggestions.length;
   const [selected, setSelected] = useState<string | null>(null);
   const [reasonOpen, setReasonOpen] = useState(false);
   const [reasons, setReasons] = useState<string[]>([]);
@@ -68,10 +104,10 @@ const MinimalHome = () => {
 
   useEffect(() => {
     const t = setInterval(() => {
-      if (!pausedRef.current) setSugIdx((i) => (i + 1) % SUGGESTIONS.length);
+      if (!pausedRef.current) setSugIdx((i) => (i + 1) % Math.max(suggestionsCount, 1));
     }, 4500);
     return () => clearInterval(t);
-  }, []);
+  }, [suggestionsCount]);
 
   useEffect(() => {
     if (!reasonOpen) return;
