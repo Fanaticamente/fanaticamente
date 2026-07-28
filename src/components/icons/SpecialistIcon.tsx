@@ -7,14 +7,26 @@ interface Props {
   strokeWidth?: number;
 }
 
-/** Ícone oficial de "Terapeutas / Especialistas" usado em todos os menus do app. */
+/**
+ * Ícone oficial de "Terapeutas / Especialistas".
+ * Renderizado como máscara para herdar a cor atual (tema do clube ou padrão).
+ */
 export const SpecialistIcon = ({ className, size }: Props) => (
-  <img
-    src={icEspecialista.url}
-    alt=""
+  <span
     aria-hidden="true"
-    style={size ? { width: size, height: size } : undefined}
-    className={cn("object-contain shrink-0", className)}
+    className={cn("inline-block shrink-0 bg-current align-middle", className)}
+    style={{
+      width: size,
+      height: size,
+      WebkitMaskImage: `url(${icEspecialista.url})`,
+      maskImage: `url(${icEspecialista.url})`,
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat",
+      WebkitMaskPosition: "center",
+      maskPosition: "center",
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+    }}
   />
 );
 
