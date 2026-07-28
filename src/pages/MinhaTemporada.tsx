@@ -4,8 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import { format, subDays, differenceInCalendarDays, startOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
-  Heart, Flame, Trophy, GraduationCap, CalendarDays, Smile,
-  TrendingUp, ChevronRight, Sparkles,
+  Heart,
+  Flame,
+  Trophy,
+  GraduationCap,
+  CalendarDays,
+  Smile,
+  TrendingUp,
+  ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
@@ -16,15 +23,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 const MOODS = [
-  { id: "muito_bem",     emoji: "😄", label: "Muito bem",     score: 100 },
+  { id: "muito_bem", emoji: "😄", label: "Muito bem", score: 100 },
   { id: "mais_ou_menos", emoji: "🙂", label: "Mais ou menos", score: 75 },
-  { id: "nao_legal",     emoji: "😐", label: "Não estou legal", score: 50 },
-  { id: "ansioso",       emoji: "😟", label: "Ansioso",       score: 30 },
-  { id: "irritado",      emoji: "😠", label: "Irritado",      score: 15 },
+  { id: "nao_legal", emoji: "😐", label: "Não estou legal", score: 50 },
+  { id: "ansioso", emoji: "😟", label: "Ansioso", score: 30 },
+  { id: "irritado", emoji: "😠", label: "Irritado", score: 15 },
 ];
 
-const scoreOf = (emotion: string) =>
-  MOODS.find((m) => m.id === emotion)?.score ?? 50;
+const scoreOf = (emotion: string) => MOODS.find((m) => m.id === emotion)?.score ?? 50;
 
 const MinhaTemporada = () => {
   const isMobile = useIsMobile();
@@ -77,14 +83,13 @@ const MinhaTemporada = () => {
 
   const stats = useMemo(() => {
     const last7 = emotions.filter((e) => differenceInCalendarDays(new Date(), new Date(e.entry_date)) < 7);
-    const avgScore = last7.length
-      ? Math.round(last7.reduce((s, e) => s + scoreOf(e.emotion), 0) / last7.length)
-      : 0;
+    const avgScore = last7.length ? Math.round(last7.reduce((s, e) => s + scoreOf(e.emotion), 0) / last7.length) : 0;
     // Emoji do mood mais próximo do avgScore
     const avgEmoji = last7.length
-      ? MOODS.reduce((closest, m) =>
-          Math.abs(m.score - avgScore) < Math.abs(closest.score - avgScore) ? m : closest,
-        MOODS[0]).emoji
+      ? MOODS.reduce(
+          (closest, m) => (Math.abs(m.score - avgScore) < Math.abs(closest.score - avgScore) ? m : closest),
+          MOODS[0],
+        ).emoji
       : "";
 
     const days = new Set(emotions.map((e) => e.entry_date));
@@ -106,7 +111,17 @@ const MinhaTemporada = () => {
     // Pontuação: 3pts por sessão concluída, 1pt por check-in, 1pt por curso
     const points = sessionsDone * 3 + checkinsCount + coursesCount;
 
-    return { avgScore, avgEmoji, streak, monthCheckins, sessionsDone, sessionsUpcoming, coursesCount, checkinsCount, points };
+    return {
+      avgScore,
+      avgEmoji,
+      streak,
+      monthCheckins,
+      sessionsDone,
+      sessionsUpcoming,
+      coursesCount,
+      checkinsCount,
+      points,
+    };
   }, [emotions, appointments, courses]);
 
   const timeline = useMemo(() => {
@@ -114,11 +129,13 @@ const MinhaTemporada = () => {
     const items: Item[] = [];
     if (emotions[0]) {
       const mood = MOODS.find((m) => m.id === emotions[0].emotion);
-      const dLabel = emotions[0].entry_date === format(new Date(), "yyyy-MM-dd")
-        ? "Hoje"
-        : format(new Date(emotions[0].entry_date), "dd 'de' MMM", { locale: ptBR });
+      const dLabel =
+        emotions[0].entry_date === format(new Date(), "yyyy-MM-dd")
+          ? "Hoje"
+          : format(new Date(emotions[0].entry_date), "dd 'de' MMM", { locale: ptBR });
       items.push({
-        icon: Smile, when: dLabel,
+        icon: Smile,
+        when: dLabel,
         title: `Check-in: ${mood?.label ?? emotions[0].emotion}`,
         body: "Continue acompanhando suas emoções.",
         onClick: () => navigate("/bem-estar"),
@@ -129,7 +146,8 @@ const MinhaTemporada = () => {
       items.push({
         icon: GraduationCap,
         when: format(new Date((courses[0] as any).created_at), "dd 'de' MMM", { locale: ptBR }),
-        title, body: "Continue seus estudos na FanatiClass.",
+        title,
+        body: "Continue seus estudos na FanatiClass.",
         onClick: () => navigate("/meus-cursos"),
       });
     }
@@ -163,19 +181,30 @@ const MinhaTemporada = () => {
           <span className="text-4xl font-extrabold leading-none">{stats.points}</span>
           <span className="text-sm opacity-80 pb-1">pontos acumulados</span>
         </div>
-        <p className="text-xs opacity-80 mt-2">
-          3 pts por sessão · 1 pt por check-in · 1 pt por curso
-        </p>
+        <p className="text-xs opacity-80 mt-2">3 pts por sessão · 1 pt por check-in · 1 pt por curso</p>
       </section>
 
       {/* Métricas */}
       <section className="grid grid-cols-2 gap-3">
         <MetricCard icon={<Heart className="w-4 h-4" />} label="Humor médio (7d)" value={stats.avgEmoji || "—"} />
-        <MetricCard icon={<Flame className="w-4 h-4" />} label="Sequência" value={`${stats.streak} dia${stats.streak === 1 ? "" : "s"}`} />
+        <MetricCard
+          icon={<Flame className="w-4 h-4" />}
+          label="Sequência"
+          value={`${stats.streak} dia${stats.streak === 1 ? "" : "s"}`}
+        />
         <MetricCard icon={<Smile className="w-4 h-4" />} label="Check-ins no mês" value={`${stats.monthCheckins}`} />
-        <MetricCard icon={<CalendarDays className="w-4 h-4" />} label="Sessões concluídas" value={`${stats.sessionsDone}`} hint={stats.sessionsUpcoming ? `${stats.sessionsUpcoming} agendadas` : undefined} />
+        <MetricCard
+          icon={<CalendarDays className="w-4 h-4" />}
+          label="Sessões concluídas"
+          value={`${stats.sessionsDone}`}
+          hint={stats.sessionsUpcoming ? `${stats.sessionsUpcoming} agendadas` : undefined}
+        />
         <MetricCard icon={<GraduationCap className="w-4 h-4" />} label="Cursos" value={`${stats.coursesCount}`} />
-        <MetricCard icon={<TrendingUp className="w-4 h-4" />} label="Check-ins totais" value={`${stats.checkinsCount}`} />
+        <MetricCard
+          icon={<TrendingUp className="w-4 h-4" />}
+          label="Check-ins totais"
+          value={`${stats.checkinsCount}`}
+        />
       </section>
 
       {/* Atividades */}
@@ -194,11 +223,7 @@ const MinhaTemporada = () => {
             {timeline.map((it, i) => {
               const Icon = it.icon;
               return (
-                <button
-                  key={i}
-                  onClick={it.onClick}
-                  className="w-full text-left flex items-start gap-3"
-                >
+                <button key={i} onClick={it.onClick} className="w-full text-left flex items-start gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-[var(--club-50)] flex items-center justify-center shrink-0">
                     <Icon className="w-5 h-5 text-[var(--club-600)]" />
                   </div>
@@ -217,8 +242,16 @@ const MinhaTemporada = () => {
 
       {/* Atalhos */}
       <section className="grid grid-cols-1 gap-3">
-        <ShortcutButton onClick={() => navigate("/meus-agendamentos")} icon={<CalendarDays className="w-4 h-4" />} label="Meus agendamentos" />
-        <ShortcutButton onClick={() => navigate("/meus-cursos")} icon={<GraduationCap className="w-4 h-4" />} label="Meus cursos" />
+        <ShortcutButton
+          onClick={() => navigate("/meus-agendamentos")}
+          icon={<CalendarDays className="w-4 h-4" />}
+          label="Meus agendamentos"
+        />
+        <ShortcutButton
+          onClick={() => navigate("/meus-cursos")}
+          icon={<GraduationCap className="w-4 h-4" />}
+          label="Meus cursos"
+        />
       </section>
 
       {/* Insight */}
@@ -231,15 +264,15 @@ const MinhaTemporada = () => {
             {stats.streak >= 3
               ? `Temporada em ritmo forte: ${stats.streak} dias seguidos`
               : stats.points > 0
-              ? "Sua temporada está em andamento"
-              : "Sua temporada começa agora"}
+                ? "Sua temporada está em andamento"
+                : "Sua temporada começa agora"}
           </p>
           <p className="text-xs text-slate-600 mt-1">
             {stats.streak >= 3
-              ? `Você já soma ${stats.points} pontos na plataforma. Mantenha a sequência para subir no ranking.`
+              ? `Você já soma ${stats.points} pontos na plataforma. Mantenha a sequência!`
               : stats.points > 0
-              ? `${stats.points} pontos conquistados até aqui. Use o app todos os dias para somar mais e avançar na classificação.`
-              : "Participe das atividades do app para somar pontos e disputar posição no ranking da comunidade."}
+                ? `${stats.points} pontos conquistados até aqui. Use o app todos os dias para somar mais e avançar na classificação.`
+                : "Participe das atividades do app para somar pontos e disputar posição no ranking da comunidade."}
           </p>
         </div>
       </section>
@@ -265,7 +298,17 @@ const MinhaTemporada = () => {
   );
 };
 
-const MetricCard = ({ icon, label, value, hint }: { icon: React.ReactNode; label: string; value: string; hint?: string }) => (
+const MetricCard = ({
+  icon,
+  label,
+  value,
+  hint,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  hint?: string;
+}) => (
   <div className="rounded-2xl bg-white border border-slate-200/70 shadow-sm p-4">
     <div className="flex items-center gap-1.5 text-[var(--club-600)]">
       {icon}
