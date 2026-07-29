@@ -39,7 +39,10 @@ const EXCLUDED_FROM_RESTORE = [
 ];
 
 // Prefixos de rotas que devem ser excluídos da restauração automática
-const EXCLUDED_PREFIXES_FROM_RESTORE = ["/curso/"];
+// /terapeuta/:id e /agendar/:id são rotas de navegação explícita: restaurá-las
+// automaticamente após um guard ter redirecionado o usuário criava um ciclo de
+// entra-e-sai entre a listagem e o perfil do profissional.
+const EXCLUDED_PREFIXES_FROM_RESTORE = ["/curso/", "/terapeuta/", "/agendar/"];
 
 const isPublicRoute = (path: string) =>
   PUBLIC_ROUTES.some((route) => path.startsWith(route));
