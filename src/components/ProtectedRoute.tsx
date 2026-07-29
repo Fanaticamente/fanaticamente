@@ -140,13 +140,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
  */
 export const DynamicProtectedRoute = ({ children, pageId }: ProtectedRouteProps & { pageId?: string }) => {
   const { data: pages, isLoading: pagesLoading } = useAppPages("all");
-  const { user, hasRole, loading: authLoading } = useAuth();
-  const location = useLocation();
-
-  // Enquanto sessão/roles ainda carregam, `hasRole` é sempre false e as decisões
-  // abaixo seriam tomadas com dados incompletos — o que provocava redirecionar
-  // (e voltar) assim que as roles chegavam. Nesse caso apenas renderizamos.
-  const rolesKnown = !authLoading;
+  useAuth();
 
   // Profissionais também podem usar as rotas torcedor como pacientes; não
   // redirecionamos automaticamente para /profissional para evitar loops.
