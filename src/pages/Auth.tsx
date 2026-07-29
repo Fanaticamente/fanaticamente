@@ -195,7 +195,9 @@ const Auth = () => {
         try {
           const raw = sessionStorage.getItem("pendingProfileUpdate") || localStorage.getItem("pendingProfileUpdate");
           if (raw) pendingIsProfessional = !!JSON.parse(raw)?.is_professional;
-        } catch {}
+        } catch {
+          pendingIsProfessional = false;
+        }
         if (authMode === "professional" || pendingIsProfessional) {
           navigate("/profissional");
         } else {
