@@ -90,7 +90,10 @@ const ProfessionalProfile = () => {
         
         if (profError || !profData) {
           console.error('Erro ao buscar profissional:', profError);
-          navigate(-1);
+          // navigate(-1) podia devolver o usuário para a mesma origem que o
+          // trouxe até aqui, criando um vai-e-vem infinito. Voltamos sempre
+          // para a listagem, substituindo a entrada no histórico.
+          navigate('/terapeutas', { replace: true });
           return;
         }
         
