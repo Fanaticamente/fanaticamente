@@ -294,15 +294,14 @@ const BrasileiraoTable = () => {
   const cfg = (mod?.config as any) || {};
   const pageCfg = (pageMod?.config as any) || {};
 
-  // Os toggles de escudos/bandeirinhas ficam no módulo da página "Futebol";
-  // o módulo da tabela pode sobrescrever se tiver as chaves definidas.
-  const pick = (key: string) =>
-    cfg[key] !== undefined ? cfg[key] : pageCfg[key];
+  // Os toggles de escudos/bandeirinhas são controlados no módulo da página
+  // "Futebol" (gerenciador mobile). O módulo da tabela só guarda as ligas.
+  const badgeCfg = Object.keys(pageCfg).length ? pageCfg : cfg;
 
   const settings: BadgeSettings = {
-    showBadges: pick("show_badges") !== false,
-    mode: (pick("club_display_mode") as ClubDisplayMode) || "badge",
-    hidden: (pick("hidden_badges") as string[]) || [],
+    showBadges: badgeCfg.show_badges !== false,
+    mode: (badgeCfg.club_display_mode as ClubDisplayMode) || "badge",
+    hidden: (badgeCfg.hidden_badges as string[]) || [],
   };
 
   const leagues: { key: LeagueKey; visible?: boolean }[] =
