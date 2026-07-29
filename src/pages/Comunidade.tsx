@@ -146,6 +146,20 @@ const Comunidade = () => {
   });
 
   const clubPoints: Record<string, number> = {};
+  const { data: myAvatar } = useQuery({
+    queryKey: ["my-avatar", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      return data?.avatar_url ?? null;
+    },
+    staleTime: 0,
+  });
+
   clubRanking.forEach((c) => { clubPoints[c.favorite_club_id] = c.points; });
 
   const fanRanking: FanRankEntry[] = fanRankingRaw.map((f, i) => ({
