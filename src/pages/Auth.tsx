@@ -117,13 +117,13 @@ const PROFESSIONAL_APP_PATHS = [
   "/conecta",
 ];
 
-const getSafeFanReturnPath = (state: unknown): string | null => {
-  const from = (state as { from?: { pathname?: string; search?: string } } | null)?.from;
+const getSafeFanReturnTarget = (state: unknown): { path: string; state?: unknown } | null => {
+  const from = (state as { from?: { pathname?: string; search?: string; state?: unknown } } | null)?.from;
   if (!from?.pathname) return null;
   const path = `${from.pathname}${from.search ?? ""}`;
   if (from.pathname.startsWith("/auth") || from.pathname.startsWith("/profissional/auth")) return null;
   if (PROFESSIONAL_APP_PATHS.some((route) => from.pathname === route || from.pathname.startsWith(`${route}/`))) return null;
-  return path;
+  return { path, state: from.state };
 };
 
 const Auth = () => {
@@ -178,16 +178,24 @@ const Auth = () => {
   useEffect(() => {
     // Only redirect if role has been validated AND roles are loaded
     if (user && roleValidated && !loading) {
-      const safeFanReturnPath = getSafeFanReturnPath(location.state);
+      const safeFanReturn = getSafeFanReturnTarget(location.state);
+      const navigateAfterAuth = (path: string, state?: unknown) => {
+        navigate(path, { replace: true, state });
+      };
+
       if (hasRole("admin")) {
-        navigate("/admin");
+        navigateAfterAuth("/admin");
       } else if (hasRole("developer")) {
-        navigate("/desenvolvedor");
+        navigateAfterAuth("/desenvolvedor");
       } else if (hasRole("professional")) {
         // Profissionais também podem usar o app torcedor como pacientes.
         // Se o login foi exigido por uma rota torcedor (ex.: /agendar/:id),
         // volta para ela em vez de jogar ao painel profissional e criar ping-pong.
-        navigate(authMode === "professional" ? "/profissional" : (safeFanReturnPath ?? "/"));
+        if (safeFanReturn) {
+          navigateAfterAuth(safeFanReturn.path, safeFanReturn.state);
+        } else {
+          navigateAfterAuth(authMode === "professional" ? "/profissional" : "/");
+        }
       } else {
         // Fresh professional signup: role is being assigned async by edge function.
         // Route to professional dashboard so the onboarding wizard kicks in.
@@ -199,9 +207,9 @@ const Auth = () => {
           pendingIsProfessional = false;
         }
         if (authMode === "professional" || pendingIsProfessional) {
-          navigate("/profissional");
+          navigateAfterAuth("/profissional");
         } else {
-          navigate(safeFanReturnPath ?? "/");
+          navigateAfterAuth(safeFanReturn?.path ?? "/", safeFanReturn?.state);
         }
       }
     }

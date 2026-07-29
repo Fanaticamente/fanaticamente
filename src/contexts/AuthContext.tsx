@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useRef, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, useCallback, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { clearUserVideoProgress } from "@/hooks/useVideoProgress";
@@ -521,7 +521,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
 
-  const hasRole = (role: AppRole) => roles.includes(role);
+  const hasRole = useCallback((role: AppRole) => roles.includes(role), [roles]);
 
   return (
     <AuthContext.Provider
