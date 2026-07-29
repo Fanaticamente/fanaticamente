@@ -28,7 +28,7 @@ const isProfessionalRoute = (pathname: string): boolean => {
 const FAN_ONLY_ROUTES = [
   "/", "/futebol", "/quiz", "/radio", "/ranking", "/loja", "/zona-mista",
   "/setor-saude", "/diario", "/fanaticaze-tv", "/osmf", "/terapeutas",
-  "/terapeuta", "/cursos", "/curso", "/perfil", "/meus-agendamentos",
+  "/terapeuta", "/agendar", "/cursos", "/curso", "/perfil", "/meus-agendamentos",
   "/pagamentos", "/configuracoes", "/notificacoes", "/pagamento",
 ];
 
