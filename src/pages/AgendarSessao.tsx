@@ -7,6 +7,32 @@ import { supabase } from "@/integrations/supabase/client";
 import { getClubById } from "@/data/brazilianClubs";
 import { clubNicknames } from "@/data/clubNicknames";
 
+const THERAPISTS_SELECTED_CLUB_KEY = "fanatica_therapists_selected_club";
+const THERAPIST_CLUB_PREFIX = "fanatica_therapist_club:";
+
+const readStoredClubId = (professionalId?: string) => {
+  if (typeof window === "undefined") return undefined;
+  try {
+    if (professionalId) {
+      const mapped = sessionStorage.getItem(`${THERAPIST_CLUB_PREFIX}${professionalId}`);
+      if (mapped) return mapped;
+    }
+    return sessionStorage.getItem(THERAPISTS_SELECTED_CLUB_KEY) || undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const rememberClubId = (professionalId: string | undefined, nextClubId: string | undefined) => {
+  if (!professionalId || !nextClubId || typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(THERAPISTS_SELECTED_CLUB_KEY, nextClubId);
+    sessionStorage.setItem(`${THERAPIST_CLUB_PREFIX}${professionalId}`, nextClubId);
+  } catch {
+    // ignore storage failures
+  }
+};
+
 interface TherapistData {
   id: string;
   name: string;
@@ -38,8 +64,18 @@ const AgendarSessao = () => {
   const [clubColor, setClubColor] = useState<string>(initial.clubColor ?? "#10b981");
   const [clubName, setClubName] = useState<string | undefined>(initial.clubName);
   const [clubNickname, setClubNickname] = useState<string | undefined>(initial.clubNickname);
-  const [clubId, setClubId] = useState<string | undefined>(initial.clubId ?? searchParams.get("clubId") ?? undefined);
+  const [clubId, setClubId] = useState<string | undefined>(
+    initial.clubId ??
+      searchParams.get("clubId") ??
+      searchParams.get("clube") ??
+      readStoredClubId(id) ??
+      undefined
+  );
   const [loading, setLoading] = useState(!initial.therapist);
+
+  useEffect(() => {
+    rememberClubId(id, clubId);
+  }, [id, clubId]);
 
   useEffect(() => {
     if (!id) return;
@@ -72,7 +108,8 @@ const AgendarSessao = () => {
             setClubColor(club.primaryColor);
             setClubName(club.name);
             setClubNickname(clubNicknames[club.id]);
-            setClubId(club.id);
+            setClubId((current) => current ?? club.id);
+            rememberClubId(id, club.id);
           }
         }
       }
@@ -106,7 +143,8 @@ const AgendarSessao = () => {
         open
         onOpenChange={(o) => {
           if (!o) {
-            if (clubId) navigate(`/terapeutas?clube=${clubId}`, { replace: true, state: { clubId } });
+            const returnClubId = clubId ?? readStoredClubId(id);
+            if (returnClubId) navigate(`/terapeutas?clube=${returnClubId}`, { replace: true, state: { clubId: returnClubId } });
             else navigate("/terapeutas", { replace: true });
           }
         }}
