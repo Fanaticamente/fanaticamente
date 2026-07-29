@@ -141,6 +141,7 @@ const Perfil = () => {
       setShowCameraOverlay(false);
       // Propaga a nova foto para todos os lugares que exibem avatares
       queryClient.invalidateQueries({ queryKey: ["fan-ranking"] });
+      queryClient.invalidateQueries({ queryKey: ["my-avatar"] });
       queryClient.invalidateQueries({ queryKey: ["club-ranking"] });
       try { window.dispatchEvent(new CustomEvent("profile-avatar-updated", { detail: { url: publicUrl } })); } catch {}
       toast.success("Foto atualizada!");
