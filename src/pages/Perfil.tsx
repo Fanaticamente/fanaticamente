@@ -11,6 +11,7 @@ import { getClubById, BrazilianClub } from "@/data/brazilianClubs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getDisplayAuthEmail } from "@/lib/appMode";
 import { uploadProfessionalFile } from "@/lib/professionalUploads";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Perfil = () => {
   const { user, roles, signOut, hasRole, loading } = useAuth();
