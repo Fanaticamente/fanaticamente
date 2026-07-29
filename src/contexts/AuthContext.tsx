@@ -433,7 +433,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .from("user_roles")
         .select("role")
         .eq("user_id", userId);
-      const roles = (data ?? []).map((r: any) => r.role as string);
+      const roles = (data ?? []).map((r: { role: string }) => r.role);
       if (roles.includes("admin") || roles.includes("developer")) return true;
       return type === "pro" ? roles.includes("professional") : true;
     };
