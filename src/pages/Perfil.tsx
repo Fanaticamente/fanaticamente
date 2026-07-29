@@ -32,13 +32,23 @@ const Perfil = () => {
     overlayTimerRef.current = window.setTimeout(() => setShowCameraOverlay(false), 3500);
   };
 
+  const openFilePicker = () => {
+    // Cancel the auto-hide timer: letting it fire while the native picker is
+    // open re-renders the tree and can drop the pending change event.
+    if (overlayTimerRef.current) {
+      window.clearTimeout(overlayTimerRef.current);
+      overlayTimerRef.current = null;
+    }
+    fileInputRef.current?.click();
+  };
+
   const handleAvatarClick = () => {
     if (!profile?.avatar_url) {
-      fileInputRef.current?.click();
+      openFilePicker();
       return;
     }
     if (showCameraOverlay) {
-      fileInputRef.current?.click();
+      openFilePicker();
     } else {
       revealCameraTemporarily();
     }
@@ -212,7 +222,7 @@ const Perfil = () => {
   }
 
   // Profile Content Component (shared between layouts)
-  const ProfileContent = () => (
+  const profileContent = (
     <>
       {/* Profile Header */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-6">
@@ -389,7 +399,7 @@ const Perfil = () => {
       <div className="min-h-screen bg-white">
         <Header title="Perfil" hideSearch />
         <main className="pt-20 px-4">
-          <ProfileContent />
+          {profileContent}
           {/* Spacer para manter distância do BottomNav */}
           <div aria-hidden className="h-28" />
         </main>
@@ -401,7 +411,7 @@ const Perfil = () => {
   // Desktop Layout
   return (
     <UserDesktopLayout title="Meu Perfil" subtitle="Gerencie suas informações e preferências">
-      <ProfileContent />
+      {profileContent}
     </UserDesktopLayout>
   );
 };
