@@ -52,7 +52,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const sessionIsCompatibleWithApp = (nextRoles: AppRole[]) => {
     const hasSupportAccess = nextRoles.includes("admin") || nextRoles.includes("developer");
     if (hasSupportAccess) return true;
-    if (isFanApp) return !nextRoles.includes("professional");
+    // Profissionais também podem usar o app torcedor como pacientes/torcedores.
+    // Bloquear a sessão aqui criava ping-pong ao abrir terapeutas/agendamento
+    // em contas legadas que possuem cadastro no FanaticaWork.
+    if (isFanApp) return true;
     if (isProfessionalApp) return nextRoles.includes("professional") || hasPendingProfessionalSignup();
     return true;
   };
@@ -422,8 +425,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     // Retorna true se a sessão recém-criada é COMPATÍVEL com este app.
-      // - App/contexto torcedor: usuário NÃO pode ter role 'professional'
-      // - App/contexto profissional: usuário PRECISA ter role 'professional'
+    // - App/contexto torcedor: aceita também profissional (uso como torcedor/paciente)
+    // - App/contexto profissional: usuário PRECISA ter role 'professional'
     // (admin/developer sempre passam para preservar acesso de suporte)
     const sessionMatchesAccountType = async (userId: string): Promise<boolean> => {
       const { data } = await supabase
@@ -432,7 +435,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq("user_id", userId);
       const roles = (data ?? []).map((r: any) => r.role as string);
       if (roles.includes("admin") || roles.includes("developer")) return true;
-      return type === "pro" ? roles.includes("professional") : !roles.includes("professional");
+      return type === "pro" ? roles.includes("professional") : true;
     };
 
     try {
