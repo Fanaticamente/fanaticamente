@@ -45,11 +45,15 @@ const EXCLUDED_FROM_RESTORE = [
 const EXCLUDED_PREFIXES_FROM_RESTORE = ["/curso/", "/terapeuta/", "/agendar/"];
 
 const isPublicRoute = (path: string) =>
-  PUBLIC_ROUTES.some((route) => path.startsWith(route));
+  PUBLIC_ROUTES.some((route) => path.split(/[?#]/)[0].startsWith(route));
 
-const isExcludedFromRestore = (path: string) =>
-  EXCLUDED_FROM_RESTORE.includes(path) ||
-  EXCLUDED_PREFIXES_FROM_RESTORE.some((prefix) => path.startsWith(prefix));
+const isExcludedFromRestore = (path: string) => {
+  const pathname = path.split(/[?#]/)[0];
+  return (
+    EXCLUDED_FROM_RESTORE.includes(pathname) ||
+    EXCLUDED_PREFIXES_FROM_RESTORE.some((prefix) => pathname.startsWith(prefix))
+  );
+};
 
 // Salva o campo focado no localStorage
 const saveFocusedField = () => {
