@@ -151,7 +151,7 @@ const Comunidade = () => {
   const fanRanking: FanRankEntry[] = fanRankingRaw.map((f, i) => ({
     id: f.user_id,
     name: formatFanName(f.full_name),
-    avatar: f.avatar_url,
+    avatar: user?.id === f.user_id ? (myAvatar ?? f.avatar_url) : f.avatar_url,
     points: f.points,
     rank: i + 1,
     isMe: user?.id === f.user_id,
