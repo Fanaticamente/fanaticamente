@@ -106,7 +106,7 @@ const AgendarSessao = () => {
         onOpenChange={(o) => {
           if (!o) {
             if (clubId) navigate("/terapeutas", { state: { clubId } });
-            else navigate(-1);
+            else navigate("/terapeutas", { replace: true });
           }
         }}
         asPage
