@@ -110,6 +110,22 @@ const sortedClubs = [...allBrazilianClubs].sort((a, b) =>
   a.name.localeCompare(b.name, 'pt-BR')
 );
 
+const PROFESSIONAL_APP_PATHS = [
+  "/profissional",
+  "/fanatica-lab",
+  "/psi-house",
+  "/conecta",
+];
+
+const getSafeFanReturnPath = (state: unknown): string | null => {
+  const from = (state as { from?: { pathname?: string; search?: string } } | null)?.from;
+  if (!from?.pathname) return null;
+  const path = `${from.pathname}${from.search ?? ""}`;
+  if (from.pathname.startsWith("/auth") || from.pathname.startsWith("/profissional/auth")) return null;
+  if (PROFESSIONAL_APP_PATHS.some((route) => from.pathname === route || from.pathname.startsWith(`${route}/`))) return null;
+  return path;
+};
+
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
@@ -162,15 +178,16 @@ const Auth = () => {
   useEffect(() => {
     // Only redirect if role has been validated AND roles are loaded
     if (user && roleValidated && !loading) {
+      const safeFanReturnPath = getSafeFanReturnPath(location.state);
       if (hasRole("admin")) {
         navigate("/admin");
       } else if (hasRole("developer")) {
         navigate("/desenvolvedor");
       } else if (hasRole("professional")) {
-        // Profissional SEMPRE entra no painel profissional após login,
-        // independente da rota usada (/auth ou /profissional/auth).
-        // Trocar para o modo torcedor deve ser uma ação explícita do usuário.
-        navigate("/profissional");
+        // Profissionais também podem usar o app torcedor como pacientes.
+        // Se o login foi exigido por uma rota torcedor (ex.: /agendar/:id),
+        // volta para ela em vez de jogar ao painel profissional e criar ping-pong.
+        navigate(authMode === "professional" ? "/profissional" : (safeFanReturnPath ?? "/"));
       } else {
         // Fresh professional signup: role is being assigned async by edge function.
         // Route to professional dashboard so the onboarding wizard kicks in.
@@ -182,11 +199,11 @@ const Auth = () => {
         if (authMode === "professional" || pendingIsProfessional) {
           navigate("/profissional");
         } else {
-          navigate("/");
+          navigate(safeFanReturnPath ?? "/");
         }
       }
     }
-  }, [user, hasRole, navigate, roleValidated, loading]);
+  }, [user, hasRole, navigate, roleValidated, loading, authMode, location.state]);
 
   // Enforce correct login mode AFTER roles are loaded (prevents false logout)
   useEffect(() => {
