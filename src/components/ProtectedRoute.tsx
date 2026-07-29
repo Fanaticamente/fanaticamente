@@ -39,6 +39,32 @@ const isFanOnlyRoute = (pathname: string): boolean => {
   );
 };
 
+// ---------------------------------------------------------------------------
+// Loop breaker
+//
+// Contas legadas que possuem role "professional" E navegam no ambiente torcedor
+// entravam em ping-pong entre rotas (/terapeutas ↔ /terapeuta/:id ↔ /profissional):
+// o guard redirecionava, o destino devolvia o usuário, e o ciclo se repetia
+// indefinidamente. Aqui limitamos a quantidade de redirecionamentos automáticos
+// numa janela curta de tempo; ao estourar o limite, deixamos a tela renderizar
+// em vez de continuar redirecionando.
+// ---------------------------------------------------------------------------
+const BOUNCE_WINDOW_MS = 5000;
+const MAX_BOUNCES = 4;
+let bounceTimestamps: number[] = [];
+
+const canBounce = (): boolean => {
+  const now = Date.now();
+  bounceTimestamps = bounceTimestamps.filter((t) => now - t < BOUNCE_WINDOW_MS);
+  if (bounceTimestamps.length >= MAX_BOUNCES) return false;
+  bounceTimestamps.push(now);
+  return true;
+};
+
+// Evita o caso trivial de redirecionar para a própria rota atual.
+const redirectTo = (target: string, current: string): boolean =>
+  target !== current && canBounce();
+
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading, hasRole } = useAuth();
   const location = useLocation();
@@ -83,22 +109,32 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     if (!hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
       return <Navigate to="/auth" replace />;
     }
-    if (isFanOnlyRoute(location.pathname)) {
+    if (isFanOnlyRoute(location.pathname) && redirectTo("/profissional", location.pathname)) {
       return <Navigate to="/profissional" replace />;
     }
   } else if (isFanApp) {
     if (hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
       return <Navigate to="/auth" replace />;
     }
-    if (isProfessionalRoute(location.pathname)) {
+    if (isProfessionalRoute(location.pathname) && redirectTo("/", location.pathname)) {
       return <Navigate to="/" replace />;
     }
   } else {
     // Web unificado
-    if (hasRole("professional") && isFanOnlyRoute(location.pathname)) {
+    if (
+      hasRole("professional") &&
+      isFanOnlyRoute(location.pathname) &&
+      redirectTo("/profissional", location.pathname)
+    ) {
       return <Navigate to="/profissional" replace />;
     }
-    if (isProfessionalRoute(location.pathname) && !hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
+    if (
+      isProfessionalRoute(location.pathname) &&
+      !hasRole("professional") &&
+      !hasRole("admin") &&
+      !hasRole("developer") &&
+      redirectTo("/", location.pathname)
+    ) {
       return <Navigate to="/" replace />;
     }
   }
@@ -115,15 +151,28 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
  */
 export const DynamicProtectedRoute = ({ children, pageId }: ProtectedRouteProps & { pageId?: string }) => {
   const { data: pages, isLoading: pagesLoading } = useAppPages("all");
-  const { user, hasRole } = useAuth();
+  const { user, hasRole, loading: authLoading } = useAuth();
   const location = useLocation();
+
+  // Enquanto sessão/roles ainda carregam, `hasRole` é sempre false e as decisões
+  // abaixo seriam tomadas com dados incompletos — o que provocava redirecionar
+  // (e voltar) assim que as roles chegavam. Nesse caso apenas renderizamos.
+  const rolesKnown = !authLoading;
 
   // GUARD GLOBAL: profissionais não podem permanecer em rota torcedor no web unificado
   // nem no app torcedor; no app profissional, rotas torcedor não existem.
-  if (isFanApp && user && hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
+  if (isFanApp && rolesKnown && user && hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
     return <Navigate to="/auth" replace />;
   }
-  if (!isFanApp && !isProfessionalApp && user && hasRole("professional") && isFanOnlyRoute(location.pathname)) {
+  if (
+    !isFanApp &&
+    !isProfessionalApp &&
+    rolesKnown &&
+    user &&
+    hasRole("professional") &&
+    isFanOnlyRoute(location.pathname) &&
+    redirectTo("/profissional", location.pathname)
+  ) {
     return <Navigate to="/profissional" replace />;
   }
   if (isProfessionalApp) {
