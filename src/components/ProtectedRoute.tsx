@@ -23,8 +23,8 @@ const isProfessionalRoute = (pathname: string): boolean => {
   );
 };
 
-// Rotas onde profissional logado NÃO deve permanecer (são exclusivas do ambiente torcedor).
-// Rotas administrativas/de suporte ficam fora dessa lista.
+// Rotas torcedor. No app profissional, elas devem voltar ao painel profissional.
+// No app torcedor/web, profissionais também podem navegar aqui como torcedores.
 const FAN_ONLY_ROUTES = [
   "/", "/futebol", "/quiz", "/radio", "/ranking", "/loja", "/zona-mista",
   "/setor-saude", "/diario", "/fanaticaze-tv", "/osmf", "/terapeutas",
@@ -100,11 +100,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   //
   // 1) APP DOS PROFISSIONAIS (VITE_APP_MODE=professional): qualquer rota torcedor
   //    redireciona para /profissional. E sem role professional → bloqueia totalmente.
-  // 2) APP DOS TORCEDORES (VITE_APP_MODE=fan): sessão profissional é incompatível
-  //    com este app e não deve renderizar ambiente torcedor.
-  // 3) WEB UNIFICADO (default): mantém o isolamento estrito por role —
-  //    profissional sempre é jogado para /profissional, torcedor não acessa
-  //    rotas profissionais.
+  // 2) APP DOS TORCEDORES (VITE_APP_MODE=fan): profissionais também podem usar
+  //    o app como torcedores/pacientes. Só bloqueia rotas do painel profissional.
+  // 3) WEB UNIFICADO (default): profissionais também podem navegar no ambiente
+  //    torcedor; apenas usuários sem papel profissional não acessam rotas pro.
   if (isProfessionalApp) {
     if (!hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
       return <Navigate to="/auth" replace />;
@@ -113,21 +112,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       return <Navigate to="/profissional" replace />;
     }
   } else if (isFanApp) {
-    if (hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
-      return <Navigate to="/auth" replace />;
-    }
     if (isProfessionalRoute(location.pathname) && redirectTo("/", location.pathname)) {
       return <Navigate to="/" replace />;
     }
   } else {
     // Web unificado
-    if (
-      hasRole("professional") &&
-      isFanOnlyRoute(location.pathname) &&
-      redirectTo("/profissional", location.pathname)
-    ) {
-      return <Navigate to="/profissional" replace />;
-    }
     if (
       isProfessionalRoute(location.pathname) &&
       !hasRole("professional") &&
@@ -159,22 +148,8 @@ export const DynamicProtectedRoute = ({ children, pageId }: ProtectedRouteProps 
   // (e voltar) assim que as roles chegavam. Nesse caso apenas renderizamos.
   const rolesKnown = !authLoading;
 
-  // GUARD GLOBAL: profissionais não podem permanecer em rota torcedor no web unificado
-  // nem no app torcedor; no app profissional, rotas torcedor não existem.
-  if (isFanApp && rolesKnown && user && hasRole("professional") && !hasRole("admin") && !hasRole("developer")) {
-    return <Navigate to="/auth" replace />;
-  }
-  if (
-    !isFanApp &&
-    !isProfessionalApp &&
-    rolesKnown &&
-    user &&
-    hasRole("professional") &&
-    isFanOnlyRoute(location.pathname) &&
-    redirectTo("/profissional", location.pathname)
-  ) {
-    return <Navigate to="/profissional" replace />;
-  }
+  // Profissionais também podem usar as rotas torcedor como pacientes; não
+  // redirecionamos automaticamente para /profissional para evitar loops.
   if (isProfessionalApp) {
     // Rotas torcedor não devem renderizar no app profissional.
     return <Navigate to="/profissional" replace />;
