@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { ChevronLeft, Shirt } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import TherapistCard from "@/components/terapeutas/TherapistCard";
@@ -85,6 +85,7 @@ const Terapeutas = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const routerLocation = useLocation();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState<Step>("club");
   const [selectedLeague, setSelectedLeague] = useState<League>("serie_a");
   const [selectedClub, setSelectedClub] = useState<BrazilianClub | null>(null);
@@ -206,36 +207,47 @@ const Terapeutas = () => {
     }
   };
 
-  const handleClubSelect = (club: BrazilianClub) => {
+  const handleClubSelect = (club: BrazilianClub, syncUrl = true) => {
     setSelectedClub(club);
     setStep("therapists");
     fetchTherapistsForClub(club.id);
+    if (syncUrl) {
+      navigate(`/terapeutas?clube=${club.id}`, {
+        replace: true,
+        state: { clubId: club.id },
+      });
+    }
   };
 
-  // Restore selected club when coming back from booking page
+  // Restore selected club when coming back from the booking/profile page.
+  // Using the URL in addition to router state makes the flow stable after auth
+  // redirects, app resume, or history replacement on mobile PWAs.
   useEffect(() => {
     const state = routerLocation.state as { clubId?: string } | null;
-    if (state?.clubId && step === "club") {
+    const clubId = searchParams.get("clube") || state?.clubId;
+    if (clubId && step === "club") {
       const league = (["serie_a","serie_b","serie_c"] as League[]).find((l) =>
-        getClubsByLeague(l).some((c) => c.id === state.clubId)
+        getClubsByLeague(l).some((c) => c.id === clubId)
       );
-      const club = league ? getClubsByLeague(league).find((c) => c.id === state.clubId) : null;
+      const club = league ? getClubsByLeague(league).find((c) => c.id === clubId) : null;
       if (club) {
         if (league) setSelectedLeague(league);
-        handleClubSelect(club);
+        handleClubSelect(club, false);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routerLocation.state]);
+  }, [routerLocation.state, searchParams]);
 
   const handleBack = () => {
     setStep("club");
     setSelectedClub(null);
     setTherapists([]);
+    navigate("/terapeutas", { replace: true });
   };
 
   const handleTherapistSelect = (therapist: TherapistData) => {
-    navigate(`/agendar/${therapist.id}`, {
+    const query = selectedClub?.id ? `?clubId=${selectedClub.id}` : "";
+    navigate(`/agendar/${therapist.id}${query}`, {
       state: {
         therapist,
         clubId: selectedClub?.id,

@@ -225,7 +225,7 @@ const App = () => {
                 {/* Dynamic routes - respect app_pages.is_public setting */}
                 <Route path="/" element={<DynamicProtectedRoute pageId="home"><Index /></DynamicProtectedRoute>} />
                 <Route path="/terapeutas" element={<DynamicProtectedRoute pageId="terapeutas"><Terapeutas /></DynamicProtectedRoute>} />
-                <Route path="/terapeuta/:id" element={<DynamicProtectedRoute pageId="terapeutas"><ProfessionalProfile /></DynamicProtectedRoute>} />
+                <Route path="/terapeuta/:id" element={<DynamicProtectedRoute pageId="terapeutas"><AgendarSessao /></DynamicProtectedRoute>} />
               <Route path="/agendar/:id" element={<DynamicProtectedRoute pageId="terapeutas"><AgendarSessao /></DynamicProtectedRoute>} />
                 <Route path="/cursos" element={<DynamicProtectedRoute pageId="cursos"><Cursos /></DynamicProtectedRoute>} />
                 <Route path="/curso/:id" element={<DynamicProtectedRoute pageId="cursos"><CursoDetalhe /></DynamicProtectedRoute>} />

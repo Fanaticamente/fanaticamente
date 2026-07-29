@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import BookingDrawer from "@/components/terapeutas/BookingDrawer";
 import BottomNav from "@/components/layout/BottomNav";
@@ -26,6 +26,7 @@ const AgendarSessao = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const initial = (location.state ?? {}) as {
     therapist?: TherapistData;
     clubId?: string;
@@ -37,7 +38,7 @@ const AgendarSessao = () => {
   const [clubColor, setClubColor] = useState<string>(initial.clubColor ?? "#10b981");
   const [clubName, setClubName] = useState<string | undefined>(initial.clubName);
   const [clubNickname, setClubNickname] = useState<string | undefined>(initial.clubNickname);
-  const [clubId, setClubId] = useState<string | undefined>(initial.clubId);
+  const [clubId, setClubId] = useState<string | undefined>(initial.clubId ?? searchParams.get("clubId") ?? undefined);
   const [loading, setLoading] = useState(!initial.therapist);
 
   useEffect(() => {
@@ -105,7 +106,7 @@ const AgendarSessao = () => {
         open
         onOpenChange={(o) => {
           if (!o) {
-            if (clubId) navigate("/terapeutas", { state: { clubId } });
+            if (clubId) navigate(`/terapeutas?clube=${clubId}`, { replace: true, state: { clubId } });
             else navigate("/terapeutas", { replace: true });
           }
         }}
