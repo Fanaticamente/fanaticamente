@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { QRCodeSVG } from "qrcode.react";
 import BookingTermsDialog from "@/components/booking/BookingTermsDialog";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface TherapistData {
   id: string;
@@ -130,6 +130,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
   const { toast: toastHook } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Profile step state
   const [weeklyAvailability, setWeeklyAvailability] = useState<WeeklyAvailability[]>([]);
@@ -381,8 +382,8 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
   const handleSchedule = () => {
     if (!user) {
       toast.error("Você precisa estar logado para agendar");
-      onOpenChange(false);
-      navigate("/auth");
+      if (!asPage) onOpenChange(false);
+      navigate("/auth", { state: { from: location }, replace: false });
       return;
     }
 

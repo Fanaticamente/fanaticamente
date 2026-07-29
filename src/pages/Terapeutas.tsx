@@ -75,6 +75,9 @@ const generateAvailableSlots = () => {
 type Step = "club" | "therapists";
 type League = "serie_a" | "serie_b" | "serie_c";
 
+const THERAPISTS_SELECTED_CLUB_KEY = "fanatica_therapists_selected_club";
+const THERAPIST_CLUB_PREFIX = "fanatica_therapist_club:";
+
 const leagueLabels: Record<League, string> = {
   serie_a: "Série A",
   serie_b: "Série B",
@@ -211,6 +214,11 @@ const Terapeutas = () => {
     setSelectedClub(club);
     setStep("therapists");
     fetchTherapistsForClub(club.id);
+    try {
+      sessionStorage.setItem(THERAPISTS_SELECTED_CLUB_KEY, club.id);
+    } catch {
+      // ignore storage failures
+    }
     if (syncUrl) {
       navigate(`/terapeutas?clube=${club.id}`, {
         replace: true,
@@ -242,11 +250,24 @@ const Terapeutas = () => {
     setStep("club");
     setSelectedClub(null);
     setTherapists([]);
+    try {
+      sessionStorage.removeItem(THERAPISTS_SELECTED_CLUB_KEY);
+    } catch {
+      // ignore storage failures
+    }
     navigate("/terapeutas", { replace: true });
   };
 
   const handleTherapistSelect = (therapist: TherapistData) => {
     const query = selectedClub?.id ? `?clubId=${selectedClub.id}` : "";
+    try {
+      if (selectedClub?.id) {
+        sessionStorage.setItem(THERAPISTS_SELECTED_CLUB_KEY, selectedClub.id);
+        sessionStorage.setItem(`${THERAPIST_CLUB_PREFIX}${therapist.id}`, selectedClub.id);
+      }
+    } catch {
+      // ignore storage failures
+    }
     navigate(`/agendar/${therapist.id}${query}`, {
       state: {
         therapist,

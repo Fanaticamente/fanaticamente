@@ -36,7 +36,6 @@ import SessionCompletedDialog from "@/components/user/SessionCompletedDialog";
 import MobileBrowserBlock from "@/components/MobileBrowserBlock";
 import Index from "./pages/Index";
 import Terapeutas from "./pages/Terapeutas";
-import ProfessionalProfile from "./pages/ProfessionalProfile";
 import AgendarSessao from "./pages/AgendarSessao";
 import SessionPayment from "./pages/SessionPayment";
 import PaymentConfirmation from "./pages/PaymentConfirmation";
@@ -172,7 +171,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/terapeutas" element={<Terapeutas />} />
-              <Route path="/terapeuta/:id" element={<ProfessionalProfile />} />
+              <Route path="/terapeuta/:id" element={<AgendarSessao />} />
               <Route path="/agendar/:id" element={<AgendarSessao />} />
               <Route path="/cursos" element={<Cursos />} />
               <Route path="/curso/:id" element={<CursoDetalhe />} />
