@@ -11,11 +11,13 @@ import { getClubById, BrazilianClub } from "@/data/brazilianClubs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getDisplayAuthEmail } from "@/lib/appMode";
 import { uploadProfessionalFile } from "@/lib/professionalUploads";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Perfil = () => {
   const { user, roles, signOut, hasRole, loading } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null; favorite_club_id: string | null } | null>(null);
   const [favoriteClub, setFavoriteClub] = useState<BrazilianClub | null>(null);
   const [appointmentsCount, setAppointmentsCount] = useState(0);
@@ -137,6 +139,11 @@ const Perfil = () => {
 
       setProfile(prev => prev ? { ...prev, avatar_url: publicUrl } : prev);
       setShowCameraOverlay(false);
+      // Propaga a nova foto para todos os lugares que exibem avatares
+      queryClient.invalidateQueries({ queryKey: ["fan-ranking"] });
+      queryClient.invalidateQueries({ queryKey: ["my-avatar"] });
+      queryClient.invalidateQueries({ queryKey: ["club-ranking"] });
+      try { window.dispatchEvent(new CustomEvent("profile-avatar-updated", { detail: { url: publicUrl } })); } catch {}
       toast.success("Foto atualizada!");
     } catch (error) {
       console.error("Avatar upload error:", error);
