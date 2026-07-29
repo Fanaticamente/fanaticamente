@@ -140,7 +140,6 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
  */
 export const DynamicProtectedRoute = ({ children, pageId }: ProtectedRouteProps & { pageId?: string }) => {
   const { data: pages, isLoading: pagesLoading } = useAppPages("all");
-  useAuth();
 
   // Profissionais também podem usar as rotas torcedor como pacientes; não
   // redirecionamos automaticamente para /profissional para evitar loops.
