@@ -332,11 +332,8 @@ const Quiz = () => {
 
   const handleRestart = () => {
     setCategory(null);
-    setCurrentQuestion(0);
-    setSelectedOption(null);
-    setShowFeedback(false);
-    setScore(0);
-    setFinished(false);
+    setTopic(null);
+    resetProgress();
   };
 
   return (
@@ -357,27 +354,76 @@ const Quiz = () => {
               <CategoryButton
                 image={resenhaLaEles.url}
                 alt="Lá Eles - Cenários focados na comunicação masculina"
-                onClick={() => setCategory("homens")}
+                onClick={() => { setCategory("homens"); setTopic(null); resetProgress(); }}
               />
 
               <CategoryButton
                 image={resenhaLaElas.url}
                 alt="Lá Elas - Cenários focados na comunicação feminina"
-                onClick={() => setCategory("mulheres")}
+                onClick={() => { setCategory("mulheres"); setTopic(null); resetProgress(); }}
               />
 
               <CategoryButton
                 image={resenhaBet.url}
                 alt="Bet vs Consequências - Cenários focados no vício em apostas"
-                onClick={() => setCategory("ludopatia")}
+                onClick={() => { setCategory("ludopatia"); setTopic(null); resetProgress(); }}
               />
 
             </div>
           </div>
         )}
 
-        {category && !finished && question && (
+        {needsTopic && !topic && (
           <div className="animate-fade-in">
+            <button
+              onClick={handleRestart}
+              className="flex items-center gap-1 text-sm text-slate-500 mb-4"
+            >
+              <ChevronLeft className="w-4 h-4" /> Voltar
+            </button>
+
+            <div className="text-center mb-6">
+              <h1
+                className="font-sans text-2xl font-bold text-slate-900 mb-1"
+                style={{ textTransform: "none" }}
+              >
+                {category === "homens" ? "Resenha Deles!" : "Resenha Delas!"}
+              </h1>
+              <p className="text-sm text-slate-500">Escolha um tópico para começar</p>
+            </div>
+
+            <div className="space-y-3">
+              {RESENHA_TOPICS.map((t) => {
+                const total =
+                  RESENHA_QUESTIONS[category === "homens" ? "eles" : "elas"][t.key].length;
+                return (
+                  <button
+                    key={t.key}
+                    onClick={() => { setTopic(t.key); resetProgress(); }}
+                    className="w-full flex items-center justify-between gap-3 text-left border border-slate-200 rounded-2xl p-4 bg-white shadow-sm transition-colors hover:border-[var(--club-500)]"
+                  >
+                    <span>
+                      <span className="block font-semibold text-slate-900">{t.label}</span>
+                      <span className="block text-xs text-slate-500">
+                        {t.description} · {total} cenários
+                      </span>
+                    </span>
+                    <ChevronRight className="w-5 h-5 shrink-0" style={{ color: "var(--club-600)" }} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {quizStarted && !finished && question && (
+          <div className="animate-fade-in">
+            <button
+              onClick={() => (needsTopic ? backToTopics() : handleRestart())}
+              className="flex items-center gap-1 text-sm text-slate-500 mb-4"
+            >
+              <ChevronLeft className="w-4 h-4" /> Voltar
+            </button>
             {/* Progress */}
             <div className="flex items-center gap-4 mb-6">
               <span className="text-slate-500 text-sm">
