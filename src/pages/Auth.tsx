@@ -156,8 +156,32 @@ const Auth = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [customClubName, setCustomClubName] = useState("");
 
+  // --- Recuperação de senha ---
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [sendingReset, setSendingReset] = useState(false);
+  const [recoveryMode, setRecoveryMode] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [recoveryError, setRecoveryError] = useState("");
+
   const { signIn, signUp, user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
+
+  // Detecta o retorno do link de redefinição de senha (hash/param `type=recovery`)
+  useEffect(() => {
+    const hash = window.location.hash || "";
+    const isRecoveryLink =
+      hash.includes("type=recovery") || searchParams.get("type") === "recovery";
+
+    if (isRecoveryLink) setRecoveryMode(true);
+
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") setRecoveryMode(true);
+    });
+    return () => data.subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Get cities based on selected state
   const [availableCities, setAvailableCities] = useState<string[]>([]);
@@ -177,6 +201,7 @@ const Auth = () => {
 
   useEffect(() => {
     // Only redirect if role has been validated AND roles are loaded
+    if (recoveryMode) return;
     if (user && roleValidated && !loading) {
       const safeFanReturn = getSafeFanReturnTarget(location.state);
       const navigateAfterAuth = (path: string, state?: unknown) => {
