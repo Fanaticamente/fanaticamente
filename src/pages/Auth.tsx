@@ -9,6 +9,7 @@ import { ptBR } from "date-fns/locale";
 import { allBrazilianClubs } from "@/data/allBrazilianClubs";
 import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { supabase } from "@/integrations/supabase/client";
+import { encodeAuthEmail } from "@/lib/appMode";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -156,8 +157,32 @@ const Auth = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [customClubName, setCustomClubName] = useState("");
 
+  // --- Recuperação de senha ---
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [sendingReset, setSendingReset] = useState(false);
+  const [recoveryMode, setRecoveryMode] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [recoveryError, setRecoveryError] = useState("");
+
   const { signIn, signUp, user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
+
+  // Detecta o retorno do link de redefinição de senha (hash/param `type=recovery`)
+  useEffect(() => {
+    const hash = window.location.hash || "";
+    const isRecoveryLink =
+      hash.includes("type=recovery") || searchParams.get("type") === "recovery";
+
+    if (isRecoveryLink) setRecoveryMode(true);
+
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") setRecoveryMode(true);
+    });
+    return () => data.subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Get cities based on selected state
   const [availableCities, setAvailableCities] = useState<string[]>([]);
@@ -177,6 +202,7 @@ const Auth = () => {
 
   useEffect(() => {
     // Only redirect if role has been validated AND roles are loaded
+    if (recoveryMode) return;
     if (user && roleValidated && !loading) {
       const safeFanReturn = getSafeFanReturnTarget(location.state);
       const navigateAfterAuth = (path: string, state?: unknown) => {
@@ -470,14 +496,17 @@ const Auth = () => {
         );
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
+            setFailedAttempts((n) => n + 1);
             toast.error("Conta inválida ou não cadastrada. Revise os dados ou cadastre-se.");
           } else {
+            setFailedAttempts((n) => n + 1);
             toast.error(error.message);
           }
         } else {
           // Let the global auth state + roles loader decide the redirect.
           // This avoids race conditions where roles are not ready right after login.
           // Don't show success toast here - wait for full validation in dashboard
+          setFailedAttempts(0);
           setRoleValidated(true);
         }
       } else {
@@ -544,12 +573,79 @@ const Auth = () => {
   const handleSignUpDataChange = (field: keyof SignUpData, value: string) => {
     setSignUpData(prev => {
       const newData = { ...prev, [field]: value };
-      // Reset city when state changes
       if (field === 'state') {
         newData.city = '';
       }
       return newData;
     });
+  };
+
+  // Envia o e-mail de redefinição de senha para a conta correta (torcedor x profissional)
+  const handleForgotPassword = async () => {
+    const target = email.trim();
+    try {
+      emailSchema.parse(target);
+    } catch {
+      toast.error("Informe um e-mail válido para receber o link de redefinição.");
+      return;
+    }
+
+    setSendingReset(true);
+    try {
+      const accountType = authMode === "professional" ? "pro" : "fan";
+      const redirectPath = authMode === "professional" ? "/profissional/auth" : "/auth";
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        encodeAuthEmail(target, accountType),
+        { redirectTo: `${window.location.origin}${redirectPath}?type=recovery` }
+      );
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success("Enviamos um link de redefinição para o seu e-mail.");
+      }
+    } finally {
+      setSendingReset(false);
+    }
+  };
+
+  // Define a nova senha após o usuário voltar pelo link do e-mail
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRecoveryError("");
+
+    try {
+      passwordSchema.parse(newPassword);
+    } catch (err: any) {
+      setRecoveryError(err?.errors?.[0]?.message || "Senha inválida");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setRecoveryError("As senhas não coincidem");
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) {
+        setRecoveryError(
+          error.message.includes("Auth session missing")
+            ? "O link expirou. Solicite uma nova redefinição."
+            : error.message
+        );
+        return;
+      }
+      toast.success("Senha atualizada! Faça login com a nova senha.");
+      await supabase.auth.signOut();
+      setNewPassword("");
+      setConfirmNewPassword("");
+      setRecoveryMode(false);
+      setIsLogin(true);
+      setFailedAttempts(0);
+      window.history.replaceState({}, "", authMode === "professional" ? "/profissional/auth" : "/auth");
+    } finally {
+      setSavingPassword(false);
+    }
   };
 
   const inputClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-therapy focus:ring-2 focus:ring-therapy focus:outline-none transition-colors";
@@ -604,6 +700,74 @@ const Auth = () => {
       window.scrollTo(0, 0);
     };
   }, [isMobile, isLogin]);
+
+  // Tela de redefinição de senha (retorno do link enviado por e-mail)
+  if (recoveryMode) {
+    return (
+      <div className="min-h-[100dvh] bg-background flex flex-col items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-6">
+            <img src={logoAuth} alt="Logo" className="h-36 w-auto mx-auto mb-1" />
+            <p className="text-muted-foreground">Criar nova senha</p>
+          </div>
+
+          <form onSubmit={handleUpdatePassword} className="space-y-4">
+            <div>
+              <label className="block text-card-foreground text-sm mb-2">Nova senha</label>
+              <PasswordInput
+                value={newPassword}
+                onChange={setNewPassword}
+                className={inputClassName}
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div>
+              <label className="block text-card-foreground text-sm mb-2">Confirmar nova senha</label>
+              <PasswordInput
+                value={confirmNewPassword}
+                onChange={setConfirmNewPassword}
+                className={inputClassName}
+                placeholder="••••••••"
+              />
+            </div>
+
+            {recoveryError && (
+              <p className="text-destructive text-sm">{recoveryError}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={savingPassword}
+              className={`w-full h-12 rounded-xl font-medium transition-opacity disabled:opacity-60 ${
+                authMode === "professional"
+                  ? "bg-therapy text-white"
+                  : "bg-white text-background"
+              }`}
+            >
+              {savingPassword ? "Salvando..." : "Salvar nova senha"}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                setRecoveryMode(false);
+                setIsLogin(true);
+              }}
+              className={`hover:underline ${
+                authMode === "professional" ? "text-therapy" : "text-white"
+              }`}
+            >
+              Voltar para o login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Desktop Layout
   if (!isMobile) {
@@ -699,6 +863,19 @@ const Auth = () => {
                         <p className="text-destructive text-sm mt-1">{errors.password}</p>
                       )}
                     </div>
+
+                    {failedAttempts >= 2 && (
+                      <button
+                        type="button"
+                        onClick={handleForgotPassword}
+                        disabled={sendingReset}
+                        className={`text-sm hover:underline disabled:opacity-60 ${
+                          authMode === "professional" ? "text-therapy" : "text-[#237B0E]"
+                        }`}
+                      >
+                        {sendingReset ? "Enviando..." : "Esqueceu sua senha?"}
+                      </button>
+                    )}
                   </>
                 ) : (
                   <>
@@ -1088,6 +1265,19 @@ const Auth = () => {
                     <p className="text-destructive text-sm mt-1">{errors.password}</p>
                   )}
                 </div>
+
+                {failedAttempts >= 2 && (
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={sendingReset}
+                    className={`text-sm hover:underline disabled:opacity-60 ${
+                      authMode === "professional" ? "text-therapy" : "text-white"
+                    }`}
+                  >
+                    {sendingReset ? "Enviando..." : "Esqueceu sua senha?"}
+                  </button>
+                )}
               </>
             ) : (
               // Sign Up Form
