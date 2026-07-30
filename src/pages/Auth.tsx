@@ -703,6 +703,41 @@ const Auth = () => {
     };
   }, [isMobile, isLogin]);
 
+  // Garante que nenhum toast fique preso na tela ao sair da autenticação
+  useEffect(() => {
+    return () => {
+      toast.dismiss();
+    };
+  }, []);
+
+  // Confirmação após salvar a nova senha
+  if (passwordUpdated) {
+    return (
+      <div className="min-h-[100dvh] bg-background flex flex-col items-center justify-center px-6 text-center">
+        <img src={logoAuth} alt="Logo" className="h-32 w-auto mb-4" />
+        <h1 className="text-xl font-semibold text-card-foreground mb-2">
+          Senha alterada com sucesso
+        </h1>
+        <p className="text-muted-foreground max-w-sm">
+          Senha alterada com sucesso, retorne ao aplicativo para acessar sua conta!
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setPasswordUpdated(false);
+            setRecoveryMode(false);
+            setIsLogin(true);
+          }}
+          className={`mt-8 w-full max-w-xs h-12 rounded-xl font-medium ${
+            authMode === "professional" ? "bg-therapy text-white" : "bg-white text-background"
+          }`}
+        >
+          Entrar agora
+        </button>
+      </div>
+    );
+  }
+
   // Tela de redefinição de senha (retorno do link enviado por e-mail)
   if (recoveryMode) {
     return (
