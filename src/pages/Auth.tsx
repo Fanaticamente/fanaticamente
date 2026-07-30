@@ -647,15 +647,6 @@ const Auth = () => {
       setSavingPassword(false);
     }
   };
-    setSignUpData(prev => {
-      const newData = { ...prev, [field]: value };
-      // Reset city when state changes
-      if (field === 'state') {
-        newData.city = '';
-      }
-      return newData;
-    });
-  };
 
   const inputClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-therapy focus:ring-2 focus:ring-therapy focus:outline-none transition-colors";
   const selectClassName = "w-full h-12 px-4 py-3 bg-background border border-border rounded-xl text-card-foreground focus:border-therapy focus:ring-2 focus:ring-therapy focus:outline-none transition-colors appearance-none cursor-pointer";
