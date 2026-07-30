@@ -153,6 +153,8 @@ export const useEmotionEntries = () => {
         queryClient.invalidateQueries({ queryKey: ["emotion-entry-today"] });
         queryClient.invalidateQueries({ queryKey: ["emotion-entries-recent"] });
         queryClient.invalidateQueries({ queryKey: ["emotion-week-stats"] });
+        queryClient.invalidateQueries({ queryKey: ["fan-ranking"] });
+        queryClient.invalidateQueries({ queryKey: ["club-ranking"] });
       }
     },
   });

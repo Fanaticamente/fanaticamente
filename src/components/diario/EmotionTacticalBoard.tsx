@@ -416,6 +416,8 @@ const EmotionTacticalBoard = () => {
 
         if (dbError) throw dbError;
         queryClient.invalidateQueries({ queryKey: ["emotional-lineup-today"] });
+        queryClient.invalidateQueries({ queryKey: ["fan-ranking"] });
+        queryClient.invalidateQueries({ queryKey: ["club-ranking"] });
       } else {
         // Save to localStorage for anonymous users
         const anonData = {
