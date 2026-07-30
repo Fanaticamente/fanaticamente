@@ -701,6 +701,74 @@ const Auth = () => {
     };
   }, [isMobile, isLogin]);
 
+  // Tela de redefinição de senha (retorno do link enviado por e-mail)
+  if (recoveryMode) {
+    return (
+      <div className="min-h-[100dvh] bg-background flex flex-col items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-6">
+            <img src={logoAuth} alt="Logo" className="h-36 w-auto mx-auto mb-1" />
+            <p className="text-muted-foreground">Criar nova senha</p>
+          </div>
+
+          <form onSubmit={handleUpdatePassword} className="space-y-4">
+            <div>
+              <label className="block text-card-foreground text-sm mb-2">Nova senha</label>
+              <PasswordInput
+                value={newPassword}
+                onChange={setNewPassword}
+                className={inputClassName}
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div>
+              <label className="block text-card-foreground text-sm mb-2">Confirmar nova senha</label>
+              <PasswordInput
+                value={confirmNewPassword}
+                onChange={setConfirmNewPassword}
+                className={inputClassName}
+                placeholder="••••••••"
+              />
+            </div>
+
+            {recoveryError && (
+              <p className="text-destructive text-sm">{recoveryError}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={savingPassword}
+              className={`w-full h-12 rounded-xl font-medium transition-opacity disabled:opacity-60 ${
+                authMode === "professional"
+                  ? "bg-therapy text-white"
+                  : "bg-white text-background"
+              }`}
+            >
+              {savingPassword ? "Salvando..." : "Salvar nova senha"}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                setRecoveryMode(false);
+                setIsLogin(true);
+              }}
+              className={`hover:underline ${
+                authMode === "professional" ? "text-therapy" : "text-white"
+              }`}
+            >
+              Voltar para o login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Desktop Layout
   if (!isMobile) {
     return (
