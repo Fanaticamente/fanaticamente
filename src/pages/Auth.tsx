@@ -1325,6 +1325,11 @@ const Auth = () => {
                     {sendingReset ? "Enviando..." : "Esqueceu sua senha?"}
                   </button>
                 )}
+                {resetFeedback && (
+                  <p className={`text-sm ${resetFeedback.type === "ok" ? "text-white" : "text-destructive"}`}>
+                    {resetFeedback.text}
+                  </p>
+                )}
               </>
             ) : (
               // Sign Up Form
