@@ -151,7 +151,13 @@ export const useSeedQuizContent = () => {
           (t) => t.category_id === catByKey.get(catKey) && t.key === key
         )!.id;
 
-      const questionRows: Record<string, unknown>[] = [];
+      const questionRows: {
+        category_id: string;
+        topic_id: string | null;
+        scenario: string;
+        options: QuizOption[];
+        order_index: number;
+      }[] = [];
       ([["homens", "eles"], ["mulheres", "elas"]] as const).forEach(([catKey, gender]) => {
         RESENHA_TOPICS.forEach((t) => {
           RESENHA_QUESTIONS[gender][t.key].forEach((q, i) => {
@@ -175,7 +181,9 @@ export const useSeedQuizContent = () => {
         });
       });
 
-      const { error: qError } = await supabase.from("quiz_questions").insert(questionRows);
+      const { error: qError } = await supabase
+        .from("quiz_questions")
+        .insert(questionRows as never);
       if (qError) throw qError;
       return true;
     },
