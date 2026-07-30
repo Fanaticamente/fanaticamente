@@ -289,6 +289,8 @@ const MinimalHome = () => {
     onSuccess: () => {
       toast.success("Check-in registrado! 💚");
       qc.invalidateQueries({ queryKey: ["mh-emotions"] });
+      qc.invalidateQueries({ queryKey: ["fan-ranking"] });
+      qc.invalidateQueries({ queryKey: ["club-ranking"] });
       setSelected(null);
       setReasons([]);
       setReasonOpen(false);
