@@ -166,6 +166,7 @@ const Auth = () => {
   const [savingPassword, setSavingPassword] = useState(false);
   const [recoveryError, setRecoveryError] = useState("");
   const [passwordUpdated, setPasswordUpdated] = useState(false);
+  const [resetFeedback, setResetFeedback] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   const { signIn, signUp, user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
@@ -584,10 +585,11 @@ const Auth = () => {
   // Envia o e-mail de redefinição de senha para a conta correta (torcedor x profissional)
   const handleForgotPassword = async () => {
     const target = email.trim();
+    setResetFeedback(null);
     try {
       emailSchema.parse(target);
     } catch {
-      toast.error("Informe um e-mail válido para receber o link de redefinição.");
+      setResetFeedback({ type: "err", text: "Informe um e-mail válido para receber o link de redefinição." });
       return;
     }
 
@@ -600,12 +602,15 @@ const Auth = () => {
         { redirectTo: `${window.location.origin}${redirectPath}?type=recovery` }
       );
       if (error) {
-        const msg = /only request this after (\d+) seconds/i.test(error.message)
-          ? `Aguarde ${error.message.match(/after (\d+) seconds/i)?.[1] ?? "alguns"} segundos para solicitar novamente.`
-          : error.message;
-        toast.error(msg, { duration: 4000 });
+        const seconds = error.message.match(/after (\d+) seconds/i)?.[1];
+        setResetFeedback({
+          type: "err",
+          text: seconds
+            ? `Aguarde ${seconds} segundos para solicitar novamente.`
+            : error.message,
+        });
       } else {
-        toast.success("Enviamos um link de redefinição para o seu e-mail.", { duration: 4000 });
+        setResetFeedback({ type: "ok", text: "Enviamos um link de redefinição para o seu e-mail." });
       }
     } finally {
       setSendingReset(false);
@@ -912,6 +917,11 @@ const Auth = () => {
                       >
                         {sendingReset ? "Enviando..." : "Esqueceu sua senha?"}
                       </button>
+                    )}
+                    {resetFeedback && (
+                      <p className={`text-sm ${resetFeedback.type === "ok" ? "text-[#237B0E]" : "text-destructive"}`}>
+                        {resetFeedback.text}
+                      </p>
                     )}
                   </>
                 ) : (
@@ -1314,6 +1324,11 @@ const Auth = () => {
                   >
                     {sendingReset ? "Enviando..." : "Esqueceu sua senha?"}
                   </button>
+                )}
+                {resetFeedback && (
+                  <p className={`text-sm ${resetFeedback.type === "ok" ? "text-white" : "text-destructive"}`}>
+                    {resetFeedback.text}
+                  </p>
                 )}
               </>
             ) : (
