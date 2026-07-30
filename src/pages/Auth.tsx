@@ -166,6 +166,7 @@ const Auth = () => {
   const [savingPassword, setSavingPassword] = useState(false);
   const [recoveryError, setRecoveryError] = useState("");
   const [passwordUpdated, setPasswordUpdated] = useState(false);
+  const [resetFeedback, setResetFeedback] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   const { signIn, signUp, user, hasRole, loading } = useAuth();
   const navigate = useNavigate();
