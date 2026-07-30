@@ -496,14 +496,17 @@ const Auth = () => {
         );
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
+            setFailedAttempts((n) => n + 1);
             toast.error("Conta inválida ou não cadastrada. Revise os dados ou cadastre-se.");
           } else {
+            setFailedAttempts((n) => n + 1);
             toast.error(error.message);
           }
         } else {
           // Let the global auth state + roles loader decide the redirect.
           // This avoids race conditions where roles are not ready right after login.
           // Don't show success toast here - wait for full validation in dashboard
+          setFailedAttempts(0);
           setRoleValidated(true);
         }
       } else {
@@ -568,6 +571,8 @@ const Auth = () => {
   };
 
   const handleSignUpDataChange = (field: keyof SignUpData, value: string) => {
+
+  };
     setSignUpData(prev => {
       const newData = { ...prev, [field]: value };
       // Reset city when state changes
