@@ -600,9 +600,12 @@ const Auth = () => {
         { redirectTo: `${window.location.origin}${redirectPath}?type=recovery` }
       );
       if (error) {
-        toast.error(error.message);
+        const msg = /only request this after (\d+) seconds/i.test(error.message)
+          ? `Aguarde ${error.message.match(/after (\d+) seconds/i)?.[1] ?? "alguns"} segundos para solicitar novamente.`
+          : error.message;
+        toast.error(msg, { duration: 4000 });
       } else {
-        toast.success("Enviamos um link de redefinição para o seu e-mail.");
+        toast.success("Enviamos um link de redefinição para o seu e-mail.", { duration: 4000 });
       }
     } finally {
       setSendingReset(false);
@@ -636,13 +639,11 @@ const Auth = () => {
         );
         return;
       }
-      toast.success("Senha atualizada! Faça login com a nova senha.");
       await supabase.auth.signOut();
       setNewPassword("");
       setConfirmNewPassword("");
-      setRecoveryMode(false);
-      setIsLogin(true);
       setFailedAttempts(0);
+      setPasswordUpdated(true);
       window.history.replaceState({}, "", authMode === "professional" ? "/profissional/auth" : "/auth");
     } finally {
       setSavingPassword(false);
