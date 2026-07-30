@@ -193,6 +193,17 @@ const ActivitiesManager = () => {
     setOptions(q === "new" ? emptyOptions() : q.options.map((o) => ({ ...o })));
   };
 
+  const relabel = (list: QuizOption[]) =>
+    list.map((o, i) => ({ ...o, id: String.fromCharCode(97 + i) }));
+
+  const moveOption = (index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= options.length) return;
+    const next = [...options];
+    [next[index], next[target]] = [next[target], next[index]];
+    setOptions(relabel(next));
+  };
+
   const saveQuestion = async () => {
     if (!categoryId) return;
     if (!scenario.trim()) return toast.error("Descreva o cenário da pergunta");
