@@ -1761,6 +1761,45 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          has_topics: boolean
+          id: string
+          image_url: string | null
+          is_visible: boolean
+          key: string
+          label: string
+          order_index: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          has_topics?: boolean
+          id?: string
+          image_url?: string | null
+          is_visible?: boolean
+          key: string
+          label: string
+          order_index?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          has_topics?: boolean
+          id?: string
+          image_url?: string | null
+          is_visible?: boolean
+          key?: string
+          label?: string
+          order_index?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       quiz_completions: {
         Row: {
           completed_at: string
@@ -1787,6 +1826,101 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      quiz_questions: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          is_visible: boolean
+          options: Json
+          order_index: number
+          scenario: string
+          topic_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          options?: Json
+          order_index?: number
+          scenario: string
+          topic_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          options?: Json
+          order_index?: number
+          scenario?: string
+          topic_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_questions_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_topics: {
+        Row: {
+          category_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_visible: boolean
+          key: string
+          label: string
+          order_index: number
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_visible?: boolean
+          key: string
+          label: string
+          order_index?: number
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_visible?: boolean
+          key?: string
+          label?: string
+          order_index?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_topics_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ranking_snapshot: {
         Row: {
