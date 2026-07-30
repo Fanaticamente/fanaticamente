@@ -218,6 +218,7 @@ async function handleWebhook(req: Request): Promise<Response> {
   // The email action type is in payload.data.action_type (e.g., "signup", "recovery")
   // payload.type is the hook event type ("auth")
   const emailType = payload.data.action_type
+  const authEmail = (payload.data.email || '').trim().toLowerCase()
   const recipientEmail = displayEmailFor(payload.data.email)
   const oldEmail = displayEmailFor(payload.data.old_email)
   const newEmail = displayEmailFor(payload.data.new_email)
@@ -271,7 +272,7 @@ async function handleWebhook(req: Request): Promise<Response> {
     payload: {
       run_id,
       message_id: messageId,
-      to: recipientEmail,
+      to: authEmail || recipientEmail,
       from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
       sender_domain: SENDER_DOMAIN,
       subject: EMAIL_SUBJECTS[emailType] || 'Notification',
