@@ -11,8 +11,14 @@ import resenhaFanaticaLogo from "@/assets/resenha-fanatica-logo.png.asset.json";
 import {
   RESENHA_QUESTIONS,
   RESENHA_TOPICS,
+  questionsLudopatia,
   type ResenhaTopicKey,
 } from "@/data/resenhaQuestions";
+import {
+  useQuizCategories,
+  useQuizTopics,
+  useQuizQuestions,
+} from "@/hooks/useQuizContent";
 
 interface Question {
   id: number;
@@ -61,22 +67,54 @@ const CategoryButton = ({
 
 
 const Quiz = () => {
-  const [category, setCategory] = useState<"homens" | "mulheres" | "ludopatia" | null>(null);
-  const [topic, setTopic] = useState<ResenhaTopicKey | null>(null);
+  const [category, setCategory] = useState<string | null>(null);
+  const [topic, setTopic] = useState<string | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
 
-  const needsTopic = category === "homens" || category === "mulheres";
-  const questions =
-    category === "ludopatia"
-      ? questionsLudopatia
-      : needsTopic && topic
-      ? RESENHA_QUESTIONS[category === "homens" ? "eles" : "elas"][topic]
-      : [];
-  const quizStarted = category === "ludopatia" || (needsTopic && !!topic);
+  const { data: dbCategories } = useQuizCategories();
+  const { data: dbTopics } = useQuizTopics();
+  const { data: dbQuestions } = useQuizQuestions();
+
+  const hasDbContent = !!dbCategories && dbCategories.length > 0;
+
+  const categories = hasDbContent
+    ? dbCategories!.filter((c) => c.is_visible)
+    : [
+        { id: "homens", key: "homens", label: "Resenha Deles", description: null, image_url: null, has_topics: true, order_index: 0, is_visible: true },
+        { id: "mulheres", key: "mulheres", label: "Resenha Delas", description: null, image_url: null, has_topics: true, order_index: 1, is_visible: true },
+        { id: "ludopatia", key: "ludopatia", label: "Bet vs Consequências", description: null, image_url: null, has_topics: false, order_index: 2, is_visible: true },
+      ];
+
+  const activeCategory = categories.find((c) => c.key === category) || null;
+  const needsTopic = !!activeCategory?.has_topics;
+
+  const topics = hasDbContent
+    ? (dbTopics ?? [])
+        .filter((t) => t.is_visible && t.category_id === activeCategory?.id)
+        .map((t) => ({ id: t.id, key: t.key, label: t.label, description: t.description ?? "" }))
+    : RESENHA_TOPICS.map((t) => ({ id: t.key, key: t.key, label: t.label, description: t.description }));
+
+  const staticQuestions = () => {
+    if (category === "ludopatia") return questionsLudopatia;
+    if (needsTopic && topic)
+      return RESENHA_QUESTIONS[category === "homens" ? "eles" : "elas"][topic as ResenhaTopicKey];
+    return [];
+  };
+
+  const questions = hasDbContent
+    ? (dbQuestions ?? []).filter(
+        (q) =>
+          q.is_visible &&
+          q.category_id === activeCategory?.id &&
+          (needsTopic ? q.topic_id === topic : true)
+      )
+    : staticQuestions();
+
+  const quizStarted = !!activeCategory && (!needsTopic || !!topic);
   const question = questions[currentQuestion];
 
   const resetProgress = () => {
@@ -149,24 +187,21 @@ const Quiz = () => {
             </div>
 
             <div className="space-y-4">
-              <CategoryButton
-                image={resenhaLaEles.url}
-                alt="Lá Eles - Cenários focados na comunicação masculina"
-                onClick={() => { setCategory("homens"); setTopic(null); resetProgress(); }}
-              />
-
-              <CategoryButton
-                image={resenhaLaElas.url}
-                alt="Lá Elas - Cenários focados na comunicação feminina"
-                onClick={() => { setCategory("mulheres"); setTopic(null); resetProgress(); }}
-              />
-
-              <CategoryButton
-                image={resenhaBet.url}
-                alt="Bet vs Consequências - Cenários focados no vício em apostas"
-                onClick={() => { setCategory("ludopatia"); setTopic(null); resetProgress(); }}
-              />
-
+              {categories.map((c) => (
+                <CategoryButton
+                  key={c.id}
+                  image={
+                    c.image_url ||
+                    (c.key === "homens"
+                      ? resenhaLaEles.url
+                      : c.key === "mulheres"
+                      ? resenhaLaElas.url
+                      : resenhaBet.url)
+                  }
+                  alt={`${c.label}${c.description ? ` - ${c.description}` : ""}`}
+                  onClick={() => { setCategory(c.key); setTopic(null); resetProgress(); }}
+                />
+              ))}
             </div>
           </div>
         )}
@@ -185,19 +220,20 @@ const Quiz = () => {
                 className="font-sans text-2xl font-bold text-slate-900 mb-1"
                 style={{ textTransform: "none" }}
               >
-                {category === "homens" ? "Resenha Deles!" : "Resenha Delas!"}
+                {activeCategory?.label}
               </h1>
               <p className="text-sm text-slate-500">Escolha um tópico para começar</p>
             </div>
 
             <div className="space-y-3">
-              {RESENHA_TOPICS.map((t) => {
-                const total =
-                  RESENHA_QUESTIONS[category === "homens" ? "eles" : "elas"][t.key].length;
+              {topics.map((t) => {
+                const total = hasDbContent
+                  ? (dbQuestions ?? []).filter((q) => q.is_visible && q.topic_id === t.id).length
+                  : RESENHA_QUESTIONS[category === "homens" ? "eles" : "elas"][t.key as ResenhaTopicKey].length;
                 return (
                   <button
-                    key={t.key}
-                    onClick={() => { setTopic(t.key); resetProgress(); }}
+                    key={t.id}
+                    onClick={() => { setTopic(hasDbContent ? t.id : t.key); resetProgress(); }}
                     className="w-full flex items-center justify-between gap-3 text-left border border-slate-200 rounded-2xl p-4 bg-white shadow-sm transition-colors hover:border-[var(--club-500)]"
                   >
                     <span>
