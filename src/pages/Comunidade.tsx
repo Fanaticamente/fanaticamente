@@ -104,28 +104,40 @@ const Comunidade = () => {
   const { data: clubRanking = [] } = useQuery({
     queryKey: ["club-ranking"],
     queryFn: async () => {
-      // Lê o snapshot pré-calculado (atualizado a cada 10 min) em vez de recalcular
-      const { data, error } = await supabase
+      // Leitura ao vivo para refletir atividades imediatamente
+      const { data: live, error } = await supabase.rpc("get_club_ranking");
+      if (!error && live) {
+        return live as { favorite_club_id: string; fans_count: number; points: number }[];
+      }
+      const { data } = await supabase
         .from("club_ranking_snapshot")
         .select("favorite_club_id, fans_count, points");
-      if (error || !data) {
-        const { data: live } = await supabase.rpc("get_club_ranking");
-        return (live ?? []) as { favorite_club_id: string; fans_count: number; points: number }[];
-      }
-      return data as { favorite_club_id: string; fans_count: number; points: number }[];
+      return (data ?? []) as { favorite_club_id: string; fans_count: number; points: number }[];
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
     gcTime: 30 * 60 * 1000,
   });
 
   const { data: fanRankingRaw = [] } = useQuery({
     queryKey: ["fan-ranking"],
     queryFn: async () => {
+      const { data: live, error: liveError } = await supabase.rpc("get_fan_ranking");
+      if (!liveError && live) {
+        return (live as {
+          user_id: string;
+          full_name: string;
+          avatar_url: string | null;
+          favorite_club_id: string | null;
+          points: number;
+        }[]).slice(0, 100);
+      }
       const { data, error } = await supabase
         .from("ranking_snapshot")
         .select("user_id, full_name, avatar_url, favorite_club_id, points")
         .order("position", { ascending: true })
-        .limit(200);
+        .limit(100);
       if (error || !data) return [] as {
         user_id: string;
         full_name: string;
@@ -141,7 +153,9 @@ const Comunidade = () => {
         points: number;
       }[];
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
     gcTime: 30 * 60 * 1000,
   });
 
@@ -162,9 +176,9 @@ const Comunidade = () => {
 
   clubRanking.forEach((c) => { clubPoints[c.favorite_club_id] = c.points; });
 
-  const fanRanking: FanRankEntry[] = fanRankingRaw.map((f, i) => ({
+  const fanRanking: FanRankEntry[] = fanRankingRaw.slice(0, 100).map((f, i) => ({
     id: f.user_id,
-    name: formatFanName(f.full_name),
+    name: user?.id === f.user_id ? "Você" : formatFanName(f.full_name),
     avatar: user?.id === f.user_id ? (myAvatar ?? f.avatar_url) : f.avatar_url,
     points: f.points,
     rank: i + 1,
