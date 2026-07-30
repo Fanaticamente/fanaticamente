@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Smartphone, Monitor, ArrowRight, Loader2, Settings, LogOut, ExternalLink, GraduationCap, ArrowLeft, Bell, Megaphone } from "lucide-react";
+import { Smartphone, Monitor, ArrowRight, Loader2, Settings, LogOut, ExternalLink, GraduationCap, ArrowLeft, Bell, Megaphone, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CourseManager from "@/components/admin/CourseManager";
 import { useManagerTheme } from "@/hooks/useManagerTheme";
@@ -179,6 +179,21 @@ const ContentManagers = () => {
           </div>
 
           {/* Marketing & Content Manager Card (monitoring access for dev/admin) */}
+          <div 
+            onClick={() => navigate("/developer/atividades")}
+            className="group cursor-pointer bg-card border border-border rounded-2xl p-8 hover:border-primary/50 hover:shadow-xl transition-all duration-300"
+          >
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <Gamepad2 className="w-10 h-10 text-primary" />
+            </div>
+            <h2 className="font-display text-2xl text-card-foreground mb-3">Atividades</h2>
+            <p className="text-muted-foreground mb-6">Visualize todos os menus de atividades do app, crie novos menus e tópicos e edite os quizzes da Resenha Fanática (perguntas, alternativas e devolutivas).</p>
+            <div className="flex items-center gap-2 text-primary group-hover:gap-4 transition-all">
+              <span className="font-medium">Acessar gerenciador</span>
+              <ArrowRight className="w-5 h-5" />
+            </div>
+          </div>
+
           <div 
             onClick={() => navigate("/marketing")}
             className="group cursor-pointer bg-card border border-border rounded-2xl p-8 hover:border-primary/50 hover:shadow-xl transition-all duration-300"
