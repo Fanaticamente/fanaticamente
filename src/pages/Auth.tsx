@@ -571,7 +571,81 @@ const Auth = () => {
   };
 
   const handleSignUpDataChange = (field: keyof SignUpData, value: string) => {
+    setSignUpData(prev => {
+      const newData = { ...prev, [field]: value };
+      if (field === 'state') {
+        newData.city = '';
+      }
+      return newData;
+    });
+  };
 
+  // Envia o e-mail de redefinição de senha para a conta correta (torcedor x profissional)
+  const handleForgotPassword = async () => {
+    const target = email.trim();
+    try {
+      emailSchema.parse(target);
+    } catch {
+      toast.error("Informe um e-mail válido para receber o link de redefinição.");
+      return;
+    }
+
+    setSendingReset(true);
+    try {
+      const accountType = authMode === "professional" ? "pro" : "fan";
+      const redirectPath = authMode === "professional" ? "/profissional/auth" : "/auth";
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        encodeAuthEmail(target, accountType),
+        { redirectTo: `${window.location.origin}${redirectPath}?type=recovery` }
+      );
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success("Enviamos um link de redefinição para o seu e-mail.");
+      }
+    } finally {
+      setSendingReset(false);
+    }
+  };
+
+  // Define a nova senha após o usuário voltar pelo link do e-mail
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRecoveryError("");
+
+    try {
+      passwordSchema.parse(newPassword);
+    } catch (err: any) {
+      setRecoveryError(err?.errors?.[0]?.message || "Senha inválida");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setRecoveryError("As senhas não coincidem");
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) {
+        setRecoveryError(
+          error.message.includes("Auth session missing")
+            ? "O link expirou. Solicite uma nova redefinição."
+            : error.message
+        );
+        return;
+      }
+      toast.success("Senha atualizada! Faça login com a nova senha.");
+      await supabase.auth.signOut();
+      setNewPassword("");
+      setConfirmNewPassword("");
+      setRecoveryMode(false);
+      setIsLogin(true);
+      setFailedAttempts(0);
+      window.history.replaceState({}, "", authMode === "professional" ? "/profissional/auth" : "/auth");
+    } finally {
+      setSavingPassword(false);
+    }
   };
     setSignUpData(prev => {
       const newData = { ...prev, [field]: value };
