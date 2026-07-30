@@ -863,6 +863,19 @@ const Auth = () => {
                         <p className="text-destructive text-sm mt-1">{errors.password}</p>
                       )}
                     </div>
+
+                    {failedAttempts >= 2 && (
+                      <button
+                        type="button"
+                        onClick={handleForgotPassword}
+                        disabled={sendingReset}
+                        className={`text-sm hover:underline disabled:opacity-60 ${
+                          authMode === "professional" ? "text-therapy" : "text-[#237B0E]"
+                        }`}
+                      >
+                        {sendingReset ? "Enviando..." : "Esqueceu sua senha?"}
+                      </button>
+                    )}
                   </>
                 ) : (
                   <>
@@ -1252,6 +1265,19 @@ const Auth = () => {
                     <p className="text-destructive text-sm mt-1">{errors.password}</p>
                   )}
                 </div>
+
+                {failedAttempts >= 2 && (
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={sendingReset}
+                    className={`text-sm hover:underline disabled:opacity-60 ${
+                      authMode === "professional" ? "text-therapy" : "text-white"
+                    }`}
+                  >
+                    {sendingReset ? "Enviando..." : "Esqueceu sua senha?"}
+                  </button>
+                )}
               </>
             ) : (
               // Sign Up Form
