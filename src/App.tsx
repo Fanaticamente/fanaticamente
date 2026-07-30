@@ -83,6 +83,7 @@ import Comunidade from "./pages/Comunidade";
 import Notificacoes from "./pages/Notificacoes";
 import VerificarRecibo from "./pages/VerificarRecibo";
 import NotificationManagerPage from "./pages/NotificationManagerPage";
+import ActivitiesManagerPage from "./pages/ActivitiesManagerPage";
 import FanaticazeTV from "./pages/FanaticazeTV";
 import SetorSaude from "./pages/SetorSaude";
 import MarketingDashboard from "./pages/MarketingDashboard";
@@ -276,6 +277,7 @@ const App = () => {
                 <Route path="/desenvolvedor/mobile" element={<ProtectedRoute><DeveloperDashboard /></ProtectedRoute>} />
                 <Route path="/desenvolvedor/desktop" element={<ProtectedRoute><DesktopContentManager /></ProtectedRoute>} />
                 <Route path="/developer/notificacoes" element={<ProtectedRoute><NotificationManagerPage /></ProtectedRoute>} />
+                <Route path="/developer/atividades" element={<ProtectedRoute><ActivitiesManagerPage /></ProtectedRoute>} />
                 <Route path="/desenvolvedor/notificacoes" element={<ProtectedRoute><NotificationManagerPage /></ProtectedRoute>} />
                 <Route path="/marketing" element={<ProtectedRoute><MarketingDashboard /></ProtectedRoute>} />
 
