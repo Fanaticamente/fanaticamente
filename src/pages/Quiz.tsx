@@ -264,19 +264,35 @@ const questionsLudopatia: Question[] = [
 
 const Quiz = () => {
   const [category, setCategory] = useState<"homens" | "mulheres" | "ludopatia" | null>(null);
+  const [topic, setTopic] = useState<ResenhaTopicKey | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
 
+  const needsTopic = category === "homens" || category === "mulheres";
   const questions =
-    category === "homens"
-      ? questionsHomens
-      : category === "mulheres"
-      ? questionsMulheres
-      : questionsLudopatia;
+    category === "ludopatia"
+      ? questionsLudopatia
+      : needsTopic && topic
+      ? RESENHA_QUESTIONS[category === "homens" ? "eles" : "elas"][topic]
+      : [];
+  const quizStarted = category === "ludopatia" || (needsTopic && !!topic);
   const question = questions[currentQuestion];
+
+  const resetProgress = () => {
+    setCurrentQuestion(0);
+    setSelectedOption(null);
+    setShowFeedback(false);
+    setScore(0);
+    setFinished(false);
+  };
+
+  const backToTopics = () => {
+    setTopic(null);
+    resetProgress();
+  };
 
   const handleOptionSelect = (optionId: string) => {
     if (showFeedback) return;
