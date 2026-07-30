@@ -918,6 +918,11 @@ const Auth = () => {
                         {sendingReset ? "Enviando..." : "Esqueceu sua senha?"}
                       </button>
                     )}
+                    {resetFeedback && (
+                      <p className={`text-sm ${resetFeedback.type === "ok" ? "text-[#237B0E]" : "text-destructive"}`}>
+                        {resetFeedback.text}
+                      </p>
+                    )}
                   </>
                 ) : (
                   <>
