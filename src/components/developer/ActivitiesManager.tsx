@@ -193,6 +193,17 @@ const ActivitiesManager = () => {
     setOptions(q === "new" ? emptyOptions() : q.options.map((o) => ({ ...o })));
   };
 
+  const relabel = (list: QuizOption[]) =>
+    list.map((o, i) => ({ ...o, id: String.fromCharCode(97 + i) }));
+
+  const moveOption = (index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= options.length) return;
+    const next = [...options];
+    [next[index], next[target]] = [next[target], next[index]];
+    setOptions(relabel(next));
+  };
+
   const saveQuestion = async () => {
     if (!categoryId) return;
     if (!scenario.trim()) return toast.error("Descreva o cenário da pergunta");
@@ -505,10 +516,28 @@ const ActivitiesManager = () => {
             </div>
 
             {options.map((o, i) => (
-              <div key={o.id} className="border border-border rounded-xl p-3 space-y-2">
+              <div key={i} className="border border-border rounded-xl p-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label className="uppercase">Alternativa {o.id}</Label>
-                  <div className="flex items-center gap-3">
+                  <Label className="uppercase">
+                    Alternativa {String.fromCharCode(97 + i)}
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={i === 0}
+                      onClick={() => moveOption(i, -1)}
+                    >
+                      <ArrowUp className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={i === options.length - 1}
+                      onClick={() => moveOption(i, 1)}
+                    >
+                      <ArrowDown className="w-4 h-4" />
+                    </Button>
                     <span className="text-xs text-muted-foreground">Construtiva</span>
                     <Switch checked={o.isCorrect} onCheckedChange={() => setCorrect(i)} />
                     {options.length > 2 && (
@@ -516,7 +545,9 @@ const ActivitiesManager = () => {
                         variant="ghost"
                         size="sm"
                         className="text-destructive"
-                        onClick={() => setOptions(options.filter((_, idx) => idx !== i))}
+                        onClick={() =>
+                          setOptions(relabel(options.filter((_, idx) => idx !== i)))
+                        }
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
