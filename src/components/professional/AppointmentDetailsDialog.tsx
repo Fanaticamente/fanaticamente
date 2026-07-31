@@ -572,6 +572,20 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
           </div>
         </div>
       </div>
+
+      {rebook && (
+        <RebookFlow
+          professionalId={rebook.professionalId}
+          patientUserId={rebook.patientUserId}
+          baseDate={appointment.scheduled_date}
+          baseTime={appointment.scheduled_time}
+          onDone={() => {
+            setRebook(null);
+            onUpdate();
+            onClose();
+          }}
+        />
+      )}
     </div>
   );
 };
