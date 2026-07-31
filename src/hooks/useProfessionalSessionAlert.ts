@@ -108,16 +108,9 @@ export const useProfessionalSessionAlert = () => {
 
     check();
     const interval = setInterval(check, 5000);
-    const markAsManuallyOpened = (event: Event) => {
-      const id = (event as CustomEvent<string>).detail;
-      if (id) dismissedRef.current.add(id);
-      setAppointment((current) => current?.id === id ? null : current);
-    };
-    window.addEventListener("professional-session-opened", markAsManuallyOpened);
     return () => {
       cancelled = true;
       clearInterval(interval);
-      window.removeEventListener("professional-session-opened", markAsManuallyOpened);
     };
   }, [user, loading, isProfessional, isManagerRoute]);
 

@@ -88,7 +88,6 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
       if (error) throw error;
       
       setCurrentStatus("in_progress");
-      window.dispatchEvent(new CustomEvent("professional-session-opened", { detail: appointment.id }));
       toast.success("Sessão iniciada!");
       onUpdate();
     } catch (error) {
