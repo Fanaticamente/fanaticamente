@@ -30,6 +30,8 @@ import GlobalRadioPlayer from "@/components/radio/GlobalRadioPlayer";
 
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
 import { useGlobalSessionCompletion } from "@/hooks/useGlobalSessionCompletion";
+import { useProfessionalSessionAlert } from "@/hooks/useProfessionalSessionAlert";
+import MandatorySessionDialog from "@/components/professional/MandatorySessionDialog";
 import { useDisableServiceWorkerOnManagerRoutes } from "@/hooks/useDisableServiceWorkerOnManagerRoutes";
 import { useViewportHeightSync } from "@/hooks/useViewportHeightSync";
 import SessionCompletedDialog from "@/components/user/SessionCompletedDialog";
@@ -125,10 +127,17 @@ const AppProviders = ({ children }: { children: React.ReactNode }) => {
   useDisableServiceWorkerOnManagerRoutes();
   useRealtimeSubscriptions();
   const { completedAppointment, clearCompletedAppointment } = useGlobalSessionCompletion();
+  const { sessionAlert, clearSessionAlert } = useProfessionalSessionAlert();
 
   return (
     <>
       {children}
+      {sessionAlert && (
+        <MandatorySessionDialog
+          appointment={sessionAlert}
+          onFinished={(id) => clearSessionAlert(id)}
+        />
+      )}
       {completedAppointment && (
         <SessionCompletedDialog
           appointment={completedAppointment}

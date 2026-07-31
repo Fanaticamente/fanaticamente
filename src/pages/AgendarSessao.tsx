@@ -143,6 +143,11 @@ const AgendarSessao = () => {
         open
         onOpenChange={(o) => {
           if (!o) {
+            const backTo = (location.state as { from?: string } | null)?.from;
+            if (backTo) {
+              navigate(backTo, { replace: true });
+              return;
+            }
             const returnClubId = clubId ?? readStoredClubId(id);
             if (returnClubId) navigate(`/terapeutas?clube=${returnClubId}`, { replace: true, state: { clubId: returnClubId } });
             else navigate("/terapeutas", { replace: true });
