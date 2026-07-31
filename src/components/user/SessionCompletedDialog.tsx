@@ -38,16 +38,17 @@ interface SessionCompletedDialogProps {
   onReschedule?: () => void;
   onRatingSubmitted?: () => void;
   allowReschedule?: boolean;
+  initialReschedule?: boolean;
 }
 
-const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSubmitted, allowReschedule = true }: SessionCompletedDialogProps) => {
+const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSubmitted, allowReschedule = true, initialReschedule = false }: SessionCompletedDialogProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [hasRated, setHasRated] = useState(!!appointment.rating);
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
-  const [showReschedule, setShowReschedule] = useState(false);
+  const [showReschedule, setShowReschedule] = useState(initialReschedule);
   const [weeklyAvailability, setWeeklyAvailability] = useState<WeeklyAvailability[]>([]);
   const [bookedAppointments, setBookedAppointments] = useState<Appointment[]>([]);
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
