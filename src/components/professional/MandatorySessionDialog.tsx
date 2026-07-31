@@ -112,12 +112,17 @@ const MandatorySessionDialog = ({ appointment, onFinished }: Props) => {
   };
 
   const handleEnd = async () => {
+    setPhase("ask");
+  };
+
+  const finishSession = async () => {
     setBusy(true);
     try {
       await updateStatus("completed");
-      setPhase("ask");
+      toast.success("Sessão concluída com sucesso!");
+      onFinished(appointment.id);
     } catch {
-      toast.error("Erro ao encerrar a sessão");
+      toast.error("Erro ao concluir a sessão");
     } finally {
       setBusy(false);
     }
@@ -137,7 +142,7 @@ const MandatorySessionDialog = ({ appointment, onFinished }: Props) => {
       toast.success(
         `Nova consulta marcada para ${format(parseISO(date), "dd/MM/yyyy")} às ${time.slice(0, 5)}`
       );
-      onFinished(appointment.id);
+      await finishSession();
     } catch (err) {
       console.error(err);
       toast.error("Erro ao marcar a nova consulta");
@@ -282,7 +287,8 @@ const MandatorySessionDialog = ({ appointment, onFinished }: Props) => {
             </p>
             <div className="flex gap-3">
               <button
-                onClick={() => onFinished(appointment.id)}
+                 onClick={finishSession}
+                 disabled={busy}
                 className="flex-1 py-3 rounded-xl bg-slate-100 text-slate-700 font-medium"
               >
                 Não

@@ -88,7 +88,7 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
       if (error) throw error;
       
       setCurrentStatus("in_progress");
-      toast.success("Atendimento iniciado!");
+      toast.success("Sessão iniciada!");
       onUpdate();
     } catch (error) {
       console.error("Error starting session:", error);
@@ -146,65 +146,12 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
         }
       }
 
-      // Update status to completed
-      const { error } = await supabase
-        .from("appointments")
-        .update({ status: "completed" })
-        .eq("id", appointment.id);
-
-      if (error) throw error;
-
-      // Generate receipt if template exists
-      if (receiptTemplate && appointmentData?.user_id) {
-        const receiptData = {
-          professional: {
-            full_name: receiptTemplate.full_name,
-            crp: receiptTemplate.crp,
-            document_type: receiptTemplate.document_type,
-            document_number: receiptTemplate.document_number,
-          },
-          service: {
-            description: receiptTemplate.service_description,
-            date: appointment.scheduled_date,
-            time: appointment.scheduled_time,
-            amount: professional.hourly_rate || 0,
-          },
-          patient: {
-            full_name: patientData.full_name,
-            cpf: patientData.cpf,
-          },
-        };
-
-        // Insert receipt first to get the auto-generated receipt_number
-        const { data: insertedReceipt, error: insertError } = await supabase
-          .from("session_receipts")
-          .insert({
-            appointment_id: appointment.id,
-            professional_id: professional.id,
-            user_id: appointmentData.user_id,
-            receipt_html: "",
-            receipt_data: receiptData,
-          })
-          .select("id, receipt_number")
-          .single();
-
-        if (!insertError && insertedReceipt) {
-          const receiptHtml = generateReceiptHtml(receiptData, insertedReceipt.receipt_number);
-
-          await supabase
-            .from("session_receipts")
-            .update({ receipt_html: receiptHtml })
-            .eq("id", insertedReceipt.id);
-        }
-      }
-
-      setCurrentStatus("completed");
-      toast.success("Atendimento encerrado!");
-      onUpdate();
-
-      // Rebooking flow must always run after a session is ended
+      // Keep the appointment in progress until the mandatory rebooking
+      // decision is completed.
       if (appointmentData?.user_id) {
         setRebook({ professionalId: professional.id, patientUserId: appointmentData.user_id });
+      } else {
+        throw new Error("Paciente não encontrado");
       }
     } catch (error) {
       console.error("Error ending session:", error);
@@ -212,6 +159,24 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
     } finally {
       setIsUpdatingStatus(false);
     }
+  };
+
+  const finishSession = async () => {
+    const { error } = await supabase
+      .from("appointments")
+      .update({ status: "completed" })
+      .eq("id", appointment.id);
+
+    if (error) {
+      toast.error("Erro ao concluir a sessão");
+      throw error;
+    }
+
+    setCurrentStatus("completed");
+    setRebook(null);
+    toast.success("Sessão concluída com sucesso!");
+    onUpdate();
+    onClose();
   };
 
   const generateReceiptHtml = (data: any, receiptNumber: number) => {
@@ -312,10 +277,14 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
 
   const statusDisplay = getStatusDisplay();
 
+  const isSessionLocked = currentStatus === "in_progress" || rebook !== null;
+
   return (
     <div 
       className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4" 
-      onClick={onClose}
+      onClick={() => {
+        if (!isSessionLocked) onClose();
+      }}
     >
       <div 
         className="bg-card rounded-2xl max-w-lg w-full max-h-[80vh] overflow-auto mb-24" 
@@ -326,12 +295,14 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
           <h3 className="font-display text-lg text-card-foreground">
             Detalhes do Agendamento
           </h3>
-          <button 
-            onClick={onClose} 
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-muted-foreground" />
-          </button>
+          {!isSessionLocked && (
+            <button 
+              onClick={onClose} 
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5 text-muted-foreground" />
+            </button>
+          )}
         </div>
 
         {/* Content */}
@@ -579,11 +550,7 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
           patientUserId={rebook.patientUserId}
           baseDate={appointment.scheduled_date}
           baseTime={appointment.scheduled_time}
-          onDone={() => {
-            setRebook(null);
-            onUpdate();
-            onClose();
-          }}
+          onDone={finishSession}
         />
       )}
     </div>
