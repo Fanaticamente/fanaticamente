@@ -2606,6 +2606,10 @@ export type Database = {
       }
     }
     Functions: {
+      check_signup_conflict: {
+        Args: { _account_type: string; _email: string; _phone: string }
+        Returns: Json
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean

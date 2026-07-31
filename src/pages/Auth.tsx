@@ -513,6 +513,41 @@ const Auth = () => {
         }
       } else {
         // Sign up with additional user data
+        // Bloqueia cadastro duplicado (mesmo e-mail OU telefone) DENTRO do mesmo
+        // sistema. O mesmo e-mail/telefone continua permitido se um cadastro for
+        // torcedor e o outro profissional.
+        const accountType = authMode === "professional" ? "pro" : "fan";
+        try {
+          const { data: dup } = await supabase.functions.invoke("check-signup-duplicate", {
+            body: {
+              email: signUpData.email,
+              phone: signUpData.phone,
+              account_type: accountType,
+            },
+          });
+          const nextErrors: Record<string, string> = {};
+          if (dup?.email_taken) {
+            nextErrors.email =
+              accountType === "pro"
+                ? "Este e-mail já possui cadastro Profissional. Faça login."
+                : "Este e-mail já possui cadastro Torcedor. Faça login.";
+          }
+          if (dup?.phone_taken) {
+            nextErrors.phone =
+              accountType === "pro"
+                ? "Este telefone já está em uso em outro cadastro Profissional."
+                : "Este telefone já está em uso em outro cadastro Torcedor.";
+          }
+          if (Object.keys(nextErrors).length > 0) {
+            setErrors((prev) => ({ ...prev, ...nextErrors }));
+            toast.error(nextErrors.email || nextErrors.phone);
+            setIsLoading(false);
+            return;
+          }
+        } catch (dupError) {
+          console.warn("[Auth] duplicate check failed:", dupError);
+        }
+
         // IMPORTANT: store signup data BEFORE calling signUp to avoid race conditions
         const profileData: any = {
           birth_date: signUpData.birthDate,
