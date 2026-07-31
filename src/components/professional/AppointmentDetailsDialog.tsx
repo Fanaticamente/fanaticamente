@@ -4,6 +4,7 @@ import { format, parseISO, subMinutes, differenceInYears } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import RebookFlow from "./RebookFlow";
 
 interface AppointmentDetailsDialogProps {
   appointment: {
@@ -35,6 +36,7 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [linkSent, setLinkSent] = useState(!!appointment.consultation_link);
   const [isEditing, setIsEditing] = useState(!appointment.consultation_link);
+  const [rebook, setRebook] = useState<{ professionalId: string; patientUserId: string } | null>(null);
 
   const handleSaveLink = async () => {
     if (!consultationLink.trim()) {
@@ -199,6 +201,11 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
       setCurrentStatus("completed");
       toast.success("Atendimento encerrado!");
       onUpdate();
+
+      // Rebooking flow must always run after a session is ended
+      if (appointmentData?.user_id) {
+        setRebook({ professionalId: professional.id, patientUserId: appointmentData.user_id });
+      }
     } catch (error) {
       console.error("Error ending session:", error);
       toast.error("Erro ao encerrar atendimento");
