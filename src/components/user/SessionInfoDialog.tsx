@@ -130,7 +130,11 @@ const SessionInfoDialog = ({ appointment, onClose }: SessionInfoDialogProps) => 
 
               {/* View Profile Button */}
               <button
-                onClick={() => navigate(`/profissional/${appointment.professional_id}`)}
+                onClick={() =>
+                  navigate(`/terapeuta/${appointment.professional_id}`, {
+                    state: { from: "/meus-agendamentos" },
+                  })
+                }
                 className="w-full mt-2 py-2 bg-[var(--club-50)] text-[var(--club-600)] rounded-xl font-medium hover:bg-[var(--club-100)] transition-colors flex items-center justify-center gap-2"
               >
                 <User className="w-4 h-4" />
