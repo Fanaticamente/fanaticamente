@@ -342,8 +342,14 @@ const ProfessionalDashboard = () => {
       if (profData) {
         setProfessional(profData);
 
-        // Determine onboarding step
-        const profileComplete = !!(profData.bio && profData.degree && profData.specialties?.length);
+        // Determine onboarding step.
+        // Already approved/active professionals must NEVER be sent back to the wizard.
+        const isApproved =
+          profData.approval_status === "approved" ||
+          profData.approval_status === "pending_cancellation" ||
+          profData.is_active === true;
+        const profileComplete =
+          isApproved || !!(profData.bio && profData.degree && profData.specialties?.length);
         // Consider subscription active if has type OR valid expires_at OR approved status
         const hasSubscription = !!profData.subscription_type || 
           (profData.subscription_expires_at && new Date(profData.subscription_expires_at) > new Date()) ||
@@ -365,7 +371,11 @@ const ProfessionalDashboard = () => {
     }
   };
 
-  const isProfileComplete = !!(professional?.bio && professional?.degree && professional?.specialties?.length);
+  const isProfileComplete =
+    professional?.approval_status === "approved" ||
+    professional?.approval_status === "pending_cancellation" ||
+    professional?.is_active === true ||
+    !!(professional?.bio && professional?.degree && professional?.specialties?.length);
   // Consider subscription active if has subscription_type OR has valid expires_at OR approved status
   const hasSubscription = !!(professional?.subscription_type || 
     (professional?.subscription_expires_at && new Date(professional.subscription_expires_at) > new Date()) ||
