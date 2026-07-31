@@ -57,8 +57,14 @@ export const useProfessionalSessionAlert = () => {
         if (!professional || cancelled) return;
 
         const now = new Date();
-        const todayStr = now.toISOString().slice(0, 10);
-        const yesterday = new Date(now.getTime() - 24 * 3600 * 1000).toISOString().slice(0, 10);
+        const localDate = (date: Date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+          return `${year}-${month}-${day}`;
+        };
+        const yesterday = localDate(new Date(now.getTime() - 24 * 3600 * 1000));
+        const tomorrow = localDate(new Date(now.getTime() + 24 * 3600 * 1000));
 
         const { data: rows } = await supabase
           .from("appointments")
@@ -66,10 +72,14 @@ export const useProfessionalSessionAlert = () => {
           .eq("professional_id", professional.id)
           .in("status", ACTIVE_STATUSES)
           .gte("scheduled_date", yesterday)
-          .lte("scheduled_date", todayStr)
+          .lte("scheduled_date", tomorrow)
           .order("scheduled_date", { ascending: true });
 
-        if (cancelled || !rows?.length) return;
+        if (cancelled) return;
+        if (!rows?.length) {
+          setAppointment(null);
+          return;
+        }
 
         const match = rows.find((r) => {
           const start = new Date(`${r.scheduled_date}T${r.scheduled_time}`);
@@ -78,7 +88,10 @@ export const useProfessionalSessionAlert = () => {
           return now >= openAt && now <= closeAt && !dismissedRef.current.has(r.id);
         });
 
-        if (!match) return;
+        if (!match) {
+          setAppointment(null);
+          return;
+        }
 
         const { data: patient } = await supabase
           .from("profiles")
@@ -95,9 +108,16 @@ export const useProfessionalSessionAlert = () => {
 
     check();
     const interval = setInterval(check, 5000);
+    const markAsManuallyOpened = (event: Event) => {
+      const id = (event as CustomEvent<string>).detail;
+      if (id) dismissedRef.current.add(id);
+      setAppointment((current) => current?.id === id ? null : current);
+    };
+    window.addEventListener("professional-session-opened", markAsManuallyOpened);
     return () => {
       cancelled = true;
       clearInterval(interval);
+      window.removeEventListener("professional-session-opened", markAsManuallyOpened);
     };
   }, [user?.id, loading, isProfessional, isManagerRoute]);
 

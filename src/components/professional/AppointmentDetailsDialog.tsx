@@ -88,6 +88,7 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
       if (error) throw error;
       
       setCurrentStatus("in_progress");
+      window.dispatchEvent(new CustomEvent("professional-session-opened", { detail: appointment.id }));
       toast.success("Sessão iniciada!");
       onUpdate();
     } catch (error) {
@@ -101,50 +102,22 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
   const handleEndSession = async () => {
     setIsUpdatingStatus(true);
     try {
-      // Get professional data
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) throw new Error("Não autenticado");
 
       const { data: professional } = await supabase
         .from("professionals")
-        .select("id, hourly_rate")
+        .select("id")
         .eq("user_id", authUser.id)
         .single();
 
       if (!professional) throw new Error("Perfil profissional não encontrado");
 
-      // Get receipt template
-      const { data: receiptTemplate } = await supabase
-        .from("receipt_templates")
-        .select("*")
-        .eq("professional_id", professional.id)
-        .maybeSingle();
-
-      // Get patient profile
-      const { data: patientProfile } = await supabase
-        .from("profiles")
-        .select("full_name, cpf")
-        .eq("user_id", appointment.id ? "" : "")
-        .maybeSingle();
-
-      // Get user_id from appointment
       const { data: appointmentData } = await supabase
         .from("appointments")
         .select("user_id")
         .eq("id", appointment.id)
         .single();
-
-      let patientData = { full_name: appointment.profiles?.full_name || "Paciente", cpf: "" };
-      if (appointmentData?.user_id) {
-        const { data: pProfile } = await supabase
-          .from("profiles")
-          .select("full_name, cpf")
-          .eq("user_id", appointmentData.user_id)
-          .single();
-        if (pProfile) {
-          patientData = { full_name: pProfile.full_name || "Paciente", cpf: pProfile.cpf || "" };
-        }
-      }
 
       // Keep the appointment in progress until the mandatory rebooking
       // decision is completed.
@@ -177,81 +150,6 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
     toast.success("Sessão concluída com sucesso!");
     onUpdate();
     onClose();
-  };
-
-  const generateReceiptHtml = (data: any, receiptNumber: number) => {
-    const formattedDate = (() => {
-      try {
-        const d = parseISO(data.service.date);
-        return format(d, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-      } catch {
-        return data.service.date;
-      }
-    })();
-
-    const verificationUrl = `https://fanaticamente.lovable.app/verificar-recibo/${receiptNumber}`;
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
-
-    return `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Recibo de Atendimento Nº ${receiptNumber}</title>
-<style>
-body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 40px; color: #1a1a1a; }
-.header { text-align: center; border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 30px; }
-.header h1 { font-size: 24px; margin: 0 0 5px; }
-.header .receipt-number { font-size: 14px; color: #666; margin: 0; }
-.section { margin-bottom: 30px; }
-.section h3 { font-size: 16px; margin: 0 0 10px; }
-.section p { margin: 4px 0; font-size: 14px; }
-.service-info { background: #ffffff; padding: 20px; border: 1px solid #e5e5e5; border-radius: 8px; margin-bottom: 30px; }
-.service-info h3 { margin: 0 0 15px; font-size: 16px; }
-.row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
-.amount { font-size: 20px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px; }
-.footer-date { text-align: center; margin-top: 40px; font-size: 12px; color: #666; }
-.auth-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e5e5; }
-.auth-footer .auth-text { flex: 1; font-size: 11px; color: #888; line-height: 1.5; }
-.auth-footer .qr-code img { width: 120px; height: 120px; }
-@media print { body { margin: 0; padding: 20px; } }
-</style>
-</head>
-<body>
-<div class="header">
-<h1>RECIBO DE ATENDIMENTO</h1>
-<p class="receipt-number">Nº ${String(receiptNumber).padStart(6, '0')}</p>
-</div>
-<div class="section">
-<h3>Prestador de Serviço</h3>
-<p><strong>${data.professional.full_name}</strong></p>
-<p>CRP: ${data.professional.crp}</p>
-<p>${data.professional.document_type}: ${data.professional.document_number}</p>
-</div>
-<div class="service-info">
-<h3>Dados do Serviço</h3>
-<div class="row"><span>Serviço:</span><span>${data.service.description}</span></div>
-<div class="row"><span>Data:</span><span>${formattedDate}</span></div>
-<div class="row"><span>Horário:</span><span>${data.service.time}</span></div>
-<div class="row amount"><span>Valor:</span><span>R$ ${Number(data.service.amount).toFixed(2)}</span></div>
-</div>
-<div class="section">
-<h3>Tomador do Serviço</h3>
-<p><strong>${data.patient.full_name}</strong></p>
-${data.patient.cpf ? `<p>CPF: ${data.patient.cpf}</p>` : ""}
-</div>
-<div class="footer-date">
-<p>Documento emitido em ${new Date().toLocaleDateString('pt-BR')}</p>
-</div>
-<div class="auth-footer">
-<div class="auth-text">
-Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, sistema utilizado pelo prestador do serviço. Consulte a autenticidade no QR Code ao lado.
-</div>
-<div class="qr-code">
-<img src="${qrApiUrl}" alt="QR Code de verificação" />
-</div>
-</div>
-</body>
-</html>`;
   };
 
   // Calculate reminder time (10 min before)
