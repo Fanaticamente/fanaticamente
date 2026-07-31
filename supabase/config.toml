@@ -85,3 +85,5 @@ project_id = "jehgvrskdyijirecznii"
     verify_jwt = false
   [functions.update-products]
     verify_jwt = false
+  [functions.check-signup-duplicate]
+    verify_jwt = false
