@@ -45,6 +45,7 @@ const MeusAgendamentos = () => {
   const [filter, setFilter] = useState<"proximos" | "realizados" | "cancelados" | "todos">("proximos");
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [completedAppointment, setCompletedAppointment] = useState<Appointment | null>(null);
+  const [rebookAppointment, setRebookAppointment] = useState<Appointment | null>(null);
   const [rescheduleAppointment, setRescheduleAppointment] = useState<Appointment | null>(null);
 
   useEffect(() => {
@@ -221,6 +222,14 @@ const MeusAgendamentos = () => {
 
   const realizadosCount = appointments.filter(apt => apt.status === 'completed' && !!apt.rating).length;
   const canceladosCount = appointments.filter(apt => apt.status === 'cancelled').length;
+
+  // Professionals with an upcoming (active) appointment — used to know whether the
+  // professional already rebooked a new session for this patient.
+  const professionalsWithUpcoming = new Set(
+    appointments
+      .filter(apt => ['pending', 'confirmed', 'link_sent', 'in_progress'].includes(apt.status))
+      .map(apt => apt.professional_id)
+  );
 
   if (authLoading) {
     return (
@@ -412,15 +421,26 @@ const MeusAgendamentos = () => {
                     </button>
                   )}
 
-                  {/* Completed session - show review button only if not yet rated */}
+                  {/* Completed session - rating (and rebooking when no new session exists) */}
                   {apt.status === "completed" && !apt.rating && (
-                    <button
-                      onClick={() => setCompletedAppointment(apt)}
-                      className="w-full mt-3 py-3 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Star className="w-4 h-4" />
-                      Avaliar e reagendar
-                    </button>
+                    <>
+                      <button
+                        onClick={() => setCompletedAppointment(apt)}
+                        className="w-full mt-3 py-3 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Star className="w-4 h-4" />
+                        Avaliar sessão
+                      </button>
+                      {!professionalsWithUpcoming.has(apt.professional_id) && (
+                        <button
+                          onClick={() => setRebookAppointment(apt)}
+                          className="w-full mt-3 py-2.5 rounded-xl font-medium border bg-white border-slate-200 text-slate-900 hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          Reagendar
+                        </button>
+                      )}
+                    </>
                   )}
 
                   {/* Pending status info */}
@@ -475,6 +495,7 @@ const MeusAgendamentos = () => {
           <SessionCompletedDialog
             appointment={completedAppointment}
             onClose={() => setCompletedAppointment(null)}
+            allowReschedule={!professionalsWithUpcoming.has(completedAppointment.professional_id)}
             onRatingSubmitted={() => {
               // Update the appointment in the list with the rating
               setAppointments(prev => 
@@ -487,6 +508,15 @@ const MeusAgendamentos = () => {
               // Refresh to get actual rating value
               fetchAppointments();
             }}
+          />
+        )}
+
+        {/* Rebook dialog (new session with same professional) */}
+        {rebookAppointment && (
+          <SessionCompletedDialog
+            appointment={rebookAppointment}
+            initialReschedule
+            onClose={() => setRebookAppointment(null)}
           />
         )}
 
