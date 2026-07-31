@@ -37,9 +37,10 @@ interface SessionCompletedDialogProps {
   onClose: () => void;
   onReschedule?: () => void;
   onRatingSubmitted?: () => void;
+  allowReschedule?: boolean;
 }
 
-const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSubmitted }: SessionCompletedDialogProps) => {
+const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSubmitted, allowReschedule = true }: SessionCompletedDialogProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [rating, setRating] = useState(0);
@@ -119,8 +120,8 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
     }
   };
 
-  // User can only close after rating or scheduling
-  const canClose = hasRated;
+  // Dialog is always closable so the user never gets stuck
+  const canClose = true;
 
   const weekDays = Array.from({ length: 7 }, (_, i) =>
     addDays(currentWeekStart, i)
@@ -249,19 +250,21 @@ const SessionCompletedDialog = ({ appointment, onClose, onReschedule, onRatingSu
                 </div>
               )}
 
-              {/* Reschedule Option - Only show after rating */}
+              {/* Options after rating */}
               {hasRated && (
                 <div className="pt-4 border-t border-slate-200">
-                  <button
-                    onClick={() => setShowReschedule(true)}
-                    className="w-full py-3 bg-[var(--club-600)] text-white rounded-xl font-medium hover:bg-[var(--club-700)] transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Calendar className="w-5 h-5" />
-                    Agendar Nova Sessão
-                  </button>
+                  {allowReschedule && (
+                    <button
+                      onClick={() => setShowReschedule(true)}
+                      className="w-full py-3 bg-[var(--club-600)] text-white rounded-xl font-medium hover:bg-[var(--club-700)] transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Calendar className="w-5 h-5" />
+                      Agendar Nova Sessão
+                    </button>
+                  )}
                   <button
                     onClick={onClose}
-                    className="w-full mt-3 py-3 bg-slate-100 text-slate-500 rounded-xl font-medium hover:bg-slate-200 transition-colors"
+                    className={`w-full py-3 bg-slate-100 text-slate-500 rounded-xl font-medium hover:bg-slate-200 transition-colors ${allowReschedule ? "mt-3" : ""}`}
                   >
                     Fechar
                   </button>
