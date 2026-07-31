@@ -55,7 +55,7 @@ const MandatorySessionDialog = ({ appointment, onFinished }: Props) => {
           .gte("scheduled_date", new Date().toISOString().slice(0, 10))
           .not("status", "in", '("cancelled","rejected")'),
       ]);
-      setAvailability((avail as any) || []);
+      setAvailability((avail as { day_of_week: number; time_slots: string[] }[] | null) || []);
       setBooked(apts || []);
     })();
   }, [phase, appointment.professional_id]);

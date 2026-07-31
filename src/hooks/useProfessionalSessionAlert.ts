@@ -119,7 +119,7 @@ export const useProfessionalSessionAlert = () => {
       clearInterval(interval);
       window.removeEventListener("professional-session-opened", markAsManuallyOpened);
     };
-  }, [user?.id, loading, isProfessional, isManagerRoute]);
+  }, [user, loading, isProfessional, isManagerRoute]);
 
   return { sessionAlert: appointment, clearSessionAlert: clear };
 };
