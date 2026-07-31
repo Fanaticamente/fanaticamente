@@ -79,7 +79,8 @@ const RebookFlow = ({ professionalId, patientUserId, baseDate, baseTime, onDone 
       await onDone();
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao marcar a nova consulta");
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Erro ao marcar a nova consulta: ${message}`);
     } finally {
       setBusy(false);
     }
@@ -133,6 +134,12 @@ const RebookFlow = ({ professionalId, patientUserId, baseDate, baseTime, onDone 
               className="w-full py-3 rounded-xl bg-slate-100 text-slate-700 font-medium"
             >
               Outro
+            </button>
+            <button
+              onClick={() => setPhase("ask")}
+              className="w-full py-3 rounded-xl bg-white border border-slate-200 text-slate-600 font-medium"
+            >
+              Voltar
             </button>
           </div>
         )}
