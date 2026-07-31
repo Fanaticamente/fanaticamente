@@ -88,7 +88,7 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
       if (error) throw error;
       
       setCurrentStatus("in_progress");
-      toast.success("Atendimento iniciado!");
+      toast.success("Sessão iniciada!");
       onUpdate();
     } catch (error) {
       console.error("Error starting session:", error);
@@ -101,110 +101,29 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
   const handleEndSession = async () => {
     setIsUpdatingStatus(true);
     try {
-      // Get professional data
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) throw new Error("Não autenticado");
 
       const { data: professional } = await supabase
         .from("professionals")
-        .select("id, hourly_rate")
+        .select("id")
         .eq("user_id", authUser.id)
         .single();
 
       if (!professional) throw new Error("Perfil profissional não encontrado");
 
-      // Get receipt template
-      const { data: receiptTemplate } = await supabase
-        .from("receipt_templates")
-        .select("*")
-        .eq("professional_id", professional.id)
-        .maybeSingle();
-
-      // Get patient profile
-      const { data: patientProfile } = await supabase
-        .from("profiles")
-        .select("full_name, cpf")
-        .eq("user_id", appointment.id ? "" : "")
-        .maybeSingle();
-
-      // Get user_id from appointment
       const { data: appointmentData } = await supabase
         .from("appointments")
         .select("user_id")
         .eq("id", appointment.id)
         .single();
 
-      let patientData = { full_name: appointment.profiles?.full_name || "Paciente", cpf: "" };
-      if (appointmentData?.user_id) {
-        const { data: pProfile } = await supabase
-          .from("profiles")
-          .select("full_name, cpf")
-          .eq("user_id", appointmentData.user_id)
-          .single();
-        if (pProfile) {
-          patientData = { full_name: pProfile.full_name || "Paciente", cpf: pProfile.cpf || "" };
-        }
-      }
-
-      // Update status to completed
-      const { error } = await supabase
-        .from("appointments")
-        .update({ status: "completed" })
-        .eq("id", appointment.id);
-
-      if (error) throw error;
-
-      // Generate receipt if template exists
-      if (receiptTemplate && appointmentData?.user_id) {
-        const receiptData = {
-          professional: {
-            full_name: receiptTemplate.full_name,
-            crp: receiptTemplate.crp,
-            document_type: receiptTemplate.document_type,
-            document_number: receiptTemplate.document_number,
-          },
-          service: {
-            description: receiptTemplate.service_description,
-            date: appointment.scheduled_date,
-            time: appointment.scheduled_time,
-            amount: professional.hourly_rate || 0,
-          },
-          patient: {
-            full_name: patientData.full_name,
-            cpf: patientData.cpf,
-          },
-        };
-
-        // Insert receipt first to get the auto-generated receipt_number
-        const { data: insertedReceipt, error: insertError } = await supabase
-          .from("session_receipts")
-          .insert({
-            appointment_id: appointment.id,
-            professional_id: professional.id,
-            user_id: appointmentData.user_id,
-            receipt_html: "",
-            receipt_data: receiptData,
-          })
-          .select("id, receipt_number")
-          .single();
-
-        if (!insertError && insertedReceipt) {
-          const receiptHtml = generateReceiptHtml(receiptData, insertedReceipt.receipt_number);
-
-          await supabase
-            .from("session_receipts")
-            .update({ receipt_html: receiptHtml })
-            .eq("id", insertedReceipt.id);
-        }
-      }
-
-      setCurrentStatus("completed");
-      toast.success("Atendimento encerrado!");
-      onUpdate();
-
-      // Rebooking flow must always run after a session is ended
+      // Keep the appointment in progress until the mandatory rebooking
+      // decision is completed.
       if (appointmentData?.user_id) {
         setRebook({ professionalId: professional.id, patientUserId: appointmentData.user_id });
+      } else {
+        throw new Error("Paciente não encontrado");
       }
     } catch (error) {
       console.error("Error ending session:", error);
@@ -214,79 +133,22 @@ const AppointmentDetailsDialog = ({ appointment, onClose, onUpdate }: Appointmen
     }
   };
 
-  const generateReceiptHtml = (data: any, receiptNumber: number) => {
-    const formattedDate = (() => {
-      try {
-        const d = parseISO(data.service.date);
-        return format(d, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-      } catch {
-        return data.service.date;
-      }
-    })();
+  const finishSession = async () => {
+    const { error } = await supabase
+      .from("appointments")
+      .update({ status: "completed" })
+      .eq("id", appointment.id);
 
-    const verificationUrl = `https://fanaticamente.lovable.app/verificar-recibo/${receiptNumber}`;
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+    if (error) {
+      toast.error("Erro ao concluir a sessão");
+      throw error;
+    }
 
-    return `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Recibo de Atendimento Nº ${receiptNumber}</title>
-<style>
-body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 40px; color: #1a1a1a; }
-.header { text-align: center; border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 30px; }
-.header h1 { font-size: 24px; margin: 0 0 5px; }
-.header .receipt-number { font-size: 14px; color: #666; margin: 0; }
-.section { margin-bottom: 30px; }
-.section h3 { font-size: 16px; margin: 0 0 10px; }
-.section p { margin: 4px 0; font-size: 14px; }
-.service-info { background: #ffffff; padding: 20px; border: 1px solid #e5e5e5; border-radius: 8px; margin-bottom: 30px; }
-.service-info h3 { margin: 0 0 15px; font-size: 16px; }
-.row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
-.amount { font-size: 20px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px; }
-.footer-date { text-align: center; margin-top: 40px; font-size: 12px; color: #666; }
-.auth-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e5e5; }
-.auth-footer .auth-text { flex: 1; font-size: 11px; color: #888; line-height: 1.5; }
-.auth-footer .qr-code img { width: 120px; height: 120px; }
-@media print { body { margin: 0; padding: 20px; } }
-</style>
-</head>
-<body>
-<div class="header">
-<h1>RECIBO DE ATENDIMENTO</h1>
-<p class="receipt-number">Nº ${String(receiptNumber).padStart(6, '0')}</p>
-</div>
-<div class="section">
-<h3>Prestador de Serviço</h3>
-<p><strong>${data.professional.full_name}</strong></p>
-<p>CRP: ${data.professional.crp}</p>
-<p>${data.professional.document_type}: ${data.professional.document_number}</p>
-</div>
-<div class="service-info">
-<h3>Dados do Serviço</h3>
-<div class="row"><span>Serviço:</span><span>${data.service.description}</span></div>
-<div class="row"><span>Data:</span><span>${formattedDate}</span></div>
-<div class="row"><span>Horário:</span><span>${data.service.time}</span></div>
-<div class="row amount"><span>Valor:</span><span>R$ ${Number(data.service.amount).toFixed(2)}</span></div>
-</div>
-<div class="section">
-<h3>Tomador do Serviço</h3>
-<p><strong>${data.patient.full_name}</strong></p>
-${data.patient.cpf ? `<p>CPF: ${data.patient.cpf}</p>` : ""}
-</div>
-<div class="footer-date">
-<p>Documento emitido em ${new Date().toLocaleDateString('pt-BR')}</p>
-</div>
-<div class="auth-footer">
-<div class="auth-text">
-Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, sistema utilizado pelo prestador do serviço. Consulte a autenticidade no QR Code ao lado.
-</div>
-<div class="qr-code">
-<img src="${qrApiUrl}" alt="QR Code de verificação" />
-</div>
-</div>
-</body>
-</html>`;
+    setCurrentStatus("completed");
+    setRebook(null);
+    toast.success("Sessão concluída com sucesso!");
+    onUpdate();
+    onClose();
   };
 
   // Calculate reminder time (10 min before)
@@ -312,10 +174,14 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
 
   const statusDisplay = getStatusDisplay();
 
+  const isSessionLocked = currentStatus === "in_progress" || rebook !== null;
+
   return (
     <div 
       className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4" 
-      onClick={onClose}
+      onClick={() => {
+        if (!isSessionLocked) onClose();
+      }}
     >
       <div 
         className="bg-card rounded-2xl max-w-lg w-full max-h-[80vh] overflow-auto mb-24" 
@@ -326,12 +192,14 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
           <h3 className="font-display text-lg text-card-foreground">
             Detalhes do Agendamento
           </h3>
-          <button 
-            onClick={onClose} 
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-muted-foreground" />
-          </button>
+          {!isSessionLocked && (
+            <button 
+              onClick={onClose} 
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5 text-muted-foreground" />
+            </button>
+          )}
         </div>
 
         {/* Content */}
@@ -579,11 +447,7 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
           patientUserId={rebook.patientUserId}
           baseDate={appointment.scheduled_date}
           baseTime={appointment.scheduled_time}
-          onDone={() => {
-            setRebook(null);
-            onUpdate();
-            onClose();
-          }}
+          onDone={finishSession}
         />
       )}
     </div>

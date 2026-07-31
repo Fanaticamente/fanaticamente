@@ -10,7 +10,7 @@ interface RebookFlowProps {
   patientUserId: string;
   baseDate: string;
   baseTime: string;
-  onDone: () => void;
+  onDone: () => void | Promise<void>;
 }
 
 type Phase = "ask" | "choose" | "calendar";
@@ -43,7 +43,7 @@ const RebookFlow = ({ professionalId, patientUserId, baseDate, baseTime, onDone 
           .gte("scheduled_date", new Date().toISOString().slice(0, 10))
           .not("status", "in", '("cancelled","rejected")'),
       ]);
-      setAvailability((avail as any) || []);
+      setAvailability((avail as { day_of_week: number; time_slots: string[] }[] | null) || []);
       setBooked(apts || []);
     })();
   }, [phase, professionalId]);
@@ -76,7 +76,7 @@ const RebookFlow = ({ professionalId, patientUserId, baseDate, baseTime, onDone 
       toast.success(
         `Nova consulta marcada para ${format(parseISO(date), "dd/MM/yyyy")} às ${time.slice(0, 5)}`
       );
-      onDone();
+      await onDone();
     } catch (err) {
       console.error(err);
       toast.error("Erro ao marcar a nova consulta");

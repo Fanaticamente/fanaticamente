@@ -1314,7 +1314,6 @@ const ProfessionalDashboard = () => {
                     onClose={() => setSelectedAppointment(null)}
                     onUpdate={() => {
                       fetchAppointments();
-                      setSelectedAppointment(null);
                     }}
                   />
                 )}
