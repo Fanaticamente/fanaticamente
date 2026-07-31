@@ -541,14 +541,14 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
             </div>
 
             {/* Session Control Buttons */}
-            {currentStatus === "link_sent" && (
+            {(currentStatus === "confirmed" || currentStatus === "link_sent") && (
               <button
                 onClick={handleStartSession}
                 disabled={isUpdatingStatus}
                 className="w-full py-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Play className="w-4 h-4" />
-                {isUpdatingStatus ? "Iniciando..." : "Iniciar Consulta"}
+                {isUpdatingStatus ? "Iniciando..." : "Iniciar Sessão"}
               </button>
             )}
 
@@ -559,7 +559,7 @@ Este recibo foi emitido pelo sistema de agendamentos do Fanaticamente App, siste
                 className="w-full py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Square className="w-4 h-4" />
-                {isUpdatingStatus ? "Encerrando..." : "Encerrar Consulta"}
+                {isUpdatingStatus ? "Encerrando..." : "Encerrar Sessão"}
               </button>
             )}
           </div>
