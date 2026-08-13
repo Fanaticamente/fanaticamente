@@ -148,6 +148,17 @@ const AgendarSessao = () => {
               navigate(backTo, { replace: true });
               return;
             }
+            // Se chegamos aqui por navegação interna (push), voltamos no histórico
+            // para não deixar entradas duplicadas de /terapeutas empilhadas — era
+            // isso que fazia o "voltar" ficar preso entre listagem e perfil.
+            const canGoBack =
+              location.key !== "default" &&
+              typeof window !== "undefined" &&
+              window.history.length > 1;
+            if (canGoBack) {
+              navigate(-1);
+              return;
+            }
             const returnClubId = clubId ?? readStoredClubId(id);
             if (returnClubId) navigate(`/terapeutas?clube=${returnClubId}`, { replace: true, state: { clubId: returnClubId } });
             else navigate("/terapeutas", { replace: true });
