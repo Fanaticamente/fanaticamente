@@ -21,6 +21,8 @@ const Perfil = () => {
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null; favorite_club_id: string | null } | null>(null);
   const [favoriteClub, setFavoriteClub] = useState<BrazilianClub | null>(null);
   const [appointmentsCount, setAppointmentsCount] = useState(0);
+  const [diaryDaysCount, setDiaryDaysCount] = useState(0);
+  const [coursesCount, setCoursesCount] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [profileLoading, setProfileLoading] = useState(true);
   const displayEmail = getDisplayAuthEmail(user);
@@ -87,6 +89,27 @@ const Perfil = () => {
           .eq("user_id", user.id);
         
         setAppointmentsCount(count || 0);
+
+        // Fetch distinct diary check-in days
+        const { data: emotionRows } = await supabase
+          .from("emotion_entries")
+          .select("created_at")
+          .eq("user_id", user.id);
+
+        const uniqueDays = new Set(
+          (emotionRows || []).map((row: { created_at: string }) =>
+            new Date(row.created_at).toLocaleDateString("en-CA")
+          )
+        );
+        setDiaryDaysCount(uniqueDays.size);
+
+        // Fetch courses the user has access to
+        const { count: coursesTotal } = await supabase
+          .from("user_course_access")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id);
+
+        setCoursesCount(coursesTotal || 0);
 
         // Fetch unread notifications count
         const { count: notifCount } = await supabase
