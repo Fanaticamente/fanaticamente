@@ -21,6 +21,8 @@ const Perfil = () => {
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null; favorite_club_id: string | null } | null>(null);
   const [favoriteClub, setFavoriteClub] = useState<BrazilianClub | null>(null);
   const [appointmentsCount, setAppointmentsCount] = useState(0);
+  const [diaryDaysCount, setDiaryDaysCount] = useState(0);
+  const [coursesCount, setCoursesCount] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [profileLoading, setProfileLoading] = useState(true);
   const displayEmail = getDisplayAuthEmail(user);
@@ -87,6 +89,27 @@ const Perfil = () => {
           .eq("user_id", user.id);
         
         setAppointmentsCount(count || 0);
+
+        // Fetch distinct diary check-in days
+        const { data: emotionRows } = await supabase
+          .from("emotion_entries")
+          .select("created_at")
+          .eq("user_id", user.id);
+
+        const uniqueDays = new Set(
+          (emotionRows || []).map((row: { created_at: string }) =>
+            new Date(row.created_at).toLocaleDateString("en-CA")
+          )
+        );
+        setDiaryDaysCount(uniqueDays.size);
+
+        // Fetch courses the user has access to
+        const { count: coursesTotal } = await supabase
+          .from("user_course_access")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id);
+
+        setCoursesCount(coursesTotal || 0);
 
         // Fetch unread notifications count
         const { count: notifCount } = await supabase
@@ -344,11 +367,11 @@ const Perfil = () => {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
-          <p className="font-sans font-semibold text-2xl" style={{ color: "var(--club-600)" }}>15</p>
+          <p className="font-sans font-semibold text-2xl" style={{ color: "var(--club-600)" }}>{diaryDaysCount}</p>
           <p className="text-slate-500 text-xs mt-1">Dias no diário</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
-          <p className="font-sans font-semibold text-2xl" style={{ color: "var(--club-600)" }}>3</p>
+          <p className="font-sans font-semibold text-2xl" style={{ color: "var(--club-600)" }}>{coursesCount}</p>
           <p className="text-slate-500 text-xs mt-1">Cursos feitos</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
