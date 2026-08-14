@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Smartphone, Monitor, ArrowRight, Loader2, Settings, LogOut, ExternalLink, GraduationCap, ArrowLeft, Bell, Megaphone, Gamepad2 } from "lucide-react";
+import { Smartphone, ArrowRight, Loader2, Settings, LogOut, ExternalLink, GraduationCap, ArrowLeft, Bell, Megaphone, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CourseManager from "@/components/admin/CourseManager";
 import { useManagerTheme } from "@/hooks/useManagerTheme";
@@ -17,19 +17,6 @@ const ContentManagers = () => {
     navigate("/admin-access");
   };
   
-  // Desktop-only check: viewport >= 1024px
-  const [isDesktop, setIsDesktop] = useState(() => 
-    typeof window !== "undefined" ? window.innerWidth >= 1024 : true
-  );
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 1024);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   useEffect(() => {
     if (!loading && (!user || !hasRole("developer"))) {
       navigate("/");
@@ -44,56 +31,30 @@ const ContentManagers = () => {
     );
   }
 
-  // Block mobile/tablet access - desktop only
-  if (!isDesktop) {
-    return (
-      <div className="h-screen w-screen bg-background flex items-center justify-center p-6">
-        <div className="text-center max-w-md">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-            <Monitor className="w-8 h-8 text-primary" />
-          </div>
-          <h1 className="font-display text-2xl text-card-foreground mb-3">
-            Acesso apenas pelo Desktop
-          </h1>
-          <p className="text-muted-foreground mb-6">
-            O Gerenciador de Conteúdo está disponível apenas em computadores. 
-            Por favor, acesse pelo navegador do seu computador.
-          </p>
-          <button
-            onClick={() => navigate("/")}
-            className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium"
-          >
-            Voltar ao Início
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen w-screen bg-background flex flex-col">
+    <div className="min-h-screen w-full bg-background flex flex-col">
       {/* Header */}
-      <header className="h-14 bg-card border-b border-border flex items-center justify-between px-6 flex-shrink-0 sticky top-0 z-10">
+      <header className="min-h-14 bg-card border-b border-border flex items-center justify-between gap-2 px-3 sm:px-6 py-2 flex-shrink-0 sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 hidden sm:flex items-center justify-center">
             <Settings className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h1 className="font-display text-lg text-card-foreground">
+            <h1 className="font-display text-base sm:text-lg text-card-foreground">
               Gerenciadores de Conteúdo
             </h1>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground hidden sm:block">
               Escolha qual plataforma deseja editar
             </p>
           </div>
         </div>
         
         <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={() => navigate("/")}>
+          <Button variant="outline" size="sm" className="hidden sm:inline-flex" onClick={() => navigate("/")}>
             <ExternalLink className="w-4 h-4 mr-2" />
             Visualizar o site
           </Button>
-          <Button variant="destructive" onClick={handleLogout}>
+          <Button variant="destructive" size="sm" onClick={handleLogout}>
             <LogOut className="w-4 h-4 mr-2" />
             Sair
           </Button>
@@ -101,7 +62,7 @@ const ContentManagers = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-8">
+      <main className="flex-1 overflow-y-auto p-4 sm:p-8">
         {activeView === "courses" ? (
           <div className="max-w-5xl mx-auto">
             <div className="mb-6">
@@ -113,7 +74,7 @@ const ContentManagers = () => {
           </div>
         ) : (
         <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8 max-w-6xl w-full">
           {/* Mobile Manager Card */}
           <div 
             onClick={() => navigate("/developer/mobile")}
