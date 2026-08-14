@@ -9,8 +9,7 @@ import { useModuleConfig } from "@/hooks/useModuleConfig";
 import { brazilianClubs } from "@/data/brazilianClubs";
 import { fixTitleCapitalization } from "@/lib/fixTitleCapitalization";
 import { Loader2, Newspaper, Play, Headphones, Lightbulb, Bookmark, Clock, Trophy } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatTimeAgo } from "@/lib/utils";
 
 type TabKey = "todos" | "noticias" | "tabela" | "videos" | "podcasts" | "dicas";
 
@@ -270,10 +269,7 @@ const ContentItemCard = ({ item, type }: { item: ContentItem; type: TabKey }) =>
 const FeaturedHero = ({ item }: { item: NonNullable<ReturnType<typeof useFootballNews>["data"]>[number] }) => {
   const title = fixTitleCapitalization(item.rewritten_title);
   const [open, setOpen] = useState(false);
-  const timeAgo = formatDistanceToNow(new Date(item.published_at), {
-    addSuffix: true,
-    locale: ptBR,
-  }).replace(/^cerca de /, "");
+  const timeAgo = formatTimeAgo(new Date(item.published_at));
 
   return (
     <>
