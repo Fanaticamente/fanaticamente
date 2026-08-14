@@ -405,13 +405,13 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
                   }}
                 />
                 {(displayCaption || cleanedCredits) && (
-                  <figcaption className="bg-gray-50 px-3 py-2 text-xs text-gray-700 border-t border-gray-300 font-sans line-clamp-2">
+                  <figcaption className="bg-gray-50 px-3 py-2 text-xs text-gray-700 border-t border-gray-300 font-sans whitespace-normal">
                     {displayCaption && cleanedCredits ? (
-                      <span>{displayCaption} — <span className="text-gray-500">{cleanedCredits}</span></span>
+                      <span className="break-words">{displayCaption} — <span className="text-gray-500">{cleanedCredits}</span></span>
                     ) : displayCaption ? (
-                      <span>{displayCaption}</span>
+                      <span className="break-words">{displayCaption}</span>
                     ) : cleanedCredits ? (
-                      <span className="text-gray-500">{cleanedCredits}</span>
+                      <span className="text-gray-500 break-words">{cleanedCredits}</span>
                     ) : null}
                   </figcaption>
                 )}

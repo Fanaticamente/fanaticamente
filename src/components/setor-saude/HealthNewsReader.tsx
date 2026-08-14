@@ -120,10 +120,12 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
                   }}
                 />
                 {(news.image_caption || news.image_credits) && (
-                  <figcaption className="bg-gray-50 px-3 py-2 text-xs text-gray-700 border-t border-gray-300 font-sans">
-                    {news.image_caption}
+                  <figcaption className="bg-gray-50 px-3 py-2 text-xs text-gray-700 border-t border-gray-300 font-sans whitespace-normal">
+                    {news.image_caption && (
+                      <span className="break-words">{news.image_caption}</span>
+                    )}
                     {news.image_credits && (
-                      <span className="text-gray-500"> — {news.image_credits}</span>
+                      <span className="text-gray-500 break-words">{news.image_caption ? " — " : ""}{news.image_credits}</span>
                     )}
                   </figcaption>
                 )}
