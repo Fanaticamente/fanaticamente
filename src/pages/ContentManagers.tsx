@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Smartphone, ArrowRight, Loader2, Settings, LogOut, ExternalLink, GraduationCap, ArrowLeft, Bell, Megaphone, Gamepad2 } from "lucide-react";
+import { Smartphone, Monitor, ArrowRight, Loader2, Settings, LogOut, ExternalLink, GraduationCap, ArrowLeft, Bell, Megaphone, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CourseManager from "@/components/admin/CourseManager";
 import { useManagerTheme } from "@/hooks/useManagerTheme";
