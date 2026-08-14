@@ -109,7 +109,7 @@ const NextMatchBar = () => {
   });
 
   const [newsIdx, setNewsIdx] = useState(0);
-  const newsCount = clubNews?.length ?? 0;
+  const newsCount = generalNews?.length ?? 0;
   useEffect(() => {
     if (newsCount < 2) return;
     const t = setInterval(() => setNewsIdx((i) => (i + 1) % newsCount), 5000);
