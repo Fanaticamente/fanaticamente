@@ -396,15 +396,15 @@ const FootballNewsManager = () => {
       ) : (
         <div className="grid gap-3">
           {items.map((it) => (
-            <div key={it.id} className="bg-white rounded-xl border border-gray-200 p-4 flex gap-4 items-center">
+            <div key={it.id} className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 flex flex-wrap gap-3 sm:gap-4 items-center">
               {it.image_url ? (
-                <img src={it.image_url} alt="" className="w-20 h-20 rounded-lg object-cover" />
+                <img src={it.image_url} alt="" className="w-14 h-14 sm:w-20 sm:h-20 rounded-lg object-cover flex-shrink-0" />
               ) : (
-                <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center">
+                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                   <ImageIcon className="w-6 h-6 text-gray-400" />
                 </div>
               )}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-[140px]">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   {it.is_featured && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold flex items-center gap-1">
@@ -414,13 +414,13 @@ const FootballNewsManager = () => {
                   <span className="text-xs text-gray-500">{it.category || "Futebol"}</span>
                   <span className="text-[10px] text-gray-400">{it.source_site}</span>
                 </div>
-                <h4 className="font-bold text-gray-900 truncate">{it.rewritten_title}</h4>
+                <h4 className="font-bold text-gray-900 text-sm sm:text-base break-words">{it.rewritten_title}</h4>
                 <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
                   <Calendar className="w-3 h-3" />
                   {new Date(it.published_at).toLocaleString("pt-BR")}
                 </p>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 ml-auto flex-shrink-0">
                 {!it.is_featured && (
                   <Button variant="ghost" size="icon" title="Definir como destaque"
                     onClick={() => setFeatured.mutate(it.id)}>

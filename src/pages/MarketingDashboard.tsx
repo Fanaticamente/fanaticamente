@@ -173,38 +173,38 @@ const MarketingDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-20">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-gray-50">
+      <header className="bg-white border-b border-gray-200 flex flex-wrap items-center justify-between gap-2 px-3 sm:px-6 py-2 sm:py-3 sticky top-0 z-20">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
             <Megaphone className="w-5 h-5 text-emerald-700" />
           </div>
-          <div>
-            <h1 className="font-display text-lg text-gray-900">Marketing & Conteúdo</h1>
-            <p className="text-xs text-gray-500">Setor Saúde — gestão de matérias</p>
+          <div className="min-w-0">
+            <h1 className="font-display text-base sm:text-lg text-gray-900 truncate">Marketing &amp; Conteúdo</h1>
+            <p className="text-[11px] sm:text-xs text-gray-500 truncate">Setor Saúde — gestão de matérias</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Button variant="outline" size="sm" onClick={() => navigate("/setor-saude")}>
-            <Eye className="w-4 h-4 mr-1" /> Ver no app
+            <Eye className="w-4 h-4 sm:mr-1" /> <span className="hidden sm:inline">Ver no app</span>
           </Button>
           <Button variant="destructive" size="sm" onClick={async () => { await signOut(); navigate("/admin-access"); }}>
-            <LogOut className="w-4 h-4 mr-1" /> Sair
+            <LogOut className="w-4 h-4 sm:mr-1" /> <span className="hidden sm:inline">Sair</span>
           </Button>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto w-full px-3 sm:px-6 py-5 sm:py-8">
         <Tabs value={section} onValueChange={(v) => setSection(v as "news" | "carousel" | "futebol")} className="mb-6">
-          <TabsList>
+          <TabsList className="w-full max-w-full overflow-x-auto justify-start flex-nowrap [&::-webkit-scrollbar]:hidden">
             <TabsTrigger value="news">
-              <Megaphone className="w-4 h-4 mr-1" /> Matérias
+              <Megaphone className="w-4 h-4 mr-1 flex-shrink-0" /> <span className="whitespace-nowrap">Matérias</span>
             </TabsTrigger>
             <TabsTrigger value="carousel">
-              <LayoutTemplate className="w-4 h-4 mr-1" /> Carrossel Principal
+              <LayoutTemplate className="w-4 h-4 mr-1 flex-shrink-0" /> <span className="whitespace-nowrap">Carrossel</span>
             </TabsTrigger>
             <TabsTrigger value="futebol">
-              <Trophy className="w-4 h-4 mr-1" /> Futebol / Conteúdo
+              <Trophy className="w-4 h-4 mr-1 flex-shrink-0" /> <span className="whitespace-nowrap">Futebol</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -213,8 +213,8 @@ const MarketingDashboard = () => {
           <FootballManager onPreview={() => navigate("/futebol")} />
         ) : section === "carousel" ? (
           <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <div>
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
+              <div className="min-w-0">
                 <h2 className="text-lg font-bold text-gray-900">Carrossel Principal da Home</h2>
                 <p className="text-xs text-gray-500">
                   Banner rotativo no topo da página inicial. Recomendado: 750 × 960 px.
@@ -239,8 +239,8 @@ const MarketingDashboard = () => {
           </div>
         ) : mode === "list" ? (
           <>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Matérias</h2>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Matérias</h2>
               <Button onClick={handleNew} className="bg-emerald-700 hover:bg-emerald-800">
                 <Plus className="w-4 h-4 mr-1" /> Nova matéria
               </Button>
@@ -256,15 +256,15 @@ const MarketingDashboard = () => {
             ) : (
               <div className="grid gap-3">
                 {items.map((it) => (
-                  <div key={it.id} className="bg-white rounded-xl border border-gray-200 p-4 flex gap-4 items-center">
+                  <div key={it.id} className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4 flex flex-wrap gap-3 sm:gap-4 items-center">
                     {it.cover_image_url ? (
-                      <img src={it.cover_image_url} alt="" className="w-20 h-20 rounded-lg object-cover" />
+                      <img src={it.cover_image_url} alt="" className="w-14 h-14 sm:w-20 sm:h-20 rounded-lg object-cover flex-shrink-0" />
                     ) : (
-                      <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center">
+                      <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                         <ImageIcon className="w-6 h-6 text-gray-400" />
                       </div>
                     )}
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-[140px]">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                           it.is_published ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"
@@ -278,7 +278,7 @@ const MarketingDashboard = () => {
                         )}
                         <span className="text-xs text-gray-500">{it.category}</span>
                       </div>
-                      <h3 className="font-bold text-gray-900 truncate">{it.title}</h3>
+                      <h3 className="font-bold text-gray-900 text-sm sm:text-base break-words">{it.title}</h3>
                       <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
                         <Calendar className="w-3 h-3" />
                         {it.published_at
@@ -287,7 +287,7 @@ const MarketingDashboard = () => {
                         {it.author_name && <> • por {it.author_name}</>}
                       </p>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 ml-auto flex-shrink-0">
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(it)} title="Editar">
                         <Pencil className="w-4 h-4" />
                       </Button>
