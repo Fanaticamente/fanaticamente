@@ -438,7 +438,7 @@ const FootballManager = ({ onPreview }: { onPreview?: () => void }) => {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-3 flex-wrap">
+      <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-lg font-bold text-gray-900">Página Futebol / Conteúdo</h2>
           <p className="text-xs text-gray-500">Menus, submenus e conteúdos exibidos no app do torcedor</p>
@@ -450,8 +450,8 @@ const FootballManager = ({ onPreview }: { onPreview?: () => void }) => {
         )}
       </div>
 
-      <div className="grid md:grid-cols-[220px_1fr]">
-        <nav className="border-r border-gray-200 bg-gray-50 p-2 flex md:flex-col gap-1 overflow-x-auto">
+      <div className="grid md:grid-cols-[220px_minmax(0,1fr)]">
+        <nav className="border-r border-gray-200 bg-gray-50 p-2 flex md:flex-col gap-1 overflow-x-auto max-w-full [&::-webkit-scrollbar]:hidden">
           {SECTIONS.map((s) => {
             const Icon = s.icon;
             const on = active === s.id;
@@ -469,7 +469,7 @@ const FootballManager = ({ onPreview }: { onPreview?: () => void }) => {
           })}
         </nav>
 
-        <div className="p-5 bg-gray-50 min-h-[420px]">
+        <div className="p-3 sm:p-5 bg-gray-50 min-h-[420px] min-w-0 overflow-x-hidden">
           {active === "football_news_posts" ? (
             <FootballNewsManager />
           ) : !mod ? (
