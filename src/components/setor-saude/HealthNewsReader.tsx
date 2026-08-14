@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatTimeAgo } from "@/lib/utils";
 import {
   Drawer,
   DrawerContent,
@@ -146,9 +145,7 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
               <p className="text-xs text-gray-500 text-center mt-3 tracking-wide font-sans">
                 por <span className="font-semibold text-gray-700">Fanaticamente</span>
                 {" • "}
-                {formatDistanceToNow(date, { addSuffix: true, locale: ptBR })
-                  .replace(/^há cerca de /, "há ")
-                  .replace(/^cerca de /, "")}
+                {formatTimeAgo(date)}
               </p>
             </div>
           </div>
