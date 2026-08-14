@@ -257,26 +257,26 @@ const NextMatchBar = () => {
         </div>
       )}
 
-      {/* Mini carrossel da última notícia do clube */}
+      {/* Mini carrossel das 3 últimas notícias do portal */}
       {newsCount > 0 && (
         <button
           onClick={() => navigate("/futebol")}
           className="mt-2 w-full flex items-center gap-2 text-left"
         >
-          {clubNews![newsIdx % newsCount].image_url && (
+          {generalNews![newsIdx % newsCount].image_url && (
             <img
-              src={clubNews![newsIdx % newsCount].image_url!}
+              src={generalNews![newsIdx % newsCount].image_url!}
               alt=""
               loading="lazy"
               className="w-12 h-9 rounded-lg object-cover shrink-0"
             />
           )}
           <span className="flex-1 min-w-0 text-[11px] font-semibold text-gray-700 leading-tight line-clamp-2">
-            {clubNews![newsIdx % newsCount].rewritten_title}
+            {generalNews![newsIdx % newsCount].rewritten_title}
           </span>
           {newsCount > 1 && (
             <span className="flex flex-col gap-0.5 shrink-0">
-              {clubNews!.map((_, i) => (
+              {generalNews!.map((_, i) => (
                 <span
                   key={i}
                   className="w-1 h-1 rounded-full"
