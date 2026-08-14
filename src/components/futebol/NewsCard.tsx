@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Clock, ChevronRight, X, Newspaper, Volume2, Pause, Play, Loader2 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatTimeAgo } from "@/lib/utils";
 import {
   Drawer,
   DrawerContent,
