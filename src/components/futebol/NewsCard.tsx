@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { FootballNewsItem } from "@/hooks/useFootballNews";
+import { cleanNewsContent, toParagraphs } from "@/lib/newsContent";
 import { fixTitleCapitalization } from "@/lib/fixTitleCapitalization";
 
 interface NewsCardProps {
@@ -71,36 +72,6 @@ const cleanImageCaption = (caption: string | null): string | null => {
   return cleanedCaption;
 };
 
-// Clean content to remove photo credits and metadata mixed in text
-const cleanNewsContent = (content: string): string => {
-  let cleaned = content;
-  
-  // Remove photo credit patterns like "— Foto: Getty Images" or "Foto: Reprodução"
-  cleaned = cleaned.replace(/—?\s*Foto:\s*[^\n]+/gi, '');
-  
-  // Remove patterns like "Nome — Foto: ..."
-  cleaned = cleaned.replace(/[A-Za-zÀ-ú\s]+—\s*Foto:\s*[^\n]+/gi, '');
-  
-  // Remove duplicate lines (caption repeated)
-  const lines = cleaned.split('\n');
-  const uniqueLines: string[] = [];
-  const seen = new Set<string>();
-  
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed && !seen.has(trimmed.toLowerCase())) {
-      seen.add(trimmed.toLowerCase());
-      uniqueLines.push(line);
-    }
-  }
-  
-  cleaned = uniqueLines.join('\n');
-  
-  // Clean up extra whitespace
-  cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trim();
-  
-  return cleaned;
-};
 
 
 const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
@@ -460,9 +431,14 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
             >
               {/* Drop cap for first paragraph */}
-              <p className="first-letter:float-left first-letter:text-[3.5rem] first-letter:font-bold first-letter:mr-2 first-letter:mt-1 first-letter:leading-[0.8] first-letter:text-black">
-                {cleanedContent}
-              </p>
+              {toParagraphs(cleanedContent).map((paragraph, idx) => (
+                <p
+                  key={idx}
+                  className={`whitespace-pre-line ${idx > 0 ? "mt-4" : "first-letter:float-left first-letter:text-[3.5rem] first-letter:font-bold first-letter:mr-2 first-letter:mt-1 first-letter:leading-[0.8] first-letter:text-black"}`}
+                >
+                  {paragraph}
+                </p>
+              ))}
             </article>
 
             {/* Footer decoration */}

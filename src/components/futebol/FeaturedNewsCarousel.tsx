@@ -10,6 +10,7 @@ import {
 import type { FootballNewsItem } from "@/hooks/useFootballNews";
 import type { HealthNewsItem } from "@/hooks/useHealthNews";
 import NewsCard from "./NewsCard";
+import { cleanNewsContent, toParagraphs } from "@/lib/newsContent";
 import { fixTitleCapitalization } from "@/lib/fixTitleCapitalization";
 import HealthNewsReader from "@/components/setor-saude/HealthNewsReader";
 
@@ -169,25 +170,6 @@ interface FeaturedSlideProps {
   accentColor?: string | null;
 }
 
-// Clean content to remove photo credits and metadata mixed in text
-const cleanNewsContent = (content: string): string => {
-  let cleaned = content;
-  cleaned = cleaned.replace(/—?\s*Foto:\s*[^\n]+/gi, '');
-  cleaned = cleaned.replace(/[A-Za-zÀ-ú\s]+—\s*Foto:\s*[^\n]+/gi, '');
-  const lines = cleaned.split('\n');
-  const uniqueLines: string[] = [];
-  const seen = new Set<string>();
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed && !seen.has(trimmed.toLowerCase())) {
-      seen.add(trimmed.toLowerCase());
-      uniqueLines.push(line);
-    }
-  }
-  cleaned = uniqueLines.join('\n');
-  cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trim();
-  return cleaned;
-};
 
 
 const FeaturedSlide = ({ news, onOpen, accentColor }: FeaturedSlideProps) => {
@@ -373,9 +355,14 @@ const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) =>
               className={`text-gray-900 text-justify hyphens-auto transition-all duration-200 ${fontSizeClasses[fontSizeLevel]}`}
               style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
             >
-              <p className="first-letter:float-left first-letter:text-[3.5rem] first-letter:font-bold first-letter:mr-2 first-letter:mt-1 first-letter:leading-[0.8] first-letter:text-black">
-                {cleanedContent}
-              </p>
+              {toParagraphs(cleanedContent).map((paragraph, idx) => (
+                <p
+                  key={idx}
+                  className={`whitespace-pre-line ${idx > 0 ? "mt-4" : "first-letter:float-left first-letter:text-[3.5rem] first-letter:font-bold first-letter:mr-2 first-letter:mt-1 first-letter:leading-[0.8] first-letter:text-black"}`}
+                >
+                  {paragraph}
+                </p>
+              ))}
             </article>
 
             <div className="pt-4 border-t border-gray-300">
