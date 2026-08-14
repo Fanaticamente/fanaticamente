@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useLeague, type MatchRow, type LeagueKey } from "@/hooks/useBrasileirao";
+import { LEAGUE_LABELS } from "@/hooks/useBrasileirao";
 import { useClubTheme } from "@/contexts/ClubThemeContext";
 import TeamBadge from "@/components/clubs/TeamBadge";
 import ClubMark, { type ClubDisplayMode } from "@/components/clubs/ClubMark";
@@ -64,6 +67,7 @@ const formatDateTime = (utc: string | null) => {
 
 const NextMatchBar = () => {
   const { clubId } = useClubTheme();
+  const navigate = useNavigate();
   const { data: moduleCfg } = useModuleConfig("home_next_match");
   const cfg = (moduleCfg?.config ?? {}) as {
     show_badges?: boolean;
@@ -77,6 +81,42 @@ const NextMatchBar = () => {
   // Pull matches from every relevant competition; each hook has its own cache
   // so the bar renders instantly from localStorage on cold open.
   const leagueData = LEAGUES_TO_CHECK.map((key) => useLeague(key, !!clubId).data);
+
+  // Position of the club in each competition that publishes a standings table.
+  const positions = useMemo(() => {
+    if (!clubId) return [] as { key: LeagueKey; label: string; position: number }[];
+    const out: { key: LeagueKey; label: string; position: number }[] = [];
+    LEAGUES_TO_CHECK.forEach((key, i) => {
+      const rows = leagueData[i]?.standings ?? [];
+      const row = rows.find((r) => findClubId(r.club, r.abbr) === clubId);
+      if (row?.position) out.push({ key, label: LEAGUE_LABELS[key], position: row.position });
+    });
+    return out;
+  }, [clubId, leagueData]);
+
+  // Latest news for the club (mini carousel)
+  const { data: clubNews } = useQuery({
+    queryKey: ["next-match-club-news", clubId],
+    enabled: !!clubId,
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("football_news")
+        .select("id, rewritten_title, image_url, published_at")
+        .or(`club_id.eq.${clubId},club_ids.cs.{${clubId}}`)
+        .order("published_at", { ascending: false })
+        .limit(5);
+      return data ?? [];
+    },
+  });
+
+  const [newsIdx, setNewsIdx] = useState(0);
+  const newsCount = clubNews?.length ?? 0;
+  useEffect(() => {
+    if (newsCount < 2) return;
+    const t = setInterval(() => setNewsIdx((i) => (i + 1) % newsCount), 5000);
+    return () => clearInterval(t);
+  }, [newsCount]);
 
   const match = useMemo(() => {
     if (!clubId) return null;
