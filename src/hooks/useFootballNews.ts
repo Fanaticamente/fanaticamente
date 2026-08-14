@@ -18,6 +18,7 @@ export interface FootballNewsItem {
   created_at: string;
   is_original: boolean;
   club_id: string | null;
+  club_ids?: string[] | null;
   is_featured?: boolean;
 }
 
@@ -34,8 +35,11 @@ export const useFootballNews = (selectedClub?: string | null) => {
       .order("published_at", { ascending: false });
 
     if (selectedClub) {
-      // When a club is selected, fetch up to 50 articles for that club
-      query = query.eq("club_id", selectedClub).limit(50);
+      // When a club is selected, fetch up to 50 articles related to that club
+      // (either the legacy single club field or the multi-club list)
+      query = query
+        .or(`club_id.eq.${selectedClub},club_ids.cs.{${selectedClub}}`)
+        .limit(50);
     } else {
       // General feed: fetch latest 30 articles
       query = query.limit(30);

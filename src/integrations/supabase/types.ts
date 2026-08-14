@@ -894,6 +894,7 @@ export type Database = {
         Row: {
           category: string | null
           club_id: string | null
+          club_ids: string[]
           created_at: string
           id: string
           image_caption: string | null
@@ -914,6 +915,7 @@ export type Database = {
         Insert: {
           category?: string | null
           club_id?: string | null
+          club_ids?: string[]
           created_at?: string
           id?: string
           image_caption?: string | null
@@ -934,6 +936,7 @@ export type Database = {
         Update: {
           category?: string | null
           club_id?: string | null
+          club_ids?: string[]
           created_at?: string
           id?: string
           image_caption?: string | null

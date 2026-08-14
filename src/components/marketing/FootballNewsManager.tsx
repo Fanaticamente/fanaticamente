@@ -10,7 +10,7 @@ import { brazilianClubs } from "@/data/brazilianClubs";
 import { toast } from "sonner";
 import {
   Loader2, Plus, Pencil, Trash2, Star, ArrowLeft, Image as ImageIcon,
-  Calendar, Save,
+  Calendar, Save, X,
 } from "lucide-react";
 
 const BUCKET = "health-news";
@@ -31,6 +31,7 @@ interface NewsRow {
   image_credits: string | null;
   category: string | null;
   club_id: string | null;
+  club_ids: string[] | null;
   published_at: string;
   is_featured: boolean;
   source_site: string;
@@ -47,6 +48,7 @@ const emptyItem: Partial<NewsRow> = {
   image_credits: "",
   category: "Futebol",
   club_id: null,
+  club_ids: [],
   is_featured: false,
 };
 
@@ -116,6 +118,15 @@ const FootballNewsManager = () => {
     []
   );
 
+  const selectedClubIds: string[] = useMemo(() => {
+    if (!editing) return [];
+    if (editing.club_ids && editing.club_ids.length) return editing.club_ids;
+    return editing.club_id ? [editing.club_id] : [];
+  }, [editing]);
+
+  const setClubIds = (ids: string[]) =>
+    setEditing((p) => ({ ...(p || {}), club_ids: ids, club_id: ids[0] || null }));
+
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin-football-news"] });
     qc.invalidateQueries({ queryKey: ["football-news"] });
@@ -132,7 +143,8 @@ const FootballNewsManager = () => {
         image_caption: item.image_caption || null,
         image_credits: item.image_credits || null,
         category: item.category || "Futebol",
-        club_id: item.club_id || null,
+        club_ids: item.club_ids || [],
+        club_id: (item.club_ids && item.club_ids[0]) || null,
         published_at: publishedISO,
         is_featured: !!item.is_featured,
       };
@@ -338,17 +350,46 @@ const FootballNewsManager = () => {
                 <Input value={editing.category || ""} onChange={(e) => setEditing({ ...editing, category: e.target.value })} />
               </div>
               <div>
-                <Label className="text-xs">Clube relacionado</Label>
+                <Label className="text-xs">Clubes relacionados</Label>
+                {selectedClubIds.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5 mt-1 mb-2">
+                    {selectedClubIds.map((id) => (
+                      <span
+                        key={id}
+                        className="inline-flex items-center gap-1 rounded-full bg-gray-100 border border-gray-200 pl-2.5 pr-1 py-1 text-xs text-gray-800"
+                      >
+                        {clubs.find((c) => c.id === id)?.name || id}
+                        <button
+                          type="button"
+                          className="rounded-full p-0.5 hover:bg-gray-200"
+                          onClick={() => setClubIds(selectedClubIds.filter((x) => x !== id))}
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500 mt-1 mb-2">Geral (sem clube)</p>
+                )}
                 <select
                   className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                  value={editing.club_id || ""}
-                  onChange={(e) => setEditing({ ...editing, club_id: e.target.value || null })}
+                  value=""
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v && !selectedClubIds.includes(v)) setClubIds([...selectedClubIds, v]);
+                  }}
                 >
-                  <option value="">Geral (sem clube)</option>
-                  {clubs.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
+                  <option value="">+ Adicionar clube</option>
+                  {clubs
+                    .filter((c) => !selectedClubIds.includes(c.id))
+                    .map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
                 </select>
+                <p className="text-[11px] text-gray-500 mt-1">
+                  A notícia aparece no filtro de todos os clubes selecionados.
+                </p>
               </div>
               <div className="flex items-center justify-between pt-1">
                 <div>
