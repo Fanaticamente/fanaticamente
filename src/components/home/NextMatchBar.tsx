@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useLeague, type MatchRow, type LeagueKey } from "@/hooks/useBrasileirao";
+import { LEAGUE_LABELS } from "@/hooks/useBrasileirao";
 import { useClubTheme } from "@/contexts/ClubThemeContext";
 import TeamBadge from "@/components/clubs/TeamBadge";
 import ClubMark, { type ClubDisplayMode } from "@/components/clubs/ClubMark";
@@ -64,6 +67,7 @@ const formatDateTime = (utc: string | null) => {
 
 const NextMatchBar = () => {
   const { clubId } = useClubTheme();
+  const navigate = useNavigate();
   const { data: moduleCfg } = useModuleConfig("home_next_match");
   const cfg = (moduleCfg?.config ?? {}) as {
     show_badges?: boolean;
@@ -77,6 +81,42 @@ const NextMatchBar = () => {
   // Pull matches from every relevant competition; each hook has its own cache
   // so the bar renders instantly from localStorage on cold open.
   const leagueData = LEAGUES_TO_CHECK.map((key) => useLeague(key, !!clubId).data);
+
+  // Position of the club in each competition that publishes a standings table.
+  const positions = useMemo(() => {
+    if (!clubId) return [] as { key: LeagueKey; label: string; position: number }[];
+    const out: { key: LeagueKey; label: string; position: number }[] = [];
+    LEAGUES_TO_CHECK.forEach((key, i) => {
+      const rows = leagueData[i]?.standings ?? [];
+      const row = rows.find((r) => findClubId(r.club, r.abbr) === clubId);
+      if (row?.position) out.push({ key, label: LEAGUE_LABELS[key], position: row.position });
+    });
+    return out;
+  }, [clubId, leagueData]);
+
+  // Latest news for the club (mini carousel)
+  const { data: clubNews } = useQuery({
+    queryKey: ["next-match-club-news", clubId],
+    enabled: !!clubId,
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("football_news")
+        .select("id, rewritten_title, image_url, published_at")
+        .or(`club_id.eq.${clubId},club_ids.cs.{${clubId}}`)
+        .order("published_at", { ascending: false })
+        .limit(5);
+      return data ?? [];
+    },
+  });
+
+  const [newsIdx, setNewsIdx] = useState(0);
+  const newsCount = clubNews?.length ?? 0;
+  useEffect(() => {
+    if (newsCount < 2) return;
+    const t = setInterval(() => setNewsIdx((i) => (i + 1) % newsCount), 5000);
+    return () => clearInterval(t);
+  }, [newsCount]);
 
   const match = useMemo(() => {
     if (!clubId) return null;
@@ -199,6 +239,55 @@ const NextMatchBar = () => {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Posições nas competições */}
+      {positions.length > 0 && (
+        <div className="mt-2 pt-2 border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          {positions.map((p) => (
+            <button
+              key={p.key}
+              onClick={() => navigate("/futebol?tab=tabela")}
+              className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full bg-slate-50 border border-slate-200/70"
+            >
+              <span className="text-[10px] font-extrabold tabular-nums" style={{ color: "var(--club-700)" }}>
+                {p.position}º
+              </span>
+              <span className="text-[9px] font-semibold text-gray-500 whitespace-nowrap">{p.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Mini carrossel da última notícia do clube */}
+      {newsCount > 0 && (
+        <button
+          onClick={() => navigate("/futebol")}
+          className="mt-2 w-full flex items-center gap-2 text-left"
+        >
+          {clubNews![newsIdx % newsCount].image_url && (
+            <img
+              src={clubNews![newsIdx % newsCount].image_url!}
+              alt=""
+              loading="lazy"
+              className="w-12 h-9 rounded-lg object-cover shrink-0"
+            />
+          )}
+          <span className="flex-1 min-w-0 text-[11px] font-semibold text-gray-700 leading-tight line-clamp-2">
+            {clubNews![newsIdx % newsCount].rewritten_title}
+          </span>
+          {newsCount > 1 && (
+            <span className="flex flex-col gap-0.5 shrink-0">
+              {clubNews!.map((_, i) => (
+                <span
+                  key={i}
+                  className="w-1 h-1 rounded-full"
+                  style={{ backgroundColor: i === newsIdx % newsCount ? "var(--club-600)" : "#e2e8f0" }}
+                />
+              ))}
+            </span>
+          )}
+        </button>
       )}
     </div>
   );
