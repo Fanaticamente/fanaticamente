@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import type { HealthNewsItem } from "@/hooks/useHealthNews";
 import DOMPurify from "dompurify";
+import { toParagraphs } from "@/lib/newsContent";
 
 interface HealthNewsReaderProps {
   news: HealthNewsItem;
@@ -32,7 +33,15 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
     year: "numeric",
   });
 
-  const sanitizedHtml = DOMPurify.sanitize(news.content || "", {
+  const rawContent = news.content || "";
+  const isHtml = /<\/?(p|div|br|h[1-6]|ul|ol|li|blockquote)\b/i.test(rawContent);
+  const htmlContent = isHtml
+    ? rawContent
+    : toParagraphs(rawContent)
+        .map((p) => `<p style="white-space:pre-line">${p.replace(/</g, "&lt;")}</p>`)
+        .join("");
+
+  const sanitizedHtml = DOMPurify.sanitize(htmlContent, {
     ADD_ATTR: ["target", "rel"],
   });
 
