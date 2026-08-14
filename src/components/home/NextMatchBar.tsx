@@ -94,18 +94,16 @@ const NextMatchBar = () => {
     return out;
   }, [clubId, leagueData]);
 
-  // Latest news for the club (mini carousel)
-  const { data: clubNews } = useQuery({
-    queryKey: ["next-match-club-news", clubId],
-    enabled: !!clubId,
+  // Latest 3 general portal news (visible to all users regardless of club)
+  const { data: generalNews } = useQuery({
+    queryKey: ["next-match-general-news"],
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
       const { data } = await supabase
         .from("football_news")
         .select("id, rewritten_title, image_url, published_at")
-        .or(`club_id.eq.${clubId},club_ids.cs.{${clubId}}`)
         .order("published_at", { ascending: false })
-        .limit(5);
+        .limit(3);
       return data ?? [];
     },
   });
