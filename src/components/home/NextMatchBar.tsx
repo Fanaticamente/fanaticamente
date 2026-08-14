@@ -240,6 +240,55 @@ const NextMatchBar = () => {
           </div>
         </div>
       )}
+
+      {/* Posições nas competições */}
+      {positions.length > 0 && (
+        <div className="mt-2 pt-2 border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          {positions.map((p) => (
+            <button
+              key={p.key}
+              onClick={() => navigate("/futebol?tab=tabela")}
+              className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-full bg-slate-50 border border-slate-200/70"
+            >
+              <span className="text-[10px] font-extrabold tabular-nums" style={{ color: "var(--club-700)" }}>
+                {p.position}º
+              </span>
+              <span className="text-[9px] font-semibold text-gray-500 whitespace-nowrap">{p.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Mini carrossel da última notícia do clube */}
+      {newsCount > 0 && (
+        <button
+          onClick={() => navigate("/futebol")}
+          className="mt-2 w-full flex items-center gap-2 text-left"
+        >
+          {clubNews![newsIdx % newsCount].image_url && (
+            <img
+              src={clubNews![newsIdx % newsCount].image_url!}
+              alt=""
+              loading="lazy"
+              className="w-12 h-9 rounded-lg object-cover shrink-0"
+            />
+          )}
+          <span className="flex-1 min-w-0 text-[11px] font-semibold text-gray-700 leading-tight line-clamp-2">
+            {clubNews![newsIdx % newsCount].rewritten_title}
+          </span>
+          {newsCount > 1 && (
+            <span className="flex flex-col gap-0.5 shrink-0">
+              {clubNews!.map((_, i) => (
+                <span
+                  key={i}
+                  className="w-1 h-1 rounded-full"
+                  style={{ backgroundColor: i === newsIdx % newsCount ? "var(--club-600)" : "#e2e8f0" }}
+                />
+              ))}
+            </span>
+          )}
+        </button>
+      )}
     </div>
   );
 };
