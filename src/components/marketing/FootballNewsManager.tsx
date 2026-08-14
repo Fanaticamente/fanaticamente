@@ -31,6 +31,7 @@ interface NewsRow {
   image_credits: string | null;
   category: string | null;
   club_id: string | null;
+  club_ids: string[] | null;
   published_at: string;
   is_featured: boolean;
   source_site: string;
@@ -47,6 +48,7 @@ const emptyItem: Partial<NewsRow> = {
   image_credits: "",
   category: "Futebol",
   club_id: null,
+  club_ids: [],
   is_featured: false,
 };
 
@@ -132,7 +134,8 @@ const FootballNewsManager = () => {
         image_caption: item.image_caption || null,
         image_credits: item.image_credits || null,
         category: item.category || "Futebol",
-        club_id: item.club_id || null,
+        club_ids: item.club_ids || [],
+        club_id: (item.club_ids && item.club_ids[0]) || null,
         published_at: publishedISO,
         is_featured: !!item.is_featured,
       };
