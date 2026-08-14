@@ -118,6 +118,15 @@ const FootballNewsManager = () => {
     []
   );
 
+  const selectedClubIds: string[] = useMemo(() => {
+    if (!editing) return [];
+    if (editing.club_ids && editing.club_ids.length) return editing.club_ids;
+    return editing.club_id ? [editing.club_id] : [];
+  }, [editing]);
+
+  const setClubIds = (ids: string[]) =>
+    setEditing((p) => ({ ...(p || {}), club_ids: ids, club_id: ids[0] || null }));
+
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin-football-news"] });
     qc.invalidateQueries({ queryKey: ["football-news"] });
