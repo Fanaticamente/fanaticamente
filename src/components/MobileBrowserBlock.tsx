@@ -49,6 +49,7 @@ const MobileBrowserBlock = ({ children }: { children: React.ReactNode }) => {
     const isAdminArea =
       path.startsWith("/admin-access") ||
       path.startsWith("/admin") ||
+      path.startsWith("/developer") ||
       path.startsWith("/desenvolvedor") ||
       path.startsWith("/marketing");
     if (isAdminArea) {
