@@ -383,7 +383,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               </div>
 
               {/* Newspaper headline */}
-              <DrawerTitle className="w-full text-[22px] sm:text-3xl font-sans font-bold text-black leading-[1.15] tracking-tight text-left [text-wrap:balance] hyphens-auto">
+              <DrawerTitle className="w-full text-[22px] sm:text-3xl font-sans font-bold text-black leading-[1.2] tracking-tight text-left break-words">
                 {fixedTitle}
               </DrawerTitle>
             </div>
