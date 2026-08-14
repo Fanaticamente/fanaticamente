@@ -94,24 +94,22 @@ const NextMatchBar = () => {
     return out;
   }, [clubId, leagueData]);
 
-  // Latest news for the club (mini carousel)
-  const { data: clubNews } = useQuery({
-    queryKey: ["next-match-club-news", clubId],
-    enabled: !!clubId,
+  // Latest 3 general portal news (visible to all users regardless of club)
+  const { data: generalNews } = useQuery({
+    queryKey: ["next-match-general-news"],
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
       const { data } = await supabase
         .from("football_news")
         .select("id, rewritten_title, image_url, published_at")
-        .or(`club_id.eq.${clubId},club_ids.cs.{${clubId}}`)
         .order("published_at", { ascending: false })
-        .limit(5);
+        .limit(3);
       return data ?? [];
     },
   });
 
   const [newsIdx, setNewsIdx] = useState(0);
-  const newsCount = clubNews?.length ?? 0;
+  const newsCount = generalNews?.length ?? 0;
   useEffect(() => {
     if (newsCount < 2) return;
     const t = setInterval(() => setNewsIdx((i) => (i + 1) % newsCount), 5000);
@@ -259,26 +257,26 @@ const NextMatchBar = () => {
         </div>
       )}
 
-      {/* Mini carrossel da última notícia do clube */}
+      {/* Mini carrossel das 3 últimas notícias do portal */}
       {newsCount > 0 && (
         <button
           onClick={() => navigate("/futebol")}
           className="mt-2 w-full flex items-center gap-2 text-left"
         >
-          {clubNews![newsIdx % newsCount].image_url && (
+          {generalNews![newsIdx % newsCount].image_url && (
             <img
-              src={clubNews![newsIdx % newsCount].image_url!}
+              src={generalNews![newsIdx % newsCount].image_url!}
               alt=""
               loading="lazy"
               className="w-12 h-9 rounded-lg object-cover shrink-0"
             />
           )}
           <span className="flex-1 min-w-0 text-[11px] font-semibold text-gray-700 leading-tight line-clamp-2">
-            {clubNews![newsIdx % newsCount].rewritten_title}
+            {generalNews![newsIdx % newsCount].rewritten_title}
           </span>
           {newsCount > 1 && (
             <span className="flex flex-col gap-0.5 shrink-0">
-              {clubNews!.map((_, i) => (
+              {generalNews!.map((_, i) => (
                 <span
                   key={i}
                   className="w-1 h-1 rounded-full"
