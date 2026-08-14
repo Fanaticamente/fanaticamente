@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Clock, ChevronLeft, ChevronRight, Newspaper, Heart } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatTimeAgo } from "@/lib/utils";
 import {
   Carousel,
   CarouselContent,
@@ -110,12 +109,7 @@ interface FeaturedHealthSlideProps {
 
 const FeaturedHealthSlide = ({ news, onOpen }: FeaturedHealthSlideProps) => {
   const date = news.published_at ? new Date(news.published_at) : new Date(news.created_at);
-  const timeAgo = formatDistanceToNow(date, {
-    addSuffix: true,
-    locale: ptBR,
-  })
-    .replace(/^há cerca de /, "há ")
-    .replace(/^cerca de /, "");
+  const timeAgo = formatTimeAgo(date);
 
   const preview = news.excerpt || news.subtitle || "";
 
@@ -173,10 +167,7 @@ interface FeaturedSlideProps {
 
 
 const FeaturedSlide = ({ news, onOpen, accentColor }: FeaturedSlideProps) => {
-  const timeAgo = formatDistanceToNow(new Date(news.published_at), {
-    addSuffix: true,
-    locale: ptBR,
-  }).replace(/^há cerca de /, "há ").replace(/^cerca de /, "");
+  const timeAgo = formatTimeAgo(new Date(news.published_at));
 
   const fixedTitle = fixTitleCapitalization(news.rewritten_title);
   const cleanedContent = cleanNewsContent(news.rewritten_content);

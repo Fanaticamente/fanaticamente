@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Clock, ChevronRight, X, Newspaper, Volume2, Pause, Play, Loader2 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatTimeAgo } from "@/lib/utils";
 import {
   Drawer,
   DrawerContent,
@@ -79,10 +78,7 @@ const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
   const [imageError, setImageError] = useState(false);
   const fixedTitle = fixTitleCapitalization(news.rewritten_title);
 
-  const timeAgo = formatDistanceToNow(new Date(news.published_at), {
-    addSuffix: true,
-    locale: ptBR,
-  }).replace(/^cerca de /, '');
+  const timeAgo = formatTimeAgo(new Date(news.published_at));
 
   // Clean and get a short preview of the content (first 150 chars)
   const cleanedContent = cleanNewsContent(news.rewritten_content);
@@ -198,10 +194,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fixedTitle = fixTitleCapitalization(news.rewritten_title);
   
-  const timeAgo = formatDistanceToNow(new Date(news.published_at), {
-    addSuffix: true,
-    locale: ptBR,
-  }).replace(/^cerca de /, '');
+  const timeAgo = formatTimeAgo(new Date(news.published_at));
 
   // Get date formatted like newspaper
   const publishDate = new Date(news.published_at);

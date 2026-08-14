@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Clock, ChevronRight, Heart } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { formatTimeAgo } from "@/lib/utils";
 import type { HealthNewsItem } from "@/hooks/useHealthNews";
 import HealthNewsReader from "./HealthNewsReader";
 
@@ -16,9 +15,7 @@ const HealthNewsCard = ({ news, variant = "list", defaultOpen = false, onClose }
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   const date = news.published_at ? new Date(news.published_at) : new Date(news.created_at);
-  const timeAgo = formatDistanceToNow(date, { addSuffix: true, locale: ptBR })
-    .replace(/^cerca de /, "")
-    .replace(/^há cerca de /, "há ");
+  const timeAgo = formatTimeAgo(date);
 
   const close = () => {
     setIsOpen(false);
