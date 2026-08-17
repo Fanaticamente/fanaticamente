@@ -15,6 +15,7 @@ const DEFAULTS: Record<LegalSlug, string> = {
   "privacy-policy": DEFAULT_PRIVACY_POLICY_USER_HTML,
   "privacy-policy-professional": DEFAULT_PRIVACY_POLICY_PROFESSIONAL_HTML,
   "terms-of-use": DEFAULT_TERMS_OF_USE_HTML,
+  "terms-of-use-professional": "",
 };
 
 const isEmptyHtml = (html: string) =>
@@ -29,10 +30,30 @@ interface Props {
   };
 }
 
-const DOCS: { slug: LegalSlug; label: string; icon: typeof FileText }[] = [
-  { slug: "privacy-policy", label: "Política de Privacidade — Torcedor", icon: Users },
-  { slug: "privacy-policy-professional", label: "Política de Privacidade — Profissional", icon: Stethoscope },
-  { slug: "terms-of-use", label: "Termos de Uso", icon: FileText },
+const GROUPS: {
+  system: string;
+  subtitle: string;
+  icon: typeof FileText;
+  docs: { slug: LegalSlug; label: string; icon: typeof FileText }[];
+}[] = [
+  {
+    system: "Fanaticamente — Torcedor",
+    subtitle: "Documentos exibidos no cadastro do app do torcedor",
+    icon: Users,
+    docs: [
+      { slug: "privacy-policy", label: "Política de Privacidade", icon: Scale },
+      { slug: "terms-of-use", label: "Termos de Uso", icon: FileText },
+    ],
+  },
+  {
+    system: "FanaticaWork — Profissionais Parceiros",
+    subtitle: "Documentos exibidos no cadastro do app profissional",
+    icon: Stethoscope,
+    docs: [
+      { slug: "privacy-policy-professional", label: "Política de Privacidade", icon: Scale },
+      { slug: "terms-of-use-professional", label: "Termos de Uso", icon: FileText },
+    ],
+  },
 ];
 
 const AdminLegalManager = ({ themeStyles }: Props) => {
@@ -64,23 +85,37 @@ const AdminLegalManager = ({ themeStyles }: Props) => {
           A data de atualização é registrada automaticamente e exibida no rodapé da página pública.
         </p>
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          {DOCS.map((d) => {
-            const active = activeSlug === d.slug;
-            const Icon = d.icon;
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          {GROUPS.map((g) => {
+            const GroupIcon = g.icon;
             return (
-              <button
-                key={d.slug}
-                onClick={() => setActiveSlug(d.slug)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
-                  active
-                    ? "bg-secondary text-secondary-foreground border-secondary"
-                    : `${themeStyles.textMuted} ${themeStyles.border} hover:border-secondary`
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {d.label}
-              </button>
+              <div key={g.system} className={`border ${themeStyles.border} rounded-xl p-3`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <GroupIcon className="w-4 h-4 text-secondary" />
+                  <h3 className={`text-sm font-semibold ${themeStyles.text}`}>{g.system}</h3>
+                </div>
+                <p className={`text-xs ${themeStyles.textMuted} mb-3`}>{g.subtitle}</p>
+                <div className="flex flex-col gap-2">
+                  {g.docs.map((d) => {
+                    const active = activeSlug === d.slug;
+                    const Icon = d.icon;
+                    return (
+                      <button
+                        key={d.slug}
+                        onClick={() => setActiveSlug(d.slug)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border text-left ${
+                          active
+                            ? "bg-secondary text-secondary-foreground border-secondary"
+                            : `${themeStyles.textMuted} ${themeStyles.border} hover:border-secondary`
+                        }`}
+                      >
+                        <Icon className="w-4 h-4 flex-shrink-0" />
+                        {d.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </div>
