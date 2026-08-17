@@ -69,6 +69,7 @@ import SetupTestUsers from "./pages/SetupTestUsers";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PrivacyPolicyProfessional from "./pages/PrivacyPolicyProfessional";
 import TermsOfUse from "./pages/TermsOfUse";
+import TermsOfUseProfessional from "./pages/TermsOfUseProfessional";
 import NotFound from "./pages/NotFound";
 import FanaticaLab from "./pages/FanaticaLab";
 import ClinicalNotes from "./pages/fanatica-lab/ClinicalNotes";
@@ -201,6 +202,8 @@ const App = () => {
               <Route path="/privacy-policy-professional" element={<PrivacyPolicyProfessional />} />
               <Route path="/termos-de-uso" element={<TermsOfUse />} />
               <Route path="/terms-of-use" element={<TermsOfUse />} />
+                <Route path="/termos-de-uso-profissional" element={<TermsOfUseProfessional />} />
+                <Route path="/terms-of-use-professional" element={<TermsOfUseProfessional />} />
               <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
@@ -228,6 +231,8 @@ const App = () => {
                 <Route path="/privacy-policy-professional" element={<PrivacyPolicyProfessional />} />
                 <Route path="/termos-de-uso" element={<TermsOfUse />} />
                 <Route path="/terms-of-use" element={<TermsOfUse />} />
+                <Route path="/termos-de-uso-profissional" element={<TermsOfUseProfessional />} />
+                <Route path="/terms-of-use-professional" element={<TermsOfUseProfessional />} />
                 <Route path="/setup-test" element={<SetupTestUsers />} />
                 <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
                 

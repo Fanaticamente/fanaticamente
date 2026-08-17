@@ -1229,13 +1229,13 @@ const Auth = () => {
                           </Link>
                           {" "}e os{" "}
                           <Link
-                            to="/termos-de-uso"
+                            to={authMode === "professional" ? "/termos-de-uso-profissional" : "/termos-de-uso"}
                             target="_blank"
                             className="underline font-medium text-therapy"
                           >
                             Termos de Uso
                           </Link>
-                          {" "}da plataforma Fanaticamente.
+                          {" "}da plataforma.
                         </label>
                       </div>
                       {errors.terms && (
@@ -1640,13 +1640,13 @@ const Auth = () => {
                        </Link>
                        {" "}e os{" "}
                        <Link
-                         to="/termos-de-uso"
+                         to={authMode === "professional" ? "/termos-de-uso-profissional" : "/termos-de-uso"}
                          target="_blank"
                          className={`underline font-medium ${authMode === "professional" ? "text-therapy" : "text-white"}`}
                        >
                          Termos de Uso
                        </Link>
-                       {" "}da plataforma Fanaticamente.
+                       {" "}da plataforma.
                      </label>
                    </div>
                   {errors.terms && (
