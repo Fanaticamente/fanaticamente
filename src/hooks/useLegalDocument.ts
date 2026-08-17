@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 export type LegalSlug =
   | "privacy-policy"
   | "privacy-policy-professional"
-  | "terms-of-use";
+  | "terms-of-use"
+  | "terms-of-use-professional";
 
 export interface LegalDocument {
   slug: LegalSlug;
