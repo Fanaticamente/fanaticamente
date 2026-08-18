@@ -9,7 +9,7 @@ import { ptBR } from "date-fns/locale";
 import { allBrazilianClubs } from "@/data/allBrazilianClubs";
 import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { supabase } from "@/integrations/supabase/client";
-import { encodeAuthEmail } from "@/lib/appMode";
+import { encodeAuthEmail, isProfessionalApp } from "@/lib/appMode";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
