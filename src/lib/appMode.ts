@@ -13,10 +13,39 @@
  */
 export type AppMode = "professional" | "fan" | "web";
 
+/**
+ * Caminhos dedicados às versões mobile hospedadas no mesmo domínio:
+ *   www.fanaticamente.com/fanaticamente-mobile  → app torcedor
+ *   www.fanaticamente.com/fanaticawork-mobile   → app profissional
+ *
+ * Os caminhos atuais (raiz) continuam funcionando normalmente.
+ */
+const PATH_MODES: Array<{ basename: string; mode: AppMode }> = [
+  { basename: "/fanaticamente-mobile", mode: "fan" },
+  { basename: "/fanaticawork-mobile", mode: "professional" },
+];
+
+const detectPathMode = (): { basename: string; mode: AppMode } | null => {
+  if (typeof window === "undefined") return null;
+  const path = window.location.pathname.toLowerCase();
+  return (
+    PATH_MODES.find(
+      (m) => path === m.basename || path.startsWith(m.basename + "/")
+    ) || null
+  );
+};
+
+const PATH_MODE = detectPathMode();
+
+/** Basename do router quando a app roda sob um caminho dedicado ("" = raiz). */
+export const ROUTE_BASENAME = PATH_MODE?.basename ?? "";
+
 const RAW = (import.meta.env.VITE_APP_MODE || "web").toString().toLowerCase();
 
-export const APP_MODE: AppMode =
+const BUILD_MODE: AppMode =
   RAW === "professional" || RAW === "fan" ? RAW : "web";
+
+export const APP_MODE: AppMode = PATH_MODE?.mode ?? BUILD_MODE;
 
 export const isProfessionalApp = APP_MODE === "professional";
 export const isFanApp = APP_MODE === "fan";

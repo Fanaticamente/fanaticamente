@@ -26,6 +26,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { RadioProvider } from "@/contexts/RadioContext";
 import { ClubThemeProvider } from "@/contexts/ClubThemeContext";
 import ProtectedRoute, { DynamicProtectedRoute } from "@/components/ProtectedRoute";
+import { ROUTE_BASENAME } from "@/lib/appMode";
 import GlobalRadioPlayer from "@/components/radio/GlobalRadioPlayer";
 
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
@@ -175,7 +176,7 @@ const App = () => {
         <AuthProvider>
           <ClubThemeProvider>
           <RadioProvider>
-          <BrowserRouter>
+          <BrowserRouter basename={ROUTE_BASENAME || undefined}>
             <Toaster />
             <Sonner />
             <GlobalRadioPlayer />
@@ -215,7 +216,7 @@ const App = () => {
         <AuthProvider>
           <ClubThemeProvider>
           <RadioProvider>
-          <BrowserRouter>
+          <BrowserRouter basename={ROUTE_BASENAME || undefined}>
             <AppProviders>
               <Toaster />
               <Sonner />
