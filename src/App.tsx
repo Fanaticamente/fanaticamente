@@ -26,7 +26,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { RadioProvider } from "@/contexts/RadioContext";
 import { ClubThemeProvider } from "@/contexts/ClubThemeContext";
 import ProtectedRoute, { DynamicProtectedRoute } from "@/components/ProtectedRoute";
-import { ROUTE_BASENAME } from "@/lib/appMode";
+import { ROUTE_BASENAME, isProfessionalApp } from "@/lib/appMode";
 import GlobalRadioPlayer from "@/components/radio/GlobalRadioPlayer";
 
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
@@ -238,7 +238,13 @@ const App = () => {
                 <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
                 
                 {/* Dynamic routes - respect app_pages.is_public setting */}
-                <Route path="/" element={<DynamicProtectedRoute pageId="home"><Index /></DynamicProtectedRoute>} />
+                {isProfessionalApp ? (
+                  <Route path="/" element={<Auth />} />
+                ) : (
+                  <Route path="/" element={<DynamicProtectedRoute pageId="home"><Index /></DynamicProtectedRoute>} />
+                )}
+                <Route path="/profissional/auth" element={<Auth />} />
+                <Route path="/profissional" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />
                 <Route path="/terapeutas" element={<DynamicProtectedRoute pageId="terapeutas"><Terapeutas /></DynamicProtectedRoute>} />
                 <Route path="/terapeuta/:id" element={<DynamicProtectedRoute pageId="terapeutas"><AgendarSessao /></DynamicProtectedRoute>} />
               <Route path="/agendar/:id" element={<DynamicProtectedRoute pageId="terapeutas"><AgendarSessao /></DynamicProtectedRoute>} />

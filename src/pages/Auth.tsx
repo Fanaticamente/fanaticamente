@@ -9,7 +9,7 @@ import { ptBR } from "date-fns/locale";
 import { allBrazilianClubs } from "@/data/allBrazilianClubs";
 import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { supabase } from "@/integrations/supabase/client";
-import { encodeAuthEmail } from "@/lib/appMode";
+import { encodeAuthEmail, isProfessionalApp } from "@/lib/appMode";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -130,7 +130,7 @@ const getSafeFanReturnTarget = (state: unknown): { path: string; state?: unknown
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  const isProfessionalRoute = location.pathname.startsWith("/profissional/auth");
+  const isProfessionalRoute = location.pathname.startsWith("/profissional/auth") || isProfessionalApp;
   const initialMode: AuthMode = isProfessionalRoute ? "professional" : "user";
   const initialSignup = searchParams.get("signup") === "true";
   
