@@ -130,7 +130,7 @@ const getSafeFanReturnTarget = (state: unknown): { path: string; state?: unknown
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  const isProfessionalRoute = location.pathname.startsWith("/profissional/auth");
+  const isProfessionalRoute = location.pathname.startsWith("/profissional/auth") || isProfessionalApp;
   const initialMode: AuthMode = isProfessionalRoute ? "professional" : "user";
   const initialSignup = searchParams.get("signup") === "true";
   
