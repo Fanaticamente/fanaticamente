@@ -238,8 +238,13 @@ const App = () => {
                 <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
                 
                 {/* Dynamic routes - respect app_pages.is_public setting */}
-                <Route path="/" element={<DynamicProtectedRoute pageId="home"><Index /></DynamicProtectedRoute>} />
-                <Route path="/terapeutas" element={<DynamicProtectedRoute pageId="terapeutas"><Terapeutas /></DynamicProtectedRoute>} />
+                {isProfessionalApp ? (
+                  <Route path="/" element={<Auth />} />
+                ) : (
+                  <Route path="/" element={<DynamicProtectedRoute pageId="home"><Index /></DynamicProtectedRoute>} />
+                )}
+                <Route path="/profissional/auth" element={<Auth />} />
+                <Route path="/profissional" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />
                 <Route path="/terapeuta/:id" element={<DynamicProtectedRoute pageId="terapeutas"><AgendarSessao /></DynamicProtectedRoute>} />
               <Route path="/agendar/:id" element={<DynamicProtectedRoute pageId="terapeutas"><AgendarSessao /></DynamicProtectedRoute>} />
                 <Route path="/cursos" element={<DynamicProtectedRoute pageId="cursos"><Cursos /></DynamicProtectedRoute>} />
