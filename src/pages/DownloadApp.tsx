@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -14,11 +13,15 @@ const getMobileStore = () => {
   return null;
 };
 
+// Redirect happens immediately, before the page even paints.
+const store = getMobileStore();
+if (store) {
+  window.location.replace(store);
+}
+
 const DownloadApp = () => {
-  useEffect(() => {
-    const store = getMobileStore();
-    if (store) window.location.replace(store);
-  }, []);
+  // Mobile visitors never reach this — they were redirected to their store.
+  if (store) return null;
 
   return (
     <main className="min-h-screen bg-background px-6 py-12 text-foreground">
