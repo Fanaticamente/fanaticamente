@@ -151,17 +151,12 @@ Deno.serve(async (req) => {
       console.error("[search-news-image] upload failed, using original url:", e);
     }
 
-    let credits: string | null = null;
-    try {
-      credits = found.source ? new URL(found.source).hostname.replace(/^www\./, "") : null;
-    } catch { /* ignore */ }
-
     return json({
       success: true,
       image_url: finalUrl,
       original_url: found.url,
       source_url: found.source ?? null,
-      credits,
+      credits: found.credits,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro na busca de imagem";
