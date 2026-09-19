@@ -40,7 +40,7 @@ async function firecrawlSearch(apiKey: string, query: string) {
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       query,
-      limit: 8,
+      limit: 6,
       lang: "pt",
       country: "br",
       scrapeOptions: { formats: ["markdown"] },
