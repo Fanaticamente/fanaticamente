@@ -285,6 +285,62 @@ const FootballNewsManager = () => {
     }
   };
 
+  /** Converts pasted rich HTML to plain text with ** / * / __ markers. */
+  const htmlToMarkedText = (html: string): string => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const walk = (node: Node): string => {
+      if (node.nodeType === Node.TEXT_NODE) return node.textContent || "";
+      if (node.nodeType !== Node.ELEMENT_NODE) return "";
+      const el = node as HTMLElement;
+      const tag = el.tagName.toLowerCase();
+      if (tag === "script" || tag === "style") return "";
+      const inner = Array.from(el.childNodes).map(walk).join("");
+      if (tag === "b" || tag === "strong") return inner.trim() ? `**${inner}**` : inner;
+      if (tag === "i" || tag === "em") return inner.trim() ? `*${inner}*` : inner;
+      if (tag === "u") return inner.trim() ? `__${inner}__` : inner;
+      const style = (el.getAttribute("style") || "").toLowerCase();
+      const weightMatch = style.match(/font-weight\s*:\s*(\d+|bold)/);
+      const isBold = weightMatch && (weightMatch[1] === "bold" || parseInt(weightMatch[1]) >= 600);
+      const isItalic = /font-style\s*:\s*italic/.test(style);
+      const isUnderline = /text-decoration[^;]*underline/.test(style);
+      let out = inner;
+      if (isUnderline && inner.trim()) out = `__${out}__`;
+      if (isItalic && inner.trim()) out = `*${out}*`;
+      if (isBold && inner.trim()) out = `**${out}**`;
+      if (["p", "div", "br", "li", "tr", "h1", "h2", "h3", "h4", "blockquote", "section", "article"].includes(tag)) {
+        return `\n\n${out}\n\n`;
+      }
+      return out;
+    };
+    return Array.from(doc.body.childNodes)
+      .map(walk)
+      .join("")
+      .replace(/[ \t]+\n/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  };
+
+  const handleContentPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const html = e.clipboardData.getData("text/html");
+    if (!html) return; // plain text: keep default paste
+    if (!/<(b|strong|i|em|u)[\s>]/i.test(html) && !/font-weight|font-style|text-decoration/i.test(html)) return;
+    e.preventDefault();
+    const el = contentRef.current;
+    const converted = htmlToMarkedText(html);
+    const text = el?.value ?? editing?.rewritten_content ?? "";
+    const start = el?.selectionStart ?? text.length;
+    const end = el?.selectionEnd ?? text.length;
+    const next = text.slice(0, start) + converted + text.slice(end);
+    setEditing((p) => ({ ...(p || {}), rewritten_content: next }));
+    requestAnimationFrame(() => {
+      if (el) {
+        el.focus();
+        el.setSelectionRange(start + converted.length, start + converted.length);
+      }
+    });
+    toast.success("Formatação detectada e aplicada (negrito, itálico, sublinhado)");
+  };
+
   const handlePaste = (e: React.ClipboardEvent) => {
     const file = Array.from(e.clipboardData.files || []).find((f) => f.type.startsWith("image/"));
     if (file) { e.preventDefault(); handleUpload(file); return; }
