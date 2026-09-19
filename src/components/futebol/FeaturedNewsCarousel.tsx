@@ -351,7 +351,7 @@ const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) =>
                   key={idx}
                   className={`whitespace-pre-line ${idx > 0 ? "mt-4" : "first-letter:float-left first-letter:text-[3.5rem] first-letter:font-bold first-letter:mr-2 first-letter:mt-1 first-letter:leading-[0.8] first-letter:text-black"}`}
                 >
-                  {paragraph}
+                  {renderInlineFormat(paragraph)}
                 </p>
               ))}
             </article>
