@@ -37,7 +37,10 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
   const htmlContent = isHtml
     ? rawContent
     : toParagraphs(rawContent)
-        .map((p) => `<p style="white-space:pre-line">${p.replace(/</g, "&lt;")}</p>`)
+        .map(
+          (p) =>
+            `<p style="white-space:pre-line">${inlineFormatToHtml(p.replace(/</g, "&lt;"))}</p>`
+        )
         .join("");
 
   const sanitizedHtml = DOMPurify.sanitize(htmlContent, {
