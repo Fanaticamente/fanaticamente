@@ -32,12 +32,8 @@ const DownloadApp = () => {
       return;
     }
 
-    window.location.replace(`itms-apps://itunes.apple.com/app/id${IOS_APP_ID}`);
-    const fallbackTimer = window.setTimeout(() => {
-      if (document.visibilityState === "visible") window.location.replace(APP_STORE);
-    }, 1400);
-
-    return () => window.clearTimeout(fallbackTimer);
+    window.location.replace(APP_STORE);
+    return;
   }, [platform]);
 
   if (platform) return null;
