@@ -343,57 +343,58 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
 
   const downloadUrl = "https://www.fanaticamente.com/baixar";
 
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(downloadUrl);
-      setCopied(true);
-      toast({ title: "Link copiado!", description: "Cole onde quiser — quem clicar baixa o app." });
-      setTimeout(() => setCopied(false), 2500);
-    } catch {
-      toast({ title: "Não foi possível copiar", description: downloadUrl });
-    }
-  };
-
-  const handleShare = async () => {
-    const shareText = `${fixedTitle}\n\nBaixe o app Fanaticamente e leia no seu celular`;
-
-    if (navigator.share) {
+  // Pre-fetch the news image as a File as soon as the news is open, so the
+  // share call can run synchronously inside the user gesture (iOS requirement).
+  useEffect(() => {
+    let cancelled = false;
+    setShareFile(null);
+    if (!isOpen || !news.image_url) return;
+    (async () => {
       try {
-        if (news.image_url) {
-          const response = await fetch(news.image_url);
-          if (response.ok) {
-            const blob = await response.blob();
-            const extension = blob.type.split("/")[1]?.split("+")[0] || "jpg";
-            const imageFile = new File([blob], `fanaticamente-noticia.${extension}`, {
-              type: blob.type || "image/jpeg",
-            });
-            const shareWithImage = {
-              title: fixedTitle,
-              text: shareText,
-              url: downloadUrl,
-              files: [imageFile],
-            };
-
-            if (navigator.canShare?.(shareWithImage)) {
-              await navigator.share(shareWithImage);
-              return;
-            }
-          }
-        }
-
-        await navigator.share({ title: fixedTitle, text: shareText, url: downloadUrl });
-        return;
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") return;
-        toast({
-          title: "Não foi possível anexar a imagem",
-          description: "O endereço oficial foi copiado para você compartilhar.",
-        });
-        await handleCopyLink();
-        return;
+        const response = await fetch(news.image_url as string);
+        if (!response.ok) return;
+        const blob = await response.blob();
+        if (cancelled || !blob.size) return;
+        const extension = blob.type.split("/")[1]?.split("+")[0] || "jpg";
+        setShareFile(
+          new File([blob], `fanaticamente-noticia.${extension}`, {
+            type: blob.type || "image/jpeg",
+          })
+        );
+      } catch {
+        // ignore — share falls back to text only
       }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, news.image_url]);
+
+  const handleShare = () => {
+    const shareText = `${fixedTitle}\n\nBaixe o app Fanaticamente e leia no seu celular: ${downloadUrl}`;
+
+    if (!navigator.share) {
+      void handleCopyLink();
+      return;
     }
-    await handleCopyLink();
+
+    const withImage = shareFile
+      ? { title: fixedTitle, text: shareText, files: [shareFile] }
+      : null;
+
+    const payload =
+      withImage && navigator.canShare?.(withImage)
+        ? withImage
+        : { title: fixedTitle, text: fixedTitle, url: downloadUrl };
+
+    navigator.share(payload).catch((error) => {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      navigator
+        .share({ title: fixedTitle, text: fixedTitle, url: downloadUrl })
+        .catch(() => {
+          void handleCopyLink();
+        });
+    });
   };
 
   return (
