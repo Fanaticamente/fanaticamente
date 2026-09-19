@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -7,12 +7,18 @@ const PLAY_STORE =
   `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`;
 const APP_STORE =
   "https://apps.apple.com/br/app/fanaticamente-futebol-sa%C3%BAde/id6754257086";
+const APP_STORE_DEEP_LINK = "itms-apps://itunes.apple.com/app/id6754257086";
 
 type MobilePlatform = "ios" | "android" | null;
 
 const getMobilePlatform = (): MobilePlatform => {
   const userAgent = navigator.userAgent || "";
-  if (/iPhone|iPad|iPod/i.test(userAgent)) return "ios";
+  const isAppleMobile =
+    /iPhone|iPad|iPod/i.test(userAgent) ||
+    ((/Macintosh/i.test(userAgent) || navigator.platform === "MacIntel") &&
+      navigator.maxTouchPoints > 1);
+
+  if (isAppleMobile) return "ios";
   if (/Android/i.test(userAgent)) return "android";
   return null;
 };
@@ -20,7 +26,7 @@ const getMobilePlatform = (): MobilePlatform => {
 const DownloadApp = () => {
   const [platform] = useState<MobilePlatform>(() => getMobilePlatform());
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!platform) return;
 
     if (platform === "android") {
@@ -31,7 +37,7 @@ const DownloadApp = () => {
       return;
     }
 
-    window.location.replace(APP_STORE);
+    window.location.replace(APP_STORE_DEEP_LINK);
     return;
   }, [platform]);
 
