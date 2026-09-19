@@ -69,6 +69,12 @@ const Comunidade = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "atividade" || tabParam === "desafios" || tabParam === "ranking") {
+      setTab(tabParam);
+      searchParams.delete("tab");
+      setSearchParams(searchParams, { replace: true });
+    }
     if (searchParams.get("openClubs") === "1") {
       setTab("ranking");
       setShowClubsFull(true);

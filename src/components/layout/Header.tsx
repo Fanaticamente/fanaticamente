@@ -6,15 +6,21 @@ import GlobalSearchDialog from "@/components/search/GlobalSearchDialog";
 interface HeaderProps {
   title?: string;
   hideSearch?: boolean;
+  /** Optional explicit destination for the back button (overrides history back). */
+  backTo?: string;
 }
 
 // Inner-page header: back arrow + centered title + search on a white bar.
 // The home page uses HomeFloatingActions instead of this component.
-const Header = ({ title, hideSearch = false }: HeaderProps) => {
+const Header = ({ title, hideSearch = false, backTo }: HeaderProps) => {
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
 
   const handleBack = () => {
+    if (backTo) {
+      navigate(backTo);
+      return;
+    }
     if (window.history.length > 1) navigate(-1);
     else navigate("/");
   };
