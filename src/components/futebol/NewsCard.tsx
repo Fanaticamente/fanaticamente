@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Clock, ChevronRight, X, Newspaper, Volume2, Pause, Play, Loader2 } from "lucide-react";
+import { Clock, ChevronRight, X, Newspaper, Volume2, Pause, Play, Loader2, Share2, Check, Link as LinkIcon } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import { formatTimeAgo } from "@/lib/utils";
 import {
   Drawer,
