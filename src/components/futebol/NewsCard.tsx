@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { FootballNewsItem } from "@/hooks/useFootballNews";
 import { cleanNewsContent, toParagraphs } from "@/lib/newsContent";
 import { fixTitleCapitalization } from "@/lib/fixTitleCapitalization";
+import { renderInlineFormat } from "@/lib/newsInlineFormat";
 
 interface NewsCardProps {
   news: FootballNewsItem;
