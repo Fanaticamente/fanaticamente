@@ -445,6 +445,24 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               <p className="text-xs text-gray-500 text-center mt-3 tracking-wide font-sans">
                 por <span className="font-semibold text-gray-700">Fanaticamente</span>
               </p>
+
+              {/* Share actions */}
+              <div className="mt-5 flex items-center gap-3">
+                <button
+                  onClick={handleShare}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[var(--club-700,#237B0E)] px-4 py-3 text-sm font-semibold text-white font-sans"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Compartilhar
+                </button>
+                <button
+                  onClick={handleCopyLink}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-800 font-sans"
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <LinkIcon className="w-4 h-4" />}
+                  {copied ? "Link copiado" : "Copiar link"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
