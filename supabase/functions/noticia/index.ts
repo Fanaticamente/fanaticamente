@@ -87,6 +87,30 @@ Deno.serve(async (req) => {
       );
     }
 
+    const userAgent = req.headers.get("user-agent") || "";
+    const isPreviewCrawler =
+      /WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|TelegramBot|Slackbot|Discordbot|Googlebot/i.test(
+        userAgent,
+      );
+
+    // Visitors go straight to the correct store. Only social crawlers receive
+    // the metadata document used to build the title and image preview.
+    if (!isPreviewCrawler) {
+      const destination = /iPhone|iPad|iPod/i.test(userAgent)
+        ? APP_STORE
+        : /Android/i.test(userAgent)
+          ? PLAY_STORE
+          : "https://www.fanaticamente.com";
+
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: destination,
+          "Cache-Control": "no-store",
+        },
+      });
+    }
+
     const title = stripMarks(news.rewritten_title || "Fanaticamente");
     const content = stripMarks(news.rewritten_content || "");
     const description = content.replace(/\s+/g, " ").slice(0, 200).trim();

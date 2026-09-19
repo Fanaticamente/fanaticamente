@@ -356,7 +356,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   };
 
   const handleShare = async () => {
-    const shareData = { title: fixedTitle, text: fixedTitle, url: shareUrl };
+    const shareData = { title: fixedTitle, text: `${fixedTitle}\n\nLeia mais`, url: shareUrl };
     if (navigator.share) {
       try {
         await navigator.share(shareData);
