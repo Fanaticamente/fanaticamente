@@ -3,7 +3,6 @@ import { Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const ANDROID_PACKAGE = "br.com.app.gpu3041153.gpu2b1d548352a1db293fd37c557fea3180";
-const IOS_APP_ID = "6754257086";
 const PLAY_STORE =
   `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`;
 const APP_STORE =
