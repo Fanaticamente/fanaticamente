@@ -326,11 +326,29 @@ const FootballNewsManager = () => {
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); }} />
                 </label>
               )}
-              <Input
-                placeholder="Ou cole o link da imagem (https://...)"
-                value={editing.image_url || ""}
-                onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
-              />
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  placeholder="Cole o link (https://...)"
+                  value={editing.image_url || ""}
+                  onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+                  disabled={searchingImage}
+                  onClick={handleSearchImage}
+                >
+                  {searchingImage ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Search className="w-4 h-4 mr-1" />
+                      {triedImages.length > 0 ? "Buscar nova" : "Pesquisar imagem"}
+                    </>
+                  )}
+                </Button>
+              </div>
               <Input placeholder="Legenda da imagem"
                 value={editing.image_caption || ""}
                 onChange={(e) => setEditing({ ...editing, image_caption: e.target.value })} />
