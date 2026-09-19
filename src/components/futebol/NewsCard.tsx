@@ -344,6 +344,19 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
 
   const downloadUrl = "https://www.fanaticamente.com/baixar";
 
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(downloadUrl);
+      setCopied(true);
+      toast({ title: "Link copiado!", description: "Cole onde quiser — quem clicar baixa o app." });
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      toast({ title: "Não foi possível copiar", description: downloadUrl });
+    }
+  };
+
+
+
   // Pre-fetch the news image as a File as soon as the news is open, so the
   // share call can run synchronously inside the user gesture (iOS requirement).
   useEffect(() => {
