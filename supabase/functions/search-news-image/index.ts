@@ -124,15 +124,14 @@ Deno.serve(async (req) => {
       return json({ success: false, error: "Escreva o texto da notícia antes de pesquisar a imagem" }, 400);
     }
 
-    let found: { url: string; source?: string; title?: string } | null = null;
-    for (let i = 0; i < 2 && !found; i++) {
-      const query = buildQuery(title, content, attempt + i);
-      console.log("[search-news-image] query:", query);
-      const rows = await firecrawlSearch(apiKey, query);
-      found = pickImage(rows, exclude);
-    }
+    const query = buildQuery(title, content, attempt);
+    console.log("[search-news-image] query:", query);
+    const rows = await firecrawlSearch(apiKey, query);
+    const found = pickImage(rows, exclude);
 
-    if (!found) return json({ success: false, error: "Nenhuma imagem encontrada para este texto" }, 404);
+    if (!found) {
+      return json({ success: false, error: "Nenhuma imagem com créditos na fonte encontrada para este texto" }, 404);
+    }
 
     // Persist the image in storage so it stays available.
     let finalUrl = found.url;
