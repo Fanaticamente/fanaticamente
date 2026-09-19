@@ -219,6 +219,32 @@ const FootballNewsManager = () => {
     }
   };
 
+  const contentRef = useRef<HTMLTextAreaElement>(null);
+
+  const applyFormat = (marker: string) => {
+    const el = contentRef.current;
+    if (!el) return;
+    const text = el.value || "";
+    const start = el.selectionStart ?? 0;
+    const end = el.selectionEnd ?? 0;
+    if (start === end) {
+      toast.info("Selecione o trecho do texto que deseja formatar");
+      return;
+    }
+    const selected = text.slice(start, end);
+    const already =
+      selected.startsWith(marker) && selected.endsWith(marker) && selected.length > marker.length * 2;
+    const replacement = already
+      ? selected.slice(marker.length, -marker.length)
+      : `${marker}${selected}${marker}`;
+    const next = text.slice(0, start) + replacement + text.slice(end);
+    setEditing((p) => ({ ...(p || {}), rewritten_content: next }));
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(start, start + replacement.length);
+    });
+  };
+
   const handleSearchImage = async () => {
     const title = editing?.rewritten_title?.trim() || "";
     const content = editing?.rewritten_content?.trim() || "";
