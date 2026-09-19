@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import type { HealthNewsItem } from "@/hooks/useHealthNews";
 import DOMPurify from "dompurify";
 import { toParagraphs } from "@/lib/newsContent";
+import { inlineFormatToHtml } from "@/lib/newsInlineFormat";
 
 interface HealthNewsReaderProps {
   news: HealthNewsItem;
