@@ -10,7 +10,7 @@ import { brazilianClubs } from "@/data/brazilianClubs";
 import { toast } from "sonner";
 import {
   Loader2, Plus, Pencil, Trash2, Star, ArrowLeft, Image as ImageIcon,
-  Calendar, Save, X, Search,
+  Calendar, Save, X, Search, Bold, Italic, Underline,
 } from "lucide-react";
 
 const BUCKET = "health-news";
