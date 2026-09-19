@@ -54,8 +54,23 @@ async function firecrawlSearch(apiKey: string, query: string) {
   return Array.isArray(rows) ? rows : [];
 }
 
+// Extracts "Foto: Autor / Veículo" (or similar credit lines) from page text.
+function extractCredits(text: unknown): string | null {
+  if (typeof text !== "string" || !text) return null;
+  const m = text.match(/(?:foto|cr[ée]dito|imagem)\s*[:\-–]\s*([^\n\(\)\[\]|]{2,80})/i);
+  if (!m) return null;
+  let raw = m[1].trim().replace(/\s{2,}/g, " ").replace(/[\.,;]+$/, "");
+  // Normalize "Autor/Veiculo", "Autor - Veiculo" into "Autor / Veículo"
+  const parts = raw.split(/\s*(?:\/|\|| - | — )\s*/).filter(Boolean);
+  const normalized = parts.length >= 2 ? `${parts[0].trim()} / ${parts.slice(1).join(" ").trim()}` : raw;
+  return `Foto: ${normalized}`;
+}
+
 function pickImage(rows: Array<Record<string, any>>, exclude: string[]) {
   for (const row of rows) {
+    // Only accept pages where the source explicitly credits the photo.
+    const credits = extractCredits(row?.markdown) ?? extractCredits(row?.description);
+    if (!credits) continue;
     const meta = row?.metadata ?? {};
     const candidates = [meta.ogImage, meta["og:image"], meta.image, row.imageUrl]
       .flat()
@@ -63,7 +78,7 @@ function pickImage(rows: Array<Record<string, any>>, exclude: string[]) {
     for (const url of candidates) {
       if (exclude.includes(url)) continue;
       if (/\.svg($|\?)/i.test(url)) continue;
-      return { url, source: row.url as string | undefined, title: row.title as string | undefined };
+      return { url, source: row.url as string | undefined, title: row.title as string | undefined, credits };
     }
   }
   return null;
