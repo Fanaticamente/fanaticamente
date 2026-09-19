@@ -37,11 +37,20 @@ a.alt{background:#111}
   );
 
 const storeButtons = `<div class="cta">
-  <p><strong>Leia tudo no aplicativo Fanaticamente</strong><br/>Futebol e saúde mental no mesmo lugar.</p>
+  <p id="redirect-msg"><strong>Abrindo a loja do seu celular…</strong><br/>Baixe o app Fanaticamente para ler a notícia completa.</p>
   <a class="btn" href="${PLAY_STORE}">Baixar no Android (Play Store)</a>
   <a class="btn alt" href="${APP_STORE}">Baixar no iPhone (App Store)</a>
 </div>
-<div class="ft">Fanaticamente · fanaticamente.com</div>`;
+<div class="ft">Fanaticamente · fanaticamente.com</div>
+<script>
+(function(){
+  var ua = navigator.userAgent || "";
+  var store = /iPhone|iPad|iPod/i.test(ua) ? "${APP_STORE}" : (/Android/i.test(ua) ? "${PLAY_STORE}" : null);
+  if (!store) return;
+  var timer = setTimeout(function(){ window.location.href = store; }, 1200);
+  document.addEventListener("click", function(){ clearTimeout(timer); var m = document.getElementById("redirect-msg"); if (m) m.innerHTML = "<strong>Leia tudo no aplicativo Fanaticamente</strong><br/>Futebol e saúde mental no mesmo lugar."; }, { once: true });
+})();
+</script>`;
 
 Deno.serve(async (req) => {
   try {
