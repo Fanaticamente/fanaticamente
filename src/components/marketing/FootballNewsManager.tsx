@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { brazilianClubs } from "@/data/brazilianClubs";
 import { toast } from "sonner";
 import {
   Loader2, Plus, Pencil, Trash2, Star, ArrowLeft, Image as ImageIcon,
-  Calendar, Save, X, Search,
+  Calendar, Save, X, Search, Bold, Italic, Underline,
 } from "lucide-react";
 
 const BUCKET = "health-news";
@@ -219,6 +219,32 @@ const FootballNewsManager = () => {
     }
   };
 
+  const contentRef = useRef<HTMLTextAreaElement>(null);
+
+  const applyFormat = (marker: string) => {
+    const el = contentRef.current;
+    if (!el) return;
+    const text = el.value || "";
+    const start = el.selectionStart ?? 0;
+    const end = el.selectionEnd ?? 0;
+    if (start === end) {
+      toast.info("Selecione o trecho do texto que deseja formatar");
+      return;
+    }
+    const selected = text.slice(start, end);
+    const already =
+      selected.startsWith(marker) && selected.endsWith(marker) && selected.length > marker.length * 2;
+    const replacement = already
+      ? selected.slice(marker.length, -marker.length)
+      : `${marker}${selected}${marker}`;
+    const next = text.slice(0, start) + replacement + text.slice(end);
+    setEditing((p) => ({ ...(p || {}), rewritten_content: next }));
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(start, start + replacement.length);
+    });
+  };
+
   const handleSearchImage = async () => {
     const title = editing?.rewritten_title?.trim() || "";
     const content = editing?.rewritten_content?.trim() || "";
@@ -311,7 +337,25 @@ const FootballNewsManager = () => {
             </div>
             <div>
               <Label className="text-xs">Conteúdo</Label>
+              <div className="flex items-center gap-1 mb-1">
+                <Button type="button" variant="outline" size="sm" className="h-8 px-2 font-bold"
+                  onClick={() => applyFormat("**")} title="Negrito">
+                  <Bold className="h-3.5 w-3.5" />
+                </Button>
+                <Button type="button" variant="outline" size="sm" className="h-8 px-2"
+                  onClick={() => applyFormat("*")} title="Itálico">
+                  <Italic className="h-3.5 w-3.5" />
+                </Button>
+                <Button type="button" variant="outline" size="sm" className="h-8 px-2"
+                  onClick={() => applyFormat("__")} title="Sublinhado">
+                  <Underline className="h-3.5 w-3.5" />
+                </Button>
+                <span className="text-[11px] text-gray-500 ml-1">
+                  Selecione o texto e clique para formatar
+                </span>
+              </div>
               <Textarea
+                ref={contentRef}
                 rows={16}
                 value={editing.rewritten_content || ""}
                 onChange={(e) => setEditing({ ...editing, rewritten_content: e.target.value })}
@@ -319,6 +363,7 @@ const FootballNewsManager = () => {
               />
               <p className="text-[11px] text-gray-500 mt-1">
                 Mantenha o padrão: resumo objetivo, parágrafos curtos e título em caixa alta apenas nas iniciais.
+                Marcadores: **negrito**, *itálico*, __sublinhado__.
               </p>
             </div>
           </div>

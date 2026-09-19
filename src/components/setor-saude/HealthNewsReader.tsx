@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import type { HealthNewsItem } from "@/hooks/useHealthNews";
 import DOMPurify from "dompurify";
 import { toParagraphs } from "@/lib/newsContent";
+import { inlineFormatToHtml } from "@/lib/newsInlineFormat";
 
 interface HealthNewsReaderProps {
   news: HealthNewsItem;
@@ -37,7 +38,10 @@ const HealthNewsReader = ({ news, isOpen, onClose }: HealthNewsReaderProps) => {
   const htmlContent = isHtml
     ? rawContent
     : toParagraphs(rawContent)
-        .map((p) => `<p style="white-space:pre-line">${p.replace(/</g, "&lt;")}</p>`)
+        .map(
+          (p) =>
+            `<p style="white-space:pre-line">${inlineFormatToHtml(p.replace(/</g, "&lt;"))}</p>`
+        )
         .join("");
 
   const sanitizedHtml = DOMPurify.sanitize(htmlContent, {
