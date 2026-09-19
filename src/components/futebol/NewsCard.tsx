@@ -340,6 +340,33 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   // Clean the content
   const cleanedContent = cleanNewsContent(news.rewritten_content);
 
+  // Shareable link that renders a rich preview (thumbnail) and points to the app stores
+  const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/noticia?id=${news.id}`;
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toast({ title: "Link copiado!", description: "Cole onde quiser compartilhar a notícia." });
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      toast({ title: "Não foi possível copiar", description: shareUrl });
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = { title: fixedTitle, text: fixedTitle, url: shareUrl };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        return;
+      }
+    }
+    handleCopyLink();
+  };
+
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DrawerContent className="max-h-[92vh] bg-white">
