@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
     const title = stripMarks(news.rewritten_title || "Fanaticamente");
     const content = stripMarks(news.rewritten_content || "");
     const description = content.replace(/\s+/g, " ").slice(0, 200).trim();
-    const shareUrl = `${url.origin}${url.pathname}?id=${news.id}`;
+    const shareUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/noticia?id=${news.id}`;
 
     const head = `<title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}"/>
