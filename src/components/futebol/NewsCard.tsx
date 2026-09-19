@@ -341,31 +341,59 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   // Clean the content
   const cleanedContent = cleanNewsContent(news.rewritten_content);
 
-  // Shareable link that renders a rich preview (thumbnail) and points to the app stores
-  const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/noticia?id=${news.id}`;
+  const downloadUrl = "https://www.fanaticamente.com/baixar";
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(downloadUrl);
       setCopied(true);
       toast({ title: "Link copiado!", description: "Cole onde quiser — quem clicar baixa o app." });
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      toast({ title: "Não foi possível copiar", description: shareUrl });
+      toast({ title: "Não foi possível copiar", description: downloadUrl });
     }
   };
 
   const handleShare = async () => {
-    const shareData = { title: fixedTitle, text: `${fixedTitle}\n\nBaixe o app Fanaticamente e leia no seu celular`, url: shareUrl };
+    const shareText = `${fixedTitle}\n\nBaixe o app Fanaticamente e leia no seu celular`;
+
     if (navigator.share) {
       try {
-        await navigator.share(shareData);
+        if (news.image_url) {
+          const response = await fetch(news.image_url);
+          if (response.ok) {
+            const blob = await response.blob();
+            const extension = blob.type.split("/")[1]?.split("+")[0] || "jpg";
+            const imageFile = new File([blob], `fanaticamente-noticia.${extension}`, {
+              type: blob.type || "image/jpeg",
+            });
+            const shareWithImage = {
+              title: fixedTitle,
+              text: shareText,
+              url: downloadUrl,
+              files: [imageFile],
+            };
+
+            if (navigator.canShare?.(shareWithImage)) {
+              await navigator.share(shareWithImage);
+              return;
+            }
+          }
+        }
+
+        await navigator.share({ title: fixedTitle, text: shareText, url: downloadUrl });
         return;
-      } catch {
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        toast({
+          title: "Não foi possível anexar a imagem",
+          description: "O endereço oficial foi copiado para você compartilhar.",
+        });
+        await handleCopyLink();
         return;
       }
     }
-    handleCopyLink();
+    await handleCopyLink();
   };
 
   return (

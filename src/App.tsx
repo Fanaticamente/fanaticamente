@@ -91,6 +91,7 @@ import ActivitiesManagerPage from "./pages/ActivitiesManagerPage";
 import FanaticazeTV from "./pages/FanaticazeTV";
 import SetorSaude from "./pages/SetorSaude";
 import MarketingDashboard from "./pages/MarketingDashboard";
+import DownloadApp from "./pages/DownloadApp";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -206,6 +207,7 @@ const App = () => {
                 <Route path="/termos-de-uso-profissional" element={<TermsOfUseProfessional />} />
                 <Route path="/terms-of-use-professional" element={<TermsOfUseProfessional />} />
               <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
+                <Route path="/baixar" element={<DownloadApp />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
@@ -236,6 +238,7 @@ const App = () => {
                 <Route path="/terms-of-use-professional" element={<TermsOfUseProfessional />} />
                 <Route path="/setup-test" element={<SetupTestUsers />} />
                 <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
+                <Route path="/baixar" element={<DownloadApp />} />
                 
                 {/* Dynamic routes - respect app_pages.is_public setting */}
                 {isProfessionalApp ? (
