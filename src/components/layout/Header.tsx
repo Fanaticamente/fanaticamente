@@ -6,6 +6,8 @@ import GlobalSearchDialog from "@/components/search/GlobalSearchDialog";
 interface HeaderProps {
   title?: string;
   hideSearch?: boolean;
+  /** Optional explicit destination for the back button (overrides history back). */
+  backTo?: string;
 }
 
 // Inner-page header: back arrow + centered title + search on a white bar.
