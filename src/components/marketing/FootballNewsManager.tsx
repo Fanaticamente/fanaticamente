@@ -311,7 +311,25 @@ const FootballNewsManager = () => {
             </div>
             <div>
               <Label className="text-xs">Conteúdo</Label>
+              <div className="flex items-center gap-1 mb-1">
+                <Button type="button" variant="outline" size="sm" className="h-8 px-2 font-bold"
+                  onClick={() => applyFormat("**")} title="Negrito">
+                  <Bold className="h-3.5 w-3.5" />
+                </Button>
+                <Button type="button" variant="outline" size="sm" className="h-8 px-2"
+                  onClick={() => applyFormat("*")} title="Itálico">
+                  <Italic className="h-3.5 w-3.5" />
+                </Button>
+                <Button type="button" variant="outline" size="sm" className="h-8 px-2"
+                  onClick={() => applyFormat("__")} title="Sublinhado">
+                  <Underline className="h-3.5 w-3.5" />
+                </Button>
+                <span className="text-[11px] text-gray-500 ml-1">
+                  Selecione o texto e clique para formatar
+                </span>
+              </div>
               <Textarea
+                ref={contentRef}
                 rows={16}
                 value={editing.rewritten_content || ""}
                 onChange={(e) => setEditing({ ...editing, rewritten_content: e.target.value })}
@@ -319,6 +337,7 @@ const FootballNewsManager = () => {
               />
               <p className="text-[11px] text-gray-500 mt-1">
                 Mantenha o padrão: resumo objetivo, parágrafos curtos e título em caixa alta apenas nas iniciais.
+                Marcadores: **negrito**, *itálico*, __sublinhado__.
               </p>
             </div>
           </div>
