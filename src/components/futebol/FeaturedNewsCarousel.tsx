@@ -11,6 +11,7 @@ import type { HealthNewsItem } from "@/hooks/useHealthNews";
 import NewsCard from "./NewsCard";
 import { cleanNewsContent, toParagraphs } from "@/lib/newsContent";
 import { fixTitleCapitalization } from "@/lib/fixTitleCapitalization";
+import { renderInlineFormat } from "@/lib/newsInlineFormat";
 import HealthNewsReader from "@/components/setor-saude/HealthNewsReader";
 
 export type CarouselItemData =
