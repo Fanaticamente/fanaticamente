@@ -365,7 +365,10 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     if (!isOpen || !news.image_url) return;
     (async () => {
       try {
-        const response = await fetch(news.image_url as string);
+        const imageProxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/noticia?id=${encodeURIComponent(news.id)}&image=1`;
+        const response = await fetch(imageProxyUrl, {
+          headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
+        });
         if (!response.ok) return;
         const blob = await response.blob();
         if (cancelled || !blob.size) return;
@@ -385,7 +388,10 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   }, [isOpen, news.image_url]);
 
   const handleShare = () => {
-    const shareText = `${fixedTitle}\n\nBaixe o app Fanaticamente e leia no seu celular: ${downloadUrl}`;
+    const punctuatedTitle = /[.!?]$/.test(fixedTitle.trim())
+      ? fixedTitle.trim()
+      : `${fixedTitle.trim()}.`;
+    const shareText = `${punctuatedTitle}\n\nLeia mais: ${downloadUrl}`;
 
     if (!navigator.share) {
       void handleCopyLink();
@@ -399,12 +405,12 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     const payload =
       withImage && navigator.canShare?.(withImage)
         ? withImage
-        : { title: fixedTitle, text: fixedTitle, url: downloadUrl };
+        : { title: fixedTitle, text: shareText };
 
     navigator.share(payload).catch((error) => {
       if (error instanceof DOMException && error.name === "AbortError") return;
       navigator
-        .share({ title: fixedTitle, text: fixedTitle, url: downloadUrl })
+        .share({ title: fixedTitle, text: shareText })
         .catch(() => {
           void handleCopyLink();
         });
