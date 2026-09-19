@@ -348,7 +348,6 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     try {
       await navigator.clipboard.writeText(downloadUrl);
       setCopied(true);
-      toast({ title: "Link copiado!", description: "Cole onde quiser — quem clicar baixa o app." });
       setTimeout(() => setCopied(false), 2500);
     } catch {
       toast({ title: "Não foi possível copiar", description: downloadUrl });
