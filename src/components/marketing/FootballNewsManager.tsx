@@ -219,6 +219,34 @@ const FootballNewsManager = () => {
     }
   };
 
+  const handleSearchImage = async () => {
+    const title = editing?.rewritten_title?.trim() || "";
+    const content = editing?.rewritten_content?.trim() || "";
+    if (!title && !content) {
+      toast.error("Escreva o texto da notícia antes de pesquisar a imagem");
+      return;
+    }
+    setSearchingImage(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("search-news-image", {
+        body: { title, content, exclude: triedImages, attempt: triedImages.length },
+      });
+      if (error) throw error;
+      if (!data?.success || !data?.image_url) throw new Error(data?.error || "Nenhuma imagem encontrada");
+      setTriedImages((prev) => [...prev, data.original_url || data.image_url]);
+      setEditing((p) => ({
+        ...(p || {}),
+        image_url: data.image_url,
+        image_credits: (p?.image_credits || "") || data.credits || "",
+      }));
+      toast.success("Imagem encontrada e adicionada");
+    } catch (e: any) {
+      toast.error(e?.message || "Não foi possível encontrar uma imagem");
+    } finally {
+      setSearchingImage(false);
+    }
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
