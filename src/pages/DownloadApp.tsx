@@ -3,7 +3,6 @@ import { Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const ANDROID_PACKAGE = "br.com.app.gpu3041153.gpu2b1d548352a1db293fd37c557fea3180";
-const IOS_APP_ID = "6754257086";
 const PLAY_STORE =
   `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`;
 const APP_STORE =
@@ -32,12 +31,8 @@ const DownloadApp = () => {
       return;
     }
 
-    window.location.replace(`itms-apps://itunes.apple.com/app/id${IOS_APP_ID}`);
-    const fallbackTimer = window.setTimeout(() => {
-      if (document.visibilityState === "visible") window.location.replace(APP_STORE);
-    }, 1400);
-
-    return () => window.clearTimeout(fallbackTimer);
+    window.location.replace(APP_STORE);
+    return;
   }, [platform]);
 
   if (platform) return null;

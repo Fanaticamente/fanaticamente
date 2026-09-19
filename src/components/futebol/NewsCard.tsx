@@ -342,16 +342,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   // Clean the content
   const cleanedContent = cleanNewsContent(news.rewritten_content);
 
-  const getDownloadUrl = () => {
-    const userAgent = navigator.userAgent || "";
-    if (/iPhone|iPad|iPod/i.test(userAgent)) {
-      return "https://apps.apple.com/br/app/fanaticamente-futebol-sa%C3%BAde/id6754257086";
-    }
-    if (/Android/i.test(userAgent)) {
-      return "https://play.google.com/store/apps/details?id=br.com.app.gpu3041153.gpu2b1d548352a1db293fd37c557fea3180";
-    }
-    return "https://www.fanaticamente.com/baixar";
-  };
+  const getDownloadUrl = () => "https://www.fanaticamente.com/baixar";
 
   const handleCopyLink = async () => {
     const downloadUrl = getDownloadUrl();
