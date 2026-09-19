@@ -10,7 +10,7 @@ import { brazilianClubs } from "@/data/brazilianClubs";
 import { toast } from "sonner";
 import {
   Loader2, Plus, Pencil, Trash2, Star, ArrowLeft, Image as ImageIcon,
-  Calendar, Save, X,
+  Calendar, Save, X, Search,
 } from "lucide-react";
 
 const BUCKET = "health-news";
@@ -74,6 +74,8 @@ const FootballNewsManager = () => {
   const [dateValue, setDateValue] = useState<string>(storedDraft?.dateValue ?? toLocalInput());
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [searchingImage, setSearchingImage] = useState(false);
+  const [triedImages, setTriedImages] = useState<string[]>([]);
 
   useEffect(() => {
     try {
@@ -217,6 +219,34 @@ const FootballNewsManager = () => {
     }
   };
 
+  const handleSearchImage = async () => {
+    const title = editing?.rewritten_title?.trim() || "";
+    const content = editing?.rewritten_content?.trim() || "";
+    if (!title && !content) {
+      toast.error("Escreva o texto da notícia antes de pesquisar a imagem");
+      return;
+    }
+    setSearchingImage(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("search-news-image", {
+        body: { title, content, exclude: triedImages, attempt: triedImages.length },
+      });
+      if (error) throw error;
+      if (!data?.success || !data?.image_url) throw new Error(data?.error || "Nenhuma imagem encontrada");
+      setTriedImages((prev) => [...prev, data.original_url || data.image_url]);
+      setEditing((p) => ({
+        ...(p || {}),
+        image_url: data.image_url,
+        image_credits: (p?.image_credits || "") || data.credits || "",
+      }));
+      toast.success("Imagem encontrada e adicionada");
+    } catch (e: any) {
+      toast.error(e?.message || "Não foi possível encontrar uma imagem");
+    } finally {
+      setSearchingImage(false);
+    }
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
@@ -326,11 +356,29 @@ const FootballNewsManager = () => {
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); }} />
                 </label>
               )}
-              <Input
-                placeholder="Ou cole o link da imagem (https://...)"
-                value={editing.image_url || ""}
-                onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
-              />
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  placeholder="Cole o link (https://...)"
+                  value={editing.image_url || ""}
+                  onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+                  disabled={searchingImage}
+                  onClick={handleSearchImage}
+                >
+                  {searchingImage ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Search className="w-4 h-4 mr-1" />
+                      {triedImages.length > 0 ? "Buscar nova" : "Pesquisar imagem"}
+                    </>
+                  )}
+                </Button>
+              </div>
               <Input placeholder="Legenda da imagem"
                 value={editing.image_caption || ""}
                 onChange={(e) => setEditing({ ...editing, image_caption: e.target.value })} />
