@@ -5,6 +5,11 @@ const PLAY_STORE =
 const APP_STORE =
   "https://apps.apple.com/br/app/fanaticamente-futebol-sa%C3%BAde/id6754257086";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
 const esc = (s: string) =>
   s
     .replace(/&/g, "&amp;")
@@ -54,6 +59,10 @@ const storeButtons = `<div class="cta">
 
 Deno.serve(async (req) => {
   try {
+    if (req.method === "OPTIONS") {
+      return new Response("ok", { headers: corsHeaders });
+    }
+
     const url = new URL(req.url);
     const id =
       url.searchParams.get("id") || url.pathname.split("/").filter(Boolean).pop() || "";
@@ -85,6 +94,28 @@ Deno.serve(async (req) => {
         `<title>Fanaticamente</title>`,
         404,
       );
+    }
+
+    // Same-origin-safe image proxy used only to prepare the news photo for
+    // native sharing. This avoids third-party image servers blocking CORS.
+    if (url.searchParams.get("image") === "1") {
+      if (!news.image_url) {
+        return new Response(null, { status: 404, headers: corsHeaders });
+      }
+
+      const imageResponse = await fetch(news.image_url);
+      if (!imageResponse.ok || !imageResponse.body) {
+        return new Response(null, { status: 502, headers: corsHeaders });
+      }
+
+      return new Response(imageResponse.body, {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": imageResponse.headers.get("content-type") || "image/jpeg",
+          "Cache-Control": "public, max-age=86400",
+        },
+      });
     }
 
     const userAgent = req.headers.get("user-agent") || "";
