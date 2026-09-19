@@ -194,6 +194,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shareFile, setShareFile] = useState<File | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fixedTitle = fixTitleCapitalization(news.rewritten_title);
   
