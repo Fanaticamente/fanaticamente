@@ -113,7 +113,7 @@ Deno.serve(async (req) => {
 
     const title = stripMarks(news.rewritten_title || "Fanaticamente");
     const content = stripMarks(news.rewritten_content || "");
-    const description = content.replace(/\s+/g, " ").slice(0, 200).trim();
+    const description = "Leia essa notícia completa no app Fanaticamente — baixe grátis na App Store ou no Google Play.";
     const shareUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/noticia?id=${news.id}`;
 
     const head = `<title>${esc(title)}</title>

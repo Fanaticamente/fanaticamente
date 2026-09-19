@@ -348,7 +348,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      toast({ title: "Link copiado!", description: "Cole onde quiser compartilhar a notícia." });
+      toast({ title: "Link copiado!", description: "Cole onde quiser — quem clicar baixa o app." });
       setTimeout(() => setCopied(false), 2500);
     } catch {
       toast({ title: "Não foi possível copiar", description: shareUrl });
@@ -356,7 +356,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   };
 
   const handleShare = async () => {
-    const shareData = { title: fixedTitle, text: `${fixedTitle}\n\nLeia mais`, url: shareUrl };
+    const shareData = { title: fixedTitle, text: `${fixedTitle}\n\nBaixe o app Fanaticamente e leia no seu celular`, url: shareUrl };
     if (navigator.share) {
       try {
         await navigator.share(shareData);
