@@ -40,7 +40,7 @@ async function firecrawlSearch(apiKey: string, query: string) {
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       query,
-      limit: 8,
+      limit: 6,
       lang: "pt",
       country: "br",
       scrapeOptions: { formats: ["markdown"] },
@@ -54,8 +54,23 @@ async function firecrawlSearch(apiKey: string, query: string) {
   return Array.isArray(rows) ? rows : [];
 }
 
+// Extracts "Foto: Autor / Veículo" (or similar credit lines) from page text.
+function extractCredits(text: unknown): string | null {
+  if (typeof text !== "string" || !text) return null;
+  const m = text.match(/(?:foto|cr[ée]dito|imagem)\s*[:\-–]\s*([^\n\(\)\[\]|]{2,80})/i);
+  if (!m) return null;
+  let raw = m[1].trim().replace(/\s{2,}/g, " ").replace(/[\.,;]+$/, "");
+  // Normalize "Autor/Veiculo", "Autor - Veiculo" into "Autor / Veículo"
+  const parts = raw.split(/\s*(?:\/|\|| - | — )\s*/).filter(Boolean);
+  const normalized = parts.length >= 2 ? `${parts[0].trim()} / ${parts.slice(1).join(" ").trim()}` : raw;
+  return `Foto: ${normalized}`;
+}
+
 function pickImage(rows: Array<Record<string, any>>, exclude: string[]) {
   for (const row of rows) {
+    // Only accept pages where the source explicitly credits the photo.
+    const credits = extractCredits(row?.markdown) ?? extractCredits(row?.description);
+    if (!credits) continue;
     const meta = row?.metadata ?? {};
     const candidates = [meta.ogImage, meta["og:image"], meta.image, row.imageUrl]
       .flat()
@@ -63,7 +78,7 @@ function pickImage(rows: Array<Record<string, any>>, exclude: string[]) {
     for (const url of candidates) {
       if (exclude.includes(url)) continue;
       if (/\.svg($|\?)/i.test(url)) continue;
-      return { url, source: row.url as string | undefined, title: row.title as string | undefined };
+      return { url, source: row.url as string | undefined, title: row.title as string | undefined, credits };
     }
   }
   return null;
@@ -109,15 +124,14 @@ Deno.serve(async (req) => {
       return json({ success: false, error: "Escreva o texto da notícia antes de pesquisar a imagem" }, 400);
     }
 
-    let found: { url: string; source?: string; title?: string } | null = null;
-    for (let i = 0; i < 2 && !found; i++) {
-      const query = buildQuery(title, content, attempt + i);
-      console.log("[search-news-image] query:", query);
-      const rows = await firecrawlSearch(apiKey, query);
-      found = pickImage(rows, exclude);
-    }
+    const query = buildQuery(title, content, attempt);
+    console.log("[search-news-image] query:", query);
+    const rows = await firecrawlSearch(apiKey, query);
+    const found = pickImage(rows, exclude);
 
-    if (!found) return json({ success: false, error: "Nenhuma imagem encontrada para este texto" }, 404);
+    if (!found) {
+      return json({ success: false, error: "Nenhuma imagem com créditos na fonte encontrada para este texto" }, 404);
+    }
 
     // Persist the image in storage so it stays available.
     let finalUrl = found.url;
@@ -137,17 +151,12 @@ Deno.serve(async (req) => {
       console.error("[search-news-image] upload failed, using original url:", e);
     }
 
-    let credits: string | null = null;
-    try {
-      credits = found.source ? new URL(found.source).hostname.replace(/^www\./, "") : null;
-    } catch { /* ignore */ }
-
     return json({
       success: true,
       image_url: finalUrl,
       original_url: found.url,
       source_url: found.source ?? null,
-      credits,
+      credits: found.credits,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro na busca de imagem";
