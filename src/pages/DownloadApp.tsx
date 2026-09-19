@@ -1,27 +1,46 @@
+import { useEffect, useState } from "react";
 import { Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+const ANDROID_PACKAGE = "br.com.app.gpu3041153.gpu2b1d548352a1db293fd37c557fea3180";
+const IOS_APP_ID = "6754257086";
 const PLAY_STORE =
-  "https://play.google.com/store/apps/details?id=br.com.app.gpu3041153.gpu2b1d548352a1db293fd37c557fea3180";
+  `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`;
 const APP_STORE =
   "https://apps.apple.com/br/app/fanaticamente-futebol-sa%C3%BAde/id6754257086";
 
-const getMobileStore = () => {
+type MobilePlatform = "ios" | "android" | null;
+
+const getMobilePlatform = (): MobilePlatform => {
   const userAgent = navigator.userAgent || "";
-  if (/iPhone|iPad|iPod/i.test(userAgent)) return APP_STORE;
-  if (/Android/i.test(userAgent)) return PLAY_STORE;
+  if (/iPhone|iPad|iPod/i.test(userAgent)) return "ios";
+  if (/Android/i.test(userAgent)) return "android";
   return null;
 };
 
-// Redirect happens immediately, before the page even paints.
-const store = getMobileStore();
-if (store) {
-  window.location.replace(store);
-}
-
 const DownloadApp = () => {
-  // Mobile visitors never reach this — they were redirected to their store.
-  if (store) return null;
+  const [platform] = useState<MobilePlatform>(() => getMobilePlatform());
+
+  useEffect(() => {
+    if (!platform) return;
+
+    if (platform === "android") {
+      const fallback = encodeURIComponent(PLAY_STORE);
+      window.location.replace(
+        `intent://details?id=${ANDROID_PACKAGE}#Intent;scheme=market;package=com.android.vending;S.browser_fallback_url=${fallback};end`,
+      );
+      return;
+    }
+
+    window.location.replace(`itms-apps://itunes.apple.com/app/id${IOS_APP_ID}`);
+    const fallbackTimer = window.setTimeout(() => {
+      if (document.visibilityState === "visible") window.location.replace(APP_STORE);
+    }, 1400);
+
+    return () => window.clearTimeout(fallbackTimer);
+  }, [platform]);
+
+  if (platform) return null;
 
   return (
     <main className="min-h-screen bg-background px-6 py-12 text-foreground">
