@@ -415,6 +415,7 @@ const FootballNewsManager = () => {
                 rows={16}
                 value={editing.rewritten_content || ""}
                 onChange={(e) => setEditing({ ...editing, rewritten_content: e.target.value })}
+                onPaste={handleContentPaste}
                 placeholder="Escreva o texto da notícia. Separe os parágrafos com uma linha em branco."
               />
               <p className="text-[11px] text-gray-500 mt-1">
