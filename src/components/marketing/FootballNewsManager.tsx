@@ -74,6 +74,8 @@ const FootballNewsManager = () => {
   const [dateValue, setDateValue] = useState<string>(storedDraft?.dateValue ?? toLocalInput());
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [searchingImage, setSearchingImage] = useState(false);
+  const [triedImages, setTriedImages] = useState<string[]>([]);
 
   useEffect(() => {
     try {
