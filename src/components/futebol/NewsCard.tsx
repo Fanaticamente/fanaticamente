@@ -342,9 +342,19 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   // Clean the content
   const cleanedContent = cleanNewsContent(news.rewritten_content);
 
-  const downloadUrl = "https://www.fanaticamente.com/baixar";
+  const getDownloadUrl = () => {
+    const userAgent = navigator.userAgent || "";
+    if (/iPhone|iPad|iPod/i.test(userAgent)) {
+      return "https://apps.apple.com/br/app/fanaticamente-futebol-sa%C3%BAde/id6754257086";
+    }
+    if (/Android/i.test(userAgent)) {
+      return "https://play.google.com/store/apps/details?id=br.com.app.gpu3041153.gpu2b1d548352a1db293fd37c557fea3180";
+    }
+    return "https://www.fanaticamente.com/baixar";
+  };
 
   const handleCopyLink = async () => {
+    const downloadUrl = getDownloadUrl();
     try {
       await navigator.clipboard.writeText(downloadUrl);
       setCopied(true);
@@ -387,10 +397,10 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   }, [isOpen, news.image_url]);
 
   const handleShare = () => {
-    const punctuatedTitle = /[.!?]$/.test(fixedTitle.trim())
-      ? fixedTitle.trim()
-      : `${fixedTitle.trim()}.`;
-    const shareText = `${punctuatedTitle}\n\nLeia mais: ${downloadUrl}`;
+    const downloadUrl = getDownloadUrl();
+    const cleanTitle = fixedTitle.trim().replace(/[.!?]+$/, "");
+    const sharedTitle = `${cleanTitle}. 🗞️`;
+    const shareText = `${sharedTitle}\n\nLeia mais: ${downloadUrl}`;
 
     if (!navigator.share) {
       void handleCopyLink();
@@ -398,18 +408,18 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
     }
 
     const withImage = shareFile
-      ? { title: fixedTitle, text: shareText, files: [shareFile] }
+      ? { title: sharedTitle, text: shareText, files: [shareFile] }
       : null;
 
     const payload =
       withImage && navigator.canShare?.(withImage)
         ? withImage
-        : { title: fixedTitle, text: shareText };
+        : { title: sharedTitle, text: shareText };
 
     navigator.share(payload).catch((error) => {
       if (error instanceof DOMException && error.name === "AbortError") return;
       navigator
-        .share({ title: fixedTitle, text: shareText })
+        .share({ title: sharedTitle, text: shareText })
         .catch(() => {
           void handleCopyLink();
         });
