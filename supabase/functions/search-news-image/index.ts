@@ -13,7 +13,7 @@ const json = (body: unknown, status = 200) =>
 
 const BUCKET = "health-news";
 
-function buildQuery(title: string, content: string, attempt: number): string {
+function keywords(title: string, content: string): string {
   const stop = new Set([
     "para","com","uma","que","dos","das","por","não","mais","como","sobre","seu","sua","the","and",
     "foi","ele","ela","este","esta","pelo","pela","até","após","onde","quando","mas","nos","nas","era",
@@ -27,12 +27,12 @@ function buildQuery(title: string, content: string, attempt: number): string {
   const unique: string[] = [];
   for (const w of words) {
     if (!unique.some((u) => u.toLowerCase() === w.toLowerCase())) unique.push(w);
-    if (unique.length >= 8) break;
+    if (unique.length >= 7) break;
   }
-  const base = unique.join(" ") || title;
-  const variations = ["foto", "imagem jogador", "notícia foto", "partida foto"];
-  return `${base} ${variations[attempt % variations.length]}`.trim();
+  return unique.join(" ") || title;
 }
+
+const VARIATIONS = ["foto", "imagem jogador", "notícia foto", "partida foto"];
 
 async function firecrawlSearch(apiKey: string, query: string) {
   const res = await fetch("https://api.firecrawl.dev/v2/search", {
@@ -48,7 +48,8 @@ async function firecrawlSearch(apiKey: string, query: string) {
   });
   const body = await res.json().catch(() => null);
   if (!res.ok) {
-    throw new Error(`Busca falhou [${res.status}]: ${JSON.stringify(body)}`);
+    console.error("[search-news-image] firecrawl error", res.status, JSON.stringify(body)?.slice(0, 500));
+    return [];
   }
   const rows = (body?.data?.web ?? body?.data ?? []) as Array<Record<string, any>>;
   return Array.isArray(rows) ? rows : [];
@@ -59,29 +60,41 @@ function extractCredits(text: unknown): string | null {
   if (typeof text !== "string" || !text) return null;
   const m = text.match(/(?:foto|cr[ée]dito|imagem)\s*[:\-–]\s*([^\n\(\)\[\]|]{2,80})/i);
   if (!m) return null;
-  let raw = m[1].trim().replace(/\s{2,}/g, " ").replace(/[\.,;]+$/, "");
-  // Normalize "Autor/Veiculo", "Autor - Veiculo" into "Autor / Veículo"
+  const raw = m[1].trim().replace(/\s{2,}/g, " ").replace(/[\.,;]+$/, "");
   const parts = raw.split(/\s*(?:\/|\|| - | — )\s*/).filter(Boolean);
   const normalized = parts.length >= 2 ? `${parts[0].trim()} / ${parts.slice(1).join(" ").trim()}` : raw;
   return `Foto: ${normalized}`;
 }
 
+function siteCredit(pageUrl: unknown): string {
+  try {
+    const host = new URL(String(pageUrl)).hostname.replace(/^www\./, "");
+    return `Foto: Divulgação / ${host}`;
+  } catch {
+    return "Foto: Divulgação";
+  }
+}
+
+function imageCandidates(row: Record<string, any>): string[] {
+  const meta = row?.metadata ?? {};
+  return [meta.ogImage, meta["og:image"], meta.image, meta.twitterImage, row.imageUrl]
+    .flat()
+    .filter((u: unknown): u is string => typeof u === "string" && /^https?:\/\//i.test(u));
+}
+
 function pickImage(rows: Array<Record<string, any>>, exclude: string[]) {
+  let fallback: { url: string; source?: string; credits: string } | null = null;
+
   for (const row of rows) {
-    // Only accept pages where the source explicitly credits the photo.
     const credits = extractCredits(row?.markdown) ?? extractCredits(row?.description);
-    if (!credits) continue;
-    const meta = row?.metadata ?? {};
-    const candidates = [meta.ogImage, meta["og:image"], meta.image, row.imageUrl]
-      .flat()
-      .filter((u: unknown): u is string => typeof u === "string" && /^https?:\/\//i.test(u));
-    for (const url of candidates) {
+    for (const url of imageCandidates(row)) {
       if (exclude.includes(url)) continue;
       if (/\.svg($|\?)/i.test(url)) continue;
-      return { url, source: row.url as string | undefined, title: row.title as string | undefined, credits };
+      if (credits) return { url, source: row.url as string | undefined, credits };
+      if (!fallback) fallback = { url, source: row.url as string | undefined, credits: siteCredit(row.url) };
     }
   }
-  return null;
+  return fallback;
 }
 
 Deno.serve(async (req) => {
@@ -110,7 +123,7 @@ Deno.serve(async (req) => {
     }
 
     const apiKey = Deno.env.get("FIRECRAWL_API_KEY");
-    if (!apiKey) return json({ success: false, error: "Busca de imagens não configurada" }, 500);
+    if (!apiKey) return json({ success: false, error: "Busca de imagens não configurada" }, 200);
 
     const payload = await req.json().catch(() => ({}));
     const title = String(payload?.title ?? "").slice(0, 300);
@@ -121,16 +134,23 @@ Deno.serve(async (req) => {
     const attempt = Number.isFinite(payload?.attempt) ? Number(payload.attempt) : 0;
 
     if (!title.trim() && !content.trim()) {
-      return json({ success: false, error: "Escreva o texto da notícia antes de pesquisar a imagem" }, 400);
+      return json({ success: false, error: "Escreva o texto da notícia antes de pesquisar a imagem" }, 200);
     }
 
-    const query = buildQuery(title, content, attempt);
-    console.log("[search-news-image] query:", query);
-    const rows = await firecrawlSearch(apiKey, query);
-    const found = pickImage(rows, exclude);
+    const base = keywords(title, content);
+    // Two variations in parallel: keeps it fast and greatly improves hit rate.
+    const q1 = `${base} ${VARIATIONS[attempt % VARIATIONS.length]}`.trim();
+    const q2 = `${base} ${VARIATIONS[(attempt + 1) % VARIATIONS.length]}`.trim();
+    console.log("[search-news-image] queries:", q1, "|", q2);
+
+    const [rowsA, rowsB] = await Promise.all([
+      firecrawlSearch(apiKey, q1),
+      firecrawlSearch(apiKey, q2),
+    ]);
+    const found = pickImage([...rowsA, ...rowsB], exclude);
 
     if (!found) {
-      return json({ success: false, error: "Nenhuma imagem com créditos na fonte encontrada para este texto" }, 404);
+      return json({ success: false, error: "Nenhuma imagem encontrada para este texto. Tente ajustar o título." }, 200);
     }
 
     // Persist the image in storage so it stays available.
@@ -161,6 +181,6 @@ Deno.serve(async (req) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro na busca de imagem";
     console.error("[search-news-image] Error:", message);
-    return json({ success: false, error: message }, 500);
+    return json({ success: false, error: message }, 200);
   }
 });
