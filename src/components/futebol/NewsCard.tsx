@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Clock, ChevronRight, X, Newspaper, Volume2, Pause, Play, Loader2 } from "lucide-react";
+import { Clock, ChevronRight, X, Newspaper, Volume2, Pause, Play, Loader2, Share2, Check, Link as LinkIcon } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import { formatTimeAgo } from "@/lib/utils";
 import {
   Drawer,
@@ -192,6 +193,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [copied, setCopied] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fixedTitle = fixTitleCapitalization(news.rewritten_title);
   
@@ -339,6 +341,33 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
   // Clean the content
   const cleanedContent = cleanNewsContent(news.rewritten_content);
 
+  // Shareable link that renders a rich preview (thumbnail) and points to the app stores
+  const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/noticia?id=${news.id}`;
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toast({ title: "Link copiado!", description: "Cole onde quiser compartilhar a notícia." });
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      toast({ title: "Não foi possível copiar", description: shareUrl });
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = { title: fixedTitle, text: fixedTitle, url: shareUrl };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        return;
+      }
+    }
+    handleCopyLink();
+  };
+
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DrawerContent className="max-h-[92vh] bg-white">
@@ -445,6 +474,24 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
               <p className="text-xs text-gray-500 text-center mt-3 tracking-wide font-sans">
                 por <span className="font-semibold text-gray-700">Fanaticamente</span>
               </p>
+
+              {/* Share actions */}
+              <div className="mt-5 flex items-center gap-3">
+                <button
+                  onClick={handleShare}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[var(--club-700,#237B0E)] px-4 py-3 text-sm font-semibold text-white font-sans"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Compartilhar
+                </button>
+                <button
+                  onClick={handleCopyLink}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-800 font-sans"
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <LinkIcon className="w-4 h-4" />}
+                  {copied ? "Link copiado" : "Copiar link"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
