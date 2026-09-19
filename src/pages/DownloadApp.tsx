@@ -37,11 +37,14 @@ const DownloadApp = () => {
       return;
     }
 
-    window.location.replace(APP_STORE_DEEP_LINK);
-    return;
+    // Browsers embedded in WhatsApp may block custom schemes when they are
+    // triggered without a second user gesture. Try the native scheme first
+    // and keep the App Store button rendered as the reliable fallback.
+    window.location.href = APP_STORE_DEEP_LINK;
   }, [platform]);
 
-  if (platform) return null;
+  const storeUrl = platform === "ios" ? APP_STORE_DEEP_LINK : platform === "android" ? PLAY_STORE : null;
+  const storeLabel = platform === "ios" ? "Abrir na App Store" : "Abrir no Google Play";
 
   return (
     <main className="min-h-screen bg-background px-6 py-12 text-foreground">
@@ -51,15 +54,25 @@ const DownloadApp = () => {
         </div>
         <h1 className="font-sans text-3xl font-bold">Fanaticamente</h1>
         <p className="mt-3 text-base text-muted-foreground">
-          Baixe o aplicativo para acompanhar as notícias e cuidar da sua saúde emocional.
+          {platform
+            ? "Toque abaixo para continuar diretamente na loja do seu celular."
+            : "Baixe o aplicativo para acompanhar as notícias e cuidar da sua saúde emocional."}
         </p>
         <div className="mt-8 grid w-full gap-3">
-          <Button asChild size="lg">
-            <a href={PLAY_STORE}>Baixar no Google Play</a>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <a href={APP_STORE}>Baixar na App Store</a>
-          </Button>
+          {storeUrl ? (
+            <Button asChild size="lg">
+              <a href={storeUrl}>{storeLabel}</a>
+            </Button>
+          ) : (
+            <>
+              <Button asChild size="lg">
+                <a href={PLAY_STORE}>Baixar no Google Play</a>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <a href={APP_STORE}>Baixar na App Store</a>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </main>
