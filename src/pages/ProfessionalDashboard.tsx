@@ -13,7 +13,7 @@ import OnboardingWizard, { clearAllWizardDrafts } from "@/components/professiona
 import SubscriptionPlans from "@/components/professional/SubscriptionPlans";
 import StripeConnectCard from "@/components/professional/StripeConnectCard";
 import PixPaymentCard from "@/components/professional/PixPaymentCard";
-import { SHOW_PAYMENT_METHOD_CARDS } from "@/config/featureFlags";
+import { SHOW_PAYMENT_METHOD_CARDS, BOOKING_ENABLED } from "@/config/featureFlags";
 import SubscriptionManager from "@/components/professional/SubscriptionManager";
 import AppointmentDetailsDialog from "@/components/professional/AppointmentDetailsDialog";
 import AdminMessagesAlert from "@/components/professional/AdminMessagesAlert";
