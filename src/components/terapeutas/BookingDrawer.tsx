@@ -5,6 +5,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Star, Shirt, CheckCircle, Award, 
 import { BOOKING_ENABLED, buildWhatsAppLink } from "@/config/featureFlags";
 import { supabase } from "@/integrations/supabase/client";
 import { getFirstAndLastName } from "@/lib/utils";
+import { isFemaleName } from "@/lib/nameGender";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -724,8 +725,9 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                     ) : buildWhatsAppLink(whatsappPhone) ? (
                       <>
                         <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-                          Converse diretamente com {getFirstAndLastName(therapist.name).split(" ")[0]}
-                          {" "}para combinar dia, horário e valores da sessão.
+                          {isFemaleName(therapist.name)
+                            ? "Converse com a profissional, tire suas dúvidas e conheça um pouco mais sobre os seus atendimentos."
+                            : "Converse com o profissional, tire suas dúvidas e conheça um pouco mais sobre os seus atendimentos."}
                         </p>
                         <a
                           href={buildWhatsAppLink(
