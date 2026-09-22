@@ -724,8 +724,8 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                     ) : buildWhatsAppLink(whatsappPhone) ? (
                       <>
                         <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-                          Converse diretamente com {getFirstAndLastName(therapist.name).split(" ")[0]} pelo WhatsApp
-                          para combinar dia, horário e valores da sessão.
+                          Converse diretamente com {getFirstAndLastName(therapist.name).split(" ")[0]}
+                          {" "}para combinar dia, horário e valores da sessão.
                         </p>
                         <a
                           href={buildWhatsAppLink(
@@ -738,7 +738,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                           style={{ backgroundColor: clubColor, boxShadow: `0 8px 24px ${clubColor}40` }}
                         >
                           <MessageCircle className="w-5 h-5" />
-                          Conversar no WhatsApp
+                          Conversar com {getFirstAndLastName(therapist.name).split(" ")[0]}
                         </a>
                       </>
                     ) : (
