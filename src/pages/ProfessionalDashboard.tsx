@@ -117,7 +117,10 @@ const ProfessionalDashboard = () => {
   // Read tab from URL query params (e.g. /profissional?tab=agenda)
   // Focused routes render only the selected section; the home route always opens the dashboard start view.
   const tabParam = searchParams.get("tab") as DashboardTab | null;
-  const isFocusedMode = tabParam !== null && ["agenda", "disponibilidade", "metricas", "perfil", "assinatura"].includes(tabParam);
+  const isFocusedMode =
+    tabParam !== null &&
+    ["agenda", "disponibilidade", "metricas", "perfil", "assinatura"].includes(tabParam) &&
+    !(tabParam === "disponibilidade" && !BOOKING_ENABLED);
   const activeTab = isFocusedMode && tabParam ? tabParam : homeTab;
 
   useLayoutEffect(() => {
