@@ -143,6 +143,8 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
+  const [whatsappPhone, setWhatsappPhone] = useState<string | null>(null);
+  const [loadingWhatsApp, setLoadingWhatsApp] = useState(false);
   // (lockdown removido — slots individuais são filtrados por gcalBlocks)
 
   // Payment step state
