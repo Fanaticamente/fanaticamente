@@ -2644,6 +2644,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_professional_whatsapp: {
+        Args: { p_professional_id: string }
+        Returns: string
+      }
       get_public_professionals: {
         Args: never
         Returns: {
