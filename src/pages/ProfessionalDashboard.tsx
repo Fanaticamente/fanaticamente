@@ -13,7 +13,7 @@ import OnboardingWizard, { clearAllWizardDrafts } from "@/components/professiona
 import SubscriptionPlans from "@/components/professional/SubscriptionPlans";
 import StripeConnectCard from "@/components/professional/StripeConnectCard";
 import PixPaymentCard from "@/components/professional/PixPaymentCard";
-import { SHOW_PAYMENT_METHOD_CARDS } from "@/config/featureFlags";
+import { SHOW_PAYMENT_METHOD_CARDS, BOOKING_ENABLED } from "@/config/featureFlags";
 import SubscriptionManager from "@/components/professional/SubscriptionManager";
 import AppointmentDetailsDialog from "@/components/professional/AppointmentDetailsDialog";
 import AdminMessagesAlert from "@/components/professional/AdminMessagesAlert";
@@ -117,7 +117,10 @@ const ProfessionalDashboard = () => {
   // Read tab from URL query params (e.g. /profissional?tab=agenda)
   // Focused routes render only the selected section; the home route always opens the dashboard start view.
   const tabParam = searchParams.get("tab") as DashboardTab | null;
-  const isFocusedMode = tabParam !== null && ["agenda", "disponibilidade", "metricas", "perfil", "assinatura"].includes(tabParam);
+  const isFocusedMode =
+    tabParam !== null &&
+    ["agenda", "disponibilidade", "metricas", "perfil", "assinatura"].includes(tabParam) &&
+    !(tabParam === "disponibilidade" && !BOOKING_ENABLED);
   const activeTab = isFocusedMode && tabParam ? tabParam : homeTab;
 
   useLayoutEffect(() => {
@@ -868,7 +871,7 @@ const ProfessionalDashboard = () => {
               { id: "agenda", label: "Agendamentos", locked: true },
               { id: "disponibilidade", label: "Disponibilidade", locked: true },
               { id: "metricas", label: "Métricas", locked: true },
-            ]).map((tab) => (
+            ]).filter((tab) => BOOKING_ENABLED || tab.id !== "disponibilidade").map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => {
@@ -1322,7 +1325,7 @@ const ProfessionalDashboard = () => {
             )}
 
             {/* Disponibilidade Tab */}
-            {activeTab === "disponibilidade" && professional && (
+            {BOOKING_ENABLED && activeTab === "disponibilidade" && professional && (
               <WeeklyAvailabilityManager
                 professionalId={professional.id}
                 onUpdate={fetchProfessionalData}

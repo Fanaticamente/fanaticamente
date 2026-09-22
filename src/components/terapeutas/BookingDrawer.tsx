@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, ChevronLeft, ChevronRight, Star, Shirt, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield, Search, MapPin, Ticket, BadgeCheck, Video } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Star, Shirt, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield, Search, MapPin, Ticket, BadgeCheck, Video, MessageCircle } from "lucide-react";
+import { BOOKING_ENABLED, buildWhatsAppLink } from "@/config/featureFlags";
 import { supabase } from "@/integrations/supabase/client";
 import { getFirstAndLastName } from "@/lib/utils";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, parseISO } from "date-fns";
@@ -142,6 +143,8 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
+  const [whatsappPhone, setWhatsappPhone] = useState<string | null>(null);
+  const [loadingWhatsApp, setLoadingWhatsApp] = useState(false);
   // (lockdown removido — slots individuais são filtrados por gcalBlocks)
 
   // Payment step state
@@ -169,8 +172,26 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
     getCurrentUser();
   }, []);
 
+  // Agendamentos desativados: busca apenas o WhatsApp do profissional.
+  useEffect(() => {
+    if (BOOKING_ENABLED || !therapist || !open) return;
+    let active = true;
+    (async () => {
+      setLoadingWhatsApp(true);
+      const { data } = await supabase.rpc("get_professional_whatsapp", {
+        p_professional_id: therapist.id,
+      });
+      if (active) {
+        setWhatsappPhone((data as string | null) ?? null);
+        setLoadingWhatsApp(false);
+      }
+    })();
+    return () => { active = false; };
+  }, [therapist, open]);
+
   // Fetch availability when therapist changes
   useEffect(() => {
+    if (!BOOKING_ENABLED) return;
     if (!therapist || !open) return;
 
     const fetchAvailability = async () => {
@@ -685,7 +706,55 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                 </div>
               )}
 
+              {/* Contato direto via WhatsApp (agendamentos desativados) */}
+              {!BOOKING_ENABLED && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div
+                    className="px-4 py-3 flex items-center gap-3"
+                    style={{ backgroundColor: clubColor + '08' }}
+                  >
+                    <MessageCircle className="w-5 h-5" style={{ color: clubColor }} />
+                    <span className="font-semibold text-gray-900">Fale com o profissional</span>
+                  </div>
+                  <div className="p-4">
+                    {loadingWhatsApp ? (
+                      <div className="flex justify-center py-6">
+                        <Loader2 className="w-7 h-7 animate-spin" style={{ color: clubColor }} />
+                      </div>
+                    ) : buildWhatsAppLink(whatsappPhone) ? (
+                      <>
+                        <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+                          Converse diretamente com {getFirstAndLastName(therapist.name).split(" ")[0]} pelo WhatsApp
+                          para combinar dia, horário e valores da sessão.
+                        </p>
+                        <a
+                          href={buildWhatsAppLink(
+                            whatsappPhone,
+                            `Olá! Encontrei seu perfil no Fanaticamente e gostaria de saber mais sobre suas sessões.`
+                          )!}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-3 rounded-xl font-bold text-white tracking-wide shadow-lg flex items-center justify-center gap-2 normal-case"
+                          style={{ backgroundColor: clubColor, boxShadow: `0 8px 24px ${clubColor}40` }}
+                        >
+                          <MessageCircle className="w-5 h-5" />
+                          Conversar no WhatsApp
+                        </a>
+                      </>
+                    ) : (
+                      <div className="text-center py-6">
+                        <MessageCircle className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                        <p className="text-gray-500 text-sm">
+                          Este profissional ainda não cadastrou um número de contato.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Scheduling */}
+              {BOOKING_ENABLED && (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div
                   className="px-4 py-3 flex items-center gap-3"
@@ -805,6 +874,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                   )}
                 </div>
               </div>
+              )}
             </div>
           ) : (
             /* Payment Step */
