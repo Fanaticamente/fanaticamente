@@ -169,8 +169,26 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
     getCurrentUser();
   }, []);
 
+  // Agendamentos desativados: busca apenas o WhatsApp do profissional.
+  useEffect(() => {
+    if (BOOKING_ENABLED || !therapist || !open) return;
+    let active = true;
+    (async () => {
+      setLoadingWhatsApp(true);
+      const { data } = await supabase.rpc("get_professional_whatsapp", {
+        p_professional_id: therapist.id,
+      });
+      if (active) {
+        setWhatsappPhone((data as string | null) ?? null);
+        setLoadingWhatsApp(false);
+      }
+    })();
+    return () => { active = false; };
+  }, [therapist, open]);
+
   // Fetch availability when therapist changes
   useEffect(() => {
+    if (!BOOKING_ENABLED) return;
     if (!therapist || !open) return;
 
     const fetchAvailability = async () => {
