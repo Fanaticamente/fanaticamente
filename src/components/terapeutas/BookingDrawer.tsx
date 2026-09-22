@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft, ChevronLeft, ChevronRight, Star, Shirt, CheckCircle, Award, Clock, User, Calendar, Sparkles, CreditCard, AlertCircle, Loader2, Copy, Check, QrCode, Upload, FileText, X, Shield, Search, MapPin, Ticket, BadgeCheck, Video, MessageCircle } from "lucide-react";
-import { BOOKING_ENABLED, buildWhatsAppLink } from "@/config/featureFlags";
+import { BOOKING_ENABLED, SHOW_SESSION_PRICES, buildWhatsAppLink } from "@/config/featureFlags";
 import { supabase } from "@/integrations/supabase/client";
 import { getFirstAndLastName } from "@/lib/utils";
 import { isFemaleName } from "@/lib/nameGender";
@@ -660,6 +660,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                 </div>
 
                 {/* Session value */}
+                {SHOW_SESSION_PRICES && (
                 <div
                   className="mt-4 rounded-2xl px-4 py-3 flex items-center justify-between"
                   style={{ backgroundColor: clubColor + '10' }}
@@ -672,6 +673,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                     R$ {basePrice.toFixed(2).replace('.', ',')}
                   </span>
                 </div>
+                )}
               </div>
 
 

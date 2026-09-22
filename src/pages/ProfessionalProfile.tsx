@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { SHOW_SESSION_PRICES } from "@/config/featureFlags";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -441,7 +442,7 @@ const ProfessionalProfile = () => {
       {/* Main Content - Overlapping Cards */}
       <main className="px-4 -mt-12 pb-28 space-y-4">
         {/* Price Card */}
-        {professional.hourly_rate && (
+        {SHOW_SESSION_PRICES && professional.hourly_rate && (
           <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
