@@ -29,6 +29,15 @@ export const SHOW_PAYMENT_METHOD_CARDS = false;
  */
 export const BOOKING_ENABLED = false;
 
+/**
+ * VALOR DAS SESSÕES TEMPORARIAMENTE OCULTO NOS PERFIS PÚBLICOS
+ *
+ * Com SHOW_SESSION_PRICES = false, o preço da sessão deixa de aparecer
+ * nos perfis dos profissionais (card do perfil, lista de terapeutas
+ * desktop e drawer de contato). Para exibir novamente, volte para `true`.
+ */
+export const SHOW_SESSION_PRICES = false;
+
 /** Monta o link de conversa no WhatsApp a partir do telefone cadastrado. */
 export const buildWhatsAppLink = (phone?: string | null, message?: string): string | null => {
   if (!phone) return null;

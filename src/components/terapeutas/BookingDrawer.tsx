@@ -660,6 +660,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                 </div>
 
                 {/* Session value */}
+                {SHOW_SESSION_PRICES && (
                 <div
                   className="mt-4 rounded-2xl px-4 py-3 flex items-center justify-between"
                   style={{ backgroundColor: clubColor + '10' }}

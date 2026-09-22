@@ -447,7 +447,7 @@ const DesktopTerapeutasPage = ({
 
                         {/* Price & Sócio Consciente */}
                         <div className="text-right space-y-2">
-                          {therapist.hourlyRate && (
+                          {SHOW_SESSION_PRICES && therapist.hourlyRate && (
                             <div>
                               <p className="text-2xl font-bold text-emerald-600">
                                 R${therapist.hourlyRate}
