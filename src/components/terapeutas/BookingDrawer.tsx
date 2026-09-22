@@ -706,7 +706,55 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                 </div>
               )}
 
+              {/* Contato direto via WhatsApp (agendamentos desativados) */}
+              {!BOOKING_ENABLED && (
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div
+                    className="px-4 py-3 flex items-center gap-3"
+                    style={{ backgroundColor: clubColor + '08' }}
+                  >
+                    <MessageCircle className="w-5 h-5" style={{ color: clubColor }} />
+                    <span className="font-semibold text-gray-900">Fale com o profissional</span>
+                  </div>
+                  <div className="p-4">
+                    {loadingWhatsApp ? (
+                      <div className="flex justify-center py-6">
+                        <Loader2 className="w-7 h-7 animate-spin" style={{ color: clubColor }} />
+                      </div>
+                    ) : buildWhatsAppLink(whatsappPhone) ? (
+                      <>
+                        <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+                          Converse diretamente com {getFirstAndLastName(therapist.name).split(" ")[0]} pelo WhatsApp
+                          para combinar dia, horário e valores da sessão.
+                        </p>
+                        <a
+                          href={buildWhatsAppLink(
+                            whatsappPhone,
+                            `Olá! Encontrei seu perfil no Fanaticamente e gostaria de saber mais sobre suas sessões.`
+                          )!}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-3 rounded-xl font-bold text-white tracking-wide shadow-lg flex items-center justify-center gap-2 normal-case"
+                          style={{ backgroundColor: clubColor, boxShadow: `0 8px 24px ${clubColor}40` }}
+                        >
+                          <MessageCircle className="w-5 h-5" />
+                          Conversar no WhatsApp
+                        </a>
+                      </>
+                    ) : (
+                      <div className="text-center py-6">
+                        <MessageCircle className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                        <p className="text-gray-500 text-sm">
+                          Este profissional ainda não cadastrou um número de contato.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Scheduling */}
+              {BOOKING_ENABLED && (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div
                   className="px-4 py-3 flex items-center gap-3"
