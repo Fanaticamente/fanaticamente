@@ -5,6 +5,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Star, Shirt, CheckCircle, Award, 
 import { BOOKING_ENABLED, buildWhatsAppLink } from "@/config/featureFlags";
 import { supabase } from "@/integrations/supabase/client";
 import { getFirstAndLastName } from "@/lib/utils";
+import { isFemaleName } from "@/lib/nameGender";
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
