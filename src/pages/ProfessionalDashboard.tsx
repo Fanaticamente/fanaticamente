@@ -1325,7 +1325,7 @@ const ProfessionalDashboard = () => {
             )}
 
             {/* Disponibilidade Tab */}
-            {activeTab === "disponibilidade" && professional && (
+            {BOOKING_ENABLED && activeTab === "disponibilidade" && professional && (
               <WeeklyAvailabilityManager
                 professionalId={professional.id}
                 onUpdate={fetchProfessionalData}
