@@ -871,7 +871,7 @@ const ProfessionalDashboard = () => {
               { id: "agenda", label: "Agendamentos", locked: true },
               { id: "disponibilidade", label: "Disponibilidade", locked: true },
               { id: "metricas", label: "Métricas", locked: true },
-            ]).map((tab) => (
+            ]).filter((tab) => BOOKING_ENABLED || tab.id !== "disponibilidade").map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => {
