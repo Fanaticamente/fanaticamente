@@ -874,6 +874,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                   )}
                 </div>
               </div>
+              )}
             </div>
           ) : (
             /* Payment Step */
