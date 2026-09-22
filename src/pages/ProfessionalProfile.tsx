@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { SHOW_SESSION_PRICES } from "@/config/featureFlags";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Star, MapPin, CheckCircle, Award, Clock, User, Calendar, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";

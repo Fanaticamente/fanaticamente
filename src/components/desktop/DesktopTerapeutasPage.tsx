@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { SHOW_SESSION_PRICES } from "@/config/featureFlags";
 import { Search, Filter, Shirt, Users, Clock, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
