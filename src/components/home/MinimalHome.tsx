@@ -169,7 +169,7 @@ const MinimalHome = () => {
         title: Array.isArray(s.title) ? s.title.join(" ") : s.title,
         subtitle: s.subtitle,
         path: s.path,
-      }))
+      })))
     .filter((item) => BOOKING_ENABLED || !/(agend|consult|sess|pagamento)/i.test(`${item.path} ${item.title} ${item.subtitle}`));
   const suggestionsCount = suggestions.length;
   const [selected, setSelected] = useState<string | null>(null);
