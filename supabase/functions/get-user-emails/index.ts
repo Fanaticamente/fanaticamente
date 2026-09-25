@@ -80,13 +80,20 @@ serve(async (req) => {
 
     const body = await req.json();
     const { userIds, search } = body;
+    const isAdmin = !!adminRole;
 
-    // Mode 1: search by email (partial match)
+    // Mode 1: search by email (partial match) — admins/developers only
     if (search && typeof search === "string") {
+      if (!isAdmin) {
+        return new Response(
+          JSON.stringify({ error: "Not authorized" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       const { data: authUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers({ perPage: 500 });
       if (listError) throw listError;
 
-      const searchLower = search.toLowerCase();
+      const searchLower = search.toLowerCase().slice(0, 100);
       const matched = (authUsers?.users || [])
         .map(u => ({ id: u.id, email: displayEmailFor(u) }))
         .filter(u => u.email && u.email.toLowerCase().includes(searchLower))
@@ -107,10 +114,24 @@ serve(async (req) => {
       );
     }
 
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    let allowedIds = userIds.filter((id: unknown) => typeof id === "string" && uuidRe.test(id)).slice(0, 200) as string[];
+
+    // Professionals may only look up their own patients
+    if (!isAdmin && professional) {
+      const { data: appts } = await supabaseAdmin
+        .from("appointments")
+        .select("user_id")
+        .eq("professional_id", professional.id)
+        .in("user_id", allowedIds);
+      const patientIds = new Set((appts || []).map((a: { user_id: string }) => a.user_id));
+      allowedIds = allowedIds.filter((id) => patientIds.has(id));
+    }
+
     // Fetch emails from auth.users using admin client
     const emails: Record<string, string> = {};
     
-    for (const userId of userIds) {
+    for (const userId of allowedIds) {
       const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
       if (!userError && userData?.user?.email) {
         emails[userId] = displayEmailFor(userData.user);

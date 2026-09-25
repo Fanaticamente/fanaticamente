@@ -17,7 +17,7 @@ interface WeeklyAvailability {
 interface GcalBlock {
   start_time: string;
   end_time: string;
-  summary: string | null;
+  summary?: string | null;
   is_all_day: boolean;
 }
 
@@ -113,7 +113,7 @@ const WeeklyAvailabilityManager = ({
   const reloadGcalBlocks = async () => {
     const { data } = await supabase
       .from('google_calendar_blocks')
-      .select('start_time, end_time, summary, is_all_day')
+      .select('start_time, end_time, is_all_day')
       .eq('professional_id', professionalId)
       .gte('start_time', new Date().toISOString())
       .order('start_time', { ascending: true })
@@ -182,7 +182,7 @@ const WeeklyAvailabilityManager = ({
       setServerBlockedSlots(syncResult?.blocked_slots || []);
       const { data } = await supabase
         .from('google_calendar_blocks')
-        .select('start_time, end_time, summary, is_all_day')
+        .select('start_time, end_time, is_all_day')
         .eq('professional_id', professionalId)
         .gte('start_time', new Date().toISOString())
         .order('start_time', { ascending: true })

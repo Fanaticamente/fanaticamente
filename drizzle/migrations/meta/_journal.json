@@ -8,6 +8,13 @@
       "when": 1790106043186,
       "tag": "0000_add_professional_whatsapp_function",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790372218853,
+      "tag": "0001_security_hardening",
+      "breakpoints": true
     }
   ]
 }
