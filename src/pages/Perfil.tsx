@@ -12,6 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { getDisplayAuthEmail } from "@/lib/appMode";
 import { uploadProfessionalFile } from "@/lib/professionalUploads";
 import { useQueryClient } from "@tanstack/react-query";
+import { isBookingRelatedContent } from "@/config/featureFlags";
 
 const Perfil = () => {
   const { user, roles, signOut, hasRole, loading } = useAuth();
@@ -103,13 +104,17 @@ const Perfil = () => {
         setCoursesCount(coursesTotal || 0);
 
         // Fetch unread notifications count
-        const { count: notifCount } = await supabase
+        const { data: unreadRows } = await supabase
           .from("user_notifications")
-          .select("*", { count: "exact", head: true })
+          .select("type, title, message, link")
           .eq("user_id", user.id)
           .eq("is_read", false);
         
-        setUnreadNotifications(notifCount || 0);
+        setUnreadNotifications(
+          (unreadRows || []).filter((notification) =>
+            !isBookingRelatedContent(notification.type, notification.title, notification.message, notification.link)
+          ).length
+        );
         setProfileLoading(false);
       } else if (!loading && !user) {
         setProfileLoading(false);

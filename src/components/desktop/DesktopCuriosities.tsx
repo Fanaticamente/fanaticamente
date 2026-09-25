@@ -23,7 +23,7 @@ const DesktopCuriosities = () => {
             </h3>
             <div className="flex items-start gap-0">
               <p className="text-gray-700 text-base lg:text-lg leading-relaxed max-w-xs">
-                Nas sessões de terapia realizadas através da conexão entre terapeuta e paciente pelo Fanaticamente, a tradição do jogo é que ambos vistam os seus <span className="font-bold">mantos sagrados</span> durante a sessão!
+                Ao encontrar um profissional que também entende a paixão pelo futebol, o torcedor ganha um ponto de partida para conversar, tirar dúvidas e conhecer melhor os atendimentos.
               </p>
               <img 
                 src={iconJersey} 
@@ -37,7 +37,7 @@ const DesktopCuriosities = () => {
           <div className="flex justify-end lg:-mr-40 xl:-mr-56">
             <img 
               src={macVideocall} 
-              alt="Videochamada de terapia" 
+                alt="Conversa com profissional" 
               className="w-[650px] lg:w-[800px] xl:w-[950px] max-w-none object-contain"
             />
           </div>

@@ -11,6 +11,7 @@ import { format, parseISO, isToday, isYesterday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { isBookingRelatedContent } from "@/config/featureFlags";
 
 interface Notification {
   id: string;
@@ -84,7 +85,11 @@ const Notificacoes = () => {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(100);
-      setNotifications((data as Notification[]) || []);
+      setNotifications(
+        ((data as Notification[]) || []).filter((notification) =>
+          !isBookingRelatedContent(notification.type, notification.title, notification.message, notification.link)
+        )
+      );
       setDataLoading(false);
     };
     fetchNotifications();
@@ -181,7 +186,7 @@ const Notificacoes = () => {
           </div>
           <h3 className="font-sans font-semibold text-lg text-slate-900 mb-1 normal-case">Nenhuma notificação</h3>
           <p className="text-slate-500 text-sm max-w-xs">
-            Suas notificações de agendamentos, cursos e pagamentos aparecerão aqui.
+            Seus alertas sobre cursos, atividades e novidades aparecerão aqui.
           </p>
         </div>
       )}

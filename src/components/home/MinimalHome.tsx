@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, differenceInCalendarDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ResponsiveContainer, LineChart, Line, YAxis } from "recharts";
-import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Heart } from "lucide-react";
+import { Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Heart } from "lucide-react";
 import { SpecialistIcon } from "@/components/icons/SpecialistIcon";
 import jornadaLogo from "@/assets/logo-header-v3.png.asset.json";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
