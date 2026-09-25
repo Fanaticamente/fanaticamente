@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, subDays, differenceInCalendarDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ResponsiveContainer, LineChart, Line, YAxis } from "recharts";
-import { CalendarDays, Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Heart } from "lucide-react";
+import { Users, GraduationCap, Play, TrendingUp, ChevronRight, HeartPulse, Heart } from "lucide-react";
 import { SpecialistIcon } from "@/components/icons/SpecialistIcon";
 import jornadaLogo from "@/assets/logo-header-v3.png.asset.json";
 import icCampo from "@/assets/Untitled_design-17.png.asset.json";
@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import NextMatchBar from "@/components/home/NextMatchBar";
 import { useAppModules } from "@/hooks/useAppModules";
 import { getMenuIcon } from "@/lib/menuIcons";
+import { BOOKING_ENABLED } from "@/config/featureFlags";
 
 type HomeCfg = Record<string, unknown>;
 type SuggestionItem = { image?: string; kicker?: string; title?: string; subtitle?: string; path?: string };
@@ -151,7 +152,7 @@ const MinimalHome = () => {
   };
 
   const suggestionsCfg = (cfgOf("home_suggestions").items as SuggestionItem[] | undefined) || [];
-  const suggestions = suggestionsCfg.length
+  const suggestions = (suggestionsCfg.length
     ? suggestionsCfg.map((item) => {
         const fallback = SUGGESTIONS.find((s) => s.path === item.path);
         return {
@@ -168,7 +169,8 @@ const MinimalHome = () => {
         title: Array.isArray(s.title) ? s.title.join(" ") : s.title,
         subtitle: s.subtitle,
         path: s.path,
-      }));
+      })))
+    .filter((item) => BOOKING_ENABLED || !/(agend|consult|sess|pagamento)/i.test(`${item.path} ${item.title} ${item.subtitle}`));
   const suggestionsCount = suggestions.length;
   const [selected, setSelected] = useState<string | null>(null);
   const [reasonOpen, setReasonOpen] = useState(false);
@@ -308,11 +310,13 @@ const MinimalHome = () => {
           { icon: "GraduationCap", label: "Cursos", path: "/cursos" },
           { icon: "Heart", label: "Bem-estar", path: "/bem-estar" },
         ]
-  ).map((s) => ({
+  )
+    .filter((s) => BOOKING_ENABLED || !/(agend|consult|sess|pagamento)/i.test(`${s.path || ""} ${s.label || ""}`))
+    .map((s) => ({
     icon: (s.path || "").startsWith("/terapeutas") ? getMenuIcon("Especialista") : getMenuIcon(s.icon),
     label: s.label ?? "",
     path: s.path || "/",
-  }));
+    }));
 
   const greetingCfg = cfgOf("home_greeting");
   const checkinCfg = cfgOf("home_checkin");
@@ -606,7 +610,7 @@ const MinimalHome = () => {
           <h3 className="font-sans font-bold text-slate-900 mb-2 px-1 normal-case tracking-normal">
             {(cfgOf("home_shortcuts").title as string) || "Acesso rápido"}
           </h3>
-          <div className="grid grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(64px,1fr))] gap-2.5">
             {shortcuts.map((s) => {
               const Icon = s.icon;
               const isSpecialist = Icon === SpecialistIcon;

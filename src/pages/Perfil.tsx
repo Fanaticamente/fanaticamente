@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { User, LogOut, CreditCard, Calendar, BookOpen, ChevronRight, Bell, Briefcase, Shield, Code, Camera } from "lucide-react";
+import { User, LogOut, BookOpen, ChevronRight, Bell, Briefcase, Shield, Code, Camera } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
@@ -12,6 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { getDisplayAuthEmail } from "@/lib/appMode";
 import { uploadProfessionalFile } from "@/lib/professionalUploads";
 import { useQueryClient } from "@tanstack/react-query";
+import { isBookingRelatedContent } from "@/config/featureFlags";
 
 const Perfil = () => {
   const { user, roles, signOut, hasRole, loading } = useAuth();
@@ -20,7 +21,6 @@ const Perfil = () => {
   const queryClient = useQueryClient();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null; favorite_club_id: string | null } | null>(null);
   const [favoriteClub, setFavoriteClub] = useState<BrazilianClub | null>(null);
-  const [appointmentsCount, setAppointmentsCount] = useState(0);
   const [diaryDaysCount, setDiaryDaysCount] = useState(0);
   const [coursesCount, setCoursesCount] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
@@ -82,14 +82,6 @@ const Perfil = () => {
           }
         }
 
-        // Fetch appointments count
-        const { count } = await supabase
-          .from("appointments")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id);
-        
-        setAppointmentsCount(count || 0);
-
         // Fetch distinct diary check-in days
         const { data: emotionRows } = await supabase
           .from("emotion_entries")
@@ -112,13 +104,17 @@ const Perfil = () => {
         setCoursesCount(coursesTotal || 0);
 
         // Fetch unread notifications count
-        const { count: notifCount } = await supabase
+        const { data: unreadRows } = await supabase
           .from("user_notifications")
-          .select("*", { count: "exact", head: true })
+          .select("type, title, message, link")
           .eq("user_id", user.id)
           .eq("is_read", false);
         
-        setUnreadNotifications(notifCount || 0);
+        setUnreadNotifications(
+          (unreadRows || []).filter((notification) =>
+            !isBookingRelatedContent(notification.type, notification.title, notification.message, notification.link)
+          ).length
+        );
         setProfileLoading(false);
       } else if (!loading && !user) {
         setProfileLoading(false);
@@ -183,24 +179,10 @@ const Perfil = () => {
 
   const baseMenuItems = [
     {
-      icon: Calendar,
-      label: "Meus Agendamentos",
-      description: "Ver consultas marcadas",
-      path: "/meus-agendamentos",
-      badge: appointmentsCount > 0 ? appointmentsCount.toString() : null,
-    },
-    {
       icon: BookOpen,
       label: "Meus Cursos",
       description: "Acessar cursos comprados",
       path: "/cursos",
-      badge: null,
-    },
-    {
-      icon: CreditCard,
-      label: "Pagamentos",
-      description: "Histórico e métodos de pagamento",
-      path: "/perfil/pagamentos",
       badge: null,
     },
     {
@@ -219,7 +201,7 @@ const Perfil = () => {
     roleMenuItems.push({
       icon: Briefcase,
       label: "Painel do Profissional",
-      description: "Gerenciar consultas e agenda",
+      description: "Gerenciar seu perfil profissional",
       path: "/profissional",
       badge: null,
       color: "text-therapy",
@@ -365,7 +347,7 @@ const Perfil = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-3 mb-6">
         <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
           <p className="font-sans font-semibold text-2xl" style={{ color: "var(--club-600)" }}>{diaryDaysCount}</p>
           <p className="text-slate-500 text-xs mt-1">Dias no diário</p>
@@ -373,10 +355,6 @@ const Perfil = () => {
         <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
           <p className="font-sans font-semibold text-2xl" style={{ color: "var(--club-600)" }}>{coursesCount}</p>
           <p className="text-slate-500 text-xs mt-1">Cursos feitos</p>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
-          <p className="font-sans font-semibold text-2xl" style={{ color: "var(--club-600)" }}>{appointmentsCount}</p>
-          <p className="text-slate-500 text-xs mt-1">Consultas</p>
         </div>
       </div>
 

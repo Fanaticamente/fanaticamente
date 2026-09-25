@@ -268,7 +268,7 @@ const Terapeutas = () => {
     } catch {
       // ignore storage failures
     }
-    navigate(`/agendar/${therapist.id}${query}`, {
+    navigate(`/terapeuta/${therapist.id}${query}`, {
       state: {
         therapist,
         clubId: selectedClub?.id,

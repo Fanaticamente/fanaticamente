@@ -29,6 +29,12 @@ export const SHOW_PAYMENT_METHOD_CARDS = false;
  */
 export const BOOKING_ENABLED = false;
 
+/** Identifica conteúdo legado de agendamentos que não deve aparecer ao torcedor. */
+export const isBookingRelatedContent = (...values: Array<string | null | undefined>): boolean => {
+  const content = values.filter(Boolean).join(" ");
+  return /(agend|consult|sessão|sessões|terapia|pagamento)/i.test(content);
+};
+
 /**
  * VALOR DAS SESSÕES TEMPORARIAMENTE OCULTO NOS PERFIS PÚBLICOS
  *

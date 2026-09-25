@@ -2,9 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { 
   Home, 
   User, 
-  Calendar, 
   BookOpen, 
-  CreditCard,
   Settings,
   LogOut,
   ChevronRight
@@ -26,9 +24,7 @@ interface UserDesktopLayoutProps {
 const navItems = [
   { icon: Home, label: "Início", path: "/" },
   { icon: User, label: "Meu Perfil", path: "/perfil" },
-  { icon: Calendar, label: "Meus Agendamentos", path: "/meus-agendamentos" },
   { icon: BookOpen, label: "Meus Cursos", path: "/cursos" },
-  { icon: CreditCard, label: "Pagamentos", path: "/pagamentos" },
   { icon: Settings, label: "Configurações", path: "/configuracoes" },
 ];
 

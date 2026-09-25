@@ -10,7 +10,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   User, 
-  Calendar, 
   BookOpen, 
   Thermometer, 
   Newspaper, 
@@ -65,7 +64,6 @@ const UserDropdownMenu = () => {
   // Menu items for regular users (torcedores)
   const userMenuItems = [
     { icon: User, label: "Meu Perfil", path: "/perfil" },
-    { icon: Calendar, label: "Meus Agendamentos", path: "/meus-agendamentos" },
     { icon: BookOpen, label: "FanatiClass", path: "/cursos" },
     { icon: Thermometer, label: "Termômetro", path: "/diario" },
     { icon: Newspaper, label: "Notícias", path: "/futebol" },
