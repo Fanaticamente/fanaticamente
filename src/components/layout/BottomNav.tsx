@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAppPages } from "@/hooks/useAppPages";
 import { useAppMenu } from "@/hooks/useAppContent";
 import { getMenuIcon } from "@/lib/menuIcons";
+import { BOOKING_ENABLED, isBookingRelatedContent } from "@/config/featureFlags";
 
 const DEFAULT_ITEMS = [
   { icon: "Home", label: "Início", path: "/" },
@@ -43,6 +44,7 @@ const BottomNav = () => {
   const navItems = menu?.items?.length ? menu.items : DEFAULT_ITEMS;
 
   const visibleItems = navItems.filter((item) => {
+    if (!BOOKING_ENABLED && isBookingRelatedContent(item.label, item.path)) return false;
     if (!pages || pages.length === 0) return true;
     const page = pages.find((p) => p.path === item.path);
     return page ? page.is_visible !== false : true;
