@@ -734,7 +734,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                         <a
                           href={buildWhatsAppLink(
                             whatsappPhone,
-                            `Olá! Encontrei seu perfil no Fanaticamente e gostaria de saber mais sobre suas sessões.`
+                            `Olá! Encontrei seu perfil no Fanaticamente e gostaria de saber mais sobre seus atendimentos.`
                           )!}
                           target="_blank"
                           rel="noopener noreferrer"

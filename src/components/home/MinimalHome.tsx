@@ -609,7 +609,7 @@ const MinimalHome = () => {
           <h3 className="font-sans font-bold text-slate-900 mb-2 px-1 normal-case tracking-normal">
             {(cfgOf("home_shortcuts").title as string) || "Acesso rápido"}
           </h3>
-          <div className="grid grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(64px,1fr))] gap-2.5">
             {shortcuts.map((s) => {
               const Icon = s.icon;
               const isSpecialist = Icon === SpecialistIcon;

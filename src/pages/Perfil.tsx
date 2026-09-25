@@ -201,7 +201,7 @@ const Perfil = () => {
     roleMenuItems.push({
       icon: Briefcase,
       label: "Painel do Profissional",
-      description: "Gerenciar consultas e agenda",
+      description: "Gerenciar seu perfil profissional",
       path: "/profissional",
       badge: null,
       color: "text-therapy",
