@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import NextMatchBar from "@/components/home/NextMatchBar";
 import { useAppModules } from "@/hooks/useAppModules";
 import { getMenuIcon } from "@/lib/menuIcons";
+import { BOOKING_ENABLED } from "@/config/featureFlags";
 
 type HomeCfg = Record<string, unknown>;
 type SuggestionItem = { image?: string; kicker?: string; title?: string; subtitle?: string; path?: string };
@@ -308,11 +309,13 @@ const MinimalHome = () => {
           { icon: "GraduationCap", label: "Cursos", path: "/cursos" },
           { icon: "Heart", label: "Bem-estar", path: "/bem-estar" },
         ]
-  ).map((s) => ({
+  )
+    .filter((s) => BOOKING_ENABLED || !/(agend|consult|sess|pagamento)/i.test(`${s.path || ""} ${s.label || ""}`))
+    .map((s) => ({
     icon: (s.path || "").startsWith("/terapeutas") ? getMenuIcon("Especialista") : getMenuIcon(s.icon),
     label: s.label ?? "",
     path: s.path || "/",
-  }));
+    }));
 
   const greetingCfg = cfgOf("home_greeting");
   const checkinCfg = cfgOf("home_checkin");

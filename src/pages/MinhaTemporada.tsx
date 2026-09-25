@@ -8,7 +8,6 @@ import {
   Flame,
   Trophy,
   GraduationCap,
-  CalendarDays,
   Smile,
   TrendingUp,
   ChevronRight,
@@ -53,20 +52,6 @@ const MinhaTemporada = () => {
     },
   });
 
-  const { data: appointments = [] } = useQuery({
-    queryKey: ["mt-appointments", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("appointments")
-        .select("id, status, scheduled_date, scheduled_time")
-        .eq("user_id", user!.id)
-        .order("scheduled_date", { ascending: false })
-        .limit(200);
-      return data ?? [];
-    },
-  });
-
   const { data: courses = [] } = useQuery({
     queryKey: ["mt-courses-full", user?.id],
     enabled: !!user,
@@ -103,26 +88,21 @@ const MinhaTemporada = () => {
 
     const monthStart = startOfMonth(new Date());
     const monthCheckins = emotions.filter((e) => new Date(e.entry_date) >= monthStart).length;
-    const sessionsDone = appointments.filter((a) => a.status === "completed").length;
-    const sessionsUpcoming = appointments.filter((a) => a.status === "scheduled" || a.status === "confirmed").length;
     const coursesCount = courses.length;
     const checkinsCount = emotions.length;
 
-    // Pontuação: 3pts por sessão concluída, 1pt por check-in, 1pt por curso
-    const points = sessionsDone * 3 + checkinsCount + coursesCount;
+    const points = checkinsCount + coursesCount;
 
     return {
       avgScore,
       avgEmoji,
       streak,
       monthCheckins,
-      sessionsDone,
-      sessionsUpcoming,
       coursesCount,
       checkinsCount,
       points,
     };
-  }, [emotions, appointments, courses]);
+  }, [emotions, courses]);
 
   const timeline = useMemo(() => {
     type Item = { icon: any; when: string; title: string; body: string; onClick?: () => void };
@@ -151,18 +131,8 @@ const MinhaTemporada = () => {
         onClick: () => navigate("/meus-cursos"),
       });
     }
-    const lastAppt = appointments[0];
-    if (lastAppt) {
-      items.push({
-        icon: CalendarDays,
-        when: format(new Date(lastAppt.scheduled_date), "dd 'de' MMM", { locale: ptBR }),
-        title: lastAppt.status === "completed" ? "Sessão concluída" : "Sessão agendada",
-        body: "Confira detalhes em Meus agendamentos.",
-        onClick: () => navigate("/meus-agendamentos"),
-      });
-    }
     return items;
-  }, [emotions, courses, appointments, navigate]);
+  }, [emotions, courses, navigate]);
 
   const Content = () => (
     <div className="font-sans text-slate-900 space-y-5">
@@ -181,7 +151,7 @@ const MinhaTemporada = () => {
           <span className="text-4xl font-extrabold leading-none">{stats.points}</span>
           <span className="text-sm opacity-80 pb-1">pontos acumulados</span>
         </div>
-        <p className="text-xs opacity-80 mt-2">3 pts por sessão · 1 pt por check-in · 1 pt por curso</p>
+        <p className="text-xs opacity-80 mt-2">1 pt por check-in · 1 pt por curso</p>
       </section>
 
       {/* Métricas */}
@@ -193,12 +163,6 @@ const MinhaTemporada = () => {
           value={`${stats.streak} dia${stats.streak === 1 ? "" : "s"}`}
         />
         <MetricCard icon={<Smile className="w-4 h-4" />} label="Check-ins no mês" value={`${stats.monthCheckins}`} />
-        <MetricCard
-          icon={<CalendarDays className="w-4 h-4" />}
-          label="Sessões concluídas"
-          value={`${stats.sessionsDone}`}
-          hint={stats.sessionsUpcoming ? `${stats.sessionsUpcoming} agendadas` : undefined}
-        />
         <MetricCard icon={<GraduationCap className="w-4 h-4" />} label="Cursos" value={`${stats.coursesCount}`} />
         <MetricCard
           icon={<TrendingUp className="w-4 h-4" />}
@@ -216,7 +180,7 @@ const MinhaTemporada = () => {
 
         {timeline.length === 0 ? (
           <p className="text-sm text-slate-500">
-            Ainda não temos atividades para mostrar. Faça um check-in ou agende uma sessão.
+            Ainda não temos atividades para mostrar. Faça um check-in ou comece um curso.
           </p>
         ) : (
           <div className="space-y-3">
@@ -242,11 +206,6 @@ const MinhaTemporada = () => {
 
       {/* Atalhos */}
       <section className="grid grid-cols-1 gap-3">
-        <ShortcutButton
-          onClick={() => navigate("/meus-agendamentos")}
-          icon={<CalendarDays className="w-4 h-4" />}
-          label="Meus Agendamentos"
-        />
         <ShortcutButton
           onClick={() => navigate("/meus-cursos")}
           icon={<GraduationCap className="w-4 h-4" />}

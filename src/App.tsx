@@ -21,7 +21,7 @@ if (typeof window !== "undefined") {
     event.preventDefault();
   });
 }
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RadioProvider } from "@/contexts/RadioContext";
 import { ClubThemeProvider } from "@/contexts/ClubThemeContext";
@@ -185,7 +185,7 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/terapeutas" element={<Terapeutas />} />
               <Route path="/terapeuta/:id" element={<AgendarSessao />} />
-              <Route path="/agendar/:id" element={<AgendarSessao />} />
+              <Route path="/agendar/:id" element={<Navigate to="/terapeutas" replace />} />
               <Route path="/cursos" element={<Cursos />} />
               <Route path="/curso/:id" element={<CursoDetalhe />} />
               <Route path="/quiz" element={<Quiz />} />
@@ -250,7 +250,7 @@ const App = () => {
                 <Route path="/profissional" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />
                 <Route path="/terapeutas" element={<DynamicProtectedRoute pageId="terapeutas"><Terapeutas /></DynamicProtectedRoute>} />
                 <Route path="/terapeuta/:id" element={<DynamicProtectedRoute pageId="terapeutas"><AgendarSessao /></DynamicProtectedRoute>} />
-              <Route path="/agendar/:id" element={<DynamicProtectedRoute pageId="terapeutas"><AgendarSessao /></DynamicProtectedRoute>} />
+              <Route path="/agendar/:id" element={<Navigate to="/terapeutas" replace />} />
                 <Route path="/cursos" element={<DynamicProtectedRoute pageId="cursos"><Cursos /></DynamicProtectedRoute>} />
                 <Route path="/curso/:id" element={<DynamicProtectedRoute pageId="cursos"><CursoDetalhe /></DynamicProtectedRoute>} />
                 <Route path="/meus-cursos" element={<ProtectedRoute><MeusCursos /></ProtectedRoute>} />
@@ -270,15 +270,15 @@ const App = () => {
                 <Route path="/bem-estar" element={<DynamicProtectedRoute pageId="diario"><BemEstar /></DynamicProtectedRoute>} />
                 <Route path="/perfil" element={<DynamicProtectedRoute pageId="perfil"><Perfil /></DynamicProtectedRoute>} />
                 <Route path="/perfil/editar" element={<ProtectedRoute><EditarPerfil /></ProtectedRoute>} />
-                <Route path="/meus-agendamentos" element={<DynamicProtectedRoute pageId="agendamentos"><MeusAgendamentos /></DynamicProtectedRoute>} />
-                <Route path="/perfil/agendamentos" element={<DynamicProtectedRoute pageId="agendamentos"><MeusAgendamentos /></DynamicProtectedRoute>} />
-                <Route path="/pagamentos" element={<DynamicProtectedRoute pageId="pagamentos"><Pagamentos /></DynamicProtectedRoute>} />
-                <Route path="/perfil/pagamentos" element={<DynamicProtectedRoute pageId="pagamentos"><Pagamentos /></DynamicProtectedRoute>} />
+                <Route path="/meus-agendamentos" element={<Navigate to="/perfil" replace />} />
+                <Route path="/perfil/agendamentos" element={<Navigate to="/perfil" replace />} />
+                <Route path="/pagamentos" element={<Navigate to="/perfil" replace />} />
+                <Route path="/perfil/pagamentos" element={<Navigate to="/perfil" replace />} />
                 <Route path="/configuracoes" element={<DynamicProtectedRoute pageId="configuracoes"><Configuracoes /></DynamicProtectedRoute>} />
                 <Route path="/perfil/notificacoes" element={<DynamicProtectedRoute pageId="notificacoes"><Notificacoes /></DynamicProtectedRoute>} />
                 <Route path="/notificacoes" element={<DynamicProtectedRoute pageId="notificacoes"><Notificacoes /></DynamicProtectedRoute>} />
-                <Route path="/pagamento/:id" element={<DynamicProtectedRoute pageId="terapeutas"><SessionPayment /></DynamicProtectedRoute>} />
-                <Route path="/pagamento/confirmacao/:id" element={<DynamicProtectedRoute pageId="terapeutas"><PaymentConfirmation /></DynamicProtectedRoute>} />
+                <Route path="/pagamento/:id" element={<Navigate to="/terapeutas" replace />} />
+                <Route path="/pagamento/confirmacao/:id" element={<Navigate to="/terapeutas" replace />} />
 
                 {/* Professional routes - always require login */}
                 <Route path="/profissional" element={<ProtectedRoute><ProfessionalDashboard /></ProtectedRoute>} />

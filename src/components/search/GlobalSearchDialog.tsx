@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { Search, X, Users, BookOpen, Home, Heart, Radio, Newspaper, MessageCircle, Trophy, Calendar, User, Bell, Settings, Activity, ClipboardList } from "lucide-react";
+import { Search, X, Users, BookOpen, Home, Heart, Radio, Newspaper, MessageCircle, Trophy, User, Bell, Settings, Activity } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
@@ -30,7 +30,6 @@ const staticPages: Item[] = [
   { key: "p-diario", title: "Campo das emoções", path: "/diario", icon: Activity, group: "Páginas" },
   { key: "p-temp", title: "Minha temporada", path: "/minha-temporada", icon: Trophy, group: "Páginas" },
   { key: "p-quiz", title: "Resenha Fanática", path: "/quiz", icon: MessageCircle, group: "Páginas" },
-  { key: "p-ag", title: "Meus agendamentos", path: "/meus-agendamentos", icon: Calendar, group: "Páginas" },
   { key: "p-perf", title: "Perfil", path: "/perfil", icon: User, group: "Páginas" },
   { key: "p-not", title: "Notificações", path: "/notificacoes", icon: Bell, group: "Páginas" },
   { key: "p-cfg", title: "Configurações", path: "/configuracoes", icon: Settings, group: "Páginas" },

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { User, LogOut, CreditCard, Calendar, BookOpen, ChevronRight, Bell, Briefcase, Shield, Code, Camera } from "lucide-react";
+import { User, LogOut, BookOpen, ChevronRight, Bell, Briefcase, Shield, Code, Camera } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
@@ -20,7 +20,6 @@ const Perfil = () => {
   const queryClient = useQueryClient();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null; favorite_club_id: string | null } | null>(null);
   const [favoriteClub, setFavoriteClub] = useState<BrazilianClub | null>(null);
-  const [appointmentsCount, setAppointmentsCount] = useState(0);
   const [diaryDaysCount, setDiaryDaysCount] = useState(0);
   const [coursesCount, setCoursesCount] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
@@ -81,14 +80,6 @@ const Perfil = () => {
             setFavoriteClub(club || null);
           }
         }
-
-        // Fetch appointments count
-        const { count } = await supabase
-          .from("appointments")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id);
-        
-        setAppointmentsCount(count || 0);
 
         // Fetch distinct diary check-in days
         const { data: emotionRows } = await supabase
@@ -183,24 +174,10 @@ const Perfil = () => {
 
   const baseMenuItems = [
     {
-      icon: Calendar,
-      label: "Meus Agendamentos",
-      description: "Ver consultas marcadas",
-      path: "/meus-agendamentos",
-      badge: appointmentsCount > 0 ? appointmentsCount.toString() : null,
-    },
-    {
       icon: BookOpen,
       label: "Meus Cursos",
       description: "Acessar cursos comprados",
       path: "/cursos",
-      badge: null,
-    },
-    {
-      icon: CreditCard,
-      label: "Pagamentos",
-      description: "Histórico e métodos de pagamento",
-      path: "/perfil/pagamentos",
       badge: null,
     },
     {
@@ -365,7 +342,7 @@ const Perfil = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-3 mb-6">
         <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
           <p className="font-sans font-semibold text-2xl" style={{ color: "var(--club-600)" }}>{diaryDaysCount}</p>
           <p className="text-slate-500 text-xs mt-1">Dias no diário</p>
@@ -373,10 +350,6 @@ const Perfil = () => {
         <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
           <p className="font-sans font-semibold text-2xl" style={{ color: "var(--club-600)" }}>{coursesCount}</p>
           <p className="text-slate-500 text-xs mt-1">Cursos feitos</p>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
-          <p className="font-sans font-semibold text-2xl" style={{ color: "var(--club-600)" }}>{appointmentsCount}</p>
-          <p className="text-slate-500 text-xs mt-1">Consultas</p>
         </div>
       </div>
 
