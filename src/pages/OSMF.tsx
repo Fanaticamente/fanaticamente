@@ -578,7 +578,7 @@ const ReportSection = () => {
       // Upload files
       const uploadedPaths: string[] = [];
       for (const file of files) {
-        const ext = file.name.split(".").pop();
+        const ext = (file.name.split(".").pop() || "").toLowerCase();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
         const { error: uploadError } = await supabase.storage.from("osmf-reports").upload(fileName, file);
         if (!uploadError) {
