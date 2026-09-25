@@ -152,7 +152,7 @@ const MinimalHome = () => {
   };
 
   const suggestionsCfg = (cfgOf("home_suggestions").items as SuggestionItem[] | undefined) || [];
-  const suggestions = suggestionsCfg.length
+  const suggestions = (suggestionsCfg.length
     ? suggestionsCfg.map((item) => {
         const fallback = SUGGESTIONS.find((s) => s.path === item.path);
         return {
@@ -169,7 +169,8 @@ const MinimalHome = () => {
         title: Array.isArray(s.title) ? s.title.join(" ") : s.title,
         subtitle: s.subtitle,
         path: s.path,
-      }));
+      }))
+    .filter((item) => BOOKING_ENABLED || !/(agend|consult|sess|pagamento)/i.test(`${item.path} ${item.title} ${item.subtitle}`));
   const suggestionsCount = suggestions.length;
   const [selected, setSelected] = useState<string | null>(null);
   const [reasonOpen, setReasonOpen] = useState(false);
