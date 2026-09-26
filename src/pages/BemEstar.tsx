@@ -14,6 +14,26 @@ import Header from "@/components/layout/Header";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import MoodFace, { type MoodVariant } from "@/components/MoodFace";
+import { parseEmotionNote } from "@/lib/emotionNote";
+
+const EntryNote = ({ note }: { note?: string | null }) => {
+  const { tags, observation } = parseEmotionNote(note);
+  if (!tags.length && !observation) return null;
+  return (
+    <div className="mt-2 space-y-1.5">
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {tags.map((t) => (
+            <span key={t} className="px-2 py-0.5 rounded-full bg-[var(--club-50)] text-[11px] text-[var(--club-600)]">{t}</span>
+          ))}
+        </div>
+      )}
+      {observation && (
+        <p className="text-xs text-slate-600 whitespace-pre-wrap break-words italic">“{observation}”</p>
+      )}
+    </div>
+  );
+};
 
 const MOOD_EMOJIS: Record<MoodVariant, string> = {
   happy: "😄",
@@ -120,7 +140,7 @@ const BemEstar = () => {
   const { user } = useAuth();
   const [range, setRange] = useState<RangeId>("semana");
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [detailsTab, setDetailsTab] = useState<"semana" | "mes" | "historico">("semana");
+  const [detailsTab, setDetailsTab] = useState<"resumo" | "semana" | "mes" | "historico">("resumo");
 
   const { data: emotions = [] } = useQuery({
     queryKey: ["bemestar-emotions", user?.id],
@@ -317,6 +337,60 @@ const BemEstar = () => {
       }));
     return { daily, weekly, history };
   }, [emotions]);
+
+  // Resumo da semana anterior (Seg–Dom)
+  const weeklySummary = useMemo(() => {
+    const now = new Date();
+    const ws = startOfWeek(addWeeks(now, -1), { weekStartsOn: 1 });
+    const we = endOfWeek(ws, { weekStartsOn: 1 });
+    const ws2 = startOfWeek(addWeeks(now, -2), { weekStartsOn: 1 });
+    const we2 = endOfWeek(ws2, { weekStartsOn: 1 });
+    const inRange = (a: Date, b: Date) =>
+      emotions.filter((e) => { const d = parseISO(e.entry_date); return d >= a && d <= b; });
+    const avgOf = (items: typeof emotions) =>
+      items.length ? Math.round(items.reduce((s, e) => s + (MOOD_SCORES[e.emotion] ?? 60), 0) / items.length) : null;
+    const items = inRange(ws, we);
+    const prevAvg = avgOf(inRange(ws2, we2));
+    const avg = avgOf(items);
+    const days = Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date(ws); d.setDate(ws.getDate() + i);
+      const key = format(d, "yyyy-MM-dd");
+      const entry = emotions.find((e) => e.entry_date === key);
+      return {
+        date: key,
+        label: format(d, "EEEE, dd/MM", { locale: ptBR }),
+        emotion: entry?.emotion,
+        value: entry ? MOOD_SCORES[entry.emotion] ?? 60 : null,
+        note: (entry as any)?.note ?? null,
+      };
+    });
+    const tagCount: Record<string, number> = {};
+    items.forEach((e: any) => parseEmotionNote(e.note).tags.forEach((t) => (tagCount[t] = (tagCount[t] || 0) + 1)));
+    const topTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([t]) => t);
+    const diff = avg !== null && prevAvg !== null ? avg - prevAvg : null;
+    const message =
+      avg === null ? "" :
+      diff !== null && diff >= 10 ? "Sua semana foi melhor que a anterior. Você evoluiu! 🎉" :
+      diff !== null && diff <= -10 ? "Sua semana foi mais desafiadora que a anterior. Observe o que pesou nos dias abaixo." :
+      avg >= 75 ? "Foi uma boa semana para você, com a maioria dos dias positivos." :
+      avg >= 50 ? "Uma semana equilibrada, com altos e baixos." :
+      "Uma semana difícil. Lembre-se: pedir ajuda também é jogar em equipe.";
+    return {
+      key: format(ws, "yyyy-MM-dd"),
+      rangeLabel: `${format(ws, "dd/MM")} – ${format(we, "dd/MM")}`,
+      count: items.length, avg, diff, days, topTags, message,
+    };
+  }, [emotions]);
+
+  const reflectionKey = `bemestar:reflection:${user?.id ?? "anon"}:${weeklySummary.key}`;
+  const [reflection, setReflection] = useState<string | null>(() => {
+    try { return localStorage.getItem(reflectionKey); } catch { return null; }
+  });
+  const answerReflection = (id: string) => {
+    setReflection(id);
+    try { localStorage.setItem(reflectionKey, id); } catch {}
+  };
+
 
   const emotionLabels: Record<string, string> = {
     muito_bem: "Muito bem",
@@ -554,26 +628,118 @@ const BemEstar = () => {
           </DialogHeader>
 
           <div className="px-5 pt-3">
-            <div className="rounded-full bg-slate-100 p-1 grid grid-cols-3 gap-1">
-              {(["semana", "mes", "historico"] as const).map((t) => (
+            <div className="rounded-full bg-slate-100 p-1 grid grid-cols-4 gap-1">
+              {(["resumo", "semana", "mes", "historico"] as const).map((t) => (
                 <button
                   key={t}
                   onClick={() => setDetailsTab(t)}
                   className={cn(
-                    "py-2 rounded-full text-xs font-semibold transition-colors",
+                    "py-2 rounded-full text-[11px] font-semibold transition-colors",
                     detailsTab === t
                       ? "bg-white text-[var(--club-600)] shadow-sm"
                       : "text-slate-500"
                   )}
                 >
-                  {t === "semana" ? "7 dias" : t === "mes" ? "4 semanas" : "Histórico"}
+                  {t === "resumo" ? "Resumo" : t === "semana" ? "7 dias" : t === "mes" ? "4 semanas" : "Histórico"}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="p-5 overflow-y-auto">
-            {detailsTab === "semana" ? (
+            {detailsTab === "resumo" ? (
+              <div className="space-y-4">
+                <div className="rounded-2xl bg-[var(--club-50)] p-4">
+                  <p className="text-xs font-semibold text-[var(--club-600)]">Resumo da semana anterior</p>
+                  <p className="text-sm text-slate-500">{weeklySummary.rangeLabel}</p>
+                  {weeklySummary.count === 0 ? (
+                    <p className="mt-2 text-sm text-slate-700">Você não fez check-ins na semana passada. Que tal registrar todos os dias desta semana?</p>
+                  ) : (
+                    <>
+                      <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                        <div className="rounded-xl bg-white p-2">
+                          <p className="text-xl font-bold text-slate-900">{weeklySummary.avg}</p>
+                          <p className="text-[10px] text-slate-500">Pontuação</p>
+                        </div>
+                        <div className="rounded-xl bg-white p-2">
+                          <p className="text-xl font-bold text-slate-900">{weeklySummary.count}/7</p>
+                          <p className="text-[10px] text-slate-500">Check-ins</p>
+                        </div>
+                        <div className="rounded-xl bg-white p-2">
+                          <p className={cn("text-xl font-bold", weeklySummary.diff === null ? "text-slate-400" : weeklySummary.diff >= 0 ? "text-[var(--club-600)]" : "text-slate-900")}>
+                            {weeklySummary.diff === null ? "—" : `${weeklySummary.diff > 0 ? "+" : ""}${weeklySummary.diff}`}
+                          </p>
+                          <p className="text-[10px] text-slate-500">vs. semana antes</p>
+                        </div>
+                      </div>
+                      <p className="mt-3 text-sm text-slate-700">{weeklySummary.message}</p>
+                      {weeklySummary.topTags.length > 0 && (
+                        <div className="mt-3">
+                          <p className="text-xs font-semibold text-slate-500 mb-1.5">O que mais apareceu</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {weeklySummary.topTags.map((t) => (
+                              <span key={t} className="px-2.5 py-1 rounded-full bg-white text-xs text-slate-700 border border-slate-200">{t}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  {weeklySummary.days.map((d) => (
+                    <div key={d.date} className="rounded-2xl border border-slate-200 p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900 capitalize">{d.label}</p>
+                          <p className="text-xs text-slate-500">
+                            {d.emotion ? `${emotionLabels[d.emotion] ?? d.emotion} • ${d.value} pts` : "Sem registro"}
+                          </p>
+                        </div>
+                        <span className="text-2xl leading-none">{d.value !== null ? MOOD_EMOJIS[variantForValue(d.value)] : "—"}</span>
+                      </div>
+                      <EntryNote note={d.note} />
+                    </div>
+                  ))}
+                </div>
+
+                {weeklySummary.count > 0 && (
+                  <div className="rounded-2xl border border-slate-200 p-4">
+                    <p className="text-sm font-semibold text-slate-900">Você sente que melhorou em relação à semana passada?</p>
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      {[
+                        { id: "melhorei", label: "Melhorei 💪" },
+                        { id: "igual", label: "Igual 🙂" },
+                        { id: "piorei", label: "Piorei 😔" },
+                      ].map((o) => (
+                        <button
+                          key={o.id}
+                          onClick={() => answerReflection(o.id)}
+                          className={cn(
+                            "py-2 rounded-xl text-xs font-semibold border transition-colors",
+                            reflection === o.id
+                              ? "bg-[var(--club-600)] text-white border-[var(--club-600)]"
+                              : "border-slate-200 text-slate-700"
+                          )}
+                        >
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                    {reflection && (
+                      <p className="mt-3 text-xs text-slate-500">
+                        {reflection === "melhorei"
+                          ? "Que ótimo! Continue cuidando de você, cada rodada conta."
+                          : reflection === "igual"
+                          ? "Constância também é vitória. Siga registrando para perceber sua evolução."
+                          : "Tudo bem ter semanas difíceis. Conversar com um especialista pode ajudar."}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : detailsTab === "semana" ? (
               <div className="space-y-2">
                 {details.daily.map((d) => {
                   const tier = d.value !== null ? [...MOOD_TIERS].sort(
@@ -582,8 +748,9 @@ const BemEstar = () => {
                   return (
                   <div
                     key={d.date}
-                    className="flex items-center justify-between rounded-2xl border border-slate-200 p-3"
+                    className="rounded-2xl border border-slate-200 p-3"
                   >
+                    <div className="flex items-center justify-between">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-slate-900">{d.label}</p>
                       <p className="text-xs text-slate-500 truncate">
@@ -600,6 +767,8 @@ const BemEstar = () => {
                     >
                       {tier ? <span className="text-2xl leading-none">{MOOD_EMOJIS[tier.variant]}</span> : <span>—</span>}
                     </div>
+                    </div>
+                    <EntryNote note={d.note} />
                   </div>
                   );
                 })}
@@ -667,8 +836,8 @@ const BemEstar = () => {
                               </p>
                               <p className="text-xs text-slate-500 truncate">
                                 {emotionLabels[e.emotion] ?? tier.label}
-                                {e.note ? ` • ${String(e.note).slice(0, 60)}` : ""}
                               </p>
+                              <EntryNote note={e.note} />
                             </div>
                           </div>
                         );
