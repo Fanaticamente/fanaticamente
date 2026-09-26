@@ -390,6 +390,9 @@ const BemEstar = () => {
     setReflection(id);
     try { localStorage.setItem(reflectionKey, id); } catch {}
   };
+  // Caixa de reflexão só às segundas-feiras (a partir de 00h)
+  const isMonday = new Date().getDay() === 1;
+  const [expandedDay, setExpandedDay] = useState<string | null>(null);
 
 
   const emotionLabels: Record<string, string> = {
