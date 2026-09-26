@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, User, Mail, Phone, Calendar, MapPin, Award, FileText, MessageSquare, Trash2, CheckCircle, XCircle, Send, AlertTriangle, Eye, Clock, CreditCard } from "lucide-react";
+import { X, User, Mail, Phone, Calendar, MapPin, Award, FileText, MessageSquare, Archive, CheckCircle, XCircle, Send, AlertTriangle, Eye, Clock, CreditCard } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -60,6 +60,8 @@ interface Professional {
   experience_years: number | null;
   is_active: boolean;
   is_verified: boolean;
+  marketplace_visible: boolean;
+  deleted_at: string | null;
   subscription_type: string | null;
   subscription_expires_at: string | null;
   created_at: string;
@@ -254,23 +256,24 @@ const ProfessionalDetailsDialog = ({
 
     setIsDeleting(true);
     try {
-      // Call edge function to completely delete user and all related data
+      // Validate the administrator password and archive the professional without losing records
       const { data, error } = await supabase.functions.invoke("delete-user-completely", {
         body: {
           userId: professional.user_id,
           adminPassword: deletePassword,
+          archiveProfessional: true,
         },
       });
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      toast.success("Conta excluída completamente do sistema!");
+      toast.success("Cadastro arquivado com segurança!");
       onRefresh();
       onClose();
     } catch (error) {
       console.error("Error deleting:", error);
-      toast.error("Erro ao excluir conta");
+      toast.error("Erro ao arquivar cadastro");
     } finally {
       setIsDeleting(false);
       setDeletePassword("");
