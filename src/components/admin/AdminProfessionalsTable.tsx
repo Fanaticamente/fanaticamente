@@ -9,6 +9,7 @@ import {
   EyeOff,
   Filter,
   RefreshCw,
+  Search,
   ShieldCheck,
   UserRoundX,
   Users,
@@ -159,6 +160,7 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
   const [showFilters, setShowFilters] = useState(false);
   const [clubFilter, setClubFilter] = useState("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [localSearch, setLocalSearch] = useState(searchTerm);
 
   const { data: professionals = [], isLoading: loading } = useQuery({
     queryKey: ["admin-professionals"],
@@ -182,7 +184,7 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
   }, [professionals]);
 
   const filteredProfessionals = useMemo(() => {
-    const query = searchTerm.trim().toLocaleLowerCase("pt-BR");
+    const query = localSearch.trim().toLocaleLowerCase("pt-BR");
     return groups[activeTab].filter((professional) => {
       const matchesClub = clubFilter === "all" || (clubFilter === "none" ? !professional.club : professional.club?.id === clubFilter);
       const matchesSearch = !query
@@ -192,7 +194,7 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
         || professional.club?.name.toLocaleLowerCase("pt-BR").includes(query);
       return matchesClub && matchesSearch;
     });
-  }, [activeTab, clubFilter, groups, searchTerm]);
+  }, [activeTab, clubFilter, groups, localSearch]);
 
   const professionalsByClub = useMemo(() => filteredProfessionals.reduce<Record<string, Professional[]>>((result, professional) => {
     const key = professional.club?.id || "sem-clube";
@@ -241,9 +243,19 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
           <h1 className={cn("mt-1 text-2xl font-bold md:text-3xl", themeStyles.text)}>Profissionais parceiros</h1>
           <p className={cn("mt-1 text-sm", themeStyles.textMuted)}>Gerencie cadastros, clubes e presença no marketplace.</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowFilters((current) => !current)} aria-expanded={showFilters}>
-            <Filter className="h-4 w-4" /> Filtros
+        <div className="flex w-full gap-2 lg:w-auto">
+          <label className="relative min-w-0 flex-1 lg:w-80">
+            <span className="sr-only">Buscar profissional</span>
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={localSearch}
+              onChange={(event) => setLocalSearch(event.target.value)}
+              placeholder="Buscar nome, CRP ou clube"
+              className="h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground"
+            />
+          </label>
+          <Button variant="outline" size="icon" onClick={() => setShowFilters((current) => !current)} aria-expanded={showFilters} aria-label="Mostrar filtros" title="Mostrar filtros">
+            <Filter className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="icon" onClick={refresh} aria-label="Atualizar profissionais" title="Atualizar profissionais">
             <RefreshCw className="h-4 w-4" />
