@@ -14,6 +14,26 @@ import Header from "@/components/layout/Header";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import MoodFace, { type MoodVariant } from "@/components/MoodFace";
+import { parseEmotionNote } from "@/lib/emotionNote";
+
+const EntryNote = ({ note }: { note?: string | null }) => {
+  const { tags, observation } = parseEmotionNote(note);
+  if (!tags.length && !observation) return null;
+  return (
+    <div className="mt-2 space-y-1.5">
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {tags.map((t) => (
+            <span key={t} className="px-2 py-0.5 rounded-full bg-[var(--club-50)] text-[11px] text-[var(--club-600)]">{t}</span>
+          ))}
+        </div>
+      )}
+      {observation && (
+        <p className="text-xs text-slate-600 whitespace-pre-wrap break-words italic">“{observation}”</p>
+      )}
+    </div>
+  );
+};
 
 const MOOD_EMOJIS: Record<MoodVariant, string> = {
   happy: "😄",
@@ -120,7 +140,7 @@ const BemEstar = () => {
   const { user } = useAuth();
   const [range, setRange] = useState<RangeId>("semana");
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [detailsTab, setDetailsTab] = useState<"semana" | "mes" | "historico">("semana");
+  const [detailsTab, setDetailsTab] = useState<"resumo" | "semana" | "mes" | "historico">("resumo");
 
   const { data: emotions = [] } = useQuery({
     queryKey: ["bemestar-emotions", user?.id],
@@ -317,6 +337,60 @@ const BemEstar = () => {
       }));
     return { daily, weekly, history };
   }, [emotions]);
+
+  // Resumo da semana anterior (Seg–Dom)
+  const weeklySummary = useMemo(() => {
+    const now = new Date();
+    const ws = startOfWeek(addWeeks(now, -1), { weekStartsOn: 1 });
+    const we = endOfWeek(ws, { weekStartsOn: 1 });
+    const ws2 = startOfWeek(addWeeks(now, -2), { weekStartsOn: 1 });
+    const we2 = endOfWeek(ws2, { weekStartsOn: 1 });
+    const inRange = (a: Date, b: Date) =>
+      emotions.filter((e) => { const d = parseISO(e.entry_date); return d >= a && d <= b; });
+    const avgOf = (items: typeof emotions) =>
+      items.length ? Math.round(items.reduce((s, e) => s + (MOOD_SCORES[e.emotion] ?? 60), 0) / items.length) : null;
+    const items = inRange(ws, we);
+    const prevAvg = avgOf(inRange(ws2, we2));
+    const avg = avgOf(items);
+    const days = Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date(ws); d.setDate(ws.getDate() + i);
+      const key = format(d, "yyyy-MM-dd");
+      const entry = emotions.find((e) => e.entry_date === key);
+      return {
+        date: key,
+        label: format(d, "EEEE, dd/MM", { locale: ptBR }),
+        emotion: entry?.emotion,
+        value: entry ? MOOD_SCORES[entry.emotion] ?? 60 : null,
+        note: (entry as any)?.note ?? null,
+      };
+    });
+    const tagCount: Record<string, number> = {};
+    items.forEach((e: any) => parseEmotionNote(e.note).tags.forEach((t) => (tagCount[t] = (tagCount[t] || 0) + 1)));
+    const topTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([t]) => t);
+    const diff = avg !== null && prevAvg !== null ? avg - prevAvg : null;
+    const message =
+      avg === null ? "" :
+      diff !== null && diff >= 10 ? "Sua semana foi melhor que a anterior. Você evoluiu! 🎉" :
+      diff !== null && diff <= -10 ? "Sua semana foi mais desafiadora que a anterior. Observe o que pesou nos dias abaixo." :
+      avg >= 75 ? "Foi uma boa semana para você, com a maioria dos dias positivos." :
+      avg >= 50 ? "Uma semana equilibrada, com altos e baixos." :
+      "Uma semana difícil. Lembre-se: pedir ajuda também é jogar em equipe.";
+    return {
+      key: format(ws, "yyyy-MM-dd"),
+      rangeLabel: `${format(ws, "dd/MM")} – ${format(we, "dd/MM")}`,
+      count: items.length, avg, diff, days, topTags, message,
+    };
+  }, [emotions]);
+
+  const reflectionKey = `bemestar:reflection:${user?.id ?? "anon"}:${weeklySummary.key}`;
+  const [reflection, setReflection] = useState<string | null>(() => {
+    try { return localStorage.getItem(reflectionKey); } catch { return null; }
+  });
+  const answerReflection = (id: string) => {
+    setReflection(id);
+    try { localStorage.setItem(reflectionKey, id); } catch {}
+  };
+
 
   const emotionLabels: Record<string, string> = {
     muito_bem: "Muito bem",
@@ -762,8 +836,8 @@ const BemEstar = () => {
                               </p>
                               <p className="text-xs text-slate-500 truncate">
                                 {emotionLabels[e.emotion] ?? tier.label}
-                                {e.note ? ` • ${String(e.note).slice(0, 60)}` : ""}
                               </p>
+                              <EntryNote note={e.note} />
                             </div>
                           </div>
                         );
