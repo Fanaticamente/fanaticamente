@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Manrope', 'Inter', 'Roboto', 'sans-serif'],
-        display: ['Bebas Neue', 'sans-serif'],
+        sans: ['Manrope', 'sans-serif'],
+        display: ['Sora', 'Manrope', 'sans-serif'],
         manager: ['Sora', 'Manrope', 'sans-serif'],
         montserrat: ['Montserrat', 'sans-serif'],
         poppins: ['Poppins', 'sans-serif'],

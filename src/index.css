@@ -250,7 +250,7 @@
 
   .professional-theme,
   .professional-theme * {
-    font-family: 'Nunito', sans-serif !important;
+    font-family: 'Manrope', sans-serif !important;
   }
 
   .professional-theme h1,
@@ -259,7 +259,7 @@
   .professional-theme h4,
   .professional-theme h5,
   .professional-theme h6 {
-    font-family: 'Nunito', sans-serif !important;
+    font-family: 'Sora', 'Manrope', sans-serif !important;
     font-weight: 800;
   }
 
@@ -348,7 +348,7 @@
   body {
     @apply text-foreground font-sans antialiased;
     background-color: #ffffff !important;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Manrope', sans-serif;
     /* iOS PWA safe area */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
@@ -419,13 +419,31 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Sora', 'Manrope', sans-serif;
     letter-spacing: normal;
     text-transform: none;
   }
   .font-display {
-    font-family: 'Bebas Neue', sans-serif;
-    letter-spacing: 0.02em;
+    font-family: 'Sora', 'Manrope', sans-serif;
+    letter-spacing: normal;
+  }
+
+  /* Consistent typography across fan, professional, admin and developer views.
+     This also covers content with older inline font declarations. */
+  body,
+  body * {
+    font-family: 'Manrope', sans-serif !important;
+  }
+
+  body h1,
+  body h2,
+  body h3,
+  body h4,
+  body h5,
+  body h6,
+  body .font-display,
+  body .font-manager {
+    font-family: 'Sora', 'Manrope', sans-serif !important;
   }
 }
 

@@ -17,3 +17,4 @@
 - [x] Validar marketplace, painel admin, telas e compilação.
 - [x] Modernizar a listagem de profissionais com cartões por clube e sem tabela horizontal no celular.
 - [x] Aplicar modo claro e escudos dos clubes na listagem de profissionais do painel administrativo.
+- [x] Uniformizar Manrope para textos e Sora para títulos nos sistemas de torcedores, profissionais, admin e dev.
