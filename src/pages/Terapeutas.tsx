@@ -328,7 +328,7 @@ const Terapeutas = () => {
                 )}
               </div>
               <div className="min-w-0">
-                <h1 className="font-display italic text-4xl text-white leading-none tracking-wide uppercase">
+                <h1 className="font-club-title text-5xl text-white leading-none uppercase">
                   {selectedClub.name}
                 </h1>
                 <p className="mt-1.5 text-white/85 text-sm">Especialistas para a torcida</p>
