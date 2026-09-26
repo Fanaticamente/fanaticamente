@@ -554,26 +554,118 @@ const BemEstar = () => {
           </DialogHeader>
 
           <div className="px-5 pt-3">
-            <div className="rounded-full bg-slate-100 p-1 grid grid-cols-3 gap-1">
-              {(["semana", "mes", "historico"] as const).map((t) => (
+            <div className="rounded-full bg-slate-100 p-1 grid grid-cols-4 gap-1">
+              {(["resumo", "semana", "mes", "historico"] as const).map((t) => (
                 <button
                   key={t}
                   onClick={() => setDetailsTab(t)}
                   className={cn(
-                    "py-2 rounded-full text-xs font-semibold transition-colors",
+                    "py-2 rounded-full text-[11px] font-semibold transition-colors",
                     detailsTab === t
                       ? "bg-white text-[var(--club-600)] shadow-sm"
                       : "text-slate-500"
                   )}
                 >
-                  {t === "semana" ? "7 dias" : t === "mes" ? "4 semanas" : "Histórico"}
+                  {t === "resumo" ? "Resumo" : t === "semana" ? "7 dias" : t === "mes" ? "4 semanas" : "Histórico"}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="p-5 overflow-y-auto">
-            {detailsTab === "semana" ? (
+            {detailsTab === "resumo" ? (
+              <div className="space-y-4">
+                <div className="rounded-2xl bg-[var(--club-50)] p-4">
+                  <p className="text-xs font-semibold text-[var(--club-600)]">Resumo da semana anterior</p>
+                  <p className="text-sm text-slate-500">{weeklySummary.rangeLabel}</p>
+                  {weeklySummary.count === 0 ? (
+                    <p className="mt-2 text-sm text-slate-700">Você não fez check-ins na semana passada. Que tal registrar todos os dias desta semana?</p>
+                  ) : (
+                    <>
+                      <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                        <div className="rounded-xl bg-white p-2">
+                          <p className="text-xl font-bold text-slate-900">{weeklySummary.avg}</p>
+                          <p className="text-[10px] text-slate-500">Pontuação</p>
+                        </div>
+                        <div className="rounded-xl bg-white p-2">
+                          <p className="text-xl font-bold text-slate-900">{weeklySummary.count}/7</p>
+                          <p className="text-[10px] text-slate-500">Check-ins</p>
+                        </div>
+                        <div className="rounded-xl bg-white p-2">
+                          <p className={cn("text-xl font-bold", weeklySummary.diff === null ? "text-slate-400" : weeklySummary.diff >= 0 ? "text-[var(--club-600)]" : "text-slate-900")}>
+                            {weeklySummary.diff === null ? "—" : `${weeklySummary.diff > 0 ? "+" : ""}${weeklySummary.diff}`}
+                          </p>
+                          <p className="text-[10px] text-slate-500">vs. semana antes</p>
+                        </div>
+                      </div>
+                      <p className="mt-3 text-sm text-slate-700">{weeklySummary.message}</p>
+                      {weeklySummary.topTags.length > 0 && (
+                        <div className="mt-3">
+                          <p className="text-xs font-semibold text-slate-500 mb-1.5">O que mais apareceu</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {weeklySummary.topTags.map((t) => (
+                              <span key={t} className="px-2.5 py-1 rounded-full bg-white text-xs text-slate-700 border border-slate-200">{t}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  {weeklySummary.days.map((d) => (
+                    <div key={d.date} className="rounded-2xl border border-slate-200 p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900 capitalize">{d.label}</p>
+                          <p className="text-xs text-slate-500">
+                            {d.emotion ? `${emotionLabels[d.emotion] ?? d.emotion} • ${d.value} pts` : "Sem registro"}
+                          </p>
+                        </div>
+                        <span className="text-2xl leading-none">{d.value !== null ? MOOD_EMOJIS[variantForValue(d.value)] : "—"}</span>
+                      </div>
+                      <EntryNote note={d.note} />
+                    </div>
+                  ))}
+                </div>
+
+                {weeklySummary.count > 0 && (
+                  <div className="rounded-2xl border border-slate-200 p-4">
+                    <p className="text-sm font-semibold text-slate-900">Você sente que melhorou em relação à semana passada?</p>
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      {[
+                        { id: "melhorei", label: "Melhorei 💪" },
+                        { id: "igual", label: "Igual 🙂" },
+                        { id: "piorei", label: "Piorei 😔" },
+                      ].map((o) => (
+                        <button
+                          key={o.id}
+                          onClick={() => answerReflection(o.id)}
+                          className={cn(
+                            "py-2 rounded-xl text-xs font-semibold border transition-colors",
+                            reflection === o.id
+                              ? "bg-[var(--club-600)] text-white border-[var(--club-600)]"
+                              : "border-slate-200 text-slate-700"
+                          )}
+                        >
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                    {reflection && (
+                      <p className="mt-3 text-xs text-slate-500">
+                        {reflection === "melhorei"
+                          ? "Que ótimo! Continue cuidando de você, cada rodada conta."
+                          : reflection === "igual"
+                          ? "Constância também é vitória. Siga registrando para perceber sua evolução."
+                          : "Tudo bem ter semanas difíceis. Conversar com um especialista pode ajudar."}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : detailsTab === "semana" ? (
               <div className="space-y-2">
                 {details.daily.map((d) => {
                   const tier = d.value !== null ? [...MOOD_TIERS].sort(
@@ -582,8 +674,9 @@ const BemEstar = () => {
                   return (
                   <div
                     key={d.date}
-                    className="flex items-center justify-between rounded-2xl border border-slate-200 p-3"
+                    className="rounded-2xl border border-slate-200 p-3"
                   >
+                    <div className="flex items-center justify-between">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-slate-900">{d.label}</p>
                       <p className="text-xs text-slate-500 truncate">
@@ -600,6 +693,8 @@ const BemEstar = () => {
                     >
                       {tier ? <span className="text-2xl leading-none">{MOOD_EMOJIS[tier.variant]}</span> : <span>—</span>}
                     </div>
+                    </div>
+                    <EntryNote note={d.note} />
                   </div>
                   );
                 })}
