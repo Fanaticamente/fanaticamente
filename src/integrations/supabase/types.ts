@@ -1595,6 +1595,7 @@ export type Database = {
           degree: string | null
           degree_document_back_url: string | null
           degree_document_front_url: string | null
+          deleted_at: string | null
           document_number: string | null
           document_type: string | null
           experience_years: number | null
@@ -1604,6 +1605,7 @@ export type Database = {
           is_active: boolean | null
           is_verified: boolean | null
           location: string | null
+          marketplace_visible: boolean
           pix_key: string | null
           pix_key_type: string | null
           rejection_reason: string | null
@@ -1626,6 +1628,7 @@ export type Database = {
           degree?: string | null
           degree_document_back_url?: string | null
           degree_document_front_url?: string | null
+          deleted_at?: string | null
           document_number?: string | null
           document_type?: string | null
           experience_years?: number | null
@@ -1635,6 +1638,7 @@ export type Database = {
           is_active?: boolean | null
           is_verified?: boolean | null
           location?: string | null
+          marketplace_visible?: boolean
           pix_key?: string | null
           pix_key_type?: string | null
           rejection_reason?: string | null
@@ -1657,6 +1661,7 @@ export type Database = {
           degree?: string | null
           degree_document_back_url?: string | null
           degree_document_front_url?: string | null
+          deleted_at?: string | null
           document_number?: string | null
           document_type?: string | null
           experience_years?: number | null
@@ -1666,6 +1671,7 @@ export type Database = {
           is_active?: boolean | null
           is_verified?: boolean | null
           location?: string | null
+          marketplace_visible?: boolean
           pix_key?: string | null
           pix_key_type?: string | null
           rejection_reason?: string | null

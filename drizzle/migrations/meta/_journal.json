@@ -15,6 +15,13 @@
       "when": 1790372218853,
       "tag": "0001_security_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790437905523,
+      "tag": "0002_professional_marketplace_visibility_and_archiving",
+      "breakpoints": true
     }
   ]
 }

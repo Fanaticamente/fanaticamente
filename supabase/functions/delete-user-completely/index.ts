@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
     }
 
     // Get the user ID to delete and admin password from request body
-    const { userId, adminPassword: requestedPassword } = await req.json();
+    const { userId, adminPassword: requestedPassword, archiveProfessional = false } = await req.json();
 
     if (!userId) {
       return new Response(JSON.stringify({ error: "Missing userId" }), {
@@ -78,6 +78,34 @@ Deno.serve(async (req) => {
     if (adminPassword !== requestedPassword) {
       return new Response(JSON.stringify({ error: "Invalid admin password" }), {
         status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (archiveProfessional) {
+      const { data: archivedProfessional, error: archiveError } = await supabaseAdmin
+        .from("professionals")
+        .update({
+          deleted_at: new Date().toISOString(),
+          marketplace_visible: false,
+          is_active: false,
+          approval_status: "cancelled",
+        })
+        .eq("user_id", userId)
+        .select("id")
+        .maybeSingle();
+
+      if (archiveError) throw archiveError;
+      if (!archivedProfessional) {
+        return new Response(JSON.stringify({ error: "Professional not found" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      console.log(`[delete-user-completely] Archived professional requested by admin ${callerUser.id}`);
+      return new Response(JSON.stringify({ success: true, archived: true }), {
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

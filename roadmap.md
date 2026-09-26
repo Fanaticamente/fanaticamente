@@ -8,3 +8,10 @@
 - [x] Redirecionar endereços antigos para Perfil ou Profissionais.
 - [x] Manter os perfis profissionais com contato direto pelo WhatsApp.
 - [x] Validar telas internas e compilação.
+
+## Gestão de profissionais
+- [ ] Criar campos seguros de visibilidade e arquivamento.
+- [ ] Reorganizar Gestão em abas com indicadores e busca.
+- [ ] Adicionar controle de exibição no marketplace e restauração.
+- [ ] Atualizar exclusão para arquivamento sem perda de dados.
+- [ ] Validar marketplace, painel admin, telas e compilação.
