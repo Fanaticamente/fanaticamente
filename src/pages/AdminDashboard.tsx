@@ -266,7 +266,7 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <main className="md:ml-64 p-4 md:p-6">
         {/* Search Bar - only show for tables */}
-        {(activeTab === "usuarios" || activeTab === "profissionais" || activeTab === "agendamentos") && (
+        {(activeTab === "usuarios" || activeTab === "agendamentos") && (
           <div className="flex items-center gap-4 mb-6">
             <div className="flex-1 relative">
               <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${themeStyles.textMuted}`} />
