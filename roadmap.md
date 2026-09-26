@@ -15,3 +15,4 @@
 - [x] Adicionar controle de exibição no marketplace e restauração.
 - [x] Atualizar exclusão para arquivamento sem perda de dados.
 - [x] Validar marketplace, painel admin, telas e compilação.
+- [x] Modernizar a listagem de profissionais com cartões por clube e sem tabela horizontal no celular.
