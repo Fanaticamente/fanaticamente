@@ -723,7 +723,7 @@ const BemEstar = () => {
 
                 {/* Quadro sobreposto com os detalhes do registro do dia */}
                 <Dialog open={!!resumoDay} onOpenChange={(o) => !o && setResumoDay(null)}>
-                  <DialogContent className="w-[calc(100%-2rem)] max-w-sm max-h-[80vh] rounded-2xl p-5 overflow-y-auto">
+                  <DialogContent className="w-[calc(100%-2rem)] max-w-sm rounded-2xl p-5 bg-white [&>button]:text-[var(--club-600)] [&>button]:opacity-100">
                     {(() => {
                       const day = weeklySummary.days.find((d) => d.date === resumoDay);
                       if (!day || !day.emotion) return null;
