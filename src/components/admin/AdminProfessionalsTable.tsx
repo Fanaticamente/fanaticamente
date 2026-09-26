@@ -320,7 +320,7 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
                     const specialties = professional.specialties?.filter(Boolean) || [];
                     return (
                       <div key={professional.id} className="flex min-w-0 flex-col gap-4 bg-card p-4 transition-colors hover:bg-muted/30">
-                        <button type="button" onClick={() => setSelectedProfessional(professional)} className="flex min-w-0 items-center gap-3 text-left">
+                        <Button type="button" variant="ghost" onClick={() => setSelectedProfessional(professional)} className="h-auto min-w-0 justify-start gap-3 rounded-md p-0 text-left hover:bg-transparent">
                           <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10">
                             {professional.profile?.avatar_url
                               ? <img src={professional.profile.avatar_url} alt="" className="h-full w-full object-cover object-top" />
@@ -332,7 +332,7 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
                             <span className="mt-1 block truncate text-xs text-muted-foreground">CRP {professional.crp || "não informado"}</span>
                           </span>
                           <span className="shrink-0 rounded-md bg-primary/10 px-2 py-1 text-[10px] font-bold uppercase text-primary">{getSubscriptionLabel(professional.subscription_type)}</span>
-                        </button>
+                        </Button>
 
                         <div className="flex min-h-7 flex-wrap gap-1.5">
                           {specialties.length ? specialties.slice(0, 2).map((specialty) => (
