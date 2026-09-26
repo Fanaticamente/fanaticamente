@@ -445,6 +445,14 @@
   body .font-manager {
     font-family: 'Sora', 'Manrope', sans-serif !important;
   }
+
+  /* Exception: club name header on the therapists listing returns to the
+     previous sports-header font (Bebas Neue). Applies ONLY to this title. */
+  body .font-club-title,
+  body h1.font-club-title {
+    font-family: 'Bebas Neue', sans-serif !important;
+    letter-spacing: 0.02em;
+  }
 }
 
 @layer components {
