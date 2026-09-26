@@ -23,6 +23,7 @@ import NextMatchBar from "@/components/home/NextMatchBar";
 import { useAppModules } from "@/hooks/useAppModules";
 import { getMenuIcon } from "@/lib/menuIcons";
 import { BOOKING_ENABLED } from "@/config/featureFlags";
+import { buildEmotionNote } from "@/lib/emotionNote";
 
 type HomeCfg = Record<string, unknown>;
 type SuggestionItem = { image?: string; kicker?: string; title?: string; subtitle?: string; path?: string };
@@ -175,6 +176,7 @@ const MinimalHome = () => {
   const [selected, setSelected] = useState<string | null>(null);
   const [reasonOpen, setReasonOpen] = useState(false);
   const [reasons, setReasons] = useState<string[]>([]);
+  const [observation, setObservation] = useState("");
   const [sugIdx, setSugIdx] = useState(0);
   const touchStartX = useRef<number | null>(null);
   const touchDX = useRef(0);
@@ -295,6 +297,7 @@ const MinimalHome = () => {
       qc.invalidateQueries({ queryKey: ["club-ranking"] });
       setSelected(null);
       setReasons([]);
+      setObservation("");
       setReasonOpen(false);
     },
     onError: () => toast.error("Não foi possível registrar."),
@@ -469,7 +472,7 @@ const MinimalHome = () => {
               <h2 className="font-sans text-lg font-bold normal-case flex-1">De onde vem este sentimento?</h2>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32">
+            <div className={cn("flex-1 overflow-y-auto px-4 pt-4", reasons.length > 0 ? "pb-72" : "pb-32")}>
               {getReasonGroups(selected).map((g) => (
                 <div key={g.title} className="mt-4 first:mt-0">
                   <h3 className="text-center font-sans font-bold text-white/85 normal-case mb-3">{g.title}</h3>
@@ -500,12 +503,23 @@ const MinimalHome = () => {
 
             {reasons.length > 0 && (
               <div
-                className="absolute inset-x-0 bottom-0 px-4 pt-3 bg-gradient-to-t from-[var(--club-700)] to-transparent"
+                className="absolute inset-x-0 bottom-0 px-4 pt-6 bg-gradient-to-t from-[var(--club-700)] via-[var(--club-700)] to-transparent"
                 style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
               >
+                <label className="block text-xs font-semibold text-white/85 mb-1.5">
+                  Quer contar o motivo? (opcional)
+                </label>
+                <textarea
+                  value={observation}
+                  onChange={(e) => setObservation(e.target.value.slice(0, 500))}
+                  rows={3}
+                  placeholder="Escreva uma observação sobre como você está hoje…"
+                  className="w-full mb-1 rounded-2xl bg-white/10 border border-white/60 px-3 py-2 text-sm text-white placeholder:text-white/60 resize-none focus:outline-none focus:bg-white/15"
+                />
+                <p className="text-right text-[10px] text-white/60 mb-2">{observation.length}/500</p>
                 <button
                   disabled={checkinMutation.isPending}
-                  onClick={() => checkinMutation.mutate({ moodId: selected, note: reasons.join(", ") })}
+                  onClick={() => checkinMutation.mutate({ moodId: selected, note: buildEmotionNote(reasons, observation) })}
                   className="w-full py-3.5 rounded-2xl bg-white text-[var(--club-700)] font-bold text-sm transition disabled:opacity-60"
                 >
                   {checkinMutation.isPending ? "Registrando…" : "Confirmar"}
