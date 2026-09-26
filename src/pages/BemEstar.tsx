@@ -392,7 +392,7 @@ const BemEstar = () => {
   };
   // Caixa de reflexão só às segundas-feiras (a partir de 00h)
   const isMonday = new Date().getDay() === 1;
-  const [expandedDay, setExpandedDay] = useState<string | null>(null);
+  const [resumoDay, setResumoDay] = useState<string | null>(null);
 
 
   const emotionLabels: Record<string, string> = {
@@ -692,17 +692,16 @@ const BemEstar = () => {
 
                 <div className="space-y-2">
                   {weeklySummary.days.map((d) => {
-                    const hasNote = !!parseEmotionNote(d.note).observation;
-                    const expanded = expandedDay === d.date;
+                    const hasEntry = !!d.emotion;
                     return (
                     <button
                       key={d.date}
                       type="button"
-                      disabled={!hasNote}
-                      onClick={() => setExpandedDay(expanded ? null : d.date)}
+                      disabled={!hasEntry}
+                      onClick={() => setResumoDay(d.date)}
                       className={cn(
                         "w-full text-left rounded-2xl border border-slate-200 p-3 transition-colors",
-                        hasNote && "active:bg-slate-50"
+                        hasEntry && "active:bg-slate-50"
                       )}
                     >
                       <div className="flex items-center justify-between">
@@ -714,18 +713,61 @@ const BemEstar = () => {
                         </div>
                         <span className="text-2xl leading-none">{d.value !== null ? MOOD_EMOJIS[variantForValue(d.value)] : "—"}</span>
                       </div>
-                      {expanded && hasNote && (
-                        <p className="mt-2 text-xs text-slate-600 whitespace-pre-wrap break-words italic border-t border-slate-100 pt-2">
-                          “{parseEmotionNote(d.note).observation}”
-                        </p>
-                      )}
-                      {!expanded && hasNote && (
-                        <p className="mt-1 text-[11px] font-semibold text-[var(--club-600)]">Toque para ver sua observação</p>
+                      {hasEntry && (
+                        <p className="mt-1 text-[11px] font-semibold text-[var(--club-600)]">Toque para ver os detalhes</p>
                       )}
                     </button>
                     );
                   })}
                 </div>
+
+                {/* Quadro sobreposto com os detalhes do registro do dia */}
+                <Dialog open={!!resumoDay} onOpenChange={(o) => !o && setResumoDay(null)}>
+                  <DialogContent className="w-[calc(100%-2rem)] max-w-sm rounded-2xl p-5 bg-white [&>button]:text-[var(--club-600)] [&>button]:opacity-100">
+                    {(() => {
+                      const day = weeklySummary.days.find((d) => d.date === resumoDay);
+                      if (!day || !day.emotion) return null;
+                      const { tags, observation } = parseEmotionNote(day.note);
+                      return (
+                        <div className="space-y-4">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <p className="text-sm font-semibold text-slate-900 capitalize">{day.label}</p>
+                              <p className="text-xs text-slate-500">Registro do dia</p>
+                            </div>
+                            <span className="text-4xl leading-none">{MOOD_EMOJIS[variantForValue(day.value ?? 60)]}</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-center">
+                            <div className="rounded-xl bg-[var(--club-50)] p-3">
+                              <p className="text-lg font-bold text-slate-900">{emotionLabels[day.emotion] ?? day.emotion}</p>
+                              <p className="text-[10px] text-slate-500">Como você se sentiu</p>
+                            </div>
+                            <div className="rounded-xl bg-[var(--club-50)] p-3">
+                              <p className="text-lg font-bold text-slate-900">{day.value} pts</p>
+                              <p className="text-[10px] text-slate-500">Pontuação do dia</p>
+                            </div>
+                          </div>
+                          {tags.length > 0 && (
+                            <div>
+                              <p className="text-xs font-semibold text-slate-500 mb-1.5">O que influenciou</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {tags.map((t) => (
+                                  <span key={t} className="px-2.5 py-1 rounded-full bg-[var(--club-50)] text-xs text-[var(--club-600)]">{t}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {observation && (
+                            <div className="rounded-xl border border-slate-200 p-3">
+                              <p className="text-xs font-semibold text-slate-500 mb-1">Sua observação</p>
+                              <p className="text-xs text-slate-600 whitespace-pre-wrap break-words italic">“{observation}”</p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </DialogContent>
+                </Dialog>
 
                 {isMonday && weeklySummary.count > 0 && (
                   <div className="rounded-2xl border border-slate-200 p-4">
