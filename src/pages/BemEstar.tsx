@@ -691,8 +691,20 @@ const BemEstar = () => {
                 </div>
 
                 <div className="space-y-2">
-                  {weeklySummary.days.map((d) => (
-                    <div key={d.date} className="rounded-2xl border border-slate-200 p-3">
+                  {weeklySummary.days.map((d) => {
+                    const hasNote = !!parseEmotionNote(d.note).observation;
+                    const expanded = expandedDay === d.date;
+                    return (
+                    <button
+                      key={d.date}
+                      type="button"
+                      disabled={!hasNote}
+                      onClick={() => setExpandedDay(expanded ? null : d.date)}
+                      className={cn(
+                        "w-full text-left rounded-2xl border border-slate-200 p-3 transition-colors",
+                        hasNote && "active:bg-slate-50"
+                      )}
+                    >
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-semibold text-slate-900 capitalize">{d.label}</p>
@@ -702,9 +714,17 @@ const BemEstar = () => {
                         </div>
                         <span className="text-2xl leading-none">{d.value !== null ? MOOD_EMOJIS[variantForValue(d.value)] : "—"}</span>
                       </div>
-                      <EntryNote note={d.note} />
-                    </div>
-                  ))}
+                      {expanded && hasNote && (
+                        <p className="mt-2 text-xs text-slate-600 whitespace-pre-wrap break-words italic border-t border-slate-100 pt-2">
+                          “{parseEmotionNote(d.note).observation}”
+                        </p>
+                      )}
+                      {!expanded && hasNote && (
+                        <p className="mt-1 text-[11px] font-semibold text-[var(--club-600)]">Toque para ver sua observação</p>
+                      )}
+                    </button>
+                    );
+                  })}
                 </div>
 
                 {weeklySummary.count > 0 && (
