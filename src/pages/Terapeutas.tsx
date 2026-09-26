@@ -328,7 +328,7 @@ const Terapeutas = () => {
                 )}
               </div>
               <div className="min-w-0">
-                <h1 className="font-club-title text-[clamp(1.75rem,8.5vw,2.75rem)] text-white leading-none uppercase whitespace-nowrap">
+                <h1 className="font-display text-[clamp(1.05rem,5.2vw,1.6rem)] font-bold text-white leading-none uppercase whitespace-nowrap tracking-tight">
                   {selectedClub.name}
                 </h1>
                 <p className="mt-1.5 text-white/85 text-sm">Especialistas para a torcida</p>
