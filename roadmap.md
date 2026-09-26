@@ -10,8 +10,8 @@
 - [x] Validar telas internas e compilação.
 
 ## Gestão de profissionais
-- [ ] Criar campos seguros de visibilidade e arquivamento.
-- [ ] Reorganizar Gestão em abas com indicadores e busca.
-- [ ] Adicionar controle de exibição no marketplace e restauração.
-- [ ] Atualizar exclusão para arquivamento sem perda de dados.
-- [ ] Validar marketplace, painel admin, telas e compilação.
+- [x] Criar campos seguros de visibilidade e arquivamento.
+- [x] Reorganizar Gestão em abas com indicadores e busca.
+- [x] Adicionar controle de exibição no marketplace e restauração.
+- [x] Atualizar exclusão para arquivamento sem perda de dados.
+- [x] Validar marketplace, painel admin, telas e compilação.
