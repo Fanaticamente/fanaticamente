@@ -390,6 +390,9 @@ const BemEstar = () => {
     setReflection(id);
     try { localStorage.setItem(reflectionKey, id); } catch {}
   };
+  // Caixa de reflexão só às segundas-feiras (a partir de 00h)
+  const isMonday = new Date().getDay() === 1;
+  const [expandedDay, setExpandedDay] = useState<string | null>(null);
 
 
   const emotionLabels: Record<string, string> = {
@@ -688,8 +691,20 @@ const BemEstar = () => {
                 </div>
 
                 <div className="space-y-2">
-                  {weeklySummary.days.map((d) => (
-                    <div key={d.date} className="rounded-2xl border border-slate-200 p-3">
+                  {weeklySummary.days.map((d) => {
+                    const hasNote = !!parseEmotionNote(d.note).observation;
+                    const expanded = expandedDay === d.date;
+                    return (
+                    <button
+                      key={d.date}
+                      type="button"
+                      disabled={!hasNote}
+                      onClick={() => setExpandedDay(expanded ? null : d.date)}
+                      className={cn(
+                        "w-full text-left rounded-2xl border border-slate-200 p-3 transition-colors",
+                        hasNote && "active:bg-slate-50"
+                      )}
+                    >
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-semibold text-slate-900 capitalize">{d.label}</p>
@@ -699,41 +714,47 @@ const BemEstar = () => {
                         </div>
                         <span className="text-2xl leading-none">{d.value !== null ? MOOD_EMOJIS[variantForValue(d.value)] : "—"}</span>
                       </div>
-                      <EntryNote note={d.note} />
-                    </div>
-                  ))}
+                      {expanded && hasNote && (
+                        <p className="mt-2 text-xs text-slate-600 whitespace-pre-wrap break-words italic border-t border-slate-100 pt-2">
+                          “{parseEmotionNote(d.note).observation}”
+                        </p>
+                      )}
+                      {!expanded && hasNote && (
+                        <p className="mt-1 text-[11px] font-semibold text-[var(--club-600)]">Toque para ver sua observação</p>
+                      )}
+                    </button>
+                    );
+                  })}
                 </div>
 
-                {weeklySummary.count > 0 && (
+                {isMonday && weeklySummary.count > 0 && (
                   <div className="rounded-2xl border border-slate-200 p-4">
-                    <p className="text-sm font-semibold text-slate-900">Você sente que melhorou em relação à semana passada?</p>
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      {[
-                        { id: "melhorei", label: "Melhorei 💪" },
-                        { id: "igual", label: "Igual 🙂" },
-                        { id: "piorei", label: "Piorei 😔" },
-                      ].map((o) => (
-                        <button
-                          key={o.id}
-                          onClick={() => answerReflection(o.id)}
-                          className={cn(
-                            "py-2 rounded-xl text-xs font-semibold border transition-colors",
-                            reflection === o.id
-                              ? "bg-[var(--club-600)] text-white border-[var(--club-600)]"
-                              : "border-slate-200 text-slate-700"
-                          )}
-                        >
-                          {o.label}
-                        </button>
-                      ))}
-                    </div>
-                    {reflection && (
-                      <p className="mt-3 text-xs text-slate-500">
+                    {!reflection ? (
+                      <>
+                        <p className="text-sm font-semibold text-slate-900">Você sente que melhorou em relação à semana passada?</p>
+                        <div className="mt-3 grid grid-cols-3 gap-2">
+                          {[
+                            { id: "melhorei", label: "Melhorei 💪" },
+                            { id: "igual", label: "Igual 🙂" },
+                            { id: "piorei", label: "Piorei 😔" },
+                          ].map((o) => (
+                            <button
+                              key={o.id}
+                              onClick={() => answerReflection(o.id)}
+                              className="py-2 rounded-xl text-xs font-semibold border transition-colors border-slate-200 text-slate-700"
+                            >
+                              {o.label}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-sm font-semibold text-slate-900">
                         {reflection === "melhorei"
-                          ? "Que ótimo! Continue cuidando de você, cada rodada conta."
+                          ? "Você está em evolução! 📈 Continue cuidando de você, cada rodada conta."
                           : reflection === "igual"
-                          ? "Constância também é vitória. Siga registrando para perceber sua evolução."
-                          : "Tudo bem ter semanas difíceis. Conversar com um especialista pode ajudar."}
+                          ? "Você está estável. Constância também é vitória — siga registrando para perceber sua evolução."
+                          : "Você está em declínio esta semana. 📉 Tudo bem ter semanas difíceis — conversar com um especialista pode ajudar."}
                       </p>
                     )}
                   </div>
