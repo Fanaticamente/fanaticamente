@@ -60,8 +60,8 @@ interface Professional {
   experience_years: number | null;
   is_active: boolean;
   is_verified: boolean;
-  marketplace_visible: boolean;
-  deleted_at: string | null;
+  marketplace_visible?: boolean;
+  deleted_at?: string | null;
   subscription_type: string | null;
   subscription_expires_at: string | null;
   created_at: string;
@@ -375,8 +375,8 @@ const ProfessionalDetailsDialog = ({
               activeTab === "delete" ? "bg-red-500 text-white" : "hover:bg-red-50 text-red-600"
             }`}
           >
-            <Trash2 className="w-4 h-4" />
-            Excluir
+            <Archive className="w-4 h-4" />
+            Arquivar
           </button>
         </div>
 
@@ -619,8 +619,8 @@ const ProfessionalDetailsDialog = ({
                 <div>
                   <h4 className="text-lg font-semibold text-red-600">Atenção!</h4>
                   <p className="text-base text-gray-600 mt-2">
-                    Esta ação é irreversível. Todos os dados do profissional, incluindo agendamentos,
-                    mensagens e histórico, serão permanentemente excluídos.
+                    O perfil será retirado do marketplace e movido para a aba Deletados. Os dados e o
+                    histórico serão preservados e o cadastro poderá ser restaurado.
                   </p>
                 </div>
               </div>
@@ -644,8 +644,8 @@ const ProfessionalDetailsDialog = ({
                 disabled={isDeleting || !deletePassword}
                 className="w-full py-3 bg-red-500 text-white rounded-lg text-base font-medium flex items-center justify-center gap-2 hover:bg-red-600 disabled:opacity-50"
               >
-                <Trash2 className="w-5 h-5" />
-                {isDeleting ? "Excluindo..." : "Excluir Perfil Permanentemente"}
+                <Archive className="w-5 h-5" />
+                {isDeleting ? "Arquivando..." : "Arquivar cadastro"}
               </button>
             </div>
           </div>
