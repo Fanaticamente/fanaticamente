@@ -21,6 +21,8 @@ import ProfessionalDetailsDialog from "./ProfessionalDetailsDialog";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { brazilianClubs } from "@/data/brazilianClubs";
+import { findClubId } from "@/lib/clubMatcher";
 
 interface ThemeStyles {
   bg: string;
@@ -236,7 +238,7 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
   }
 
   return (
-    <div className="space-y-5 font-sans">
+    <div className="manager-theme min-h-screen space-y-5 bg-background p-4 font-sans text-foreground md:p-6">
       <section className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-xs font-bold uppercase text-primary">Rede de atendimento</p>
@@ -305,6 +307,9 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
         {Object.entries(professionalsByClub).map(([clubId, clubProfessionals]) => {
           const club = clubProfessionals[0]?.club;
           const clubName = club?.name || "Sem clube";
+          const canonicalClubId = club ? findClubId(club.name) : null;
+          const localClub = canonicalClubId ? brazilianClubs.find((item) => item.id === canonicalClubId) : undefined;
+          const badgeUrl = localClub?.badgeUrl || club?.badge_url;
           const isExpanded = expandedClubs.has(clubId);
           return (
             <article key={clubId} className={cn("overflow-hidden rounded-lg border bg-card shadow-sm", themeStyles.border)}>
@@ -317,7 +322,7 @@ const AdminProfessionalsTable = ({ themeStyles, searchTerm }: AdminProfessionals
               >
                 <span className="flex min-w-0 items-center gap-3">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted">
-                    {club?.badge_url ? <img src={club.badge_url} alt="" className="h-7 w-7 object-contain" /> : <Users className="h-4 w-4 text-muted-foreground" />}
+                     {badgeUrl ? <img src={badgeUrl} alt={`Escudo do ${clubName}`} className="h-7 w-7 object-contain" /> : <Users className="h-4 w-4 text-muted-foreground" />}
                   </span>
                   <span className="truncate text-sm font-bold uppercase text-foreground">{clubName}</span>
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{clubProfessionals.length}</span>
