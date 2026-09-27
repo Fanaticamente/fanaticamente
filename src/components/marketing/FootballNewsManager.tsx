@@ -95,6 +95,7 @@ const FootballNewsManager = () => {
     } catch {
       // ignore
     }
+    setTriedImages([]);
     setEditing(null);
   };
 
@@ -598,7 +599,11 @@ const FootballNewsManager = () => {
         <Button
           size="lg"
           className="w-full bg-emerald-700 hover:bg-emerald-800 font-bold"
-          onClick={() => { setDateValue(toLocalInput()); setEditing({ ...emptyItem }); }}
+          onClick={() => {
+            setDateValue(toLocalInput());
+            setTriedImages([]);
+            setEditing({ ...emptyItem });
+          }}
         >
           <Plus className="w-5 h-5 mr-2" /> Escrever nova notícia
         </Button>
@@ -645,7 +650,11 @@ const FootballNewsManager = () => {
                   </Button>
                 )}
                 <Button variant="ghost" size="icon" title="Editar"
-                  onClick={() => { setDateValue(toLocalInput(it.published_at)); setEditing(it); }}>
+                  onClick={() => {
+                    setDateValue(toLocalInput(it.published_at));
+                    setTriedImages([]);
+                    setEditing(it);
+                  }}>
                   <Pencil className="w-4 h-4" />
                 </Button>
                 <Button variant="ghost" size="icon" title="Excluir"

@@ -96,6 +96,25 @@ function extractCredits(text: unknown): string | null {
   return null;
 }
 
+function sourceName(row: Record<string, any>): string | null {
+  const meta = row?.metadata ?? {};
+  const named = [meta.siteName, meta["og:site_name"], meta.publisher]
+    .find((value) => typeof value === "string" && value.trim().length >= 2);
+  if (typeof named === "string") return named.trim().slice(0, 60);
+  try {
+    const host = new URL(String(row?.url)).hostname.replace(/^www\./, "");
+    return host || null;
+  } catch {
+    return null;
+  }
+}
+
+function completeCredits(credits: string, row: Record<string, any>): string {
+  const source = sourceName(row);
+  if (!source || credits.includes(" / ")) return credits;
+  return `${credits} / ${source}`;
+}
+
 function imageCandidates(row: Record<string, any>): string[] {
   const meta = row?.metadata ?? {};
   return [meta.ogImage, meta["og:image"], meta.image, meta.twitterImage, row.imageUrl]
@@ -147,7 +166,11 @@ function pickImage(rows: Array<Record<string, any>>, exclude: string[], title: s
     for (const url of imageCandidates(row)) {
       if (exclude.includes(url)) continue;
       if (!imageAllowed(url)) continue;
-      return { url, source: row.url as string | undefined, credits };
+      return {
+        url,
+        source: row.url as string | undefined,
+        credits: completeCredits(credits, row),
+      };
     }
   }
   return null;
