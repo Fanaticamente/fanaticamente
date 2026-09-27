@@ -18,3 +18,7 @@
 - [x] Modernizar a listagem de profissionais com cartões por clube e sem tabela horizontal no celular.
 - [x] Aplicar modo claro e escudos dos clubes na listagem de profissionais do painel administrativo.
 - [x] Uniformizar Manrope para textos e Sora para títulos nos sistemas de torcedores, profissionais, admin e dev.
+
+## Imagens das notícias
+- [x] Substituir os créditos ao buscar uma nova imagem, sem manter a fonte anterior.
+- [x] Restringir a busca a fotos relevantes com autoria identificada e fontes confiáveis.

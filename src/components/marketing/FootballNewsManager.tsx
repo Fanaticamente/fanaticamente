@@ -95,6 +95,7 @@ const FootballNewsManager = () => {
     } catch {
       // ignore
     }
+    setTriedImages([]);
     setEditing(null);
   };
 
@@ -210,7 +211,12 @@ const FootballNewsManager = () => {
       });
       if (error) throw error;
       const url = supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-      setEditing((p) => ({ ...(p || {}), image_url: url }));
+      setEditing((p) => ({
+        ...(p || {}),
+        image_url: url,
+        image_caption: "",
+        image_credits: "",
+      }));
       toast.success("Imagem enviada");
     } catch (e: any) {
       toast.error(e.message || "Erro no upload");
@@ -263,7 +269,8 @@ const FootballNewsManager = () => {
       setEditing((p) => ({
         ...(p || {}),
         image_url: data.image_url,
-        image_credits: (p?.image_credits || "") || data.credits || "",
+        image_caption: "",
+        image_credits: data.credits || "",
       }));
       toast.success("Imagem encontrada e adicionada");
     } catch (e: any) {
@@ -280,7 +287,12 @@ const FootballNewsManager = () => {
     if (file) { handleUpload(file); return; }
     const text = e.dataTransfer.getData("text/uri-list") || e.dataTransfer.getData("text/plain");
     if (text && /^https?:\/\//i.test(text.trim())) {
-      setEditing((p) => ({ ...(p || {}), image_url: text.trim() }));
+      setEditing((p) => ({
+        ...(p || {}),
+        image_url: text.trim(),
+        image_caption: "",
+        image_credits: "",
+      }));
       toast.success("Imagem adicionada pelo link");
     }
   };
@@ -347,7 +359,12 @@ const FootballNewsManager = () => {
     const text = e.clipboardData.getData("text");
     if (text && /^https?:\/\//i.test(text.trim())) {
       e.preventDefault();
-      setEditing((p) => ({ ...(p || {}), image_url: text.trim() }));
+      setEditing((p) => ({
+        ...(p || {}),
+        image_url: text.trim(),
+        image_caption: "",
+        image_credits: "",
+      }));
       toast.success("Imagem adicionada pelo link");
     }
   };
@@ -433,7 +450,12 @@ const FootballNewsManager = () => {
                   <img src={editing.image_url} alt="" className="w-full rounded-lg" />
                   <Button
                     variant="destructive" size="sm" className="absolute top-2 right-2"
-                    onClick={() => setEditing({ ...editing, image_url: "" })}
+                     onClick={() => setEditing({
+                       ...editing,
+                       image_url: "",
+                       image_caption: "",
+                       image_credits: "",
+                     })}
                   >Remover</Button>
                 </div>
               ) : (
@@ -462,7 +484,12 @@ const FootballNewsManager = () => {
                 <Input
                   placeholder="Cole o link (https://...)"
                   value={editing.image_url || ""}
-                  onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
+                   onChange={(e) => setEditing({
+                     ...editing,
+                     image_url: e.target.value,
+                     image_caption: "",
+                     image_credits: "",
+                   })}
                 />
                 <Button
                   type="button"
@@ -572,7 +599,11 @@ const FootballNewsManager = () => {
         <Button
           size="lg"
           className="w-full bg-emerald-700 hover:bg-emerald-800 font-bold"
-          onClick={() => { setDateValue(toLocalInput()); setEditing({ ...emptyItem }); }}
+          onClick={() => {
+            setDateValue(toLocalInput());
+            setTriedImages([]);
+            setEditing({ ...emptyItem });
+          }}
         >
           <Plus className="w-5 h-5 mr-2" /> Escrever nova notícia
         </Button>
@@ -619,7 +650,11 @@ const FootballNewsManager = () => {
                   </Button>
                 )}
                 <Button variant="ghost" size="icon" title="Editar"
-                  onClick={() => { setDateValue(toLocalInput(it.published_at)); setEditing(it); }}>
+                  onClick={() => {
+                    setDateValue(toLocalInput(it.published_at));
+                    setTriedImages([]);
+                    setEditing(it);
+                  }}>
                   <Pencil className="w-4 h-4" />
                 </Button>
                 <Button variant="ghost" size="icon" title="Excluir"

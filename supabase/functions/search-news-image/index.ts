@@ -29,10 +29,30 @@ function keywords(title: string, content: string): string {
     if (!unique.some((u) => u.toLowerCase() === w.toLowerCase())) unique.push(w);
     if (unique.length >= 7) break;
   }
-  return unique.join(" ") || title;
+  return unique.slice(0, 5).join(" ") || title;
 }
 
-const VARIATIONS = ["foto", "imagem jogador", "notícia foto", "partida foto"];
+const VARIATIONS = ["foto oficial", "jogo foto", "coletiva foto", "partida foto"];
+
+const normalize = (value: string) => value
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase();
+
+const GENERIC_CREDITS = new Set([
+  "reproducao", "divulgacao", "arquivo", "internet", "redes sociais",
+  "instagram", "facebook", "twitter", "x", "assessoria de imprensa",
+]);
+
+const BLOCKED_IMAGE_PARTS = [
+  "logo", "icon", "favicon", "avatar", "sprite", "placeholder", "badge",
+  "escudo", "banner", "tracking", "pixel", "ads", "advert",
+];
+
+const BLOCKED_SOURCES = [
+  "google.com", "bing.com", "youtube.com", "facebook.com", "instagram.com",
+  "x.com", "twitter.com", "pinterest.", "wikipedia.org",
+];
 
 async function firecrawlSearch(apiKey: string, query: string) {
   const res = await fetch("https://api.firecrawl.dev/v2/search", {
@@ -40,7 +60,7 @@ async function firecrawlSearch(apiKey: string, query: string) {
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       query,
-      limit: 6,
+      limit: 10,
       lang: "pt",
       country: "br",
       scrapeOptions: { formats: ["markdown"] },
@@ -58,21 +78,41 @@ async function firecrawlSearch(apiKey: string, query: string) {
 // Extracts "Foto: Autor / Veículo" (or similar credit lines) from page text.
 function extractCredits(text: unknown): string | null {
   if (typeof text !== "string" || !text) return null;
-  const m = text.match(/(?:foto|cr[ée]dito|imagem)\s*[:\-–]\s*([^\n\(\)\[\]|]{2,80})/i);
-  if (!m) return null;
-  const raw = m[1].trim().replace(/\s{2,}/g, " ").replace(/[\.,;]+$/, "");
-  const parts = raw.split(/\s*(?:\/|\|| - | — )\s*/).filter(Boolean);
-  const normalized = parts.length >= 2 ? `${parts[0].trim()} / ${parts.slice(1).join(" ").trim()}` : raw;
-  return `Foto: ${normalized}`;
+  const matches = text.matchAll(/(?:foto(?:grafia)?|cr[ée]dito(?:s)?(?: da imagem)?|imagem)\s*[:\-–—]\s*([^\n\(\)\[\]|]{2,100})/gi);
+  for (const match of matches) {
+    const raw = match[1]
+      .trim()
+      .replace(/\s{2,}/g, " ")
+      .replace(/(?:\s+[—–-]\s+)?(?:leia|veja|saiba|publicado).*$/i, "")
+      .replace(/[\.,;]+$/, "");
+    const normalizedRaw = normalize(raw.replace(/^foto\s*:\s*/i, ""));
+    if (!raw || GENERIC_CREDITS.has(normalizedRaw) || raw.length > 100) continue;
+    const parts = raw.split(/\s*(?:\/|\||\s+[—–-]\s+)\s*/).filter(Boolean);
+    const credit = parts.length >= 2
+      ? `${parts[0].trim()} / ${parts.slice(1).join(" / ").trim()}`
+      : raw;
+    return `Foto: ${credit}`;
+  }
+  return null;
 }
 
-function siteCredit(pageUrl: unknown): string {
+function sourceName(row: Record<string, any>): string | null {
+  const meta = row?.metadata ?? {};
+  const named = [meta.siteName, meta["og:site_name"], meta.publisher]
+    .find((value) => typeof value === "string" && value.trim().length >= 2);
+  if (typeof named === "string") return named.trim().slice(0, 60);
   try {
-    const host = new URL(String(pageUrl)).hostname.replace(/^www\./, "");
-    return `Foto: Divulgação / ${host}`;
+    const host = new URL(String(row?.url)).hostname.replace(/^www\./, "");
+    return host || null;
   } catch {
-    return "Foto: Divulgação";
+    return null;
   }
+}
+
+function completeCredits(credits: string, row: Record<string, any>): string {
+  const source = sourceName(row);
+  if (!source || credits.includes(" / ")) return credits;
+  return `${credits} / ${source}`;
 }
 
 function imageCandidates(row: Record<string, any>): string[] {
@@ -82,19 +122,58 @@ function imageCandidates(row: Record<string, any>): string[] {
     .filter((u: unknown): u is string => typeof u === "string" && /^https?:\/\//i.test(u));
 }
 
-function pickImage(rows: Array<Record<string, any>>, exclude: string[]) {
-  let fallback: { url: string; source?: string; credits: string } | null = null;
+function sourceAllowed(pageUrl: unknown): boolean {
+  if (typeof pageUrl !== "string") return false;
+  const normalizedUrl = normalize(pageUrl);
+  return !BLOCKED_SOURCES.some((part) => normalizedUrl.includes(part));
+}
 
-  for (const row of rows) {
-    const credits = extractCredits(row?.markdown) ?? extractCredits(row?.description);
+function imageAllowed(imageUrl: string): boolean {
+  const normalizedUrl = normalize(imageUrl);
+  return !/\.svg($|\?)/i.test(imageUrl)
+    && !BLOCKED_IMAGE_PARTS.some((part) => normalizedUrl.includes(part));
+}
+
+function relevantTerms(title: string): string[] {
+  return normalize(title)
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .split(/\s+/)
+    .filter((word) => word.length > 3)
+    .slice(0, 8);
+}
+
+function relevance(row: Record<string, any>, terms: string[]): number {
+  const haystack = normalize(`${row?.title ?? ""} ${row?.description ?? ""} ${row?.url ?? ""}`);
+  return terms.reduce((score, term) => score + (haystack.includes(term) ? 1 : 0), 0);
+}
+
+function pickImage(rows: Array<Record<string, any>>, exclude: string[], title: string) {
+  const terms = relevantTerms(title);
+  const ranked = rows
+    .filter((row) => sourceAllowed(row?.url))
+    .map((row) => ({ row, score: relevance(row, terms) }))
+    .filter(({ score }) => score >= Math.min(2, Math.max(1, terms.length)))
+    .sort((a, b) => b.score - a.score);
+
+  for (const { row } of ranked) {
+    const meta = row?.metadata ?? {};
+    const credits = extractCredits(meta.ogImageAlt)
+      ?? extractCredits(meta["og:image:alt"])
+      ?? extractCredits(meta.imageAlt)
+      ?? extractCredits(row?.markdown)
+      ?? extractCredits(row?.description);
+    if (!credits) continue;
     for (const url of imageCandidates(row)) {
       if (exclude.includes(url)) continue;
-      if (/\.svg($|\?)/i.test(url)) continue;
-      if (credits) return { url, source: row.url as string | undefined, credits };
-      if (!fallback) fallback = { url, source: row.url as string | undefined, credits: siteCredit(row.url) };
+      if (!imageAllowed(url)) continue;
+      return {
+        url,
+        source: row.url as string | undefined,
+        credits: completeCredits(credits, row),
+      };
     }
   }
-  return fallback;
+  return null;
 }
 
 Deno.serve(async (req) => {
@@ -147,10 +226,13 @@ Deno.serve(async (req) => {
       firecrawlSearch(apiKey, q1),
       firecrawlSearch(apiKey, q2),
     ]);
-    const found = pickImage([...rowsA, ...rowsB], exclude);
+    const found = pickImage([...rowsA, ...rowsB], exclude, title);
 
     if (!found) {
-      return json({ success: false, error: "Nenhuma imagem encontrada para este texto. Tente ajustar o título." }, 200);
+      return json({
+        success: false,
+        error: "Nenhuma foto relevante com autoria confirmada foi encontrada. Ajuste o título e tente novamente.",
+      }, 200);
     }
 
     // Persist the image in storage so it stays available.
