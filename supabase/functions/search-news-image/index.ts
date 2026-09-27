@@ -32,7 +32,62 @@ function keywords(title: string, content: string): string {
   return unique.slice(0, 5).join(" ") || title;
 }
 
-const VARIATIONS = ["foto oficial", "jogo foto", "coletiva foto", "partida foto"];
+const VARIATIONS = ["", "foto", "notícia", "anúncio"];
+
+const ENTITY_STOP = new Set([
+  "o","a","os","as","de","da","do","das","dos","e","em","no","na","com","para","por","um","uma",
+  "apos","após","sobre","contra","novo","nova","veja","confira","entenda","saiba","recebe","recebeu",
+]);
+
+// Heuristic: sequences of capitalized words in the title (e.g. "Corinthians", "Fatal Model").
+function heuristicEntities(title: string): string[] {
+  const tokens = title.replace(/[“”"'‘’:;,.!?()\[\]]/g, " ").split(/\s+/).filter(Boolean);
+  const out: string[] = [];
+  let cur: string[] = [];
+  const flush = () => { if (cur.length) out.push(cur.join(" ")); cur = []; };
+  tokens.forEach((t, i) => {
+    const cap = /^[\p{Lu}0-9]/u.test(t);
+    const low = normalize(t);
+    if (cap && !(i === 0 && ENTITY_STOP.has(low))) cur.push(t);
+    else if (cur.length && ["de","da","do","dos","das"].includes(low)) cur.push(t);
+    else flush();
+  });
+  flush();
+  return [...new Set(out.map((e) => e.replace(/\s+(de|da|do|dos|das)$/i, "")))]
+    .filter((e) => e.length > 2 && !ENTITY_STOP.has(normalize(e)))
+    .slice(0, 3);
+}
+
+// Uses AI (when configured) to extract the 2 central subjects: "who" and "with whom/what".
+async function extractEntities(title: string, content: string): Promise<string[]> {
+  const key = Deno.env.get("OPENAI_API_KEY");
+  if (key) {
+    try {
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          temperature: 0,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: "Extraia os 2 pontos centrais (quem/protagonistas: clubes, pessoas, empresas, marcas, competições) de uma notícia. Responda JSON {\"entities\": [\"...\", \"...\"]} com nomes próprios curtos, no máximo 3, o principal primeiro. Ex.: 'Corinthians recebe oferta da Fatal Model' -> [\"Corinthians\", \"Fatal Model\"]." },
+            { role: "user", content: `Título: ${title}\nTexto: ${content.slice(0, 600)}` },
+          ],
+        }),
+      });
+      if (res.ok) {
+        const body = await res.json();
+        const parsed = JSON.parse(body?.choices?.[0]?.message?.content ?? "{}");
+        const list = (parsed?.entities ?? []).filter((e: unknown): e is string => typeof e === "string" && e.trim().length > 1);
+        if (list.length) return list.slice(0, 3).map((e: string) => e.trim());
+      }
+    } catch (e) {
+      console.error("[search-news-image] entity extraction failed", e);
+    }
+  }
+  return heuristicEntities(title);
+}
 
 const normalize = (value: string) => value
   .normalize("NFD")
@@ -147,12 +202,23 @@ function relevance(row: Record<string, any>, terms: string[]): number {
   return terms.reduce((score, term) => score + (haystack.includes(term) ? 1 : 0), 0);
 }
 
-function pickImage(rows: Array<Record<string, any>>, exclude: string[], title: string) {
+function mentionsEntity(row: Record<string, any>, entity: string): boolean {
+  const haystack = normalize(`${row?.title ?? ""} ${row?.description ?? ""} ${row?.url ?? ""} ${String(row?.markdown ?? "").slice(0, 3000)}`)
+    .replace(/[-_]/g, " ");
+  const parts = normalize(entity).split(/\s+/).filter((p) => p.length > 2);
+  return parts.length > 0 && parts.every((p) => haystack.includes(p));
+}
+
+function pickImage(rows: Array<Record<string, any>>, exclude: string[], title: string, entities: string[]) {
   const terms = relevantTerms(title);
+  const seen = new Set<string>();
   const ranked = rows
     .filter((row) => sourceAllowed(row?.url))
+    .filter((row) => { const u = String(row?.url); if (seen.has(u)) return false; seen.add(u); return true; })
+    // Page must talk about ALL central subjects of the news (e.g. Corinthians AND Fatal Model).
+    .filter((row) => entities.length === 0 || entities.every((e) => mentionsEntity(row, e)))
     .map((row) => ({ row, score: relevance(row, terms) }))
-    .filter(({ score }) => score >= Math.min(2, Math.max(1, terms.length)))
+    .filter(({ score }) => entities.length > 0 || score >= Math.min(2, Math.max(1, terms.length)))
     .sort((a, b) => b.score - a.score);
 
   for (const { row } of ranked) {
@@ -216,7 +282,11 @@ Deno.serve(async (req) => {
       return json({ success: false, error: "Escreva o texto da notícia antes de pesquisar a imagem" }, 200);
     }
 
-    const base = keywords(title, content);
+    const entities = await extractEntities(title, content);
+    const base = entities.length >= 2
+      ? entities.map((e) => `"${e}"`).join(" ")
+      : `${entities.map((e) => `"${e}"`).join(" ")} ${keywords(title, content)}`.trim();
+    console.log("[search-news-image] entities:", entities);
     // Two variations in parallel: keeps it fast and greatly improves hit rate.
     const q1 = `${base} ${VARIATIONS[attempt % VARIATIONS.length]}`.trim();
     const q2 = `${base} ${VARIATIONS[(attempt + 1) % VARIATIONS.length]}`.trim();
@@ -226,12 +296,12 @@ Deno.serve(async (req) => {
       firecrawlSearch(apiKey, q1),
       firecrawlSearch(apiKey, q2),
     ]);
-    const found = pickImage([...rowsA, ...rowsB], exclude, title);
+    const found = pickImage([...rowsA, ...rowsB], exclude, title, entities);
 
     if (!found) {
       return json({
         success: false,
-        error: "Nenhuma foto relevante com autoria confirmada foi encontrada. Ajuste o título e tente novamente.",
+        error: `Nenhuma foto com autoria confirmada relacionando ${entities.join(" e ") || "os temas da notícia"} foi encontrada. Tente novamente.`,
       }, 200);
     }
 
