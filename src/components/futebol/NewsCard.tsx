@@ -499,7 +499,7 @@ const NewsDrawer = ({ news, isOpen, onClose }: NewsDrawerProps) => {
 
             {/* Article content with drop cap - font size controlled by state */}
             <article 
-              className={`text-gray-900 text-justify hyphens-auto transition-all duration-200 ${fontSizeClasses[fontSizeLevel]}`}
+              className={`news-article-copy text-gray-900 text-justify hyphens-auto transition-all duration-200 ${fontSizeClasses[fontSizeLevel]}`}
               style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
             >
               {/* Drop cap for first paragraph */}

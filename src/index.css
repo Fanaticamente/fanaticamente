@@ -446,6 +446,12 @@
     font-family: 'Sora', 'Manrope', sans-serif !important;
   }
 
+  /* Article copy keeps its original newspaper serif, including inline formatting. */
+  body .news-article-copy,
+  body .news-article-copy * {
+    font-family: Georgia, 'Times New Roman', serif !important;
+  }
+
 }
 
 @layer components {
