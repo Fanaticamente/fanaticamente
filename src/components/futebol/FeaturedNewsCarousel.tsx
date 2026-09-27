@@ -344,7 +344,7 @@ const NewsCardDrawerWrapper = ({ news, onClose }: NewsCardDrawerWrapperProps) =>
             )}
 
             <article 
-              className={`text-gray-900 text-justify hyphens-auto transition-all duration-200 ${fontSizeClasses[fontSizeLevel]}`}
+              className={`news-article-copy text-gray-900 text-justify hyphens-auto transition-all duration-200 ${fontSizeClasses[fontSizeLevel]}`}
               style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
             >
               {toParagraphs(cleanedContent).map((paragraph, idx) => (
