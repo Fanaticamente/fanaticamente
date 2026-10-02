@@ -1,0 +1,1955 @@
+[
+  {
+    "id": "080f6373c5ec0ebf",
+    "page": "home",
+    "text": "Check-in de hoje registrado",
+    "section": "MinimalHome",
+    "tag": "div"
+  },
+  {
+    "id": "ff820477622f4f13",
+    "page": "home",
+    "text": "Ver detalhes",
+    "section": "MinimalHome",
+    "tag": "button"
+  },
+  {
+    "id": "30c51097f688f1c7",
+    "page": "home",
+    "text": "Volte amanhã para uma nova rodada!",
+    "section": "MinimalHome",
+    "tag": "p"
+  },
+  {
+    "id": "9a68d8fd65b7eeb7",
+    "page": "home",
+    "text": "De onde vem este sentimento?",
+    "section": "MinimalHome",
+    "tag": "h2"
+  },
+  {
+    "id": "6ebca41291833562",
+    "page": "home",
+    "text": "Quer contar o motivo? (opcional)",
+    "section": "MinimalHome",
+    "tag": "label"
+  },
+  {
+    "id": "18f12d328e419536",
+    "page": "home",
+    "text": "Você completou",
+    "section": "MinimalHome",
+    "tag": "p"
+  },
+  {
+    "id": "748fde5aa363cd5f",
+    "page": "home",
+    "text": "atividade",
+    "section": "MinimalHome",
+    "tag": "p"
+  },
+  {
+    "id": "9b4cc01618570d8b",
+    "page": "home",
+    "text": "esta semana.",
+    "section": "MinimalHome",
+    "tag": "p"
+  },
+  {
+    "id": "76cc353454e43228",
+    "page": "home",
+    "text": "Ver evolução detalhada",
+    "section": "MinimalHome",
+    "tag": "button"
+  },
+  {
+    "id": "d1ebe5d039e6b03a",
+    "page": "home",
+    "text": "AO VIVO",
+    "section": "NextMatchBar",
+    "tag": "span"
+  },
+  {
+    "id": "8a9042165a4b7f2a",
+    "page": "home",
+    "text": "próxima partida",
+    "section": "NextMatchBar",
+    "tag": "span"
+  },
+  {
+    "id": "b7b9e436be0c683e",
+    "page": "home",
+    "text": "Você",
+    "section": "HomeFloatingActions",
+    "tag": "span"
+  },
+  {
+    "id": "31aa6e764adc5488",
+    "page": "home",
+    "text": "Sair",
+    "section": "HomeFloatingActions",
+    "tag": "span"
+  },
+  {
+    "id": "fef8ad64d3415f13",
+    "page": "terapeutas",
+    "text": "Especialistas para a torcida",
+    "section": "Terapeutas",
+    "tag": "p"
+  },
+  {
+    "id": "3d4d7068cd3d6787",
+    "page": "terapeutas",
+    "text": "Selecione",
+    "section": "Terapeutas",
+    "tag": "h1"
+  },
+  {
+    "id": "d114d5159acfd9b4",
+    "page": "terapeutas",
+    "text": "seu time",
+    "section": "Terapeutas",
+    "tag": "span"
+  },
+  {
+    "id": "4eb65ce98bff8cba",
+    "page": "terapeutas",
+    "text": "Escolha o time do coração",
+    "section": "Terapeutas",
+    "tag": "p"
+  },
+  {
+    "id": "4c32acab81b26d1c",
+    "page": "terapeutas",
+    "text": "Terapeutas Disponíveis",
+    "section": "Terapeutas",
+    "tag": "h2"
+  },
+  {
+    "id": "c15dfa4095c44e97",
+    "page": "terapeutas",
+    "text": "Encontre o profissional ideal para você.",
+    "section": "Terapeutas",
+    "tag": "p"
+  },
+  {
+    "id": "624edc075b8398a1",
+    "page": "terapeutas",
+    "text": "de experiência",
+    "section": "TherapistCard",
+    "tag": "div"
+  },
+  {
+    "id": "ec6a3607f329667f",
+    "page": "terapeutas",
+    "text": "Sócio Consciente",
+    "section": "TherapistCard",
+    "tag": "span"
+  },
+  {
+    "id": "36fbadce8c1b85bf",
+    "page": "terapeutas",
+    "text": "Ver perfil",
+    "section": "TherapistCard",
+    "tag": "button"
+  },
+  {
+    "id": "3a41a12c95171a20",
+    "page": "terapeutas",
+    "text": "Vaga Disponível",
+    "section": "VacancyCard",
+    "tag": "h3"
+  },
+  {
+    "id": "bfa2170e7a33fed3",
+    "page": "terapeutas",
+    "text": "Profissional",
+    "section": "VacancyCard",
+    "tag": "span"
+  },
+  {
+    "id": "d2da570f09ded4d3",
+    "page": "terapeutas",
+    "text": "Registro ---",
+    "section": "VacancyCard",
+    "tag": "span"
+  },
+  {
+    "id": "22e3e9271a878df9",
+    "page": "terapeutas",
+    "text": "-- anos",
+    "section": "VacancyCard",
+    "tag": "div"
+  },
+  {
+    "id": "5286ad57c0a062d1",
+    "page": "terapeutas",
+    "text": "de experiência",
+    "section": "VacancyCard",
+    "tag": "div"
+  },
+  {
+    "id": "b412dafc2a11399b",
+    "page": "terapeutas",
+    "text": "Torcedor(a)",
+    "section": "VacancyCard",
+    "tag": "div"
+  },
+  {
+    "id": "76d5fed4986e80f3",
+    "page": "terapeutas",
+    "text": "Vaga aberta para profissionais que desejam atender a torcida do",
+    "section": "VacancyCard",
+    "tag": "p"
+  },
+  {
+    "id": "0449ef3b2cc0afc1",
+    "page": "terapeutas",
+    "text": "Cadastre-se",
+    "section": "VacancyCard",
+    "tag": "button"
+  },
+  {
+    "id": "7eb8e705aa4c08ac",
+    "page": "terapeutas",
+    "text": "CRP:",
+    "section": "BookingDrawer",
+    "tag": "p"
+  },
+  {
+    "id": "3eb773085191fc23",
+    "page": "terapeutas",
+    "text": "de experiência",
+    "section": "BookingDrawer",
+    "tag": "div"
+  },
+  {
+    "id": "eb40b5b8c1843f01",
+    "page": "terapeutas",
+    "text": "Valor da sessão",
+    "section": "BookingDrawer",
+    "tag": "span"
+  },
+  {
+    "id": "63b8d1fec57360f0",
+    "page": "terapeutas",
+    "text": "Sobre",
+    "section": "BookingDrawer",
+    "tag": "span"
+  },
+  {
+    "id": "ab719dc2ef31dd50",
+    "page": "terapeutas",
+    "text": "Especialidades",
+    "section": "BookingDrawer",
+    "tag": "span"
+  },
+  {
+    "id": "626397c624d6cd1a",
+    "page": "terapeutas",
+    "text": "Fale com o profissional",
+    "section": "BookingDrawer",
+    "tag": "span"
+  },
+  {
+    "id": "d2f78f4907b6f7de",
+    "page": "terapeutas",
+    "text": "Conversar com",
+    "section": "BookingDrawer",
+    "tag": "a"
+  },
+  {
+    "id": "b83bdb767e018129",
+    "page": "terapeutas",
+    "text": "Este profissional ainda não cadastrou um número de contato.",
+    "section": "BookingDrawer",
+    "tag": "p"
+  },
+  {
+    "id": "13736d1c38447f0b",
+    "page": "terapeutas",
+    "text": "Escolha a data e horário",
+    "section": "BookingDrawer",
+    "tag": "span"
+  },
+  {
+    "id": "91001c0ff9000b74",
+    "page": "terapeutas",
+    "text": "Agendar sessão",
+    "section": "BookingDrawer",
+    "tag": "button"
+  },
+  {
+    "id": "88dda757033e5d42",
+    "page": "terapeutas",
+    "text": "Sem horários disponíveis",
+    "section": "BookingDrawer",
+    "tag": "p"
+  },
+  {
+    "id": "9d11a0564bb86f5e",
+    "page": "terapeutas",
+    "text": "• CRP:",
+    "section": "BookingDrawer",
+    "tag": "p"
+  },
+  {
+    "id": "e897e53f3ce74a5c",
+    "page": "terapeutas",
+    "text": "Sócio Consciente",
+    "section": "BookingDrawer",
+    "tag": "p"
+  },
+  {
+    "id": "13089cd7922870b2",
+    "page": "terapeutas",
+    "text": "É sócio do clube?",
+    "section": "BookingDrawer",
+    "tag": "p"
+  },
+  {
+    "id": "a8c46fead6871956",
+    "page": "terapeutas",
+    "text": "Aplicar",
+    "section": "BookingDrawer",
+    "tag": "button"
+  },
+  {
+    "id": "da7124fb49e3d279",
+    "page": "terapeutas",
+    "text": "Parceria aplicada",
+    "section": "BookingDrawer",
+    "tag": "p"
+  },
+  {
+    "id": "431afed496fafd17",
+    "page": "terapeutas",
+    "text": "Revise os detalhes do agendamento",
+    "section": "BookingDrawer",
+    "tag": "h4"
+  },
+  {
+    "id": "ac88aad1a17935a7",
+    "page": "terapeutas",
+    "text": "Atendimento on-line",
+    "section": "BookingDrawer",
+    "tag": "span"
+  },
+  {
+    "id": "92d4aa7ee8374d1d",
+    "page": "terapeutas",
+    "text": "Agendamento pelo programa Sócio Consciente",
+    "section": "BookingDrawer",
+    "tag": "span"
+  },
+  {
+    "id": "db117c67781b4271",
+    "page": "terapeutas",
+    "text": "Valor que deverá ser pago pela sessão ao profissional",
+    "section": "BookingDrawer",
+    "tag": "span"
+  },
+  {
+    "id": "a265a9c1d352f55a",
+    "page": "terapeutas",
+    "text": "Confirmando...",
+    "section": "BookingDrawer",
+    "tag": "span"
+  },
+  {
+    "id": "eb7feebe9566c873",
+    "page": "terapeutas",
+    "text": "Cancelar agendamento?",
+    "section": "BookingDrawer",
+    "tag": "h4"
+  },
+  {
+    "id": "e888622aaf7ddc7f",
+    "page": "terapeutas",
+    "text": "Todo o processo feito até aqui será perdido.",
+    "section": "BookingDrawer",
+    "tag": "p"
+  },
+  {
+    "id": "f6394a0feff8ef25",
+    "page": "terapeutas",
+    "text": "Sim",
+    "section": "BookingDrawer",
+    "tag": "button"
+  },
+  {
+    "id": "2440828f03fe103d",
+    "page": "terapeutas",
+    "text": "Não",
+    "section": "BookingDrawer",
+    "tag": "button"
+  },
+  {
+    "id": "492852694089a484",
+    "page": "terapeutas",
+    "text": "Profissional não encontrado.",
+    "section": "AgendarSessao",
+    "tag": "p"
+  },
+  {
+    "id": "83048664150e2d3a",
+    "page": "cursos",
+    "text": "DISPONÍVEL",
+    "section": "Cursos",
+    "tag": "div"
+  },
+  {
+    "id": "c073186183b31043",
+    "page": "cursos",
+    "text": "PRO",
+    "section": "Cursos",
+    "tag": "div"
+  },
+  {
+    "id": "6dd653235aa961bd",
+    "page": "cursos",
+    "text": "EM BREVE",
+    "section": "Cursos",
+    "tag": "div"
+  },
+  {
+    "id": "a47924a548aac787",
+    "page": "cursos",
+    "text": "DISPONÍVEL",
+    "section": "Cursos",
+    "tag": "div"
+  },
+  {
+    "id": "7b196dbb5a2bb039",
+    "page": "cursos",
+    "text": "PRO",
+    "section": "Cursos",
+    "tag": "div"
+  },
+  {
+    "id": "029da6126d004a08",
+    "page": "cursos",
+    "text": "EM BREVE",
+    "section": "Cursos",
+    "tag": "div"
+  },
+  {
+    "id": "7aecdc6e0f8f9c48",
+    "page": "cursos",
+    "text": "Nenhum curso disponível",
+    "section": "Cursos",
+    "tag": "h3"
+  },
+  {
+    "id": "ca59d95cb2f8dd1c",
+    "page": "cursos",
+    "text": "Em breve novos conteúdos serão adicionados.",
+    "section": "Cursos",
+    "tag": "p"
+  },
+  {
+    "id": "8b2b8a2b2507a64c",
+    "page": "cursos",
+    "text": "Destaque",
+    "section": "Cursos",
+    "tag": "span"
+  },
+  {
+    "id": "157ea52a822a1aa3",
+    "page": "cursos",
+    "text": "Em breve",
+    "section": "Cursos",
+    "tag": "div"
+  },
+  {
+    "id": "6bb25b56ee8ac3e7",
+    "page": "cursos",
+    "text": "Continuar assistindo",
+    "section": "Cursos",
+    "tag": "h2"
+  },
+  {
+    "id": "fdc7a4f02fa147aa",
+    "page": "cursos",
+    "text": "Gratuitos",
+    "section": "Cursos",
+    "tag": "h2"
+  },
+  {
+    "id": "907c085fc46bd189",
+    "page": "cursos",
+    "text": "Conteúdo premium",
+    "section": "Cursos",
+    "tag": "h2"
+  },
+  {
+    "id": "09c2665a247a2e63",
+    "page": "cursos",
+    "text": "Todos os cursos",
+    "section": "Cursos",
+    "tag": "h2"
+  },
+  {
+    "id": "9984191d0f86b40d",
+    "page": "cursos",
+    "text": "Curso não encontrado",
+    "section": "CursoDetalhe",
+    "tag": "h2"
+  },
+  {
+    "id": "141c0ef1026c1078",
+    "page": "cursos",
+    "text": "Em breve",
+    "section": "CursoDetalhe",
+    "tag": "h2"
+  },
+  {
+    "id": "956b23951cf9709d",
+    "page": "cursos",
+    "text": "Este curso ainda não está disponível.",
+    "section": "CursoDetalhe",
+    "tag": "p"
+  },
+  {
+    "id": "daf0785c10ad0144",
+    "page": "cursos",
+    "text": "Conteúdo bloqueado",
+    "section": "CursoDetalhe",
+    "tag": "p"
+  },
+  {
+    "id": "bb5623b93049098e",
+    "page": "cursos",
+    "text": "aulas",
+    "section": "CursoDetalhe",
+    "tag": "span"
+  },
+  {
+    "id": "7d330d0131ca7cbf",
+    "page": "cursos",
+    "text": "Assistindo agora",
+    "section": "CursoDetalhe",
+    "tag": "p"
+  },
+  {
+    "id": "87982a799fdb1d83",
+    "page": "cursos",
+    "text": "Módulos e aulas",
+    "section": "CursoDetalhe",
+    "tag": "button"
+  },
+  {
+    "id": "4c51f2d97cfbeb95",
+    "page": "cursos",
+    "text": "Sobre",
+    "section": "CursoDetalhe",
+    "tag": "button"
+  },
+  {
+    "id": "aca0300ef7e6fe40",
+    "page": "cursos",
+    "text": "aulas",
+    "section": "CursoDetalhe",
+    "tag": "p"
+  },
+  {
+    "id": "43cc557715a5bcc0",
+    "page": "cursos",
+    "text": "Grátis",
+    "section": "CursoDetalhe",
+    "tag": "span"
+  },
+  {
+    "id": "7a7c0b064a0d1b7f",
+    "page": "cursos",
+    "text": "Conteúdo em breve",
+    "section": "CursoDetalhe",
+    "tag": "p"
+  },
+  {
+    "id": "d5e22d355f3e3e6f",
+    "page": "cursos",
+    "text": "Atividades Complementares",
+    "section": "CursoDetalhe",
+    "tag": "h3"
+  },
+  {
+    "id": "09e2216ba19d6937",
+    "page": "cursos",
+    "text": "Obrigatória",
+    "section": "CursoDetalhe",
+    "tag": "span"
+  },
+  {
+    "id": "50631968cd133571",
+    "page": "cursos",
+    "text": "Descrição",
+    "section": "CursoDetalhe",
+    "tag": "h3"
+  },
+  {
+    "id": "e4460d4818b522a4",
+    "page": "cursos",
+    "text": "Instrutor",
+    "section": "CursoDetalhe",
+    "tag": "h3"
+  },
+  {
+    "id": "32ee2628079f7b68",
+    "page": "cursos",
+    "text": "Categoria",
+    "section": "CursoDetalhe",
+    "tag": "h3"
+  },
+  {
+    "id": "062dd6149bceb073",
+    "page": "cursos",
+    "text": "Preço",
+    "section": "CursoDetalhe",
+    "tag": "h3"
+  },
+  {
+    "id": "29f7cd93f46711a3",
+    "page": "cursos",
+    "text": "Nível de Consciência",
+    "section": "MeusCursos",
+    "tag": "p"
+  },
+  {
+    "id": "d20aa0a162d23376",
+    "page": "cursos",
+    "text": "pts",
+    "section": "MeusCursos",
+    "tag": "span"
+  },
+  {
+    "id": "b1d5d38fcb6599aa",
+    "page": "cursos",
+    "text": "PRO",
+    "section": "MeusCursos",
+    "tag": "span"
+  },
+  {
+    "id": "d30600fb83125f2b",
+    "page": "cursos",
+    "text": "EM BREVE",
+    "section": "MeusCursos",
+    "tag": "span"
+  },
+  {
+    "id": "56506ffc790e4f5a",
+    "page": "cursos",
+    "text": "Continuar assistindo",
+    "section": "MeusCursos",
+    "tag": "h2"
+  },
+  {
+    "id": "1226ca294388c4a5",
+    "page": "cursos",
+    "text": "Em andamento",
+    "section": "MeusCursos",
+    "tag": "h2"
+  },
+  {
+    "id": "1bf6438eaa486dbc",
+    "page": "cursos",
+    "text": "Concluídos",
+    "section": "MeusCursos",
+    "tag": "h2"
+  },
+  {
+    "id": "21e85fe2221f2e07",
+    "page": "cursos",
+    "text": "Comece agora",
+    "section": "MeusCursos",
+    "tag": "h2"
+  },
+  {
+    "id": "c009e4a1f4a42c2d",
+    "page": "cursos",
+    "text": "Você ainda não possui cursos",
+    "section": "MeusCursos",
+    "tag": "h3"
+  },
+  {
+    "id": "7637d06e16597461",
+    "page": "cursos",
+    "text": "Comece sua trilha de consciência hoje mesmo.",
+    "section": "MeusCursos",
+    "tag": "p"
+  },
+  {
+    "id": "c7a6768869e5d3b3",
+    "page": "cursos",
+    "text": "Descobrir cursos",
+    "section": "MeusCursos",
+    "tag": "h2"
+  },
+  {
+    "id": "3b8374024dda1f77",
+    "page": "cursos",
+    "text": "Em breve",
+    "section": "MeusCursos",
+    "tag": "h2"
+  },
+  {
+    "id": "df36908e4929ae86",
+    "page": "cursos",
+    "text": "Meus Cursos",
+    "section": "MeusCursos",
+    "tag": "h1"
+  },
+  {
+    "id": "de07f7733c497573",
+    "page": "cursos",
+    "text": "Sua trilha de consciência",
+    "section": "MeusCursos",
+    "tag": "p"
+  },
+  {
+    "id": "3ecbbda966d1efb9",
+    "page": "quiz",
+    "text": "Resenha Fanática",
+    "section": "Quiz",
+    "tag": "h1"
+  },
+  {
+    "id": "f5a2adf76ef6b137",
+    "page": "quiz",
+    "text": "Escolha uma categoria para começar",
+    "section": "Quiz",
+    "tag": "p"
+  },
+  {
+    "id": "1cf7545dd716bfc0",
+    "page": "quiz",
+    "text": "Voltar",
+    "section": "Quiz",
+    "tag": "button"
+  },
+  {
+    "id": "df45403adc355468",
+    "page": "quiz",
+    "text": "Escolha um tópico para começar",
+    "section": "Quiz",
+    "tag": "p"
+  },
+  {
+    "id": "6518de9847668739",
+    "page": "quiz",
+    "text": "cenários",
+    "section": "Quiz",
+    "tag": "span"
+  },
+  {
+    "id": "cfbd2ba478978b03",
+    "page": "quiz",
+    "text": "Voltar",
+    "section": "Quiz",
+    "tag": "button"
+  },
+  {
+    "id": "d82a148398d52183",
+    "page": "quiz",
+    "text": "Cenário",
+    "section": "Quiz",
+    "tag": "h2"
+  },
+  {
+    "id": "84cb3a1d72cf9de5",
+    "page": "quiz",
+    "text": "Parabéns!",
+    "section": "Quiz",
+    "tag": "h1"
+  },
+  {
+    "id": "0ff9c5c4123d65e0",
+    "page": "quiz",
+    "text": "Você acertou",
+    "section": "Quiz",
+    "tag": "p"
+  },
+  {
+    "id": "2049c0df23c31be5",
+    "page": "quiz",
+    "text": "questões",
+    "section": "Quiz",
+    "tag": "p"
+  },
+  {
+    "id": "40a19092a75ac56a",
+    "page": "quiz",
+    "text": "Continue praticando para melhorar suas habilidades!",
+    "section": "Quiz",
+    "tag": "p"
+  },
+  {
+    "id": "9335489a12e48a42",
+    "page": "quiz",
+    "text": "Jogar novamente",
+    "section": "Quiz",
+    "tag": "button"
+  },
+  {
+    "id": "7afc901adc4635d5",
+    "page": "radio",
+    "text": "Alambrado FM",
+    "section": "Radio",
+    "tag": "h1"
+  },
+  {
+    "id": "f08c4a437a6afaed",
+    "page": "radio",
+    "text": "As principais rádios esportivas do Brasil",
+    "section": "Radio",
+    "tag": "p"
+  },
+  {
+    "id": "83a744c530050b59",
+    "page": "radio",
+    "text": "Voltar para Alambrado FM",
+    "section": "RadioStation",
+    "tag": "button"
+  },
+  {
+    "id": "27613b2fbf1a98af",
+    "page": "radio",
+    "text": "Programação esportiva",
+    "section": "RadioStation",
+    "tag": "h2"
+  },
+  {
+    "id": "3099e3cc1ce10081",
+    "page": "radio",
+    "text": "Confira os horários dos principais programas de esporte da",
+    "section": "RadioStation",
+    "tag": "p"
+  },
+  {
+    "id": "a98ad090337cd9ff",
+    "page": "radio",
+    "text": "Programação sujeita a alterações pela emissora.",
+    "section": "RadioStation",
+    "tag": "p"
+  },
+  {
+    "id": "5ee4adc0c24fae57",
+    "page": "futebol",
+    "text": "Carregando conteúdo...",
+    "section": "Futebol",
+    "tag": "p"
+  },
+  {
+    "id": "b7916baa7a7654b7",
+    "page": "futebol",
+    "text": "Ver todos",
+    "section": "Futebol",
+    "tag": "button"
+  },
+  {
+    "id": "c937521512f13ffd",
+    "page": "futebol",
+    "text": "Em breve",
+    "section": "Futebol",
+    "tag": "p"
+  },
+  {
+    "id": "272ae19b120811cb",
+    "page": "futebol",
+    "text": "Nenhuma notícia disponível no momento.",
+    "section": "Futebol",
+    "tag": "p"
+  },
+  {
+    "id": "34ee2bd39c8fc872",
+    "page": "futebol",
+    "text": "Tabela não disponível para esta competição.",
+    "section": "BrasileiraoTable",
+    "tag": "div"
+  },
+  {
+    "id": "beaaf86be8125e69",
+    "page": "futebol",
+    "text": "Time",
+    "section": "BrasileiraoTable",
+    "tag": "span"
+  },
+  {
+    "id": "123e3022116798e9",
+    "page": "futebol",
+    "text": "Pts",
+    "section": "BrasileiraoTable",
+    "tag": "span"
+  },
+  {
+    "id": "3238b945fc0d61e4",
+    "page": "futebol",
+    "text": "Sem jogos programados no momento.",
+    "section": "BrasileiraoTable",
+    "tag": "div"
+  },
+  {
+    "id": "985311333f5379dc",
+    "page": "futebol",
+    "text": "Atualizado",
+    "section": "BrasileiraoTable",
+    "tag": "p"
+  },
+  {
+    "id": "e096a8bb529145d6",
+    "page": "futebol",
+    "text": "Tabela",
+    "section": "BrasileiraoTable",
+    "tag": "button"
+  },
+  {
+    "id": "62cae53cc8bcfa84",
+    "page": "futebol",
+    "text": "Jogos",
+    "section": "BrasileiraoTable",
+    "tag": "button"
+  },
+  {
+    "id": "d885d8848d3364a7",
+    "page": "futebol",
+    "text": "Próximos jogos",
+    "section": "BrasileiraoTable",
+    "tag": "span"
+  },
+  {
+    "id": "06bdf5e06bdf3502",
+    "page": "futebol",
+    "text": "Não foi possível carregar",
+    "section": "BrasileiraoTable",
+    "tag": "div"
+  },
+  {
+    "id": "2cf6b9f36ff1ef6b",
+    "page": "comunidade",
+    "text": "Desafios de Autocuidado",
+    "section": "Comunidade",
+    "tag": "h2"
+  },
+  {
+    "id": "1b1f117011efe366",
+    "page": "comunidade",
+    "text": "Participe e some pontos",
+    "section": "Comunidade",
+    "tag": "p"
+  },
+  {
+    "id": "fc8b5f9504a568c7",
+    "page": "comunidade",
+    "text": "Em breve",
+    "section": "Comunidade",
+    "tag": "button"
+  },
+  {
+    "id": "22a45e4cb2d29bfc",
+    "page": "comunidade",
+    "text": "Brasileirão da Saúde Mental",
+    "section": "Comunidade",
+    "tag": "h3"
+  },
+  {
+    "id": "4822ed2315cd5b14",
+    "page": "comunidade",
+    "text": "Ver tabela",
+    "section": "Comunidade",
+    "tag": "button"
+  },
+  {
+    "id": "868efb591b3d8a33",
+    "page": "comunidade",
+    "text": "Clube",
+    "section": "Comunidade",
+    "tag": "span"
+  },
+  {
+    "id": "20857f33c110443a",
+    "page": "comunidade",
+    "text": "Pts",
+    "section": "Comunidade",
+    "tag": "span"
+  },
+  {
+    "id": "02d47bdceea6f7c2",
+    "page": "comunidade",
+    "text": "Ranking de Torcedores",
+    "section": "Comunidade",
+    "tag": "h3"
+  },
+  {
+    "id": "e5deb11699342dde",
+    "page": "comunidade",
+    "text": "Ver todos",
+    "section": "Comunidade",
+    "tag": "button"
+  },
+  {
+    "id": "656c65bb973d585d",
+    "page": "comunidade",
+    "text": "Ainda sem torcedores no ranking. Some pontos e apareça aqui!",
+    "section": "Comunidade",
+    "tag": "p"
+  },
+  {
+    "id": "d2f029c1c5607259",
+    "page": "comunidade",
+    "text": "pts",
+    "section": "Comunidade",
+    "tag": "div"
+  },
+  {
+    "id": "08217473d357db62",
+    "page": "comunidade",
+    "text": "Em breve: desafios da comunidade.",
+    "section": "Comunidade",
+    "tag": "div"
+  },
+  {
+    "id": "bb6488412967747d",
+    "page": "comunidade",
+    "text": "Campo das emoções",
+    "section": "Comunidade",
+    "tag": "p"
+  },
+  {
+    "id": "fa41e06065aaeedb",
+    "page": "comunidade",
+    "text": "Escale seu time e gere uma reflexão.",
+    "section": "Comunidade",
+    "tag": "p"
+  },
+  {
+    "id": "0b8ca358da602b6e",
+    "page": "comunidade",
+    "text": "Resenha fanática",
+    "section": "Comunidade",
+    "tag": "p"
+  },
+  {
+    "id": "adc919e294c748ac",
+    "page": "comunidade",
+    "text": "Cenários e escolhas do dia a dia do torcedor.",
+    "section": "Comunidade",
+    "tag": "p"
+  },
+  {
+    "id": "97c4143178cf5d8e",
+    "page": "comunidade",
+    "text": "Clube",
+    "section": "Comunidade",
+    "tag": "span"
+  },
+  {
+    "id": "bb9a417204d8bcd0",
+    "page": "comunidade",
+    "text": "Pts",
+    "section": "Comunidade",
+    "tag": "span"
+  },
+  {
+    "id": "1abd7f9de3e791bc",
+    "page": "comunidade",
+    "text": "Fechar",
+    "section": "Comunidade",
+    "tag": "button"
+  },
+  {
+    "id": "83f1280e90fbe9fb",
+    "page": "comunidade",
+    "text": "Ainda sem torcedores no ranking.",
+    "section": "Comunidade",
+    "tag": "p"
+  },
+  {
+    "id": "0f49288cd30a97a4",
+    "page": "comunidade",
+    "text": "pts",
+    "section": "Comunidade",
+    "tag": "span"
+  },
+  {
+    "id": "7f8894ad932db24a",
+    "page": "comunidade",
+    "text": "Fechar",
+    "section": "Comunidade",
+    "tag": "button"
+  },
+  {
+    "id": "448ab026e16aaab6",
+    "page": "comunidade",
+    "text": "Como funciona o Ranking?",
+    "section": "Comunidade",
+    "tag": "h2"
+  },
+  {
+    "id": "cd358d31dcd21835",
+    "page": "comunidade",
+    "text": "Brasileirão da Saúde Mental",
+    "section": "Comunidade",
+    "tag": "strong"
+  },
+  {
+    "id": "5fb11d2e05ce0829",
+    "page": "comunidade",
+    "text": "pontua os clubes com base nas ações dos seus torcedores. Cada atividade gera pontos para o clube do coração conforme abaixo:",
+    "section": "Comunidade",
+    "tag": "p"
+  },
+  {
+    "id": "3aefbdae1ddb8ed0",
+    "page": "comunidade",
+    "text": "Sessão de terapia",
+    "section": "Comunidade",
+    "tag": "strong"
+  },
+  {
+    "id": "b93ace5f932eff63",
+    "page": "comunidade",
+    "text": "concluída vale",
+    "section": "Comunidade",
+    "tag": "span"
+  },
+  {
+    "id": "555d752874ba30f0",
+    "page": "comunidade",
+    "text": "3 pontos",
+    "section": "Comunidade",
+    "tag": "strong"
+  },
+  {
+    "id": "999aa8d67dcbccdb",
+    "page": "comunidade",
+    "text": "Check-in emocional",
+    "section": "Comunidade",
+    "tag": "strong"
+  },
+  {
+    "id": "cf32fc6ae939e454",
+    "page": "comunidade",
+    "text": "diário vale",
+    "section": "Comunidade",
+    "tag": "span"
+  },
+  {
+    "id": "707769cd2537c48b",
+    "page": "comunidade",
+    "text": "1 ponto",
+    "section": "Comunidade",
+    "tag": "strong"
+  },
+  {
+    "id": "4c5152569ac6fcc9",
+    "page": "comunidade",
+    "text": "FanatiClass",
+    "section": "Comunidade",
+    "tag": "strong"
+  },
+  {
+    "id": "9cf4842c16bf1b30",
+    "page": "comunidade",
+    "text": "— cada curso finalizado vale",
+    "section": "Comunidade",
+    "tag": "span"
+  },
+  {
+    "id": "21f707abcfd4c592",
+    "page": "comunidade",
+    "text": "1 ponto",
+    "section": "Comunidade",
+    "tag": "strong"
+  },
+  {
+    "id": "ab1e50e393037bfd",
+    "page": "comunidade",
+    "text": "Atividade",
+    "section": "Comunidade",
+    "tag": "strong"
+  },
+  {
+    "id": "81fb12c7edcc77e5",
+    "page": "comunidade",
+    "text": "concluída vale",
+    "section": "Comunidade",
+    "tag": "span"
+  },
+  {
+    "id": "2479770f4a511eed",
+    "page": "comunidade",
+    "text": "1 ponto",
+    "section": "Comunidade",
+    "tag": "strong"
+  },
+  {
+    "id": "3cc842d4b10e2411",
+    "page": "comunidade",
+    "text": "Entendi, não mostrar novamente",
+    "section": "Comunidade",
+    "tag": "button"
+  },
+  {
+    "id": "173873b5892b702e",
+    "page": "diario",
+    "text": "Campo das emoções",
+    "section": "Diario",
+    "tag": "h1"
+  },
+  {
+    "id": "b32587f8a747a02a",
+    "page": "diario",
+    "text": "Escale seu time e gere uma reflexão.",
+    "section": "Diario",
+    "tag": "p"
+  },
+  {
+    "id": "b846bb90e16ffe7a",
+    "page": "diario",
+    "text": "Prancheta emocional",
+    "section": "EmotionTacticalBoard",
+    "tag": "span"
+  },
+  {
+    "id": "e632950f8d72cc43",
+    "page": "diario",
+    "text": "Ofensivas",
+    "section": "EmotionTacticalBoard",
+    "tag": "span"
+  },
+  {
+    "id": "be27dfc2a88ec1fe",
+    "page": "diario",
+    "text": "Defensivas",
+    "section": "EmotionTacticalBoard",
+    "tag": "span"
+  },
+  {
+    "id": "c9037e6e5a1d081b",
+    "page": "diario",
+    "text": "Selecione uma formação acima",
+    "section": "EmotionTacticalBoard",
+    "tag": "span"
+  },
+  {
+    "id": "e73bd0f34f00fc3a",
+    "page": "diario",
+    "text": "⚽ Emoções",
+    "section": "EmotionTacticalBoard",
+    "tag": "span"
+  },
+  {
+    "id": "1e1a28c066f56cd2",
+    "page": "diario",
+    "text": "posições preenchidas",
+    "section": "EmotionTacticalBoard",
+    "tag": "p"
+  },
+  {
+    "id": "932a854d78b32136",
+    "page": "diario",
+    "text": "Limpar",
+    "section": "EmotionTacticalBoard",
+    "tag": "button"
+  },
+  {
+    "id": "31cb9d691ddc2b5c",
+    "page": "diario",
+    "text": "⚽ Análise da sua escalação hoje",
+    "section": "EmotionTacticalBoard",
+    "tag": "h3"
+  },
+  {
+    "id": "4efd8706abd06c48",
+    "page": "diario",
+    "text": "Analisando sua escalação...",
+    "section": "EmotionTacticalBoard",
+    "tag": "span"
+  },
+  {
+    "id": "9728fc3633c56c67",
+    "page": "diario",
+    "text": "Expectativa registrada! ⚽",
+    "section": "MatchExpectationCard",
+    "tag": "p"
+  },
+  {
+    "id": "fb3a9d3c5f2c3f26",
+    "page": "diario",
+    "text": "Boa sorte pro jogo!",
+    "section": "MatchExpectationCard",
+    "tag": "p"
+  },
+  {
+    "id": "35acf2ddbef2c38e",
+    "page": "diario",
+    "text": "Dia de Jogo!",
+    "section": "MatchExpectationCard",
+    "tag": "span"
+  },
+  {
+    "id": "534512748180ecad",
+    "page": "diario",
+    "text": "Como você está se sentindo sobre o jogo?",
+    "section": "MatchExpectationCard",
+    "tag": "p"
+  },
+  {
+    "id": "9bc90c4d9372ef25",
+    "page": "diario",
+    "text": "Se ganhar, como isso afeta você?",
+    "section": "MatchExpectationCard",
+    "tag": "p"
+  },
+  {
+    "id": "85714f98df774225",
+    "page": "diario",
+    "text": "E se perder?",
+    "section": "MatchExpectationCard",
+    "tag": "p"
+  },
+  {
+    "id": "2182dab70fb18cee",
+    "page": "bem-estar",
+    "text": "Seu balanço emocional",
+    "section": "BemEstar",
+    "tag": "h2"
+  },
+  {
+    "id": "634eb263048049f0",
+    "page": "bem-estar",
+    "text": "Veja o equilíbrio ou a variação das suas emoções.",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "5feb0d08a4d8b7d1",
+    "page": "bem-estar",
+    "text": "Ver detalhes",
+    "section": "BemEstar",
+    "tag": "button"
+  },
+  {
+    "id": "3934ca243495f46b",
+    "page": "bem-estar",
+    "text": "Resumo da semana anterior",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "464d6f77aeba1761",
+    "page": "bem-estar",
+    "text": "Você não fez check-ins na semana passada. Que tal registrar todos os dias desta semana?",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "b62e5a17af3f8a7b",
+    "page": "bem-estar",
+    "text": "Pontuação",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "83bdf86c56ad1a97",
+    "page": "bem-estar",
+    "text": "Check-ins",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "2d956375dbaf2d02",
+    "page": "bem-estar",
+    "text": "vs. semana antes",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "4ed71c3419aa96f9",
+    "page": "bem-estar",
+    "text": "O que mais apareceu",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "ee09972162730e6b",
+    "page": "bem-estar",
+    "text": "Toque para ver os detalhes",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "75c7e45f4501109e",
+    "page": "bem-estar",
+    "text": "Registro do dia",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "fd65cd2f26b39d36",
+    "page": "bem-estar",
+    "text": "Como você se sentiu",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "79c8e323cd563706",
+    "page": "bem-estar",
+    "text": "pts",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "2ed5b4882cdd3fc3",
+    "page": "bem-estar",
+    "text": "Pontuação do dia",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "736c56a626e6799a",
+    "page": "bem-estar",
+    "text": "O que influenciou",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "e5b4a39baf23d370",
+    "page": "bem-estar",
+    "text": "Sua observação",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "673e2e0c4cbc7311",
+    "page": "bem-estar",
+    "text": "Você sente que melhorou em relação à semana passada?",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "df27210ef1d557f0",
+    "page": "bem-estar",
+    "text": "registro",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "36c08e5b2a1add40",
+    "page": "bem-estar",
+    "text": "Nenhum check-in registrado ainda.",
+    "section": "BemEstar",
+    "tag": "p"
+  },
+  {
+    "id": "cf5155f329148a42",
+    "page": "minha-temporada",
+    "text": "Sua pontuação",
+    "section": "MinhaTemporada",
+    "tag": "div"
+  },
+  {
+    "id": "16cf669fb1dcadd8",
+    "page": "minha-temporada",
+    "text": "pontos acumulados",
+    "section": "MinhaTemporada",
+    "tag": "span"
+  },
+  {
+    "id": "265dabc924449d3f",
+    "page": "minha-temporada",
+    "text": "1 pt por check-in · 1 pt por curso",
+    "section": "MinhaTemporada",
+    "tag": "p"
+  },
+  {
+    "id": "c352ab374a51418f",
+    "page": "minha-temporada",
+    "text": "Suas atividades recentes",
+    "section": "MinhaTemporada",
+    "tag": "h3"
+  },
+  {
+    "id": "fe0cddde2bf24f37",
+    "page": "minha-temporada",
+    "text": "Ainda não temos atividades para mostrar. Faça um check-in ou comece um curso.",
+    "section": "MinhaTemporada",
+    "tag": "p"
+  },
+  {
+    "id": "b2f38b5408810b05",
+    "page": "setor-saude",
+    "text": "Setor Saúde",
+    "section": "SetorSaude",
+    "tag": "h1"
+  },
+  {
+    "id": "62bd0c6f57d306f2",
+    "page": "setor-saude",
+    "text": "Saúde mental, bem-estar e vida equilibrada para todo torcedor",
+    "section": "SetorSaude",
+    "tag": "p"
+  },
+  {
+    "id": "dab795c3bc1a383d",
+    "page": "setor-saude",
+    "text": "Carregando conteúdo...",
+    "section": "SetorSaude",
+    "tag": "p"
+  },
+  {
+    "id": "92b5609bee9a8856",
+    "page": "setor-saude",
+    "text": "Em breve, novos conteúdos por aqui",
+    "section": "SetorSaude",
+    "tag": "p"
+  },
+  {
+    "id": "ff5256ef57572717",
+    "page": "setor-saude",
+    "text": "Nossa equipe está preparando matérias incríveis sobre saúde e bem-estar",
+    "section": "SetorSaude",
+    "tag": "p"
+  },
+  {
+    "id": "a266fcf8be4d2f24",
+    "page": "setor-saude",
+    "text": "Mais matérias",
+    "section": "SetorSaude",
+    "tag": "h3"
+  },
+  {
+    "id": "511e45a08ddc83e9",
+    "page": "osmf",
+    "text": "Projeto de Pesquisa e Acolhimento",
+    "section": "OSMF",
+    "tag": "span"
+  },
+  {
+    "id": "f2be6ea44c68ac7d",
+    "page": "osmf",
+    "text": "Saúde Mental",
+    "section": "OSMF",
+    "tag": "span"
+  },
+  {
+    "id": "2047f35021f8ae0d",
+    "page": "osmf",
+    "text": "Mapa Interativo do Brasil",
+    "section": "OSMF",
+    "tag": "h2"
+  },
+  {
+    "id": "7f0afd68932629dd",
+    "page": "osmf",
+    "text": "Clique em uma região para explorar os indicadores de sofrimento psíquico relacionados ao futebol",
+    "section": "OSMF",
+    "tag": "p"
+  },
+  {
+    "id": "58ec7bcf1534b639",
+    "page": "osmf",
+    "text": "Insight:",
+    "section": "OSMF",
+    "tag": "span"
+  },
+  {
+    "id": "c7dc590ca1e0ef60",
+    "page": "osmf",
+    "text": "Selecione uma região no mapa",
+    "section": "OSMF",
+    "tag": "p"
+  },
+  {
+    "id": "ae25e82d24e55aed",
+    "page": "osmf",
+    "text": "Dashboard de Dados",
+    "section": "OSMF",
+    "tag": "h2"
+  },
+  {
+    "id": "3d125b0ec76d56c7",
+    "page": "osmf",
+    "text": "Visualize os indicadores de sofrimento psíquico coletados em nossa pesquisa",
+    "section": "OSMF",
+    "tag": "p"
+  },
+  {
+    "id": "ae1422380ee95b87",
+    "page": "osmf",
+    "text": "Linha do Tempo",
+    "section": "OSMF",
+    "tag": "h2"
+  },
+  {
+    "id": "a40a6a297114e1ef",
+    "page": "osmf",
+    "text": "Eventos marcantes do futebol e seus impactos emocionais coletivos",
+    "section": "OSMF",
+    "tag": "p"
+  },
+  {
+    "id": "716d2dfdaa5cb36b",
+    "page": "osmf",
+    "text": "Impacto:",
+    "section": "OSMF",
+    "tag": "span"
+  },
+  {
+    "id": "105e7736280194df",
+    "page": "osmf",
+    "text": "Voz do Torcedor",
+    "section": "OSMF",
+    "tag": "h2"
+  },
+  {
+    "id": "085dcf77050fede2",
+    "page": "osmf",
+    "text": "Depoimentos anônimos de torcedores sobre suas experiências emocionais",
+    "section": "OSMF",
+    "tag": "p"
+  },
+  {
+    "id": "e6d61903cdd383d2",
+    "page": "osmf",
+    "text": "Relatos e Denúncias do Torcedor",
+    "section": "OSMF",
+    "tag": "h2"
+  },
+  {
+    "id": "938d62cd3ed8c9d7",
+    "page": "osmf",
+    "text": "Compartilhe sua experiência de forma segura. Seus dados são protegidos e tratados com ética.",
+    "section": "OSMF",
+    "tag": "p"
+  },
+  {
+    "id": "917102356b308132",
+    "page": "osmf",
+    "text": "Aviso de privacidade:",
+    "section": "OSMF",
+    "tag": "strong"
+  },
+  {
+    "id": "7a87a8d72d234f2d",
+    "page": "osmf",
+    "text": "Conteúdo Educativo",
+    "section": "OSMF",
+    "tag": "h2"
+  },
+  {
+    "id": "12bcb9418974ff16",
+    "page": "osmf",
+    "text": "Informações para entender melhor a relação entre futebol e saúde mental",
+    "section": "OSMF",
+    "tag": "p"
+  },
+  {
+    "id": "02a9e7769733cdfd",
+    "page": "osmf",
+    "text": "Saiba mais",
+    "section": "OSMF",
+    "tag": "span"
+  },
+  {
+    "id": "cb7e3e24aeca5d17",
+    "page": "osmf",
+    "text": "Transparência e Metodologia",
+    "section": "OSMF",
+    "tag": "h2"
+  },
+  {
+    "id": "7de3df7994a486e0",
+    "page": "osmf",
+    "text": "Como coletamos, tratamos e utilizamos os dados",
+    "section": "OSMF",
+    "tag": "p"
+  },
+  {
+    "id": "069f1066c89e414d",
+    "page": "zona-mista",
+    "text": "Zona",
+    "section": "ZonaMista",
+    "tag": "h1"
+  },
+  {
+    "id": "578765566e0e05fe",
+    "page": "zona-mista",
+    "text": "Mista",
+    "section": "ZonaMista",
+    "tag": "span"
+  },
+  {
+    "id": "f39c61d4997672ea",
+    "page": "zona-mista",
+    "text": "Notícias, artigos e reflexões sobre saúde mental no universo do futebol. Conteúdo criado por especialistas para ajudar você a viver sua paixão de forma saudável.",
+    "section": "ZonaMista",
+    "tag": "p"
+  },
+  {
+    "id": "b602561b880b320f",
+    "page": "zona-mista",
+    "text": "de leitura",
+    "section": "ZonaMista",
+    "tag": "span"
+  },
+  {
+    "id": "87650d523a31c817",
+    "page": "zona-mista",
+    "text": "Últimos Artigos",
+    "section": "ZonaMista",
+    "tag": "h2"
+  },
+  {
+    "id": "9c142b1421b3b4fe",
+    "page": "zona-mista",
+    "text": "Nenhum artigo encontrado para os filtros selecionados.",
+    "section": "ZonaMista",
+    "tag": "p"
+  },
+  {
+    "id": "ab8f9c3f5c7f7437",
+    "page": "zona-mista",
+    "text": "Carregar mais artigos",
+    "section": "ZonaMista",
+    "tag": "button"
+  },
+  {
+    "id": "117b31b75d00069a",
+    "page": "loja",
+    "text": "FanaticaShop",
+    "section": "ShopHeader",
+    "tag": "span"
+  },
+  {
+    "id": "20f45c3b67e37f2c",
+    "page": "loja",
+    "text": "Todos",
+    "section": "CategoryTabs",
+    "tag": "button"
+  },
+  {
+    "id": "630eeaaa34408a64",
+    "page": "loja",
+    "text": "LANÇAMENTO",
+    "section": "FeaturedBanner",
+    "tag": "p"
+  },
+  {
+    "id": "f742b2197f53e3ee",
+    "page": "loja",
+    "text": "Nova Camisa",
+    "section": "FeaturedBanner",
+    "tag": "h3"
+  },
+  {
+    "id": "68be86a3bcbbabee",
+    "page": "loja",
+    "text": "Temporada 2024 disponível",
+    "section": "FeaturedBanner",
+    "tag": "p"
+  },
+  {
+    "id": "340545d18b5f164e",
+    "page": "fanaticaze-tv",
+    "text": "Fanati",
+    "section": "FanaticazeTV",
+    "tag": "h1"
+  },
+  {
+    "id": "52b1e7813b2ab695",
+    "page": "fanaticaze-tv",
+    "text": "Cazé TV",
+    "section": "FanaticazeTV",
+    "tag": "span"
+  },
+  {
+    "id": "7cb928ff33fbbe59",
+    "page": "fanaticaze-tv",
+    "text": "Conteúdo exclusivo do canal CazéTV",
+    "section": "FanaticazeTV",
+    "tag": "p"
+  },
+  {
+    "id": "5444c9c1bf67a15f",
+    "page": "fanaticaze-tv",
+    "text": "Ao vivo agora",
+    "section": "FanaticazeTV",
+    "tag": "h2"
+  },
+  {
+    "id": "af33f8db0ee01847",
+    "page": "fanaticaze-tv",
+    "text": "Últimos vídeos do canal",
+    "section": "FanaticazeTV",
+    "tag": "h2"
+  },
+  {
+    "id": "5b41f16ff5cbb692",
+    "page": "fanaticaze-tv",
+    "text": "Conteúdo de @",
+    "section": "FanaticazeTV",
+    "tag": "p"
+  },
+  {
+    "id": "39d8364039318d06",
+    "page": "fanaticaze-tv",
+    "text": "reproduzido dentro do app.",
+    "section": "FanaticazeTV",
+    "tag": "p"
+  },
+  {
+    "id": "1afc53193d927dcc",
+    "page": "perfil",
+    "text": "Seus painéis",
+    "section": "Perfil",
+    "tag": "p"
+  },
+  {
+    "id": "e032dcaddef201b7",
+    "page": "perfil",
+    "text": "Meu time do coração",
+    "section": "Perfil",
+    "tag": "h2"
+  },
+  {
+    "id": "b461922c5c4a3722",
+    "page": "perfil",
+    "text": "— Brasileiro",
+    "section": "Perfil",
+    "tag": "p"
+  },
+  {
+    "id": "d6e12e3625277775",
+    "page": "perfil",
+    "text": "Nenhum time selecionado",
+    "section": "Perfil",
+    "tag": "p"
+  },
+  {
+    "id": "23d7ecfc84ee6eb9",
+    "page": "perfil",
+    "text": "Configure nas preferências",
+    "section": "Perfil",
+    "tag": "p"
+  },
+  {
+    "id": "65fed2ae96489488",
+    "page": "perfil",
+    "text": "Dias no diário",
+    "section": "Perfil",
+    "tag": "p"
+  },
+  {
+    "id": "453ebc707fcca53f",
+    "page": "perfil",
+    "text": "Cursos feitos",
+    "section": "Perfil",
+    "tag": "p"
+  },
+  {
+    "id": "f38ab3f2cf8706fa",
+    "page": "perfil",
+    "text": "Sair da conta",
+    "section": "Perfil",
+    "tag": "button"
+  },
+  {
+    "id": "c8958b3058b29bc1",
+    "page": "notificacoes",
+    "text": "Notificações push",
+    "section": "Notificacoes",
+    "tag": "p"
+  },
+  {
+    "id": "73525efc6c376c8a",
+    "page": "notificacoes",
+    "text": "Marcar todas como lidas",
+    "section": "Notificacoes",
+    "tag": "button"
+  },
+  {
+    "id": "2933a9f4e928b253",
+    "page": "notificacoes",
+    "text": "Nenhuma notificação",
+    "section": "Notificacoes",
+    "tag": "h3"
+  },
+  {
+    "id": "619de87636212e1a",
+    "page": "notificacoes",
+    "text": "Seus alertas sobre cursos, atividades e novidades aparecerão aqui.",
+    "section": "Notificacoes",
+    "tag": "p"
+  },
+  {
+    "id": "c1dcdb20f6b4360d",
+    "page": "configuracoes",
+    "text": "Email",
+    "section": "Configuracoes",
+    "tag": "p"
+  },
+  {
+    "id": "d890d8403025d372",
+    "page": "configuracoes",
+    "text": "Alterar Senha",
+    "section": "Configuracoes",
+    "tag": "p"
+  },
+  {
+    "id": "ddf4f810eafd8985",
+    "page": "configuracoes",
+    "text": "Atualize sua senha de acesso",
+    "section": "Configuracoes",
+    "tag": "p"
+  },
+  {
+    "id": "93ff2e8b65801e6f",
+    "page": "configuracoes",
+    "text": "Receba alertas sobre agendamentos e lembretes",
+    "section": "Configuracoes",
+    "tag": "p"
+  },
+  {
+    "id": "d79c6a3a09456ccf",
+    "page": "configuracoes",
+    "text": "Receba confirmações e novidades por email",
+    "section": "Configuracoes",
+    "tag": "p"
+  },
+  {
+    "id": "4834b2a45a217476",
+    "page": "configuracoes",
+    "text": "Ative o tema escuro para reduzir o cansaço visual",
+    "section": "Configuracoes",
+    "tag": "p"
+  },
+  {
+    "id": "4922793ec84778b0",
+    "page": "configuracoes",
+    "text": "Política de Privacidade",
+    "section": "Configuracoes",
+    "tag": "span"
+  },
+  {
+    "id": "cc85f72c156320c7",
+    "page": "configuracoes",
+    "text": "Termos de Uso",
+    "section": "Configuracoes",
+    "tag": "span"
+  },
+  {
+    "id": "0bfeaa6f852d76f0",
+    "page": "configuracoes",
+    "text": "Central de Ajuda",
+    "section": "Configuracoes",
+    "tag": "span"
+  },
+  {
+    "id": "530ce078bbf1b919",
+    "page": "configuracoes",
+    "text": "Configurações",
+    "section": "Configuracoes",
+    "tag": "h1"
+  }
+]
