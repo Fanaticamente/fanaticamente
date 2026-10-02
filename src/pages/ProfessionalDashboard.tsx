@@ -13,7 +13,7 @@ import OnboardingWizard, { clearAllWizardDrafts } from "@/components/professiona
 import SubscriptionPlans from "@/components/professional/SubscriptionPlans";
 import StripeConnectCard from "@/components/professional/StripeConnectCard";
 import PixPaymentCard from "@/components/professional/PixPaymentCard";
-import { SHOW_PAYMENT_METHOD_CARDS, BOOKING_ENABLED } from "@/config/featureFlags";
+import { SHOW_PAYMENT_METHOD_CARDS, BOOKING_ENABLED, SHOW_SESSION_PRICES } from "@/config/featureFlags";
 import SubscriptionManager from "@/components/professional/SubscriptionManager";
 import AppointmentDetailsDialog from "@/components/professional/AppointmentDetailsDialog";
 import AdminMessagesAlert from "@/components/professional/AdminMessagesAlert";
@@ -1010,7 +1010,7 @@ const ProfessionalDashboard = () => {
                     </div>
                   )}
 
-                  {professional.hourly_rate && (
+                  {SHOW_SESSION_PRICES && professional.hourly_rate && (
                     <div className="flex items-center justify-between text-sm mb-4">
                       <span className="text-muted-foreground">Valor da sessão</span>
                       <span className="font-bold text-card-foreground">

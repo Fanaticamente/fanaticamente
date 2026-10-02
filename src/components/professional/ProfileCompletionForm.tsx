@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { SHOW_SESSION_PRICES } from "@/config/featureFlags";
 import { Upload, X, Plus, Info, Edit2, FileText, CheckCircle, ExternalLink } from "lucide-react";
 import {
   Dialog,
@@ -871,8 +872,8 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
         </div>
       </div>
 
-      {/* Session Price and Duration */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* Session Price and Duration — oculto: valores tratados via WhatsApp */}
+      <div className={SHOW_SESSION_PRICES ? "grid grid-cols-2 gap-4" : "hidden"}>
         <div>
           <label className="block text-card-foreground text-sm font-medium mb-2">
             Duração da Sessão
@@ -924,6 +925,7 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
         </p>
       </div>
 
+      {SHOW_SESSION_PRICES && (<>
       {/* Show Price Toggle */}
       <div className="flex items-center gap-3">
         <input
@@ -967,6 +969,8 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
           </div>
         </div>
       </div>
+      </>)}
+
 
       {/* Sócio Consciente Info Dialog */}
       <Dialog open={socioInfoOpen} onOpenChange={setSocioInfoOpen}>

@@ -11,7 +11,7 @@ import StepSpecialties from "./StepSpecialties";
 import StepPricing from "./StepPricing";
 import StepPaymentMethod from "./StepPaymentMethod";
 import StepSubscription from "./StepSubscription";
-import { SHOW_PAYMENT_METHOD_CARDS } from "@/config/featureFlags";
+import { SHOW_PAYMENT_METHOD_CARDS, SHOW_SESSION_PRICES } from "@/config/featureFlags";
 
 export interface OnboardingData {
   imageUrl: string;
@@ -49,7 +49,11 @@ const ALL_STEPS = [
   { id: "payment", label: "Recebimento" },
   { id: "subscription", label: "Plano" },
 ];
-const STEPS = ALL_STEPS.filter((s) => s.id !== "payment" || SHOW_PAYMENT_METHOD_CARDS);
+const STEPS = ALL_STEPS.filter(
+  (s) =>
+    (s.id !== "payment" || SHOW_PAYMENT_METHOD_CARDS) &&
+    (s.id !== "pricing" || SHOW_SESSION_PRICES),
+);
 
 const STORAGE_KEY_PREFIX = "professional_onboarding_wizard";
 const LEGACY_STORAGE_KEY = "professional_onboarding_wizard";
