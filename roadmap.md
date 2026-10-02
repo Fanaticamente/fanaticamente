@@ -36,6 +36,7 @@
 ## Textos do gerenciador mobile
 - [x] Listar somente páginas mobile visíveis e organizar seus textos fixos por seção.
 - [x] Permitir edição, tamanho, alinhamento, ajuste horizontal/vertical e restauração do padrão.
+- [x] Mostrar escala e deslocamentos atuais, ajustar com setas e visualizar alterações não salvas em tela inteira.
 - [x] Incluir títulos e subtítulos configuráveis da página inicial, inclusive "Como você está hoje?".
 - [x] Associar a página selecionada à prévia mobile e manter as alterações no conteúdo do aplicativo.
 - [ ] Conferir o salvamento autenticado no navegador; bloqueado porque a conta de teste disponível tem somente papel de torcedor. O menu e os controles foram verificados em computador e celular com permissão simulada, sem alterar dados reais.

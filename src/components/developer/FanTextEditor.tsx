@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
-import { Search, Save, RotateCcw, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { Search, Save, RotateCcw, AlignLeft, AlignCenter, AlignRight, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Eye, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ import { useAppModules } from "@/hooks/useAppModules";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import catalog from "@/generated/fanCopy.json";
-import { fanCopyKey, fanStyleKey, type FanTextStyle } from "@/components/fan/EditableFanText";
+import { fanCopyKey, fanStyleKey, FAN_TEXT_PREVIEW_KEY, type FanTextStyle } from "@/components/fan/EditableFanText";
 
 type Entry = { id: string; page: string; text: string; section: string; tag: string };
 type Draft = { value: string; style: FanTextStyle };
@@ -54,6 +55,15 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
   const [selected, setSelected] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>({ value: "", style: {} });
   const [saving, setSaving] = useState(false);
+  const [preview, setPreview] = useState(false);
+
+  useEffect(() => {
+    if (!preview) return;
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setPreview(false); };
+    window.addEventListener("keydown", onKeyDown);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", onKeyDown); document.body.style.overflow = ""; sessionStorage.removeItem(FAN_TEXT_PREVIEW_KEY); };
+  }, [preview]);
 
   const visiblePages = useMemo(() => (pages || []).filter(p =>
     p.is_visible && (p.platform === "mobile" || p.platform === "both") &&
@@ -94,6 +104,13 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
     setDraft({ value: currentValue(entry), style: currentStyle(entry) });
   };
   const updateStyle = (changes: FanTextStyle) => setDraft(old => ({ ...old, style: { ...old.style, ...changes } }));
+  const adjust = (axis: "offsetX" | "offsetY", delta: number) => updateStyle({ [axis]: Math.max(-24, Math.min(24, (draft.style[axis] ?? 0) + delta)) });
+  const openPreview = (entry: Entry) => {
+    sessionStorage.setItem(FAN_TEXT_PREVIEW_KEY, JSON.stringify({ id: entry.id, value: draft.value, style: draft.style }));
+    setPreview(true);
+  };
+  const previewPath = active?.path || paths[actualPage || "home"] || "/";
+  const previewUrl = `${previewPath}${previewPath.includes("?") ? "&" : "?"}forceMobile=1&fanTextPreview=1`;
   const persist = async (entry: Entry, reset = false) => {
     setSaving(true);
     try {
@@ -109,6 +126,7 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
         if (error) throw error;
       }
       await qc.invalidateQueries({ queryKey: ["app-content"] });
+      setPreview(false);
       setSelected(null);
       toast.success(reset ? "Padrão restaurado" : "Texto atualizado");
     } catch {
@@ -136,21 +154,25 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
         {selected === entry.id && <div className="space-y-3 border-t border-border pt-3">
           <div><Label>Texto</Label><Textarea value={draft.value} onChange={e => setDraft(d => ({...d, value: e.target.value}))} maxLength={500} className="mt-1 min-h-20" /></div>
           <div className="grid grid-cols-2 gap-2">
-            <div><Label htmlFor={`size-${entry.id}`}>Tamanho (px)</Label><Input id={`size-${entry.id}`} type="number" min={9} max={48} placeholder="Padrão" value={draft.style.size ?? ""} onChange={e => updateStyle({size: e.target.value ? Math.max(9, Math.min(48, Number(e.target.value))) : undefined})} /></div>
+            <div><Label>Tamanho atual</Label><div className="flex items-center gap-2 mt-1 min-w-0"><span className="h-9 flex-1 min-w-0 flex items-center px-2 rounded-md border border-input text-sm tabular-nums" aria-label={`Tamanho atual: ${(draft.style.scale ?? 1).toFixed(1).replace(".", ",")} vezes o tamanho padrão`}>{(draft.style.scale ?? 1).toFixed(1).replace(".", ",")}×{draft.style.size ? ` · ${draft.style.size}px` : ""}</span><div className="flex flex-col gap-0.5"><Button type="button" variant="outline" size="icon" className="h-[18px] w-7" title="Aumentar tamanho" aria-label="Aumentar tamanho" disabled={(draft.style.scale ?? 1) >= 2} onClick={() => updateStyle({scale: Math.min(2, Math.round(((draft.style.scale ?? 1) + 0.1) * 10) / 10)})}><ChevronUp className="h-3 w-3" /></Button><Button type="button" variant="outline" size="icon" className="h-[18px] w-7" title="Diminuir tamanho" aria-label="Diminuir tamanho" disabled={(draft.style.scale ?? 1) <= 0.5} onClick={() => updateStyle({scale: Math.max(0.5, Math.round(((draft.style.scale ?? 1) - 0.1) * 10) / 10)})}><ChevronDown className="h-3 w-3" /></Button></div></div></div>
             <div><Label>Alinhamento</Label><div className="flex gap-1 mt-1">{(["left", "center", "right"] as const).map((align, i) => {
               const Icon = [AlignLeft, AlignCenter, AlignRight][i];
               return <Button key={align} variant={draft.style.align === align ? "default" : "outline"} size="icon" className="h-9 w-9" onClick={() => updateStyle({align})} title={align === "left" ? "Esquerda" : align === "center" ? "Centro" : "Direita"}><Icon className="h-4 w-4" /></Button>;
             })}</div></div>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <div><Label htmlFor={`x-${entry.id}`}>Horizontal (px)</Label><Input id={`x-${entry.id}`} type="number" min={-24} max={24} value={draft.style.offsetX ?? 0} onChange={e => updateStyle({offsetX: Math.max(-24, Math.min(24, Number(e.target.value)))})} /></div>
-            <div><Label htmlFor={`y-${entry.id}`}>Vertical (px)</Label><Input id={`y-${entry.id}`} type="number" min={-24} max={24} value={draft.style.offsetY ?? 0} onChange={e => updateStyle({offsetY: Math.max(-24, Math.min(24, Number(e.target.value)))})} /></div>
+            <div><Label>Horizontal (px)</Label><div className="flex items-center gap-1 mt-1"><Button type="button" variant="outline" size="icon" className="h-9 w-8 shrink-0" title="Mover para esquerda" aria-label="Mover para esquerda" disabled={(draft.style.offsetX ?? 0) <= -24} onClick={() => adjust("offsetX", -1)}><ChevronLeft className="h-4 w-4" /></Button><span className="h-9 flex-1 min-w-0 border border-input rounded-md flex items-center justify-center tabular-nums text-sm" aria-label={`Posição horizontal: ${draft.style.offsetX ?? 0} pixels`}>{draft.style.offsetX ?? 0}</span><Button type="button" variant="outline" size="icon" className="h-9 w-8 shrink-0" title="Mover para direita" aria-label="Mover para direita" disabled={(draft.style.offsetX ?? 0) >= 24} onClick={() => adjust("offsetX", 1)}><ChevronRight className="h-4 w-4" /></Button></div></div>
+            <div><Label>Vertical (px)</Label><div className="flex items-center gap-1 mt-1"><Button type="button" variant="outline" size="icon" className="h-9 w-8 shrink-0" title="Mover para cima" aria-label="Mover para cima" disabled={(draft.style.offsetY ?? 0) <= -24} onClick={() => adjust("offsetY", -1)}><ChevronUp className="h-4 w-4" /></Button><span className="h-9 flex-1 min-w-0 border border-input rounded-md flex items-center justify-center tabular-nums text-sm" aria-label={`Posição vertical: ${draft.style.offsetY ?? 0} pixels`}>{draft.style.offsetY ?? 0}</span><Button type="button" variant="outline" size="icon" className="h-9 w-8 shrink-0" title="Mover para baixo" aria-label="Mover para baixo" disabled={(draft.style.offsetY ?? 0) >= 24} onClick={() => adjust("offsetY", 1)}><ChevronDown className="h-4 w-4" /></Button></div></div>
           </div>
-          <div className="flex gap-2"><Button size="sm" disabled={saving || !draft.value.trim()} onClick={() => persist(entry)}><Save className="h-4 w-4 mr-1" />Salvar</Button><Button variant="outline" size="sm" disabled={saving} onClick={() => persist(entry, true)}><RotateCcw className="h-4 w-4 mr-1" />Restaurar</Button></div>
+          <div className="flex flex-wrap gap-2"><Button size="sm" disabled={saving || !draft.value.trim()} onClick={() => persist(entry)}><Save className="h-4 w-4 mr-1" />Salvar</Button><Button variant="outline" size="sm" disabled={saving} onClick={() => persist(entry, true)}><RotateCcw className="h-4 w-4 mr-1" />Restaurar</Button><Button variant="outline" size="sm" onClick={() => openPreview(entry)}><Eye className="h-4 w-4 mr-1" />Visualizar</Button></div>
         </div>}
       </div>)}
     </section>)}
     {!isLoading && visiblePages.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma página ativa do torcedor encontrada.</p>}
+    {preview && createPortal(<div role="dialog" aria-modal="true" aria-label="Visualização do texto" className="fixed inset-0 z-[100] bg-background text-foreground flex flex-col">
+      <div className="shrink-0 flex items-center justify-between px-4 h-14 border-b border-border bg-card"><span className="font-semibold">Visualização</span><Button type="button" variant="ghost" size="icon" onClick={() => setPreview(false)} aria-label="Fechar visualização" title="Fechar visualização"><X className="h-5 w-5" /></Button></div>
+      <div className="flex-1 min-h-0 w-full flex justify-center bg-muted/30"><iframe key={`${selected}-${preview}`} src={previewUrl} title="Visualização da página com o texto em edição" className="w-full max-w-[428px] h-full border-0 bg-background" /></div>
+    </div>, document.body)}
   </div>;
 };
 export default FanTextEditor;
