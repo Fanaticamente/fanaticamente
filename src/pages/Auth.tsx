@@ -597,7 +597,12 @@ const Auth = () => {
             toast.error(error.message);
           }
         } else {
-          // Sign up successful, set role validated for new users
+          // Garante sessão ativa logo após o cadastro para seguir direto
+          // para os próximos passos (assistente de conclusão do perfil).
+          const { data: sess } = await supabase.auth.getSession();
+          if (!sess.session) {
+            await signIn(signUpData.email, signUpData.password, accountType);
+          }
           setRoleValidated(true);
           toast.success("Conta criada com sucesso!");
         }
