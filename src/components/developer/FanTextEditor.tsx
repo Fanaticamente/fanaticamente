@@ -54,11 +54,10 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
   const [selected, setSelected] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>({ value: "", style: {} });
   const [saving, setSaving] = useState(false);
-  const [revision, setRevision] = useState(0);
 
   const visiblePages = useMemo(() => (pages || []).filter(p =>
     p.is_visible && (p.platform === "mobile" || p.platform === "both") &&
-    paths[p.page_id] && paths[p.page_id] === p.path &&
+    paths[p.page_id] && (paths[p.page_id] === p.path || p.page_id === "diario" && p.path === "/bem-estar") &&
     !["auth", "agendamentos", "pagamentos"].includes(p.page_id)
   ), [pages]);
   const active = visiblePages.find(p => p.page_id === page) || visiblePages[0];
@@ -111,19 +110,18 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
       }
       await qc.invalidateQueries({ queryKey: ["app-content"] });
       setSelected(null);
-      setRevision(n => n + 1);
       toast.success(reset ? "Padrão restaurado" : "Texto atualizado");
     } catch {
       toast.error("Não foi possível salvar o texto");
     } finally { setSaving(false); }
   };
 
-  return <div className="space-y-4 text-foreground" data-revision={revision}>
+  return <div className="space-y-4 text-foreground">
     <div className="relative">
       <Search className="absolute top-1/2 -translate-y-1/2 left-3 h-4 w-4 text-muted-foreground" />
       <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar texto nesta página" className="pl-9" />
     </div>
-    <Select value={active?.page_id || ""} onValueChange={v => { setPage(v); setSelected(null); const next = visiblePages.find(p => p.page_id === v); if (next) onSelectPage?.(next.path); }}>
+    <Select value={active?.page_id || ""} onValueChange={v => { setPage(v); setSelected(null); setSearch(""); const next = visiblePages.find(p => p.page_id === v); if (next) onSelectPage?.(next.path); }}>
       <SelectTrigger><SelectValue placeholder={isLoading ? "Carregando páginas..." : "Selecionar página"} /></SelectTrigger>
       <SelectContent>{visiblePages.map(p => <SelectItem key={p.id} value={p.page_id}>{p.name}</SelectItem>)}</SelectContent>
     </Select>
