@@ -22,3 +22,7 @@
 ## Imagens das notícias
 - [x] Substituir os créditos ao buscar uma nova imagem, sem manter a fonte anterior.
 - [x] Restringir a busca a fotos relevantes com autoria identificada e fontes confiáveis.
+
+## Painel do profissional
+- [x] Substituir os menus Agendamentos e Métricas por páginas de "Em breve", com aviso do contato direto via WhatsApp nos Agendamentos.
+- [x] Reformular o Assistente de IA: boas-vindas sem menção a agendamentos, consultas ou avaliações; manual alinhado ao painel atual.
