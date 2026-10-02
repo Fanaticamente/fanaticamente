@@ -26,3 +26,7 @@
 ## Painel do profissional
 - [x] Substituir os menus Agendamentos e Métricas por páginas de "Em breve", com aviso do contato direto via WhatsApp nos Agendamentos.
 - [x] Reformular o Assistente de IA: boas-vindas sem menção a agendamentos, consultas ou avaliações; manual alinhado ao painel atual.
+
+## Navegação e seleção de clubes
+- [x] Abrir todas as páginas sempre no topo, sem restaurar a rolagem anterior.
+- [x] Exibir a grade de clubes somente após aplicar a prioridade por profissionais e a ordem alfabética.

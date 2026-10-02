@@ -100,7 +100,7 @@ const Terapeutas = () => {
   const hiddenBadges = (moduleConfig?.config?.hidden_badges as string[]) || [];
   const clubDisplayMode = ((moduleConfig?.config?.club_display_mode as string) || "badge") as "badge" | "flag";
   
-  const [clubsWithProfessionals, setClubsWithProfessionals] = useState<Set<string>>(new Set());
+  const [clubsWithProfessionals, setClubsWithProfessionals] = useState<Set<string> | null>(null);
 
   // Prevent white overscroll gap at the top by tinting <html> with the club color
   // while the therapist listing (club-themed hero) is visible.
@@ -142,6 +142,7 @@ const Terapeutas = () => {
   }, []);
 
   const clubs = useMemo(() => {
+    if (clubsWithProfessionals === null) return [];
     const leagueClubs = getClubsByLeague(selectedLeague);
     return [...leagueClubs].sort((a, b) => {
       const aHasProfessionals = clubsWithProfessionals.has(a.id) ? 1 : 0;
@@ -375,8 +376,21 @@ const Terapeutas = () => {
             </div>
 
             {/* Clubs Grid */}
-            <div className="grid grid-cols-3 gap-3">
-              {clubs.map((club) => {
+            {clubsWithProfessionals === null ? (
+              <div className="grid grid-cols-3 gap-3" aria-label="Organizando clubes">
+                {Array.from({ length: 12 }, (_, index) => (
+                  <div
+                    key={index}
+                    className="h-[132px] rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                  >
+                    <div className="mx-auto mb-3 h-16 w-16 animate-pulse rounded-full bg-muted" />
+                    <div className="mx-auto h-4 w-4/5 animate-pulse rounded bg-muted" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-3">
+                {clubs.map((club) => {
                 const isSelected = selectedClub?.id === club.id;
                 return (
                   <button
@@ -401,8 +415,9 @@ const Terapeutas = () => {
                     </p>
                   </button>
                 );
-              })}
-            </div>
+                })}
+              </div>
+            )}
           </div>
         )}
 
