@@ -156,18 +156,18 @@ const TherapistCard = ({ therapist, clubColor, clubName, onSelect }: TherapistCa
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Star className="w-4 h-4 flex-shrink-0" style={{ color: clubColor, fill: clubColor }} />
                   <div className="leading-tight">
-                    <div className="text-[11px] font-bold text-gray-800">{therapist.experience} {therapist.experience === 1 ? "ano" : "anos"}</div>
-                    <div className="text-[9px] text-gray-500 whitespace-nowrap">de experiência</div>
+                    <div className="text-xs font-bold text-gray-800">{therapist.experience} {therapist.experience === 1 ? "ano" : "anos"}</div>
+                    <div className="text-[11px] text-gray-500 whitespace-nowrap">de experiência</div>
                   </div>
                 </div>
                 <div className="w-px h-7 bg-gray-200 flex-shrink-0" />
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Shirt className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} strokeWidth={2} />
                   <div className="leading-tight min-w-0">
-                    <div className="text-[11px] font-bold text-gray-800 truncate">
+                    <div className="text-xs font-bold text-gray-800 truncate">
                       {female ? "Torcedora" : "Torcedor"}
                     </div>
-                    <div className="text-[9px] text-gray-500 truncate max-w-[85px]">
+                    <div className="text-[11px] text-gray-500 truncate max-w-[85px]">
                       {clubName || therapist.location}
                     </div>
                   </div>

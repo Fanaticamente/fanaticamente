@@ -340,7 +340,7 @@ const MinimalHome = () => {
             <span className="opacity-0">{greeting}</span>
           )}
         </h1>
-        <p className="mt-1.5 text-slate-500 text-[15px] leading-snug">
+        <p className="mt-1.5 text-slate-500 text-base leading-snug">
           {(greetingCfg.subtitle as string) || "Saúde Mental agora é papo de arquibancada!"}
         </p>
       </section>
@@ -377,7 +377,7 @@ const MinimalHome = () => {
                   <h2 className="font-sans text-lg font-bold normal-case leading-tight">
                     {MOODS.find((m) => m.id === todayEntry.emotion)?.label ?? "Registrado"}
                   </h2>
-                  <p className="text-xs text-slate-500">Volte amanhã para uma nova rodada! </p>
+                  <p className="text-sm text-slate-500">Volte amanhã para uma nova rodada! </p>
                 </div>
               </div>
               <div className="mt-3 h-[90px] text-[var(--club-600)]">
@@ -593,7 +593,7 @@ const MinimalHome = () => {
                     >
                       {s.title}
                     </p>
-                    <p className="text-[11.5px] text-slate-500 truncate">{s.subtitle}</p>
+                    <p className="text-sm text-slate-500 leading-snug line-clamp-2">{s.subtitle}</p>
                   </div>
                   <div className="w-9 h-9 rounded-full border border-slate-200 flex items-center justify-center shrink-0">
                     <ChevronRight className="w-4 h-4 text-[var(--club-600)]" />

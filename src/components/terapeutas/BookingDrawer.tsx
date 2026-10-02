@@ -644,7 +644,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                         <Star className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} />
                         <div className="leading-tight">
                           <div className="text-[12px] font-bold text-gray-800 whitespace-nowrap">{therapist.experience} {therapist.experience === 1 ? 'ano' : 'anos'}</div>
-                          <div className="text-[9px] text-gray-500 whitespace-nowrap">de experiência</div>
+                          <div className="text-[11px] text-gray-500 whitespace-nowrap">de experiência</div>
                         </div>
                       </div>
                       <div className="w-px bg-gray-200 flex-shrink-0" />
@@ -652,7 +652,7 @@ const BookingDrawer = ({ therapist, clubColor, clubNickname, clubName, open, onO
                         <Shirt className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} strokeWidth={2} />
                         <div className="leading-tight">
                           <div className="text-[12px] font-bold text-gray-800 whitespace-nowrap">{female ? "Torcedora" : "Torcedor"}</div>
-                          {clubName && <div className="text-[9px] text-gray-500 whitespace-nowrap">{clubName}</div>}
+                          {clubName && <div className="text-[11px] text-gray-500 whitespace-nowrap">{clubName}</div>}
                         </div>
                       </div>
                     </div>
