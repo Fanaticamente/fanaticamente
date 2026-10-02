@@ -20,7 +20,6 @@ import AdminMessagesAlert from "@/components/professional/AdminMessagesAlert";
 import ApprovalPendingBanner from "@/components/professional/ApprovalPendingBanner";
 import SubscriptionPolicyBanner from "@/components/professional/SubscriptionPolicyBanner";
 import WeeklyAvailabilityManager from "@/components/professional/WeeklyAvailabilityManager";
-import ProfessionalMetricsTab from "@/components/professional/ProfessionalMetricsTab";
 import RejectAppointmentDialog from "@/components/professional/RejectAppointmentDialog";
 import AISecretaryChat from "@/components/professional/AISecretaryChat";
 import ProfessionalBottomNav from "@/components/layout/ProfessionalBottomNav";
@@ -441,8 +440,9 @@ const ProfessionalDashboard = () => {
   }, [professional, homeTab, isFocusedMode, appointmentFilter, isEditingProfile]);
 
   // Fetch appointments when professional is loaded and approved/active
+  // (skipped while bookings are disabled — the agenda tab shows a "coming soon" page)
   useEffect(() => {
-    if (professional && isMarketplaceActive) {
+    if (professional && isMarketplaceActive && BOOKING_ENABLED) {
       fetchAppointments();
     }
   }, [professional, isMarketplaceActive]);
@@ -464,7 +464,7 @@ const ProfessionalDashboard = () => {
 
   // Realtime subscription for new appointments
   useEffect(() => {
-    if (!professional || !isMarketplaceActive) return;
+    if (!professional || !isMarketplaceActive || !BOOKING_ENABLED) return;
 
     const channel = supabase
       .channel('professional-appointments')
@@ -930,7 +930,7 @@ const ProfessionalDashboard = () => {
           )}
 
           {/* Stats (only shown when approved/active AND on agenda tab) */}
-          {isMarketplaceActive && activeTab === "agenda" && (
+          {isMarketplaceActive && BOOKING_ENABLED && activeTab === "agenda" && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               {stats.map((stat) => (
                 <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
@@ -1108,8 +1108,26 @@ const ProfessionalDashboard = () => {
         {isMarketplaceActive && (
           <>
 
+            {/* Agenda Tab — "em breve" enquanto agendamentos estiverem desativados */}
+            {activeTab === "agenda" && !BOOKING_ENABLED && (
+              <div className="bg-card border border-border rounded-2xl p-8 text-center">
+                <div className="w-14 h-14 rounded-full bg-therapy/10 flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="w-7 h-7 text-therapy" />
+                </div>
+                <h3 className="font-display text-xl text-card-foreground mb-2">
+                  Em breve
+                </h3>
+                <p className="text-muted-foreground text-sm mb-3">
+                  Os agendamentos pela plataforma estarão disponíveis em breve.
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  No momento, os torcedores falam diretamente com você pelo WhatsApp, usando o botão de conversa no seu perfil.
+                </p>
+              </div>
+            )}
+
             {/* Agenda Tab */}
-            {activeTab === "agenda" && (
+            {BOOKING_ENABLED && activeTab === "agenda" && (
               <div className="space-y-4">
                 <h2 className="font-display text-2xl text-card-foreground mb-4">
                   Agendamentos
@@ -1332,9 +1350,19 @@ const ProfessionalDashboard = () => {
               />
             )}
 
-            {/* Métricas Tab */}
+            {/* Métricas Tab — em breve */}
             {activeTab === "metricas" && (
-              <ProfessionalMetricsTab appointments={appointments} />
+              <div className="bg-card border border-border rounded-2xl p-8 text-center">
+                <div className="w-14 h-14 rounded-full bg-therapy/10 flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="w-7 h-7 text-therapy" />
+                </div>
+                <h3 className="font-display text-xl text-card-foreground mb-2">
+                  Em breve
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  As métricas do seu painel estarão disponíveis em breve.
+                </p>
+              </div>
             )}
 
           </>
