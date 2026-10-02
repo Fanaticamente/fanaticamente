@@ -2,7 +2,7 @@ import { parse } from '@babel/parser';
 import traverseModule from '@babel/traverse';
 import MagicString from 'magic-string';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
 
 const traverse = traverseModule.default || traverseModule;
@@ -13,7 +13,7 @@ const pageFiles = {
   'pages/Terapeutas.tsx': 'terapeutas', 'components/terapeutas/TherapistCard.tsx': 'terapeutas',
   'components/terapeutas/VacancyCard.tsx': 'terapeutas', 'components/terapeutas/BookingDrawer.tsx': 'terapeutas',
   'pages/AgendarSessao.tsx': 'terapeutas',
-  'pages/Cursos.tsx': 'cursos', 'pages/CursoDetalhe.tsx': 'cursos', 'pages/MeusCursos.tsx': 'cursos',
+  'pages/Cursos.tsx': 'cursos', 'pages/CursoDetalhe.tsx': 'cursos', 'pages/MeusCursos.tsx': 'meus-cursos',
   'pages/Quiz.tsx': 'quiz', 'pages/Radio.tsx': 'radio', 'pages/RadioStation.tsx': 'radio',
   'pages/Futebol.tsx': 'futebol', 'components/futebol/BrasileiraoTable.tsx': 'futebol',
   'pages/Comunidade.tsx': 'comunidade', 'pages/Diario.tsx': 'diario',
@@ -68,7 +68,7 @@ export function analyzeFanCopy(code, filename, transform = false) {
     },
   });
   if (magic && items.length) {
-    magic.prepend('import EditableFanText from "@/components/fan/EditableFanText";\n');
+    if (!code.includes('import EditableFanText from "@/components/fan/EditableFanText"')) magic.prepend('import EditableFanText from "@/components/fan/EditableFanText";\n');
     return { code: magic.toString(), map: magic.generateMap({ hires: true }) };
   }
   return transform ? null : items;

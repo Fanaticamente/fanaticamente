@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAppPages } from "@/hooks/useAppPages";
 import { useAppContent } from "@/hooks/useAppContent";
+import { useAppModules } from "@/hooks/useAppModules";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import catalog from "@/generated/fanCopy.json";
@@ -15,8 +16,27 @@ import { fanCopyKey, fanStyleKey, type FanTextStyle } from "@/components/fan/Edi
 
 type Entry = { id: string; page: string; text: string; section: string; tag: string };
 type Draft = { value: string; style: FanTextStyle };
+const homeFields: Entry[] = [
+  ["home_greeting_subtitle", "Saúde Mental agora é papo de arquibancada!", "Saudação"],
+  ["home_checkin_kicker", "Check-in emocional", "Como você está hoje?"],
+  ["home_checkin_title", "Como você está hoje?", "Como você está hoje?"],
+  ["home_checkin_subtitle", "Cada dia é uma rodada!", "Como você está hoje?"],
+  ["home_shortcuts_title", "Acesso rápido", "Atalhos"],
+  ["home_journey_title", "Sua jornada", "Jornada"],
+  ["home_fanbase_title", "Juntos na arquibancada e na evolução!", "Torcida"],
+  ["home_fanbase_subtitle", "Veja os torcedores que estão cuidando da mente.", "Torcida"],
+  ["home_fanbase_cta", "Ver ranking", "Torcida"],
+].map(([id, text, section]) => ({ id, page: "home", text, section, tag: "texto" }));
+const defaultSuggestions = [
+  { path: "/diario", kicker: "Sugestão para você", title: "Campo das emoções", subtitle: "Escale seu time e gere uma reflexão" },
+  { path: "/curso/c6c7600e-de31-4adc-935e-75a9dd30beba", kicker: "Curso em destaque", title: "Ética & Responsabilidade Social no Futebol", subtitle: "Comece agora mesmo" },
+  { path: "/terapeutas", kicker: "Cuide de você", title: "Converse com um(a) especialista", subtitle: "Terapeutas disponíveis" },
+  { path: "/radio", kicker: "Ao vivo", title: "Alambrado FM", subtitle: "Acompanhe as rádios esportivas" },
+  { path: "/futebol", kicker: "Fique por dentro", title: "Conteúdos sobre Futebol & Saúde", subtitle: "Últimas atualizações" },
+  { path: "/comunidade?openClubs=1", kicker: "Comunidade", title: "Brasileirão da Saúde Mental", subtitle: "Veja como estão os clubes e torcida" },
+];
 const paths: Record<string, string> = {
-  home: "/", terapeutas: "/terapeutas", cursos: "/cursos", quiz: "/quiz", radio: "/radio",
+  home: "/", terapeutas: "/terapeutas", cursos: "/cursos", "meus-cursos": "/meus-cursos", quiz: "/quiz", radio: "/radio",
   futebol: "/futebol", comunidade: "/comunidade", ranking: "/comunidade", diario: "/diario",
   "bem-estar": "/bem-estar", "minha-temporada": "/minha-temporada", "setor-saude": "/setor-saude",
   osmf: "/osmf", "zona-mista": "/zona-mista", loja: "/loja", "fanaticaze-tv": "/fanaticaze-tv",
@@ -27,24 +47,39 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
   const { data: pages, isLoading } = useAppPages("mobile");
   const { data: copies } = useAppContent("fan_copy");
   const { data: styles } = useAppContent("fan_style");
+  const { data: homeModules } = useAppModules("home");
   const qc = useQueryClient();
   const [page, setPage] = useState("home");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>({ value: "", style: {} });
   const [saving, setSaving] = useState(false);
-  const [revision, setRevision] = useState(0);
 
   const visiblePages = useMemo(() => (pages || []).filter(p =>
     p.is_visible && (p.platform === "mobile" || p.platform === "both") &&
-    paths[p.page_id] && paths[p.page_id] === p.path &&
+    paths[p.page_id] && (paths[p.page_id] === p.path || p.page_id === "diario" && p.path === "/bem-estar") &&
     !["auth", "agendamentos", "pagamentos"].includes(p.page_id)
   ), [pages]);
   const active = visiblePages.find(p => p.page_id === page) || visiblePages[0];
   const actualPage = active?.page_id === "ranking" ? "comunidade" : active?.page_id;
-  const entries = useMemo(() => (catalog as Entry[]).filter(item => item.page === actualPage &&
+  const suggestionFields = useMemo(() => {
+    const config = homeModules?.find(m => m.module_id === "home_suggestions")?.config;
+    const configured = config && typeof config === "object" && "items" in config && Array.isArray(config.items) ? config.items : [];
+    const suggestions = configured.length ? configured : defaultSuggestions;
+    return suggestions.flatMap((item: unknown) => {
+      if (!item || typeof item !== "object" || !("path" in item) || typeof item.path !== "string") return [];
+      const suggestion = item as { path: string; kicker?: string; title?: string; subtitle?: string };
+      if (/agend|consult|sess|pagamento/i.test(`${suggestion.path} ${suggestion.title || ""} ${suggestion.subtitle || ""}`)) return [];
+      const path = suggestion.path || "/";
+      return (["kicker", "title", "subtitle"] as const).filter(field => suggestion[field]).map(field => ({
+        id: `home_suggestion_${path.replace(/[^a-z0-9]/gi, "_")}_${field}`,
+        page: "home", text: suggestion[field] || "", section: "Sugestões", tag: field === "title" ? "título" : "texto",
+      }));
+    });
+  }, [homeModules]);
+  const entries = useMemo(() => [...homeFields, ...suggestionFields, ...(catalog as Entry[])].filter(item => item.page === actualPage &&
     (!search || `${item.text} ${item.section}`.toLocaleLowerCase("pt-BR").includes(search.toLocaleLowerCase("pt-BR")))
-  ), [actualPage, search]);
+  ), [actualPage, search, suggestionFields]);
   const grouping = useMemo(() => Object.entries(entries.reduce<Record<string, Entry[]>>((acc, item) => {
     (acc[item.section] ||= []).push(item); return acc;
   }, {})), [entries]);
@@ -67,7 +102,7 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
         if (error) throw error;
       } else {
         const rows = [
-          { key: fanCopyKey(entry.id), value: draft.value, type: "text", category: "fan_copy", description: `${entry.page}: ${entry.text}` },
+          { key: fanCopyKey(entry.id), value: draft.value.trim(), type: "text", category: "fan_copy", description: `${entry.page}: ${entry.text}` },
           { key: fanStyleKey(entry.id), value: JSON.stringify(draft.style), type: "text", category: "fan_style", description: `${entry.page}: apresentação de ${entry.text}` },
         ];
         const { error } = await supabase.from("app_content").upsert(rows, { onConflict: "key" });
@@ -75,19 +110,18 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
       }
       await qc.invalidateQueries({ queryKey: ["app-content"] });
       setSelected(null);
-      setRevision(n => n + 1);
       toast.success(reset ? "Padrão restaurado" : "Texto atualizado");
     } catch {
       toast.error("Não foi possível salvar o texto");
     } finally { setSaving(false); }
   };
 
-  return <div className="space-y-4 text-foreground" data-revision={revision}>
+  return <div className="space-y-4 text-foreground">
     <div className="relative">
       <Search className="absolute top-1/2 -translate-y-1/2 left-3 h-4 w-4 text-muted-foreground" />
       <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar texto nesta página" className="pl-9" />
     </div>
-    <Select value={active?.page_id || ""} onValueChange={v => { setPage(v); setSelected(null); const next = visiblePages.find(p => p.page_id === v); if (next) onSelectPage?.(next.path); }}>
+    <Select value={active?.page_id || ""} onValueChange={v => { setPage(v); setSelected(null); setSearch(""); const next = visiblePages.find(p => p.page_id === v); if (next) onSelectPage?.(next.path); }}>
       <SelectTrigger><SelectValue placeholder={isLoading ? "Carregando páginas..." : "Selecionar página"} /></SelectTrigger>
       <SelectContent>{visiblePages.map(p => <SelectItem key={p.id} value={p.page_id}>{p.name}</SelectItem>)}</SelectContent>
     </Select>

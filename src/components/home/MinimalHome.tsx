@@ -24,6 +24,7 @@ import { useAppModules } from "@/hooks/useAppModules";
 import { getMenuIcon } from "@/lib/menuIcons";
 import { BOOKING_ENABLED } from "@/config/featureFlags";
 import { buildEmotionNote } from "@/lib/emotionNote";
+import EditableFanText from "@/components/fan/EditableFanText";
 
 type HomeCfg = Record<string, unknown>;
 type SuggestionItem = { image?: string; kicker?: string; title?: string; subtitle?: string; path?: string };
@@ -341,7 +342,7 @@ const MinimalHome = () => {
           )}
         </h1>
         <p className="mt-1.5 text-slate-500 text-base leading-snug">
-          {(greetingCfg.subtitle as string) || "Saúde Mental agora é papo de arquibancada!"}
+          <EditableFanText id="home_greeting_subtitle" fallback={(greetingCfg.subtitle as string) || "Saúde Mental agora é papo de arquibancada!"} />
         </p>
       </section>
 
@@ -408,13 +409,13 @@ const MinimalHome = () => {
             <>
               <div className="flex items-center gap-2 text-[var(--club-600)] text-xs font-semibold">
                 <HeartPulse className="w-4 h-4" />
-                {(checkinCfg.kicker as string) || "Check-in emocional"}
+                <EditableFanText id="home_checkin_kicker" fallback={(checkinCfg.kicker as string) || "Check-in emocional"} />
               </div>
               <h2 className="font-sans mt-1.5 text-xl font-bold normal-case">
-                {(checkinCfg.title as string) || "Como você está hoje?"}
+                <EditableFanText id="home_checkin_title" fallback={(checkinCfg.title as string) || "Como você está hoje?"} />
               </h2>
               <p className="text-sm text-slate-500 mt-1">
-                {(checkinCfg.subtitle as string) || "Cada dia é uma rodada!"}
+                <EditableFanText id="home_checkin_subtitle" fallback={(checkinCfg.subtitle as string) || "Cada dia é uma rodada!"} />
               </p>
 
               <div className="grid grid-cols-5 gap-2 mt-4">
@@ -584,16 +585,16 @@ const MinimalHome = () => {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10.5px] font-semibold text-[var(--club-600)] truncate">{s.kicker}</p>
+                    <p className="text-[10.5px] font-semibold text-[var(--club-600)] truncate"><EditableFanText id={`home_suggestion_${s.path.replace(/[^a-z0-9]/gi, '_')}_kicker`} fallback={s.kicker} /></p>
                     <p
                       className={cn(
                         "font-bold text-slate-900 leading-tight break-words",
                         (s.title?.length ?? 0) > 30 ? "text-[13px]" : "text-[14px]",
                       )}
                     >
-                      {s.title}
+                      <EditableFanText id={`home_suggestion_${s.path.replace(/[^a-z0-9]/gi, '_')}_title`} fallback={s.title} />
                     </p>
-                    <p className="text-sm text-slate-500 leading-snug line-clamp-2">{s.subtitle}</p>
+                    <p className="text-sm text-slate-500 leading-snug line-clamp-2"><EditableFanText id={`home_suggestion_${s.path.replace(/[^a-z0-9]/gi, '_')}_subtitle`} fallback={s.subtitle} /></p>
                   </div>
                   <div className="w-9 h-9 rounded-full border border-slate-200 flex items-center justify-center shrink-0">
                     <ChevronRight className="w-4 h-4 text-[var(--club-600)]" />
@@ -622,7 +623,7 @@ const MinimalHome = () => {
       {isOn("home_shortcuts") && (
         <section>
           <h3 className="font-sans font-bold text-slate-900 mb-2 px-1 normal-case tracking-normal">
-            {(cfgOf("home_shortcuts").title as string) || "Acesso rápido"}
+            <EditableFanText id="home_shortcuts_title" fallback={(cfgOf("home_shortcuts").title as string) || "Acesso rápido"} />
           </h3>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(64px,1fr))] gap-2.5">
             {shortcuts.map((s) => {
@@ -661,7 +662,7 @@ const MinimalHome = () => {
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-[var(--club-600)]" />
                 <h3 className="font-sans font-bold normal-case tracking-normal">
-                  {(journeyCfg.title as string) || "Sua jornada"}
+                  <EditableFanText id="home_journey_title" fallback={(journeyCfg.title as string) || "Sua jornada"} />
                 </h3>
               </div>
               <p className="text-sm text-slate-500 mt-1">
@@ -717,13 +718,13 @@ const MinimalHome = () => {
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold text-slate-900 text-[13px] leading-tight truncate">
-              {(fanbaseCfg.title as string) || "Juntos na arquibancada e na evolução!"}
+              <EditableFanText id="home_fanbase_title" fallback={(fanbaseCfg.title as string) || "Juntos na arquibancada e na evolução!"} />
             </p>
             <p className="text-xs text-slate-600 mt-0.5">
-              {(fanbaseCfg.subtitle as string) || "Veja os torcedores que estão cuidando da mente."}
+              <EditableFanText id="home_fanbase_subtitle" fallback={(fanbaseCfg.subtitle as string) || "Veja os torcedores que estão cuidando da mente."} />
             </p>
             <p className="text-sm font-semibold text-[var(--club-700)] mt-1 inline-flex items-center gap-1">
-              {(fanbaseCfg.cta as string) || "Ver ranking"} <ChevronRight className="w-3.5 h-3.5" />
+              <EditableFanText id="home_fanbase_cta" fallback={(fanbaseCfg.cta as string) || "Ver ranking"} /> <ChevronRight className="w-3.5 h-3.5" />
             </p>
           </div>
         </button>
