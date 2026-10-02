@@ -127,12 +127,6 @@ const DeveloperDashboard = () => {
         
         {/* Right Panel - Module List or Editor */}
         <aside className={`${mobilePanel === "editar" ? "block" : "hidden"} w-full lg:block lg:w-96 bg-card border-l border-border flex-shrink-0 overflow-y-auto`}>
-          {selectedModule ? (
-            <ModuleEditor 
-              module={selectedModule} 
-              onClose={() => setSelectedModule(null)}
-            />
-          ) : (
             <Tabs defaultValue="estrutura" className="w-full">
               <TabsList className="w-full grid grid-cols-4 rounded-none border-b border-border bg-card h-11">
                 <TabsTrigger value="estrutura" className="text-xs">Estrutura</TabsTrigger>
@@ -141,13 +135,14 @@ const DeveloperDashboard = () => {
                 <TabsTrigger value="imagens" className="text-xs">Imagens</TabsTrigger>
               </TabsList>
               <TabsContent value="estrutura" className="m-0">
-                <ModuleList
-                  modules={modules || []}
-                  selectedModuleId={selectedModule?.id}
-                  onSelectModule={handleSelectModule}
-                  currentPage={currentPage}
-                  onPageChange={setCurrentPage}
-                />
+                {selectedModule ? <ModuleEditor module={selectedModule} onClose={() => setSelectedModule(null)} /> :
+                  <ModuleList
+                    modules={modules || []}
+                    selectedModuleId={selectedModule?.id}
+                    onSelectModule={handleSelectModule}
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                  />}
               </TabsContent>
               <TabsContent value="menus" className="m-0 p-4">
                 <MenuEditor />
@@ -159,7 +154,6 @@ const DeveloperDashboard = () => {
                 <ImageManager />
               </TabsContent>
             </Tabs>
-          )}
         </aside>
       </div>
 
