@@ -15,6 +15,17 @@ import { fanCopyKey, fanStyleKey, type FanTextStyle } from "@/components/fan/Edi
 
 type Entry = { id: string; page: string; text: string; section: string; tag: string };
 type Draft = { value: string; style: FanTextStyle };
+const homeFields: Entry[] = [
+  ["home_greeting_subtitle", "Saúde Mental agora é papo de arquibancada!", "Saudação"],
+  ["home_checkin_kicker", "Check-in emocional", "Como você está hoje?"],
+  ["home_checkin_title", "Como você está hoje?", "Como você está hoje?"],
+  ["home_checkin_subtitle", "Cada dia é uma rodada!", "Como você está hoje?"],
+  ["home_shortcuts_title", "Acesso rápido", "Atalhos"],
+  ["home_journey_title", "Sua jornada", "Jornada"],
+  ["home_fanbase_title", "Juntos na arquibancada e na evolução!", "Torcida"],
+  ["home_fanbase_subtitle", "Veja os torcedores que estão cuidando da mente.", "Torcida"],
+  ["home_fanbase_cta", "Ver ranking", "Torcida"],
+].map(([id, text, section]) => ({ id, page: "home", text, section, tag: "texto" }));
 const paths: Record<string, string> = {
   home: "/", terapeutas: "/terapeutas", cursos: "/cursos", quiz: "/quiz", radio: "/radio",
   futebol: "/futebol", comunidade: "/comunidade", ranking: "/comunidade", diario: "/diario",
@@ -42,7 +53,7 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
   ), [pages]);
   const active = visiblePages.find(p => p.page_id === page) || visiblePages[0];
   const actualPage = active?.page_id === "ranking" ? "comunidade" : active?.page_id;
-  const entries = useMemo(() => (catalog as Entry[]).filter(item => item.page === actualPage &&
+  const entries = useMemo(() => [...homeFields, ...(catalog as Entry[])].filter(item => item.page === actualPage &&
     (!search || `${item.text} ${item.section}`.toLocaleLowerCase("pt-BR").includes(search.toLocaleLowerCase("pt-BR")))
   ), [actualPage, search]);
   const grouping = useMemo(() => Object.entries(entries.reduce<Record<string, Entry[]>>((acc, item) => {
@@ -67,7 +78,7 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
         if (error) throw error;
       } else {
         const rows = [
-          { key: fanCopyKey(entry.id), value: draft.value, type: "text", category: "fan_copy", description: `${entry.page}: ${entry.text}` },
+          { key: fanCopyKey(entry.id), value: draft.value.trim(), type: "text", category: "fan_copy", description: `${entry.page}: ${entry.text}` },
           { key: fanStyleKey(entry.id), value: JSON.stringify(draft.style), type: "text", category: "fan_style", description: `${entry.page}: apresentação de ${entry.text}` },
         ];
         const { error } = await supabase.from("app_content").upsert(rows, { onConflict: "key" });

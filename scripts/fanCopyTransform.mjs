@@ -2,7 +2,7 @@ import { parse } from '@babel/parser';
 import traverseModule from '@babel/traverse';
 import MagicString from 'magic-string';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
 
 const traverse = traverseModule.default || traverseModule;
@@ -68,7 +68,7 @@ export function analyzeFanCopy(code, filename, transform = false) {
     },
   });
   if (magic && items.length) {
-    magic.prepend('import EditableFanText from "@/components/fan/EditableFanText";\n');
+    if (!code.includes('import EditableFanText from "@/components/fan/EditableFanText"')) magic.prepend('import EditableFanText from "@/components/fan/EditableFanText";\n');
     return { code: magic.toString(), map: magic.generateMap({ hires: true }) };
   }
   return transform ? null : items;

@@ -7,7 +7,6 @@ import MobilePreview from "@/components/studio/MobilePreview";
 import ModuleList from "@/components/studio/ModuleList";
 import ModuleEditor from "@/components/studio/ModuleEditor";
 import MenuEditor from "@/components/developer/MenuEditor";
-import ContentEditor from "@/components/developer/ContentEditor";
 import FanTextEditor from "@/components/developer/FanTextEditor";
 import ImageManager from "@/components/developer/ImageManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
