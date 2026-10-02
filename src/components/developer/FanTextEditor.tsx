@@ -107,7 +107,6 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
               const Icon = [AlignLeft, AlignCenter, AlignRight][i];
               return <Button key={align} variant={draft.style.align === align ? "default" : "outline"} size="icon" className="h-9 w-9" onClick={() => updateStyle({align})} title={align === "left" ? "Esquerda" : align === "center" ? "Centro" : "Direita"}><Icon className="h-4 w-4" /></Button>;
             })}</div></div>
-          </div>
           <div className="grid grid-cols-2 gap-2">
             <div><Label htmlFor={`x-${entry.id}`}>Horizontal (px)</Label><Input id={`x-${entry.id}`} type="number" min={-24} max={24} value={draft.style.offsetX ?? 0} onChange={e => updateStyle({offsetX: Math.max(-24, Math.min(24, Number(e.target.value)))})} /></div>
             <div><Label htmlFor={`y-${entry.id}`}>Vertical (px)</Label><Input id={`y-${entry.id}`} type="number" min={-24} max={24} value={draft.style.offsetY ?? 0} onChange={e => updateStyle({offsetY: Math.max(-24, Math.min(24, Number(e.target.value)))})} /></div>

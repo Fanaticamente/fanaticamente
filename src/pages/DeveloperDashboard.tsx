@@ -8,6 +8,7 @@ import ModuleList from "@/components/studio/ModuleList";
 import ModuleEditor from "@/components/studio/ModuleEditor";
 import MenuEditor from "@/components/developer/MenuEditor";
 import ContentEditor from "@/components/developer/ContentEditor";
+import FanTextEditor from "@/components/developer/FanTextEditor";
 import ImageManager from "@/components/developer/ImageManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Smartphone, Loader2, ArrowLeft, LayoutGrid, Eye, SlidersHorizontal } from "lucide-react";
@@ -153,7 +154,7 @@ const DeveloperDashboard = () => {
                 <MenuEditor />
               </TabsContent>
               <TabsContent value="conteudos" className="m-0 p-4">
-                <ContentEditor />
+                <FanTextEditor onSelectPage={setPreviewRoute} />
               </TabsContent>
               <TabsContent value="imagens" className="m-0 p-4">
                 <ImageManager />
