@@ -75,21 +75,21 @@ const VacancyCard = ({ index, clubColor, clubName }: VacancyCardProps) => {
               <div className="flex items-center gap-1.5">
                 <Star className="w-4 h-4" style={{ color: clubColor, fill: clubColor }} />
                 <div className="leading-tight">
-                  <div className="text-[11px] font-bold text-gray-800">-- anos</div>
-                  <div className="text-[9px] text-gray-500">de experiência</div>
+                  <div className="text-xs font-bold text-gray-800">-- anos</div>
+                  <div className="text-[11px] text-gray-500">de experiência</div>
                 </div>
               </div>
               <div className="w-px h-7 bg-gray-200" />
               <div className="flex items-center gap-1.5 min-w-0">
                 <Shirt className="w-4 h-4 flex-shrink-0" style={{ color: clubColor }} strokeWidth={2} />
                 <div className="leading-tight min-w-0">
-                  <div className="text-[11px] font-bold text-gray-800 truncate">Torcedor(a)</div>
-                  <div className="text-[9px] text-gray-500 truncate max-w-[90px]">{clubName}</div>
+                  <div className="text-xs font-bold text-gray-800 truncate">Torcedor(a)</div>
+                  <div className="text-[11px] text-gray-500 truncate max-w-[90px]">{clubName}</div>
                 </div>
               </div>
             </div>
 
-            <p className="mt-2.5 text-[11px] text-gray-600 leading-snug">
+            <p className="mt-2.5 text-xs text-gray-600 leading-snug line-clamp-3">
               Vaga aberta para profissionais que desejam atender a torcida do{" "}
               <span className="font-semibold" style={{ color: clubColor }}>{clubName}</span>.
             </p>

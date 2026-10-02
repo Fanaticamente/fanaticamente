@@ -30,3 +30,5 @@
 ## Navegação e seleção de clubes
 - [x] Abrir todas as páginas sempre no topo, sem restaurar a rolagem anterior.
 - [x] Exibir a grade de clubes somente após aplicar a prioridade por profissionais e a ordem alfabética.
+- [x] Exibir imediatamente os ícones e nomes dos clubes, sem cartões provisórios nem reorganização visível.
+- [x] Aumentar discretamente subtítulos e textos secundários em todo o aplicativo, preservando os cartões responsivos.

@@ -77,6 +77,28 @@ type League = "serie_a" | "serie_b" | "serie_c";
 
 const THERAPISTS_SELECTED_CLUB_KEY = "fanatica_therapists_selected_club";
 const THERAPIST_CLUB_PREFIX = "fanatica_therapist_club:";
+const CLUBS_WITH_PROFESSIONALS_CACHE_KEY = "fanatica_clubs_with_professionals";
+const INITIAL_CLUBS_WITH_PROFESSIONALS = [
+  "cruzeiro",
+  "flamengo",
+  "gremio",
+  "internacional",
+  "palmeiras",
+  "santos",
+];
+
+const readClubsWithProfessionalsCache = () => {
+  try {
+    const cached = localStorage.getItem(CLUBS_WITH_PROFESSIONALS_CACHE_KEY);
+    if (!cached) return new Set(INITIAL_CLUBS_WITH_PROFESSIONALS);
+    const ids = JSON.parse(cached);
+    return Array.isArray(ids)
+      ? new Set(ids.filter((id): id is string => typeof id === "string"))
+      : new Set(INITIAL_CLUBS_WITH_PROFESSIONALS);
+  } catch {
+    return new Set(INITIAL_CLUBS_WITH_PROFESSIONALS);
+  }
+};
 
 const leagueLabels: Record<League, string> = {
   serie_a: "Série A",
@@ -100,7 +122,7 @@ const Terapeutas = () => {
   const hiddenBadges = (moduleConfig?.config?.hidden_badges as string[]) || [];
   const clubDisplayMode = ((moduleConfig?.config?.club_display_mode as string) || "badge") as "badge" | "flag";
   
-  const [clubsWithProfessionals, setClubsWithProfessionals] = useState<Set<string> | null>(null);
+  const [clubsWithProfessionals] = useState<Set<string>>(readClubsWithProfessionalsCache);
 
   // Prevent white overscroll gap at the top by tinting <html> with the club color
   // while the therapist listing (club-themed hero) is visible.
@@ -125,24 +147,24 @@ const Terapeutas = () => {
         .eq('approval_status', 'approved')
         .not('favorite_club_id', 'is', null);
 
-      if (profError || !professionals?.length) {
-        setClubsWithProfessionals(new Set());
-        return;
-      }
+      if (profError) return;
 
       const clubIds = new Set(
-        professionals
+        (professionals ?? [])
           .map(p => p.favorite_club_id)
           .filter((id): id is string => Boolean(id))
       );
-      setClubsWithProfessionals(clubIds);
+      try {
+        localStorage.setItem(CLUBS_WITH_PROFESSIONALS_CACHE_KEY, JSON.stringify([...clubIds]));
+      } catch {
+        // The current stable ordering remains available when storage is blocked.
+      }
     };
 
     fetchClubsWithProfessionals();
   }, []);
 
   const clubs = useMemo(() => {
-    if (clubsWithProfessionals === null) return [];
     const leagueClubs = getClubsByLeague(selectedLeague);
     return [...leagueClubs].sort((a, b) => {
       const aHasProfessionals = clubsWithProfessionals.has(a.id) ? 1 : 0;
@@ -332,7 +354,7 @@ const Terapeutas = () => {
                 <h1 className="font-display text-[clamp(1.05rem,5.2vw,1.6rem)] font-bold text-white leading-none uppercase whitespace-nowrap tracking-tight">
                   {selectedClub.name}
                 </h1>
-                <p className="mt-1.5 text-white/85 text-sm">Especialistas para a torcida</p>
+                <p className="mt-1.5 text-white/85 text-[15px] leading-snug">Especialistas para a torcida</p>
               </div>
             </div>
           </div>
@@ -348,7 +370,7 @@ const Terapeutas = () => {
                 <h1 className="font-sans font-bold text-[28px] leading-tight text-gray-900 normal-case">
                   Selecione <span className="text-[var(--club-600)]">seu time</span>
                 </h1>
-                <p className="mt-1 text-gray-500 text-[15px]">
+                <p className="mt-1 text-gray-500 text-base leading-snug">
                   Escolha o time do coração
                 </p>
               </div>
@@ -376,20 +398,7 @@ const Terapeutas = () => {
             </div>
 
             {/* Clubs Grid */}
-            {clubsWithProfessionals === null ? (
-              <div className="grid grid-cols-3 gap-3" aria-label="Organizando clubes">
-                {Array.from({ length: 12 }, (_, index) => (
-                  <div
-                    key={index}
-                    className="h-[132px] rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
-                  >
-                    <div className="mx-auto mb-3 h-16 w-16 animate-pulse rounded-full bg-muted" />
-                    <div className="mx-auto h-4 w-4/5 animate-pulse rounded bg-muted" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-3">
                 {clubs.map((club) => {
                 const isSelected = selectedClub?.id === club.id;
                 return (
@@ -416,8 +425,7 @@ const Terapeutas = () => {
                   </button>
                 );
                 })}
-              </div>
-            )}
+            </div>
           </div>
         )}
 
@@ -426,7 +434,7 @@ const Terapeutas = () => {
             <h2 className="font-sans font-bold text-2xl text-gray-900">
               Terapeutas Disponíveis
             </h2>
-            <p className="text-sm text-gray-500 mb-5">
+            <p className="text-[15px] leading-snug text-gray-500 mb-5">
               Encontre o profissional ideal para você.
             </p>
 

@@ -271,7 +271,7 @@ const NextMatchBar = () => {
               className="w-12 h-9 rounded-lg object-cover shrink-0"
             />
           )}
-          <span className="flex-1 min-w-0 text-[11px] font-semibold text-gray-700 leading-tight line-clamp-2">
+          <span className="flex-1 min-w-0 text-[13px] font-semibold text-gray-700 leading-snug line-clamp-2">
             {generalNews![newsIdx % newsCount].rewritten_title}
           </span>
           {newsCount > 1 && (
