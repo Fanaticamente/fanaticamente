@@ -171,7 +171,7 @@ const FanTextEditor = ({ onSelectPage }: { onSelectPage?: (path: string) => void
     {!isLoading && visiblePages.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma página ativa do torcedor encontrada.</p>}
     {preview && createPortal(<div role="dialog" aria-modal="true" aria-label="Visualização do texto" className="fixed inset-0 z-[100] bg-background text-foreground flex flex-col">
       <div className="shrink-0 flex items-center justify-between px-4 h-14 border-b border-border bg-card"><span className="font-semibold">Visualização</span><Button type="button" variant="ghost" size="icon" onClick={() => setPreview(false)} aria-label="Fechar visualização" title="Fechar visualização"><X className="h-5 w-5" /></Button></div>
-      <iframe key={`${selected}-${preview}`} src={previewUrl} title="Visualização da página com o texto em edição" className="w-full flex-1 min-h-0 border-0 bg-background" />
+      <div className="flex-1 min-h-0 w-full flex justify-center bg-muted/30"><iframe key={`${selected}-${preview}`} src={previewUrl} title="Visualização da página com o texto em edição" className="w-full max-w-[428px] h-full border-0 bg-background" /></div>
     </div>, document.body)}
   </div>;
 };
