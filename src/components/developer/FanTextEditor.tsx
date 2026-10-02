@@ -36,7 +36,7 @@ const defaultSuggestions = [
   { path: "/comunidade?openClubs=1", kicker: "Comunidade", title: "Brasileirão da Saúde Mental", subtitle: "Veja como estão os clubes e torcida" },
 ];
 const paths: Record<string, string> = {
-  home: "/", terapeutas: "/terapeutas", cursos: "/cursos", quiz: "/quiz", radio: "/radio",
+  home: "/", terapeutas: "/terapeutas", cursos: "/cursos", "meus-cursos": "/meus-cursos", quiz: "/quiz", radio: "/radio",
   futebol: "/futebol", comunidade: "/comunidade", ranking: "/comunidade", diario: "/diario",
   "bem-estar": "/bem-estar", "minha-temporada": "/minha-temporada", "setor-saude": "/setor-saude",
   osmf: "/osmf", "zona-mista": "/zona-mista", loja: "/loja", "fanaticaze-tv": "/fanaticaze-tv",

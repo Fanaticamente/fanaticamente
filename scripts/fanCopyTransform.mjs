@@ -13,7 +13,7 @@ const pageFiles = {
   'pages/Terapeutas.tsx': 'terapeutas', 'components/terapeutas/TherapistCard.tsx': 'terapeutas',
   'components/terapeutas/VacancyCard.tsx': 'terapeutas', 'components/terapeutas/BookingDrawer.tsx': 'terapeutas',
   'pages/AgendarSessao.tsx': 'terapeutas',
-  'pages/Cursos.tsx': 'cursos', 'pages/CursoDetalhe.tsx': 'cursos', 'pages/MeusCursos.tsx': 'cursos',
+  'pages/Cursos.tsx': 'cursos', 'pages/CursoDetalhe.tsx': 'cursos', 'pages/MeusCursos.tsx': 'meus-cursos',
   'pages/Quiz.tsx': 'quiz', 'pages/Radio.tsx': 'radio', 'pages/RadioStation.tsx': 'radio',
   'pages/Futebol.tsx': 'futebol', 'components/futebol/BrasileiraoTable.tsx': 'futebol',
   'pages/Comunidade.tsx': 'comunidade', 'pages/Diario.tsx': 'diario',
