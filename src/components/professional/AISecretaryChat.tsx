@@ -16,7 +16,8 @@ interface AISecretaryChatProps {
   professionalId: string;
 }
 
-const getStorageKey = (professionalId: string) => `assistant-chat-${professionalId}`;
+// "v2" invalida caches antigos cuja saudação ainda falava de agendamentos/avaliações
+const getStorageKey = (professionalId: string) => `assistant-chat-v2-${professionalId}`;
 
 const getTodayDateStr = () => new Date().toISOString().split("T")[0];
 
