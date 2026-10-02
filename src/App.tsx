@@ -28,6 +28,7 @@ import { ClubThemeProvider } from "@/contexts/ClubThemeContext";
 import ProtectedRoute, { DynamicProtectedRoute } from "@/components/ProtectedRoute";
 import { ROUTE_BASENAME, isProfessionalApp } from "@/lib/appMode";
 import GlobalRadioPlayer from "@/components/radio/GlobalRadioPlayer";
+import ScrollToTop from "@/components/navigation/ScrollToTop";
 
 import { useRealtimeSubscriptions } from "@/hooks/useRealtimeSubscriptions";
 import { useGlobalSessionCompletion } from "@/hooks/useGlobalSessionCompletion";
@@ -174,6 +175,7 @@ const App = () => {
           <ClubThemeProvider>
           <RadioProvider>
           <BrowserRouter basename={ROUTE_BASENAME || undefined}>
+            <ScrollToTop />
             <Toaster />
             <Sonner />
             <GlobalRadioPlayer />
@@ -215,6 +217,7 @@ const App = () => {
           <ClubThemeProvider>
           <RadioProvider>
           <BrowserRouter basename={ROUTE_BASENAME || undefined}>
+            <ScrollToTop />
             <AppProviders>
               <Toaster />
               <Sonner />

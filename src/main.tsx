@@ -25,4 +25,9 @@ if (!IS_PREVIEW_FRAME && "serviceWorker" in navigator) {
     });
 }
 
+// The app owns route scrolling so browsers never restore a previous page offset.
+if ("scrollRestoration" in window.history) {
+  window.history.scrollRestoration = "manual";
+}
+
 createRoot(document.getElementById("root")!).render(<App />);
