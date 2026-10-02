@@ -38,4 +38,4 @@
 - [x] Permitir edição, tamanho, alinhamento, ajuste horizontal/vertical e restauração do padrão.
 - [x] Incluir títulos e subtítulos configuráveis da página inicial, inclusive "Como você está hoje?".
 - [x] Associar a página selecionada à prévia mobile e manter as alterações no conteúdo do aplicativo.
-- [ ] Conferir a edição autenticada no navegador; a sessão de teste redirecionou do gerenciador para a página inicial.
+- [ ] Conferir o salvamento autenticado no navegador; bloqueado porque a conta de teste disponível tem somente papel de torcedor. O menu e os controles foram verificados em computador e celular com permissão simulada, sem alterar dados reais.
