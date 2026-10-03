@@ -32,6 +32,7 @@
 - [x] Exibir a grade de clubes somente após aplicar a prioridade por profissionais e a ordem alfabética.
 - [x] Exibir imediatamente os ícones e nomes dos clubes, sem cartões provisórios nem reorganização visível.
 - [x] Aumentar discretamente subtítulos e textos secundários em todo o aplicativo, preservando os cartões responsivos.
+- [x] Reduzir o espaço entre o menu do topo e a saudação da home, contando a área segura do iPhone uma única vez (12px abaixo do menu em qualquer aparelho).
 
 ## Textos do gerenciador mobile
 - [x] Listar somente páginas mobile visíveis e organizar seus textos fixos por seção.
