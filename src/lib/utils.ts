@@ -20,6 +20,7 @@ export function formatTimeAgo(date: Date | string | number): string {
     locale: ptBR,
   })
     .replace(/^cerca de /, "há ")
-    .replace(/cerca de /g, "");
+    .replace(/cerca de /g, "")
+    .replace(/minutos?/g, "min");
 }
 

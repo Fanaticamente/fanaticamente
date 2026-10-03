@@ -120,9 +120,9 @@ const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
                 {contentPreview}
               </p>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-gray-500 text-sm">
+                <div className="flex items-center gap-3 text-gray-500 text-sm min-w-0">
                   <span className="font-medium" style={{ color: accentColor || 'hsl(var(--primary))' }}>Fanaticamente</span>
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1 text-xs whitespace-nowrap">
                     <Clock className="w-3 h-3" />
                     {timeAgo}
                   </span>
@@ -168,7 +168,7 @@ const NewsCard = ({ news, isFeatured = false, accentColor }: NewsCardProps) => {
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <span className="px-2 py-0.5 bg-gray-100 rounded">{news.category}</span>
             <span className="font-medium" style={{ color: accentColor || 'hsl(var(--primary))' }}>Fanaticamente</span>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 text-[11px] whitespace-nowrap">
               <Clock className="w-3 h-3" />
               {timeAgo}
             </span>
