@@ -292,7 +292,7 @@ const FeaturedHero = ({ item }: { item: NonNullable<ReturnType<typeof useFootbal
       </span>
       <div className="relative px-4 pt-24 pb-3">
         <h3 className="text-white text-lg font-bold leading-tight mb-1 [text-wrap:balance]">{title}</h3>
-        <div className="flex items-center gap-2 text-white/80 text-xs">
+        <div className="flex items-center gap-2 text-white/80 text-xs whitespace-nowrap">
           <Clock className="w-3 h-3" />
           <span>{timeAgo}</span>
         </div>
