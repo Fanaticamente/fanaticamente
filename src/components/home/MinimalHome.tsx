@@ -330,7 +330,7 @@ const MinimalHome = () => {
   return (
     <div className="font-sans text-slate-900 space-y-5 pb-4">
       {/* Greeting */}
-      <section className="pt-[1cm]">
+      <section className="pt-[46px]">
         <h1 className="font-sans text-2xl font-extrabold tracking-tight leading-none normal-case flex items-center gap-1 whitespace-nowrap min-h-[1.5rem]">
           {firstName ? (
             <>
