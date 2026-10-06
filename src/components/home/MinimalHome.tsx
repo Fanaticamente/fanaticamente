@@ -470,7 +470,7 @@ const MinimalHome = () => {
               >
                 <ChevronRight className="w-6 h-6 rotate-180 text-white" />
               </button>
-              <h2 className="font-sans text-lg font-bold normal-case flex-1">De onde vem este sentimento?</h2>
+              <h2 className="font-sans text-lg font-bold normal-case flex-1">Quais destes setores podem ter influenciado sua resposta?</h2>
             </div>
 
             <div className={cn("flex-1 overflow-y-auto px-4 pt-4", reasons.length > 0 ? "pb-72" : "pb-32")}>
