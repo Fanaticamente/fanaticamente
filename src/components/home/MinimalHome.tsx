@@ -456,7 +456,7 @@ const MinimalHome = () => {
             style={{ height: "100dvh", width: "100vw", top: 0, left: 0 }}
           >
             <div
-              className="flex items-center gap-3 px-4 pb-3 bg-[var(--club-600)]"
+              className="grid grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] items-center gap-3 px-4 pb-3 bg-[var(--club-600)]"
               style={{ paddingTop: "calc(env(safe-area-inset-top) + 12px)" }}
             >
               <button
@@ -466,11 +466,11 @@ const MinimalHome = () => {
                   setSelected(null);
                   setReasons([]);
                 }}
-                className="w-10 h-10 flex items-center justify-center -ml-2"
+                className="w-10 h-10 flex items-center justify-center"
               >
                 <ChevronRight className="w-6 h-6 rotate-180 text-white" />
               </button>
-              <h2 className="font-sans text-lg font-bold normal-case flex-1 text-center">Quais destes setores podem ter influenciado sua resposta?</h2>
+              <h2 className="font-sans text-lg font-bold normal-case min-w-0 text-center">Quais destes setores podem ter influenciado sua resposta?</h2>
               <div aria-hidden className="w-10 shrink-0" />
             </div>
 
