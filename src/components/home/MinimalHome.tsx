@@ -33,8 +33,8 @@ const MOODS: { id: string; emoji: string; label: string }[] = [
   { id: "muito_bem", emoji: "😄", label: "Muito bem" },
   { id: "mais_ou_menos", emoji: "🙂", label: "Bem" },
   { id: "nao_legal", emoji: "😐", label: "Neutro" },
-  { id: "ansioso", emoji: "😟", label: "Mal" },
-  { id: "irritado", emoji: "😠", label: "Muito mal" },
+  { id: "ansioso", emoji: "☹️", label: "Mal" },
+  { id: "irritado", emoji: "😣", label: "Muito mal" },
 ];
 
 const REASON_GROUPS_BASE: { title: string; items: string[] }[] = [

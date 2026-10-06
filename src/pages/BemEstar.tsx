@@ -39,8 +39,8 @@ const MOOD_EMOJIS: Record<MoodVariant, string> = {
   happy: "😄",
   calm: "🙂",
   meh: "😐",
-  worried: "😟",
-  sad: "😠",
+  worried: "☹️",
+  sad: "😣",
 };
 
 // Small donut showing distribution of emotions in the selected range,

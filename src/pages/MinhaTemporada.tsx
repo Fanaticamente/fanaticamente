@@ -25,8 +25,8 @@ const MOODS = [
   { id: "muito_bem", emoji: "😄", label: "Muito bem", score: 100 },
   { id: "mais_ou_menos", emoji: "🙂", label: "Bem", score: 75 },
   { id: "nao_legal", emoji: "😐", label: "Neutro", score: 50 },
-  { id: "ansioso", emoji: "😟", label: "Mal", score: 30 },
-  { id: "irritado", emoji: "😠", label: "Muito mal", score: 15 },
+  { id: "ansioso", emoji: "☹️", label: "Mal", score: 30 },
+  { id: "irritado", emoji: "😣", label: "Muito mal", score: 15 },
 ];
 
 const scoreOf = (emotion: string) => MOODS.find((m) => m.id === emotion)?.score ?? 50;
