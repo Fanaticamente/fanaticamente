@@ -397,12 +397,12 @@ const BemEstar = () => {
 
   const emotionLabels: Record<string, string> = {
     muito_bem: "Muito bem",
-    mais_ou_menos: "Mais ou menos",
-    nao_legal: "Não estou legal",
-    ansioso: "Ansioso",
-    irritado: "Irritado",
+    mais_ou_menos: "Bem",
+    nao_legal: "Neutro",
+    ansioso: "Mal",
+    irritado: "Muito mal",
     // Legacy
-    otimo: "Muito bem", bem: "Mais ou menos", neutro: "Não estou legal", mal: "Irritado",
+    otimo: "Muito bem", bem: "Bem", neutro: "Neutro", mal: "Muito mal",
   };
 
   // ---- Balance donut (top-right of the card) ----
