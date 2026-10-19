@@ -45,5 +45,6 @@
 ## Diário emocional
 - [x] Fazer o cabeçalho da tela de setores subir junto com o conteúdo ao rolar, sem ficar fixo.
 - [x] Incluir Euforia na primeira coluna das emoções e remover o lápis do botão Outra.
+- [x] Acrescentar "Fase do time" às opções de Meu Clube em todas as emoções, de Muito bem a Muito mal.
 
 
