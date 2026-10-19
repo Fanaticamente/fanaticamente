@@ -520,7 +520,7 @@ const MinimalHome = () => {
                     setReasonOpen(false);
                     setSelected(null);
                     setReasons([]);
-                    setFeelings([]);
+                    setFeelings([]); setObservation("");
                     setOtherFeeling("");
                   }}
                   className="w-10 h-10 flex items-center justify-center"
