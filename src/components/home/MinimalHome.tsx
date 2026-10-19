@@ -90,6 +90,53 @@ const getReasonGroups = (moodId: string | null) => {
   return [{ title: "Meu Clube", items: meuClubeItems }, ...REASON_GROUPS_BASE];
 };
 
+const FEELINGS_COL1 = [
+  { label: "Alegria", emoji: "😄" },
+  { label: "Gratidão", emoji: "🙏" },
+  { label: "Orgulho", emoji: "😌" },
+  { label: "Esperança", emoji: "✨" },
+  { label: "Alívio", emoji: "😮‍💨" },
+];
+
+const FEELINGS_COL2 = [
+  { label: "Tristeza", emoji: "😢" },
+  { label: "Raiva", emoji: "😠" },
+  { label: "Medo", emoji: "😨" },
+  { label: "Ansiedade", emoji: "😰" },
+  { label: "Frustração", emoji: "😤" },
+  { label: "Vergonha", emoji: "😳" },
+];
+
+const FeelingChip = ({
+  emoji,
+  label,
+  active,
+  onToggle,
+  full,
+}: {
+  emoji: string;
+  label: string;
+  active: boolean;
+  onToggle: () => void;
+  full?: boolean;
+}) => (
+  <button
+    onClick={onToggle}
+    className={cn(
+      "flex items-center rounded-full border text-sm font-medium transition",
+      full ? "w-full justify-center px-4 py-2.5" : "w-full justify-start px-3.5 py-2.5",
+      active
+        ? "bg-white text-[var(--club-700)] border-white"
+        : "border-white/80 text-white hover:bg-white/10",
+    )}
+  >
+    <span aria-hidden className="text-base leading-none shrink-0">
+      {emoji}
+    </span>
+    <span className="truncate">{label}</span>
+  </button>
+);
+
 const SUGGESTIONS = [
   {
     img: icCampo.url,
@@ -178,6 +225,8 @@ const MinimalHome = () => {
   const [reasonOpen, setReasonOpen] = useState(false);
   const [reasons, setReasons] = useState<string[]>([]);
   const [observation, setObservation] = useState("");
+  const [feelings, setFeelings] = useState<string[]>([]);
+  const [otherFeeling, setOtherFeeling] = useState("");
   const [sugIdx, setSugIdx] = useState(0);
   const touchStartX = useRef<number | null>(null);
   const touchDX = useRef(0);
