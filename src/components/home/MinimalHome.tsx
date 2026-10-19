@@ -96,7 +96,9 @@ const FEELINGS_COL1 = [
   { label: "Orgulho", emoji: "😌" },
   { label: "Esperança", emoji: "✨" },
   { label: "Alívio", emoji: "😮‍💨" },
+  { label: "Euforia", emoji: "🤩" },
 ];
+
 
 const FEELINGS_COL2 = [
   { label: "Tristeza", emoji: "😢" },
@@ -114,7 +116,7 @@ const FeelingChip = ({
   onToggle,
   full,
 }: {
-  emoji: string;
+  emoji?: string;
   label: string;
   active: boolean;
   onToggle: () => void;
@@ -130,12 +132,15 @@ const FeelingChip = ({
         : "border-white/80 text-white hover:bg-white/10",
     )}
   >
-    <span aria-hidden className="text-base leading-none shrink-0">
-      {emoji}
-    </span>
+    {emoji ? (
+      <span aria-hidden className="text-base leading-none shrink-0">
+        {emoji}
+      </span>
+    ) : null}
     <span className="truncate">{label}</span>
   </button>
 );
+
 
 const SUGGESTIONS = [
   {
@@ -504,30 +509,30 @@ const MinimalHome = () => {
             className="fixed inset-0 z-[9999] flex flex-col text-white bg-[var(--club-600)] overflow-hidden"
             style={{ height: "100dvh", width: "100vw", top: 0, left: 0 }}
           >
-            <div
-              className="grid grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] items-center gap-3 px-4 pb-3 bg-[var(--club-600)]"
-              style={{ paddingTop: "calc(env(safe-area-inset-top) + 12px)" }}
-            >
-              <button
-                aria-label="Voltar"
-                onClick={() => {
-                  setReasonOpen(false);
-                  setSelected(null);
-                  setReasons([]);
-                  setFeelings([]);
-                  setOtherFeeling("");
-                }}
-                className="w-10 h-10 flex items-center justify-center"
+            <div className={cn("flex-1 overflow-y-auto px-4", reasons.length > 0 ? "pb-48" : "pb-32")}>
+              <div
+                className="grid grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] items-center gap-3 pb-3 bg-[var(--club-600)]"
+                style={{ paddingTop: "calc(env(safe-area-inset-top) + 12px)" }}
               >
-                <ChevronRight className="w-6 h-6 rotate-180 text-white" />
-              </button>
-              <h2 className="font-sans text-lg font-bold normal-case min-w-0 text-center">Quais destes setores podem ter influenciado sua resposta?</h2>
-              <div aria-hidden className="w-10 shrink-0" />
-            </div>
-
-            <div className={cn("flex-1 overflow-y-auto px-4 pt-4", reasons.length > 0 ? "pb-48" : "pb-32")}>
+                <button
+                  aria-label="Voltar"
+                  onClick={() => {
+                    setReasonOpen(false);
+                    setSelected(null);
+                    setReasons([]);
+                    setFeelings([]);
+                    setOtherFeeling("");
+                  }}
+                  className="w-10 h-10 flex items-center justify-center"
+                >
+                  <ChevronRight className="w-6 h-6 rotate-180 text-white" />
+                </button>
+                <h2 className="font-sans text-lg font-bold normal-case min-w-0 text-center">Quais destes setores podem ter influenciado sua resposta?</h2>
+                <div aria-hidden className="w-10 shrink-0" />
+              </div>
               {getReasonGroups(selected).map((g) => (
-                <div key={g.title} className="mt-4 first:mt-0">
+
+                <div key={g.title} className="mt-4">
                   <h3 className="text-center font-sans font-bold text-white/85 normal-case mb-3">{g.title}</h3>
                   <div className="flex flex-wrap justify-center gap-2">
                     {g.items.map((r) => {
@@ -583,7 +588,6 @@ const MinimalHome = () => {
                   </div>
                   <div className="mt-2">
                     <FeelingChip
-                      emoji="✏️"
                       label="Outra"
                       active={feelings.includes("Outra")}
                       onToggle={() => setFeelings((prev) => (prev.includes("Outra") ? prev.filter((x) => x !== "Outra") : [...prev, "Outra"]))}
