@@ -90,6 +90,53 @@ const getReasonGroups = (moodId: string | null) => {
   return [{ title: "Meu Clube", items: meuClubeItems }, ...REASON_GROUPS_BASE];
 };
 
+const FEELINGS_COL1 = [
+  { label: "Alegria", emoji: "😄" },
+  { label: "Gratidão", emoji: "🙏" },
+  { label: "Orgulho", emoji: "😌" },
+  { label: "Esperança", emoji: "✨" },
+  { label: "Alívio", emoji: "😮‍💨" },
+];
+
+const FEELINGS_COL2 = [
+  { label: "Tristeza", emoji: "😢" },
+  { label: "Raiva", emoji: "😠" },
+  { label: "Medo", emoji: "😨" },
+  { label: "Ansiedade", emoji: "😰" },
+  { label: "Frustração", emoji: "😤" },
+  { label: "Vergonha", emoji: "😳" },
+];
+
+const FeelingChip = ({
+  emoji,
+  label,
+  active,
+  onToggle,
+  full,
+}: {
+  emoji: string;
+  label: string;
+  active: boolean;
+  onToggle: () => void;
+  full?: boolean;
+}) => (
+  <button
+    onClick={onToggle}
+    className={cn(
+      "flex items-center rounded-full border text-sm font-medium transition",
+      full ? "w-full justify-center px-4 py-2.5" : "w-full justify-start px-3.5 py-2.5",
+      active
+        ? "bg-white text-[var(--club-700)] border-white"
+        : "border-white/80 text-white hover:bg-white/10",
+    )}
+  >
+    <span aria-hidden className="text-base leading-none shrink-0">
+      {emoji}
+    </span>
+    <span className="truncate">{label}</span>
+  </button>
+);
+
 const SUGGESTIONS = [
   {
     img: icCampo.url,
@@ -178,6 +225,8 @@ const MinimalHome = () => {
   const [reasonOpen, setReasonOpen] = useState(false);
   const [reasons, setReasons] = useState<string[]>([]);
   const [observation, setObservation] = useState("");
+  const [feelings, setFeelings] = useState<string[]>([]);
+  const [otherFeeling, setOtherFeeling] = useState("");
   const [sugIdx, setSugIdx] = useState(0);
   const touchStartX = useRef<number | null>(null);
   const touchDX = useRef(0);
@@ -465,6 +514,8 @@ const MinimalHome = () => {
                   setReasonOpen(false);
                   setSelected(null);
                   setReasons([]);
+                  setFeelings([]);
+                  setOtherFeeling("");
                 }}
                 className="w-10 h-10 flex items-center justify-center"
               >
@@ -474,7 +525,7 @@ const MinimalHome = () => {
               <div aria-hidden className="w-10 shrink-0" />
             </div>
 
-            <div className={cn("flex-1 overflow-y-auto px-4 pt-4", reasons.length > 0 ? "pb-72" : "pb-32")}>
+            <div className={cn("flex-1 overflow-y-auto px-4 pt-4", reasons.length > 0 ? "pb-48" : "pb-32")}>
               {getReasonGroups(selected).map((g) => (
                 <div key={g.title} className="mt-4 first:mt-0">
                   <h3 className="text-center font-sans font-bold text-white/85 normal-case mb-3">{g.title}</h3>
@@ -501,6 +552,54 @@ const MinimalHome = () => {
                   </div>
                 </div>
               ))}
+              {reasons.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="text-center font-sans font-bold text-white normal-case mb-4 text-base">
+                    Quais destas emoções tem influenciado em como você está?
+                  </h3>
+                  <div className="grid grid-cols-2 gap-x-3">
+                    <div className="flex flex-col gap-2">
+                      {FEELINGS_COL1.map((f) => (
+                        <FeelingChip
+                          key={f.label}
+                          emoji={f.emoji}
+                          label={f.label}
+                          active={feelings.includes(f.label)}
+                          onToggle={() => setFeelings((prev) => (prev.includes(f.label) ? prev.filter((x) => x !== f.label) : [...prev, f.label]))}
+                        />
+                      ))}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {FEELINGS_COL2.map((f) => (
+                        <FeelingChip
+                          key={f.label}
+                          emoji={f.emoji}
+                          label={f.label}
+                          active={feelings.includes(f.label)}
+                          onToggle={() => setFeelings((prev) => (prev.includes(f.label) ? prev.filter((x) => x !== f.label) : [...prev, f.label]))}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    <FeelingChip
+                      emoji="✏️"
+                      label="Outra"
+                      active={feelings.includes("Outra")}
+                      onToggle={() => setFeelings((prev) => (prev.includes("Outra") ? prev.filter((x) => x !== "Outra") : [...prev, "Outra"]))}
+                      full
+                    />
+                  </div>
+                  {feelings.includes("Outra") && (
+                    <input
+                      value={otherFeeling}
+                      onChange={(e) => setOtherFeeling(e.target.value.slice(0, 80))}
+                      placeholder="Qual emoção?"
+                      className="mt-2 w-full rounded-full bg-white/10 border border-white/60 px-4 py-2.5 text-sm text-white placeholder:text-white/60 focus:outline-none focus:bg-white/15"
+                    />
+                  )}
+                </div>
+              )}
             </div>
 
             {reasons.length > 0 && (
@@ -508,20 +607,18 @@ const MinimalHome = () => {
                 className="absolute inset-x-0 bottom-0 px-4 pt-6 bg-gradient-to-t from-[var(--club-700)] via-[var(--club-700)] to-transparent"
                 style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
               >
-                <label className="block text-xs font-semibold text-white/85 mb-1.5">
-                  Quer contar o motivo? (opcional)
-                </label>
-                <textarea
-                  value={observation}
-                  onChange={(e) => setObservation(e.target.value.slice(0, 500))}
-                  rows={3}
-                  placeholder="Escreva uma observação sobre como você está hoje…"
-                  className="w-full mb-1 rounded-2xl bg-white/10 border border-white/60 px-3 py-2 text-sm text-white placeholder:text-white/60 resize-none focus:outline-none focus:bg-white/15"
-                />
-                <p className="text-right text-[10px] text-white/60 mb-2">{observation.length}/500</p>
                 <button
                   disabled={checkinMutation.isPending}
-                  onClick={() => checkinMutation.mutate({ moodId: selected, note: buildEmotionNote(reasons, observation) })}
+                  onClick={() => {
+                    const tags = [
+                      ...reasons,
+                      ...feelings.filter((f) => f !== "Outra"),
+                      ...(feelings.includes("Outra")
+                        ? [otherFeeling.trim() ? `Outra: ${otherFeeling.trim()}` : "Outra"]
+                        : []),
+                    ];
+                    checkinMutation.mutate({ moodId: selected, note: buildEmotionNote(tags, "") });
+                  }}
                   className="w-full py-3.5 rounded-2xl bg-white text-[var(--club-700)] font-bold text-sm transition disabled:opacity-60"
                 >
                   {checkinMutation.isPending ? "Registrando…" : "Confirmar"}
