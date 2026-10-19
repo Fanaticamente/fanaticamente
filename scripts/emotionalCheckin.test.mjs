@@ -12,7 +12,26 @@ const getReasonGroups = runInNewContext(
 );
 
 test("Bem offers exactly the same positive club reasons as Muito bem", () => {
-  const positive = ["Vitória", "Goleada aplicada", "Vitória no clássico", "Classificação", "Título", "Derrota do rival"];
+  const positive = [
+    "Vitória",
+    "Goleada aplicada",
+    "Vitória no clássico",
+    "Classificação",
+    "Título",
+    "Derrota do rival",
+    "Fase do time",
+  ];
   assert.deepEqual(Array.from(getReasonGroups("muito_bem")[0].items), positive);
   assert.deepEqual(Array.from(getReasonGroups("mais_ou_menos")[0].items), positive);
+});
+
+test("Fase do time is offered for every mood from Muito bem to Muito mal", () => {
+  for (const mood of ["muito_bem", "mais_ou_menos", "nao_legal", "ansioso", "irritado"]) {
+    const clubGroup = getReasonGroups(mood)[0];
+    assert.equal(clubGroup.title, "Meu Clube");
+    assert.ok(
+      Array.from(clubGroup.items).includes("Fase do time"),
+      `Fase do time missing for ${mood}`,
+    );
+  }
 });
