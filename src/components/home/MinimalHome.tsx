@@ -96,7 +96,9 @@ const FEELINGS_COL1 = [
   { label: "Orgulho", emoji: "😌" },
   { label: "Esperança", emoji: "✨" },
   { label: "Alívio", emoji: "😮‍💨" },
+  { label: "Euforia", emoji: "🤩" },
 ];
+
 
 const FEELINGS_COL2 = [
   { label: "Tristeza", emoji: "😢" },
@@ -114,7 +116,7 @@ const FeelingChip = ({
   onToggle,
   full,
 }: {
-  emoji: string;
+  emoji?: string;
   label: string;
   active: boolean;
   onToggle: () => void;
@@ -130,12 +132,15 @@ const FeelingChip = ({
         : "border-white/80 text-white hover:bg-white/10",
     )}
   >
-    <span aria-hidden className="text-base leading-none shrink-0">
-      {emoji}
-    </span>
+    {emoji ? (
+      <span aria-hidden className="text-base leading-none shrink-0">
+        {emoji}
+      </span>
+    ) : null}
     <span className="truncate">{label}</span>
   </button>
 );
+
 
 const SUGGESTIONS = [
   {
