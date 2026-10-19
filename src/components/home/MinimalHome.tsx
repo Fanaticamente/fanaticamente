@@ -60,7 +60,7 @@ const REASON_GROUPS_BASE: { title: string; items: string[] }[] = [
   { title: "Vida Amorosa", items: ["Orientação sexual", "Relacionamento amoroso", "Sexo"] },
 ];
 
-const GOOD_MOODS = ["muito_bem"];
+const GOOD_MOODS = ["muito_bem", "mais_ou_menos"];
 
 const MOOD_SCORES: Record<string, number> = {
   muito_bem: 100,
