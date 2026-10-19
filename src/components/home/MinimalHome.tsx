@@ -588,7 +588,6 @@ const MinimalHome = () => {
                   </div>
                   <div className="mt-2">
                     <FeelingChip
-                      emoji="✏️"
                       label="Outra"
                       active={feelings.includes("Outra")}
                       onToggle={() => setFeelings((prev) => (prev.includes("Outra") ? prev.filter((x) => x !== "Outra") : [...prev, "Outra"]))}
