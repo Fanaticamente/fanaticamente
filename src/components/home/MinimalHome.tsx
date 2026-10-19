@@ -520,7 +520,7 @@ const MinimalHome = () => {
                     setReasonOpen(false);
                     setSelected(null);
                     setReasons([]);
-                    setFeelings([]);
+                    setFeelings([]); setObservation("");
                     setOtherFeeling("");
                   }}
                   className="w-10 h-10 flex items-center justify-center"
@@ -602,11 +602,20 @@ const MinimalHome = () => {
                       className="mt-2 w-full rounded-full bg-white/10 border border-white/60 px-4 py-2.5 text-sm text-white placeholder:text-white/60 focus:outline-none focus:bg-white/15"
                     />
                   )}
+                  {feelings.length > 0 && (
+                    <textarea
+                      value={observation}
+                      onChange={(e) => setObservation(e.target.value.slice(0, 500))}
+                      rows={4}
+                      placeholder="Quer fazer algum registro para no futuro você revisitar em seu diário? (Opcional)"
+                      className="mt-6 w-full rounded-2xl bg-white/10 border border-white/60 px-4 py-3 text-sm text-white placeholder:text-white/70 focus:placeholder:text-transparent focus:outline-none focus:bg-white/15 resize-none"
+                    />
+                  )}
                 </div>
               )}
             </div>
 
-            {reasons.length > 0 && (
+            {reasons.length > 0 && feelings.length > 0 && (
               <div
                 className="absolute inset-x-0 bottom-0 px-4 pt-6 bg-gradient-to-t from-[var(--club-700)] via-[var(--club-700)] to-transparent"
                 style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
@@ -621,7 +630,7 @@ const MinimalHome = () => {
                         ? [otherFeeling.trim() ? `Outra: ${otherFeeling.trim()}` : "Outra"]
                         : []),
                     ];
-                    checkinMutation.mutate({ moodId: selected, note: buildEmotionNote(tags, "") });
+                    checkinMutation.mutate({ moodId: selected, note: buildEmotionNote(tags, observation) });
                   }}
                   className="w-full py-3.5 rounded-2xl bg-white text-[var(--club-700)] font-bold text-sm transition disabled:opacity-60"
                 >
