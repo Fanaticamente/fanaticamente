@@ -76,17 +76,20 @@ const MOOD_SCORES: Record<string, number> = {
 
 const getReasonGroups = (moodId: string | null) => {
   const isGood = moodId ? GOOD_MOODS.includes(moodId) : false;
-  const meuClubeItems = isGood
-    ? ["Vitória", "Goleada aplicada", "Vitória no clássico", "Classificação", "Título", "Derrota do rival"]
-    : [
-        "Derrotas",
-        "Empate",
-        "Goleada sofrida",
-        "Derrota no clássico",
-        "Desclassificação",
-        "Perda de título",
-        "Vitória do rival",
-      ];
+  const meuClubeItems = [
+    ...(isGood
+      ? ["Vitória", "Goleada aplicada", "Vitória no clássico", "Classificação", "Título", "Derrota do rival"]
+      : [
+          "Derrotas",
+          "Empate",
+          "Goleada sofrida",
+          "Derrota no clássico",
+          "Desclassificação",
+          "Perda de título",
+          "Vitória do rival",
+        ]),
+    "Fase do time",
+  ];
   return [{ title: "Meu Clube", items: meuClubeItems }, ...REASON_GROUPS_BASE];
 };
 
