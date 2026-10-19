@@ -512,7 +512,7 @@ const MinimalHome = () => {
             className="fixed inset-0 z-[9999] flex flex-col text-white bg-[var(--club-600)] overflow-hidden"
             style={{ height: "100dvh", width: "100vw", top: 0, left: 0 }}
           >
-            <div className={cn("flex-1 overflow-y-auto px-4", reasons.length > 0 ? "pb-48" : "pb-32")}>
+            <div className={cn("flex-1 overflow-y-auto px-4", feelings.length > 0 ? "pb-[88px]" : "pb-10")}>
               <div
                 className="grid grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] items-center gap-3 pb-3 bg-[var(--club-600)]"
                 style={{ paddingTop: "calc(env(safe-area-inset-top) + 12px)" }}
@@ -610,8 +610,8 @@ const MinimalHome = () => {
                       value={observation}
                       onChange={(e) => setObservation(e.target.value.slice(0, 500))}
                       rows={4}
-                      placeholder="Quer fazer algum registro para no futuro você revisitar em seu diário? (Opcional)"
-                      className="mt-6 w-full rounded-2xl bg-white/10 border border-white/60 px-4 py-3 text-sm text-white placeholder:text-white/70 focus:placeholder:text-transparent focus:outline-none focus:bg-white/15 resize-none"
+                      placeholder="Quer deixar algum registro para no futuro você revisitar em seu diário? (Opcional)"
+                      className="mt-8 w-full rounded-2xl bg-white/10 border border-white/60 px-4 py-3 text-sm text-white placeholder:text-white/70 focus:placeholder:text-transparent focus:outline-none focus:bg-white/15 resize-none"
                     />
                   )}
                 </div>
