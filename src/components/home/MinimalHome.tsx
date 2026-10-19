@@ -525,7 +525,7 @@ const MinimalHome = () => {
               <div aria-hidden className="w-10 shrink-0" />
             </div>
 
-            <div className={cn("flex-1 overflow-y-auto px-4 pt-4", reasons.length > 0 ? "pb-72" : "pb-32")}>
+            <div className={cn("flex-1 overflow-y-auto px-4 pt-4", reasons.length > 0 ? "pb-48" : "pb-32")}>
               {getReasonGroups(selected).map((g) => (
                 <div key={g.title} className="mt-4 first:mt-0">
                   <h3 className="text-center font-sans font-bold text-white/85 normal-case mb-3">{g.title}</h3>
