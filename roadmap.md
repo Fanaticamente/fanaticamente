@@ -41,3 +41,8 @@
 - [x] Incluir títulos e subtítulos configuráveis da página inicial, inclusive "Como você está hoje?".
 - [x] Associar a página selecionada à prévia mobile e manter as alterações no conteúdo do aplicativo.
 - [ ] Conferir o salvamento autenticado no navegador; bloqueado porque a conta de teste disponível tem somente papel de torcedor. O menu e os controles foram verificados em computador e celular com permissão simulada, sem alterar dados reais.
+
+## Diário emocional
+- [ ] Fazer o cabeçalho da tela de setores subir junto com o conteúdo ao rolar, sem ficar fixo.
+- [ ] Incluir Euforia na primeira coluna das emoções e remover o lápis do botão Outra.
+
