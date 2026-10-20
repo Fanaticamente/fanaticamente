@@ -620,9 +620,13 @@ const MinimalHome = () => {
 
             {reasons.length > 0 && feelings.length > 0 && (
               <div
-                className="absolute inset-x-0 bottom-0 px-4 pt-6 bg-gradient-to-t from-[var(--club-700)] via-[var(--club-700)] to-transparent"
+                className="relative px-4 pt-3 bg-[var(--club-600)]"
                 style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
               >
+                <div
+                  aria-hidden
+                  className="absolute inset-x-0 top-0 h-4 -translate-y-full bg-gradient-to-b from-transparent to-[var(--club-600)] pointer-events-none"
+                />
                 <button
                   disabled={checkinMutation.isPending}
                   onClick={() => {
