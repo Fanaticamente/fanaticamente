@@ -512,7 +512,7 @@ const MinimalHome = () => {
             className="fixed inset-0 z-[9999] flex flex-col text-white bg-[var(--club-600)] overflow-hidden"
             style={{ height: "100dvh", width: "100vw", top: 0, left: 0 }}
           >
-            <div className={cn("flex-1 overflow-y-auto px-4", feelings.length > 0 ? "pb-[88px]" : "pb-10")}>
+            <div className={cn("flex-1 overflow-y-auto px-4", feelings.length > 0 ? "pb-3" : "pb-10")}>
               <div
                 className="grid grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] items-center gap-3 pb-3 bg-[var(--club-600)]"
                 style={{ paddingTop: "calc(env(safe-area-inset-top) + 12px)" }}
