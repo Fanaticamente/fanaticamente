@@ -512,7 +512,7 @@ const MinimalHome = () => {
             className="fixed inset-0 z-[9999] flex flex-col text-white bg-[var(--club-600)] overflow-hidden"
             style={{ height: "100dvh", width: "100vw", top: 0, left: 0 }}
           >
-            <div className={cn("flex-1 overflow-y-auto px-4", feelings.length > 0 ? "pb-[88px]" : "pb-10")}>
+            <div className={cn("flex-1 overflow-y-auto px-4", feelings.length > 0 ? "pb-3" : "pb-10")}>
               <div
                 className="grid grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] items-center gap-3 pb-3 bg-[var(--club-600)]"
                 style={{ paddingTop: "calc(env(safe-area-inset-top) + 12px)" }}
@@ -620,9 +620,13 @@ const MinimalHome = () => {
 
             {reasons.length > 0 && feelings.length > 0 && (
               <div
-                className="absolute inset-x-0 bottom-0 px-4 pt-6 bg-gradient-to-t from-[var(--club-700)] via-[var(--club-700)] to-transparent"
+                className="relative px-4 pt-3 bg-[var(--club-600)]"
                 style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)" }}
               >
+                <div
+                  aria-hidden
+                  className="absolute inset-x-0 top-0 h-4 -translate-y-full bg-gradient-to-b from-transparent to-[var(--club-600)] pointer-events-none"
+                />
                 <button
                   disabled={checkinMutation.isPending}
                   onClick={() => {
