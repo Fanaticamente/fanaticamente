@@ -28,7 +28,7 @@
 - [x] Reformular o Assistente de IA: boas-vindas sem menção a agendamentos, consultas ou avaliações; manual alinhado ao painel atual.
 
 ## Navegação e seleção de clubes
-- [ ] Criar círculos com as cores dos clubes e permitir selecionar ou desativar essa exibição no gerenciador.
+- [x] Criar círculos com as cores dos 60 clubes e permitir selecionar ou desativar essa exibição no gerenciador; aparência e controles verificados, salvamento autenticado depende de uma conta com papel de desenvolvedor.
 - [x] Abrir todas as páginas sempre no topo, sem restaurar a rolagem anterior.
 - [x] Exibir a grade de clubes somente após aplicar a prioridade por profissionais e a ordem alfabética.
 - [x] Exibir imediatamente os ícones e nomes dos clubes, sem cartões provisórios nem reorganização visível.
