@@ -12,7 +12,7 @@ import DesktopHeader from "./DesktopHeader";
 import BookingDrawer from "@/components/terapeutas/BookingDrawer";
 import terapeutasHeroGrass from "@/assets/terapeutas-hero-grass.png";
 import { getFirstAndLastName } from "@/lib/utils";
-import ClubMark from "@/components/clubs/ClubMark";
+import ClubMark, { type ClubDisplayMode } from "@/components/clubs/ClubMark";
 interface TherapistData {
   id: string;
   name: string;
@@ -47,7 +47,7 @@ const DesktopTerapeutasPage = ({
 }: {
   showBadges?: boolean;
   hiddenBadges?: string[];
-  clubDisplayMode?: "badge" | "flag";
+  clubDisplayMode?: ClubDisplayMode;
 }) => {
   const navigate = useNavigate();
   const [selectedLeague, setSelectedLeague] = useState<League>("serie_a");
@@ -289,8 +289,8 @@ const DesktopTerapeutasPage = ({
                     }`}
                   >
                     {showBadges && !hiddenBadges.includes(club.id) && (
-                      <div className="w-12 h-12 rounded-full bg-white p-1.5 shadow-sm flex items-center justify-center mb-2">
-                        <div className="w-9 h-9 flex items-center justify-center">
+                      <div className={`w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-2 overflow-hidden ${clubDisplayMode === "colors" ? "" : "p-1.5"}`}>
+                        <div className={`flex items-center justify-center ${clubDisplayMode === "colors" ? "w-full h-full" : "w-9 h-9"}`}>
                           <ClubMark clubId={club.id} mode={clubDisplayMode} />
                         </div>
                       </div>
@@ -351,10 +351,10 @@ const DesktopTerapeutasPage = ({
                 <div className="flex items-center gap-4 mb-6 p-4 bg-white rounded-xl border border-gray-100">
                   {showBadges && !hiddenBadges.includes(selectedClub.id) && (
                     <div 
-                      className="w-14 h-14 rounded-full p-2 flex items-center justify-center"
+                      className={`w-14 h-14 rounded-full overflow-hidden flex items-center justify-center ${clubDisplayMode === "colors" ? "" : "p-2"}`}
                       style={{ backgroundColor: `${selectedClub.primaryColor}15` }}
                     >
-                      <div className="w-10 h-10 flex items-center justify-center">
+                      <div className={`flex items-center justify-center ${clubDisplayMode === "colors" ? "w-full h-full" : "w-10 h-10"}`}>
                         <ClubMark clubId={selectedClub.id} mode={clubDisplayMode} />
                       </div>
                     </div>

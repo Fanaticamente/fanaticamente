@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import DesktopTerapeutasPage from "@/components/desktop/DesktopTerapeutasPage";
 import { useModuleConfig } from "@/hooks/useModuleConfig";
-import ClubMark from "@/components/clubs/ClubMark";
+import ClubMark, { type ClubDisplayMode } from "@/components/clubs/ClubMark";
 
 interface Professional {
   id: string;
@@ -120,7 +120,7 @@ const Terapeutas = () => {
   const { data: moduleConfig } = useModuleConfig("therapists_page");
   const showBadges = moduleConfig?.config?.show_badges !== false;
   const hiddenBadges = (moduleConfig?.config?.hidden_badges as string[]) || [];
-  const clubDisplayMode = ((moduleConfig?.config?.club_display_mode as string) || "badge") as "badge" | "flag";
+  const clubDisplayMode = ((moduleConfig?.config?.club_display_mode as string) || "badge") as ClubDisplayMode;
   
   const [clubsWithProfessionals] = useState<Set<string>>(readClubsWithProfessionalsCache);
 
@@ -339,7 +339,7 @@ const Terapeutas = () => {
             <div className="relative z-10 flex items-center gap-4">
               <div className="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                 {showBadges && !hiddenBadges.includes(selectedClub.id) ? (
-                  <div className="w-12 h-12 flex items-center justify-center">
+                  <div className={cn("flex items-center justify-center", clubDisplayMode === "colors" ? "w-full h-full" : "w-12 h-12")}>
                     <ClubMark clubId={selectedClub.id} mode={clubDisplayMode} imgClassName="max-w-full max-h-full object-contain" />
                   </div>
                 ) : (
@@ -409,7 +409,7 @@ const Terapeutas = () => {
                   >
                     {showBadges && !hiddenBadges.includes(club.id) && (
                       <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-white border border-gray-100 flex items-center justify-center overflow-hidden">
-                        <div className="w-10 h-10 flex items-center justify-center">
+                        <div className={cn("flex items-center justify-center", clubDisplayMode === "colors" ? "w-full h-full" : "w-10 h-10")}>
                           <ClubMark clubId={club.id} mode={clubDisplayMode} imgClassName="max-w-full max-h-full object-contain" />
                         </div>
                       </div>
