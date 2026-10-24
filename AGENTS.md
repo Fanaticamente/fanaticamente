@@ -6,3 +6,4 @@
 - Mobile page offsets must include `env(safe-area-inset-top)` only once: `body` already applies it in index.css, so page containers add plain fixed clearances below fixed headers; a second `env()` in flow content doubles the top spacing on iPhones.
 - Static fan-facing interface copy is cataloged by the Vite fan-copy transform and edited through app_content overrides; dynamic account, article, score, and user content remain outside the text editor to preserve ownership and safety.
 - Unsaved fan text previews use a tab-scoped sessionStorage draft read only with an explicit preview URL flag, so public content never changes before saving.
+- Therapeutic team identity modes reuse the existing module visibility settings; circular color marks use a separate identity palette so corrected club colors do not alter interface themes.

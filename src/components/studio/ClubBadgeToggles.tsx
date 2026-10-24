@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Shield, Flag } from "lucide-react";
+import { ChevronDown, ChevronRight, Shield, Flag, Circle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { brazilianClubs } from "@/data/brazilianClubs";
@@ -12,6 +12,7 @@ interface ClubBadgeTogglesProps {
   onHiddenBadgesChange: (badges: string[]) => void;
   displayMode?: ClubDisplayMode;
   onDisplayModeChange?: (mode: ClubDisplayMode) => void;
+  allowColors?: boolean;
 }
 
 const leagueLabels: Record<string, string> = {
@@ -27,6 +28,7 @@ const ClubBadgeToggles = ({
   onHiddenBadgesChange,
   displayMode = "badge",
   onDisplayModeChange,
+  allowColors = false,
 }: ClubBadgeTogglesProps) => {
   const [expandedLeague, setExpandedLeague] = useState<string | null>(null);
 
@@ -45,6 +47,7 @@ const ClubBadgeToggles = ({
   // plus `club_display_mode` that picks which one to render when something is shown.
   const shieldsOn = showBadges && displayMode === "badge";
   const flagsOn = showBadges && displayMode === "flag";
+  const colorsOn = showBadges && displayMode === "colors";
 
   const setShields = (on: boolean) => {
     if (on) {
@@ -101,7 +104,21 @@ const ClubBadgeToggles = ({
           <Switch checked={flagsOn} onCheckedChange={setFlags} />
         </div>
 
-        {!shieldsOn && !flagsOn && (
+        {allowColors && (
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
+            <div className="flex items-center gap-2">
+              <Circle className="w-4 h-4 shrink-0 text-muted-foreground" />
+              <Label htmlFor="club-colors-toggle" className="text-sm">Círculos com cores dos clubes</Label>
+            </div>
+            <Switch id="club-colors-toggle" aria-label="Círculos com cores dos clubes" checked={colorsOn}
+              onCheckedChange={(on) => {
+                if (on) onDisplayModeChange?.("colors");
+                onShowBadgesChange(on);
+              }} />
+          </div>
+        )}
+
+        {!shieldsOn && !flagsOn && !colorsOn && (
           <p className="text-[11px] text-muted-foreground italic">
             Nenhuma identidade visual será exibida ao lado dos clubes.
           </p>
@@ -112,7 +129,9 @@ const ClubBadgeToggles = ({
       {showBadges && (
         <div className="border border-border rounded-lg overflow-hidden">
           <div className="px-3 py-2 bg-muted/50 flex items-center gap-2">
-            {displayMode === "flag" ? (
+            {displayMode === "colors" ? (
+              <Circle className="w-3.5 h-3.5 text-muted-foreground" />
+            ) : displayMode === "flag" ? (
               <Flag className="w-3.5 h-3.5 text-muted-foreground" />
             ) : (
               <Shield className="w-3.5 h-3.5 text-muted-foreground" />

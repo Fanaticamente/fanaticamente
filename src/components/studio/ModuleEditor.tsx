@@ -923,11 +923,12 @@ const ModuleEditor = ({ module, onClose, onSaved }: ModuleEditorProps) => {
                   module.module_id === "football_page" ||
                   module.module_id === "sidebar_user_club") && (
                   <ClubBadgeToggles
+                    allowColors={module.module_id === "therapists_page"}
                     showBadges={config.show_badges !== false}
                     onShowBadgesChange={(val) => setConfig((prev) => ({ ...prev, show_badges: val }))}
                     hiddenBadges={(config.hidden_badges as string[]) || []}
                     onHiddenBadgesChange={(badges) => setConfig((prev) => ({ ...prev, hidden_badges: badges }))}
-                    displayMode={(config.club_display_mode as "badge" | "flag") || "badge"}
+                    displayMode={(config.club_display_mode as "badge" | "flag" | "colors") || "badge"}
                     onDisplayModeChange={(mode) => setConfig((prev) => ({ ...prev, club_display_mode: mode }))}
                   />
                 )}

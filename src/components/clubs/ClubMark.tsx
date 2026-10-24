@@ -1,8 +1,9 @@
 import { brazilianClubs } from "@/data/brazilianClubs";
 import { cn } from "@/lib/utils";
 import ClubFlag from "./ClubFlag";
+import ClubColorCircle from "./ClubColorCircle";
 
-export type ClubDisplayMode = "badge" | "flag";
+export type ClubDisplayMode = "badge" | "flag" | "colors";
 
 interface ClubMarkProps {
   clubId: string;
@@ -19,6 +20,8 @@ interface ClubMarkProps {
 const ClubMark = ({ clubId, mode = "badge", className, imgClassName }: ClubMarkProps) => {
   const club = brazilianClubs.find((c) => c.id === clubId);
   if (!club) return null;
+
+  if (mode === "colors") return <ClubColorCircle clubId={clubId} className={className} />;
 
   if (mode === "flag") {
     return <ClubFlag clubId={clubId} className={cn("w-full h-full", className)} />;
