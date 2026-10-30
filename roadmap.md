@@ -8,3 +8,9 @@
 - [x] Instrumentação: eventos em record-legal-acceptance, verify-legal-report, verify-public-report, scheduled-legal-audit
 - [x] Painel admin: auditorias recentes + eventos de segurança
 - [x] Build OK; segredo LEGAL_AUDIT_CRON_SECRET_SHA256 mantido (usuário recusou exclusão; não é mais usado)
+
+# PDF de comprovação organizado
+
+- [ ] Recriar quadros legíveis no PDF mantendo a geração e assinatura no servidor.
+- [ ] Incluir código público, referência da cadeia e orientação sobre assinatura/carimbo sem alterar evidências anteriores.
+- [ ] Testar integridade, paginação e apresentação; disponibilizar a atualização.
