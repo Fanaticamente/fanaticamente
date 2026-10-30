@@ -11,6 +11,7 @@
 
 # PDF de comprovação organizado
 
-- [ ] Recriar quadros legíveis no PDF mantendo a geração e assinatura no servidor.
-- [ ] Incluir código público, referência da cadeia e orientação sobre assinatura/carimbo sem alterar evidências anteriores.
-- [ ] Testar integridade, paginação e apresentação; disponibilizar a atualização.
+- [x] Recriar quadros legíveis no PDF mantendo a geração e assinatura no servidor.
+- [x] Incluir código público, referência da cadeia e orientação sobre assinatura/carimbo sem alterar evidências anteriores.
+- [x] Testar integridade, paginação e apresentação; disponibilizar a atualização (29 testes aprovados; quadros fracionados corrigidos; função implantada).
+- [ ] Conferir download autenticado no painel admin: a sessão disponível é redirecionada e não permite acessar esse painel.

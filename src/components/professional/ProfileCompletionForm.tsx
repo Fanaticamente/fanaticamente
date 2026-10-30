@@ -282,10 +282,12 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
       const { url: documentUrl } = await uploadProfessionalFile(file, side === 'front' ? 'crp-front' : 'crp-back');
 
       // Save to professionals table
-      const updateField = side === 'front' ? 'crp_document_front_url' : 'crp_document_back_url';
+      const documentUpdate = side === 'front'
+        ? { crp_document_front_url: documentUrl }
+        : { crp_document_back_url: documentUrl };
       const { error: updateError } = await supabase
         .from('professionals')
-        .update({ [updateField]: documentUrl })
+        .update(documentUpdate)
         .eq('id', professionalId);
 
       if (updateError) throw updateError;
@@ -336,10 +338,12 @@ const ProfileCompletionForm = ({ professionalId, existingData, onComplete }: Pro
       const { url: documentUrl } = await uploadProfessionalFile(file, side === 'front' ? 'degree-front' : 'degree-back');
 
       // Save to professionals table
-      const updateField = side === 'front' ? 'degree_document_front_url' : 'degree_document_back_url';
+      const documentUpdate = side === 'front'
+        ? { degree_document_front_url: documentUrl }
+        : { degree_document_back_url: documentUrl };
       const { error: updateError } = await supabase
         .from('professionals')
-        .update({ [updateField]: documentUrl })
+        .update(documentUpdate)
         .eq('id', professionalId);
 
       if (updateError) throw updateError;
