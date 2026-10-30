@@ -4,6 +4,9 @@ import { Search, Download, FileText, ShieldCheck, ShieldAlert } from "lucide-rea
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { filterLegalSystem, legalReportTargets, type LegalSystem } from "@/lib/legalReportSelection";
 
 interface Props {
   themeStyles: { card: string; text: string; textMuted: string; border: string };
@@ -32,8 +35,19 @@ const b64ToBytes = (b64: string) => {
 const downloadBytes = (name: string, bytes: Uint8Array, mime: string) => {
   const url = URL.createObjectURL(new Blob([bytes.buffer as ArrayBuffer], { type: mime }));
   const a = document.createElement("a");
-  a.href = url; a.download = name; a.click();
-  URL.revokeObjectURL(url);
+  a.href = url; a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30_000);
+};
+
+type PreparedFile = { name: string; mime: string; bytes: Uint8Array };
+
+const openPdf = (file: PreparedFile) => {
+  const url = URL.createObjectURL(new Blob([file.bytes.buffer as ArrayBuffer], { type: file.mime }));
+  window.open(url, "_blank", "noopener,noreferrer");
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 };
 
 const fmt = (d: string) => format(new Date(d), "dd/MM/yyyy HH:mm:ss", { locale: ptBR });
@@ -43,6 +57,8 @@ type VerifyResult = { valid: boolean; checks: Record<string, boolean | string> }
 const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
   const [input, setInput] = useState("");
   const [query, setQuery] = useState("");
+  const [system, setSystem] = useState<LegalSystem>("fan");
+  const [preparedFiles, setPreparedFiles] = useState<PreparedFile[]>([]);
   const [openVersion, setOpenVersion] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
@@ -91,19 +107,31 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
     },
   });
 
+  const visibleRows = filterLegalSystem(rows ?? [], system);
+  const changeSystem = (value: string) => {
+    if (value !== "fan" && value !== "work") return;
+    setSystem(value);
+    setSelected(new Set());
+    setOpenVersion(null);
+    setPreparedFiles([]);
+    setLastCode(null);
+    setReportError(null);
+  };
+
   const { data: versionContent } = useQuery({
     queryKey: ["legal-version-content", openVersion],
     enabled: !!openVersion,
     queryFn: async () => {
+      if (!openVersion) return null;
       const { data, error } = await supabase
         .from("legal_document_versions").select("title, version, content_html, content_sha256, published_at")
-        .eq("id", openVersion!).single();
+        .eq("id", openVersion).single();
       if (error) throw error;
       return data;
     },
   });
 
-  const pick = (only?: Row[]) => only ?? (selected.size ? (rows ?? []).filter((r) => selected.has(r.id)) : rows ?? []);
+  const pick = (only?: Row[]) => only ?? legalReportTargets(visibleRows, selected);
 
   // Reports are generated and signed on the server; the browser only downloads the bytes.
   const serverReport = async (only?: Row[]) => {
@@ -111,21 +139,21 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
     if (!target.length || busy) return;
     setBusy(true);
     setReportError(null);
+    setPreparedFiles([]);
+    setLastCode(null);
     try {
-      const isAll = !only && selected.size === 0;
       const { data, error } = await supabase.functions.invoke("generate-legal-report", {
-        body: isAll
-          ? { type: "general", formats: ["csv", "html", "pdf"] }
-          : { type: "individual", acceptance_ids: target.map((r) => r.id), formats: ["csv", "html", "pdf"] },
+        body: { type: "individual", acceptance_ids: target.map((r) => r.id), formats: ["csv", "html", "pdf"] },
       });
       if (error) throw error;
       if (!data?.manifest || !data?.signature || !Array.isArray(data?.files)) throw new Error("resposta inválida");
       setLastCode(data.verification_code ?? null);
-      for (const f of data.files as { name: string; mime: string; content_base64: string }[]) {
-        downloadBytes(f.name, b64ToBytes(f.content_base64), f.mime);
-      }
+      const reportFiles = (data.files as { name: string; mime: string; content_base64: string }[])
+        .map((f) => ({ name: f.name, mime: f.mime, bytes: b64ToBytes(f.content_base64) }));
+      if (!reportFiles.some((f) => f.mime === "application/pdf" && f.bytes.length > 0)) throw new Error("PDF ausente");
       const sigJson = JSON.stringify({ manifest: data.manifest, signature: data.signature }, null, 2);
-      downloadBytes(`relatorio-aceites-${data.manifest.report_id}.assinatura.json`, new TextEncoder().encode(sigJson), "application/json");
+      setPreparedFiles([...reportFiles, { name: `relatorio-aceites-${data.manifest.report_id}.assinatura.json`,
+        bytes: new TextEncoder().encode(sigJson), mime: "application/json" }]);
     } catch (e) {
       console.error(e);
       setReportError("Não foi possível gerar o relatório no servidor. Tente novamente.");
@@ -180,22 +208,46 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
           Registros imutáveis de aceite dos Termos de Uso e Políticas de Privacidade. Os relatórios são gerados e assinados
           no servidor (Ed25519) e baixados com um arquivo de assinatura para verificação. IP e navegador são mantidos por 5 anos.
         </p>
-        <form onSubmit={(e) => { e.preventDefault(); setQuery(input); }} className="flex flex-wrap gap-2 mb-4">
+        <Tabs value={system} onValueChange={changeSystem} className="mb-4">
+          <TabsList className="h-auto w-full sm:w-auto grid grid-cols-2">
+            <TabsTrigger value="fan" disabled={busy}>Fanaticamente Torcedor</TabsTrigger>
+            <TabsTrigger value="work" disabled={busy}>FanaticaWork</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <form onSubmit={(e) => { e.preventDefault(); setQuery(input); setSelected(new Set()); }} className="flex flex-wrap gap-2 mb-4">
           <div className={`flex-1 min-w-[220px] flex items-center gap-2 border ${t.border} rounded-lg px-3`}>
             <Search className={`w-4 h-4 ${t.textMuted}`} />
             <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Nome, e-mail ou ID do usuário" className={`flex-1 h-10 bg-transparent text-sm outline-none ${t.text}`} />
           </div>
-          <button type="submit" className="px-4 h-10 rounded-lg bg-secondary text-secondary-foreground text-sm font-medium">Buscar</button>
-          <button type="button" onClick={() => serverReport()} disabled={!rows?.length || busy} className={`inline-flex items-center gap-1 px-4 h-10 rounded-lg border ${t.border} ${t.text} text-sm disabled:opacity-40`}>
-            <Download className="w-4 h-4" />{busy ? "Gerando..." : `Relatório assinado${selected.size ? ` (${selected.size})` : ""}`}
-          </button>
-          <button type="button" onClick={() => verifyInputRef.current?.click()} disabled={verifying} className={`inline-flex items-center gap-1 px-4 h-10 rounded-lg border ${t.border} ${t.text} text-sm disabled:opacity-40`}>
+          <Button type="submit" variant="secondary">Buscar</Button>
+          <Button type="button" variant="outline" onClick={() => serverReport()} disabled={!visibleRows.length || busy}>
+            <FileText className="w-4 h-4" />{busy ? "Gerando..." : `Gerar PDF${selected.size ? ` (${selected.size})` : ""}`}
+          </Button>
+          <Button type="button" variant="outline" onClick={() => verifyInputRef.current?.click()} disabled={verifying}>
             <ShieldCheck className="w-4 h-4" />{verifying ? "Verificando..." : "Verificar relatório"}
-          </button>
+          </Button>
           <input ref={verifyInputRef} type="file" multiple accept=".json,.csv,.html,.pdf" className="hidden" onChange={(e) => onVerifyFiles(e.target.files)} />
         </form>
 
         {reportError && <p className="text-destructive text-sm mb-3">{reportError}</p>}
+        {preparedFiles.length > 0 && (
+          <div className={`mb-4 border ${t.border} rounded-lg p-3`}>
+            <h3 className={`font-semibold text-sm ${t.text} mb-3`}>Arquivos do relatório — {system === "fan" ? "Fanaticamente Torcedor" : "FanaticaWork"}</h3>
+            <div className="flex flex-wrap gap-2">
+              {preparedFiles.filter((f) => f.mime === "application/pdf").map((file) => (
+                <div key={file.name} className="flex flex-wrap gap-2">
+                  <Button type="button" onClick={() => downloadBytes(file.name, file.bytes, file.mime)}><Download />Baixar PDF</Button>
+                  <Button type="button" variant="outline" onClick={() => openPdf(file)}><FileText />Visualizar PDF</Button>
+                </div>
+              ))}
+              {preparedFiles.filter((f) => f.mime !== "application/pdf").map((file) => (
+                <Button type="button" key={file.name} variant="outline" onClick={() => downloadBytes(file.name, file.bytes, file.mime)}>
+                  <Download />{file.mime === "application/json" ? "Baixar assinatura JSON" : file.mime === "text/csv" ? "Baixar CSV" : "Baixar HTML"}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
         {lastCode && (
           <div className={`mb-4 border border-emerald-500 rounded-lg p-3 text-sm`}>
             <p className={`font-semibold text-emerald-600`}>Relatório gerado e assinado no servidor.</p>
@@ -352,19 +404,19 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
 
         {isLoading && <p className={t.textMuted}>Carregando...</p>}
         {error && <p className="text-destructive text-sm">Acesso negado ou erro ao carregar.</p>}
-        {rows && rows.length === 0 && <p className={t.textMuted}>Nenhum registro encontrado.</p>}
+        {!isLoading && !error && visibleRows.length === 0 && <p className={t.textMuted}>Nenhum registro encontrado neste sistema.</p>}
 
-        {!!rows?.length && (
+        {!!visibleRows.length && (
           <div className={`flex flex-wrap items-center gap-3 mb-2 text-xs ${t.textMuted}`}>
             <label className="inline-flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 accent-current" checked={selected.size === rows.length} onChange={(e) => setSelected(e.target.checked ? new Set(rows.map((r) => r.id)) : new Set())} />
+              <input type="checkbox" className="w-4 h-4 accent-current" checked={visibleRows.every((r) => selected.has(r.id))} onChange={(e) => setSelected(e.target.checked ? new Set(visibleRows.map((r) => r.id)) : new Set())} />
               Selecionar todos
             </label>
-            <span>{selected.size ? `${selected.size} selecionado(s) — o relatório baixa só os selecionados` : "Marque os cards para um relatório apenas com aceites específicos"}</span>
+            <span>{selected.size ? `${selected.size} selecionado(s)` : `${visibleRows.length} aceite(s) na pesquisa deste sistema`}</span>
           </div>
         )}
         <div className="space-y-2">
-          {rows?.map((r) => (
+          {visibleRows.map((r) => (
             <div key={r.id} className={`border ${t.border} rounded-lg p-3 text-sm`}>
               <div className="flex flex-wrap justify-between gap-2">
                 <div className="flex items-start gap-2">
@@ -385,7 +437,7 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
               <button onClick={() => setOpenVersion(openVersion === r.document_version_id ? null : r.document_version_id)} className="text-xs underline mt-1 text-secondary">
                 {openVersion === r.document_version_id ? "Ocultar versão aceita" : "Ver versão exata aceita"}
               </button>
-              <button onClick={() => serverReport([r])} disabled={busy} className={`ml-3 inline-flex items-center gap-1 text-xs underline mt-1 ${t.text} disabled:opacity-40`}><FileText className="w-3 h-3" />Baixar este aceite</button>
+              <Button type="button" variant="link" size="sm" onClick={() => serverReport([r])} disabled={busy} className="ml-1"><FileText />Gerar PDF deste aceite</Button>
               {openVersion === r.document_version_id && versionContent && (
                 <div className={`mt-2 border-t ${t.border} pt-2 max-h-80 overflow-auto`}>
                   <pre className={`whitespace-pre-wrap text-xs ${t.text}`}>{versionContent.content_html}</pre>

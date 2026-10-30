@@ -15,3 +15,11 @@
 - [x] Incluir código público, referência da cadeia e orientação sobre assinatura/carimbo sem alterar evidências anteriores.
 - [x] Testar integridade, paginação e apresentação; disponibilizar a atualização (29 testes aprovados; quadros fracionados corrigidos; função implantada).
 - [ ] Conferir download autenticado no painel admin: a sessão disponível é redirecionada e não permite acessar esse painel.
+
+# Acesso ao PDF e separação por sistema
+
+- [x] Substituir downloads automáticos simultâneos por opções explícitas de PDF, visualização, assinatura JSON, CSV e HTML.
+- [x] Separar a listagem por Fanaticamente Torcedor/FanaticaWork e restringir a seleção e geração ao sistema exibido.
+- [x] Testar filtros e seleção: 4 testes específicos e 3 testes existentes aprovados; aplicação sem erros.
+- [x] Conferir controles isolados com dados fictícios: abas filtram corretamente, PDF baixado não vazio, nenhuma falha de execução.
+- [ ] Conferir geração/download no painel autenticado: a conta disponível possui somente papel de torcedor, sem acesso administrativo.
