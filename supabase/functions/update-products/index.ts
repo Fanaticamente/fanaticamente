@@ -1,3 +1,4 @@
+import { legalGate } from "../_shared/legalGate.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -117,6 +118,7 @@ async function scrapeStore(
 
 
 Deno.serve(async (req) => {
+  { const __legalBlock = await legalGate(req); if (__legalBlock) return __legalBlock; }
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }

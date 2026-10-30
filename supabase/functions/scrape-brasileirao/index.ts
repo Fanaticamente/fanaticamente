@@ -1,3 +1,4 @@
+import { legalGate } from "../_shared/legalGate.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -212,6 +213,7 @@ function buildMatches(data: any) {
 }
 
 Deno.serve(async (req) => {
+  { const __legalBlock = await legalGate(req); if (__legalBlock) return __legalBlock; }
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {

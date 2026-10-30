@@ -1,3 +1,4 @@
+import { legalGate } from "../_shared/legalGate.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -161,6 +162,7 @@ Antes de finalizar, confirme:
 Se qualquer resposta for "não", reescreva.`;
 
 serve(async (req) => {
+  { const __legalBlock = await legalGate(req); if (__legalBlock) return __legalBlock; }
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
