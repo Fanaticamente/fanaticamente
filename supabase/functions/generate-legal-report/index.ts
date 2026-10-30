@@ -9,9 +9,12 @@ import {
   buildManifest,
   buildPdf,
   bytesToBase64,
+  canonicalize,
+  generateVerificationCode,
   pdfLines,
   ReportFile,
   ReportRow,
+  sha256Hex,
   signManifest,
 } from "../_shared/legalReport.ts";
 
