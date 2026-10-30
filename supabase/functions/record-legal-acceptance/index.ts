@@ -7,7 +7,8 @@ const ALLOWED_SLUGS = new Set([
   "terms-of-use-professional",
   "privacy-policy-professional",
 ]);
-const ALLOWED_SOURCES = new Set(["signup", "reaccept_prompt"]);
+// "signup" is only recorded by the database from a server-created signup intent.
+const ALLOWED_SOURCES = new Set(["reaccept_prompt"]);
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {

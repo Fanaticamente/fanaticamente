@@ -1,3 +1,4 @@
+import { legalGate } from "../_shared/legalGate.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -22,6 +23,7 @@ function inQuietHours(start: number | null, end: number | null): boolean {
 }
 
 Deno.serve(async (req) => {
+  { const __legalBlock = await legalGate(req); if (__legalBlock) return __legalBlock; }
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   const supabase = createClient(

@@ -1,3 +1,4 @@
+import { legalGate } from "../_shared/legalGate.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -21,6 +22,7 @@ type Payload = {
 const CRP_REGEX = /^\d{2}\/\d{4,6}$/;
 
 Deno.serve(async (req) => {
+  { const __legalBlock = await legalGate(req); if (__legalBlock) return __legalBlock; }
   console.log("complete-professional-signup: Request received", req.method);
 
   if (req.method === "OPTIONS") {

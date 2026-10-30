@@ -17,7 +17,8 @@ interface AuthContextType {
     email: string,
     password: string,
     fullName: string,
-    accountType?: AccountType
+    accountType?: AccountType,
+    legalIntentToken?: string
   ) => Promise<{ error: Error | null }>;
   signIn: (
     email: string,
@@ -366,7 +367,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     email: string,
     password: string,
     fullName: string,
-    accountType?: AccountType
+    accountType?: AccountType,
+    legalIntentToken?: string
   ) => {
     const type = accountType ?? getAccountTypeForAuth();
     // After email confirmation, send pro signups straight to the professional
@@ -390,6 +392,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           // interno usado pela autenticação.
           display_email: email.trim().toLowerCase(),
           account_type: type,
+          // Pointer to the server-created acceptance intent (proof lives in the database).
+          ...(legalIntentToken ? { legal_intent_token: legalIntentToken } : {}),
         },
       },
     });

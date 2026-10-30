@@ -1056,7 +1056,9 @@ export type Database = {
           content_sha256: string
           document_version_id: string
           id: string
+          intent_recorded_at: string | null
           ip_address: string | null
+          signup_intent_id: string | null
           slug: string
           source: string
           user_agent: string | null
@@ -1069,7 +1071,9 @@ export type Database = {
           content_sha256: string
           document_version_id: string
           id?: string
+          intent_recorded_at?: string | null
           ip_address?: string | null
+          signup_intent_id?: string | null
           slug: string
           source: string
           user_agent?: string | null
@@ -1082,7 +1086,9 @@ export type Database = {
           content_sha256?: string
           document_version_id?: string
           id?: string
+          intent_recorded_at?: string | null
           ip_address?: string | null
+          signup_intent_id?: string | null
           slug?: string
           source?: string
           user_agent?: string | null
@@ -1095,6 +1101,13 @@ export type Database = {
             columns: ["document_version_id"]
             isOneToOne: false
             referencedRelation: "legal_document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "legal_acceptances_signup_intent_id_fkey"
+            columns: ["signup_intent_id"]
+            isOneToOne: false
+            referencedRelation: "legal_signup_intents"
             referencedColumns: ["id"]
           },
         ]
@@ -1167,6 +1180,51 @@ export type Database = {
           slug?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      legal_signup_intents: {
+        Row: {
+          account_type: string
+          bound_at: string | null
+          consumed_at: string | null
+          created_at: string
+          document_version_ids: string[]
+          email_base: string
+          expires_at: string
+          id: string
+          ip_address: string | null
+          token_sha256: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          account_type: string
+          bound_at?: string | null
+          consumed_at?: string | null
+          created_at?: string
+          document_version_ids: string[]
+          email_base: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          token_sha256: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          account_type?: string
+          bound_at?: string | null
+          consumed_at?: string | null
+          created_at?: string
+          document_version_ids?: string[]
+          email_base?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          token_sha256?: string
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2818,6 +2876,9 @@ export type Database = {
         }
         Returns: boolean
       }
+      legal_acceptance_ok: { Args: never; Returns: boolean }
+      legal_email_base: { Args: { _email: string }; Returns: string }
+      legal_finalize_signup_intent: { Args: { _uid: string }; Returns: number }
       move_to_dlq: {
         Args: {
           dlq_name: string

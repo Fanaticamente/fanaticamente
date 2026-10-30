@@ -1,3 +1,4 @@
+import { legalGate } from "../_shared/legalGate.ts";
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -128,6 +129,7 @@ async function fetchEventBlocks(accessToken: string, calendarId: string, profess
 // Public sync: accepts { professional_id } and refreshes google_calendar_blocks
 // for that professional. Throttled to once per 60s per professional.
 Deno.serve(async (req) => {
+  { const __legalBlock = await legalGate(req); if (__legalBlock) return __legalBlock; }
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {

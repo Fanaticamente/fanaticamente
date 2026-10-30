@@ -1,3 +1,4 @@
+import { legalGate } from "../_shared/legalGate.ts";
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -17,6 +18,7 @@ function redirectResponse(location: string) {
 }
 
 Deno.serve(async (req) => {
+  { const __legalBlock = await legalGate(req); if (__legalBlock) return __legalBlock; }
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {

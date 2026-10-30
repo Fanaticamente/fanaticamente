@@ -11,7 +11,7 @@ import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { supabase } from "@/integrations/supabase/client";
 import { encodeAuthEmail, isProfessionalApp } from "@/lib/appMode";
 import { Checkbox } from "@/components/ui/checkbox";
-import { PENDING_LEGAL_KEY, signupSlugs, canCompleteSignup } from "@/lib/legalAcceptance";
+import { signupSlugs, canCompleteSignup } from "@/lib/legalAcceptance";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -496,7 +496,8 @@ const Auth = () => {
         const { error } = await signIn(
           email,
           password,
-          authMode === "professional" ? "pro" : "fan"
+          authMode === "professional" ? "pro" : "fan",
+          intent.token
         );
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
@@ -570,11 +571,24 @@ const Auth = () => {
 
         // Use sessionStorage instead of localStorage for sensitive data (shorter exposure window)
         sessionStorage.setItem("pendingProfileUpdate", JSON.stringify(profileData));
-        // Intent only; the evidence is recorded server-side after authentication.
-        sessionStorage.setItem(
-          PENDING_LEGAL_KEY,
-          JSON.stringify(signupSlugs(authMode === "professional" ? "pro" : "fan"))
-        );
+        // Express acceptance is registered by the server as a signup intent; the database
+        // converts it into acceptance evidence only after the account identity is confirmed.
+        const legalAccountType = authMode === "professional" ? "pro" : "fan";
+        const { data: intent, error: intentError } = await supabase.functions.invoke("create-legal-signup-intent", {
+          body: {
+            email: signUpData.email,
+            account_type: legalAccountType,
+            accepted_slugs: signupSlugs(legalAccountType),
+            terms_accepted: acceptedTermsDoc,
+            privacy_accepted: acceptedPrivacyDoc,
+          },
+        });
+        if (intentError || !intent?.token) {
+          sessionStorage.removeItem("pendingProfileUpdate");
+          toast.error("Não foi possível registrar o aceite dos documentos. Tente novamente.");
+          setIsLoading(false);
+          return;
+        }
 
         // ISOLAMENTO: garantir que não haja sessão de OUTRO tipo de conta ativa
         // antes de cadastrar. Ex.: torcedor já logado tentando se cadastrar
@@ -594,7 +608,6 @@ const Auth = () => {
         if (error) {
           // Clean up sensitive data on error
           sessionStorage.removeItem("pendingProfileUpdate");
-          sessionStorage.removeItem(PENDING_LEGAL_KEY);
           if (error.message.includes("already registered")) {
             toast.error(
               authMode === "professional"
