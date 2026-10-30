@@ -20,4 +20,5 @@
 
 - [x] Substituir downloads automáticos simultâneos por opções explícitas de PDF, visualização, assinatura JSON, CSV e HTML.
 - [x] Separar a listagem por Fanaticamente Torcedor/FanaticaWork e restringir a seleção e geração ao sistema exibido.
-- [ ] Testar filtros e conferir geração/download no painel autenticado.
+- [x] Testar filtros e seleção: 4 testes específicos e 3 testes existentes aprovados; aplicação sem erros.
+- [ ] Conferir geração/download no painel autenticado: a conta disponível possui somente papel de torcedor, sem acesso administrativo.
