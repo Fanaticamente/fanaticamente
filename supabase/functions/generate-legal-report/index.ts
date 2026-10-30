@@ -169,6 +169,11 @@ serve(async (req) => {
     });
     if (evtError) console.error("[generate-legal-report] event insert failed", evtError);
 
+    // Opportunistically stamp a few pending acceptance anchors in the
+    // background; never blocks or fails the report response.
+    const bg = stampPendingAnchors(admin, 5).catch((e) => console.error("[generate-legal-report] bg stamp failed", e));
+    (globalThis as { EdgeRuntime?: { waitUntil?: (p: Promise<unknown>) => void } }).EdgeRuntime?.waitUntil?.(bg);
+
     return json({
       manifest,
       signature,
