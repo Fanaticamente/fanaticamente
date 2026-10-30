@@ -68,9 +68,8 @@ export async function buildOrganizedPdf(rows: ReportRow[], meta: PdfReportMeta):
     y = 718;
   };
   const ensure = (height: number) => {
-    if (y - height <  sixty()) { page = pdf.addPage([595.28, 841.89]); startPage(); }
+    if (y - height < 60) { page = pdf.addPage([595.28, 841.89]); startPage(); }
   };
-  function sixty() { return 60; }
   const section = (title: string, fields: [string, unknown][]) => {
     ensure(70);
     const heading = () => {
