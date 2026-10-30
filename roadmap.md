@@ -1,52 +1,15 @@
-# Roadmap
+# Fase 5 — Carimbo do tempo confiável + cadeia de integridade
 
-- [x] Ocultar consultas e agendamentos do perfil do torcedor.
-- [x] Remover atalhos configuráveis de consultas da página inicial.
-- [x] Retirar sessões, agendamentos e sua pontuação da Minha Temporada.
-- [x] Remover consultas e pagamentos dos menus e da busca.
-- [x] Filtrar notificações antigas relacionadas a sessões, consultas e pagamentos.
-- [x] Redirecionar endereços antigos para Perfil ou Profissionais.
-- [x] Manter os perfis profissionais com contato direto pelo WhatsApp.
-- [x] Validar telas internas e compilação.
-
-## Gestão de profissionais
-- [x] Criar campos seguros de visibilidade e arquivamento.
-- [x] Reorganizar Gestão em abas com indicadores e busca.
-- [x] Adicionar controle de exibição no marketplace e restauração.
-- [x] Atualizar exclusão para arquivamento sem perda de dados.
-- [x] Validar marketplace, painel admin, telas e compilação.
-- [x] Modernizar a listagem de profissionais com cartões por clube e sem tabela horizontal no celular.
-- [x] Aplicar modo claro e escudos dos clubes na listagem de profissionais do painel administrativo.
-- [x] Uniformizar Manrope para textos e Sora para títulos nos sistemas de torcedores, profissionais, admin e dev.
-
-## Imagens das notícias
-- [x] Substituir os créditos ao buscar uma nova imagem, sem manter a fonte anterior.
-- [x] Restringir a busca a fotos relevantes com autoria identificada e fontes confiáveis.
-
-## Painel do profissional
-- [x] Substituir os menus Agendamentos e Métricas por páginas de "Em breve", com aviso do contato direto via WhatsApp nos Agendamentos.
-- [x] Reformular o Assistente de IA: boas-vindas sem menção a agendamentos, consultas ou avaliações; manual alinhado ao painel atual.
-
-## Navegação e seleção de clubes
-- [x] Criar círculos com as cores dos 60 clubes e permitir selecionar ou desativar essa exibição no gerenciador; aparência e controles verificados, salvamento autenticado depende de uma conta com papel de desenvolvedor.
-- [x] Abrir todas as páginas sempre no topo, sem restaurar a rolagem anterior.
-- [x] Exibir a grade de clubes somente após aplicar a prioridade por profissionais e a ordem alfabética.
-- [x] Exibir imediatamente os ícones e nomes dos clubes, sem cartões provisórios nem reorganização visível.
-- [x] Aumentar discretamente subtítulos e textos secundários em todo o aplicativo, preservando os cartões responsivos.
-- [x] Reduzir o espaço entre o menu do topo e a saudação da home, contando a área segura do iPhone uma única vez (12px abaixo do menu em qualquer aparelho).
-
-## Textos do gerenciador mobile
-- [x] Listar somente páginas mobile visíveis e organizar seus textos fixos por seção.
-- [x] Permitir edição, tamanho, alinhamento, ajuste horizontal/vertical e restauração do padrão.
-- [x] Mostrar escala e deslocamentos atuais, ajustar com setas e visualizar alterações não salvas em tela inteira.
-- [x] Incluir títulos e subtítulos configuráveis da página inicial, inclusive "Como você está hoje?".
-- [x] Associar a página selecionada à prévia mobile e manter as alterações no conteúdo do aplicativo.
-- [ ] Conferir o salvamento autenticado no navegador; bloqueado porque a conta de teste disponível tem somente papel de torcedor. O menu e os controles foram verificados em computador e celular com permissão simulada, sem alterar dados reais.
-
-## Diário emocional
-- [x] Fazer o cabeçalho da tela de setores subir junto com o conteúdo ao rolar, sem ficar fixo.
-- [x] Incluir Euforia na primeira coluna das emoções e remover o lápis do botão Outra.
-- [x] Acrescentar "Fase do time" às opções de Meu Clube em todas as emoções, de Muito bem a Muito mal.
-- [x] Aproximar a caixa de registro do botão Confirmar, manter respiro acima dela e trocar a frase dentro da caixa para "Quer deixar algum registro…".
-
-
+- [x] Auditar fases 2–4 (código + banco): OK — 12 aceites, 4 versões, 4 relatórios, chave ativa
+- [ ] Testar conectividade com TSA RFC 3161 (FreeTSA / DigiCert)
+- [ ] Migration: tabela `legal_acceptance_chain` (hash chain, advisory lock, trigger, backfill dos 12 registros, proteção update/delete)
+- [ ] Migration: tabela `legal_chain_anchors` (âncoras TSA da cabeça da cadeia)
+- [ ] `_shared/rfc3161.ts`: construir TimeStampReq, parsear TimeStampResp (genTime, messageImprint)
+- [ ] `_shared/legalChain.ts`: helpers de cadeia/carimbo
+- [ ] Função `anchor-legal-chain` (admin): carimbar cabeça da cadeia + retry de pendentes
+- [ ] Função `verify-legal-chain` (admin): auditoria — recalcular hashes, continuidade, tokens, âncoras
+- [ ] Integrar carimbo/cadeia em `generate-legal-report` (manifesto assinado)
+- [ ] Integrar status de carimbo/cadeia em `verify-public-report` (sem dados pessoais)
+- [ ] Frontend: página pública /verificar-documento exibe carimbo+cadeia; painel admin com auditoria da cadeia
+- [ ] Testes: 10 cenários obrigatórios do escopo
+- [ ] Deploy das funções + relatório final
