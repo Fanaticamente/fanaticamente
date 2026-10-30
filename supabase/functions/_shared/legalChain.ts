@@ -6,7 +6,7 @@
  */
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
-import { requestTrustedTimestamp, verifyStoredToken } from "./rfc3161.ts";
+import { requestTrustedTimestamp, verifyStoredToken, bytesToHex } from "./rfc3161.ts";
 import { bytesToBase64, base64ToBytes, sha256Hex } from "./legalReport.ts";
 
 export interface ChainHead {
@@ -43,12 +43,15 @@ export async function stampAnchor(
       .eq("id", anchor.id);
     return { stamped: false, error: result.error };
   }
+  // PostgREST expects bytea as a "\x"-prefixed hex string; passing raw bytes
+  // would JSON-serialize the array and corrupt the token.
+  const tokenHex = "\\x" + bytesToHex(base64ToBytes(result.tokenBase64!));
   const { error } = await admin
     .from("legal_chain_anchors")
     .update({
       status: "stamped",
       tsa_url: result.tsaUrl,
-      tsa_token: base64ToBytes(result.tokenBase64!),
+      tsa_token: tokenHex,
       tsa_gen_time: result.genTimeIso,
       tsa_serial: result.serial,
       stamped_at: new Date().toISOString(),
