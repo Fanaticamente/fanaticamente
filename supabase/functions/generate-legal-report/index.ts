@@ -4,15 +4,14 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { z } from "npm:zod@3";
 import { legalGate } from "../_shared/legalGate.ts";
 import { anchorChainHead, getChainHead, stampPendingAnchors } from "../_shared/legalChain.ts";
+import { buildOrganizedPdf } from "../_shared/legalReportPdf.ts";
 import {
   buildCsv,
   buildHtml,
   buildManifest,
-  buildPdf,
   bytesToBase64,
   canonicalize,
   generateVerificationCode,
-  pdfLines,
   ReportFile,
   ReportRow,
   sha256Hex,
@@ -81,14 +80,13 @@ serve(async (req) => {
 
     const reportId = crypto.randomUUID();
     const generatedAt = new Date().toISOString();
-    const filterLabel = type === "individual" ? `${acceptance_ids!.length} registro(s) selecionado(s)` : "todos os registros";
+    const filterLabel = type === "individual" ? `${acceptance_ids?.length ?? 0} registro(s) selecionado(s)` : "todos os registros";
     const meta = { reportId, generatedAt, filterLabel };
 
     const wanted = new Set(formats ?? ["csv", "html", "pdf"]);
     const files: ReportFile[] = [];
     if (wanted.has("csv")) files.push({ name: `relatorio-aceites-${reportId}.csv`, mime: "text/csv", bytes: buildCsv(rows) });
     if (wanted.has("html")) files.push({ name: `relatorio-aceites-${reportId}.html`, mime: "text/html", bytes: buildHtml(rows, meta) });
-    if (wanted.has("pdf")) files.push({ name: `relatorio-aceites-${reportId}.pdf`, mime: "application/pdf", bytes: buildPdf(pdfLines(rows, meta)) });
 
     // Unique public verification code, generated server-side and bound into the
     // signed manifest. Retry on the (astronomically unlikely) collision.
@@ -104,19 +102,25 @@ serve(async (req) => {
     let signature = "";
     let verificationCode = "";
     let manifestSha256 = "";
-    let timestampBlock: Record<string, unknown> | null = null;
     for (let attempt = 0; attempt < 5; attempt++) {
       verificationCode = generateVerificationCode();
+      const attemptFiles = [...files];
+      if (wanted.has("pdf")) attemptFiles.push({
+        name: `relatorio-aceites-${reportId}.pdf`, mime: "application/pdf",
+        bytes: await buildOrganizedPdf(rows, { ...meta, verificationCode,
+          chain: chainHead ? { head_hash: chainHead.chain_hash, head_seq: chainHead.seq } : null }),
+      });
       const candidate = await buildManifest({
         reportId,
         reportType: type,
-        filters: type === "individual" ? { acceptance_ids: [...acceptance_ids!].sort() } : { scope: "all" },
+        filters: type === "individual" ? { acceptance_ids: [...(acceptance_ids ?? [])].sort() } : { scope: "all" },
         recordCount: rows.length,
-        files,
+        files: attemptFiles,
       });
       candidate.verification_code = verificationCode;
       const coreSha256 = await sha256Hex(canonicalize(candidate));
-      if (!timestampBlock) {
+      let timestampBlock: Record<string, unknown>;
+      {
         const anchor = await anchorChainHead(admin, {
           anchorType: "report_manifest",
           targetHash: coreSha256,
@@ -146,6 +150,7 @@ serve(async (req) => {
         generated_at: candidate.generated_at,
       });
       if (!regError) {
+        files.splice(0, files.length, ...attemptFiles);
         manifest = candidate;
         signature = candidateSignature;
         break;
