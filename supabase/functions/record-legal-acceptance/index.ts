@@ -1,5 +1,5 @@
 import { trustedClientIp } from "../_shared/trustedIp.ts";
-import { stampPendingAnchors } from "../_shared/legalChain.ts";
+import { stampPendingAnchors, logSecurityEvent } from "../_shared/legalChain.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
@@ -35,7 +35,10 @@ Deno.serve(async (req) => {
 
     // The user is derived ONLY from the verified session token.
     const { data: userData, error: authError } = await admin.auth.getUser(token);
-    if (authError || !userData?.user) return json({ error: "Unauthorized" }, 401);
+    if (authError || !userData?.user) {
+      logSecurityEvent(admin, "acceptance_auth_failed", "warning", {});
+      return json({ error: "Unauthorized" }, 401);
+    }
     const userId = userData.user.id;
 
     let body: any;
@@ -49,6 +52,9 @@ Deno.serve(async (req) => {
       !slugs.every((s) => typeof s === "string" && ALLOWED_SLUGS.has(s))
     ) return json({ error: "Invalid slugs" }, 400);
     if (typeof source !== "string" || !ALLOWED_SOURCES.has(source)) {
+      // A source outside the allowlist means the client tried to forge the
+      // acceptance origin (the only legitimate client sends reaccept_prompt).
+      logSecurityEvent(admin, "acceptance_source_forge_attempt", "critical", { user_id: userId });
       return json({ error: "Invalid source" }, 400);
     }
 
@@ -79,6 +85,7 @@ Deno.serve(async (req) => {
     }
     for (const p of pendingRows) {
       if ((shown as Record<string, unknown>)[p.slug] !== p.version_id) {
+        logSecurityEvent(admin, "acceptance_version_mismatch", "info", { user_id: userId, slug: p.slug });
         return json({ error: "Displayed version is not the current version", code: "version_mismatch", slug: p.slug }, 409);
       }
     }
