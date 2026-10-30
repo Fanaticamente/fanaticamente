@@ -164,3 +164,130 @@ export async function verifyAnchors(admin: SupabaseClient): Promise<AnchorVerifi
 }
 
 export { sha256Hex };
+
+// ---------------------------------------------------------------------------
+// Pure, testable audit core (no database access) + security event logging.
+// ---------------------------------------------------------------------------
+
+export interface ChainRowInput {
+  seq: number;
+  acceptance_id: string;
+  record_payload: string;
+  record_hash: string;
+  prev_hash: string;
+  chain_hash: string;
+  created_at: string;
+}
+
+export interface ChainDivergence {
+  seq: number | null;
+  acceptance_id?: string;
+  check: string;
+  detail: string;
+}
+
+export const GENESIS_PREFIX = "GENESIS:";
+
+/** Rebuild the canonical payload from an acceptance row (mirror of public.legal_acceptance_payload). */
+export function buildAcceptancePayload(a: Record<string, unknown>): string {
+  const clean = (v: unknown) => String(v ?? "-").replace(/\|/g, "/");
+  const d = new Date(a.accepted_at as string);
+  const iso = d.toISOString().replace(/(\.\d{3})\d*Z$/, "$1Z"); // millisecond precision, like to_char MS
+  return [
+    "v1",
+    a.id,
+    a.user_id,
+    a.document_version_id,
+    a.slug,
+    String(a.version),
+    a.content_sha256,
+    a.action,
+    clean(a.source),
+    iso,
+    a.ip_address ? String(a.ip_address) : "-",
+    a.ip_source ? String(a.ip_source) : "-",
+    clean(a.user_agent),
+  ].join("|");
+}
+
+/**
+ * Recompute every hash and validate chain continuity, sequence, chronology
+ * and source-table consistency. Pure function: all data is passed in, so it
+ * can be unit-tested with fabricated rows without touching real records.
+ */
+export async function auditChainRows(
+  chain: ChainRowInput[],
+  sourceById: Map<string, Record<string, unknown>>,
+  totalAcceptances: number,
+): Promise<ChainDivergence[]> {
+  const divergences: ChainDivergence[] = [];
+  let prevChainHash: string | null = null;
+  let prevSeq = 0;
+  let prevCreatedAt: string | null = null;
+
+  for (const row of chain) {
+    const recomputedRecord = await sha256Hex(row.record_payload);
+    if (recomputedRecord !== row.record_hash) {
+      divergences.push({ seq: row.seq, acceptance_id: row.acceptance_id, check: "record_hash", detail: "o hash do registro não corresponde ao conteúdo armazenado" });
+    }
+    const recomputedChain = await sha256Hex(`${row.record_hash}|${row.prev_hash}`);
+    if (recomputedChain !== row.chain_hash) {
+      divergences.push({ seq: row.seq, acceptance_id: row.acceptance_id, check: "chain_hash", detail: "o hash encadeado não corresponde à combinação registrada" });
+    }
+    if (prevChainHash === null) {
+      if (!row.prev_hash.startsWith(GENESIS_PREFIX)) {
+        divergences.push({ seq: row.seq, acceptance_id: row.acceptance_id, check: "genesis", detail: "o primeiro registro não carrega o marco inicial" });
+      }
+    } else if (row.prev_hash !== prevChainHash) {
+      divergences.push({ seq: row.seq, acceptance_id: row.acceptance_id, check: "continuity", detail: "o elo com o registro anterior foi quebrado (alteração, exclusão ou inserção retroativa)" });
+    }
+    if (row.seq !== prevSeq + 1) {
+      divergences.push({ seq: row.seq, acceptance_id: row.acceptance_id, check: "sequence", detail: `salto de sequência: esperado ${prevSeq + 1}, encontrado ${row.seq}` });
+    }
+    if (prevCreatedAt && row.created_at < prevCreatedAt) {
+      divergences.push({ seq: row.seq, acceptance_id: row.acceptance_id, check: "chronology", detail: "registro fora da ordem cronológica" });
+    }
+    prevChainHash = row.chain_hash;
+    prevSeq = row.seq;
+    prevCreatedAt = row.created_at;
+  }
+
+  for (const row of chain) {
+    const source = sourceById.get(row.acceptance_id);
+    if (!source) {
+      divergences.push({ seq: row.seq, acceptance_id: row.acceptance_id, check: "source_missing", detail: "o registro de aceite original não existe mais" });
+      continue;
+    }
+    if (buildAcceptancePayload(source) !== row.record_payload) {
+      divergences.push({ seq: row.seq, acceptance_id: row.acceptance_id, check: "source_tampered", detail: "o registro de aceite atual difere do conteúdo selado na cadeia" });
+    }
+  }
+
+  if (totalAcceptances !== chain.length) {
+    divergences.push({ seq: null, check: "coverage", detail: `existem ${totalAcceptances} aceites mas ${chain.length} registros na cadeia` });
+  }
+
+  return divergences;
+}
+
+export type SecuritySeverity = "info" | "warning" | "critical";
+
+/**
+ * Append-only technical security event log. Never include passwords, auth
+ * tokens, private keys, clinical content or unnecessary personal data in
+ * `detail` — keep it to technical metadata (counts, hashes, status codes).
+ * Fire-and-forget by design: logging must never break the main flow.
+ */
+export function logSecurityEvent(
+  admin: SupabaseClient,
+  eventType: string,
+  severity: SecuritySeverity,
+  detail: Record<string, unknown> = {},
+): void {
+  admin
+    .from("legal_security_events")
+    .insert({ event_type: eventType, severity, detail })
+    .then(({ error }) => {
+      if (error) console.error("[legal-security-events] insert failed", error.message);
+    });
+}

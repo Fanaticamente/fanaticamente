@@ -3,6 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { z } from "npm:zod@3";
 import { legalGate } from "../_shared/legalGate.ts";
+import { logSecurityEvent } from "../_shared/legalChain.ts";
 import {
   base64ToBytes,
   REPORT_ALGORITHM,
@@ -86,6 +87,11 @@ serve(async (req) => {
       : false;
 
     const valid = Object.values(checks).every((v) => v === true);
+    if (!valid) {
+      logSecurityEvent(admin, "report_verification_failed", "critical", {
+        failed_checks: Object.entries(checks).filter(([, v]) => v !== true).map(([k]) => k),
+      });
+    }
 
     await admin.from("legal_report_events").insert({
       report_id: checks.report_id === true ? (m.report_id as string) : "unknown",

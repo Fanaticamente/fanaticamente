@@ -57,6 +57,22 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
   const [anchoring, setAnchoring] = useState(false);
   const [anchorMsg, setAnchorMsg] = useState<string | null>(null);
   const [auditing, setAuditing] = useState(false);
+  const { data: secEvents } = useQuery({
+    queryKey: ["legal-security-events"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_legal_security_events", { _limit: 20 });
+      if (error) return [];
+      return (data ?? []) as { id: string; event_type: string; severity: string; detail: Record<string, unknown>; created_at: string }[];
+    },
+  });
+  const { data: auditRuns } = useQuery({
+    queryKey: ["legal-audit-runs"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("admin_legal_audit_runs", { _limit: 5 });
+      if (error) return [];
+      return (data ?? []) as { id: string; trigger_source: string; ok: boolean; records_checked: number; created_at: string }[];
+    },
+  });
   const [auditResult, setAuditResult] = useState<{
     ok: boolean;
     chain: { records_checked: number; head_seq: number | null };
@@ -274,6 +290,32 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
             </button>
           </div>
           {anchorMsg && <p className={`text-xs ${t.textMuted} mt-2`}>{anchorMsg}</p>}
+          {auditRuns && auditRuns.length > 0 && (
+            <div className={`mt-2 text-xs ${t.textMuted}`}>
+              <p className={`font-semibold ${t.text} mb-1`}>Auditorias recentes (diária automática às 6h UTC + manuais)</p>
+              <ul className="space-y-0.5">
+                {auditRuns.map((r) => (
+                  <li key={r.id}>
+                    {fmt(r.created_at)} · {r.trigger_source === "cron" ? "automática" : "manual"} ·{" "}
+                    {r.ok ? <span className="text-emerald-600 font-semibold">íntegra</span> : <span className="text-destructive font-semibold">divergência</span>}
+                    {" "}· {r.records_checked} registros
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {secEvents && secEvents.length > 0 && (
+            <div className={`mt-2 text-xs ${t.textMuted}`}>
+              <p className={`font-semibold ${t.text} mb-1`}>Eventos de segurança recentes</p>
+              <ul className="space-y-0.5">
+                {secEvents.map((e) => (
+                  <li key={e.id} className={e.severity === "critical" ? "text-destructive" : e.severity === "warning" ? "text-amber-600" : ""}>
+                    {fmt(e.created_at)} · {e.event_type} · {e.severity}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {auditResult && (
             <div className={`mt-2 border rounded-lg p-3 text-xs ${auditResult.ok ? "border-emerald-500" : "border-destructive"}`}>
               <p className={`font-semibold ${auditResult.ok ? "text-emerald-600" : "text-destructive"}`}>

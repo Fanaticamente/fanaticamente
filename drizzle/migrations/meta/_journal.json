@@ -71,6 +71,13 @@
       "when": 1793394796121,
       "tag": "0009_legal_chain_and_timestamps",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793395557836,
+      "tag": "0010_legal_monitoring_and_scheduled_audit",
+      "breakpoints": true
     }
   ]
 }

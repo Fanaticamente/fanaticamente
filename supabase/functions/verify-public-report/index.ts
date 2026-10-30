@@ -3,6 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { z } from "npm:zod@3";
 import { trustedClientIp } from "../_shared/trustedIp.ts";
+import { logSecurityEvent } from "../_shared/legalChain.ts";
 import { canonicalize, sha256Hex, verifyManifestSignature } from "../_shared/legalReport.ts";
 
 /**
@@ -105,6 +106,11 @@ serve(async (req) => {
 
     if (!manifestHashOk || !signatureOk || !codeBound) {
       await logAttempt(code, "invalid_signature");
+      logSecurityEvent(admin, "public_report_invalid_signature", "critical", {
+        manifest_hash_ok: manifestHashOk,
+        signature_ok: signatureOk,
+        code_bound: codeBound,
+      });
       return json({ status: "invalid_signature", ...base });
     }
 

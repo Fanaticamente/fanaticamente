@@ -1,13 +1,10 @@
-# Fase 5 — Carimbo do tempo confiável + cadeia de integridade
+# Fase 6 — Testes automatizados, monitoramento e auditoria contínua
 
-- [x] Auditar fases 2–4 (código + banco): OK — 12 aceites, 4 versões, 4 relatórios, chave ativa
-- [x] Testar conectividade com TSA RFC 3161 (FreeTSA primária, DigiCert reserva) — ambas OK
-- [x] Migration 0009: `legal_acceptance_chain` (advisory lock, trigger, backfill 12 registros, imutabilidade) + `legal_chain_anchors`
-- [x] `_shared/rfc3161.ts` + `_shared/legalChain.ts`
-- [x] Funções `anchor-legal-chain` e `verify-legal-chain` (admin)
-- [x] Integrar carimbo/cadeia em `generate-legal-report` (manifesto v1.1) e `verify-public-report`
-- [x] `record-legal-acceptance`: carimbo em background sem bloquear o aceite
-- [x] Frontend: /verificar-documento exibe carimbo+cadeia; painel admin com "Ancorar agora" e "Auditar cadeia"
-- [x] Testes: 10 cenários executados (ver relatório final)
-- [x] Deploy das funções
-- [x] Correção: tokens bytea gravados como hex `\x...` (14 âncoras de teste reparadas e recarimbadas)
+- [x] Auditoria inicial: 9 funcionalidades verificadas operacionais na Fase 5 (aceite server-side, versão exata, IP confiável, anti-duplicata, relatórios servidor, Ed25519, verificação pública, carimbo RFC 3161, cadeia+âncoras)
+- [ ] Refatorar núcleo da auditoria da cadeia para função pura testável (`auditChainRows` em legalChain.ts)
+- [ ] Testes Deno: fluxo de aceite (validação, falsificação, 401/400/409), verificação pública (privacidade, formato), rfc3161 round-trip, cadeia (adulteração/exclusão/reordenação), builders de relatório
+- [ ] Migration 0010: `legal_security_events` + `legal_audit_runs` (append-only, service_role), RPCs admin, retenção (1 ano eventos / 2 anos auditorias), cron diário via pg_net+vault
+- [ ] Função `scheduled-legal-audit` (auth por segredo de cron): auditoria + retry de âncoras + registro de resultado + eventos críticos
+- [ ] Instrumentar funções legais com log de eventos de segurança (sem PII)
+- [ ] Painel admin: eventos de segurança + última auditoria
+- [ ] Executar testes via supabase--test_edge_functions + relatório final
