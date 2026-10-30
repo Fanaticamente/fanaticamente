@@ -61,6 +61,19 @@ export function base64ToBytes(b64: string): Uint8Array {
   return out;
 }
 
+/**
+ * Unique public verification code: 26 chars from a 32-symbol alphabet
+ * (Crockford base32, no ambiguous 0/O/1/I/L), ~130 bits of crypto randomness.
+ * Generated only server-side; never chosen by the browser.
+ */
+const CODE_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+export function generateVerificationCode(length = 26): string {
+  const random = crypto.getRandomValues(new Uint8Array(length));
+  let out = "";
+  for (let i = 0; i < length; i++) out += CODE_ALPHABET[random[i] & 31];
+  return out;
+}
+
 async function importPrivateKey(pkcs8B64: string): Promise<CryptoKey> {
   return crypto.subtle.importKey("pkcs8", base64ToBytes(pkcs8B64), { name: "Ed25519" }, false, ["sign"]);
 }
