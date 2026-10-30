@@ -171,6 +171,46 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
         </form>
 
         {reportError && <p className="text-destructive text-sm mb-3">{reportError}</p>}
+        {lastCode && (
+          <div className={`mb-4 border border-emerald-500 rounded-lg p-3 text-sm`}>
+            <p className={`font-semibold text-emerald-600`}>Relatório gerado e assinado no servidor.</p>
+            <p className={`text-xs ${t.textMuted} mt-1`}>
+              Código de verificação pública: <span className="font-mono font-semibold">{lastCode}</span> —
+              qualquer pessoa pode conferir a autenticidade em <span className="font-mono">/verificar-documento</span> (sem ver dados pessoais).
+            </p>
+          </div>
+        )}
+        <div className={`mb-4 border ${t.border} rounded-lg p-3`}>
+          <p className={`text-sm font-semibold ${t.text} mb-2`}>Revogar ou substituir relatório</p>
+          <div className="flex flex-wrap gap-2">
+            <input value={revokeCode} onChange={(e) => setRevokeCode(e.target.value.toUpperCase())} placeholder="Código do relatório" className={`flex-1 min-w-[180px] h-9 px-3 rounded-lg border ${t.border} bg-transparent text-xs font-mono ${t.text}`} maxLength={32} />
+            <input value={revokeReason} onChange={(e) => setRevokeReason(e.target.value)} placeholder="Justificativa (obrigatória)" className={`flex-[2] min-w-[200px] h-9 px-3 rounded-lg border ${t.border} bg-transparent text-xs ${t.text}`} maxLength={500} />
+            <button
+              type="button"
+              disabled={revoking || revokeCode.trim().length < 20 || revokeReason.trim().length < 5}
+              onClick={async () => {
+                setRevoking(true);
+                setRevokeMsg(null);
+                try {
+                  const { data, error } = await supabase.functions.invoke("revoke-legal-report", {
+                    body: { code: revokeCode.trim(), reason: revokeReason.trim() },
+                  });
+                  if (error) throw error;
+                  setRevokeMsg(data?.ok ? "Relatório revogado. O histórico original foi preservado." : "Não foi possível revogar.");
+                  if (data?.ok) { setRevokeCode(""); setRevokeReason(""); }
+                } catch {
+                  setRevokeMsg("Falha ao revogar. Confira o código e tente novamente.");
+                } finally {
+                  setRevoking(false);
+                }
+              }}
+              className={`px-3 h-9 rounded-lg border ${t.border} ${t.text} text-xs disabled:opacity-40`}
+            >
+              {revoking ? "Revogando..." : "Revogar"}
+            </button>
+          </div>
+          {revokeMsg && <p className={`text-xs ${t.textMuted} mt-2`}>{revokeMsg}</p>}
+        </div>
         {verifyResult && (
           <div className={`mb-4 border rounded-lg p-3 text-sm ${verifyResult.valid ? "border-emerald-500" : "border-destructive"}`}>
             <p className={`inline-flex items-center gap-2 font-semibold ${verifyResult.valid ? "text-emerald-600" : "text-destructive"}`}>
