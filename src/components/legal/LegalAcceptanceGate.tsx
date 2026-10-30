@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,9 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import {
   LEGAL_PATHS,
-  PENDING_LEGAL_KEY,
   isLegalGateExemptPath,
-  pendingCoversRequired,
 } from "@/lib/legalAcceptance";
 
 type PendingDoc = {
@@ -19,7 +17,7 @@ type PendingDoc = {
   previously_accepted: boolean;
 };
 
-export const recordLegalAcceptance = async (slugs: string[], source: "signup" | "reaccept_prompt") => {
+export const recordLegalAcceptance = async (slugs: string[], source: "reaccept_prompt") => {
   const { data, error } = await supabase.functions.invoke("record-legal-acceptance", {
     body: { slugs, source },
   });
@@ -33,7 +31,6 @@ const LegalAcceptanceGate = () => {
   const qc = useQueryClient();
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
-  const autoTried = useRef(false);
 
   const { data: pending } = useQuery({
     queryKey: ["legal-pending", user?.id],
@@ -46,9 +43,7 @@ const LegalAcceptanceGate = () => {
     },
   });
 
-  // Acceptance given in the signup form is recorded on the first authenticated session.
-  useEffect(() => {
-    if (!user || !pending || pending.length === 0 || autoTried.current) return;
+  if (!user || !pending || pending.length === 0 || autoTried.current) return;
     let stored: string[] = [];
     try { stored = JSON.parse(sessionStorage.getItem(PENDING_LEGAL_KEY) || "[]"); } catch {}
     const required = pending.map((p) => p.slug);
@@ -72,9 +67,10 @@ const LegalAcceptanceGate = () => {
     setSaving(true);
     try {
       await recordLegalAcceptance(pending.map((p) => p.slug), "reaccept_prompt");
-      sessionStorage.removeItem(PENDING_LEGAL_KEY);
       await qc.invalidateQueries({ queryKey: ["legal-pending"] });
       setChecked({});
+      // Protected data was blocked server-side while pending; reload so every screen refetches.
+      window.location.reload();
     } catch {
       toast.error("Não foi possível registrar o aceite. Tente novamente.");
     } finally {
