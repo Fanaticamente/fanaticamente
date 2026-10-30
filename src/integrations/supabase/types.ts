@@ -1049,6 +1049,103 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_acceptances: {
+        Row: {
+          accepted_at: string
+          action: string
+          content_sha256: string
+          document_version_id: string
+          id: string
+          ip_address: string | null
+          slug: string
+          source: string
+          user_agent: string | null
+          user_id: string
+          version: number
+        }
+        Insert: {
+          accepted_at?: string
+          action: string
+          content_sha256: string
+          document_version_id: string
+          id?: string
+          ip_address?: string | null
+          slug: string
+          source: string
+          user_agent?: string | null
+          user_id: string
+          version: number
+        }
+        Update: {
+          accepted_at?: string
+          action?: string
+          content_sha256?: string
+          document_version_id?: string
+          id?: string
+          ip_address?: string | null
+          slug?: string
+          source?: string
+          user_agent?: string | null
+          user_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_acceptances_document_version_id_fkey"
+            columns: ["document_version_id"]
+            isOneToOne: false
+            referencedRelation: "legal_document_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      legal_document_versions: {
+        Row: {
+          change_summary: string | null
+          content_html: string
+          content_sha256: string
+          id: string
+          published_at: string
+          published_by: string | null
+          requires_reacceptance: boolean
+          slug: string
+          title: string
+          version: number
+        }
+        Insert: {
+          change_summary?: string | null
+          content_html: string
+          content_sha256: string
+          id?: string
+          published_at?: string
+          published_by?: string | null
+          requires_reacceptance?: boolean
+          slug: string
+          title: string
+          version: number
+        }
+        Update: {
+          change_summary?: string | null
+          content_html?: string
+          content_sha256?: string
+          id?: string
+          published_at?: string
+          published_by?: string | null
+          requires_reacceptance?: boolean
+          slug?: string
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_document_versions_slug_fkey"
+            columns: ["slug"]
+            isOneToOne: false
+            referencedRelation: "legal_documents"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
       legal_documents: {
         Row: {
           content_html: string
@@ -2615,6 +2712,24 @@ export type Database = {
       }
     }
     Functions: {
+      admin_search_legal_acceptances: {
+        Args: { _query?: string }
+        Returns: {
+          accepted_at: string
+          action: string
+          content_sha256: string
+          document_version_id: string
+          email: string
+          full_name: string
+          id: string
+          ip_address: string
+          slug: string
+          source: string
+          user_agent: string
+          user_id: string
+          version: number
+        }[]
+      }
       check_signup_conflict: {
         Args: { _account_type: string; _email: string; _phone: string }
         Returns: Json
@@ -2648,6 +2763,17 @@ export type Database = {
           points: number
           sessions_count: number
           user_id: string
+        }[]
+      }
+      get_pending_legal_documents: {
+        Args: { _user_id?: string }
+        Returns: {
+          content_sha256: string
+          previously_accepted: boolean
+          slug: string
+          title: string
+          version: number
+          version_id: string
         }[]
       }
       get_professional_whatsapp: {
@@ -2701,7 +2827,34 @@ export type Database = {
         }
         Returns: number
       }
+      publish_legal_document_version: {
+        Args: {
+          _change_summary: string
+          _content_html: string
+          _requires_reacceptance: boolean
+          _slug: string
+        }
+        Returns: {
+          change_summary: string | null
+          content_html: string
+          content_sha256: string
+          id: string
+          published_at: string
+          published_by: string | null
+          requires_reacceptance: boolean
+          slug: string
+          title: string
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "legal_document_versions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       purge_cron_history: { Args: never; Returns: undefined }
+      purge_legal_acceptance_technical_data: { Args: never; Returns: undefined }
       purge_operational_logs: { Args: never; Returns: undefined }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
