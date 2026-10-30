@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { legalGate } from "../_shared/legalGate.ts";
-import { runFullAudit } from "../scheduled-legal-audit/index.ts";
+import { runFullAudit } from "../_shared/legalAudit.ts";
 
 /**
  * Admin-only server-side audit of the legal acceptance hash chain.
