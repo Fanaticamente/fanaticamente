@@ -71,7 +71,8 @@ export async function buildOrganizedPdf(rows: ReportRow[], meta: PdfReportMeta):
     if (y - height < 60) { page = pdf.addPage([595.28, 841.89]); startPage(); }
   };
   const section = (title: string, fields: [string, unknown][]) => {
-    ensure(70);
+    const sectionHeight = 39 + fields.reduce((height, [, value]) => height + Math.max(29, wrap(value, regular, 9, 348).length * 13 + 14), 0);
+    ensure(Math.min(sectionHeight, 658));
     const heading = () => {
       page.drawRectangle({ x: 40, y: y - 25, width: 515, height: 25, color: band, borderColor: border, borderWidth: 0.6 });
       text(title, 50, y - 6, 10, true);
@@ -109,15 +110,16 @@ export async function buildOrganizedPdf(rows: ReportRow[], meta: PdfReportMeta):
     ["Alcance da evidência", "Evidência técnica de aceite. Não constitui, por si só, garantia de validade jurídica absoluta."],
   ]);
   for (const [index, row] of rows.entries()) {
-    ensure(130);
+    page = pdf.addPage([595.28, 841.89]);
+    startPage();
     section(`Aceite ${index + 1} de ${rows.length} — Identificação`, [
       ["Registro", row.id], ["Nome", row.full_name], ["E-mail", row.email], ["Usuário", row.user_id],
     ]);
-    section("Documento e aceite", [
+    section(`Aceite ${index + 1} de ${rows.length} — Documento e aceite`, [
       ["Documento", labels[row.slug] ?? row.slug], ["Versão", row.version], ["Identificador da versão", row.document_version_id],
       ["SHA-256 integral", row.content_sha256], ["Data do aceite (UTC)", row.accepted_at], ["Ação", row.action], ["Origem", row.source],
     ]);
-    section("Evidências técnicas registradas", [["Endereço IP", row.ip_address], ["Navegador / dispositivo", row.user_agent]]);
+    section(`Aceite ${index + 1} de ${rows.length} — Evidências técnicas`, [["Endereço IP", row.ip_address], ["Navegador / dispositivo", row.user_agent]]);
   }
   pdf.getPages().forEach((current, index, pages) => {
     current.drawText(`Fanaticamente • Uso restrito • Página ${index + 1} de ${pages.length}`, {
