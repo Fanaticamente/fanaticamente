@@ -68,6 +68,20 @@ Deno.serve(async (req) => {
       if (!requested.has(s)) return json({ error: "All required documents must be accepted", missing: s }, 400);
     }
 
+    // The client must state which exact version ids it displayed. If any differs from the
+    // current version (e.g. a new version was published while the window was open), refuse:
+    // the user must reload and see the new text before agreeing. Ids are only compared,
+    // never trusted: the recorded version/hash always come from the server lookup above.
+    const shown: unknown = body?.version_ids;
+    if (!shown || typeof shown !== "object" || Array.isArray(shown)) {
+      return json({ error: "version_ids required", code: "version_mismatch" }, 409);
+    }
+    for (const p of pendingRows) {
+      if ((shown as Record<string, unknown>)[p.slug] !== p.version_id) {
+        return json({ error: "Displayed version is not the current version", code: "version_mismatch", slug: p.slug }, 409);
+      }
+    }
+
     const { ip, source: ipSource } = trustedClientIp(req.headers);
     const ua = (req.headers.get("user-agent") ?? "").slice(0, 500) || null;
 
