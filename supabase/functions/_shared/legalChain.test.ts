@@ -1,4 +1,4 @@
-import { assertEquals, assertTrue } from "https://deno.land/std@0.224.0/assert/mod.ts";
+import { assert, assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import {
   auditChainRows,
   buildAcceptancePayload,
@@ -66,8 +66,8 @@ Deno.test("detecta alteração do conteúdo de um registro antigo", async () => 
   const { chain, sources } = await makeChain(5);
   chain[2].record_payload = chain[2].record_payload.replace("accept", "forged");
   const d = await auditChainRows(chain, sources, 5);
-  assertTrue(d.some((x) => x.check === "record_hash" && x.seq === 3));
-  assertTrue(d.some((x) => x.check === "source_tampered" && x.seq === 3));
+  assert(d.some((x) => x.check === "record_hash" && x.seq === 3));
+  assert(d.some((x) => x.check === "source_tampered" && x.seq === 3));
 });
 
 Deno.test("detecta exclusão de registro intermediário", async () => {
@@ -75,8 +75,8 @@ Deno.test("detecta exclusão de registro intermediário", async () => {
   const removed = chain.splice(2, 1)[0];
   sources.delete(removed.acceptance_id);
   const d = await auditChainRows(chain, sources, 4);
-  assertTrue(d.some((x) => x.check === "continuity"));
-  assertTrue(d.some((x) => x.check === "sequence"));
+  assert(d.some((x) => x.check === "continuity"));
+  assert(d.some((x) => x.check === "sequence"));
 });
 
 Deno.test("detecta alteração da ordem cronológica", async () => {
@@ -84,21 +84,21 @@ Deno.test("detecta alteração da ordem cronológica", async () => {
   // Swap created_at of two rows without changing linkage: order violation.
   chain[3].created_at = "2026-09-01T00:00:00.000Z";
   const d = await auditChainRows(chain, sources, 5);
-  assertTrue(d.some((x) => x.check === "chronology" && x.seq === 4));
+  assert(d.some((x) => x.check === "chronology" && x.seq === 4));
 });
 
 Deno.test("detecta quebra do elo com o registro anterior", async () => {
   const { chain, sources } = await makeChain(5);
   chain[3].prev_hash = "ff".repeat(32);
   const d = await auditChainRows(chain, sources, 5);
-  assertTrue(d.some((x) => x.check === "continuity" && x.seq === 4));
-  assertTrue(d.some((x) => x.check === "chain_hash" && x.seq === 4));
+  assert(d.some((x) => x.check === "continuity" && x.seq === 4));
+  assert(d.some((x) => x.check === "chain_hash" && x.seq === 4));
 });
 
 Deno.test("detecta aceite fora da cadeia (cobertura)", async () => {
   const { chain, sources } = await makeChain(3);
   const d = await auditChainRows(chain, sources, 4); // 4 acceptances, 3 chained
-  assertTrue(d.some((x) => x.check === "coverage"));
+  assert(d.some((x) => x.check === "coverage"));
 });
 
 Deno.test("detecta aceite original apagado da tabela fonte", async () => {
@@ -113,7 +113,7 @@ Deno.test("detecta adulteração da tabela fonte sem tocar a cadeia", async () =
   const tampered = sources.get(chain[1].acceptance_id)!;
   tampered.action = "reaccept"; // someone changed the source row
   const d = await auditChainRows(chain, sources, 3);
-  assertTrue(d.some((x) => x.check === "source_tampered" && x.seq === 2));
+  assert(d.some((x) => x.check === "source_tampered" && x.seq === 2));
 });
 
 Deno.test("payload canônico é determinístico e sanitiza pipes", () => {
@@ -121,5 +121,5 @@ Deno.test("payload canônico é determinístico e sanitiza pipes", () => {
   const b = buildAcceptancePayload({ ...ACCEPTANCE, user_agent: "a|b|c" });
   assertEquals(a, b);
   assertEquals(a.split("|").length, 13); // pipes inside fields are sanitized
-  assertTrue(a.startsWith("v1|"));
+  assert(a.startsWith("v1|"));
 });

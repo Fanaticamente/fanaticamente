@@ -1,4 +1,4 @@
-import { assertEquals, assertNotEquals, assertTrue } from "https://deno.land/std@0.224.0/assert/mod.ts";
+import { assert, assertEquals, assertNotEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import {
   buildCsv,
   buildManifest,
@@ -44,7 +44,7 @@ Deno.test("manifesto inclui sha256 de cada arquivo em ordem de nome", async () =
 Deno.test("código de verificação tem 26 caracteres do alfabeto Crockford", () => {
   const code = generateVerificationCode();
   assertEquals(code.length, 26);
-  assertTrue(/^[0-9A-HJKMNP-TV-Z]+$/.test(code));
+  assert(/^[0-9A-HJKMNP-TV-Z]+$/.test(code));
   assertNotEquals(generateVerificationCode(), generateVerificationCode());
 });
 
@@ -55,7 +55,7 @@ Deno.test("CSV escapa aspas e inclui cabeçalho de evidências", () => {
     source: "signup", ip_address: null, user_agent: null,
     accepted_at: "2026-10-01T00:00:00Z", document_version_id: "v",
   }]));
-  assertTrue(csv.includes('"Nome ""com"" aspas"'));
-  assertTrue(csv.includes("sha256_documento"));
-  assertTrue(csv.includes("data_hora_servidor_utc"));
+  assert(csv.includes('"Nome ""com"" aspas"'));
+  assert(csv.includes("sha256_documento"));
+  assert(csv.includes("data_hora_servidor_utc"));
 });
