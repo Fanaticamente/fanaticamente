@@ -54,6 +54,15 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
   const [revokeReason, setRevokeReason] = useState("");
   const [revokeMsg, setRevokeMsg] = useState<string | null>(null);
   const [revoking, setRevoking] = useState(false);
+  const [anchoring, setAnchoring] = useState(false);
+  const [anchorMsg, setAnchorMsg] = useState<string | null>(null);
+  const [auditing, setAuditing] = useState(false);
+  const [auditResult, setAuditResult] = useState<{
+    ok: boolean;
+    chain: { records_checked: number; head_seq: number | null };
+    anchors: { total: number; stamped: number; pending: number; failed: number; invalid: number };
+    divergences: { seq: number | null; check: string; detail: string }[];
+  } | null>(null);
   const verifyInputRef = useRef<HTMLInputElement>(null);
   const toggle = (id: string) => setSelected((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
@@ -210,6 +219,80 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
             </button>
           </div>
           {revokeMsg && <p className={`text-xs ${t.textMuted} mt-2`}>{revokeMsg}</p>}
+        </div>
+        <div className={`mb-4 border ${t.border} rounded-lg p-3`}>
+          <p className={`text-sm font-semibold ${t.text} mb-1`}>Cadeia de integridade e carimbo do tempo</p>
+          <p className={`text-xs ${t.textMuted} mb-2`}>
+            Cada aceite é selado em uma cadeia de hashes e ancorado com carimbo do tempo externo (RFC 3161).
+            A auditoria recalcula todos os hashes no servidor e detecta alterações, exclusões ou inserções retroativas.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={anchoring}
+              onClick={async () => {
+                setAnchoring(true);
+                setAnchorMsg(null);
+                try {
+                  const { data, error } = await supabase.functions.invoke("anchor-legal-chain", { body: {} });
+                  if (error) throw error;
+                  setAnchorMsg(
+                    data?.anchor?.stamped
+                      ? `Cabeça da cadeia (registro ${data.head.seq}) carimbada por ${data.anchor.tsa} em ${data.anchor.gen_time}. Pendentes: ${data.pending}.`
+                      : `Carimbo não confirmado pela autoridade externa (${data?.anchor?.error ?? "erro"}). O registro permanece pendente para nova tentativa.`,
+                  );
+                } catch {
+                  setAnchorMsg("Falha ao ancorar. Tente novamente.");
+                } finally {
+                  setAnchoring(false);
+                }
+              }}
+              className={`px-3 h-9 rounded-lg border ${t.border} ${t.text} text-xs disabled:opacity-40`}
+            >
+              {anchoring ? "Ancorando..." : "Ancorar agora"}
+            </button>
+            <button
+              type="button"
+              disabled={auditing}
+              onClick={async () => {
+                setAuditing(true);
+                setAuditResult(null);
+                try {
+                  const { data, error } = await supabase.functions.invoke("verify-legal-chain", { body: {} });
+                  if (error) throw error;
+                  setAuditResult(data);
+                } catch {
+                  setAuditResult(null);
+                  setAnchorMsg("Falha ao auditar a cadeia. Tente novamente.");
+                } finally {
+                  setAuditing(false);
+                }
+              }}
+              className={`px-3 h-9 rounded-lg border ${t.border} ${t.text} text-xs disabled:opacity-40`}
+            >
+              {auditing ? "Auditando..." : "Auditar cadeia"}
+            </button>
+          </div>
+          {anchorMsg && <p className={`text-xs ${t.textMuted} mt-2`}>{anchorMsg}</p>}
+          {auditResult && (
+            <div className={`mt-2 border rounded-lg p-3 text-xs ${auditResult.ok ? "border-emerald-500" : "border-destructive"}`}>
+              <p className={`font-semibold ${auditResult.ok ? "text-emerald-600" : "text-destructive"}`}>
+                {auditResult.ok
+                  ? `Cadeia íntegra: ${auditResult.chain.records_checked} registros verificados, nenhuma divergência.`
+                  : `Foram encontradas ${auditResult.divergences.length} divergência(s) na cadeia.`}
+              </p>
+              <p className={`${t.textMuted} mt-1`}>
+                Âncoras: {auditResult.anchors.stamped} carimbadas, {auditResult.anchors.pending} pendentes, {auditResult.anchors.failed} com falha, {auditResult.anchors.invalid} inválidas.
+              </p>
+              {auditResult.divergences.length > 0 && (
+                <ul className={`mt-1 space-y-0.5 ${t.textMuted}`}>
+                  {auditResult.divergences.map((d, i) => (
+                    <li key={i}>registro {d.seq ?? "—"} · {d.check}: {d.detail}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
         {verifyResult && (
           <div className={`mb-4 border rounded-lg p-3 text-sm ${verifyResult.valid ? "border-emerald-500" : "border-destructive"}`}>
