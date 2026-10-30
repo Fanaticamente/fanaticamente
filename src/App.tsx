@@ -23,6 +23,7 @@ if (typeof window !== "undefined") {
 }
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import LegalAcceptanceGate from "@/components/legal/LegalAcceptanceGate";
 import { RadioProvider } from "@/contexts/RadioContext";
 import { ClubThemeProvider } from "@/contexts/ClubThemeContext";
 import ProtectedRoute, { DynamicProtectedRoute } from "@/components/ProtectedRoute";
@@ -222,6 +223,7 @@ const App = () => {
               <Toaster />
               <Sonner />
               <GlobalRadioPlayer />
+              <LegalAcceptanceGate />
               <Routes>
                 {/* Always public routes */}
                 <Route path="/auth" element={<Auth />} />

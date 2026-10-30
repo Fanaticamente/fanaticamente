@@ -17,9 +17,10 @@ import AdminNotifications from "@/components/admin/AdminNotifications";
 import AdminCouponManager from "@/components/admin/AdminCouponManager";
 import AdminSubscriptionsManager from "@/components/admin/AdminSubscriptionsManager";
 import AdminLegalManager from "@/components/admin/AdminLegalManager";
+import AdminLegalAcceptances from "@/components/admin/AdminLegalAcceptances";
 import { getDisplayAuthEmail } from "@/lib/appMode";
 
-type TabType = "dashboard" | "financeiro" | "financeiro-cupons" | "financeiro-assinaturas" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "notificacoes" | "juridico-documentos" | "configuracoes";
+type TabType = "dashboard" | "financeiro" | "financeiro-cupons" | "financeiro-assinaturas" | "usuarios" | "gestao" | "profissionais" | "agendamentos" | "notificacoes" | "juridico-documentos" | "juridico-aceites" | "configuracoes";
 
 const AdminDashboard = () => {
   const { user, signOut, hasRole, loading } = useAuth();
@@ -27,7 +28,7 @@ const AdminDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Valid tabs
-  const validTabs: TabType[] = ["dashboard", "financeiro", "financeiro-cupons", "financeiro-assinaturas", "usuarios", "gestao", "profissionais", "agendamentos", "notificacoes", "juridico-documentos", "configuracoes"];
+  const validTabs: TabType[] = ["dashboard", "financeiro", "financeiro-cupons", "financeiro-assinaturas", "usuarios", "gestao", "profissionais", "agendamentos", "notificacoes", "juridico-documentos", "juridico-aceites", "configuracoes"];
   
   // Get tab from URL or default
   const getTabFromUrl = (): TabType => {
@@ -119,6 +120,7 @@ const AdminDashboard = () => {
     { id: "notificacoes", label: "Notificações", icon: Bell },
     { id: "juridico-documentos", label: "Jurídico", icon: Scale, subItems: [
       { id: "juridico-documentos", label: "Política & Termos" },
+      { id: "juridico-aceites", label: "Comprovação de aceites" },
     ]},
     { id: "configuracoes", label: "Configurações", icon: Settings },
   ];
@@ -334,6 +336,9 @@ const AdminDashboard = () => {
         )}
 
         {/* Jurídico Tab */}
+        {activeTab === "juridico-aceites" && (
+          <AdminLegalAcceptances themeStyles={themeStyles} />
+        )}
         {activeTab === "juridico-documentos" && (
           <AdminLegalManager themeStyles={themeStyles} />
         )}

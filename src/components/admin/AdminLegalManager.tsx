@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Save, FileText, Scale, Users, Stethoscope } from "lucide-react";
 import RichEditor from "@/components/marketing/RichEditor";
-import { useLegalDocument, useUpdateLegalDocument, type LegalSlug } from "@/hooks/useLegalDocument";
+import { useLegalDocument, usePublishLegalVersion, useLegalVersions, type LegalSlug } from "@/hooks/useLegalDocument";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -59,8 +59,12 @@ const GROUPS: {
 const AdminLegalManager = ({ themeStyles }: Props) => {
   const [activeSlug, setActiveSlug] = useState<LegalSlug>("privacy-policy");
   const { data, isLoading } = useLegalDocument(activeSlug);
-  const update = useUpdateLegalDocument();
+  const update = usePublishLegalVersion();
+  const { data: versions } = useLegalVersions(activeSlug);
   const [html, setHtml] = useState("");
+  const [requiresReaccept, setRequiresReaccept] = useState(false);
+  const [summary, setSummary] = useState("");
+  const [viewing, setViewing] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = data?.content_html ?? "";
@@ -69,8 +73,11 @@ const AdminLegalManager = ({ themeStyles }: Props) => {
 
   const handleSave = async () => {
     try {
-      await update.mutateAsync({ slug: activeSlug, content_html: html });
-      toast.success("Documento atualizado com sucesso!");
+      const v = await update.mutateAsync({
+        slug: activeSlug, content_html: html, requires_reacceptance: requiresReaccept, change_summary: summary,
+      });
+      toast.success(`Versão ${v.version} publicada${requiresReaccept ? " — novo aceite será solicitado" : ""}.`);
+      setSummary(""); setRequiresReaccept(false);
     } catch (e: any) {
       toast.error(e.message || "Erro ao salvar documento");
     }
@@ -141,6 +148,23 @@ const AdminLegalManager = ({ themeStyles }: Props) => {
           />
         )}
 
+        <div className={`mt-4 border ${themeStyles.border} rounded-xl p-3 space-y-2`}>
+          <input
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+            maxLength={500}
+            placeholder="Resumo da alteração (opcional)"
+            className={`w-full h-10 px-3 rounded-lg border ${themeStyles.border} bg-transparent text-sm ${themeStyles.text}`}
+          />
+          <label className={`flex items-center gap-2 text-sm ${themeStyles.text}`}>
+            <input type="checkbox" checked={requiresReaccept} onChange={(e) => setRequiresReaccept(e.target.checked)} />
+            Exigir novo aceite dos usuários nesta versão
+          </label>
+          <p className={`text-xs ${themeStyles.textMuted}`}>
+            Cada publicação cria uma nova versão imutável com hash SHA-256; versões e aceites anteriores são preservados.
+          </p>
+        </div>
+
         <div className="flex justify-end mt-4">
           <button
             onClick={handleSave}
@@ -148,8 +172,35 @@ const AdminLegalManager = ({ themeStyles }: Props) => {
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-secondary text-secondary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
             <Save className="w-4 h-4" />
-            {update.isPending ? "Salvando..." : "Salvar alterações"}
+            {update.isPending ? "Publicando..." : "Publicar nova versão"}
           </button>
+        </div>
+      </div>
+
+      <div className={`${themeStyles.card} border ${themeStyles.border} rounded-xl p-4 md:p-6`}>
+        <h3 className={`font-display text-lg ${themeStyles.text} mb-3`}>Histórico de versões</h3>
+        <div className="space-y-2">
+          {(versions ?? []).map((v) => (
+            <div key={v.id} className={`border ${themeStyles.border} rounded-lg p-3 text-sm`}>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className={`font-semibold ${themeStyles.text}`}>
+                  Versão {v.version}{v.requires_reacceptance ? " · exige aceite" : ""}
+                </span>
+                <span className={themeStyles.textMuted}>
+                  {format(new Date(v.published_at), "dd/MM/yyyy HH:mm:ss", { locale: ptBR })}
+                </span>
+              </div>
+              {v.change_summary && <p className={`${themeStyles.textMuted} mt-1`}>{v.change_summary}</p>}
+              <p className={`font-mono text-xs break-all mt-1 ${themeStyles.textMuted}`}>SHA-256: {v.content_sha256}</p>
+              <button onClick={() => setViewing(viewing === v.id ? null : v.id)} className="text-xs underline mt-1 text-secondary">
+                {viewing === v.id ? "Ocultar conteúdo" : "Ver conteúdo integral"}
+              </button>
+              {viewing === v.id && (
+                <pre className={`mt-2 max-h-80 overflow-auto whitespace-pre-wrap text-xs ${themeStyles.text}`}>{v.content_html}</pre>
+              )}
+            </div>
+          ))}
+          {versions && versions.length === 0 && <p className={themeStyles.textMuted}>Nenhuma versão registrada.</p>}
         </div>
       </div>
     </div>

@@ -1,0 +1,95 @@
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+
+const ALLOWED_SLUGS = new Set([
+  "terms-of-use",
+  "privacy-policy",
+  "terms-of-use-professional",
+  "privacy-policy-professional",
+]);
+const ALLOWED_SOURCES = new Set(["signup", "reaccept_prompt"]);
+
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+
+  try {
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    if (!token) return json({ error: "Unauthorized" }, 401);
+
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      { auth: { autoRefreshToken: false, persistSession: false } },
+    );
+
+    // The user is derived ONLY from the verified session token.
+    const { data: userData, error: authError } = await admin.auth.getUser(token);
+    if (authError || !userData?.user) return json({ error: "Unauthorized" }, 401);
+    const userId = userData.user.id;
+
+    let body: any;
+    try { body = await req.json(); } catch { return json({ error: "Invalid JSON" }, 400); }
+
+    // Only slugs + source are accepted from the client. Any date/version/hash sent is ignored.
+    const slugs: unknown = body?.slugs;
+    const source: unknown = body?.source;
+    if (
+      !Array.isArray(slugs) || slugs.length === 0 || slugs.length > 4 ||
+      !slugs.every((s) => typeof s === "string" && ALLOWED_SLUGS.has(s))
+    ) return json({ error: "Invalid slugs" }, 400);
+    if (typeof source !== "string" || !ALLOWED_SOURCES.has(source)) {
+      return json({ error: "Invalid source" }, 400);
+    }
+
+    // Server decides which current versions this user must accept.
+    const { data: pending, error: pendErr } = await admin.rpc("get_pending_legal_documents", {
+      _user_id: userId,
+    });
+    if (pendErr) throw pendErr;
+
+    const pendingRows = (pending ?? []) as Array<{
+      slug: string; version_id: string; version: number; content_sha256: string; previously_accepted: boolean;
+    }>;
+    const pendingSlugs = new Set(pendingRows.map((p) => p.slug));
+    const requested = new Set(slugs as string[]);
+
+    // All pending documents must be accepted together (both checkboxes).
+    for (const s of pendingSlugs) {
+      if (!requested.has(s)) return json({ error: "All required documents must be accepted", missing: s }, 400);
+    }
+
+    const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim().slice(0, 64) ||
+      req.headers.get("cf-connecting-ip")?.slice(0, 64) || null;
+    const ua = (req.headers.get("user-agent") ?? "").slice(0, 500) || null;
+
+    const rows = pendingRows.map((p) => ({
+      user_id: userId,
+      document_version_id: p.version_id,
+      slug: p.slug,
+      version: p.version,
+      content_sha256: p.content_sha256,
+      action: p.previously_accepted ? "reaccept" : "accept",
+      source,
+      ip_address: ip,
+      user_agent: ua,
+    }));
+
+    if (rows.length > 0) {
+      const { error: insErr } = await admin.from("legal_acceptances").insert(rows);
+      if (insErr) throw insErr;
+    }
+
+    return json({ recorded: rows.length });
+  } catch (e) {
+    console.error("[record-legal-acceptance]", e);
+    return json({ error: "Internal error" }, 500);
+  }
+});

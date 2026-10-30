@@ -48,3 +48,50 @@ export const useUpdateLegalDocument = () => {
     },
   });
 };
+
+export interface LegalDocumentVersion {
+  id: string;
+  slug: string;
+  version: number;
+  title: string;
+  content_html: string;
+  content_sha256: string;
+  requires_reacceptance: boolean;
+  change_summary: string | null;
+  published_at: string;
+}
+
+export const useLegalVersions = (slug: LegalSlug) =>
+  useQuery({
+    queryKey: ["legal-versions", slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("legal_document_versions")
+        .select("*")
+        .eq("slug", slug)
+        .order("version", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as LegalDocumentVersion[];
+    },
+  });
+
+export const usePublishLegalVersion = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (v: { slug: LegalSlug; content_html: string; requires_reacceptance: boolean; change_summary: string }) => {
+      const { data, error } = await supabase.rpc("publish_legal_document_version", {
+        _slug: v.slug,
+        _content_html: v.content_html,
+        _requires_reacceptance: v.requires_reacceptance,
+        _change_summary: v.change_summary || null,
+      } as any);
+      if (error) throw error;
+      return data as unknown as LegalDocumentVersion;
+    },
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ["legal-document", vars.slug] });
+      qc.invalidateQueries({ queryKey: ["legal-versions", vars.slug] });
+      qc.invalidateQueries({ queryKey: ["legal-pending"] });
+    },
+  });
+};

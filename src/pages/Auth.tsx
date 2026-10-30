@@ -11,6 +11,7 @@ import { brazilianStates, getCitiesByState } from "@/data/brazilianStates";
 import { supabase } from "@/integrations/supabase/client";
 import { encodeAuthEmail, isProfessionalApp } from "@/lib/appMode";
 import { Checkbox } from "@/components/ui/checkbox";
+import { PENDING_LEGAL_KEY, signupSlugs, canCompleteSignup } from "@/lib/legalAcceptance";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -154,7 +155,8 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [roleValidated, setRoleValidated] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTermsDoc, setAcceptedTermsDoc] = useState(false);
+  const [acceptedPrivacyDoc, setAcceptedPrivacyDoc] = useState(false);
   const [customClubName, setCustomClubName] = useState("");
 
   // --- Recuperação de senha ---
@@ -470,8 +472,8 @@ const Auth = () => {
     }
 
     // Validate terms acceptance
-    if (!acceptedTerms) {
-      newErrors.terms = "Você deve aceitar os termos e política de privacidade";
+    if (!canCompleteSignup({ terms: acceptedTermsDoc, privacy: acceptedPrivacyDoc })) {
+      newErrors.terms = "Você deve aceitar os Termos de Uso e a Política de Privacidade";
     }
 
     setErrors(newErrors);
@@ -568,6 +570,11 @@ const Auth = () => {
 
         // Use sessionStorage instead of localStorage for sensitive data (shorter exposure window)
         sessionStorage.setItem("pendingProfileUpdate", JSON.stringify(profileData));
+        // Intent only; the evidence is recorded server-side after authentication.
+        sessionStorage.setItem(
+          PENDING_LEGAL_KEY,
+          JSON.stringify(signupSlugs(authMode === "professional" ? "pro" : "fan"))
+        );
 
         // ISOLAMENTO: garantir que não haja sessão de OUTRO tipo de conta ativa
         // antes de cadastrar. Ex.: torcedor já logado tentando se cadastrar
@@ -587,6 +594,7 @@ const Auth = () => {
         if (error) {
           // Clean up sensitive data on error
           sessionStorage.removeItem("pendingProfileUpdate");
+          sessionStorage.removeItem(PENDING_LEGAL_KEY);
           if (error.message.includes("already registered")) {
             toast.error(
               authMode === "professional"
@@ -1216,33 +1224,35 @@ const Auth = () => {
 
                     {/* Terms Acceptance */}
                     <div className="mt-4 p-4 bg-muted/50 rounded-xl">
-                      <div className="flex items-start gap-3">
+                      <div className="space-y-3"><div className="flex items-start gap-3">
                         <Checkbox
-                          id="accept-terms-desktop"
-                          checked={acceptedTerms}
-                          onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                          id="accept-terms-desktop-tou"
+                          checked={acceptedTermsDoc}
+                          onCheckedChange={(checked) => setAcceptedTermsDoc(checked === true)}
                           className="mt-0.5 border-therapy data-[state=checked]:bg-therapy data-[state=checked]:text-therapy-foreground data-[state=checked]:border-therapy focus-visible:ring-therapy"
                         />
-                        <label htmlFor="accept-terms-desktop" className="text-sm text-therapy cursor-pointer leading-relaxed">
-                          Li e aceito a{" "}
-                          <Link
-                            to={authMode === "professional" ? "/politica-privacidade-profissional" : "/politica-privacidade"}
-                            target="_blank"
-                            className="underline font-medium text-therapy"
-                          >
-                            Política de Privacidade
-                          </Link>
-                          {" "}e os{" "}
-                          <Link
-                            to={authMode === "professional" ? "/termos-de-uso-profissional" : "/termos-de-uso"}
-                            target="_blank"
-                            className="underline font-medium text-therapy"
-                          >
+                        <label htmlFor="accept-terms-desktop-tou" className="text-sm text-therapy cursor-pointer leading-relaxed">
+                          Li e aceito os{" "}
+                          <Link to={authMode === "professional" ? "/termos-de-uso-profissional" : "/termos-de-uso"} target="_blank" className="underline font-medium text-therapy">
                             Termos de Uso
                           </Link>
-                          {" "}da plataforma.
+                          {" "}(abre em nova aba para leitura integral).
                         </label>
-                      </div>
+                      </div><div className="flex items-start gap-3">
+                        <Checkbox
+                          id="accept-terms-desktop-pp"
+                          checked={acceptedPrivacyDoc}
+                          onCheckedChange={(checked) => setAcceptedPrivacyDoc(checked === true)}
+                          className="mt-0.5 border-therapy data-[state=checked]:bg-therapy data-[state=checked]:text-therapy-foreground data-[state=checked]:border-therapy focus-visible:ring-therapy"
+                        />
+                        <label htmlFor="accept-terms-desktop-pp" className="text-sm text-therapy cursor-pointer leading-relaxed">
+                          Li e aceito a{" "}
+                          <Link to={authMode === "professional" ? "/politica-privacidade-profissional" : "/politica-privacidade"} target="_blank" className="underline font-medium text-therapy">
+                            Política de Privacidade
+                          </Link>
+                          {" "}(abre em nova aba para leitura integral).
+                        </label>
+                      </div></div>
                       {errors.terms && (
                         <p className="text-destructive text-sm mt-2 ml-7">{errors.terms}</p>
                       )}
@@ -1627,33 +1637,35 @@ const Auth = () => {
 
                  {/* Terms Acceptance */}
                  <div className="mt-4 p-4 bg-muted/50 rounded-xl">
-                   <div className="flex items-start gap-3">
-                     <Checkbox
-                       id="accept-terms"
-                       checked={acceptedTerms}
-                       onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                       className={`mt-0.5 ${authMode === "professional" ? "border-therapy data-[state=checked]:bg-therapy data-[state=checked]:text-therapy-foreground data-[state=checked]:border-therapy focus-visible:ring-therapy" : "border-white data-[state=checked]:bg-white data-[state=checked]:text-background data-[state=checked]:border-white focus-visible:ring-white"}`}
-                     />
-                     <label htmlFor="accept-terms" className={`text-sm cursor-pointer leading-relaxed ${authMode === "professional" ? "text-therapy" : "text-white"}`}>
-                       Li e aceito a{" "}
-                       <Link
-                         to={authMode === "professional" ? "/politica-privacidade-profissional" : "/politica-privacidade"}
-                         target="_blank"
-                         className={`underline font-medium ${authMode === "professional" ? "text-therapy" : "text-white"}`}
-                       >
-                         Política de Privacidade
-                       </Link>
-                       {" "}e os{" "}
-                       <Link
-                         to={authMode === "professional" ? "/termos-de-uso-profissional" : "/termos-de-uso"}
-                         target="_blank"
-                         className={`underline font-medium ${authMode === "professional" ? "text-therapy" : "text-white"}`}
-                       >
-                         Termos de Uso
-                       </Link>
-                       {" "}da plataforma.
-                     </label>
-                   </div>
+                   <div className="space-y-3"><div className="flex items-start gap-3">
+                        <Checkbox
+                          id="accept-terms-tou"
+                          checked={acceptedTermsDoc}
+                          onCheckedChange={(checked) => setAcceptedTermsDoc(checked === true)}
+                          className={`mt-0.5 ${authMode === "professional" ? "border-therapy data-[state=checked]:bg-therapy data-[state=checked]:text-therapy-foreground data-[state=checked]:border-therapy focus-visible:ring-therapy" : "border-white data-[state=checked]:bg-white data-[state=checked]:text-background data-[state=checked]:border-white focus-visible:ring-white"}`}
+                        />
+                        <label htmlFor="accept-terms-tou" className={`text-sm cursor-pointer leading-relaxed ${authMode === "professional" ? "text-therapy" : "text-white"}`}>
+                          Li e aceito os{" "}
+                          <Link to={authMode === "professional" ? "/termos-de-uso-profissional" : "/termos-de-uso"} target="_blank" className={`underline font-medium ${authMode === "professional" ? "text-therapy" : "text-white"}`}>
+                            Termos de Uso
+                          </Link>
+                          {" "}(abre em nova aba para leitura integral).
+                        </label>
+                      </div><div className="flex items-start gap-3">
+                        <Checkbox
+                          id="accept-terms-pp"
+                          checked={acceptedPrivacyDoc}
+                          onCheckedChange={(checked) => setAcceptedPrivacyDoc(checked === true)}
+                          className={`mt-0.5 ${authMode === "professional" ? "border-therapy data-[state=checked]:bg-therapy data-[state=checked]:text-therapy-foreground data-[state=checked]:border-therapy focus-visible:ring-therapy" : "border-white data-[state=checked]:bg-white data-[state=checked]:text-background data-[state=checked]:border-white focus-visible:ring-white"}`}
+                        />
+                        <label htmlFor="accept-terms-pp" className={`text-sm cursor-pointer leading-relaxed ${authMode === "professional" ? "text-therapy" : "text-white"}`}>
+                          Li e aceito a{" "}
+                          <Link to={authMode === "professional" ? "/politica-privacidade-profissional" : "/politica-privacidade"} target="_blank" className={`underline font-medium ${authMode === "professional" ? "text-therapy" : "text-white"}`}>
+                            Política de Privacidade
+                          </Link>
+                          {" "}(abre em nova aba para leitura integral).
+                        </label>
+                      </div></div>
                   {errors.terms && (
                     <p className="text-destructive text-sm mt-2 ml-7">{errors.terms}</p>
                   )}
