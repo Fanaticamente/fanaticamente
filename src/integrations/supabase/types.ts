@@ -1186,6 +1186,69 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_report_events: {
+        Row: {
+          action: string
+          admin_user_id: string
+          created_at: string
+          file_manifest: Json | null
+          id: string
+          record_count: number | null
+          report_id: string
+          report_type: string | null
+          signature: string | null
+          verification_result: string | null
+        }
+        Insert: {
+          action: string
+          admin_user_id: string
+          created_at?: string
+          file_manifest?: Json | null
+          id?: string
+          record_count?: number | null
+          report_id: string
+          report_type?: string | null
+          signature?: string | null
+          verification_result?: string | null
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string
+          created_at?: string
+          file_manifest?: Json | null
+          id?: string
+          record_count?: number | null
+          report_id?: string
+          report_type?: string | null
+          signature?: string | null
+          verification_result?: string | null
+        }
+        Relationships: []
+      }
+      legal_report_keys: {
+        Row: {
+          algorithm: string
+          created_at: string
+          is_active: boolean
+          key_id: string
+          public_key: string
+        }
+        Insert: {
+          algorithm?: string
+          created_at?: string
+          is_active?: boolean
+          key_id: string
+          public_key: string
+        }
+        Update: {
+          algorithm?: string
+          created_at?: string
+          is_active?: boolean
+          key_id?: string
+          public_key?: string
+        }
+        Relationships: []
+      }
       legal_signup_intents: {
         Row: {
           account_type: string
@@ -2776,6 +2839,24 @@ export type Database = {
       }
     }
     Functions: {
+      admin_legal_report_rows: {
+        Args: { _ids?: string[]; _limit?: number; _offset?: number }
+        Returns: {
+          accepted_at: string
+          action: string
+          content_sha256: string
+          document_version_id: string
+          email: string
+          full_name: string
+          id: string
+          ip_address: string
+          slug: string
+          source: string
+          user_agent: string
+          user_id: string
+          version: number
+        }[]
+      }
       admin_search_legal_acceptances: {
         Args: { _query?: string }
         Returns: {
