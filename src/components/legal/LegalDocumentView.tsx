@@ -1,9 +1,10 @@
 import { ChevronLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useLegalDocument, type LegalSlug } from "@/hooks/useLegalDocument";
+import { useLegalPublicVersion, sha256Utf8Hex, type LegalSlug } from "@/hooks/useLegalDocument";
 
 interface Props {
   slug: LegalSlug;
@@ -16,13 +17,22 @@ interface Props {
 
 const LegalDocumentView = ({ slug, title, fallback, fallbackDate }: Props) => {
   const navigate = useNavigate();
-  const { data, isLoading } = useLegalDocument(slug);
+  const [params] = useSearchParams();
+  const versionId = params.get("v");
+  // Source of truth: immutable version table (same row the acceptance is recorded against).
+  const { data, isLoading } = useLegalPublicVersion(slug, versionId);
+  const [hashOk, setHashOk] = useState<boolean | null>(null);
+  useEffect(() => {
+    setHashOk(null);
+    if (!data?.content_html) return;
+    sha256Utf8Hex(data.content_html).then((h) => setHashOk(h === data.content_sha256));
+  }, [data?.content_html, data?.content_sha256]);
 
   const hasContent = !!data?.content_html && data.content_html.replace(/<[^>]+>/g, "").trim().length > 0;
   const safeHtml = hasContent ? DOMPurify.sanitize(data!.content_html) : "";
 
-  const updatedLabel = data?.updated_at
-    ? format(new Date(data.updated_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+  const updatedLabel = data?.published_at
+    ? format(new Date(data.published_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
     : fallbackDate;
 
   return (
@@ -57,6 +67,13 @@ const LegalDocumentView = ({ slug, title, fallback, fallbackDate }: Props) => {
         {updatedLabel && (
           <p className="text-center text-gray-500 text-sm mt-12 pt-6 border-t border-gray-200">
             Última atualização: {updatedLabel}
+          </p>
+        )}
+        {data && (
+          <p className="text-center text-gray-500 text-xs mt-3 break-all" data-legal-version={data.id}>
+            Versão {data.version} · SHA-256 {data.content_sha256}
+            {hashOk === true && " · integridade conferida"}
+            {hashOk === false && " · atenção: conteúdo não confere com o hash"}
           </p>
         )}
       </main>

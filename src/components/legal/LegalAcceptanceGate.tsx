@@ -13,15 +13,24 @@ import {
 type PendingDoc = {
   slug: string;
   title: string;
+  version_id: string;
   version: number;
   previously_accepted: boolean;
 };
 
-export const recordLegalAcceptance = async (slugs: string[], source: "reaccept_prompt") => {
+export const recordLegalAcceptance = async (
+  slugs: string[],
+  source: "reaccept_prompt",
+  versionIds: Record<string, string>,
+) => {
   const { data, error } = await supabase.functions.invoke("record-legal-acceptance", {
-    body: { slugs, source },
+    body: { slugs, source, version_ids: versionIds },
   });
-  if (error) throw error;
+  if (error) {
+    const status = (error as { context?: Response }).context?.status;
+    if (status === 409) throw new Error("version_mismatch");
+    throw error;
+  }
   return data;
 };
 
@@ -54,13 +63,24 @@ const LegalAcceptanceGate = () => {
     if (!allChecked) return;
     setSaving(true);
     try {
-      await recordLegalAcceptance(pending.map((p) => p.slug), "reaccept_prompt");
+      await recordLegalAcceptance(
+        pending.map((p) => p.slug),
+        "reaccept_prompt",
+        Object.fromEntries(pending.map((p) => [p.slug, p.version_id])),
+      );
       await qc.invalidateQueries({ queryKey: ["legal-pending"] });
       setChecked({});
       // Protected data was blocked server-side while pending; reload so every screen refetches.
       window.location.reload();
-    } catch {
-      toast.error("Não foi possível registrar o aceite. Tente novamente.");
+    } catch (e) {
+      if (e instanceof Error && e.message === "version_mismatch") {
+        // A newer version was published while this window was open: show it before agreeing.
+        setChecked({});
+        await qc.invalidateQueries({ queryKey: ["legal-pending"] });
+        toast.error("Um documento foi atualizado. Leia a nova versão e aceite novamente.");
+      } else {
+        toast.error("Não foi possível registrar o aceite. Tente novamente.");
+      }
     } finally {
       setSaving(false);
     }
@@ -86,7 +106,7 @@ const LegalAcceptanceGate = () => {
               />
               <label htmlFor={`gate-${p.slug}`} className="text-sm leading-relaxed cursor-pointer">
                 Li e aceito {p.slug.startsWith("terms") ? "os " : "a "}
-                <Link to={LEGAL_PATHS[p.slug]} target="_blank" className="underline font-medium">
+                <Link to={`${LEGAL_PATHS[p.slug]}?v=${p.version_id}`} target="_blank" className="underline font-medium">
                   {p.title}
                 </Link>{" "}
                 <span className="text-muted-foreground">(versão {p.version})</span>

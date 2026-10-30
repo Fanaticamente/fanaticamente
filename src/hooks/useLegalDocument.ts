@@ -95,3 +95,26 @@ export const usePublishLegalVersion = () => {
     },
   });
 };
+
+/**
+ * Public display source of truth: the immutable version table.
+ * With `versionId`, returns that exact version (used by the acceptance window link);
+ * otherwise the latest published version of the slug.
+ */
+export const useLegalPublicVersion = (slug: LegalSlug, versionId?: string | null) =>
+  useQuery({
+    queryKey: ["legal-public-version", slug, versionId ?? "latest"],
+    queryFn: async () => {
+      let q = supabase.from("legal_document_versions").select("*").eq("slug", slug);
+      q = versionId ? q.eq("id", versionId) : q.order("version", { ascending: false }).limit(1);
+      const { data, error } = await q.maybeSingle();
+      if (error) throw error;
+      return data as LegalDocumentVersion | null;
+    },
+  });
+
+/** SHA-256 hex of the UTF-8 bytes of a string, exactly as the database computes it. */
+export const sha256Utf8Hex = async (text: string) => {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+};

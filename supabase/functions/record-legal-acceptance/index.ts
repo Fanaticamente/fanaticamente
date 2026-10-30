@@ -1,3 +1,4 @@
+import { trustedClientIp } from "../_shared/trustedIp.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
@@ -67,8 +68,21 @@ Deno.serve(async (req) => {
       if (!requested.has(s)) return json({ error: "All required documents must be accepted", missing: s }, 400);
     }
 
-    const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim().slice(0, 64) ||
-      req.headers.get("cf-connecting-ip")?.slice(0, 64) || null;
+    // The client must state which exact version ids it displayed. If any differs from the
+    // current version (e.g. a new version was published while the window was open), refuse:
+    // the user must reload and see the new text before agreeing. Ids are only compared,
+    // never trusted: the recorded version/hash always come from the server lookup above.
+    const shown: unknown = body?.version_ids;
+    if (!shown || typeof shown !== "object" || Array.isArray(shown)) {
+      return json({ error: "version_ids required", code: "version_mismatch" }, 409);
+    }
+    for (const p of pendingRows) {
+      if ((shown as Record<string, unknown>)[p.slug] !== p.version_id) {
+        return json({ error: "Displayed version is not the current version", code: "version_mismatch", slug: p.slug }, 409);
+      }
+    }
+
+    const { ip, source: ipSource } = trustedClientIp(req.headers);
     const ua = (req.headers.get("user-agent") ?? "").slice(0, 500) || null;
 
     const rows = pendingRows.map((p) => ({
@@ -80,6 +94,7 @@ Deno.serve(async (req) => {
       action: p.previously_accepted ? "reaccept" : "accept",
       source,
       ip_address: ip,
+      ip_source: ipSource,
       user_agent: ua,
     }));
 
