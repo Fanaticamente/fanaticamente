@@ -2839,6 +2839,24 @@ export type Database = {
       }
     }
     Functions: {
+      admin_legal_report_rows: {
+        Args: { _ids?: string[]; _limit?: number; _offset?: number }
+        Returns: {
+          accepted_at: string
+          action: string
+          content_sha256: string
+          document_version_id: string
+          email: string
+          full_name: string
+          id: string
+          ip_address: string
+          slug: string
+          source: string
+          user_agent: string
+          user_id: string
+          version: number
+        }[]
+      }
       admin_search_legal_acceptances: {
         Args: { _query?: string }
         Returns: {
