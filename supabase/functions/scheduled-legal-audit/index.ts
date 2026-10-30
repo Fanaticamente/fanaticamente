@@ -26,10 +26,18 @@ serve(async (req) => {
   );
 
   try {
-    // Cron-secret auth: compare SHA-256 of the presented secret.
+    // Cron-secret auth: the expected secret lives only in the locked
+    // legal_cron_config table (single source of truth, service-role only).
+    // The presented Bearer token is compared by SHA-256 so the raw secret
+    // never appears in logs or env vars.
     const presented = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
-    const expectedHash = Deno.env.get("LEGAL_AUDIT_CRON_SECRET_SHA256") ?? "";
+    const { data: cfg } = await admin
+      .from("legal_cron_config")
+      .select("value")
+      .eq("key", "audit_secret")
+      .maybeSingle();
     const presentedHash = presented ? await sha256Hex(presented) : "";
+    const expectedHash = cfg?.value ? await sha256Hex(cfg.value) : "";
     if (!expectedHash || !presentedHash || presentedHash !== expectedHash) {
       logSecurityEvent(admin, "scheduled_audit_unauthorized", "warning", {});
       return json({ error: "unauthorized" }, 401);
