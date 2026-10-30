@@ -10,6 +10,7 @@ import { filterLegalSystem, legalReportTargets, type LegalSystem } from "@/lib/l
 
 interface Props {
   themeStyles: { card: string; text: string; textMuted: string; border: string };
+  isDarkMode?: boolean;
 }
 
 type Row = {
@@ -54,7 +55,7 @@ const fmt = (d: string) => format(new Date(d), "dd/MM/yyyy HH:mm:ss", { locale: 
 
 type VerifyResult = { valid: boolean; checks: Record<string, boolean | string> } | null;
 
-const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
+const AdminLegalAcceptances = ({ themeStyles: t, isDarkMode = false }: Props) => {
   const [input, setInput] = useState("");
   const [query, setQuery] = useState("");
   const [system, setSystem] = useState<LegalSystem>("fan");
@@ -201,7 +202,7 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="admin-legal-theme space-y-4 text-foreground" data-panel-theme={isDarkMode ? "dark" : "light"}>
       <div className={`${t.card} border ${t.border} rounded-xl p-4 md:p-6`}>
         <h2 className={`font-display text-xl ${t.text} mb-1`}>Comprovação de aceites</h2>
         <p className={`text-sm ${t.textMuted} mb-4`}>
@@ -262,7 +263,7 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
           <div className="flex flex-wrap gap-2">
             <input value={revokeCode} onChange={(e) => setRevokeCode(e.target.value.toUpperCase())} placeholder="Código do relatório" className={`flex-1 min-w-[180px] h-9 px-3 rounded-lg border ${t.border} bg-transparent text-xs font-mono ${t.text}`} maxLength={32} />
             <input value={revokeReason} onChange={(e) => setRevokeReason(e.target.value)} placeholder="Justificativa (obrigatória)" className={`flex-[2] min-w-[200px] h-9 px-3 rounded-lg border ${t.border} bg-transparent text-xs ${t.text}`} maxLength={500} />
-            <button
+            <Button variant="outline" size="sm"
               type="button"
               disabled={revoking || revokeCode.trim().length < 20 || revokeReason.trim().length < 5}
               onClick={async () => {
@@ -284,7 +285,7 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
               className={`px-3 h-9 rounded-lg border ${t.border} ${t.text} text-xs disabled:opacity-40`}
             >
               {revoking ? "Revogando..." : "Revogar"}
-            </button>
+            </Button>
           </div>
           {revokeMsg && <p className={`text-xs ${t.textMuted} mt-2`}>{revokeMsg}</p>}
         </div>
@@ -295,7 +296,7 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
             A auditoria recalcula todos os hashes no servidor e detecta alterações, exclusões ou inserções retroativas.
           </p>
           <div className="flex flex-wrap gap-2">
-            <button
+            <Button variant="outline" size="sm"
               type="button"
               disabled={anchoring}
               onClick={async () => {
@@ -318,8 +319,8 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
               className={`px-3 h-9 rounded-lg border ${t.border} ${t.text} text-xs disabled:opacity-40`}
             >
               {anchoring ? "Ancorando..." : "Ancorar agora"}
-            </button>
-            <button
+            </Button>
+            <Button variant="outline" size="sm"
               type="button"
               disabled={auditing}
               onClick={async () => {
@@ -339,7 +340,7 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
               className={`px-3 h-9 rounded-lg border ${t.border} ${t.text} text-xs disabled:opacity-40`}
             >
               {auditing ? "Auditando..." : "Auditar cadeia"}
-            </button>
+            </Button>
           </div>
           {anchorMsg && <p className={`text-xs ${t.textMuted} mt-2`}>{anchorMsg}</p>}
           {auditRuns && auditRuns.length > 0 && (
@@ -434,9 +435,9 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
               <p className={`mt-2 ${t.text}`}>{DOC_LABEL[r.slug] ?? r.slug} — versão {r.version}</p>
               <p className={`font-mono text-xs break-all ${t.textMuted}`}>SHA-256: {r.content_sha256}</p>
               <p className={`text-xs ${t.textMuted} break-all`}>IP: {r.ip_address ?? "—"} · {r.user_agent ?? "—"}</p>
-              <button onClick={() => setOpenVersion(openVersion === r.document_version_id ? null : r.document_version_id)} className="text-xs underline mt-1 text-secondary">
+              <Button type="button" variant="link" size="sm" onClick={() => setOpenVersion(openVersion === r.document_version_id ? null : r.document_version_id)} className="px-0">
                 {openVersion === r.document_version_id ? "Ocultar versão aceita" : "Ver versão exata aceita"}
-              </button>
+              </Button>
               <Button type="button" variant="link" size="sm" onClick={() => serverReport([r])} disabled={busy} className="ml-1"><FileText />Gerar PDF deste aceite</Button>
               {openVersion === r.document_version_id && versionContent && (
                 <div className={`mt-2 border-t ${t.border} pt-2 max-h-80 overflow-auto`}>
