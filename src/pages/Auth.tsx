@@ -601,7 +601,8 @@ const Auth = () => {
           signUpData.email,
           signUpData.password,
           signUpData.fullName,
-          authMode === "professional" ? "pro" : "fan"
+          authMode === "professional" ? "pro" : "fan",
+          intent.token
         );
 
         if (error) {
