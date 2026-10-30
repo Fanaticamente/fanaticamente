@@ -1,3 +1,4 @@
+import { trustedClientIp } from "../_shared/trustedIp.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
@@ -58,8 +59,7 @@ Deno.serve(async (req) => {
     const tokenBytes = crypto.getRandomValues(new Uint8Array(32));
     const token = Array.from(tokenBytes).map((b) => b.toString(16).padStart(2, "0")).join("");
 
-    const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim().slice(0, 64) ||
-      req.headers.get("cf-connecting-ip")?.slice(0, 64) || null;
+    const { ip, source: ipSource } = trustedClientIp(req.headers);
     const ua = (req.headers.get("user-agent") ?? "").slice(0, 500) || null;
 
     const { error: insErr } = await admin.from("legal_signup_intents").insert({
@@ -68,6 +68,7 @@ Deno.serve(async (req) => {
       account_type: accountType,
       document_version_ids: current.map((v) => v!.id),
       ip_address: ip,
+      ip_source: ipSource,
       user_agent: ua,
     });
     if (insErr) throw insErr;
