@@ -36,6 +36,13 @@
       "when": 1793389610028,
       "tag": "0004_legal_acceptance_server_enforcement",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793391060087,
+      "tag": "0005_legal_ip_source",
+      "breakpoints": true
     }
   ]
 }

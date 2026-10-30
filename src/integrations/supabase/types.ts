@@ -1058,6 +1058,7 @@ export type Database = {
           id: string
           intent_recorded_at: string | null
           ip_address: string | null
+          ip_source: string | null
           signup_intent_id: string | null
           slug: string
           source: string
@@ -1073,6 +1074,7 @@ export type Database = {
           id?: string
           intent_recorded_at?: string | null
           ip_address?: string | null
+          ip_source?: string | null
           signup_intent_id?: string | null
           slug: string
           source: string
@@ -1088,6 +1090,7 @@ export type Database = {
           id?: string
           intent_recorded_at?: string | null
           ip_address?: string | null
+          ip_source?: string | null
           signup_intent_id?: string | null
           slug?: string
           source?: string
@@ -1194,6 +1197,7 @@ export type Database = {
           expires_at: string
           id: string
           ip_address: string | null
+          ip_source: string | null
           token_sha256: string
           user_agent: string | null
           user_id: string | null
@@ -1208,6 +1212,7 @@ export type Database = {
           expires_at?: string
           id?: string
           ip_address?: string | null
+          ip_source?: string | null
           token_sha256: string
           user_agent?: string | null
           user_id?: string | null
@@ -1222,6 +1227,7 @@ export type Database = {
           expires_at?: string
           id?: string
           ip_address?: string | null
+          ip_source?: string | null
           token_sha256?: string
           user_agent?: string | null
           user_id?: string | null
