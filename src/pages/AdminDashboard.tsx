@@ -337,7 +337,7 @@ const AdminDashboard = () => {
 
         {/* Jurídico Tab */}
         {activeTab === "juridico-aceites" && (
-          <AdminLegalAcceptances themeStyles={themeStyles} />
+          <AdminLegalAcceptances themeStyles={themeStyles} isDarkMode={isDarkMode} />
         )}
         {activeTab === "juridico-documentos" && (
           <AdminLegalManager themeStyles={themeStyles} />
