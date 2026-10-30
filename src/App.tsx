@@ -84,6 +84,7 @@ import ZonaMista from "./pages/ZonaMista";
 import Comunidade from "./pages/Comunidade";
 import Notificacoes from "./pages/Notificacoes";
 import VerificarRecibo from "./pages/VerificarRecibo";
+import VerificarDocumento from "./pages/VerificarDocumento";
 import NotificationManagerPage from "./pages/NotificationManagerPage";
 import ActivitiesManagerPage from "./pages/ActivitiesManagerPage";
 import FanaticazeTV from "./pages/FanaticazeTV";
@@ -206,6 +207,7 @@ const App = () => {
                 <Route path="/termos-de-uso-profissional" element={<TermsOfUseProfessional />} />
                 <Route path="/terms-of-use-professional" element={<TermsOfUseProfessional />} />
               <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
+              <Route path="/verificar-documento" element={<VerificarDocumento />} />
                 <Route path="/baixar" element={<DownloadApp />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
@@ -239,6 +241,7 @@ const App = () => {
                 <Route path="/terms-of-use-professional" element={<TermsOfUseProfessional />} />
                 <Route path="/setup-test" element={<SetupTestUsers />} />
                 <Route path="/verificar-recibo/:numero" element={<VerificarRecibo />} />
+                <Route path="/verificar-documento" element={<VerificarDocumento />} />
                 <Route path="/baixar" element={<DownloadApp />} />
                 
                 {/* Dynamic routes - respect app_pages.is_public setting */}

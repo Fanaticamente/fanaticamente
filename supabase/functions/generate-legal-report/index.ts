@@ -9,9 +9,12 @@ import {
   buildManifest,
   buildPdf,
   bytesToBase64,
+  canonicalize,
+  generateVerificationCode,
   pdfLines,
   ReportFile,
   ReportRow,
+  sha256Hex,
   signManifest,
 } from "../_shared/legalReport.ts";
 
@@ -86,14 +89,46 @@ serve(async (req) => {
     if (wanted.has("html")) files.push({ name: `relatorio-aceites-${reportId}.html`, mime: "text/html", bytes: buildHtml(rows, meta) });
     if (wanted.has("pdf")) files.push({ name: `relatorio-aceites-${reportId}.pdf`, mime: "application/pdf", bytes: buildPdf(pdfLines(rows, meta)) });
 
-    const manifest = await buildManifest({
-      reportId,
-      reportType: type,
-      filters: type === "individual" ? { acceptance_ids: [...acceptance_ids!].sort() } : { scope: "all" },
-      recordCount: rows.length,
-      files,
-    });
-    const signature = await signManifest(manifest);
+    // Unique public verification code, generated server-side and bound into the
+    // signed manifest. Retry on the (astronomically unlikely) collision.
+    let manifest: Record<string, unknown> | null = null;
+    let signature = "";
+    let verificationCode = "";
+    let manifestSha256 = "";
+    for (let attempt = 0; attempt < 5; attempt++) {
+      verificationCode = generateVerificationCode();
+      const candidate = await buildManifest({
+        reportId,
+        reportType: type,
+        filters: type === "individual" ? { acceptance_ids: [...acceptance_ids!].sort() } : { scope: "all" },
+        recordCount: rows.length,
+        files,
+      });
+      candidate.verification_code = verificationCode;
+      const candidateSignature = await signManifest(candidate);
+      manifestSha256 = await sha256Hex(canonicalize(candidate));
+      const { error: regError } = await admin.from("legal_report_registry").insert({
+        code: verificationCode,
+        report_id: reportId,
+        manifest: candidate,
+        manifest_sha256: manifestSha256,
+        signature: candidateSignature,
+        key_id: candidate.key_id,
+        report_type: type,
+        record_count: rows.length,
+        generated_at: candidate.generated_at,
+      });
+      if (!regError) {
+        manifest = candidate;
+        signature = candidateSignature;
+        break;
+      }
+      if (regError.code !== "23505") {
+        console.error("[generate-legal-report] registry insert failed", regError);
+        return json({ error: "registry_failed" }, 500);
+      }
+    }
+    if (!manifest) return json({ error: "code_collision" }, 500);
 
     // Append-only audit trail of report generation.
     const { error: evtError } = await admin.from("legal_report_events").insert({
@@ -110,6 +145,8 @@ serve(async (req) => {
     return json({
       manifest,
       signature,
+      verification_code: verificationCode,
+      verification_path: `/verificar-documento?codigo=${verificationCode}`,
       files: files.map((f) => ({ name: f.name, mime: f.mime, content_base64: bytesToBase64(f.bytes) })),
     });
   } catch (e) {
