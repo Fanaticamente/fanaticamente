@@ -1249,6 +1249,84 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_report_registry: {
+        Row: {
+          code: string
+          created_at: string
+          generated_at: string
+          key_id: string
+          manifest: Json
+          manifest_sha256: string
+          record_count: number
+          report_id: string
+          report_type: string
+          revocation_reason: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          signature: string
+          status: string
+          superseded_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          generated_at: string
+          key_id: string
+          manifest: Json
+          manifest_sha256: string
+          record_count: number
+          report_id: string
+          report_type: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          signature: string
+          status?: string
+          superseded_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          generated_at?: string
+          key_id?: string
+          manifest?: Json
+          manifest_sha256?: string
+          record_count?: number
+          report_id?: string
+          report_type?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          signature?: string
+          status?: string
+          superseded_by?: string | null
+        }
+        Relationships: []
+      }
+      legal_report_verify_log: {
+        Row: {
+          code_attempted: string | null
+          created_at: string
+          id: string
+          ip: string | null
+          result: string
+        }
+        Insert: {
+          code_attempted?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          result: string
+        }
+        Update: {
+          code_attempted?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          result?: string
+        }
+        Relationships: []
+      }
       legal_signup_intents: {
         Row: {
           account_type: string
