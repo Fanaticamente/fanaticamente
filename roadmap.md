@@ -15,3 +15,9 @@
 - [x] Incluir código público, referência da cadeia e orientação sobre assinatura/carimbo sem alterar evidências anteriores.
 - [x] Testar integridade, paginação e apresentação; disponibilizar a atualização (29 testes aprovados; quadros fracionados corrigidos; função implantada).
 - [ ] Conferir download autenticado no painel admin: a sessão disponível é redirecionada e não permite acessar esse painel.
+
+# Acesso ao PDF e separação por sistema
+
+- [x] Substituir downloads automáticos simultâneos por opções explícitas de PDF, visualização, assinatura JSON, CSV e HTML.
+- [x] Separar a listagem por Fanaticamente Torcedor/FanaticaWork e restringir a seleção e geração ao sistema exibido.
+- [ ] Testar filtros e conferir geração/download no painel autenticado.
