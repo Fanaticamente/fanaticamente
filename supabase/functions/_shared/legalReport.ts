@@ -39,9 +39,9 @@ export function canonicalize(value: unknown): string {
   return "{" + keys.map((k) => JSON.stringify(k) + ":" + canonicalize(obj[k])).join(",") + "}";
 }
 
-export async function sha256Hex(data: Uint8Array<ArrayBuffer> | string): Promise<string> {
-  const bytes: Uint8Array<ArrayBuffer> = typeof data === "string" ? new TextEncoder().encode(data) : data;
-  const buf = await crypto.subtle.digest("SHA-256", bytes);
+export async function sha256Hex(data: Uint8Array | string): Promise<string> {
+  const bytes = typeof data === "string" ? new TextEncoder().encode(data) : data;
+  const buf = await crypto.subtle.digest("SHA-256", bytes as Uint8Array<ArrayBuffer>);
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
