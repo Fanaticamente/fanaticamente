@@ -49,6 +49,11 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
   const [reportError, setReportError] = useState<string | null>(null);
   const [verifyResult, setVerifyResult] = useState<VerifyResult>(null);
   const [verifying, setVerifying] = useState(false);
+  const [lastCode, setLastCode] = useState<string | null>(null);
+  const [revokeCode, setRevokeCode] = useState("");
+  const [revokeReason, setRevokeReason] = useState("");
+  const [revokeMsg, setRevokeMsg] = useState<string | null>(null);
+  const [revoking, setRevoking] = useState(false);
   const verifyInputRef = useRef<HTMLInputElement>(null);
   const toggle = (id: string) => setSelected((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
@@ -90,6 +95,7 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
       });
       if (error) throw error;
       if (!data?.manifest || !data?.signature || !Array.isArray(data?.files)) throw new Error("resposta inválida");
+      setLastCode(data.verification_code ?? null);
       for (const f of data.files as { name: string; mime: string; content_base64: string }[]) {
         downloadBytes(f.name, b64ToBytes(f.content_base64), f.mime);
       }
