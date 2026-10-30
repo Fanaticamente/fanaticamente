@@ -43,20 +43,8 @@ const LegalAcceptanceGate = () => {
     },
   });
 
-  if (!user || !pending || pending.length === 0 || autoTried.current) return;
-    let stored: string[] = [];
-    try { stored = JSON.parse(sessionStorage.getItem(PENDING_LEGAL_KEY) || "[]"); } catch {}
-    const required = pending.map((p) => p.slug);
-    if (!pendingCoversRequired(stored, required)) return;
-    autoTried.current = true;
-    recordLegalAcceptance(required, "signup")
-      .then(() => {
-        sessionStorage.removeItem(PENDING_LEGAL_KEY);
-        qc.invalidateQueries({ queryKey: ["legal-pending"] });
-      })
-      .catch((e) => console.warn("[legal] signup acceptance failed", e));
-  }, [user, pending, qc]);
-
+  // Signup acceptance is converted server-side (database) after identity confirmation;
+  // nothing from browser storage is used as evidence.
   if (!user || !pending || pending.length === 0 || isLegalGateExemptPath(pathname)) return null;
 
   const allChecked = pending.every((p) => checked[p.slug]);
