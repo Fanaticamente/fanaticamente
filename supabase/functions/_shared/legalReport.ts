@@ -4,7 +4,7 @@
  * is stored in public.legal_report_keys for verification.
  */
 
-export const REPORT_FORMAT_VERSION = "1.0";
+export const REPORT_FORMAT_VERSION = "1.1";
 export const REPORT_ALGORITHM = "Ed25519";
 export const REPORT_KEY_ID = "legal-report-ed25519-2026-10";
 
