@@ -496,8 +496,7 @@ const Auth = () => {
         const { error } = await signIn(
           email,
           password,
-          authMode === "professional" ? "pro" : "fan",
-          intent.token
+          authMode === "professional" ? "pro" : "fan"
         );
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
