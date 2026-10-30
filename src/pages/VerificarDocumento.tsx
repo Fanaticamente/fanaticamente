@@ -18,6 +18,8 @@ type Result = {
   revoked_at?: string;
   revocation_reason?: string;
   superseded_by?: string;
+  timestamp?: { stamped: boolean; authority: string | null; gen_time: string | null } | null;
+  chain?: { head_seq: number } | null;
 };
 
 const STATUS_UI: Record<string, { icon: typeof ShieldCheck; color: string; bg: string; title: string; description: string }> = {
@@ -146,6 +148,17 @@ const VerificarDocumento = () => {
                 )}
                 {result.status === "superseded" && result.superseded_by && (
                   <p><strong>Substituído por:</strong> <span className="font-mono">{result.superseded_by}</span></p>
+                )}
+                {result.status === "valid" && result.timestamp && (
+                  <p>
+                    <strong>Carimbo do tempo:</strong>{" "}
+                    {result.timestamp.stamped
+                      ? `confirmado por autoridade externa (${result.timestamp.authority ?? "RFC 3161"}) em ${result.timestamp.gen_time ? new Date(result.timestamp.gen_time).toLocaleString("pt-BR") : "—"}`
+                      : "pendente de confirmação pela autoridade externa"}
+                  </p>
+                )}
+                {result.status === "valid" && result.chain && (
+                  <p><strong>Cadeia de integridade:</strong> registros selados até o nº {result.chain.head_seq}</p>
                 )}
               </div>
             )}

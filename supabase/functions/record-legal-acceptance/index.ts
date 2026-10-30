@@ -1,4 +1,5 @@
 import { trustedClientIp } from "../_shared/trustedIp.ts";
+import { stampPendingAnchors } from "../_shared/legalChain.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
@@ -101,6 +102,14 @@ Deno.serve(async (req) => {
     if (rows.length > 0) {
       const { error: insErr } = await admin.from("legal_acceptances").insert(rows);
       if (insErr) throw insErr;
+
+      // The DB trigger already appended the records to the hash chain and
+      // created pending timestamp anchors. Stamp them in the background,
+      // best-effort: a TSA outage never blocks or loses the acceptance.
+      const bg = stampPendingAnchors(admin, rows.length + 2).catch((e) =>
+        console.error("[record-legal-acceptance] bg stamp failed", e)
+      );
+      (globalThis as { EdgeRuntime?: { waitUntil?: (p: Promise<unknown>) => void } }).EdgeRuntime?.waitUntil?.(bg);
     }
 
     return json({ recorded: rows.length });

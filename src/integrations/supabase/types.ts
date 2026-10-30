@@ -1049,6 +1049,50 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_acceptance_chain: {
+        Row: {
+          acceptance_id: string
+          algorithm: string
+          chain_hash: string
+          created_at: string
+          document_version_id: string | null
+          prev_hash: string
+          record_hash: string
+          record_payload: string
+          seq: number
+        }
+        Insert: {
+          acceptance_id: string
+          algorithm?: string
+          chain_hash: string
+          created_at?: string
+          document_version_id?: string | null
+          prev_hash: string
+          record_hash: string
+          record_payload: string
+          seq?: never
+        }
+        Update: {
+          acceptance_id?: string
+          algorithm?: string
+          chain_hash?: string
+          created_at?: string
+          document_version_id?: string | null
+          prev_hash?: string
+          record_hash?: string
+          record_payload?: string
+          seq?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_acceptance_chain_acceptance_id_fkey"
+            columns: ["acceptance_id"]
+            isOneToOne: false
+            referencedRelation: "legal_acceptances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       legal_acceptances: {
         Row: {
           accepted_at: string
@@ -1114,6 +1158,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      legal_chain_anchors: {
+        Row: {
+          anchor_type: string
+          attempts: number
+          chain_head_seq: number | null
+          created_at: string
+          error: string | null
+          id: string
+          report_id: string | null
+          stamped_at: string | null
+          status: string
+          target_hash: string
+          tsa_gen_time: string | null
+          tsa_serial: string | null
+          tsa_token: string | null
+          tsa_url: string | null
+        }
+        Insert: {
+          anchor_type: string
+          attempts?: number
+          chain_head_seq?: number | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          report_id?: string | null
+          stamped_at?: string | null
+          status?: string
+          target_hash: string
+          tsa_gen_time?: string | null
+          tsa_serial?: string | null
+          tsa_token?: string | null
+          tsa_url?: string | null
+        }
+        Update: {
+          anchor_type?: string
+          attempts?: number
+          chain_head_seq?: number | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          report_id?: string | null
+          stamped_at?: string | null
+          status?: string
+          target_hash?: string
+          tsa_gen_time?: string | null
+          tsa_serial?: string | null
+          tsa_token?: string | null
+          tsa_url?: string | null
+        }
+        Relationships: []
       }
       legal_document_versions: {
         Row: {
@@ -2953,6 +3048,7 @@ export type Database = {
           version: number
         }[]
       }
+      append_legal_chain: { Args: { _acceptance_id: string }; Returns: number }
       check_signup_conflict: {
         Args: { _account_type: string; _email: string; _phone: string }
         Returns: Json
@@ -3042,6 +3138,10 @@ export type Database = {
         Returns: boolean
       }
       legal_acceptance_ok: { Args: never; Returns: boolean }
+      legal_acceptance_payload: {
+        Args: { a: Database["public"]["Tables"]["legal_acceptances"]["Row"] }
+        Returns: string
+      }
       legal_email_base: { Args: { _email: string }; Returns: string }
       legal_finalize_signup_intent: { Args: { _uid: string }; Returns: number }
       move_to_dlq: {

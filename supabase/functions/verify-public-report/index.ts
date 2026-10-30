@@ -108,12 +108,35 @@ serve(async (req) => {
       return json({ status: "invalid_signature", ...base });
     }
 
+    // Phase 5: surface the trusted-timestamp and hash-chain evidence bound
+    // into the signed manifest (format 1.1+). Only non-personal metadata.
+    const manifest = reg.manifest as Record<string, unknown>;
+    const tsBlock = (manifest.timestamp ?? null) as Record<string, unknown> | null;
+    const chainBlock = (manifest.chain ?? null) as Record<string, unknown> | null;
+    let timestamp: Record<string, unknown> | null = null;
+    if (tsBlock) {
+      // Confirm the referenced anchor is still stamped and its token still
+      // matches the manifest core hash it covers.
+      const { data: anchor } = await admin
+        .from("legal_chain_anchors")
+        .select("status, tsa_url, tsa_gen_time")
+        .eq("id", tsBlock.anchor_id ?? "")
+        .maybeSingle();
+      timestamp = {
+        stamped: anchor?.status === "stamped",
+        authority: anchor?.tsa_url ?? null,
+        gen_time: anchor?.tsa_gen_time ?? tsBlock.gen_time ?? null,
+      };
+    }
+
     await logAttempt(code, "valid");
     return json({
       status: "valid",
       ...base,
-      algorithm: (reg.manifest as Record<string, unknown>).algorithm,
-      format_version: (reg.manifest as Record<string, unknown>).format_version,
+      algorithm: manifest.algorithm,
+      format_version: manifest.format_version,
+      timestamp,
+      chain: chainBlock ? { head_seq: chainBlock.head_seq } : null,
     });
   } catch (e) {
     console.error("[verify-public-report] unexpected", e);

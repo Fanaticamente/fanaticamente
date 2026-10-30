@@ -64,6 +64,13 @@
       "when": 1793392851098,
       "tag": "0008_legal_report_public_verification",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793394796121,
+      "tag": "0009_legal_chain_and_timestamps",
+      "breakpoints": true
     }
   ]
 }

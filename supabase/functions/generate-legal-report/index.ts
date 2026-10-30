@@ -3,6 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { z } from "npm:zod@3";
 import { legalGate } from "../_shared/legalGate.ts";
+import { anchorChainHead, getChainHead, stampPendingAnchors } from "../_shared/legalChain.ts";
 import {
   buildCsv,
   buildHtml,
@@ -91,10 +92,19 @@ serve(async (req) => {
 
     // Unique public verification code, generated server-side and bound into the
     // signed manifest. Retry on the (astronomically unlikely) collision.
+    // Phase 5: bind the report to the hash chain and request an external
+    // RFC 3161 trusted timestamp for the manifest core hash. The timestamp
+    // block is added AFTER the core hash is computed (the anchor target is
+    // the manifest without the "timestamp" key), then the final manifest is
+    // signed. If every TSA is unavailable the anchor stays pending and can
+    // be retried — the report is still generated and signed.
+    const chainHead = await getChainHead(admin).catch(() => null);
+
     let manifest: Record<string, unknown> | null = null;
     let signature = "";
     let verificationCode = "";
     let manifestSha256 = "";
+    let timestampBlock: Record<string, unknown> | null = null;
     for (let attempt = 0; attempt < 5; attempt++) {
       verificationCode = generateVerificationCode();
       const candidate = await buildManifest({
@@ -105,6 +115,23 @@ serve(async (req) => {
         files,
       });
       candidate.verification_code = verificationCode;
+      const coreSha256 = await sha256Hex(canonicalize(candidate));
+      if (!timestampBlock) {
+        const anchor = await anchorChainHead(admin, {
+          anchorType: "report_manifest",
+          targetHash: coreSha256,
+          reportId,
+        }).catch((e) => ({ anchorId: null, stamped: false, error: e instanceof Error ? e.message : String(e) }));
+        timestampBlock = {
+          target_sha256: coreSha256,
+          status: anchor.stamped ? "stamped" : "pending",
+          tsa: anchor.tsaName ?? null,
+          gen_time: anchor.genTimeIso ?? null,
+          anchor_id: anchor.anchorId ?? null,
+        };
+      }
+      candidate.timestamp = { ...timestampBlock, target_sha256: coreSha256 };
+      candidate.chain = chainHead ? { head_hash: chainHead.chain_hash, head_seq: chainHead.seq } : null;
       const candidateSignature = await signManifest(candidate);
       manifestSha256 = await sha256Hex(canonicalize(candidate));
       const { error: regError } = await admin.from("legal_report_registry").insert({
@@ -141,6 +168,11 @@ serve(async (req) => {
       signature,
     });
     if (evtError) console.error("[generate-legal-report] event insert failed", evtError);
+
+    // Opportunistically stamp a few pending acceptance anchors in the
+    // background; never blocks or fails the report response.
+    const bg = stampPendingAnchors(admin, 5).catch((e) => console.error("[generate-legal-report] bg stamp failed", e));
+    (globalThis as { EdgeRuntime?: { waitUntil?: (p: Promise<unknown>) => void } }).EdgeRuntime?.waitUntil?.(bg);
 
     return json({
       manifest,
