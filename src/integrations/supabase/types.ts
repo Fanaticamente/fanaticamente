@@ -1159,6 +1159,39 @@ export type Database = {
           },
         ]
       }
+      legal_audit_runs: {
+        Row: {
+          anchors: Json
+          created_at: string
+          divergences: Json
+          error: string | null
+          id: string
+          ok: boolean
+          records_checked: number
+          trigger_source: string
+        }
+        Insert: {
+          anchors?: Json
+          created_at?: string
+          divergences?: Json
+          error?: string | null
+          id?: string
+          ok: boolean
+          records_checked?: number
+          trigger_source: string
+        }
+        Update: {
+          anchors?: Json
+          created_at?: string
+          divergences?: Json
+          error?: string | null
+          id?: string
+          ok?: boolean
+          records_checked?: number
+          trigger_source?: string
+        }
+        Relationships: []
+      }
       legal_chain_anchors: {
         Row: {
           anchor_type: string
@@ -1207,6 +1240,24 @@ export type Database = {
           tsa_serial?: string | null
           tsa_token?: string | null
           tsa_url?: string | null
+        }
+        Relationships: []
+      }
+      legal_cron_config: {
+        Row: {
+          created_at: string
+          key: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          value?: string
         }
         Relationships: []
       }
@@ -1419,6 +1470,30 @@ export type Database = {
           id?: string
           ip?: string | null
           result?: string
+        }
+        Relationships: []
+      }
+      legal_security_events: {
+        Row: {
+          created_at: string
+          detail: Json
+          event_type: string
+          id: string
+          severity: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          event_type: string
+          id?: string
+          severity: string
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          event_type?: string
+          id?: string
+          severity?: string
         }
         Relationships: []
       }
@@ -3012,6 +3087,19 @@ export type Database = {
       }
     }
     Functions: {
+      admin_legal_audit_runs: {
+        Args: { _limit?: number }
+        Returns: {
+          anchors: Json
+          created_at: string
+          divergences: Json
+          error: string
+          id: string
+          ok: boolean
+          records_checked: number
+          trigger_source: string
+        }[]
+      }
       admin_legal_report_rows: {
         Args: { _ids?: string[]; _limit?: number; _offset?: number }
         Returns: {
@@ -3028,6 +3116,16 @@ export type Database = {
           user_agent: string
           user_id: string
           version: number
+        }[]
+      }
+      admin_legal_security_events: {
+        Args: { _limit?: number }
+        Returns: {
+          created_at: string
+          detail: Json
+          event_type: string
+          id: string
+          severity: string
         }[]
       }
       admin_search_legal_acceptances: {
@@ -3142,6 +3240,7 @@ export type Database = {
         Args: { a: Database["public"]["Tables"]["legal_acceptances"]["Row"] }
         Returns: string
       }
+      legal_audit_dispatch: { Args: never; Returns: undefined }
       legal_email_base: { Args: { _email: string }; Returns: string }
       legal_finalize_signup_intent: { Args: { _uid: string }; Returns: number }
       move_to_dlq: {
