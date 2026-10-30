@@ -42,6 +42,8 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
   const [input, setInput] = useState("");
   const [query, setQuery] = useState("");
   const [openVersion, setOpenVersion] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const toggle = (id: string) => setSelected((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
   const { data: rows, isLoading, error } = useQuery({
     queryKey: ["admin-legal-acceptances", query],
@@ -64,8 +66,11 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
     },
   });
 
-  const exportCsv = async () => {
-    if (!rows?.length) return;
+  const pick = (only?: Row[]) => only ?? (selected.size ? (rows ?? []).filter((r) => selected.has(r.id)) : rows ?? []);
+
+  const exportCsv = async (only?: Row[]) => {
+    const rows = pick(only);
+    if (!rows.length) return;
     const header = ["registro_id","usuario_id","nome","email","documento","versao","sha256_documento","acao","origem","data_hora_servidor_utc","ip","user_agent"];
     const lines = rows.map((r) => [r.id, r.user_id, r.full_name, r.email, r.slug, r.version, r.content_sha256, r.action, r.source, r.accepted_at, r.ip_address, r.user_agent].map(csvCell).join(","));
     const body = [header.join(","), ...lines].join("\n");
@@ -74,14 +79,15 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
     download(`aceites-${generated.slice(0, 10)}.csv`, `${body}\n\n# gerado_em,${generated}\n# sha256_do_conteudo_acima,${hash}\n`, "text/csv;charset=utf-8");
   };
 
-  const exportReport = async () => {
-    if (!rows?.length) return;
+  const exportReport = async (only?: Row[]) => {
+    const rows = pick(only);
+    if (!rows.length) return;
     const esc = (s: unknown) => String(s ?? "—").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
     const items = rows.map((r) => `<tr><td>${esc(r.full_name)}<br><small>${esc(r.email)}<br>${esc(r.user_id)}</small></td><td>${esc(DOC_LABEL[r.slug] ?? r.slug)}<br><small>v${r.version}</small></td><td><code>${esc(r.content_sha256)}</code></td><td>${esc(r.action)} / ${esc(r.source)}</td><td>${esc(fmt(r.accepted_at))}<br><small>${esc(r.accepted_at)}</small></td><td><small>${esc(r.ip_address)}<br>${esc(r.user_agent)}</small></td></tr>`).join("");
     const table = `<table><thead><tr><th>Usuário</th><th>Documento</th><th>SHA-256 do documento</th><th>Ação / origem</th><th>Data e hora (servidor)</th><th>Dados técnicos</th></tr></thead><tbody>${items}</tbody></table>`;
     const hash = await sha256Hex(table);
     const html = `<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Relatório de comprovação de aceite</title><style>body{font-family:Arial,sans-serif;font-size:12px;padding:24px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #999;padding:6px;vertical-align:top;text-align:left}code{word-break:break-all;font-size:10px}</style><h1>Relatório de comprovação de aceite eletrônico</h1><p>Gerado em ${esc(new Date().toISOString())}. Filtro: ${esc(query || "todos")}. Registros: ${rows.length}.</p><p>As datas foram geradas pelo servidor no momento do aceite. O hash SHA-256 de cada documento corresponde ao conteúdo integral da versão aceita, conferível no histórico de versões. Este relatório é uma evidência técnica e não constitui, por si só, garantia de validade jurídica.</p>${table}<p>SHA-256 da tabela deste relatório: <code>${hash}</code></p></html>`;
-    download(`relatorio-aceites-${new Date().toISOString().slice(0, 10)}.html`, html, "text/html;charset=utf-8");
+    download(`${rows.length === 1 ? `aceite-${(rows[0].full_name || "usuario").replace(/\s+/g, "-").toLowerCase()}-${rows[0].slug}` : "relatorio-aceites"}-${new Date().toISOString().slice(0, 10)}.html`, html, "text/html;charset=utf-8");
   };
 
   return (
@@ -97,21 +103,33 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
             <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Nome, e-mail ou ID do usuário" className={`flex-1 h-10 bg-transparent text-sm outline-none ${t.text}`} />
           </div>
           <button type="submit" className="px-4 h-10 rounded-lg bg-secondary text-secondary-foreground text-sm font-medium">Buscar</button>
-          <button type="button" onClick={exportCsv} disabled={!rows?.length} className={`inline-flex items-center gap-1 px-4 h-10 rounded-lg border ${t.border} ${t.text} text-sm disabled:opacity-40`}><Download className="w-4 h-4" />CSV</button>
-          <button type="button" onClick={exportReport} disabled={!rows?.length} className={`inline-flex items-center gap-1 px-4 h-10 rounded-lg border ${t.border} ${t.text} text-sm disabled:opacity-40`}><FileText className="w-4 h-4" />Relatório</button>
+          <button type="button" onClick={() => exportCsv()} disabled={!rows?.length} className={`inline-flex items-center gap-1 px-4 h-10 rounded-lg border ${t.border} ${t.text} text-sm disabled:opacity-40`}><Download className="w-4 h-4" />CSV{selected.size ? ` (${selected.size})` : ""}</button>
+          <button type="button" onClick={() => exportReport()} disabled={!rows?.length} className={`inline-flex items-center gap-1 px-4 h-10 rounded-lg border ${t.border} ${t.text} text-sm disabled:opacity-40`}><FileText className="w-4 h-4" />Relatório{selected.size ? ` (${selected.size})` : ""}</button>
         </form>
 
         {isLoading && <p className={t.textMuted}>Carregando...</p>}
         {error && <p className="text-destructive text-sm">Acesso negado ou erro ao carregar.</p>}
         {rows && rows.length === 0 && <p className={t.textMuted}>Nenhum registro encontrado.</p>}
 
+        {!!rows?.length && (
+          <div className={`flex flex-wrap items-center gap-3 mb-2 text-xs ${t.textMuted}`}>
+            <label className="inline-flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" className="w-4 h-4 accent-current" checked={selected.size === rows.length} onChange={(e) => setSelected(e.target.checked ? new Set(rows.map((r) => r.id)) : new Set())} />
+              Selecionar todos
+            </label>
+            <span>{selected.size ? `${selected.size} selecionado(s) — os botões CSV e Relatório baixam só os selecionados` : "Marque os cards para baixar apenas aceites específicos"}</span>
+          </div>
+        )}
         <div className="space-y-2">
           {rows?.map((r) => (
             <div key={r.id} className={`border ${t.border} rounded-lg p-3 text-sm`}>
               <div className="flex flex-wrap justify-between gap-2">
-                <div>
+                <div className="flex items-start gap-2">
+                  <input type="checkbox" aria-label="Selecionar aceite" className="mt-1 w-4 h-4 accent-current cursor-pointer" checked={selected.has(r.id)} onChange={() => toggle(r.id)} />
+                  <div>
                   <p className={`font-semibold ${t.text}`}>{r.full_name || "Sem nome"}</p>
                   <p className={`text-xs ${t.textMuted}`}>{r.email} · {r.user_id}</p>
+                  </div>
                 </div>
                 <div className="text-right">
                   <p className={t.text}>{fmt(r.accepted_at)}</p>
@@ -124,6 +142,7 @@ const AdminLegalAcceptances = ({ themeStyles: t }: Props) => {
               <button onClick={() => setOpenVersion(openVersion === r.document_version_id ? null : r.document_version_id)} className="text-xs underline mt-1 text-secondary">
                 {openVersion === r.document_version_id ? "Ocultar versão aceita" : "Ver versão exata aceita"}
               </button>
+              <button onClick={() => exportReport([r])} className={`ml-3 inline-flex items-center gap-1 text-xs underline mt-1 ${t.text}`}><FileText className="w-3 h-3" />Baixar este aceite</button>
               {openVersion === r.document_version_id && versionContent && (
                 <div className={`mt-2 border-t ${t.border} pt-2 max-h-80 overflow-auto`}>
                   <pre className={`whitespace-pre-wrap text-xs ${t.text}`}>{versionContent.content_html}</pre>
