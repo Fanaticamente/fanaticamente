@@ -30,7 +30,7 @@ const b64ToBytes = (b64: string) => {
 };
 
 const downloadBytes = (name: string, bytes: Uint8Array, mime: string) => {
-  const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+  const url = URL.createObjectURL(new Blob([bytes.buffer as ArrayBuffer], { type: mime }));
   const a = document.createElement("a");
   a.href = url; a.download = name; a.click();
   URL.revokeObjectURL(url);
