@@ -1,11 +1,12 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { isAppShellWorker } from "@/lib/pushRegistration";
 
 /**
  * Manager pages must never be interrupted by automatic PWA updates.
  * When the user enters a content-management route, we:
  *  - set a session flag so main.tsx will stop auto-updating
- *  - unregister any active service workers (prevents reloads)
+ *  - unregister app-shell workers only (preserve background notifications)
  */
 export const useDisableServiceWorkerOnManagerRoutes = () => {
   const location = useLocation();
@@ -28,7 +29,10 @@ export const useDisableServiceWorkerOnManagerRoutes = () => {
     navigator.serviceWorker
       .getRegistrations()
       .then((registrations) => {
-        registrations.forEach((r) => r.unregister());
+        registrations.forEach((r) => {
+          const scriptURL = r.active?.scriptURL || r.installing?.scriptURL || r.waiting?.scriptURL || "";
+          if (isAppShellWorker(scriptURL)) r.unregister();
+        });
       })
       .catch(() => {
         // ignore

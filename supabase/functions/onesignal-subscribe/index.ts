@@ -14,8 +14,8 @@ Deno.serve(async (req) => {
     const ONESIGNAL_APP_ID = Deno.env.get("ONESIGNAL_APP_ID");
     const ONESIGNAL_REST_API_KEY = Deno.env.get("ONESIGNAL_REST_API_KEY");
 
-    if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_API_KEY) {
-      return new Response(JSON.stringify({ error: "OneSignal not configured" }), {
+    if (!Deno.env.get("VAPID_PUBLIC_KEY") || !Deno.env.get("VAPID_PRIVATE_KEY")) {
+      return new Response(JSON.stringify({ error: "Direct push not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -94,65 +94,34 @@ Deno.serve(async (req) => {
     if (action === "subscribe" && subscription) {
       const { endpoint, keys } = subscription;
 
-      // ALWAYS use device_type 5 (Chrome Web Push) for Web Push API subscriptions
-      // device_type 7 is for Safari macOS native push (APNs for websites), NOT for iOS PWA web push
-      const deviceType = 5;
-
-      const playerPayload = {
-        app_id: ONESIGNAL_APP_ID,
-        device_type: deviceType,
-        identifier: endpoint,
-        web_auth: keys.auth,
-        web_p256: keys.p256dh,
-        notification_types: 1,
-      };
-
-      console.log("Registering player with device_type:", deviceType, "endpoint prefix:", endpoint.substring(0, 60));
-
-      const osRes = await fetch("https://onesignal.com/api/v1/players", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(playerPayload),
-      });
-
-      const resText = await osRes.text();
-      let osData: Record<string, unknown> = {};
-      try { osData = JSON.parse(resText); } catch { osData = { raw: resText }; }
-      console.log("OneSignal player response:", JSON.stringify(osData));
-
-      if (!osRes.ok || !osData.success) {
-        console.error("OneSignal register error, status:", osRes.status);
-        return new Response(JSON.stringify({ error: "Failed to register with OneSignal", details: osData }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      if (typeof endpoint !== "string" || !keys?.auth || !keys?.p256dh) {
+        return new Response(JSON.stringify({ error: "Invalid subscription" }), { status: 400, headers: corsHeaders });
       }
-
-      const playerId = osData.id as string;
-      console.log("Player registered successfully, id:", playerId);
-
-      // Save/update the player_id in push_subscriptions table
-      const { error: upsertError } = await supabaseAdmin
-        .from("push_subscriptions")
-        .upsert(
-          {
-            user_id: user.id,
-            endpoint,
-            auth: keys.auth,
-            p256dh: keys.p256dh,
-            onesignal_player_id: playerId,
-            user_agent: "",
-          },
-          { onConflict: "user_id,endpoint" }
-        );
-
-      if (upsertError) {
-        console.error("Error saving push subscription:", upsertError);
-        // Try insert without unique constraint match (update existing by user_id)
-        await supabaseAdmin
-          .from("push_subscriptions")
-          .update({ onesignal_player_id: playerId, endpoint, auth: keys.auth, p256dh: keys.p256dh })
-          .eq("user_id", user.id);
+      // Direct Web Push is the delivery engine: audience-provider availability
+      // must not prevent the device from being saved for background delivery.
+      const { error: saveError } = await supabaseAdmin.from("push_subscriptions").upsert({
+        user_id: user.id, endpoint, auth: keys.auth, p256dh: keys.p256dh, user_agent: "",
+      }, { onConflict: "user_id,endpoint" });
+      if (saveError) {
+        console.error("Push subscription persistence failed:", saveError.code);
+        return new Response(JSON.stringify({ error: "Could not save subscription" }), { status: 500, headers: corsHeaders });
+      }
+      let playerId: string | null = null;
+      if (ONESIGNAL_APP_ID && ONESIGNAL_REST_API_KEY) {
+        try {
+          const response = await fetch("https://onesignal.com/api/v1/players", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            signal: AbortSignal.timeout(5000),
+            body: JSON.stringify({ app_id: ONESIGNAL_APP_ID, device_type: 5, identifier: endpoint,
+              web_auth: keys.auth, web_p256: keys.p256dh, notification_types: 1 }),
+          });
+          const result = await response.json();
+          if (response.ok && result.success && typeof result.id === "string") {
+            playerId = result.id;
+            await supabaseAdmin.from("push_subscriptions").update({ onesignal_player_id: playerId })
+              .eq("user_id", user.id).eq("endpoint", endpoint);
+          } else console.warn("Audience registration unavailable:", response.status);
+        } catch { console.warn("Audience registration unavailable; direct push remains active"); }
       }
 
       return new Response(JSON.stringify({ success: true, subscription_id: playerId }), {
@@ -160,26 +129,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    if (action === "unsubscribe" && subscription?.subscription_id) {
-      // Delete from OneSignal
-      try {
-        await fetch(
-          `https://onesignal.com/api/v1/players/${subscription.subscription_id}?app_id=${ONESIGNAL_APP_ID}`,
-          { method: "DELETE" }
-        );
-      } catch (e) {
-        console.error("OneSignal delete player error:", e);
-      }
-
-      // Remove from our database
-      await supabaseAdmin
-        .from("push_subscriptions")
-        .delete()
-        .eq("user_id", user.id);
-
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (action === "unsubscribe" && typeof subscription?.endpoint === "string") {
+      const { error } = await supabaseAdmin.from("push_subscriptions").delete()
+        .eq("user_id", user.id).eq("endpoint", subscription.endpoint);
+      if (error) return new Response(JSON.stringify({ error: "Could not remove subscription" }), { status: 500, headers: corsHeaders });
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     return new Response(JSON.stringify({ error: "Invalid action" }), {

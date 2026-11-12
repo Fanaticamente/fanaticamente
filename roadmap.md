@@ -1,5 +1,11 @@
 # Fase 6 — Testes automatizados, monitoramento e auditoria contínua
 
+# Notificações com o aplicativo fechado
+
+- [x] Corrigir ativação real, confirmação do registro e preservação do serviço de notificações; função atualizada implantada.
+- [x] Quatro testes aprovados; tela autenticada mantém alertas desativados quando a permissão é negada, configuração real consultada com sucesso; build OK.
+- [ ] Confirmar recebimento no iPhone fechado: exige publicar a atualização, ativar pelo ícone e realizar novo envio no aparelho do usuário.
+
 - [x] Auditoria inicial: 9 funcionalidades verificadas operacionais (Fase 5, ao vivo)
 - [x] Núcleo de auditoria testável: `auditChainRows`/`buildAcceptancePayload` puros em legalChain.ts; `runFullAudit` em _shared/legalAudit.ts
 - [x] Testes Deno: 26/26 passando (cadeia 9, relatório 5, rfc3161 5, aceite 4, verificação pública 3)

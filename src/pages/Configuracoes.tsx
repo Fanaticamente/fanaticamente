@@ -38,12 +38,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import AccountSettingsDialog from "@/components/profile/AccountSettingsDialog";
 import { getDisplayAuthEmail } from "@/lib/appMode";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 const Configuracoes = () => {
   const isMobile = useIsMobile();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState(true);
+  const { isSubscribed: notifications, isLoading: pushLoading, isSupported: pushSupported, subscribe, unsubscribe } = usePushNotifications();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [showAccountDialog, setShowAccountDialog] = useState(false);
@@ -113,13 +114,14 @@ const Configuracoes = () => {
             <div className="space-y-0.5">
               <Label htmlFor="push-notifications" className="text-base">Notificações Push</Label>
               <p className="text-sm text-muted-foreground">
-                Receba alertas sobre agendamentos e lembretes
+                Receba alertas mesmo com o aplicativo fechado
               </p>
             </div>
             <Switch
               id="push-notifications"
               checked={notifications}
-              onCheckedChange={setNotifications}
+              disabled={pushLoading || !pushSupported}
+              onCheckedChange={(checked) => { void (checked ? subscribe() : unsubscribe()); }}
             />
           </div>
           <Separator />

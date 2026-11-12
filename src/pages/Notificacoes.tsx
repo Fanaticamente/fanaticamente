@@ -12,6 +12,7 @@ import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { isBookingRelatedContent } from "@/config/featureFlags";
+import { Switch } from "@/components/ui/switch";
 
 interface Notification {
   id: string;
@@ -124,7 +125,7 @@ const Notificacoes = () => {
   const Content = () => (
     <div className="space-y-4">
       {/* Push notification toggle */}
-      {pushPermission !== "denied" && (
+      {(
         <div
           className="flex items-center justify-between p-4 rounded-2xl border bg-white"
           style={{
@@ -142,20 +143,18 @@ const Notificacoes = () => {
                 : <BellOff className="w-4 h-4 text-slate-500" />}
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-900">Notificações push</p>
+              <p id="push-alert-label" className="text-sm font-medium text-slate-900">Notificações push</p>
               <p className="text-xs text-slate-500">
-                {pushSubscribed ? "Ativas — você receberá alertas mesmo com o app fechado" : "Receba alertas mesmo com o app fechado"}
+                {pushPermission === "denied" ? "Permita os alertas nos Ajustes do iPhone ou nas configurações do navegador" : !pushSupported ? "Abra pelo ícone na Tela de Início ou em uma aba própria" : pushSubscribed ? "Ativas — você receberá alertas mesmo com o app fechado" : "Receba alertas mesmo com o app fechado"}
               </p>
             </div>
           </div>
-          <button
-            onClick={() => pushSubscribed ? unsubscribePush() : subscribePush()}
-            disabled={pushLoading}
-            className="w-12 h-6 rounded-full relative transition-colors flex-shrink-0 disabled:opacity-50"
-            style={{ background: pushSubscribed ? "var(--club-600)" : "#cbd5e1" }}
-          >
-            <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${pushSubscribed ? "right-1" : "left-1"}`} />
-          </button>
+          <Switch
+            aria-labelledby="push-alert-label"
+            checked={pushSubscribed}
+            onCheckedChange={(checked) => { void (checked ? subscribePush() : unsubscribePush()); }}
+            disabled={pushLoading || !pushSupported || pushPermission === "denied"}
+          />
         </div>
       )}
 

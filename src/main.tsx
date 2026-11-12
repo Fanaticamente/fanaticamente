@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { IS_PREVIEW_FRAME } from "./lib/previewMode";
+import { isAppShellWorker } from "./lib/pushRegistration";
 import "@fontsource/manrope/400.css";
 import "@fontsource/manrope/500.css";
 import "@fontsource/manrope/600.css";
@@ -17,7 +18,7 @@ if (!IS_PREVIEW_FRAME && "serviceWorker" in navigator) {
     .then((registrations) => {
       registrations.forEach((registration) => {
         const scriptUrl = registration.active?.scriptURL || registration.installing?.scriptURL || registration.waiting?.scriptURL || "";
-        if (!scriptUrl.endsWith("/sw-push.js")) registration.unregister();
+        if (isAppShellWorker(scriptUrl)) registration.unregister();
       });
     })
     .catch(() => {
@@ -30,4 +31,5 @@ if ("scrollRestoration" in window.history) {
   window.history.scrollRestoration = "manual";
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+const root = document.getElementById("root");
+if (root) createRoot(root).render(<App />);
