@@ -23,6 +23,7 @@ if (typeof window !== "undefined") {
 }
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { PushActivationPrompt } from "@/components/notifications/PushActivationPrompt";
 import LegalAcceptanceGate from "@/components/legal/LegalAcceptanceGate";
 import { RadioProvider } from "@/contexts/RadioContext";
 import { ClubThemeProvider } from "@/contexts/ClubThemeContext";
@@ -226,6 +227,7 @@ const App = () => {
               <Sonner />
               <GlobalRadioPlayer />
               <LegalAcceptanceGate />
+              <PushActivationPrompt />
               <Routes>
                 {/* Always public routes */}
                 <Route path="/auth" element={<Auth />} />
