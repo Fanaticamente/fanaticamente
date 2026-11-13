@@ -78,6 +78,13 @@
       "when": 1793395557836,
       "tag": "0010_legal_monitoring_and_scheduled_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794599785350,
+      "tag": "0011_migration",
+      "breakpoints": true
     }
   ]
 }
