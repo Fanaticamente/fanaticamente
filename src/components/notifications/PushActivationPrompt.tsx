@@ -17,7 +17,7 @@ function isStandalone() {
 export function PushActivationPrompt() {
   const { user } = useAuth();
   const { pathname } = useLocation();
-  const { isSupported, permission, isSubscribed, isLoading, subscribe } = usePushNotifications();
+  const { isSupported, permission, isSubscribed, isLoading, subscribe, isNativeApp } = usePushNotifications();
   const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export function PushActivationPrompt() {
     setDismissed(Date.now() - at < SNOOZE_MS);
   }, []);
 
-  if (!user || !isSupported || !isStandalone() || isSubscribed || isLoading || dismissed) return null;
+  if (!user || !isSupported || !(isNativeApp || isStandalone()) || isSubscribed || isLoading || dismissed) return null;
   if (permission === "denied") return null;
   if (HIDDEN_PREFIXES.some(p => pathname.startsWith(p))) return null;
 

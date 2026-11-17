@@ -85,6 +85,13 @@
       "when": 1794599785350,
       "tag": "0011_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794882682919,
+      "tag": "0012_native_push_tokens",
+      "breakpoints": true
     }
   ]
 }

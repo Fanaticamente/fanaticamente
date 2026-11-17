@@ -3,6 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { getPushRegistration, savePushSubscription } from "@/lib/pushRegistration";
 import { toast } from "sonner";
+import {
+  getNativePlatform, getRememberedNativeToken, NATIVE_TOKEN_EVENT, rememberNativeToken, requestNativeToken,
+  type NativePlatform, type NativeTokenDetail,
+} from "@/lib/nativePush";
+
+async function registerNativeToken(token: string, platform: NativePlatform) {
+  const { data, error } = await supabase.functions.invoke("register-native-push", { body: { action: "register", token, platform } });
+  if (error || !data?.persisted) throw error ?? new Error("Device not saved");
+  rememberNativeToken(token);
+}
 
 export type PushPermission = "default" | "granted" | "denied";
 
@@ -28,7 +38,31 @@ export const usePushNotifications = () => {
     });
   }, []);
 
+  const nativePlatform = getNativePlatform();
+
+  // App-store shell: alerts come from the phone's own system (Firebase), not from the browser.
   useEffect(() => {
+    if (!nativePlatform) return;
+    let cancelled = false;
+    setIsSupported(true);
+    if (!user) { setIsSubscribed(false); return; }
+    const handle = async (detail: NativeTokenDetail) => {
+      if (detail.error === "denied") { if (!cancelled) { setPermission("denied"); setIsSubscribed(false); } return; }
+      if (!detail.token) return;
+      await registerNativeToken(detail.token, detail.platform ?? nativePlatform);
+      if (!cancelled) { setPermission("granted"); setIsSubscribed(true); }
+    };
+    // Token refreshes pushed by the shell at any time.
+    const onEvent = (e: Event) => { void handle(((e as CustomEvent).detail ?? {}) as NativeTokenDetail).catch(() => {}); };
+    window.addEventListener(NATIVE_TOKEN_EVENT, onEvent);
+    setIsLoading(true);
+    void requestNativeToken("getToken", 8000).then(handle).catch(() => {})
+      .finally(() => { if (!cancelled) setIsLoading(false); });
+    return () => { cancelled = true; window.removeEventListener(NATIVE_TOKEN_EVENT, onEvent); };
+  }, [user?.id, nativePlatform]);
+
+  useEffect(() => {
+    if (nativePlatform) return;
     let cancelled = false;
     const supported = window.self === window.top && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
     setIsSupported(supported);
@@ -49,9 +83,32 @@ export const usePushNotifications = () => {
       if (!cancelled) setIsSubscribed(false);
     }).finally(() => { if (!cancelled) setIsLoading(false); });
     return () => { cancelled = true; };
-  }, [user?.id, persist]);
+  }, [user?.id, persist, nativePlatform]);
 
   const subscribe = async (): Promise<boolean> => {
+    if (nativePlatform) {
+      setIsLoading(true);
+      try {
+        const detail = await requestNativeToken("requestPermission");
+        if (detail.error === "denied") {
+          setPermission("denied");
+          toast.error("Permita as notificações do Fanaticamente nos Ajustes do celular.");
+          return false;
+        }
+        if (!detail.token) {
+          toast.error("Atualize o aplicativo pela loja para ativar os alertas.");
+          return false;
+        }
+        await registerNativeToken(detail.token, detail.platform ?? nativePlatform);
+        setPermission("granted");
+        setIsSubscribed(true);
+        toast.success("Notificações ativadas!");
+        return true;
+      } catch {
+        toast.error("Não foi possível ativar os alertas. Tente novamente.");
+        return false;
+      } finally { setIsLoading(false); }
+    }
     if (!isSupported) { toast.error("Abra o aplicativo instalado ou em uma aba própria para ativar as notificações."); return false; }
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     const standalone = matchMedia("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
@@ -91,6 +148,16 @@ export const usePushNotifications = () => {
   const unsubscribe = async (): Promise<boolean> => {
     setIsLoading(true);
     try {
+      if (nativePlatform) {
+        const token = getRememberedNativeToken();
+        if (token) {
+          const { error } = await supabase.functions.invoke("register-native-push", { body: { action: "unregister", token } });
+          if (error) throw error;
+        }
+        setIsSubscribed(false);
+        toast.success("Notificações desativadas.");
+        return true;
+      }
       const registration = await getPushRegistration();
       const subscription = await registration.pushManager.getSubscription();
       if (subscription) {
@@ -105,5 +172,5 @@ export const usePushNotifications = () => {
     finally { setIsLoading(false); }
   };
 
-  return { isSupported, permission, isSubscribed, isLoading, subscribe, unsubscribe };
+  return { isSupported, permission, isSubscribed, isLoading, subscribe, unsubscribe, isNativeApp: !!nativePlatform };
 };

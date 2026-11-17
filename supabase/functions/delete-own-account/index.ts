@@ -77,6 +77,7 @@ Deno.serve(async (req) => {
     await safe("match_expectations", supabaseAdmin.from("match_expectations").delete().eq("user_id", userId));
     await safe("user_notifications", supabaseAdmin.from("user_notifications").delete().eq("user_id", userId));
     await safe("push_subscriptions", supabaseAdmin.from("push_subscriptions").delete().eq("user_id", userId));
+    await safe("native_push_tokens", supabaseAdmin.from("native_push_tokens").delete().eq("user_id", userId));
     await safe("user_lesson_progress", supabaseAdmin.from("user_lesson_progress").delete().eq("user_id", userId));
     await safe("user_activity_completion", supabaseAdmin.from("user_activity_completion").delete().eq("user_id", userId));
     await safe("user_course_access", supabaseAdmin.from("user_course_access").delete().eq("user_id", userId));

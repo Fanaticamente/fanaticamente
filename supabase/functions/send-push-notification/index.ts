@@ -1,5 +1,6 @@
 import { legalGate } from "../_shared/legalGate.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { sendFcm } from "../_shared/fcm.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -111,7 +112,8 @@ Deno.serve(async (req) => {
       const { data: subs } = await supabaseAdmin
         .from("push_subscriptions")
         .select("user_id");
-      const uniqueIds = [...new Set((subs || []).map((s: { user_id: string }) => s.user_id))];
+      const { data: nativeSubs } = await supabaseAdmin.from("native_push_tokens").select("user_id");
+      const uniqueIds = [...new Set([...(subs || []), ...(nativeSubs || [])].map((s: { user_id: string }) => s.user_id))];
       targetUserIds = uniqueIds;
     }
 
@@ -210,6 +212,29 @@ Deno.serve(async (req) => {
       pushFailed = totalDevices;
     }
 
+    // ── Send PUSH to app-store devices (iOS/Android) via Firebase ──────
+    let nativeSent = 0;
+    let nativeFailed = 0;
+    let nativeQuery = supabaseAdmin.from("native_push_tokens").select("id, token");
+    if (targetUserIds.length > 0) nativeQuery = nativeQuery.in("user_id", targetUserIds.slice(0, 1000));
+    const { data: nativeTokens } = targetUserIds.length > 0 ? await nativeQuery : { data: [] };
+    const nativeDevices = nativeTokens?.length ?? 0;
+    const fcmData = { url: String(link || "/"), type: String(type) };
+    for (let i = 0; i < nativeDevices; i += 10) {
+      const batch = nativeTokens!.slice(i, i + 10);
+      const results = await Promise.all(batch.map((t: { token: string }) => sendFcm(t.token, title, message, fcmData)));
+      for (let j = 0; j < results.length; j++) {
+        const r = results[j];
+        if (r.ok) { nativeSent++; continue; }
+        nativeFailed++;
+        if (r.stale) await supabaseAdmin.from("native_push_tokens").delete().eq("id", batch[j].id);
+        else await supabaseAdmin.from("native_push_tokens").update({ last_error: `${r.status}: ${r.detail.slice(0, 200)}` }).eq("id", batch[j].id);
+      }
+    }
+    console.log(`App-store push: sent=${nativeSent}, failed=${nativeFailed}, devices=${nativeDevices}`);
+    pushSent += nativeSent;
+    pushFailed += nativeFailed;
+
     // ── Log notification ───────────────────────────────────────────────
     supabaseAdmin.from("notification_logs").insert({
       title,
@@ -230,6 +255,8 @@ Deno.serve(async (req) => {
         push_sent: pushSent,
         push_failed: pushFailed,
         pwa_subscribers: totalDevices,
+        native_devices: nativeDevices,
+        native_sent: nativeSent,
         in_app_sent: inAppSent,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

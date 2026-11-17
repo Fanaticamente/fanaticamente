@@ -56,6 +56,7 @@ interface SendResult {
   push_sent: number;
   push_failed: number;
   pwa_subscribers: number;
+  native_devices?: number;
   vapid_configured: boolean;
 }
 
@@ -211,7 +212,7 @@ const SendTab = () => {
       if (data.error) throw new Error(data.error);
       
       setLastResult(data);
-      toast.success(`Push enviado para ${data.push_sent ?? 0} dispositivo(s) PWA!`);
+      toast.success(`Push enviado para ${data.push_sent ?? 0} celular(es)!`);
 
       // Log the send (non-blocking - don't fail if log fails)
       try {
@@ -549,11 +550,11 @@ const SendTab = () => {
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-card/50 rounded-lg p-3 text-center">
                 <p className="text-2xl font-bold text-card-foreground">{lastResult.push_sent}</p>
-                <p className="text-[10px] text-muted-foreground">Push PWA enviados</p>
+                <p className="text-[10px] text-muted-foreground">Push enviados</p>
               </div>
               <div className="bg-card/50 rounded-lg p-3 text-center">
-                <p className="text-2xl font-bold text-card-foreground">{lastResult.pwa_subscribers}</p>
-                <p className="text-[10px] text-muted-foreground">Dispositivos PWA</p>
+                <p className="text-2xl font-bold text-card-foreground">{(lastResult.pwa_subscribers ?? 0) + (lastResult.native_devices ?? 0)}</p>
+                <p className="text-[10px] text-muted-foreground">Celulares com alertas</p>
               </div>
               {lastResult.push_failed > 0 && (
                 <div className="col-span-2 bg-card/50 rounded-lg p-3 text-center">
