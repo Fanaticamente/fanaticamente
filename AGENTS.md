@@ -1,6 +1,6 @@
 # Project Architecture
 
-- Background notifications use the dedicated messaging registration and require confirmed server persistence before showing enabled; app-shell cleanup must never unregister messaging workers, so manager visits do not disable delivery.
+- Background notifications: browsers use the dedicated messaging worker; app-store builds (WebView shells) use FCM tokens delivered through the `fanatica:push-token` bridge in `src/lib/nativePush.ts`, saved server-side by register-native-push and sent by send-push-notification. Show enabled only after server persistence; app-shell cleanup must never unregister messaging workers.
 
 - Professional marketplace visibility and record lifecycle use separate `marketplace_visible` and `deleted_at` fields so administrators can hide or archive profiles without losing internal data.
 - Use Manrope for interface text and Sora for headings across all four systems; keep newspaper article copy in Georgia, and keep the shared small-text scale readable across responsive cards.

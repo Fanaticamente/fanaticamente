@@ -3,6 +3,8 @@
 # Notificações com o aplicativo fechado
 
 - [x] Corrigir ativação real, confirmação do registro e preservação do serviço de notificações; função atualizada implantada.
+- [x] Alertas no app das lojas (iPhone/Android) via Firebase: servidor, registro do celular e envio prontos.
+- [ ] Aplicar no app nativo (Codex) as instruções de notificações e publicar nova versão nas lojas — depende do usuário.
 - [x] Quatro testes aprovados; tela autenticada mantém alertas desativados quando a permissão é negada, configuração real consultada com sucesso; build OK.
 - [ ] Confirmar recebimento no iPhone fechado: exige publicar a atualização, ativar pelo ícone e realizar novo envio no aparelho do usuário.
 
